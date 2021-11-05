@@ -3,7 +3,7 @@
     "secretKey": "secretKey",
     "log": {
         "format": "combined",
-        "dir": "../logs"
+        "dir": "../../logs"
     },
     "cors": {
         "origin": "your.domain.com",
