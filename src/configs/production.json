@@ -2,9 +2,9 @@
     "env": "production",
     "dbConfig": {
         "host": "localhost",
-        "user": "root",
-        "password": "password",
-        "database": "sequelize",
+        "user": "user",
+        "password": "user",
+        "database": "mydb",
         "pool": {
             "min": 0,
             "max": 5
@@ -13,7 +13,7 @@
     "secretKey": "secretKey",
     "log": {
         "format": "combined",
-        "dir": "../logs"
+        "dir": "../../logs"
     },
     "cors": {
         "origin": "your.domain.com",
