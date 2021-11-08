@@ -4,7 +4,7 @@ export interface TenancyMember {
     "user": string
     "userId": string
     "tenancyId": number,
-    "isActivated": true,
+    "isActivated": boolean,
     "isSelected": boolean,
     "isDeleted": boolean,
     "tenancyLastAccess": Date,

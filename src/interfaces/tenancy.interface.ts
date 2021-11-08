@@ -3,8 +3,8 @@ export interface Tenancy {
     "id": number,
     "prdCode": string
     "tenancyCode": string
-    "tenancyName": number,
-    "tenancyDescription": true,
+    "tenancyName": string,
+    "tenancyDescription": string,
     "createdAt": Date,
     "updatedAt": Date
 
