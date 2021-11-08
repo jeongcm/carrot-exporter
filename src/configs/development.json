@@ -1,9 +1,20 @@
 {
     "env": "development",
+    "dbConfig": {
+        "host": "localhost",
+        "user": "user",
+        "password": "user",
+
+        "database": "mydb",
+        "pool": {
+            "min": 0,
+            "max": 5
+        }
+    },
     "secretKey": "secretKey",
     "log": {
         "format": "dev",
-        "dir": "../../logs"
+        "dir": "../logs"
     },
     "cors": {
         "origin": true,
