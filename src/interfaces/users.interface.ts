@@ -1,7 +1,7 @@
 export interface User {
-
   "id": number,
   "email": string,
+  "password": string,
   "name": string,
   "firstName": string,
   "lastName": string,
@@ -10,5 +10,4 @@ export interface User {
   "lastAccess": Date
   "createdAt": Date,
   "updatedAt": Date,
-
 }
