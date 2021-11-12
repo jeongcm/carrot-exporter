@@ -9,12 +9,10 @@ class AuthController {
 
   public signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log("userData========================", req.body)
       const userData: CreateUserDto = req.body;
       const signUpUserData: User = await this.authService.signup(userData);
       res.status(201).json({ data: signUpUserData, message: 'signup' });
     } catch (error) {
-      console.log("err");
       next(error);
     }
   };
