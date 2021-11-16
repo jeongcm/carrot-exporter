@@ -9,14 +9,16 @@ class UserService {
   public users = DB.Users;
 
   public async findAllUser(): Promise<User[]> {
-    const allUser: User[] = await this.users.findAll();
+    const allUser: User[] = await this.users.findAll({
+      attributes: { exclude: ['password'] }
+    });
     return allUser;
   }
 
-  public async findUserById(userId: number): Promise<User> {
+  public async findUserById(userId: string): Promise<User> {
     if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
 
-    const findUser: User = await this.users.findByPk(userId);
+    const findUser: User = await this.users.findByPk(userId, { attributes: { exclude: ['password'] }});
     if (!findUser) throw new HttpException(409, "You're not user");
 
     return findUser;
@@ -29,7 +31,7 @@ class UserService {
     if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const createUserData: User = await this.users.create({ ...userData, password: hashedPassword });
+    const createUserData: User = await this.users.create({...userData, password: hashedPassword });
     return createUserData;
   }
 

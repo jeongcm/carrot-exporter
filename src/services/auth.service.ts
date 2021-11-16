@@ -30,7 +30,7 @@ class AuthService {
     let currentDate = new Date();
     let user = {
       email: userData.loginId,
-      name: userData.name,
+      username: userData.username,
       password: hashedPassword,
       firstName: null,
       lastName: null,
@@ -71,7 +71,7 @@ class AuthService {
     ) as JwtPayload;
 
     if (isEmpty(payload.id)) throw new HttpException(400, "You're not valid user");
-    const findUser: User = await this.users.findByPk(payload.id);
+    const findUser: User = await this.users.findByPk(payload.id, { attributes: { exclude: ['password'] }});
     if (!findUser) throw new HttpException(409, "You're not user");
     return findUser;
   }
