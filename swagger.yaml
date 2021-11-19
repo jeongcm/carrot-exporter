@@ -1,3 +1,13 @@
+swagger: "2.0"
+info:
+  description: "This is nodejs portal nexclipper api."
+  version: "1.0.0"
+  title: "Swagger nexclipper"
+  termsOfService: "http://swagger.io/terms/"
+  contact:
+    email: "apiteam@swagger.io"
+host: "nexclipper.com"
+basePath: "/"
 tags:
 - name: users
   description: users API
@@ -12,10 +22,13 @@ paths:
       responses:
         200:
           description: 'OK'
+          schema:
+            $ref: '#/definitions/getAllUsers'
         500:
           description: 'Server Error'
 
 # [POST] users
+  /users/singup:
     post:
       tags:
       - users
@@ -50,8 +63,10 @@ paths:
         required: true
         type: integer
       responses:
-        200:
+        '200':
           description: 'OK'
+          schema:
+            $ref: '#/definitions/getUsers'
         409:
           description: 'Conflict'
         500:
@@ -110,16 +125,106 @@ definitions:
     required:
         - email
         - password
+        - name
+        - firstName
+        - lastName
+        - mobile
+        - photo
     properties:
-      id:
-        type: integer
-        description: user Id
       email:
         type: string
         description: user Email
+        example: shrishti.test@gmail.com
       password:
         type: string
         description: user Password
+        example: admin
+      username:
+        type: string
+        description: username
+        example: Shrishti
+      firstName:
+        type: string
+        description: user firstName
+        example: Shrishti
+      lastName:
+        type: string
+        description: user lastname
+        example: Raj
+      mobile:
+        type: string
+        description: user mobile number
+        example: 732947349
+      photo:
+        type: string
+        description: user profile photo
+        example: image1
+  getUsers:
+    type: object
+    required:
+        - id
+    properties:
+      id:
+        type: string
+        description: user uuid
+        example: f9e28e11-08f1-4a35-b6c4-330531e36fd3
+      email:
+        type: string
+        description: user Email
+        example: shrishti.test@gmail.com
+      username:
+        type: string
+        description: username
+        example: Shrishti
+      firstName:
+        type: string
+        description: user firstName
+        example: Shrishti
+      lastName:
+        type: string
+        description: user lastname
+        example: Raj
+      mobile:
+        type: string
+        description: user mobile number
+        example: 732947349
+      photo:
+        type: string
+        description: user profile photo
+        example: image1
+  getAllUsers:
+    type: array
+    items: 
+      type: object
+      properties:
+            id:
+              type: string
+              description: user uuid
+              example: f9e28e11-08f1-4a35-b6c4-330531e36fd3
+            email:
+              type: string
+              description: user Email
+              example: shrishti.test@gmail.com
+            username:
+              type: string
+              description: username
+              example: Shrishti
+            firstName:
+              type: string
+              description: user firstName
+              example: Shrishti
+            lastName:
+              type: string
+              description: user lastname
+              example: Raj
+            mobile:
+              type: string
+              description: user mobile number
+              example: 732947349
+            photo:
+              type: string
+              description: user profile photo
+              example: image1
 
 schemes:
  - https
