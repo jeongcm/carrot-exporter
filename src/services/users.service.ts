@@ -30,8 +30,7 @@ class UserService {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await this.users.findOne({ where: { email: userData.loginId } });
-    if (findUser) throw new HttpException(409, `You're email ${userData.loginId} already existsssss`);
-    // if (findUser) throw new BadRequestError(`You're email ${userData.loginId} already exists`);
+    if (findUser) throw new HttpException(409, `You're email ${userData.loginId} already exist`);
 
     const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
     const createUserData: User = await this.users.create({
