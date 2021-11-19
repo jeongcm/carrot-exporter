@@ -11,3 +11,10 @@ export interface User {
   "createdAt": Date,
   "updatedAt": Date,
 }
+
+
+export interface NewUser {
+  "email": string,
+  "password": string,
+  "username": string,
+}

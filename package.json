@@ -6,7 +6,7 @@
   "license": "ISC",
   "scripts": {
     "start": "npm run build && cross-env NODE_ENV=production node dist/server.js",
-    "dev": "cross-env NODE_ENV=development nodemon",
+    "dev": "cross-env NODE_ENV=development nodemon server.js",
     "build": "tsc && npx tsc-alias",
     "test": "jest --forceExit --detectOpenHandles",
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
@@ -40,7 +40,6 @@
     "swagger-ui-express": "^4.1.6",
     "ts-jest": "^27.0.3",
     "ts-node": "^10.0.0",
-    "typescript": "^4.3.5",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.5"
   },
@@ -76,6 +75,7 @@
     "prettier": "^2.3.2",
     "sequelize-cli": "^6.2.0",
     "supertest": "^6.1.3",
-    "tsconfig-paths": "^3.10.1"
+    "tsconfig-paths": "^3.10.1",
+    "typescript": "^4.6.0-dev.20211118"
   }
 }

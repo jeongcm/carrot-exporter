@@ -1,7 +1,9 @@
 import bcrypt from 'bcrypt';
-import DB from '@databases';
+import DB from 'databases';
 import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
+import { NotAuthorizedError } from '@exceptions/notAuthorizedError';
+import { BadRequestError } from '@exceptions/badRequestError';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
 
@@ -10,7 +12,7 @@ class UserService {
 
   public async findAllUser(): Promise<User[]> {
     const allUser: User[] = await this.users.findAll({
-      attributes: { exclude: ['password'] }
+      attributes: { exclude: ['password'] },
     });
     return allUser;
   }
@@ -18,7 +20,7 @@ class UserService {
   public async findUserById(userId: string): Promise<User> {
     if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
 
-    const findUser: User = await this.users.findByPk(userId, { attributes: { exclude: ['password'] }});
+    const findUser: User = await this.users.findByPk(userId, { attributes: { exclude: ['password'] } });
     if (!findUser) throw new HttpException(409, "You're not user");
 
     return findUser;
@@ -27,11 +29,15 @@ class UserService {
   public async createUser(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await this.users.findOne({ where: { email: userData.email } });
-    if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
+    const findUser: User = await this.users.findOne({ where: { email: userData.loginId } });
+    if (findUser) throw new HttpException(409, `You're email ${userData.loginId} already existsssss`);
+    // if (findUser) throw new BadRequestError(`You're email ${userData.loginId} already exists`);
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const createUserData: User = await this.users.create({...userData, password: hashedPassword });
+    const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
+    const createUserData: User = await this.users.create({
+      ...userData,
+      password: hashedPassword,
+    });
     return createUserData;
   }
 
@@ -41,7 +47,7 @@ class UserService {
     const findUser: User = await this.users.findByPk(userId);
     if (!findUser) throw new HttpException(409, "You're not user");
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
     await this.users.update({ ...userData, password: hashedPassword }, { where: { id: userId } });
 
     const updateUser: User = await this.users.findByPk(userId);
