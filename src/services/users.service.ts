@@ -27,10 +27,10 @@ class UserService {
   public async createUser(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await this.users.findOne({ where: { email: userData.email } });
-    if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
+    const findUser: User = await this.users.findOne({ where: { email: userData.loginId } });
+    if (findUser) throw new HttpException(409, `You're email ${userData.loginId} already exists`);
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
     const createUserData: User = await this.users.create({...userData, password: hashedPassword });
     return createUserData;
   }
@@ -41,7 +41,7 @@ class UserService {
     const findUser: User = await this.users.findByPk(userId);
     if (!findUser) throw new HttpException(409, "You're not user");
 
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const hashedPassword = await bcrypt.hash(userData.loginId, 10);
     await this.users.update({ ...userData, password: hashedPassword }, { where: { id: userId } });
 
     const updateUser: User = await this.users.findByPk(userId);
