@@ -8,6 +8,7 @@ import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
 import { RequestWithUser } from '@interfaces/auth.interface';
+import { nextTick } from 'process';
 
 
 interface CurrentUser {
@@ -71,7 +72,7 @@ class AuthService {
     ) as JwtPayload;
 
     if (isEmpty(payload.id)) throw new HttpException(400, "You're not valid user");
-    const findUser: User = await this.users.findByPk(payload.id, { attributes: { exclude: ['password'] }});
+    const findUser: User = await this.users.findByPk(payload.id, { attributes: { exclude: ['password'] } });
     if (!findUser) throw new HttpException(409, "You're not user");
     return findUser;
   }
@@ -86,6 +87,32 @@ class AuthService {
 
   public createCookie(tokenData: TokenData): string {
     return `X-AUTHORIZATION=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
+  }
+
+  public async authenticate(req: RequestWithUser, res, next): Promise<any> {
+
+    console.log("authenticate")
+    let currentCookie = req.cookies["X-AUTHORIZATION"];
+    if (currentCookie) {
+      const secretKey: string = config.get('secretKey');
+      console.log(secretKey)
+      const payload = jwt.verify(
+        currentCookie,
+        secretKey
+      ) as JwtPayload
+      if (isEmpty(payload.id)) res.status(400).json({ message: 'UnAuthorized' });
+      if (req.path == '/users/tenancies' && req.method == "POST") {
+        req.body["createdBy"] = payload.id;
+        req.body["updatedBy"] = payload.id;
+      } else {
+        if (req.body) {
+          req.body["updatedBy"] = payload.id;
+        }
+      }
+    } else {
+      return res.status(400).json({ message: 'UnAuthorized' });
+    }
+    next();
   }
 
 
