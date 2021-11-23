@@ -4,6 +4,7 @@ import { dbConfig } from '@interfaces/db.interface';
 import UserModel from '@models/users.model';
 import AccessGroupModel from '@models/accessGroup.model';
 import { logger } from '@utils/logger';
+import  TenancyModel  from '@/models/tenancy.model';
 
 const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
 const sequelize = new Sequelize.Sequelize(database, user, password, {
@@ -32,6 +33,7 @@ sequelize.authenticate();
 const DB = {
   Users: UserModel(sequelize),
   AccessGroup: AccessGroupModel(sequelize),
+  Tenancies:TenancyModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };
