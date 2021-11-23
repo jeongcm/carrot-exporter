@@ -11,7 +11,19 @@ class AuthController {
     try {
       const userData: CreateUserDto = req.body;
       const signUpUserData: User = await this.authService.signup(userData);
-      res.status(201).json({ data: signUpUserData, message: 'signup' });
+      let createdData = {
+        id: signUpUserData.id,
+        email: signUpUserData.email,
+        username: signUpUserData.username,
+        firstName: signUpUserData.firstName,
+        lastName: signUpUserData.lastName,
+        mobile: signUpUserData.mobile,
+        photo: signUpUserData.photo,
+        lastAccess: signUpUserData.lastAccess,
+        updatedAt: signUpUserData.updatedAt,
+        createdAt: signUpUserData.createdAt,
+      };
+      res.status(201).json({ data: createdData, message: 'signup' });
     } catch (error) {
       next(error);
     }
@@ -31,15 +43,14 @@ class AuthController {
   public logOut = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       res.setHeader('set-cookie', ['X-AUTHORIZATION=; Max-age=0']);
-      res.status(200).send({  message: 'logged out successfully' });
+      res.status(200).send({ message: 'logged out successfully' });
     } catch (error) {
       next(error);
     }
   };
 
-
   public info = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    try {     
+    try {
       const logOutUserData: User = await this.authService.info(req);
       res.status(200).json({ data: logOutUserData, message: 'me' });
     } catch (error) {
@@ -47,7 +58,5 @@ class AuthController {
     }
   };
 }
-
-
 
 export default AuthController;
