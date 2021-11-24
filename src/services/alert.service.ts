@@ -7,9 +7,14 @@ import { isEmpty } from '@utils/util';
 class AlertService {
   public alert = DB.Alerts;
 
-  public async findAllAlerts(): Promise<IAlert[]> {
+  public async getAllAlerts(): Promise<IAlert[]> {
     const allAlerts: IAlert[] = await this.alert.findAll({});
     return allAlerts;
+  }
+
+  public async getAlertById(id: number): Promise<IAlert> {
+    const alert: IAlert = await this.alert.findOne({ where: { id } });
+    return alert;
   }
 
   public async createAlert(alertData: CreateAlertDto): Promise<IAlert> {

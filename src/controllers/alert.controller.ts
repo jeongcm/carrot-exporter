@@ -8,8 +8,19 @@ class AlertController {
 
   public getAlerts = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const findAllAlertsData: IAlert[] = await this.alertService.findAllAlerts();
-      res.status(200).json({ data: findAllAlertsData, message: 'findAll' });
+      const allAlerts: IAlert[] = await this.alertService.getAllAlerts();
+      res.status(200).json({ data: allAlerts, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAlert = async (req: Request, res: Response, next: NextFunction) => {
+    const id = parseInt(req.params.id);
+
+    try {
+      const alert: IAlert = await this.alertService.getAlertById(id);
+      res.status(200).json({ data: alert, message: `find alert id(${id}) ` });
     } catch (error) {
       next(error);
     }
