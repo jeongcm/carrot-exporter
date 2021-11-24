@@ -81,13 +81,11 @@ class AuthService {
     return `X-AUTHORIZATION=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
   }
 
-  public async authenticate(req: RequestWithUser, res, next): Promise<any> {
 
-    console.log("authenticate")
+  public async authenticate(req: RequestWithUser, res, next): Promise<any> {
     let currentCookie = req.cookies["X-AUTHORIZATION"];
     if (currentCookie) {
       const secretKey: string = config.get('secretKey');
-      console.log(secretKey)
       const payload = jwt.verify(
         currentCookie,
         secretKey

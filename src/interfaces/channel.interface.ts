@@ -37,3 +37,7 @@ export interface ISlackChannel {
   apiUrl: string;
   slackChannelName: string;
 }
+
+export interface Channel {
+  
+}

@@ -1,9 +1,9 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { AccessGroup } from '@interfaces/accessGroup.interface';
 
-export type UserCreationAttributes = Optional<AccessGroup, 'id' | 'groupName' | 'description' | 'icon' | 'createdAt' | 'updatedAt'>;
+export type AccessGroupCreationAttributes = Optional<AccessGroup, 'id' | 'groupName' | 'description' | 'icon' | 'createdAt' | 'updatedAt'>;
 
-export class AccessGroupModel extends Model<AccessGroup, UserCreationAttributes> implements AccessGroup {
+export class AccessGroupModel extends Model<AccessGroup, AccessGroupCreationAttributes> implements AccessGroup {
   public id: string;
   public groupName: string;
   public description: string;

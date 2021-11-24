@@ -1,19 +1,21 @@
 import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
 
-export class CreateTenancyDto {
+export class CreateClusterDto {
   @IsString()
-  public tenancyCode: string;
+  @IsNotEmpty()
+  public name: string;
 
   @IsString()
-  public tenancyName: string;
+  @IsNotEmpty()
+  public description: string;
 
-  @IsString()
-  @IsOptional()
-  public tenancyDescription: string;
+  @IsAlpha()
+  @IsNotEmpty()
+  public icon: string;
 
-  @IsString()
-  @IsOptional()
-  public tenancyLastAccess: string;
+  @IsAlpha()
+  @IsNotEmpty()
+  public platform: string;
 
   @IsString()
   @IsOptional()
@@ -30,8 +32,9 @@ export class CreateTenancyDto {
   @IsString()
   @IsOptional()
   public updatedBy: string;
-  
+
   @IsString()
   @IsOptional()
   public isDeleted: boolean;
+
 }
