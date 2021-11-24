@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
 import AlertController from '@/controllers/alert.controller';
+import validationMiddleware from '@middlewares/validation.middleware';
+import { CreateAlertDto } from '@dtos/alert.dto';
 
 class AlertRoute implements Routes {
   public path = '/alerts';
@@ -13,6 +15,7 @@ class AlertRoute implements Routes {
 
   private initializeRoutes() {
     this.router.get(`${this.path}`, this.alertController.getAlerts);
+    this.router.post(`${this.path}`, validationMiddleware(CreateAlertDto, 'body'), this.alertController.createAlert);
   }
 }
 

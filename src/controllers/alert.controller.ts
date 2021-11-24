@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { IAlert } from '@/interfaces/alert.interface';
 import AlertService from '@/services/alert.service';
+import { CreateAlertDto } from '@dtos/alert.dto';
 
 class AlertController {
   public alertService = new AlertService();
@@ -13,27 +14,16 @@ class AlertController {
       next(error);
     }
   };
+
+  public createAlert = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const alertData: CreateAlertDto = req.body;
+      const createAlertData: IAlert = await this.alertService.createAlert(alertData);
+      res.status(201).json({ data: createAlertData, message: 'created' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AlertController;
-
-// let alerts = [
-//   {
-//     alertName: 'sample alert',
-//     from: 'LARI',
-//     id: 1,
-//     incidentId: [1],
-//     lastUpdatedAt: new Date().toString(),
-//     recipients: [
-//       {
-//         id: 3,
-//         name: 'bear',
-//       },
-//     ],
-//     severity: 'information',
-//     source: '1.0.0.7',
-//     startAt: new Date().toString(),
-//     status: 'OPEN',
-//     summary: 'eclipse',
-//   },
-// ];
