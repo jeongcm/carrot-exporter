@@ -8,7 +8,7 @@ class AlertService {
   public alert = DB.Alerts;
 
   public async getAllAlerts(): Promise<IAlert[]> {
-    const allAlerts: IAlert[] = await this.alert.findAll({});
+    const allAlerts: IAlert[] = await this.alert.findAll({ order: [['createdAt', 'DESC']] });
     return allAlerts;
   }
 
