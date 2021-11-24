@@ -23,6 +23,11 @@ class AlertService {
     const createAlertData: IAlert = await this.alert.create(alertData);
     return createAlertData;
   }
+
+  public async deleteAlertById(id: number): Promise<void> {
+    const alert: void = await this.alert.findByPk(id).then(alert => alert.destroy());
+    return alert;
+  }
 }
 
 export default AlertService;

@@ -35,6 +35,22 @@ class AlertController {
       next(error);
     }
   };
+
+  public deleteAlert = async (req: Request, res: Response, next: NextFunction) => {
+    const id = parseInt(req.params.id);
+    const alert = await this.alertService.getAlertById(id);
+
+    if (!alert) {
+      return res.sendStatus(404);
+    }
+
+    try {
+      await this.alertService.deleteAlertById(id);
+      res.status(204).json({ message: `delete alert id(${id})` });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AlertController;
