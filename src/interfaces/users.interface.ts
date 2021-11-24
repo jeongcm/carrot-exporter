@@ -17,3 +17,10 @@ export interface NewUser {
   password: string;
   username: string;
 }
+
+
+export interface CurrentUser {
+  id: string;
+  iat: number;
+  exp: number
+}

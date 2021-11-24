@@ -95,9 +95,9 @@ class AuthService {
         req.body["createdBy"] = payload.id;
         req.body["updatedBy"] = payload.id;
       } else {
-        if (req.body) {
-          req.body["updatedBy"] = payload.id;
-        }
+        // if (req.body) {
+        //   req.body["currentUserId"] = payload.id;
+        // }
       }
     } else {
       return res.status(400).json({ message: 'UnAuthorized' });

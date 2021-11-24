@@ -4,6 +4,7 @@ import { dbConfig } from '@interfaces/db.interface';
 import UserModel from '@models/users.model';
 import AccessGroupModel from '@models/accessGroup.model';
 import ClusterModel from '@models/cluster.model';
+import ChannelModel from '@models/channel.model';
 import { logger } from '@utils/logger';
 import TenancyModel from '@/models/tenancy.model';
 
@@ -36,6 +37,7 @@ const DB = {
   AccessGroup: AccessGroupModel(sequelize),
   Tenancies: TenancyModel(sequelize),
   Clusters: ClusterModel(sequelize),
+  Channel: ChannelModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };

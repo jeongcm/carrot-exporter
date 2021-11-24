@@ -4,6 +4,7 @@ import { HttpException } from '@exceptions/HttpException';
 import { IClusterAdd as Cluster } from '@interfaces/cluster.interface';
 import { isEmpty } from '@utils/util';
 import { Platform } from '../enums';
+
 class ClusterService {
   public clusters = DB.Clusters;
 
@@ -43,7 +44,8 @@ class ClusterService {
     if (!findCluster) throw new HttpException(409, "Cluster doesn't exist");
     let updatingCluster = {
       ...clusterData,
-      platform: <Platform> clusterData.platform
+      platform: <Platform> clusterData.platform,
+      updatedAt: new Date()
     }
     await this.clusters.update({...updatingCluster}, { where: { id: clusterId } });
     const updateUser: Cluster = await this.clusters.findByPk(clusterId);

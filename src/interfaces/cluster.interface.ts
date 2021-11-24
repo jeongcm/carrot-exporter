@@ -1,6 +1,6 @@
 import { ClusterP8sService, IClusterService } from './clusterService.interface';
 
-import { Platform } from './../enums';
+import { Platform } from '@/enums';
 
 export interface ICluster {
   agentStatus: string;
