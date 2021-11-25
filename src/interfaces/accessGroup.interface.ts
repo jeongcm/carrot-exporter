@@ -5,4 +5,6 @@ export interface AccessGroup {
   icon: string;
   createdAt: Date;
   updatedAt: Date;
+  createdBy: string;
+  updatedBy: string;
 }

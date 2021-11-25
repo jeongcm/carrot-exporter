@@ -1,5 +1,7 @@
 import { ClusterP8sService, IClusterService } from './clusterService.interface';
 
+import { Platform } from '@/enums';
+
 export interface ICluster {
   agentStatus: string;
   clusterType: 'DEFAULT_INSTALL' | 'GLOBAL_CHILD' | 'GLOBAL_PRIMARY' | 'GLOBAL_SECONDARY' | 'NONE';
@@ -23,7 +25,7 @@ export interface ICluster {
   installCommand: string;
   name: string;
   objectId: number;
-  platform: 'AWS' | 'baremetal' | 'kubernetes';
+  platform: Platform;
   primaryAgentKey: string;
   provider: string;
   tags: string;
@@ -33,15 +35,17 @@ export interface ICluster {
 }
 
 export interface IClusterAdd {
+  id: string;
   description: string;
   global: boolean;
   icon: string;
   installParams: string;
   name: string;
-  objectId: number;
-  platform: 'AWS' | 'baremetal' | 'kubernetes';
+  // objectId: number;
+  platform: Platform;
   tags: string;
-  tenancyId: number;
+  tenancyId: string;
+  isDeleted: boolean;
 }
 
 export interface IClusterDetail {
@@ -74,7 +78,7 @@ export interface IClusterDetail {
   nodeCount: number;
   objectId: number;
   p8sStatus: string;
-  platform: 'AWS' | 'baremetal' | 'kubernetes';
+  platform: Platform;
   primaryAgentKey: string;
   provider: string;
   size: number;

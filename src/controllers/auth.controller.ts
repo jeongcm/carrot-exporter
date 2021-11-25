@@ -33,8 +33,20 @@ class AuthController {
     try {
       const userData: CreateUserDto = req.body;
       const { cookie, findUser } = await this.authService.login(userData);
+      let loggedInUser = {
+        id: findUser.id,
+        email: findUser.email,
+        username: findUser.username,
+        firstName: findUser.firstName,
+        lastName: findUser.lastName,
+        mobile: findUser.mobile,
+        photo: findUser.photo,
+        lastAccess: findUser.lastAccess,
+        updatedAt: findUser.updatedAt,
+        createdAt: findUser.createdAt,
+      };
       res.setHeader('Set-Cookie', [cookie]);
-      res.status(200).json({ data: findUser, message: 'login' });
+      res.status(200).json({ data: loggedInUser, message: 'login' });
     } catch (error) {
       next(error);
     }

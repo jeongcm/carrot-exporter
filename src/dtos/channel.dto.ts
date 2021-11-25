@@ -1,9 +1,13 @@
 import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
 
-export class CreateAccessGroupDto {
+export class CreateChannelDto {
   @IsString()
   @IsNotEmpty()
-  public groupName: string;
+  public channelType: string;
+  
+  @IsString()
+  @IsNotEmpty()
+  public name: string;
 
   @IsString()
   @IsNotEmpty()
@@ -11,7 +15,15 @@ export class CreateAccessGroupDto {
 
   @IsAlpha()
   @IsNotEmpty()
-  public icon: string;
+  public configJSON: string;
+
+  @IsString()
+  @IsOptional()
+  public createdAt: Date;
+
+  @IsString()
+  @IsOptional()
+  public updatedAt: Date;
 
   @IsString()
   @IsOptional()
@@ -20,4 +32,9 @@ export class CreateAccessGroupDto {
   @IsString()
   @IsOptional()
   public updatedBy: string;
+
+  @IsString()
+  @IsOptional()
+  public isDeleted: boolean;
+
 }

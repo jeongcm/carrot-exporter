@@ -4,8 +4,11 @@ import { logger } from '@utils/logger';
 import { dbConfig } from '@interfaces/db.interface';
 import UserModel from '@models/users.model';
 import AccessGroupModel from '@models/accessGroup.model';
-import TenancyModel from '@/models/tenancy.model';
 import AlertModel from '@/models/alert.model';
+import ClusterModel from '@models/cluster.model';
+import ChannelModel from '@models/channel.model';
+import { logger } from '@utils/logger';
+import TenancyModel from '@/models/tenancy.model';
 
 const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
 const sequelize = new Sequelize.Sequelize(database, user, password, {
@@ -36,6 +39,8 @@ const DB = {
   AccessGroup: AccessGroupModel(sequelize),
   Tenancies: TenancyModel(sequelize),
   Alerts: AlertModel(sequelize),
+  Clusters: ClusterModel(sequelize),
+  Channel: ChannelModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };
