@@ -1,8 +1,10 @@
 import config from 'config';
 import Sequelize from 'sequelize';
+import { logger } from '@utils/logger';
 import { dbConfig } from '@interfaces/db.interface';
 import UserModel from '@models/users.model';
 import AccessGroupModel from '@models/accessGroup.model';
+import AlertModel from '@/models/alert.model';
 import ClusterModel from '@models/cluster.model';
 import ChannelModel from '@models/channel.model';
 import { logger } from '@utils/logger';
@@ -36,6 +38,7 @@ const DB = {
   Users: UserModel(sequelize),
   AccessGroup: AccessGroupModel(sequelize),
   Tenancies: TenancyModel(sequelize),
+  Alerts: AlertModel(sequelize),
   Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
   sequelize, // connection instance (RAW queries)

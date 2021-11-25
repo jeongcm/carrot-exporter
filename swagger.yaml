@@ -1,23 +1,25 @@
-swagger: "2.0"
+swagger: '2.0'
 info:
-  description: "This is nodejs portal nexclipper api."
-  version: "1.0.0"
-  title: "Swagger nexclipper"
-  termsOfService: "http://swagger.io/terms/"
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
   contact:
-    email: "apiteam@swagger.io"
-host: "nexclipper.com"
-basePath: "/"
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
 tags:
-- name: users
-  description: users API
+  - name: users
+    description: users API
+  - name: alerts
+    description: Alert Controller
 
 paths:
-# [GET] users
+  # [GET] users
   /users:
     get:
       tags:
-      - users
+        - users
       summary: Find All Users
       responses:
         200:
@@ -27,19 +29,19 @@ paths:
         500:
           description: 'Server Error'
 
-# [POST] users
+  # [POST] users
   /users/singup:
     post:
       tags:
-      - users
+        - users
       summary: Add User
       parameters:
-      - name: body
-        in: body
-        description: user Data
-        required: true
-        schema:
-          $ref: '#/definitions/users'
+        - name: body
+          in: body
+          description: user Data
+          required: true
+          schema:
+            $ref: '#/definitions/users'
       responses:
         201:
           description: 'Created'
@@ -50,18 +52,18 @@ paths:
         500:
           description: 'Server Error'
 
-# [GET] users/id
+  # [GET] users/id
   /users/{id}:
     get:
       tags:
-      - users
+        - users
       summary: Find User By Id
       parameters:
-      - name: id
-        in: path
-        description: User Id
-        required: true
-        type: integer
+        - name: id
+          in: path
+          description: User Id
+          required: true
+          type: integer
       responses:
         '200':
           description: 'OK'
@@ -72,23 +74,23 @@ paths:
         500:
           description: 'Server Error'
 
-# [PUT] users/id
+    # [PUT] users/id
     put:
       tags:
-      - users
+        - users
       summary: Update User By Id
       parameters:
-      - name: id
-        in: path
-        description: user Id
-        required: true
-        type: integer
-      - name: body
-        in: body
-        description: user Data
-        required: true
-        schema:
-          $ref: '#/definitions/users'
+        - name: id
+          in: path
+          description: user Id
+          required: true
+          type: integer
+        - name: body
+          in: body
+          description: user Data
+          required: true
+          schema:
+            $ref: '#/definitions/users'
       responses:
         200:
           description: 'OK'
@@ -99,17 +101,17 @@ paths:
         500:
           description: 'Server Error'
 
-# [DELETE] users/id
+    # [DELETE] users/id
     delete:
       tags:
-      - users
+        - users
       summary: Delete User By Id
       parameters:
-      - name: id
-        in: path
-        description: user Id
-        required: true
-        type: integer
+        - name: id
+          in: path
+          description: user Id
+          required: true
+          type: integer
       responses:
         200:
           description: 'OK'
@@ -118,18 +120,90 @@ paths:
         500:
           description: 'Server Error'
 
+  # [GET] alerts
+  /alerts:
+    get:
+      tags:
+        - alerts
+      summary: Find All Alerts
+      responses:
+        200:
+          description: 'OK'
+          schema:
+            $ref: '#/definitions/getAllAlerts'
+        500:
+          description: 'Server Error'
+    # [POST] alerts
+    post:
+      tags:
+        - alerts
+      summary: Create Alert (temp!!!)
+      parameters:
+        - name: body
+          in: body
+          description: Alert Data
+          required: true
+          schema:
+            $ref: '#/definitions/createAlert'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [GET] alerts/id
+  /alerts/{id}:
+    get:
+      tags:
+        - alerts
+      summary: Find Alert By Id
+      parameters:
+        - name: id
+          in: path
+          description: Alert Id
+          required: true
+          type: integer
+      responses:
+        200:
+          description: 'OK'
+          schema:
+            $ref: '#/definitions/getAlert'
+        500:
+          description: 'Server Error'
+    # [DELETE] alerts/id
+    delete:
+      tags:
+        - alerts
+      summary: Delete Alert By Id
+      parameters:
+        - name: id
+          in: path
+          description: Alert Id
+          required: true
+          type: integer
+      responses:
+        204:
+          description: 'No Content'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
+
 # definitions
 definitions:
   users:
     type: object
     required:
-        - email
-        - password
-        - name
-        - firstName
-        - lastName
-        - mobile
-        - photo
+      - email
+      - password
+      - name
+      - firstName
+      - lastName
+      - mobile
+      - photo
     properties:
       email:
         type: string
@@ -162,7 +236,7 @@ definitions:
   getUsers:
     type: object
     required:
-        - id
+      - id
     properties:
       id:
         type: string
@@ -194,38 +268,174 @@ definitions:
         example: image1
   getAllUsers:
     type: array
-    items: 
+    items:
       type: object
       properties:
-            id:
-              type: string
-              description: user uuid
-              example: f9e28e11-08f1-4a35-b6c4-330531e36fd3
-            email:
-              type: string
-              description: user Email
-              example: shrishti.test@gmail.com
-            username:
-              type: string
-              description: username
-              example: Shrishti
-            firstName:
-              type: string
-              description: user firstName
-              example: Shrishti
-            lastName:
-              type: string
-              description: user lastname
-              example: Raj
-            mobile:
-              type: string
-              description: user mobile number
-              example: 732947349
-            photo:
-              type: string
-              description: user profile photo
-              example: image1
+        id:
+          type: string
+          description: user uuid
+          example: f9e28e11-08f1-4a35-b6c4-330531e36fd3
+        email:
+          type: string
+          description: user Email
+          example: shrishti.test@gmail.com
+        username:
+          type: string
+          description: username
+          example: Shrishti
+        firstName:
+          type: string
+          description: user firstName
+          example: Shrishti
+        lastName:
+          type: string
+          description: user lastname
+          example: Raj
+        mobile:
+          type: string
+          description: user mobile number
+          example: 732947349
+        photo:
+          type: string
+          description: user profile photo
+          example: image1
+  getAllAlerts:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: number
+          description: alert id
+          example: 0
+        alertName:
+          type: string
+          descripton: alert name
+          example: string
+        from:
+          type: string
+          enum: [LARI, PROMETHEUS]
+          description: alert from
+          example: LARI
+        severity:
+          type: string
+          description: severity of alert
+          example: string
+        source:
+          type: string
+          description: source of alert
+          example: string
+        summary:
+          type: string
+          description: summary of alert
+          example: string
+        lastUpdatedAt:
+          type: string
+          description: last updated time
+          example: string
+        startAt:
+          type: string
+          description: started time
+          example: string
+        status:
+          type: string
+          enum: [CLOSED, HIDED, OPEN, REFERENCED]
+          description: status of alert
+          example: string
+        createdAt:
+          type: string
+          description: created time
+          example: string
+        updateAt:
+          type: string
+          description: updated time
+          example: string
+  getAlert:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: number
+        description: alert id
+        example: 0
+      alertName:
+        type: string
+        descripton: alert name
+        example: string
+      from:
+        type: string
+        enum: [LARI, PROMETHEUS]
+        description: alert from
+        example: LARI
+      severity:
+        type: string
+        description: severity of alert
+        example: string
+      source:
+        type: string
+        description: source of alert
+        example: string
+      summary:
+        type: string
+        description: summary of alert
+        example: string
+      lastUpdatedAt:
+        type: string
+        description: last updated time
+        example: string
+      startAt:
+        type: string
+        description: started time
+        example: string
+      status:
+        type: string
+        enum: [CLOSED, HIDED, OPEN, REFERENCED]
+        description: status of alert
+        example: string
+      createdAt:
+        type: string
+        description: created time
+        example: string
+      updateAt:
+        type: string
+        description: updated time
+        example: string
+  createAlert:
+    type: object
+    required:
+      - alertName
+      - from
+      - severity
+      - source
+      - status
+      - summary
+    properties:
+      alertName:
+        type: string
+        description: alert name
+        example: string
+      from:
+        type: string
+        description: alert from
+        example: LARI
+      severity:
+        type: string
+        description: severity of alert
+        example: string
+      source:
+        type: string
+        description: source of alert
+        example: string
+      status:
+        type: string
+        description: status of alert
+        example: OPEN
+      summary:
+        type: string
+        description: summary of alert
+        example: string
 
 schemes:
- - https
- - http
+  - https
+  - http
