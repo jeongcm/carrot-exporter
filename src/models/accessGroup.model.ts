@@ -1,11 +1,16 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { AccessGroup } from '@interfaces/accessGroup.interface';
 
-export type UserCreationAttributes = Optional<AccessGroup, 'id' | 'groupName' | 'description' | 'icon' | 'createdAt' | 'updatedAt'>;
+export type AccessGroupCreationAttributes = Optional<
+  AccessGroup,
+  'id' | 'groupName' | 'description' | 'icon' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'
+>;
 
-export class AccessGroupModel extends Model<AccessGroup, UserCreationAttributes> implements AccessGroup {
+export class AccessGroupModel extends Model<AccessGroup, AccessGroupCreationAttributes> implements AccessGroup {
   public id: string;
   public groupName: string;
+  public createdBy: string;
+  public updatedBy: string;
   public description: string;
   public icon: string;
 
@@ -21,6 +26,14 @@ export default function (sequelize: Sequelize): typeof AccessGroupModel {
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
+      },
+      createdBy: {
+        allowNull: false,
+        type: DataTypes.STRING(45),
+      },
+      updatedBy: {
+        allowNull: false,
+        type: DataTypes.STRING(45),
       },
       groupName: {
         allowNull: false,

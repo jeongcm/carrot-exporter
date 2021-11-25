@@ -1,9 +1,9 @@
 import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
 
-export class CreateAccessGroupDto {
+export class CreateClusterDto {
   @IsString()
   @IsNotEmpty()
-  public groupName: string;
+  public name: string;
 
   @IsString()
   @IsNotEmpty()
@@ -13,6 +13,18 @@ export class CreateAccessGroupDto {
   @IsNotEmpty()
   public icon: string;
 
+  @IsAlpha()
+  @IsNotEmpty()
+  public platform: string;
+
+  @IsString()
+  @IsOptional()
+  public createdAt: Date;
+
+  @IsString()
+  @IsOptional()
+  public updatedAt: Date;
+
   @IsString()
   @IsOptional()
   public createdBy: string;
@@ -20,4 +32,9 @@ export class CreateAccessGroupDto {
   @IsString()
   @IsOptional()
   public updatedBy: string;
+
+  @IsString()
+  @IsOptional()
+  public isDeleted: boolean;
+
 }

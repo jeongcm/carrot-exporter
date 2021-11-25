@@ -1,6 +1,5 @@
 import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
 
-
 export class CreateTenancyDto {
   @IsString()
   public tenancyCode: string;
@@ -8,23 +7,31 @@ export class CreateTenancyDto {
   @IsString()
   public tenancyName: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public tenancyDescription: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public tenancyLastAccess: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public createdAt: Date;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public updatedAt: Date;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public createdBy: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public updatedBy: string;
-  @IsString()@IsOptional()
+  
+  @IsString()
+  @IsOptional()
   public isDeleted: boolean;
 }
