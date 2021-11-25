@@ -1,13 +1,23 @@
 import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
 
 export class CreateAccessGroupDto {
-
-  @IsString()@IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   public groupName: string;
 
-  @IsString()@IsNotEmpty()
+  @IsString()
+  @IsNotEmpty()
   public description: string;
 
-  @IsAlpha()@IsNotEmpty()
+  @IsAlpha()
+  @IsNotEmpty()
   public icon: string;
+
+  @IsString()
+  @IsOptional()
+  public createdBy: string;
+
+  @IsString()
+  @IsOptional()
+  public updatedBy: string;
 }

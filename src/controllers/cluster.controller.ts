@@ -28,7 +28,6 @@ class ClusterController {
     public createCluster = async (req: Request, res: Response, next: NextFunction) => {
       try {
         const clusterData: CreateClusterDto = req.body;
-        console.log(clusterData)
         const createClusterData: Cluster = await this.clusterService.createCluster(clusterData);
         res.status(201).json({ data: createClusterData, message: 'created' });
       } catch (error) {
