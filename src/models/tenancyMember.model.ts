@@ -1,11 +1,11 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { Tenancy } from '@interfaces/tenancy.interface';
+import { TenancyMember } from '@interfaces/tenancyMember.interface';
 
-export type TenancyCreationAttributes = Optional<Tenancy, 'id' | 'tenancyCode' | 'tenancyName' >;
+export type TenancyCreationAttributes = Optional<TenancyMember, 'id' | 'userId' | 'tenancyId' >;
 
-export class TenancyModel extends Model<Tenancy> implements Tenancy {
+export class TenancyMemberModel extends Model<TenancyMember> implements TenancyMember {
   public id: string;
-  public tenancyName: string;
+  public userName: string;
   public tenancyCode: string;
   public tenancyDescription: string;
   public isDeleted: boolean;
@@ -16,8 +16,8 @@ export class TenancyModel extends Model<Tenancy> implements Tenancy {
   public readonly updatedAt!: Date;
 }
 
-export default function (sequelize: Sequelize): typeof TenancyModel {
-  TenancyModel.init(
+export default function (sequelize: Sequelize): typeof TenancyMemberModel {
+  TenancyMemberModel.init(
     {
       id: {
         primaryKey: true,
@@ -69,5 +69,5 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
     },
   );
 
-  return TenancyModel;
+  return TenancyMemberModel;
 }
