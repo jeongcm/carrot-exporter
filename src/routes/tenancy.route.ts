@@ -21,6 +21,9 @@ class UsersRoute implements Routes {
     this.router.get(`${this.path}/:id`, this.authservice.authenticate,  this.tenancyController.getTenancyById);
     this.router.delete(`${this.path}/:id`, this.authservice.authenticate,  this.tenancyController.deleteTenancy);
     this.router.put(`${this.path}/:id`, this.authservice.authenticate,  this.tenancyController.updateTenancy);
+    this.router.post(`${this.path}/:tenancyId/members/:userId
+    `, this.authservice.authenticate,  this.tenancyController.addTenancyMember);
+
   }
 }
 
