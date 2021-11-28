@@ -22,8 +22,11 @@ class AccessGroupsRoute implements Routes {
     this.router.get(`${this.path}/:id`,this.authservice.authenticate, this.accessGroupsController.getAccessGroupById);
     this.router.put(`${this.path}/:id`,this.authservice.authenticate, this.accessGroupsController.updateAccessGroup);
     this.router.post(`${this.path}/:id/members`,this.authservice.authenticate, this.accessGroupsController.updateAccessGroupMembers);
+    this.router.get(`${this.path}/:id/members`,this.authservice.authenticate, this.accessGroupsController.getAccessGroupMembers);
     this.router.post(`${this.path}/:id/clusters`,this.authservice.authenticate, this.accessGroupsController.updateAccessGroupClusters);
+    this.router.get(`${this.path}/:id/clusters`,this.authservice.authenticate, this.accessGroupsController.getAccessGroupClusters);
     this.router.post(`${this.path}/:id/channels`,this.authservice.authenticate, this.accessGroupsController.updateAccessGroupChannels);
+    this.router.get(`${this.path}/:id/channels`,this.authservice.authenticate, this.accessGroupsController.getAccessGroupChannels);
   }
 }
 

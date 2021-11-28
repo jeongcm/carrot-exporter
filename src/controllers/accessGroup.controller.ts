@@ -16,7 +16,7 @@ class AccessGroupController {
   public getAccessGroups = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const findAllAccessGroupData: AccessGroup[] = await this.accessGroupService.findAllAccessGroup();
-      res.status(200).json({ data: findAllAccessGroupData, message: 'findAll' });
+      res.status(200).json({ data: findAllAccessGroupData, message: 'all access groups' });
     } catch (error) {
       next(error);
     }
@@ -26,7 +26,7 @@ class AccessGroupController {
     try {
       const accessGroupId = req.params.id;
       const findOneUserData: AccessGroup = await this.accessGroupService.findAccessGroupById(accessGroupId);
-      res.status(200).json({ data: findOneUserData, message: 'findOne' });
+      res.status(200).json({ data: findOneUserData, message: 'Access group by group id' });
     } catch (error) {
       next(error);
     }
@@ -36,7 +36,7 @@ class AccessGroupController {
     try {
       let currentUserId = currentUser(req).id;
       const findAllAccessGroupData: AccessGroup[] = await this.accessGroupService.findAllAccessGroupByUserId(currentUserId);
-      res.status(200).json({ data: findAllAccessGroupData, message: 'findAllById' });
+      res.status(200).json({ data: findAllAccessGroupData, message: 'Access Group By User id' });
     } catch (error) {
       next(error);
     }
@@ -47,7 +47,7 @@ class AccessGroupController {
       const accessGroupData: CreateAccessGroupDto = req.body;
       let currentUserId = currentUser(req).id;
       const createAccessGroupData: AccessGroup = await this.accessGroupService.createAccessGroup(accessGroupData, currentUserId);
-      res.status(201).json({ data: createAccessGroupData, message: 'created' });
+      res.status(201).json({ data: createAccessGroupData, message: 'Created Access Group' });
     } catch (error) {
       next(error);
     }
@@ -59,7 +59,7 @@ class AccessGroupController {
       const accessGroupData = req.body;
       let currentUserId = currentUser(req).id;
       const updateAccessGroupData: AccessGroup = await this.accessGroupService.updateAccessGroup(accessGroupId, accessGroupData, currentUserId);
-      res.status(200).json({ data: updateAccessGroupData, message: 'updated' });
+      res.status(200).json({ data: updateAccessGroupData, message: 'updated Access Group' });
     } catch (error) {
       next(error);
     }
@@ -81,6 +81,16 @@ class AccessGroupController {
     }
   };
 
+  public getAccessGroupMembers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const accessGroupId = req.params.id;
+      const currentAcessGroupData: AccessGroupMember[] = await this.accessGroupService.getAccessGroupMembers(accessGroupId);
+      res.status(200).json({ data: currentAcessGroupData, message: 'Members of specfic access group' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public updateAccessGroupChannels = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const accessGroupId = req.params.id;
@@ -97,6 +107,16 @@ class AccessGroupController {
     }
   };
 
+  public getAccessGroupChannels = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const accessGroupId = req.params.id;
+      const currentAcessGroupData: AccessGroupChannel[] = await this.accessGroupService.getAccessGroupChannels(accessGroupId);
+      res.status(200).json({ data: currentAcessGroupData, message: 'Channels of specfic access group' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public updateAccessGroupClusters = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const accessGroupId = req.params.id;
@@ -108,6 +128,16 @@ class AccessGroupController {
         currentUserId,
       );
       res.status(200).json({ data: updateAccessGroupData, message: 'updated Clusters' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAccessGroupClusters = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const accessGroupId = req.params.id;
+      const currentAcessGroupData: AccessGroupCluster[] = await this.accessGroupService.getAccessGroupClusters(accessGroupId);
+      res.status(200).json({ data: currentAcessGroupData, message: 'Clusters of specfic access group' });
     } catch (error) {
       next(error);
     }

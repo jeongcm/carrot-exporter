@@ -104,6 +104,10 @@ class AccessGroupService {
     return updatedAccessGroupMembers;
   }
 
+  public async getAccessGroupMembers(accessGroupId: string): Promise<AccessGroupMember[]> {
+    const findAccessGroupMembers: AccessGroupMember[] = await this.accessGroupMember.findAll({ where: { groupId: accessGroupId, isDeleted: false } });
+    return findAccessGroupMembers;
+  }
 
   public async updateAccessGroupChannels(
     accessGroupId: string,
@@ -149,6 +153,10 @@ class AccessGroupService {
     return updatedAccessGroupChannels;
   }
 
+  public async getAccessGroupChannels(accessGroupId: string): Promise<AccessGroupChannel[]> {
+    const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({ where: { groupId: accessGroupId, isDeleted: false } });
+    return findAccessGroupChannels;
+  }
 
   public async updateAccessGroupClusters(
     accessGroupId: string,
@@ -192,6 +200,11 @@ class AccessGroupService {
       updatedAccessGroupClusters = await this.accessGroupCluster.bulkCreate(updatedClusters, { updateOnDuplicate: ['groupId', 'clusterId'] });
     }
     return updatedAccessGroupClusters;
+  }
+
+  public async getAccessGroupClusters(accessGroupId: string): Promise<AccessGroupCluster[]> {
+    const findAccessGroupClusters: AccessGroupCluster[] = await this.accessGroupCluster.findAll({ where: { groupId: accessGroupId, isDeleted: false } });
+    return findAccessGroupClusters;
   }
 }
 
