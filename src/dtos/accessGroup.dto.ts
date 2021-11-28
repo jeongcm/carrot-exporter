@@ -1,5 +1,4 @@
-import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
-
+import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional, IsArray } from 'class-validator';
 export class CreateAccessGroupDto {
   @IsString()
   @IsNotEmpty()

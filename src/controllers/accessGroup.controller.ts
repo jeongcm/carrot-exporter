@@ -1,12 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateAccessGroupDto } from '@dtos/accessGroup.dto';
-import { AccessGroup } from '@interfaces/accessGroup.interface';
-import AccessGroupService from '@services/accessGroup.service';
 import { currentUser } from '@/utils/currentUser';
+
+import AccessGroupService from '@services/accessGroup.service';
+
+import { CreateAccessGroupDto } from '@dtos/accessGroup.dto';
+
+import { AccessGroup } from '@interfaces/accessGroup.interface';
+import { AccessGroupMember } from '@/interfaces/accessGroupMember.interface';
+import { AccessGroupCluster } from '@/interfaces/accessGroupCluster.interface';
+import { AccessGroupChannel } from '@/interfaces/accessGroupChannel.interface';
 
 class AccessGroupController {
   public accessGroupService = new AccessGroupService();
-
 
   public getAccessGroups = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -37,12 +42,11 @@ class AccessGroupController {
     }
   };
 
-
   public createAccessGroup = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const accessGroupData: CreateAccessGroupDto = req.body;
       let currentUserId = currentUser(req).id;
-      const createAccessGroupData: AccessGroup = await this.accessGroupService.createAccessGroup(accessGroupData,currentUserId);
+      const createAccessGroupData: AccessGroup = await this.accessGroupService.createAccessGroup(accessGroupData, currentUserId);
       res.status(201).json({ data: createAccessGroupData, message: 'created' });
     } catch (error) {
       next(error);
@@ -61,7 +65,53 @@ class AccessGroupController {
     }
   };
 
+  public updateAccessGroupMembers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const accessGroupId = req.params.id;
+      const membersData = req.body;
+      let currentUserId = currentUser(req).id;
+      const updateAccessGroupData: AccessGroupMember[] = await this.accessGroupService.updateAccessGroupMembers(
+        accessGroupId,
+        membersData,
+        currentUserId,
+      );
+      res.status(200).json({ data: updateAccessGroupData, message: 'updated Members' });
+    } catch (error) {
+      next(error);
+    }
+  };
 
+  public updateAccessGroupChannels = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const accessGroupId = req.params.id;
+      const channelsData = req.body;
+      let currentUserId = currentUser(req).id;
+      const updateAccessGroupData: AccessGroupChannel[] = await this.accessGroupService.updateAccessGroupChannels(
+        accessGroupId,
+        channelsData,
+        currentUserId,
+      );
+      res.status(200).json({ data: updateAccessGroupData, message: 'updated Channels' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public updateAccessGroupClusters = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const accessGroupId = req.params.id;
+      const clustersData = req.body;
+      let currentUserId = currentUser(req).id;
+      const updateAccessGroupData: AccessGroupCluster[] = await this.accessGroupService.updateAccessGroupClusters(
+        accessGroupId,
+        clustersData,
+        currentUserId,
+      );
+      res.status(200).json({ data: updateAccessGroupData, message: 'updated Clusters' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AccessGroupController;
