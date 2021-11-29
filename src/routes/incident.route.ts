@@ -27,7 +27,12 @@ class IncidentRoute implements Routes {
       this.incidentController.createIncident,
     );
     this.router.delete(`${this.path}/:id`, this.authservice.authenticate, this.incidentController.deleteIncident);
-    this.router.put(`${this.path}/:id`, this.authservice.authenticate, this.incidentController.updateIncident);
+    this.router.put(
+      `${this.path}/:id`,
+      this.authservice.authenticate,
+      validationMiddleware(CreateIncidentDto, 'body'),
+      this.incidentController.updateIncident,
+    );
   }
 }
 

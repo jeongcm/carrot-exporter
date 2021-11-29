@@ -79,23 +79,40 @@ class IncidentService {
   public async deleteIncidentById(id: number, currentUserId: string): Promise<[number, IncidentModel[]]> {
     const deletedIncident: [number, IncidentModel[]] = await this.incident.update({ isDeleted: 1, updatedBy: currentUserId }, { where: { id } });
     await this.incident_rel_alert.destroy({ where: { incidentId: id } });
+    await this.incident_action.destroy({ where: { incidentId: id } });
+
     return deletedIncident;
   }
 
   public async updateIncident(id: number, incidentData: CreateIncidentDto, currentUserId: string): Promise<IIncident> {
-    const { relatedAlertIds } = incidentData;
+    const { relatedAlertIds, actions } = incidentData;
 
     await this.incident.update({ ...incidentData, updatedBy: currentUserId }, { where: { id } });
 
-    await this.incident_rel_alert.destroy({ where: { incidentId: id } });
-    let relatedAlerts = relatedAlertIds.map(alertId => {
-      return {
-        incidentId: id,
-        alertId,
-      };
-    });
+    if (relatedAlertIds) {
+      await this.incident_rel_alert.destroy({ where: { incidentId: id } });
+      let relatedAlerts = relatedAlertIds.map(alertId => {
+        return {
+          incidentId: id,
+          alertId,
+        };
+      });
 
-    await this.incident_rel_alert.bulkCreate(relatedAlerts);
+      await this.incident_rel_alert.bulkCreate(relatedAlerts);
+    }
+
+    if (actions) {
+      await this.incident_action.destroy({ where: { incidentId: id } });
+      let incidentActions = actions.map(action => {
+        return {
+          incidentId: id,
+          title: action.title,
+          description: action.description,
+          createdBy: currentUserId,
+        };
+      });
+      await this.incident_action.bulkCreate(incidentActions);
+    }
 
     return this.getIncidentById(id);
   }
