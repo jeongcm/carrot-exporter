@@ -10,6 +10,7 @@ import TenancyRoute from '@routes/tenancy.route';
 import AlertRoute from '@routes/alert.route';
 import ClusterRoute from '@routes/cluster.route';
 import ChannelRoute from '@routes/channel.route';
+import IncidentRoute from '@routes/incident.route';
 import validateEnv from '@utils/validateEnv';
 
 validateEnv();
@@ -23,6 +24,7 @@ const app = new App([
   new TenancyRoute(),
   new ClusterRoute(),
   new ChannelRoute(),
+  new IncidentRoute(),
 ]);
 
 app.listen();

@@ -7,8 +7,9 @@ import AccessGroupModel from '@models/accessGroup.model';
 import AlertModel from '@/models/alert.model';
 import ClusterModel from '@models/cluster.model';
 import ChannelModel from '@models/channel.model';
-import { logger } from '@utils/logger';
 import TenancyModel from '@/models/tenancy.model';
+import IncidentModel from '@/models/incident.model';
+import Incident_Rel_AlertModel from '@/models/incident_rel_alert.model';
 
 const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
 const sequelize = new Sequelize.Sequelize(database, user, password, {
@@ -41,6 +42,8 @@ const DB = {
   Alerts: AlertModel(sequelize),
   Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
+  Incident: IncidentModel(sequelize),
+  Incident_Rel_Alert: Incident_Rel_AlertModel(sequelize),
   sequelize, // connection instance (RAW queries)
   Sequelize, // library
 };
