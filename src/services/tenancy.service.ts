@@ -1,4 +1,5 @@
 import { TenancyModel } from '@/models/tenancy.model';
+import { UserModel } from '@/models/users.model';
 import DB from '@databases';
 import { CreateTenancyDto } from '@dtos/tenancy.dto';
 import { CreateTenancyMemberDto } from '@dtos/tenancyMember.dto';
@@ -63,7 +64,23 @@ class TenancyService {
   }
 
   public async findAllTenancyMembers(tenancyId:string):Promise<TenancyMember[]>{
-    const allTenancyMembers: TenancyMember[] = await this.tenancyMember.findAll({ where: { isDeleted: false, tenancyId } });
+    // const allTenancyMembers: TenancyMember[] = await this.tenancyMember.findAll({ where: { isDeleted: false, tenancyId } });
+
+   const allTenancyMembers: TenancyMember[] = await this.tenancyMember.findAll({
+      where: {
+          tenancyId: tenancyId
+      },
+      attributes: {
+          exclude: ['createdAt', 'updatedAt']
+      },
+      include: [{
+        model: UserModel,
+        attributes: ['firstName', 'lastName', 'email']  
+      }],
+  })
+
+
+
     return allTenancyMembers;
   }
 

@@ -34,12 +34,12 @@ class UsersRoute implements Routes {
       validationMiddleware(CreateTenancyMemberDto, 'body'),
       this.tenancyController.createTenancyMember,
     );
-    this.router.put(
-      `${this.path}/:tenancyId/members/:userId`,
-      this.authservice.authenticate,
-      validationMiddleware(updateTenancyMemberDto, 'body'),
-      this.tenancyController.createTenancyMember,
-    );
+    // this.router.put(
+    //   `${this.path}/:tenancyId/members/:userId`,
+    //   this.authservice.authenticate,
+    //   validationMiddleware(updateTenancyMemberDto, 'body'),
+    //   this.tenancyController.createTenancyMember,
+    // );
 
     this.router.get(`${this.path}/:tenancyId/members`, this.authservice.authenticate, this.tenancyController.getAllTenancyMember);
     this.router.delete(`${this.path}/:tenancyId/members`, this.authservice.authenticate, this.tenancyController.deleteTenancyMember);

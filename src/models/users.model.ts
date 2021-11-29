@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { User } from '@interfaces/users.interface';
+import { TenancyMemberModel } from './tenancyMember.model';
 
 export type UserCreationAttributes = Optional<User, 'id' | 'email' | 'password' | 'username'|'firstName'|'lastAccess'|'lastName'|'mobile'|'photo'|'createdAt'|'updatedAt'>;
 
@@ -74,6 +75,9 @@ export default function (sequelize: Sequelize): typeof UserModel {
       sequelize,
     },
   );
+
+  UserModel.belongsTo(TenancyMemberModel, {foreignKey: 'userId'});
+  TenancyMemberModel.hasOne(UserModel, {foreignKey: 'id'});
 
   return UserModel;
 }
