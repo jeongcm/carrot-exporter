@@ -1,3 +1,4 @@
+import { ChannelType } from '@/enums';
 export interface IAlertChannel {
   channelType: 'EMAIL' | 'SLACK';
   createdAt: string;
@@ -36,4 +37,17 @@ export interface ISlackChannel {
   updatedBy: string;
   apiUrl: string;
   slackChannelName: string;
+}
+
+export interface Channel {
+  id: string;
+  name: string;
+  channelType: ChannelType;
+  description: string;
+  configJSON: string;
+  createdAt: Date;
+  createdBy: string;
+  updatedAt: Date;
+  updatedBy: string;
+  isDeleted: boolean
 }

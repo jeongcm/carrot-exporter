@@ -1,21 +1,15 @@
 import bcrypt from 'bcrypt';
 import config from 'config';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import DB from '@databases';
+import DB from 'databases';
 import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
 import { RequestWithUser } from '@interfaces/auth.interface';
+import { BadRequestError } from '@/exceptions/badRequestError';
 import { nextTick } from 'process';
-
-
-interface CurrentUser {
-  id: Number;
-  iat: Number;
-  exp: Number
-}
 
 class AuthService {
   public users = DB.Users;
@@ -26,7 +20,7 @@ class AuthService {
     findUser = await this.users.findOne({
       where: { email: userData.loginId }
     });
-    if (findUser) throw new HttpException(409, `You're email ${userData.loginId} already exists`);
+    if (findUser) throw new HttpException(400, `You're email ${userData.loginId} already existss`);
     const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
     let currentDate = new Date();
     let user = {
@@ -42,7 +36,6 @@ class AuthService {
       createdAt: currentDate
     }
     const createUserData: User = await this.users.create(user);
-    delete createUserData.password;
     return createUserData;
   }
 
@@ -64,7 +57,6 @@ class AuthService {
 
   public async info(req: RequestWithUser,): Promise<any> {
     let currentCookie = req.cookies["X-AUTHORIZATION"];
-    console.log(currentCookie)
     const secretKey: string = config.get('secretKey');
     const payload = jwt.verify(
       currentCookie,
@@ -89,13 +81,11 @@ class AuthService {
     return `X-AUTHORIZATION=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
   }
 
-  public async authenticate(req: RequestWithUser, res, next): Promise<any> {
 
-    console.log("authenticate")
+  public async authenticate(req: RequestWithUser, res, next): Promise<any> {
     let currentCookie = req.cookies["X-AUTHORIZATION"];
     if (currentCookie) {
       const secretKey: string = config.get('secretKey');
-      console.log(secretKey)
       const payload = jwt.verify(
         currentCookie,
         secretKey
@@ -105,9 +95,9 @@ class AuthService {
         req.body["createdBy"] = payload.id;
         req.body["updatedBy"] = payload.id;
       } else {
-        if (req.body) {
-          req.body["updatedBy"] = payload.id;
-        }
+        // if (req.body) {
+        //   req.body["currentUserId"] = payload.id;
+        // }
       }
     } else {
       return res.status(400).json({ message: 'UnAuthorized' });

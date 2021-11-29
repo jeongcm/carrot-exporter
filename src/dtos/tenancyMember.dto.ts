@@ -2,36 +2,72 @@ import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-valida
 
 
 export class CreateTenancyMemberDto {
-  @IsEmail()@IsOptional()
-  public prdCode: string;
 
   @IsString()
   public userName: string;
 
-  @IsAlpha()
+  @IsString()
   public userId: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  public userRole:'owner' | 'member' | 'maintainer';
+
+  @IsString()
   public tenancyId: string;
 
   @IsString()@IsOptional()
   public isActivated: string;
 
   @IsString()@IsOptional()
-  public isSelected: string;
+  public verificationCode: string;
 
   @IsString()@IsOptional()
   public isDeleted: string;
 
   @IsString()@IsOptional()
-  public createdAt: string;
+  public createdAt: Date;
 
   @IsString()@IsOptional()
-  public updatedAt: string;
+  public updatedAt: Date;
 
   @IsString()@IsOptional()
-  public createdBy: string;
+  public invitedBy: string;
+
+}
+export class updateTenancyMemberDto {
+
+  @IsString()
+  @IsOptional()
+  public userName: string;
+
+  @IsString()
+  @IsOptional()
+  public userId: string;
+
+  @IsString()
+  @IsOptional()
+  public userRole:'owner' | 'member' | 'maintainer';
+
+  @IsString()
+  public tenancyId: string;
 
   @IsString()@IsOptional()
-  public updatedBy: string;
+  public isActivated: string;
+
+  @IsString()@IsOptional()
+  public verificationCode: string;
+
+  @IsString()@IsOptional()
+  public isDeleted: string;
+
+  @IsString()@IsOptional()
+  public createdAt: Date;
+
+  @IsString()@IsOptional()
+  public updatedAt: Date;
+
+  @IsString()@IsOptional()
+  public invitedBy: string;
+
 }
