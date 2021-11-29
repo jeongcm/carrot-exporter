@@ -3,6 +3,7 @@ import { IIncident } from '@/interfaces/incident.interface';
 import IncidentService from '@/services/incident.service';
 import { CreateIncidentDto } from '@dtos/incident.dto';
 import { currentUser } from '@/utils/currentUser';
+import { IIncidentAction } from '@/interfaces/incident_action.interface';
 
 class IncidentController {
   public incidentService = new IncidentService();
@@ -26,6 +27,22 @@ class IncidentController {
         res.status(200).json({ data: incident, message: `find incident id(${id}) ` });
       } else {
         res.status(404).json({ message: `Incident id(${id}) not found` });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getIncidentActions = async (req: Request, res: Response, next: NextFunction) => {
+    const id = parseInt(req.params.id);
+
+    try {
+      const actions: IIncidentAction[] = await this.incidentService.getIncidentActionsById(id);
+
+      if (actions) {
+        res.status(200).json({ data: actions, message: `find incident id(${id})'s actions` });
+      } else {
+        res.status(404).json({ message: `Incident id(${id})'s action not found` });
       }
     } catch (error) {
       next(error);

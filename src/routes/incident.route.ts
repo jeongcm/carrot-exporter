@@ -18,6 +18,8 @@ class IncidentRoute implements Routes {
   private initializeRoutes() {
     this.router.get(`${this.path}`, this.authservice.authenticate, this.incidentController.getIncidents);
     this.router.get(`${this.path}/:id`, this.authservice.authenticate, this.incidentController.getIncident);
+    this.router.get(`${this.path}/:id/actions`, this.authservice.authenticate, this.incidentController.getIncidentActions);
+
     this.router.post(
       `${this.path}`,
       this.authservice.authenticate,

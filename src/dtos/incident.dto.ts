@@ -23,6 +23,9 @@ export class CreateIncidentDto {
   @IsOptional()
   public relatedAlertIds: [number];
 
+  @IsOptional()
+  public actions: { description: string; title: string }[];
+
   @IsString()
   @IsNotEmpty()
   public title: string;
