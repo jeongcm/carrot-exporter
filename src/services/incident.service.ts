@@ -18,7 +18,7 @@ class IncidentService {
       order: [['createdAt', 'DESC']],
       attributes: { exclude: ['isDeleted', 'assigneeId'] },
       include: {
-        as: 'assginee',
+        as: 'assignee',
         model: UserModel,
         attributes: ['email', 'lastAccess', 'username', 'photo'],
       },
@@ -31,7 +31,7 @@ class IncidentService {
       where: { id },
       attributes: { exclude: ['isDeleted'] },
       include: {
-        as: 'assginee',
+        as: 'assignee',
         model: UserModel,
         attributes: ['email', 'lastAccess', 'username', 'photo'],
       },

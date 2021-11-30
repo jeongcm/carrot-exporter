@@ -83,7 +83,7 @@ export default function (sequelize: Sequelize): typeof IncidentModel {
     },
   );
 
-  IncidentModel.hasMany(UserModel, { as: 'assginee', foreignKey: 'id', sourceKey: 'assigneeId' });
+  IncidentModel.hasMany(UserModel, { as: 'assignee', foreignKey: 'id', sourceKey: 'assigneeId' });
   UserModel.belongsTo(IncidentModel, { foreignKey: 'id', targetKey: 'id' });
 
   return IncidentModel;
