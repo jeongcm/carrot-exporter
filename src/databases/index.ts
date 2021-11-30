@@ -6,6 +6,9 @@ import UserModel from '@models/users.model';
 import AccessGroupModel from '@models/accessGroup.model';
 import AlertModel from '@/models/alert.model';
 import ClusterModel from '@models/cluster.model';
+import AccessGroupChannelModel from '@models/accessGroupChannel.model';
+import AccessGroupClusterModel from '@models/accessGroupCluster.model';
+import AccessGroupMemberModel from '@models/accessGroupMember.model';
 import ChannelModel from '@models/channel.model';
 import TenancyModel from '@/models/tenancy.model';
 import TenancyMemberModel from '@/models/tenancyMember.model';
@@ -37,6 +40,9 @@ sequelize.authenticate();
 const DB = { 
   Users: UserModel(sequelize),
   AccessGroup: AccessGroupModel(sequelize),
+  AccessGroupChannel: AccessGroupChannelModel(sequelize),
+  AccessGroupCluster: AccessGroupClusterModel(sequelize),
+  AccessGroupMember: AccessGroupMemberModel(sequelize),
   Tenancies: TenancyModel(sequelize),
   TenancyMembers: TenancyMemberModel(sequelize),
   Alerts: AlertModel(sequelize),
