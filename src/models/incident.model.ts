@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IIncident } from './../interfaces/incident.interface';
+import { UserModel } from './users.model';
 
 export type IncidentCreationAttributes = Optional<
   IIncident,
@@ -38,7 +39,7 @@ export default function (sequelize: Sequelize): typeof IncidentModel {
         allowNull: false,
       },
       assigneeId: {
-        type: DataTypes.STRING(300),
+        type: DataTypes.UUID,
       },
       title: {
         type: DataTypes.STRING(300),
@@ -77,9 +78,15 @@ export default function (sequelize: Sequelize): typeof IncidentModel {
     },
     {
       tableName: 'Incident',
+      modelName: 'incident',
       sequelize,
     },
   );
+  // IncidentModel.hasMany(UserModel, { foreignKey: 'iassigneeId', sourceKey: 'id' });
+  // UserModel.belongsTo(IncidentModel, { foreignKey: 'assigneeId', targetKey: 'id' });
+
+  IncidentModel.hasMany(UserModel, { as: 'assginee', foreignKey: 'id', sourceKey: 'assigneeId' });
+  UserModel.belongsTo(IncidentModel, { foreignKey: 'id', targetKey: 'id' });
 
   return IncidentModel;
 }

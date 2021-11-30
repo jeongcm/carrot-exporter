@@ -56,6 +56,7 @@ export default function (sequelize: Sequelize): typeof IncidentActionModel {
     },
     {
       tableName: 'Incident_Action',
+      modelName: 'incidentAction',
       sequelize,
     },
   );

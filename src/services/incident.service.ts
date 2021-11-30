@@ -5,6 +5,7 @@ import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { IncidentModel } from '@/models/incident.model';
 import { IIncidentAction } from '@/interfaces/incident_action.interface';
+import { UserModel } from '@/models/users.model';
 
 class IncidentService {
   public incident = DB.Incident;
@@ -15,13 +16,26 @@ class IncidentService {
     const allIncidents: IIncident[] = await this.incident.findAll({
       where: { isDeleted: 0 },
       order: [['createdAt', 'DESC']],
-      attributes: { exclude: ['isDeleted'] },
+      attributes: { exclude: ['isDeleted', 'assigneeId'] },
+      include: {
+        as: 'assginee',
+        model: UserModel,
+        attributes: ['email', 'lastAccess', 'username', 'photo'],
+      },
     });
     return allIncidents;
   }
 
   public async getIncidentById(id: number): Promise<IIncident> {
-    const incident: IIncident = await this.incident.findOne({ where: { id }, attributes: { exclude: ['isDeleted'] } });
+    const incident: IIncident = await this.incident.findOne({
+      where: { id },
+      attributes: { exclude: ['isDeleted'] },
+      include: {
+        as: 'assginee',
+        model: UserModel,
+        attributes: ['email', 'lastAccess', 'username', 'photo'],
+      },
+    });
 
     return incident;
   }
