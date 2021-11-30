@@ -68,11 +68,11 @@ class TenancyService {
 
    const allTenancyMembers: TenancyMember[] = await this.tenancyMember.findAll({
       where: {
-          tenancyId: tenancyId
+          tenancyId
       },
-      attributes: {
-          exclude: ['createdAt', 'updatedAt']
-      },
+      // attributes: {
+      //     exclude: ['createdAt', 'updatedAt']
+      // },
       include: [{
         model: UserModel,
         attributes: ['firstName', 'lastName', 'email']  

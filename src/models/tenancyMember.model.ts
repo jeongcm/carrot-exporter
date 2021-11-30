@@ -1,14 +1,29 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { TenancyMember } from '@interfaces/tenancyMember.interface';
+import { UserModel } from './users.model';
 
-export type TenancyMemberCreationAttributes = Optional<TenancyMember, 'id' | 'userId' | 'tenancyId'|'createdAt'|'updatedAt'|'isActivated'|'isDeleted'|'tenancyLastAccess'|'invitedBy'|'userName'|'userRole'|"verificationCode" >;
+export type TenancyMemberCreationAttributes = Optional<
+  TenancyMember,
+  | 'id'
+  | 'userId'
+  | 'tenancyId'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'isActivated'
+  | 'isDeleted'
+  | 'tenancyLastAccess'
+  | 'invitedBy'
+  | 'userName'
+  | 'userRole'
+  | 'verificationCode'
+>;
 
 export class TenancyMemberModel extends Model<TenancyMember> implements TenancyMember {
   public id: string;
   public userName: string;
   public userId: string;
-  public userRole:'owner' | 'member' | 'maintainer' ;
-  public verificationCode:string;
+  public userRole: 'owner' | 'member' | 'maintainer';
+  public verificationCode: string;
   public tenancyLastAccess: Date;
   public tenancyId: string;
   public isDeleted: boolean;
@@ -30,11 +45,15 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
       },
       userId: {
         allowNull: false,
-        type: DataTypes.UUID,        
+        type: DataTypes.UUID,
+        // references:{
+        //   model:UserModel,
+        //   key:"id"
+        // }
       },
       userName: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: DataTypes.STRING
       },
       userRole: {
         allowNull: false,
@@ -50,23 +69,23 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
       },
       tenancyLastAccess: {
         allowNull: true,
-        defaultValue:new Date(),
+        defaultValue: new Date(),
         type: DataTypes.DATE,
       },
       isDeleted: {
         allowNull: true,
-        defaultValue:false,
+        defaultValue: false,
         type: DataTypes.BOOLEAN,
       },
       isActivated: {
         allowNull: true,
-        defaultValue:false,
+        defaultValue: false,
         type: DataTypes.BOOLEAN,
       },
       invitedBy: {
         allowNull: true,
         type: DataTypes.UUID,
-      },     
+      },
       createdAt: {
         allowNull: false,
         defaultValue: new Date(),
@@ -76,12 +95,15 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
         allowNull: false,
         defaultValue: new Date(),
         type: DataTypes.DATE(),
-      }
+      },
     },
     {
       tableName: 'tenancyMembers',
+      modelName:"tenancyMember",
       sequelize,
     },
   );
-    return TenancyMemberModel;
+  TenancyMemberModel.hasMany(UserModel, {foreignKey: 'id'});
+  UserModel.belongsTo(TenancyMemberModel, {foreignKey: 'id'});
+  return TenancyMemberModel;
 }
