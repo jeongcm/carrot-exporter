@@ -7,8 +7,8 @@ import AccessGroupModel from '@models/accessGroup.model';
 import AlertModel from '@/models/alert.model';
 import ClusterModel from '@models/cluster.model';
 import ChannelModel from '@models/channel.model';
-import { logger } from '@utils/logger';
 import TenancyModel from '@/models/tenancy.model';
+import TenancyMemberModel from '@/models/tenancyMember.model';
 
 const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
 const sequelize = new Sequelize.Sequelize(database, user, password, {
@@ -34,15 +34,15 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
 
 sequelize.authenticate();
 
-const DB = {
+const DB = { 
   Users: UserModel(sequelize),
   AccessGroup: AccessGroupModel(sequelize),
   Tenancies: TenancyModel(sequelize),
+  TenancyMembers: TenancyMemberModel(sequelize),
   Alerts: AlertModel(sequelize),
   Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
   sequelize, // connection instance (RAW queries)
-  Sequelize, // library
 };
 
 export default DB;
