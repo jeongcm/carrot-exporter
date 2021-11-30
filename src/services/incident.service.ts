@@ -4,13 +4,13 @@ import { CreateIncidentDto } from '@dtos/incident.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { IncidentModel } from '@/models/incident.model';
-import { IIncidentAction } from '@/interfaces/incident_action.interface';
+import { IIncidentAction } from '@/interfaces/incidentAction.interface';
 import { UserModel } from '@/models/users.model';
 
 class IncidentService {
   public incident = DB.Incident;
-  public incident_rel_alert = DB.Incident_Rel_Alert;
-  public incident_action = DB.Incident_Action;
+  public incidentRelAlert = DB.IncidentRelAlert;
+  public incidentAction = DB.IncidentAction;
 
   public async getAllIncidents(): Promise<IIncident[]> {
     const allIncidents: IIncident[] = await this.incident.findAll({
@@ -41,7 +41,7 @@ class IncidentService {
   }
 
   public async getIncidentActionsById(id: number): Promise<IIncidentAction[]> {
-    const incidentActions: IIncidentAction[] = await this.incident_action.findAll({
+    const incidentActions: IIncidentAction[] = await this.incidentAction.findAll({
       where: { incidentId: id },
       attributes: { exclude: ['isDeleted'] },
     });
@@ -72,7 +72,7 @@ class IncidentService {
           alertId,
         };
       });
-      await this.incident_rel_alert.bulkCreate(relatedAlerts);
+      await this.incidentRelAlert.bulkCreate(relatedAlerts);
     }
 
     if (actions) {
@@ -84,7 +84,7 @@ class IncidentService {
           createdBy: currentUserId,
         };
       });
-      await this.incident_action.bulkCreate(incidentActions);
+      await this.incidentAction.bulkCreate(incidentActions);
     }
 
     return createIncidentData;
@@ -92,8 +92,8 @@ class IncidentService {
 
   public async deleteIncidentById(id: number, currentUserId: string): Promise<[number, IncidentModel[]]> {
     const deletedIncident: [number, IncidentModel[]] = await this.incident.update({ isDeleted: 1, updatedBy: currentUserId }, { where: { id } });
-    await this.incident_rel_alert.destroy({ where: { incidentId: id } });
-    await this.incident_action.destroy({ where: { incidentId: id } });
+    await this.incidentRelAlert.destroy({ where: { incidentId: id } });
+    await this.incidentAction.destroy({ where: { incidentId: id } });
 
     return deletedIncident;
   }
@@ -104,7 +104,7 @@ class IncidentService {
     await this.incident.update({ ...incidentData, updatedBy: currentUserId }, { where: { id } });
 
     if (relatedAlertIds) {
-      await this.incident_rel_alert.destroy({ where: { incidentId: id } });
+      await this.incidentRelAlert.destroy({ where: { incidentId: id } });
       let relatedAlerts = relatedAlertIds.map(alertId => {
         return {
           incidentId: id,
@@ -112,11 +112,11 @@ class IncidentService {
         };
       });
 
-      await this.incident_rel_alert.bulkCreate(relatedAlerts);
+      await this.incidentRelAlert.bulkCreate(relatedAlerts);
     }
 
     if (actions) {
-      await this.incident_action.destroy({ where: { incidentId: id } });
+      await this.incidentAction.destroy({ where: { incidentId: id } });
       let incidentActions = actions.map(action => {
         return {
           incidentId: id,
@@ -125,7 +125,7 @@ class IncidentService {
           createdBy: currentUserId,
         };
       });
-      await this.incident_action.bulkCreate(incidentActions);
+      await this.incidentAction.bulkCreate(incidentActions);
     }
 
     return this.getIncidentById(id);

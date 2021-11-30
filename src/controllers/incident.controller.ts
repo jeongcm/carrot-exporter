@@ -3,7 +3,7 @@ import { IIncident } from '@/interfaces/incident.interface';
 import IncidentService from '@/services/incident.service';
 import { CreateIncidentDto } from '@dtos/incident.dto';
 import { currentUser } from '@/utils/currentUser';
-import { IIncidentAction } from '@/interfaces/incident_action.interface';
+import { IIncidentAction } from '@/interfaces/incidentAction.interface';
 
 class IncidentController {
   public incidentService = new IncidentService();

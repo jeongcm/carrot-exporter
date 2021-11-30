@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { IIncidentRelAlert } from './../interfaces/incident_rel_alert.interface';
+import { IIncidentRelAlert } from './../interfaces/incidentRelAlert.interface';
 
 export type IIncidentRelAlertCreationAttributes = Optional<IIncidentRelAlert, 'id' | 'incidentId' | 'alertId'>;
 
@@ -28,7 +28,7 @@ export default function (sequelize: Sequelize): typeof IncidentRelAlertModel {
       },
     },
     {
-      tableName: 'Incident_Rel_Alert',
+      tableName: 'IncidentRelAlert',
       sequelize,
       timestamps: false,
     },

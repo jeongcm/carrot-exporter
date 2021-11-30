@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { IIncidentAction } from './../interfaces/incident_action.interface';
+import { IIncidentAction } from './../interfaces/incidentAction.interface';
 
 export type IIncidentActionCreationAttributes = Optional<
   IIncidentAction,
@@ -55,7 +55,7 @@ export default function (sequelize: Sequelize): typeof IncidentActionModel {
       },
     },
     {
-      tableName: 'Incident_Action',
+      tableName: 'IncidentAction',
       modelName: 'incidentAction',
       sequelize,
     },
