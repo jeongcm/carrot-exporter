@@ -30,6 +30,7 @@ class ClusterController {
         const clusterData: CreateClusterDto = req.body;
         const createClusterData: Cluster = await this.clusterService.createCluster(clusterData);
         res.status(201).json({ data: createClusterData, message: 'created' });
+        
       } catch (error) {
         next(error);
       }
