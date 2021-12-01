@@ -4,6 +4,7 @@ import IncidentService from '@/services/incident.service';
 import { CreateIncidentDto } from '@dtos/incident.dto';
 import { currentUser } from '@/utils/currentUser';
 import { IIncidentAction } from '@/interfaces/incidentAction.interface';
+import { CreateActionDto } from '@/dtos/incidentAction.dto';
 
 class IncidentController {
   public incidentService = new IncidentService();
@@ -85,6 +86,24 @@ class IncidentController {
 
       const updateAlertData: IIncident = await this.incidentService.updateIncident(incidentId, incidentData, currentUserId);
       res.status(200).json({ data: updateAlertData, message: 'updated' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public createIncidentActions = async (req: Request, res: Response, next: NextFunction) => {
+    const incidentId = parseInt(req.params.id);
+    const incident = await this.incidentService.getIncidentById(incidentId);
+
+    if (!incident) {
+      return res.sendStatus(404);
+    }
+
+    try {
+      const actionData: CreateActionDto = req.body;
+      let currentUserId = currentUser(req).id;
+      const createActionData: IIncidentAction = await this.incidentService.createIncidentAction(actionData, currentUserId, incidentId);
+      res.status(201).json({ data: createActionData, message: 'created' });
     } catch (error) {
       next(error);
     }

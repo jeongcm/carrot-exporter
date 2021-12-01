@@ -314,6 +314,34 @@ paths:
           description: 'Not Found'
         500:
           description: 'Server Error'
+    # [POST] incidents
+    post:
+      tags:
+        - incidents
+      summary: Create Incidnet Action
+      parameters:
+        - name: id
+          in: path
+          description: Incident Id
+          required: true
+          type: integer
+        - name: body
+          in: body
+          description: Incident Action Data
+          required: true
+          schema:
+            $ref: '#/definitions/createAction'
+      responses:
+        201:
+          description: 'Created'
+          schema:
+            $ref: '#/definitions/action'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
 
 # definitions
 definitions:
@@ -675,6 +703,41 @@ definitions:
           type: string
           description: updated time
           example: string
+  action:
+    type: object
+    properties:
+      id:
+        type: number
+        description: action id
+        example: 1
+      incidentId:
+        type: number
+        description: Incident Id
+        example: 1
+      title:
+        type: string
+        description: title of action
+        example: string
+      description:
+        type: string
+        description: description of action
+        example: string
+      createdBy:
+        type: string
+        description: who create the action
+        example: string
+      updatedBy:
+        type: string
+        description: who update the action
+        example: string
+      createdAt:
+        type: string
+        description: created time
+        example: string
+      updatedAt:
+        type: string
+        description: updated time
+        example: string
   createActions:
     type: array
     items:
@@ -730,6 +793,20 @@ definitions:
         example: string(uuid)
       actions:
         $ref: '#/definitions/createActions'
+  createAction:
+    type: object
+    required:
+      - title
+      - description
+    properties:
+      title:
+        type: string
+        description: title of action
+        example: string
+      description:
+        type: string
+        description: description of action
+        example: string
 
 schemes:
   - https

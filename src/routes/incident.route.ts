@@ -4,6 +4,7 @@ import IncidentController from '@/controllers/incident.controller';
 import validationMiddleware from '@middlewares/validation.middleware';
 import { CreateIncidentDto } from '@dtos/incident.dto';
 import AuthService from '@/services/auth.service';
+import { CreateActionDto } from '@/dtos/incidentAction.dto';
 
 class IncidentRoute implements Routes {
   public path = '/incidents';
@@ -19,6 +20,12 @@ class IncidentRoute implements Routes {
     this.router.get(`${this.path}`, this.authservice.authenticate, this.incidentController.getIncidents);
     this.router.get(`${this.path}/:id`, this.authservice.authenticate, this.incidentController.getIncident);
     this.router.get(`${this.path}/:id/actions`, this.authservice.authenticate, this.incidentController.getIncidentActions);
+    this.router.post(
+      `${this.path}/:id/actions`,
+      this.authservice.authenticate,
+      validationMiddleware(CreateActionDto, 'body'),
+      this.incidentController.createIncidentActions,
+    ); // validationMiddleware 넣기!
 
     this.router.post(
       `${this.path}`,

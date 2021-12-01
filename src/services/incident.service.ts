@@ -6,6 +6,7 @@ import { isEmpty } from '@utils/util';
 import { IncidentModel } from '@/models/incident.model';
 import { IIncidentAction } from '@/interfaces/incidentAction.interface';
 import { UserModel } from '@/models/users.model';
+import { CreateActionDto } from '@/dtos/incidentAction.dto';
 
 class IncidentService {
   public incident = DB.Incident;
@@ -129,6 +130,18 @@ class IncidentService {
     }
 
     return this.getIncidentById(id);
+  }
+
+  public async createIncidentAction(actionData: any, currentUserId: string, incidentId: number): Promise<IIncidentAction> {
+    if (isEmpty(actionData)) throw new HttpException(400, 'Incident must not be empty');
+
+    const createActionData: IIncidentAction = await this.incidentAction.create({
+      createdBy: currentUserId,
+      incidentId,
+      ...actionData,
+    });
+
+    return createActionData;
   }
 }
 
