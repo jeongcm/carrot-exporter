@@ -3,7 +3,7 @@ import { Tenancy } from '@interfaces/tenancy.interface';
 
 export type TenancyCreationAttributes = Optional<Tenancy, 'id' | 'tenancyCode' | 'tenancyName' >;
 
-export class TenancyModel extends Model<Tenancy, TenancyCreationAttributes> implements Tenancy {
+export class TenancyModel extends Model<Tenancy> implements Tenancy {
   public id: string;
   public tenancyName: string;
   public tenancyCode: string;

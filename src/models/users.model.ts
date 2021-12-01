@@ -1,5 +1,7 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { User } from '@interfaces/users.interface';
+import { TenancyMemberModel } from './tenancyMember.model';
+import { TenancyModel } from './tenancy.model';
 
 export type UserCreationAttributes = Optional<
   User,
@@ -29,6 +31,10 @@ export default function (sequelize: Sequelize): typeof UserModel {
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
+        // references:{
+        //   model:TenancyMemberModel,
+        //   key:"userId"
+        // }
       },
       email: {
         allowNull: false,
@@ -77,6 +83,9 @@ export default function (sequelize: Sequelize): typeof UserModel {
       sequelize,
     },
   );
+
+  // TenancyMemberModel.hasMany(UserModel, {as:'users', foreignKey: 'id'});
+  // UserModel.belongsTo(TenancyMemberModel, {as:'tenancyMembers', foreignKey: 'userId'});
 
   return UserModel;
 }

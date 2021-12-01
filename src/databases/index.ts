@@ -6,11 +6,15 @@ import UserModel from '@models/users.model';
 import AccessGroupModel from '@models/accessGroup.model';
 import AlertModel from '@/models/alert.model';
 import ClusterModel from '@models/cluster.model';
+import AccessGroupChannelModel from '@models/accessGroupChannel.model';
+import AccessGroupClusterModel from '@models/accessGroupCluster.model';
+import AccessGroupMemberModel from '@models/accessGroupMember.model';
 import ChannelModel from '@models/channel.model';
 import TenancyModel from '@/models/tenancy.model';
 import IncidentModel from '@/models/incident.model';
 import IncidentRelAlertModel from '@/models/incidentRelAlert.model';
 import IncidentActionModel from '@/models/incidentAction.model';
+import TenancyMemberModel from '@/models/tenancyMember.model';
 
 const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
 const sequelize = new Sequelize.Sequelize(database, user, password, {
@@ -39,7 +43,11 @@ sequelize.authenticate();
 const DB = {
   Users: UserModel(sequelize),
   AccessGroup: AccessGroupModel(sequelize),
+  AccessGroupChannel: AccessGroupChannelModel(sequelize),
+  AccessGroupCluster: AccessGroupClusterModel(sequelize),
+  AccessGroupMember: AccessGroupMemberModel(sequelize),
   Tenancies: TenancyModel(sequelize),
+  TenancyMembers: TenancyMemberModel(sequelize),
   Alerts: AlertModel(sequelize),
   Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
@@ -47,7 +55,6 @@ const DB = {
   IncidentRelAlert: IncidentRelAlertModel(sequelize),
   IncidentAction: IncidentActionModel(sequelize),
   sequelize, // connection instance (RAW queries)
-  Sequelize, // library
 };
 
 export default DB;

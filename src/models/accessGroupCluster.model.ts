@@ -1,30 +1,39 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { AccessGroup } from '@interfaces/accessGroup.interface';
+import { AccessGroupCluster } from '@interfaces/accessGroupCluster.interface';
 
-export type AccessGroupCreationAttributes = Optional<
-  AccessGroup,
-  'id' | 'groupName' | 'description' | 'icon' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'>;
+export type AccessGroupClusterCreationAttributes = Optional<
+  AccessGroupCluster,
+  'id' | 'groupId' | 'clusterId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
+>;
 
-export class AccessGroupModel extends Model<AccessGroup, AccessGroupCreationAttributes> implements AccessGroup {
+export class AccessGroupClusterModel extends Model<AccessGroupCluster, AccessGroupClusterCreationAttributes> implements AccessGroupCluster {
   public id: string;
-  public groupName: string;
+  public groupId: string;
+  public clusterId: string;
   public createdBy: string;
   public updatedBy: string;
-  public description: string;
-  public icon: string;
+  public isDeleted: boolean;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
 
-export default function (sequelize: Sequelize): typeof AccessGroupModel {
-  AccessGroupModel.init(
+export default function (sequelize: Sequelize): typeof AccessGroupClusterModel {
+  AccessGroupClusterModel.init(
     {
       id: {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
+      },
+      groupId: {
+        allowNull: false,
+        type: DataTypes.STRING(45),
+      },
+      clusterId: {
+        allowNull: false,
+        type: DataTypes.STRING(45),
       },
       createdBy: {
         allowNull: false,
@@ -34,18 +43,6 @@ export default function (sequelize: Sequelize): typeof AccessGroupModel {
         allowNull: false,
         type: DataTypes.STRING(45),
       },
-      groupName: {
-        allowNull: false,
-        type: DataTypes.STRING(45),
-      },
-      icon: {
-        allowNull: false,
-        type: DataTypes.STRING(45),
-      },
-      description: {
-        allowNull: false,
-        type: DataTypes.STRING(255),
-      },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE(),
@@ -54,12 +51,17 @@ export default function (sequelize: Sequelize): typeof AccessGroupModel {
         allowNull: false,
         type: DataTypes.DATE(),
       },
+      isDeleted: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
     },
     {
-      tableName: 'AccessGroup',
+      tableName: 'AccessGroupCluster',
       sequelize,
     },
   );
 
-  return AccessGroupModel;
+  return AccessGroupClusterModel;
 }
