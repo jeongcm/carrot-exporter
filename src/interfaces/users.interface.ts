@@ -24,3 +24,7 @@ export interface CurrentUser {
   iat: number;
   exp: number
 }
+
+export interface CurrentTenancy {
+  tenancyId: string;
+}
