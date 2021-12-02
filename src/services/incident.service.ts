@@ -7,6 +7,7 @@ import { IncidentModel } from '@/models/incident.model';
 import { IIncidentAction } from '@/interfaces/incidentAction.interface';
 import { UserModel } from '@/models/users.model';
 import { CreateActionDto } from '@/dtos/incidentAction.dto';
+import { IncidentActionModel } from '@/models/incidentAction.model';
 
 class IncidentService {
   public incident = DB.Incident;
@@ -142,6 +143,21 @@ class IncidentService {
     });
 
     return createActionData;
+  }
+
+  public async updateIncidentAction(actionData: any, currentUserId: string, incidentId: number, actionId: number): Promise<IIncidentAction> {
+    if (isEmpty(actionData)) throw new HttpException(400, 'Incident must not be empty');
+
+    await this.incidentAction.update(
+      {
+        updatedBy: currentUserId,
+        ...actionData,
+      },
+      { where: { id: actionId, incidentId } },
+    );
+
+    const updateResult: IIncidentAction = await this.incidentAction.findByPk(actionId);
+    return updateResult;
   }
 }
 

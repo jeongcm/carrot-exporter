@@ -91,7 +91,7 @@ class IncidentController {
     }
   };
 
-  public createIncidentActions = async (req: Request, res: Response, next: NextFunction) => {
+  public createIncidentAction = async (req: Request, res: Response, next: NextFunction) => {
     const incidentId = parseInt(req.params.id);
     const incident = await this.incidentService.getIncidentById(incidentId);
 
@@ -104,6 +104,26 @@ class IncidentController {
       let currentUserId = currentUser(req).id;
       const createActionData: IIncidentAction = await this.incidentService.createIncidentAction(actionData, currentUserId, incidentId);
       res.status(201).json({ data: createActionData, message: 'created' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public updateIncidentAction = async (req: Request, res: Response, next: NextFunction) => {
+    const incidentId = parseInt(req.params.incidentId);
+    const actionId = parseInt(req.params.actionId);
+
+    const incident = await this.incidentService.getIncidentById(incidentId);
+
+    if (!incident) {
+      return res.sendStatus(404);
+    }
+
+    try {
+      const actionData: CreateActionDto = req.body;
+      let currentUserId = currentUser(req).id;
+      const updateActionData: IIncidentAction = await this.incidentService.updateIncidentAction(actionData, currentUserId, incidentId, actionId);
+      res.status(201).json({ data: updateActionData, message: 'created' });
     } catch (error) {
       next(error);
     }

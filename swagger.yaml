@@ -342,6 +342,38 @@ paths:
           description: 'Conflict'
         500:
           description: 'Server Error'
+  # [PUT] incidents/id/actions/actionId
+  /incidents/{incidentId}/actions/{actionId}:
+    put:
+      tags:
+        - incidents
+      summary: Update Action
+      parameters:
+        - name: incidentId
+          in: path
+          description: Incident Id
+          required: true
+          type: integer
+        - name: actionId
+          in: path
+          description: Action Id
+          required: true
+          type: integer
+        - name: body
+          in: body
+          description: Incident Action Data
+          required: true
+          schema:
+            $ref: '#/definitions/createAction'
+      responses:
+        200:
+          description: 'OK'
+          schema:
+            $ref: '#/definitions/action'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
 
 # definitions
 definitions:

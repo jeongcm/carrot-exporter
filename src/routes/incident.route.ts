@@ -24,8 +24,14 @@ class IncidentRoute implements Routes {
       `${this.path}/:id/actions`,
       this.authservice.authenticate,
       validationMiddleware(CreateActionDto, 'body'),
-      this.incidentController.createIncidentActions,
-    ); // validationMiddleware 넣기!
+      this.incidentController.createIncidentAction,
+    );
+    this.router.put(
+      `${this.path}/:incidentId/actions/:actionId`,
+      this.authservice.authenticate,
+      validationMiddleware(CreateActionDto, 'body'),
+      this.incidentController.updateIncidentAction,
+    );
 
     this.router.post(
       `${this.path}`,
