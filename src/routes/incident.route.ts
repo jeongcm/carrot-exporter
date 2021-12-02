@@ -32,7 +32,7 @@ class IncidentRoute implements Routes {
       validationMiddleware(CreateActionDto, 'body'),
       this.incidentController.updateIncidentAction,
     );
-
+    this.router.delete(`${this.path}/:incidentId/actions/:actionId`, this.authservice.authenticate, this.incidentController.deleteIncidentAction);
     this.router.post(
       `${this.path}`,
       this.authservice.authenticate,

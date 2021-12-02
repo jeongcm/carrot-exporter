@@ -342,7 +342,7 @@ paths:
           description: 'Conflict'
         500:
           description: 'Server Error'
-  # [PUT] incidents/id/actions/actionId
+  # [PUT] incidents/incidentId/actions/actionId
   /incidents/{incidentId}/actions/{actionId}:
     put:
       tags:
@@ -372,6 +372,29 @@ paths:
             $ref: '#/definitions/action'
         404:
           description: 'Not Found'
+        500:
+          description: 'Server Error'
+    # [DELETE] incidents/incidentId/actions/actionId
+    delete:
+      tags:
+        - incidents
+      summary: Delete Action
+      parameters:
+        - name: incidentId
+          in: path
+          description: Incident Id
+          required: true
+          type: integer
+        - name: actionId
+          in: path
+          description: Action Id
+          required: true
+          type: integer
+      responses:
+        204:
+          description: 'OK'
+        409:
+          description: 'Conflict'
         500:
           description: 'Server Error'
 

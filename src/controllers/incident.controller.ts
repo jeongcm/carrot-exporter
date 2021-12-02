@@ -128,6 +128,25 @@ class IncidentController {
       next(error);
     }
   };
+
+  public deleteIncidentAction = async (req: Request, res: Response, next: NextFunction) => {
+    const incidentId = parseInt(req.params.incidentId);
+    const actionId = parseInt(req.params.actionId);
+
+    const incident = await this.incidentService.getIncidentById(incidentId);
+
+    if (!incident) {
+      return res.sendStatus(404);
+    }
+
+    try {
+      let currentUserId = currentUser(req).id;
+      await this.incidentService.deleteIncidentActionById(incidentId, currentUserId, actionId);
+      res.status(204).json({ message: `delete incident action id(${actionId})` });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default IncidentController;

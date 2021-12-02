@@ -44,7 +44,7 @@ class IncidentService {
 
   public async getIncidentActionsById(id: number): Promise<IIncidentAction[]> {
     const incidentActions: IIncidentAction[] = await this.incidentAction.findAll({
-      where: { incidentId: id },
+      where: { incidentId: id, isDeleted: 0 },
       attributes: { exclude: ['isDeleted'] },
     });
 
@@ -158,6 +158,15 @@ class IncidentService {
 
     const updateResult: IIncidentAction = await this.incidentAction.findByPk(actionId);
     return updateResult;
+  }
+
+  public async deleteIncidentActionById(incidentId: number, currentUserId: string, actionId: number): Promise<[number, IncidentActionModel[]]> {
+    const deletedIncidentAction: [number, IncidentActionModel[]] = await this.incidentAction.update(
+      { isDeleted: 1, updatedBy: currentUserId },
+      { where: { id: actionId, incidentId } },
+    );
+
+    return deletedIncidentAction;
   }
 }
 
