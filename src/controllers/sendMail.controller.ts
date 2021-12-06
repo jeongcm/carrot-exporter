@@ -42,7 +42,7 @@ class SendMailController {
       }
     });
   };
-  
+
 /**
  * verifyMail function to verify the email send while login
  */
@@ -56,6 +56,7 @@ class SendMailController {
         token
       };
       this.users.update(obj, {where:{email}});
+      return res.status(200).json({message:"user verified successfully"})
     }else{
       return res.status(400).json({message:"Token is missing in the url"});
     }
