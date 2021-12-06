@@ -14,6 +14,10 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
   public lastName: string;
   public mobile: string;
   public photo: string;
+  public currentTenancy:string;
+  public isEmailValidated:boolean;
+  public emailValidatedOn:Date;
+  public token:string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -60,6 +64,23 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
       password: {
         allowNull: false,
+        type: DataTypes.STRING(255),
+      },
+      isEmailValidated: {
+        allowNull: true,
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
+      },
+      emailValidatedOn: {
+        allowNull: true,
+        type: DataTypes.DATE(),
+      },
+      token: {
+        allowNull: true,
+        type: DataTypes.STRING(255),
+      },
+      currentTenancy: {
+        allowNull: true,
         type: DataTypes.STRING(255),
       },
       createdAt: {

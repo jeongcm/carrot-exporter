@@ -103,7 +103,7 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
       sequelize,
     },
   );
-  TenancyMemberModel.hasMany(UserModel, {foreignKey: 'id'});
-  UserModel.belongsTo(TenancyMemberModel, {foreignKey: 'id'});
+  // TenancyMemberModel.hasMany(UserModel, {foreignKey: 'id'});
+  // UserModel.belongsTo(TenancyMemberModel, {foreignKey: 'id'});
   return TenancyMemberModel;
 }
