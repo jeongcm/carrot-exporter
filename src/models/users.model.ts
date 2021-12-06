@@ -97,8 +97,8 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
     },
     {
-      tableName: 'user',
-      modelName:"user",
+      tableName: 'users',
+      modelName:"users",
       sequelize,
     },
   );
