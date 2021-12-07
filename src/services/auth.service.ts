@@ -18,13 +18,13 @@ class AuthService {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
     let findUser: User;
     findUser = await this.users.findOne({
-      where: { email: userData.loginId }
+      where: { email: userData.email }
     });
-    if (findUser) throw new HttpException(400, `You're email ${userData.loginId} already existss`);
+    if (findUser) throw new HttpException(400, `You're email ${userData.email} already existss`);
     const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
     let currentDate = new Date();
     let user = {
-      email: userData.loginId,
+      email: userData.email,
       username: userData.username,
       password: hashedPassword,
       firstName: userData.firstName,
@@ -42,8 +42,8 @@ class AuthService {
   public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await this.users.findOne({ where: { email: userData.loginId } });
-    if (!findUser) throw new HttpException(409, `You're email ${userData.loginId} not found`);
+    const findUser: User = await this.users.findOne({ where: { email: userData.email } });
+    if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
 
     const isPasswordMatching: boolean = await bcrypt.compare(userData.loginPw, findUser.password);
     if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
