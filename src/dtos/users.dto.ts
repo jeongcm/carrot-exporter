@@ -3,7 +3,7 @@ import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-valida
 export class CreateUserDto {
   @IsEmail()
   @IsNotEmpty()
-  public loginId: string;
+  public email: string;
 
   @IsString()
   @IsNotEmpty()
@@ -32,7 +32,7 @@ export class CreateUserDto {
 
 export class LoginUserDto {
   @IsEmail()
-  public loginId: string;
+  public email: string;
 
   @IsString()
   public loginPw: string;
