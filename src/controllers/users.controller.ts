@@ -29,7 +29,7 @@ class UsersController {
       const {email} = req.body;
       const findOneUserData: User = await this.userService.findUserByEmail(email);
       if( findOneUserData &&Object.keys(findOneUserData).length){
-        return res.status(400).json({ message: `User exit with ${email} mail`});
+        return res.status(200).json({ message: `User exit with ${email} mail`});
       }else{
         return res.status(200).json({ message: "Validated Successfully"});
       }
