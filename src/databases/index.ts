@@ -14,6 +14,9 @@ import TenancyModel from '@/models/tenancy.model';
 import TenancyMemberModel from '@/models/tenancyMember.model';
 
 const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
+
+console.log(host, user, password);
+
 const sequelize = new Sequelize.Sequelize(database, user, password, {
   host: host,
   dialect: 'mariadb',
@@ -37,7 +40,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
 
 sequelize.authenticate();
 
-const DB = { 
+const DB = {
   Users: UserModel(sequelize),
   AccessGroup: AccessGroupModel(sequelize),
   AccessGroupChannel: AccessGroupChannelModel(sequelize),
