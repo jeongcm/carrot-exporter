@@ -24,6 +24,19 @@ class UsersController {
       next(error);
     }
   };
+  public checkForDuplicateMail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const {email} = req.body;
+      const findOneUserData: User = await this.userService.findUserByEmail(email);
+      if( findOneUserData &&Object.keys(findOneUserData).length){
+        return res.status(200).json({ message: `User exit with ${email} mail`});
+      }else{
+        return res.status(200).json({ message: "Validated Successfully"});
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
 
   public createUser = async (req: Request, res: Response, next: NextFunction) => {
     try {

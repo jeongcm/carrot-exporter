@@ -3,7 +3,7 @@ import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-valida
 export class CreateUserDto {
   @IsEmail()
   @IsNotEmpty()
-  public loginId: string;
+  public email: string;
 
   @IsString()
   @IsNotEmpty()
@@ -28,11 +28,26 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   public photo: string;
+
+  
+  @IsOptional()
+  public isEmailValidated: boolean;
+  
+  @IsOptional()
+  public emailValidatedOn: Date;
+
+  @IsString()
+  @IsOptional()
+  public token: string;
+  
+  @IsString()
+  @IsOptional()
+  public currentTenancy: string;
 }
 
 export class LoginUserDto {
   @IsEmail()
-  public loginId: string;
+  public email: string;
 
   @IsString()
   public loginPw: string;
