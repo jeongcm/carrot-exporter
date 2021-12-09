@@ -1,7 +1,7 @@
 {
     "env": "development",
     "dbConfig": {
-        "host": "localhost",
+        "host": "143.198.157.129",
         "user": "user",
         "password": "user",
         "database": "mydb",
