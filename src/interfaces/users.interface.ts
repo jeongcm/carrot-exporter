@@ -7,6 +7,10 @@ export interface User {
   lastName: string;
   mobile: string;
   photo: string;
+  currentTenancy:string;
+  isEmailValidated:boolean;
+  emailValidatedOn:Date;
+  token:string;
   lastAccess: Date;
   createdAt: Date;
   updatedAt: Date;
