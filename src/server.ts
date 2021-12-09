@@ -8,6 +8,7 @@ import UsersRoute from '@routes/users.route';
 import AccessGroupRoute from '@routes/accessGroup.route';
 import TenancyRoute from '@routes/tenancy.route';
 import AlertRoute from '@routes/alert.route';
+import LogRoute from '@routes/log.route';
 import ClusterRoute from '@routes/cluster.route';
 import ChannelRoute from '@routes/channel.route';
 import validateEnv from '@utils/validateEnv';
@@ -20,6 +21,7 @@ const app = new App([
   new AccessGroupRoute(),
   new AuthRoute(),
   new AlertRoute(),
+  new LogRoute(),
   new TenancyRoute(),
   new ClusterRoute(),
   new ChannelRoute(),
