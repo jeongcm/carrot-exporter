@@ -24,6 +24,7 @@
       "@/*": ["*"],
       "@controllers/*": ["controllers/*"],
       "@dtos/*": ["dtos/*"],
+      "@databases": ["databases"],
       "@exceptions/*": ["exceptions/*"],
       "@interfaces/*": ["interfaces/*"],
       "@middlewares/*": ["middlewares/*"],
@@ -33,6 +34,6 @@
       "@utils/*": ["utils/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.json", ".env"],
+  "include": ["src/**/*.ts", "src/**/*.json", ".env", "src/configs/development.js"],
   "exclude": ["node_modules"]
 }

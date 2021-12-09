@@ -10,6 +10,7 @@ import hpp from 'hpp';
 import morgan from 'morgan';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import DB from 'databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
@@ -21,9 +22,10 @@ class App {
 
   constructor(routes: Routes[]) {
     this.app = express();
-    this.port = process.env.PORT || 3000;
+    this.port = process.env.NEXCLIPPER_NODE_PORT || 5000;
     this.env = process.env.NODE_ENV || 'development';
 
+    this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
@@ -34,13 +36,23 @@ class App {
     this.app.listen(this.port, () => {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
-      logger.info(`🚀 App listening on the port ${this.port}`);
+      logger.info(`🚀 NexClipper listening on the port ${this.port}`);
       logger.info(`=================================`);
     });
   }
 
   public getServer() {
     return this.app;
+  }
+
+  private connectToDatabase() {
+    DB.sequelize.sync({ force: false })
+    .then(()=>{
+      console.log("Database connected successfully")
+    })
+    .catch((err)=>{
+      console.log(err)
+    });
   }
 
   private initializeMiddlewares() {

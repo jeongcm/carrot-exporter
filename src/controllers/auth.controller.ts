@@ -1,42 +1,70 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
-import { RequestWithUser } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
+import { RequestWithUser } from '@interfaces/auth.interface';
 import AuthService from '@services/auth.service';
 
 class AuthController {
   public authService = new AuthService();
 
-  public signUp = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userData: CreateUserDto = req.body;
       const signUpUserData: User = await this.authService.signup(userData);
-
-      res.status(201).json({ data: signUpUserData, message: 'signup' });
+      let createdData = {
+        id: signUpUserData.id,
+        email: signUpUserData.email,
+        username: signUpUserData.username,
+        firstName: signUpUserData.firstName,
+        lastName: signUpUserData.lastName,
+        mobile: signUpUserData.mobile,
+        photo: signUpUserData.photo,
+        lastAccess: signUpUserData.lastAccess,
+        updatedAt: signUpUserData.updatedAt,
+        createdAt: signUpUserData.createdAt,
+      };
+      res.status(201).json({ data: createdData, message: 'signup' });
     } catch (error) {
       next(error);
     }
   };
 
-  public logIn = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  public logIn = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userData: CreateUserDto = req.body;
       const { cookie, findUser } = await this.authService.login(userData);
-
+      let loggedInUser = {
+        id: findUser.id,
+        email: findUser.email,
+        username: findUser.username,
+        firstName: findUser.firstName,
+        lastName: findUser.lastName,
+        mobile: findUser.mobile,
+        photo: findUser.photo,
+        lastAccess: findUser.lastAccess,
+        updatedAt: findUser.updatedAt,
+        createdAt: findUser.createdAt,
+      };
       res.setHeader('Set-Cookie', [cookie]);
-      res.status(200).json({ data: findUser, message: 'login' });
+      res.status(200).json({ data: loggedInUser, message: 'login' });
     } catch (error) {
       next(error);
     }
   };
 
-  public logOut = async (req: RequestWithUser, res: Response, next: NextFunction): Promise<void> => {
+  public logOut = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const userData: User = req.user;
-      const logOutUserData: User = await this.authService.logout(userData);
+      res.setHeader('set-cookie', ['X-AUTHORIZATION=; Max-age=0']);
+      res.status(200).send({ message: 'logged out successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
 
-      res.setHeader('Set-Cookie', ['Authorization=; Max-age=0']);
-      res.status(200).json({ data: logOutUserData, message: 'logout' });
+  public info = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const logOutUserData: User = await this.authService.info(req);
+      res.status(200).json({ data: logOutUserData, message: 'me' });
     } catch (error) {
       next(error);
     }

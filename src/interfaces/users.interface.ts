@@ -1,5 +1,26 @@
 export interface User {
-  id: number;
+  id: string;
   email: string;
   password: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  mobile: string;
+  photo: string;
+  lastAccess: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface NewUser {
+  email: string;
+  password: string;
+  username: string;
+}
+
+
+export interface CurrentUser {
+  id: string;
+  iat: number;
+  exp: number
 }

@@ -1,11 +1,89 @@
+import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { User } from '@interfaces/users.interface';
+import { TenancyMemberModel } from './tenancyMember.model';
+import { TenancyModel } from './tenancy.model';
 
-// password: q1w2e3r4
-const userModel: User[] = [
-  { id: 1, email: 'lim@gmail.com', password: '$2b$10$hmrwtGwC.QlfWt6YWaT3S.FP9CarS3.V9n3Qr.d9y2ovcan0oxs56' },
-  { id: 2, email: 'kim@gmail.com', password: '$2b$10$hmrwtGwC.QlfWt6YWaT3S.FP9CarS3.V9n3Qr.d9y2ovcan0oxs56' },
-  { id: 3, email: 'park@gmail.com', password: '$2b$10$hmrwtGwC.QlfWt6YWaT3S.FP9CarS3.V9n3Qr.d9y2ovcan0oxs56' },
-  { id: 4, email: 'choi@gmail.com', password: '$2b$10$hmrwtGwC.QlfWt6YWaT3S.FP9CarS3.V9n3Qr.d9y2ovcan0oxs56' },
-];
+export type UserCreationAttributes = Optional<User, 'id' | 'email' | 'password' | 'username'|'firstName'|'lastAccess'|'lastName'|'mobile'|'photo'|'createdAt'|'updatedAt'>;
 
-export default userModel;
+export class UserModel extends Model<User, UserCreationAttributes> implements User {
+  public id: string;
+  public email: string;
+  public password: string;
+  public username: string;
+  public firstName: string;
+  public lastName: string;
+  public mobile: string;
+  public photo: string;
+
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+  public readonly lastAccess!: Date;
+}
+
+export default function (sequelize: Sequelize): typeof UserModel {
+  UserModel.init(
+    {
+      id: {
+        primaryKey: true,
+        allowNull: false,
+        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.UUID,
+        // references:{
+        //   model:TenancyMemberModel,
+        //   key:"userId"
+        // }
+      },
+      email: {
+        allowNull: false,
+        type: DataTypes.STRING(45),
+        
+      },
+      username: {
+        allowNull: false,
+        type: DataTypes.STRING(45),
+      },
+      firstName: {
+        allowNull: true,
+        type: DataTypes.STRING(45),
+      },
+      lastName: {
+        allowNull: true,
+        type: DataTypes.STRING(45),
+      },
+      mobile: {
+        allowNull: true,
+        type: DataTypes.STRING(45),
+      },
+      photo: {
+        allowNull: true,
+        type: DataTypes.STRING(45),
+      },
+      password: {
+        allowNull: false,
+        type: DataTypes.STRING(255),
+      },
+      createdAt: {
+        allowNull: false,
+        type: DataTypes.DATE(),
+      },
+      lastAccess: {
+        allowNull: false,
+        type: DataTypes.DATE(),
+      },
+      updatedAt: {
+        allowNull: false,
+        type: DataTypes.DATE(),
+      },
+    },
+    {
+      tableName: 'user',
+      modelName:"user",
+      sequelize,
+    },
+  );
+
+  // TenancyMemberModel.hasMany(UserModel, {as:'users', foreignKey: 'id'});
+  // UserModel.belongsTo(TenancyMemberModel, {as:'tenancyMembers', foreignKey: 'userId'});
+  
+  return UserModel;
+}
