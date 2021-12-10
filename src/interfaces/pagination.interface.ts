@@ -1,4 +1,4 @@
 export interface Paginate {
-    offset: number;
-    limit: number;
-  }
+  offset: number;
+  limit: number;
+}

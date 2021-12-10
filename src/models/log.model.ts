@@ -4,7 +4,19 @@ import { LogStatus, LogType } from '@/enums';
 
 export type AlertCreationAttributes = Optional<
   Log,
-  'name' | 'from' | 'type' | 'id' | 'status' | 'isActive' | 'createdAt' | 'createdBy'  | 'descriptiveLog' | 'hasDescriptiveLog' | 'message' | 'updatedAt' | 'updatedBy'
+  | 'name'
+  | 'from'
+  | 'type'
+  | 'id'
+  | 'status'
+  | 'isActive'
+  | 'createdAt'
+  | 'createdBy'
+  | 'descriptiveLog'
+  | 'hasDescriptiveLog'
+  | 'message'
+  | 'updatedAt'
+  | 'updatedBy'
 >;
 
 export class LogModel extends Model<Log, AlertCreationAttributes> implements Log {
@@ -61,7 +73,7 @@ export default function (sequelize: Sequelize): typeof LogModel {
       },
       descriptiveLog: {
         type: DataTypes.TEXT,
-        allowNull: true
+        allowNull: true,
       },
       message: {
         type: DataTypes.STRING(255),

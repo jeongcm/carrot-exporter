@@ -30,7 +30,7 @@ export class CreateTenancyDto {
   @IsString()
   @IsOptional()
   public updatedBy: string;
-  
+
   @IsString()
   @IsOptional()
   public isDeleted: boolean;

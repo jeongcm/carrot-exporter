@@ -1,4 +1,4 @@
-import { EventFrom, EventStatus } from "@/enums";
+import { EventFrom, EventStatus } from '@/enums';
 
 export interface Event {
   name: string;

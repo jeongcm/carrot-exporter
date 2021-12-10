@@ -49,5 +49,5 @@ export interface Channel {
   createdBy: string;
   updatedAt: Date;
   updatedBy: string;
-  isDeleted: boolean
+  isDeleted: boolean;
 }

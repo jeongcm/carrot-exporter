@@ -2,7 +2,10 @@ import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Channel } from '@interfaces/channel.interface';
 import { ChannelType } from '@/enums';
 
-export type ChannelCreationAttributes = Optional<Channel, 'id' |'channelType' | 'name' | 'description' |'configJSON' |'createdBy' |'updatedBy' |'isDeleted' >; 
+export type ChannelCreationAttributes = Optional<
+  Channel,
+  'id' | 'channelType' | 'name' | 'description' | 'configJSON' | 'createdBy' | 'updatedBy' | 'isDeleted'
+>;
 
 export class ChannelModel extends Model<Channel, ChannelCreationAttributes> implements Channel {
   public id: string;

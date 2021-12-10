@@ -3,7 +3,8 @@ import { AccessGroup } from '@interfaces/accessGroup.interface';
 
 export type AccessGroupCreationAttributes = Optional<
   AccessGroup,
-  'id' | 'groupName' | 'description' | 'icon' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'>;
+  'id' | 'groupName' | 'description' | 'icon' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'
+>;
 
 export class AccessGroupModel extends Model<AccessGroup, AccessGroupCreationAttributes> implements AccessGroup {
   public id: string;
