@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Tenancy } from '@interfaces/tenancy.interface';
 
-export type TenancyCreationAttributes = Optional<Tenancy, 'id' | 'tenancyCode' | 'tenancyName' >;
+export type TenancyCreationAttributes = Optional<Tenancy, 'id' | 'tenancyCode' | 'tenancyName'>;
 
 export class TenancyModel extends Model<Tenancy> implements Tenancy {
   public id: string;
@@ -28,7 +28,6 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
       tenancyName: {
         allowNull: false,
         type: DataTypes.STRING,
-        
       },
       tenancyCode: {
         allowNull: false,
@@ -40,7 +39,7 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
       },
       isDeleted: {
         allowNull: true,
-        defaultValue:false,
+        defaultValue: false,
         type: DataTypes.BOOLEAN,
       },
       createdBy: {
@@ -51,7 +50,7 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
         allowNull: true,
         type: DataTypes.UUID,
       },
-     
+
       createdAt: {
         allowNull: false,
         defaultValue: new Date(),
@@ -61,7 +60,7 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
         allowNull: false,
         defaultValue: new Date(),
         type: DataTypes.DATE(),
-      }
+      },
     },
     {
       tableName: 'tenancies',

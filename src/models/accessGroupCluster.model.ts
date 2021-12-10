@@ -54,7 +54,7 @@ export default function (sequelize: Sequelize): typeof AccessGroupClusterModel {
       isDeleted: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
     },
     {

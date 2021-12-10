@@ -4,7 +4,7 @@ export class CreateChannelDto {
   @IsString()
   @IsNotEmpty()
   public channelType: string;
-  
+
   @IsString()
   @IsNotEmpty()
   public name: string;
@@ -36,5 +36,4 @@ export class CreateChannelDto {
   @IsString()
   @IsOptional()
   public isDeleted: boolean;
-
 }
