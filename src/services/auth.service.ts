@@ -39,7 +39,7 @@ class AuthService {
     return createUserData;
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User, token: string }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await this.users.findOne({ where: { email: userData.email } });
@@ -51,13 +51,15 @@ class AuthService {
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);
 
-    return { cookie, findUser };
+    return { cookie, findUser, token: tokenData.token };
   }
 
   public async info(req: RequestWithUser): Promise<any> {
-    const currentCookie = req.cookies['X-AUTHORIZATION'];
+    const currentAuth: any = req.headers['x-authorization'] || '';
+
+    const token: string = currentAuth.replace('Bearer ', '');
     const secretKey: string = config.get('secretKey');
-    const payload = jwt.verify(currentCookie, secretKey) as JwtPayload;
+    const payload = jwt.verify(token, secretKey) as JwtPayload;
 
     if (isEmpty(payload.id)) throw new HttpException(400, "You're not valid user");
     const findUser: User = await this.users.findByPk(payload.id, { attributes: { exclude: ['password'] } });
