@@ -1,8 +1,6 @@
 import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
 
-
 export class CreateTenancyMemberDto {
-
   @IsString()
   public userName: string;
 
@@ -11,32 +9,36 @@ export class CreateTenancyMemberDto {
 
   @IsString()
   @IsNotEmpty()
-  public userRole:'owner' | 'member' | 'maintainer';
+  public userRole: 'owner' | 'member' | 'maintainer';
 
   @IsString()
   public tenancyId: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public isActivated: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public verificationCode: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public isDeleted: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public createdAt: Date;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public updatedAt: Date;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public invitedBy: string;
-
 }
 export class updateTenancyMemberDto {
-
   @IsString()
   @IsOptional()
   public userName: string;
@@ -47,27 +49,32 @@ export class updateTenancyMemberDto {
 
   @IsString()
   @IsOptional()
-  public userRole:'owner' | 'member' | 'maintainer';
+  public userRole: 'owner' | 'member' | 'maintainer';
 
   @IsString()
   public tenancyId: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public isActivated: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public verificationCode: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public isDeleted: string;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public createdAt: Date;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public updatedAt: Date;
 
-  @IsString()@IsOptional()
+  @IsString()
+  @IsOptional()
   public invitedBy: string;
-
 }

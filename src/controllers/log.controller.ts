@@ -18,13 +18,12 @@ class LogController {
     const id = req.params.id;
 
     try {
-      const log: Log = await this.logService.getLogById(id);
+      const log: Log = await this.logService.getLogById(Number(id));
       res.status(200).json({ data: log, message: `find log id (${id}) ` });
     } catch (error) {
       next(error);
     }
   };
-
 }
 
 export default LogController;

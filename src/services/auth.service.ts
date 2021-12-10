@@ -18,12 +18,12 @@ class AuthService {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
     let findUser: User;
     findUser = await this.users.findOne({
-      where: { email: userData.email }
+      where: { email: userData.email },
     });
     if (findUser) throw new HttpException(400, `You're email ${userData.email} already existss`);
     const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
-    let currentDate = new Date();
-    let user = {
+    const currentDate = new Date();
+    const user = {
       email: userData.email,
       username: userData.username,
       password: hashedPassword,
@@ -33,8 +33,8 @@ class AuthService {
       photo: userData.photo,
       lastAccess: currentDate,
       updatedAt: currentDate,
-      createdAt: currentDate
-    }
+      createdAt: currentDate,
+    };
     const createUserData: User = await this.users.create(user);
     return createUserData;
   }
@@ -54,14 +54,10 @@ class AuthService {
     return { cookie, findUser };
   }
 
-
-  public async info(req: RequestWithUser,): Promise<any> {
-    let currentCookie = req.cookies["X-AUTHORIZATION"];
+  public async info(req: RequestWithUser): Promise<any> {
+    const currentCookie = req.cookies['X-AUTHORIZATION'];
     const secretKey: string = config.get('secretKey');
-    const payload = jwt.verify(
-      currentCookie,
-      secretKey
-    ) as JwtPayload;
+    const payload = jwt.verify(currentCookie, secretKey) as JwtPayload;
 
     if (isEmpty(payload.id)) throw new HttpException(400, "You're not valid user");
     const findUser: User = await this.users.findByPk(payload.id, { attributes: { exclude: ['password'] } });
@@ -81,19 +77,15 @@ class AuthService {
     return `X-AUTHORIZATION=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
   }
 
-
   public async authenticate(req: RequestWithUser, res, next): Promise<any> {
-    let currentCookie = req.cookies["X-AUTHORIZATION"];
+    const currentCookie = req.cookies['X-AUTHORIZATION'];
     if (currentCookie) {
       const secretKey: string = config.get('secretKey');
-      const payload = jwt.verify(
-        currentCookie,
-        secretKey
-      ) as JwtPayload
+      const payload = jwt.verify(currentCookie, secretKey) as JwtPayload;
       if (isEmpty(payload.id)) res.status(400).json({ message: 'UnAuthorized' });
-      if (req.path == '/users/tenancies' && req.method == "POST") {
-        req.body["createdBy"] = payload.id;
-        req.body["updatedBy"] = payload.id;
+      if (req.path == '/users/tenancies' && req.method == 'POST') {
+        req.body['createdBy'] = payload.id;
+        req.body['updatedBy'] = payload.id;
       } else {
         // if (req.body) {
         //   req.body["currentUserId"] = payload.id;
@@ -104,8 +96,6 @@ class AuthService {
     }
     next();
   }
-
-
 }
 
 export default AuthService;

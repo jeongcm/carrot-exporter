@@ -24,8 +24,8 @@ class ClusterService {
 
   public async createCluster(clusterData: CreateClusterDto): Promise<Cluster> {
     if (isEmpty(clusterData)) throw new HttpException(400, 'Cluster Data cannot be blank');
-    let currentDate = new Date();
-    let newCluster = {
+    const currentDate = new Date();
+    const newCluster = {
       description: clusterData.description,
       name: clusterData.name,
       icon: clusterData.icon,
@@ -42,12 +42,12 @@ class ClusterService {
     if (isEmpty(clusterData)) throw new HttpException(400, 'Cluster Data cannot be blank');
     const findCluster: Cluster = await this.clusters.findByPk(clusterId);
     if (!findCluster) throw new HttpException(409, "Cluster doesn't exist");
-    let updatingCluster = {
+    const updatingCluster = {
       ...clusterData,
-      platform: <Platform> clusterData.platform,
-      updatedAt: new Date()
-    }
-    await this.clusters.update({...updatingCluster}, { where: { id: clusterId } });
+      platform: <Platform>clusterData.platform,
+      updatedAt: new Date(),
+    };
+    await this.clusters.update({ ...updatingCluster }, { where: { id: clusterId } });
     const updateUser: Cluster = await this.clusters.findByPk(clusterId);
     return updateUser;
   }
