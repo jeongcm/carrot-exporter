@@ -22,7 +22,7 @@ class UsersRoute implements Routes {
     this.router.put(`${this.path}/:id(\\d+)`, validationMiddleware(CreateUserDto, 'body', true), this.usersController.updateUser);
     this.router.delete(`${this.path}/:id(\\d+)`, this.usersController.deleteUser);
     this.router.post(`${this.path}/sendMail`, this.sendMailController.processMail);
-    this.router.get(`/verify`, this.sendMailController.verifyMail);
+    this.router.get(`/verify`, this.usersController.verifyMail);
     this.router.post(`${this.path}/duplicateMail`, this.usersController.checkForDuplicateMail);
   }
 }
