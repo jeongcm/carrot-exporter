@@ -28,7 +28,7 @@ class LogService {
     if (isEmpty(logData)) throw new HttpException(400, 'Log Data cannot be blank');
     const findLog: Log = await this.log.findByPk(logId);
     if (!findLog) throw new HttpException(409, "Log doesn't exist");
-    let updatedLogData = {
+    const updatedLogData = {
       ...logData,
       updatedBy: currentUserId,
       updatedAt: new Date(),
