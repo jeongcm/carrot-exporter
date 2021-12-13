@@ -1,5 +1,5 @@
 export interface IIncidentRelAlert {
-  id: number;
+  id: string;
   incidentId: number;
   alertId: number;
 }

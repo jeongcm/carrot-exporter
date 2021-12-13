@@ -4,7 +4,7 @@ import { IIncidentRelAlert } from './../interfaces/incidentRelAlert.interface';
 export type IIncidentRelAlertCreationAttributes = Optional<IIncidentRelAlert, 'id' | 'incidentId' | 'alertId'>;
 
 export class IncidentRelAlertModel extends Model<IIncidentRelAlert, IIncidentRelAlertCreationAttributes> implements IIncidentRelAlert {
-  public id: number;
+  public id: string;
   public incidentId: number;
   public alertId: number;
 }
@@ -13,24 +13,24 @@ export default function (sequelize: Sequelize): typeof IncidentRelAlertModel {
   IncidentRelAlertModel.init(
     {
       id: {
-        type: DataTypes.BIGINT,
-        autoIncrement: true,
-        allowNull: false,
         primaryKey: true,
+        allowNull: false,
+        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.UUID,
       },
       incidentId: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       alertId: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
     },
     {
       tableName: 'IncidentRelAlert',
       sequelize,
-      timestamps: false,
+      // timestamps: false,
     },
   );
 

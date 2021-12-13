@@ -3,17 +3,32 @@ import { IAlert } from '@/interfaces/alert.interface';
 import { CreateAlertDto } from '@dtos/alert.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
+import { IncidentModel } from '@/models/incident.model';
 
 class AlertService {
   public alert = DB.Alerts;
 
   public async getAllAlerts(): Promise<IAlert[]> {
-    const allAlerts: IAlert[] = await this.alert.findAll({ order: [['createdAt', 'DESC']] });
+    const allAlerts: IAlert[] = await this.alert.findAll({
+      include: [
+        {
+          model: IncidentModel,
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
     return allAlerts;
   }
 
   public async getAlertById(id: number): Promise<IAlert> {
-    const alert: IAlert = await this.alert.findOne({ where: { id } });
+    const alert: IAlert = await this.alert.findOne({
+      where: { id },
+      include: [
+        {
+          model: IncidentModel,
+        }
+      ],
+    });
     return alert;
   }
 

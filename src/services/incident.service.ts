@@ -74,7 +74,7 @@ class IncidentService {
           alertId,
         };
       });
-      await this.incidentRelAlert.bulkCreate(relatedAlerts);
+      await this.incidentRelAlert.bulkCreate(relatedAlerts, { returning: true });
     }
 
     if (actions) {
