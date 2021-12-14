@@ -16,14 +16,14 @@ class UsersRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, this.usersController.getUsers);
-    this.router.get(`${this.path}/:id(\\d+)`, this.usersController.getUserById);
-    this.router.post(`${this.path}`, validationMiddleware(CreateUserDto, 'body'), this.usersController.createUser);
-    this.router.put(`${this.path}/:id(\\d+)`, validationMiddleware(CreateUserDto, 'body', true), this.usersController.updateUser);
-    this.router.delete(`${this.path}/:id(\\d+)`, this.usersController.deleteUser);
-    this.router.post(`${this.path}/sendMail`, this.sendMailController.processMail);
-    this.router.get(`/verify`, this.usersController.verifyMail);
-    this.router.post(`${this.path}/duplicateMail`, this.usersController.checkForDuplicateMail);
+    this.router.get('/users', this.usersController.getUsers);
+    this.router.get('/users/:id(\\d+)', this.usersController.getUserById);
+    this.router.post('/users', validationMiddleware(CreateUserDto, 'body'), this.usersController.createUser);
+    this.router.put('/users/:id(\\d+)', validationMiddleware(CreateUserDto, 'body', true), this.usersController.updateUser);
+    this.router.delete('/users/:id(\\d+)', this.usersController.deleteUser);
+    this.router.post('/users/sendMail', this.sendMailController.processMail);
+    this.router.get('/verify', this.usersController.verifyMail);
+    this.router.post('/users/duplicateMail', this.usersController.checkForDuplicateMail);
   }
 }
 

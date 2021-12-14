@@ -6,7 +6,6 @@ import validationMiddleware from '@middlewares/validation.middleware';
 import AuthService from '@services/auth.service';
 
 class UsersRoute implements Routes {
-  public path = '/users/channels';
   public router = Router();
   public channelController = new ChannelController();
   public authservice = new AuthService();
@@ -15,17 +14,17 @@ class UsersRoute implements Routes {
   }
 
   private initializeRoutes() {
-    // this.router.get(`${this.path}`, this.channelController.getUserChannels);
+    // this.router.get('/channels', this.channelController.getUserChannels);
     this.router.post(
-      `${this.path}`,
+      '/channels',
       this.authservice.authenticate,
       validationMiddleware(CreateChannelDto, 'body'),
       this.channelController.createChannel,
     );
-    this.router.get(`${this.path}`, this.authservice.authenticate, this.channelController.getAllChannels);
-    this.router.get(`${this.path}/:id`, this.authservice.authenticate, this.channelController.getChannelById);
-    this.router.delete(`${this.path}/:id`, this.authservice.authenticate, this.channelController.deleteChannel);
-    this.router.put(`${this.path}/:id`, this.authservice.authenticate, this.channelController.updateChannel);
+    this.router.get('/channels', this.authservice.authenticate, this.channelController.getAllChannels);
+    this.router.get('/channels/:id', this.authservice.authenticate, this.channelController.getChannelById);
+    this.router.delete('/channels/:id', this.authservice.authenticate, this.channelController.deleteChannel);
+    this.router.put('/channels/:id', this.authservice.authenticate, this.channelController.updateChannel);
   }
 }
 
