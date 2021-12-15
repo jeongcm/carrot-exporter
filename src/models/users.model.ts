@@ -1,6 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { User } from '@interfaces/users.interface';
-import { TenancyMemberModel } from './tenancyMember.model';
 import { TenancyModel } from './tenancy.model';
 
 export type UserCreationAttributes = Optional<User, 'id' | 'email' | 'password' | 'username'|'firstName'|'lastAccess'|'lastName'|'mobile'|'photo'|'createdAt'|'updatedAt'>;
@@ -14,7 +13,7 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
   public lastName: string;
   public mobile: string;
   public photo: string;
-  public currentTenancy:string;
+  public currentTenancyId:string;
   public isEmailValidated:boolean;
   public emailValidatedOn:Date;
   public token:string;
@@ -79,7 +78,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
         allowNull: true,
         type: DataTypes.STRING(255),
       },
-      currentTenancy: {
+      currentTenancyId: {
         allowNull: true,
         type: DataTypes.STRING(255),
       },
@@ -102,9 +101,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
       sequelize,
     },
   );
-
-  // TenancyMemberModel.hasMany(UserModel, {as:'users', foreignKey: 'id'});
-  // UserModel.belongsTo(TenancyMemberModel, {as:'tenancyMembers', foreignKey: 'userId'});
-  
+  UserModel.hasOne(TenancyModel, { foreignKey: 'id' });
+  TenancyModel.belongsTo(UserModel, { foreignKey: 'id' });
   return UserModel;
 }

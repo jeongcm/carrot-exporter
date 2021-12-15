@@ -42,7 +42,7 @@ export class CreateUserDto {
   
   @IsString()
   @IsOptional()
-  public currentTenancy: string;
+  public currentTenancyId: string;
 }
 
 export class LoginUserDto {

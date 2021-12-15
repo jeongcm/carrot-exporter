@@ -22,7 +22,7 @@ class AuthController {
         isEmailValidated: signUpUserData.isEmailValidated,
         emailValidatedOn: signUpUserData.emailValidatedOn,
         token: signUpUserData.token,
-        currentTenancy: signUpUserData.currentTenancy,
+        currentTenancyId: signUpUserData.currentTenancyId,
         lastAccess: signUpUserData.lastAccess,
         updatedAt: signUpUserData.updatedAt,
         createdAt: signUpUserData.createdAt,

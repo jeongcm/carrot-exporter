@@ -7,7 +7,7 @@ export interface User {
   lastName: string;
   mobile: string;
   photo: string;
-  currentTenancy:string;
+  currentTenancyId:string;
   isEmailValidated:boolean;
   emailValidatedOn:Date;
   token:string;

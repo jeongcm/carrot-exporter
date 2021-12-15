@@ -10,9 +10,11 @@ import { isEmpty } from '@utils/util';
 import { RequestWithUser } from '@interfaces/auth.interface';
 import { BadRequestError } from '@/exceptions/badRequestError';
 import { nextTick } from 'process';
+import { TenancyModel } from '@/models/tenancy.model';
 
 class AuthService {
   public users = DB.Users;
+  public tenancy = DB.Tenancies;
 
   public async signup(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
@@ -55,15 +57,22 @@ class AuthService {
   }
 
   public async info(req: RequestWithUser): Promise<any> {
-    const currentAuth: any = req.headers['x-authorization'] || '';
-
-    const token: string = currentAuth.replace('Bearer ', '');
-    const secretKey: string = config.get('secretKey');
-    const payload = jwt.verify(token, secretKey) as JwtPayload;
-
-    if (isEmpty(payload.id)) throw new HttpException(400, "You're not valid user");
-    const findUser: User = await this.users.findByPk(payload.id, { attributes: { exclude: ['password'] } });
+    const findUser: User = await this.users.findByPk(req.user.id, { attributes: { exclude: ['password'] } });
     if (!findUser) throw new HttpException(409, "You're not user");
+    let a = await this.users.findAll({
+      where: {
+        id:req.user.id,
+      },
+      // attributes: {
+      //     exclude: ['createdAt', 'updatedAt']
+      // },
+      include: [
+        {
+          model: TenancyModel,
+        },
+      ],
+    });
+    console.log(a)
     return findUser;
   }
 
