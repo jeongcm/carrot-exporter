@@ -36,5 +36,4 @@ export class CreateClusterDto {
   @IsString()
   @IsOptional()
   public isDeleted: boolean;
-
 }

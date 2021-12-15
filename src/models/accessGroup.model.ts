@@ -3,7 +3,8 @@ import { AccessGroup } from '@interfaces/accessGroup.interface';
 
 export type AccessGroupCreationAttributes = Optional<
   AccessGroup,
-  'id' | 'groupName' | 'description' | 'icon' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy'>;
+  'id' | 'groupName' | 'description' | 'icon' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'tenancyId'
+>;
 
 export class AccessGroupModel extends Model<AccessGroup, AccessGroupCreationAttributes> implements AccessGroup {
   public id: string;
@@ -12,6 +13,7 @@ export class AccessGroupModel extends Model<AccessGroup, AccessGroupCreationAttr
   public updatedBy: string;
   public description: string;
   public icon: string;
+  public tenancyId: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -24,6 +26,10 @@ export default function (sequelize: Sequelize): typeof AccessGroupModel {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.UUID,
+      },
+      tenancyId: {
+        allowNull: false,
         type: DataTypes.UUID,
       },
       createdBy: {

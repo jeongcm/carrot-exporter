@@ -53,7 +53,7 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
       },
       userName: {
         allowNull: false,
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       userRole: {
         allowNull: false,
@@ -99,11 +99,11 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
     },
     {
       tableName: 'tenancyMembers',
-      modelName:"tenancyMember",
+      modelName: 'tenancyMember',
       sequelize,
     },
   );
-  TenancyMemberModel.hasMany(UserModel, {foreignKey: 'id'});
-  UserModel.belongsTo(TenancyMemberModel, {foreignKey: 'id'});
+  TenancyMemberModel.hasMany(UserModel, { foreignKey: 'id' });
+  UserModel.belongsTo(TenancyMemberModel, { foreignKey: 'id' });
   return TenancyMemberModel;
 }

@@ -3,30 +3,34 @@ import AccessGroupController from '@controllers/accessGroup.controller';
 import { CreateAccessGroupDto } from '@dtos/accessGroup.dto';
 import { Routes } from '@interfaces/routes.interface';
 import validationMiddleware from '@middlewares/validation.middleware';
-import AuthService from '@services/auth.service'
+import AuthService from '@services/auth.service';
 
 class AccessGroupsRoute implements Routes {
-  public path = '/accessgroups';
   public router = Router();
   public accessGroupsController = new AccessGroupController();
   public authservice = new AuthService();
-  
+
   constructor() {
     this.initializeRoutes();
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`,this.authservice.authenticate, this.accessGroupsController.getAccessGroups);
-    this.router.get(`${this.path}/my`,this.authservice.authenticate, this.accessGroupsController.getAccessGroupsByUserId);
-    this.router.post(`${this.path}`,this.authservice.authenticate,validationMiddleware(CreateAccessGroupDto, 'body'), this.accessGroupsController.createAccessGroup);
-    this.router.get(`${this.path}/:id`,this.authservice.authenticate, this.accessGroupsController.getAccessGroupById);
-    this.router.put(`${this.path}/:id`,this.authservice.authenticate, this.accessGroupsController.updateAccessGroup);
-    this.router.post(`${this.path}/:id/members`,this.authservice.authenticate, this.accessGroupsController.updateAccessGroupMembers);
-    this.router.get(`${this.path}/:id/members`,this.authservice.authenticate, this.accessGroupsController.getAccessGroupMembers);
-    this.router.post(`${this.path}/:id/clusters`,this.authservice.authenticate, this.accessGroupsController.updateAccessGroupClusters);
-    this.router.get(`${this.path}/:id/clusters`,this.authservice.authenticate, this.accessGroupsController.getAccessGroupClusters);
-    this.router.post(`${this.path}/:id/channels`,this.authservice.authenticate, this.accessGroupsController.updateAccessGroupChannels);
-    this.router.get(`${this.path}/:id/channels`,this.authservice.authenticate, this.accessGroupsController.getAccessGroupChannels);
+    this.router.get('/accessgroups', this.authservice.authenticate, this.accessGroupsController.getAccessGroups);
+    this.router.get('/accessgroups/my', this.authservice.authenticate, this.accessGroupsController.getAccessGroupsByUserId);
+    this.router.post(
+      '/accessgroups',
+      this.authservice.authenticate,
+      validationMiddleware(CreateAccessGroupDto, 'body'),
+      this.accessGroupsController.createAccessGroup,
+    );
+    this.router.get('/accessgroups/:id', this.authservice.authenticate, this.accessGroupsController.getAccessGroupById);
+    this.router.put('/accessgroups/:id', this.authservice.authenticate, this.accessGroupsController.updateAccessGroup);
+    this.router.post('/accessgroups/:id/members', this.authservice.authenticate, this.accessGroupsController.updateAccessGroupMembers);
+    this.router.get('/accessgroups/:id/members', this.authservice.authenticate, this.accessGroupsController.getAccessGroupMembers);
+    this.router.post('/accessgroups/:id/clusters', this.authservice.authenticate, this.accessGroupsController.updateAccessGroupClusters);
+    this.router.get('/accessgroups/:id/clusters', this.authservice.authenticate, this.accessGroupsController.getAccessGroupClusters);
+    this.router.post('/accessgroups/:id/channels', this.authservice.authenticate, this.accessGroupsController.updateAccessGroupChannels);
+    this.router.get('/accessgroups/:id/channels', this.authservice.authenticate, this.accessGroupsController.getAccessGroupChannels);
   }
 }
 

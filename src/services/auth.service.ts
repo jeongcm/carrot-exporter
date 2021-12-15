@@ -18,13 +18,13 @@ class AuthService {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
     let findUser: User;
     findUser = await this.users.findOne({
-      where: { email: userData.loginId }
+      where: { email: userData.email },
     });
-    if (findUser) throw new HttpException(400, `You're email ${userData.loginId} already existss`);
+    if (findUser) throw new HttpException(400, `You're email ${userData.email} already existss`);
     const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
-    let currentDate = new Date();
-    let user = {
-      email: userData.loginId,
+    const currentDate = new Date();
+    const user = {
+      email: userData.email,
       username: userData.username,
       password: hashedPassword,
       firstName: userData.firstName,
@@ -33,17 +33,17 @@ class AuthService {
       photo: userData.photo,
       lastAccess: currentDate,
       updatedAt: currentDate,
-      createdAt: currentDate
-    }
+      createdAt: currentDate,
+    };
     const createUserData: User = await this.users.create(user);
     return createUserData;
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
+  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User, token: string }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await this.users.findOne({ where: { email: userData.loginId } });
-    if (!findUser) throw new HttpException(409, `You're email ${userData.loginId} not found`);
+    const findUser: User = await this.users.findOne({ where: { email: userData.email } });
+    if (!findUser) throw new HttpException(409, `You're email ${userData.email} not found`);
 
     const isPasswordMatching: boolean = await bcrypt.compare(userData.loginPw, findUser.password);
     if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
@@ -51,17 +51,15 @@ class AuthService {
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);
 
-    return { cookie, findUser };
+    return { cookie, findUser, token: tokenData.token };
   }
 
+  public async info(req: RequestWithUser): Promise<any> {
+    const currentAuth: any = req.headers['x-authorization'] || '';
 
-  public async info(req: RequestWithUser,): Promise<any> {
-    let currentCookie = req.cookies["X-AUTHORIZATION"];
+    const token: string = currentAuth.replace('Bearer ', '');
     const secretKey: string = config.get('secretKey');
-    const payload = jwt.verify(
-      currentCookie,
-      secretKey
-    ) as JwtPayload;
+    const payload = jwt.verify(token, secretKey) as JwtPayload;
 
     if (isEmpty(payload.id)) throw new HttpException(400, "You're not valid user");
     const findUser: User = await this.users.findByPk(payload.id, { attributes: { exclude: ['password'] } });
@@ -81,19 +79,15 @@ class AuthService {
     return `X-AUTHORIZATION=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
   }
 
-
   public async authenticate(req: RequestWithUser, res, next): Promise<any> {
-    let currentCookie = req.cookies["X-AUTHORIZATION"];
+    const currentCookie = req.cookies['X-AUTHORIZATION'];
     if (currentCookie) {
       const secretKey: string = config.get('secretKey');
-      const payload = jwt.verify(
-        currentCookie,
-        secretKey
-      ) as JwtPayload
+      const payload = jwt.verify(currentCookie, secretKey) as JwtPayload;
       if (isEmpty(payload.id)) res.status(400).json({ message: 'UnAuthorized' });
-      if (req.path == '/users/tenancies' && req.method == "POST") {
-        req.body["createdBy"] = payload.id;
-        req.body["updatedBy"] = payload.id;
+      if (req.path == '/users/tenancies' && req.method == 'POST') {
+        req.body['createdBy'] = payload.id;
+        req.body['updatedBy'] = payload.id;
       } else {
         // if (req.body) {
         //   req.body["currentUserId"] = payload.id;
@@ -104,8 +98,6 @@ class AuthService {
     }
     next();
   }
-
-
 }
 
 export default AuthService;

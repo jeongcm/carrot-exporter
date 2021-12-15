@@ -6,7 +6,6 @@ import { CreateAlertDto } from '@dtos/alert.dto';
 import AuthService from '@/services/auth.service';
 
 class AlertRoute implements Routes {
-  public path = '/alerts';
   public router = Router();
   public alertController = new AlertController();
   public authservice = new AuthService();
@@ -16,10 +15,10 @@ class AlertRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, this.authservice.authenticate, this.alertController.getAlerts);
-    this.router.get(`${this.path}/:id`, this.authservice.authenticate, this.alertController.getAlert);
-    this.router.post(`${this.path}`, this.authservice.authenticate, validationMiddleware(CreateAlertDto, 'body'), this.alertController.createAlert);
-    this.router.delete(`${this.path}/:id`, this.authservice.authenticate, this.alertController.deleteAlert);
+    this.router.get('/alerts', this.authservice.authenticate, this.alertController.getAlerts);
+    this.router.get('/alerts/:id', this.authservice.authenticate, this.alertController.getAlert);
+    this.router.post('/alerts', this.authservice.authenticate, validationMiddleware(CreateAlertDto, 'body'), this.alertController.createAlert);
+    this.router.delete('/alerts/:id', this.authservice.authenticate, this.alertController.deleteAlert);
   }
 }
 

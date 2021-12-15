@@ -13,7 +13,8 @@ class AccessGroupService {
   public accessGroupCluster = DB.AccessGroupCluster;
   public accessGroupChannel = DB.AccessGroupChannel;
 
-  public async createAccessGroup(accessGroupData: CreateAccessGroupDto, currentUserId: string): Promise<AccessGroup> {
+  public async createAccessGroup(accessGroupData: CreateAccessGroupDto, currentUserId: string, tenancyId: string): Promise<AccessGroup> {
+    if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
     if (isEmpty(accessGroupData)) throw new HttpException(400, 'Access Group must not be empty');
 
     const findAccessGroup: AccessGroup = await this.accessGroup.findOne({ where: { groupName: accessGroupData.groupName } });
@@ -23,13 +24,16 @@ class AccessGroupService {
       ...accessGroupData,
       updatedBy: currentUserId,
       createdBy: currentUserId,
+      tenancyId,
     });
 
     return createAccessGroupData;
   }
 
-  public async findAllAccessGroup(): Promise<AccessGroup[]> {
-    const allAccessGroup: AccessGroup[] = await this.accessGroup.findAll({});
+  public async findAllAccessGroup(tenancyId: string): Promise<AccessGroup[]> {
+    if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
+
+    const allAccessGroup: AccessGroup[] = await this.accessGroup.findAll({ where: { tenancyId } });
     return allAccessGroup;
   }
 
@@ -50,7 +54,7 @@ class AccessGroupService {
     if (isEmpty(accessGroupData)) throw new HttpException(400, 'Access Group Data cannot be blank');
     const findaccessGroup: AccessGroup = await this.accessGroup.findByPk(accessGroupId);
     if (!findaccessGroup) throw new HttpException(409, "Access Group doesn't exist");
-    let updatedAccessGroupData = {
+    const updatedAccessGroupData = {
       ...accessGroupData,
       updatedBy: currentUserId,
       updatedAt: new Date(),
@@ -70,10 +74,10 @@ class AccessGroupService {
       return accessGroupMembers.find(a => a.memberId === id);
     });
     const findAccessGroupMembers: AccessGroupMember[] = await this.accessGroupMember.findAll({ where: { groupId: accessGroupId } });
-    let currentTime = new Date();
+    const currentTime = new Date();
     let updatedAccessGroupMembers: AccessGroupMember[];
     if (findAccessGroupMembers.length === 0) {
-      let updatedMembers = accessGroupMembers.map((accessGroupMembersX: AccessGroupMember) => {
+      const updatedMembers = accessGroupMembers.map((accessGroupMembersX: AccessGroupMember) => {
         return {
           memberId: accessGroupMembersX.memberId,
           groupId: accessGroupId,
@@ -89,7 +93,7 @@ class AccessGroupService {
         { isDeleted: true, updatedAt: currentTime, updatedBy: currentUserId },
         { where: { groupId: accessGroupId } },
       );
-      let updatedMembers = accessGroupMembers.map((accessGroupMembersX: AccessGroupMember) => {
+      const updatedMembers = accessGroupMembers.map((accessGroupMembersX: AccessGroupMember) => {
         return {
           memberId: accessGroupMembersX.memberId,
           groupId: accessGroupId,
@@ -119,10 +123,10 @@ class AccessGroupService {
       return accessGroupChannels.find(a => a.channelId === id);
     });
     const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({ where: { groupId: accessGroupId } });
-    let currentTime = new Date();
+    const currentTime = new Date();
     let updatedAccessGroupChannels: AccessGroupChannel[];
     if (findAccessGroupChannels.length === 0) {
-      let updatedChannels = accessGroupChannels.map((accessGroupChannelsX: AccessGroupChannel) => {
+      const updatedChannels = accessGroupChannels.map((accessGroupChannelsX: AccessGroupChannel) => {
         return {
           channelId: accessGroupChannelsX.channelId,
           groupId: accessGroupId,
@@ -138,7 +142,7 @@ class AccessGroupService {
         { isDeleted: true, updatedAt: currentTime, updatedBy: currentUserId },
         { where: { groupId: accessGroupId } },
       );
-      let updatedChannels = accessGroupChannels.map((accessGroupChannelsX: AccessGroupChannel) => {
+      const updatedChannels = accessGroupChannels.map((accessGroupChannelsX: AccessGroupChannel) => {
         return {
           channelId: accessGroupChannelsX.channelId,
           groupId: accessGroupId,
@@ -154,7 +158,9 @@ class AccessGroupService {
   }
 
   public async getAccessGroupChannels(accessGroupId: string): Promise<AccessGroupChannel[]> {
-    const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({ where: { groupId: accessGroupId, isDeleted: false } });
+    const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({
+      where: { groupId: accessGroupId, isDeleted: false },
+    });
     return findAccessGroupChannels;
   }
 
@@ -168,10 +174,10 @@ class AccessGroupService {
       return accessGroupClusters.find(a => a.clusterId === id);
     });
     const findAccessGroupClusters: AccessGroupCluster[] = await this.accessGroupCluster.findAll({ where: { groupId: accessGroupId } });
-    let currentTime = new Date();
+    const currentTime = new Date();
     let updatedAccessGroupClusters: AccessGroupCluster[];
     if (findAccessGroupClusters.length === 0) {
-      let updatedClusters = accessGroupClusters.map((accessGroupClustersX: AccessGroupCluster) => {
+      const updatedClusters = accessGroupClusters.map((accessGroupClustersX: AccessGroupCluster) => {
         return {
           clusterId: accessGroupClustersX.clusterId,
           groupId: accessGroupId,
@@ -187,7 +193,7 @@ class AccessGroupService {
         { isDeleted: true, updatedAt: currentTime, updatedBy: currentUserId },
         { where: { groupId: accessGroupId } },
       );
-      let updatedClusters = accessGroupClusters.map((accessGroupClustersX: AccessGroupCluster) => {
+      const updatedClusters = accessGroupClusters.map((accessGroupClustersX: AccessGroupCluster) => {
         return {
           clusterId: accessGroupClustersX.clusterId,
           groupId: accessGroupId,
@@ -203,7 +209,9 @@ class AccessGroupService {
   }
 
   public async getAccessGroupClusters(accessGroupId: string): Promise<AccessGroupCluster[]> {
-    const findAccessGroupClusters: AccessGroupCluster[] = await this.accessGroupCluster.findAll({ where: { groupId: accessGroupId, isDeleted: false } });
+    const findAccessGroupClusters: AccessGroupCluster[] = await this.accessGroupCluster.findAll({
+      where: { groupId: accessGroupId, isDeleted: false },
+    });
     return findAccessGroupClusters;
   }
 }

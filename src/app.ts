@@ -46,13 +46,14 @@ class App {
   }
 
   private connectToDatabase() {
-    DB.sequelize.sync({ force: false })
-    .then(()=>{
-      console.log("Database connected successfully")
-    })
-    .catch((err)=>{
-      console.log(err)
-    });
+    DB.sequelize
+      .sync({ force: false })
+      .then(() => {
+        console.log('Database connected successfully');
+      })
+      .catch(err => {
+        console.log(err);
+      });
   }
 
   private initializeMiddlewares() {

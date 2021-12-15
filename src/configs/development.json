@@ -1,22 +1,22 @@
 {
-    "env": "development",
-    "dbConfig": {
-        "host": "localhost",
-        "user": "user",
-        "password": "user",
-        "database": "mydb",
-        "pool": {
-            "min": 0,
-            "max": 5
-        }
-    },
-    "secretKey": "secretKey",
-    "log": {
-        "format": "dev",
-        "dir": "../../logs"
-    },
-    "cors": {
-        "origin": true,
-        "credentials": true
+  "env": "development",
+  "dbConfig": {
+    "host": "143.198.157.129",
+    "user": "user",
+    "password": "user",
+    "database": "mydb",
+    "pool": {
+      "min": 0,
+      "max": 5
     }
+  },
+  "secretKey": "secretKey",
+  "log": {
+    "format": "dev",
+    "dir": "../../logs"
+  },
+  "cors": {
+    "origin": true,
+    "credentials": true
+  }
 }

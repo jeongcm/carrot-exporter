@@ -5,6 +5,7 @@ import { dbConfig } from '@interfaces/db.interface';
 import UserModel from '@models/users.model';
 import AccessGroupModel from '@models/accessGroup.model';
 import AlertModel from '@/models/alert.model';
+import LogModel from '@/models/log.model';
 import ClusterModel from '@models/cluster.model';
 import AccessGroupChannelModel from '@models/accessGroupChannel.model';
 import AccessGroupClusterModel from '@models/accessGroupCluster.model';
@@ -17,6 +18,9 @@ import IncidentActionModel from '@/models/incidentAction.model';
 import TenancyMemberModel from '@/models/tenancyMember.model';
 
 const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
+
+console.log(host, user, password);
+
 const sequelize = new Sequelize.Sequelize(database, user, password, {
   host: host,
   dialect: 'mariadb',
@@ -49,6 +53,7 @@ const DB = {
   Tenancies: TenancyModel(sequelize),
   TenancyMembers: TenancyMemberModel(sequelize),
   Alerts: AlertModel(sequelize),
+  Log: LogModel(sequelize),
   Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
   Incident: IncidentModel(sequelize),

@@ -1,7 +1,10 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IClusterAdd } from '@interfaces/cluster.interface';
 
-export type ClusterCreationAttributes = Optional<IClusterAdd,  'id' | 'description' | 'global' | 'icon' | 'installParams' | 'name' | 'platform' | 'tags' | 'tenancyId' >; 
+export type ClusterCreationAttributes = Optional<
+  IClusterAdd,
+  'id' | 'description' | 'global' | 'icon' | 'installParams' | 'name' | 'platform' | 'tags' | 'tenancyId'
+>;
 
 export class ClusterModel extends Model<IClusterAdd, ClusterCreationAttributes> implements IClusterAdd {
   public id: string;

@@ -26,12 +26,19 @@ class UserService {
     return findUser;
   }
 
+  public async findUserByEmail(email: string): Promise<User> {
+    if (isEmpty(email)) throw new HttpException(400, "User doen't exist");
+    const findUser: User = await this.users.findOne({where:{email}});
+    return findUser;
+  }
+
+
   public async createUser(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await this.users.findOne({ where: { email: userData.loginId } });
+    const findUser: User = await this.users.findOne({ where: { email: userData.email } });
 
-    if (findUser) throw new HttpException(409, `You're email ${userData.loginId} already exist`);
+    if (findUser) throw new HttpException(409, `You're email ${userData.email} already exist`);
 
     const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
     const createUserData: User = await this.users.create({

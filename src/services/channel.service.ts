@@ -24,8 +24,8 @@ class ChannelService {
 
   public async createChannel(channelData: CreateChannelDto, currentUserId: string): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
-    let currentDate = new Date();
-    let newChannel = {
+    const currentDate = new Date();
+    const newChannel = {
       name: channelData.name,
       description: channelData.description,
       channelType: <ChannelType>channelData.channelType,
@@ -44,7 +44,7 @@ class ChannelService {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const findChannel: Channel = await this.channels.findByPk(channelId);
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
-    let updatedChannelData = {
+    const updatedChannelData = {
       ...channelData,
       channelType: <ChannelType>channelData.channelType,
       updatedBy: currentUserId,
