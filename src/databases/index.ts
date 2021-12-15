@@ -12,6 +12,9 @@ import AccessGroupClusterModel from '@models/accessGroupCluster.model';
 import AccessGroupMemberModel from '@models/accessGroupMember.model';
 import ChannelModel from '@models/channel.model';
 import TenancyModel from '@/models/tenancy.model';
+import IncidentModel from '@/models/incident.model';
+import IncidentRelAlertModel from '@/models/incidentRelAlert.model';
+import IncidentActionModel from '@/models/incidentAction.model';
 import TenancyMemberModel from '@/models/tenancyMember.model';
 
 const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
@@ -53,6 +56,9 @@ const DB = {
   Log: LogModel(sequelize),
   Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
+  Incident: IncidentModel(sequelize),
+  IncidentRelAlert: IncidentRelAlertModel(sequelize),
+  IncidentAction: IncidentActionModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 

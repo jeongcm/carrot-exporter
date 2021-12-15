@@ -6,7 +6,7 @@ import { Routes } from '@interfaces/routes.interface';
 import validationMiddleware from '@middlewares/validation.middleware';
 
 class UsersRoute implements Routes {
-  public path = '/users';
+  public path = '/';
   public router = Router();
   public usersController = new UsersController();
   public sendMailController = new SendMailController();
