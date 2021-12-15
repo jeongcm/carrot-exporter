@@ -67,8 +67,8 @@ const DB = {
 
 //Different Relations among different tables
 
-// DB.TenancyMembers.hasMany(DB.Users, {as:'users', foreignKey: 'id'});
-// DB.Users.belongsTo(DB.TenancyMembers, {as:'tenancyMembers', foreignKey: 'userId'});
+DB.TenancyMembers.hasMany(DB.Users, {as:'users', foreignKey: 'id'});
+DB.Users.belongsTo(DB.TenancyMembers, {as:'tenancyMembers', foreignKey: 'id'});
 
 DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneeId', as:"incidents" });
 DB.Incident.belongsTo(DB.Users, {foreignKey: 'assigneeId' ,as: "assignee" });
