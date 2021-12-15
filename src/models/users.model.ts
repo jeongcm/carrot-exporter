@@ -99,14 +99,12 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
     },
     {
-      tableName: 'user',
-      modelName: 'user',
+      tableName: 'users',
+      modelName:"users",
       sequelize,
     },
   );
 
-  // TenancyMemberModel.hasMany(UserModel, {as:'users', foreignKey: 'id'});
-  // UserModel.belongsTo(TenancyMemberModel, {as:'tenancyMembers', foreignKey: 'userId'});
 
   return UserModel;
 }
