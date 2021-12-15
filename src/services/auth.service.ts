@@ -20,7 +20,7 @@ class AuthService {
     findUser = await this.users.findOne({
       where: { email: userData.email },
     });
-    if (findUser) throw new HttpException(400, `You're email ${userData.email} already existss`);
+    if (findUser) throw new HttpException(400, `You're email ${userData.email} already exists`);
     const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
     const currentDate = new Date();
     const user = {
