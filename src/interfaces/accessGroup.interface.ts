@@ -7,4 +7,5 @@ export interface AccessGroup {
   updatedAt: Date;
   createdBy: string;
   updatedBy: string;
+  tenancyId: string;
 }

@@ -14,8 +14,10 @@ class AccessGroupController {
   public accessGroupService = new AccessGroupService();
 
   public getAccessGroups = async (req: Request, res: Response, next: NextFunction) => {
+    const tenancyId = req.headers.tenancyid as string;
+
     try {
-      const findAllAccessGroupData: AccessGroup[] = await this.accessGroupService.findAllAccessGroup();
+      const findAllAccessGroupData: AccessGroup[] = await this.accessGroupService.findAllAccessGroup(tenancyId);
       res.status(200).json({ data: findAllAccessGroupData, message: 'all access groups' });
     } catch (error) {
       next(error);
@@ -43,10 +45,12 @@ class AccessGroupController {
   };
 
   public createAccessGroup = async (req: Request, res: Response, next: NextFunction) => {
+    const tenancyId = req.headers.tenancyid as string;
+
     try {
       const accessGroupData: CreateAccessGroupDto = req.body;
       let currentUserId = currentUser(req).id;
-      const createAccessGroupData: AccessGroup = await this.accessGroupService.createAccessGroup(accessGroupData, currentUserId);
+      const createAccessGroupData: AccessGroup = await this.accessGroupService.createAccessGroup(accessGroupData, currentUserId, tenancyId);
       res.status(201).json({ data: createAccessGroupData, message: 'Created Access Group' });
     } catch (error) {
       next(error);

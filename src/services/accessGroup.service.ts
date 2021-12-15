@@ -13,7 +13,8 @@ class AccessGroupService {
   public accessGroupCluster = DB.AccessGroupCluster;
   public accessGroupChannel = DB.AccessGroupChannel;
 
-  public async createAccessGroup(accessGroupData: CreateAccessGroupDto, currentUserId: string): Promise<AccessGroup> {
+  public async createAccessGroup(accessGroupData: CreateAccessGroupDto, currentUserId: string, tenancyId: string): Promise<AccessGroup> {
+    if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
     if (isEmpty(accessGroupData)) throw new HttpException(400, 'Access Group must not be empty');
 
     const findAccessGroup: AccessGroup = await this.accessGroup.findOne({ where: { groupName: accessGroupData.groupName } });
@@ -23,13 +24,16 @@ class AccessGroupService {
       ...accessGroupData,
       updatedBy: currentUserId,
       createdBy: currentUserId,
+      tenancyId,
     });
 
     return createAccessGroupData;
   }
 
-  public async findAllAccessGroup(): Promise<AccessGroup[]> {
-    const allAccessGroup: AccessGroup[] = await this.accessGroup.findAll({});
+  public async findAllAccessGroup(tenancyId: string): Promise<AccessGroup[]> {
+    if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
+
+    const allAccessGroup: AccessGroup[] = await this.accessGroup.findAll({ where: { tenancyId } });
     return allAccessGroup;
   }
 
