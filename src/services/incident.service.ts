@@ -1,6 +1,5 @@
 import DB from 'databases';
 import { IIncident } from '@/interfaces/incident.interface';
-import { IAlert } from '@/interfaces/alert.interface';
 import { CreateIncidentDto } from '@dtos/incident.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
@@ -9,12 +8,9 @@ import { IIncidentAction } from '@/interfaces/incidentAction.interface';
 import { UserModel } from '@/models/users.model';
 import { CreateActionDto } from '@/dtos/incidentAction.dto';
 import { IncidentActionModel } from '@/models/incidentAction.model';
-import { AlertModel } from '@/models/alert.model';
-import { IIncidentRelAlert } from '@/interfaces/incidentRelAlert.interface';
 
 class IncidentService {
   public incident = DB.Incident;
-  public alert = DB.Alerts;
   public incidentRelAlert = DB.IncidentRelAlert;
   public incidentAction = DB.IncidentAction;
 
@@ -23,13 +19,11 @@ class IncidentService {
       where: { isDeleted: 0 },
       order: [['createdAt', 'DESC']],
       attributes: { exclude: ['isDeleted', 'assigneeId'] },
-      include: [
-        {
-          as: 'assignee',
-          model: UserModel,
-          attributes: ['email', 'lastAccess', 'username', 'photo'],
-        },
-      ],
+      include: {
+        as: 'assignee',
+        model: UserModel,
+        attributes: ['email', 'lastAccess', 'username', 'photo'],
+      },
     });
     return allIncidents;
   }
@@ -46,20 +40,6 @@ class IncidentService {
     });
 
     return incident;
-  }
-
-  public async getAlertsByIncidentId(id: number): Promise<IIncidentRelAlert[]> {
-    const alerts: IIncidentRelAlert[] = await this.incidentRelAlert.findAll({
-      where: { incidentId: id },
-      attributes: { exclude: ['alertId'] },
-      include: [
-        {
-          model: AlertModel,
-        },
-      ],
-    });
-
-    return alerts;
   }
 
   public async getIncidentActionsById(id: number): Promise<IIncidentAction[]> {
@@ -134,7 +114,7 @@ class IncidentService {
           alertId,
         };
       });
-      console.log(relatedAlerts);
+      console.log(relatedAlerts)
 
       await this.incidentRelAlert.bulkCreate(relatedAlerts);
     }
