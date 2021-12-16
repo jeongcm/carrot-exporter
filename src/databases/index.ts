@@ -41,12 +41,6 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
 
 sequelize.authenticate();
 
-// below script is used to create table again with new model structure and data
-sequelize.sync({force: false})
-.then(()=>{
-    console.log("Yes resync done")
-})
-
 const DB = {
   Users: UserModel(sequelize),
   AccessGroup: AccessGroupModel(sequelize),
@@ -66,14 +60,26 @@ const DB = {
 };
 
 //Different Relations among different tables
+DB.TenancyMembers.hasMany(DB.Users, { as: 'users', foreignKey: 'id' });
+DB.Users.belongsTo(DB.TenancyMembers, { as: 'tenancyMembers', foreignKey: 'id' });
 
-// DB.TenancyMembers.hasMany(DB.Users, {as:'users', foreignKey: 'id'});
-// DB.Users.belongsTo(DB.TenancyMembers, {as:'tenancyMembers', foreignKey: 'userId'});
-
-DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneeId', as:"incidents" });
-DB.Incident.belongsTo(DB.Users, {foreignKey: 'assigneeId' ,as: "assignee" });
+DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneeId', as: 'incidents' });
+DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneeId', as: 'assignee' });
 
 DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
 DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
+
+DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertId' });
+DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentId' });
+
+//-----------------------------BE-CAREFULL------------------------------------
+// below script is used to create table again with new model structure and data
+//[[force: true]] is used when changes made in database.
+
+DB.sequelize.sync({ force: false }).then(() => {
+  console.log('Yes resync done');
+});
+
+//-----------------------------------------------------------------------------
 
 export default DB;
