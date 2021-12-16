@@ -5,6 +5,8 @@ import validationMiddleware from '@middlewares/validation.middleware';
 import { CreateIncidentDto } from '@dtos/incident.dto';
 import AuthService from '@/services/auth.service';
 import { CreateActionDto } from '@/dtos/incidentAction.dto';
+import authMiddleware from '@middlewares/auth.middleware';
+
 
 class IncidentRoute implements Routes {
   public path = '/incidents';
@@ -17,37 +19,37 @@ class IncidentRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}`, this.authservice.authenticate, this.incidentController.getIncidents);
-    this.router.get(`${this.path}/:id`, this.authservice.authenticate, this.incidentController.getIncident);
-    this.router.get(`${this.path}/:id/actions`, this.authservice.authenticate, this.incidentController.getIncidentActions);
+    this.router.get(`${this.path}`, authMiddleware, this.incidentController.getIncidents);
+    this.router.get(`${this.path}/:id`, authMiddleware, this.incidentController.getIncident);
+    this.router.get(`${this.path}/:id/actions`, authMiddleware, this.incidentController.getIncidentActions);
     this.router.post(
       `${this.path}/:id/actions`,
-      this.authservice.authenticate,
+      authMiddleware,
       validationMiddleware(CreateActionDto, 'body'),
       this.incidentController.createIncidentAction,
     );
     this.router.put(
       `${this.path}/:incidentId/actions/:actionId`,
-      this.authservice.authenticate,
+      authMiddleware,
       validationMiddleware(CreateActionDto, 'body'),
       this.incidentController.updateIncidentAction,
     );
-    this.router.delete(`${this.path}/:incidentId/actions/:actionId`, this.authservice.authenticate, this.incidentController.deleteIncidentAction);
+    this.router.delete(`${this.path}/:incidentId/actions/:actionId`, authMiddleware, this.incidentController.deleteIncidentAction);
     this.router.post(
       `${this.path}`,
-      this.authservice.authenticate,
+      authMiddleware,
       validationMiddleware(CreateIncidentDto, 'body'),
       this.incidentController.createIncident,
     );
     this.router.get(
       `${this.path}/:incidentId/relates/alerts`,
-      this.authservice.authenticate,
+      authMiddleware,
       this.incidentController.getAlertByIncident,
     );    
-    this.router.delete(`${this.path}/:id`, this.authservice.authenticate, this.incidentController.deleteIncident);
+    this.router.delete(`${this.path}/:id`, authMiddleware, this.incidentController.deleteIncident);
     this.router.put(
       `${this.path}/:id`,
-      this.authservice.authenticate,
+      authMiddleware,
       validationMiddleware(CreateIncidentDto, 'body'),
       this.incidentController.updateIncident,
     );

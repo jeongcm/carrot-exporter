@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
 import LogController from '@/controllers/log.controller';
 import AuthService from '@/services/auth.service';
+import authMiddleware from '@middlewares/auth.middleware';
+
 
 class LogRoute implements Routes {
   public router = Router();
@@ -13,8 +15,8 @@ class LogRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get('/logs', this.authservice.authenticate, this.logController.getLogs);
-    this.router.get('/logs/:id', this.authservice.authenticate, this.logController.getLog);
+    this.router.get('/logs',authMiddleware, this.logController.getLogs);
+    this.router.get('/logs/:id',authMiddleware, this.logController.getLog);
   }
 }
 
