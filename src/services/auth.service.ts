@@ -22,7 +22,7 @@ class AuthService {
     findUser = await this.users.findOne({
       where: { email: userData.email },
     });
-    if (findUser) throw new HttpException(400, `You're email ${userData.email} already existss`);
+    if (findUser) throw new HttpException(400, `You're email ${userData.email} already exists`);
     const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
     const currentDate = new Date();
     const user = {
@@ -41,7 +41,7 @@ class AuthService {
     return createUserData;
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User, token: string }> {
+  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User; token: string }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await this.users.findOne({ where: { email: userData.email } });
@@ -57,22 +57,18 @@ class AuthService {
   }
 
   public async info(req: RequestWithUser): Promise<any> {
-    const findUser: User = await this.users.findByPk(req.user.id, { attributes: { exclude: ['password'] } });
-    if (!findUser) throw new HttpException(409, "You're not user");
-    let a = await this.users.findAll({
+    const findUser = await this.users.findAll({
       where: {
-        id:req.user.id,
+        id: req.user.id,
       },
-      // attributes: {
-      //     exclude: ['createdAt', 'updatedAt']
-      // },
       include: [
         {
           model: TenancyModel,
+          attributes: ['id', 'tenancyCode', 'tenancyName', 'tenancyDescription', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'isDeleted'],
+          as: 'currentTenancy',
         },
       ],
     });
-    console.log(a)
     return findUser;
   }
 

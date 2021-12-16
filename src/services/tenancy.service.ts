@@ -116,12 +116,13 @@ class TenancyService {
     return findTenancyMember;
   }
 
-  public async updateTenancyMemberToUser(userId, tenancyMemberId: string): Promise<TenancyMember> {
-    console.log("tenancyMemberId", tenancyMemberId)
-    if (isEmpty(tenancyMemberId)) throw new HttpException(400, 'TenancyMemberid is required');
+  public async updateTenancyMemberToUser(userId, tenancyId: string): Promise<TenancyMember> {
+    if (isEmpty(tenancyId)) throw new HttpException(400, 'tenancyId is required');
     const userDetail: User = await this.user.findByPk(userId);
+    const tenancyDetail: Tenancy = await this.tenancies.findByPk(tenancyId);
     if (!userDetail) throw new HttpException(409, "User doesn't exist");
-    await this.user.update({ currentTenancyId:tenancyMemberId }, { where: { id: userId } });
+    if (!tenancyDetail) throw new HttpException(409, "Tenancy doesn't exist");
+    await this.user.update({ currentTenancyId:tenancyId }, { where: { id: userId } });
     return;
   }
 }

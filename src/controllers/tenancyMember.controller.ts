@@ -9,10 +9,8 @@ import { User } from '@/interfaces/users.interface';
 
 class TenancyMemberController {
   public tenancyService = new TenancyService();
-
   public updateTenancyMemberToUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-        console.log("req", req.user.id)
       const tenancyId = req.params.tenancyId;
       const userId = req.user.id;
       const updateUserData = await this.tenancyService.updateTenancyMemberToUser(userId, tenancyId);

@@ -62,6 +62,7 @@ export default function (sequelize: Sequelize): typeof AlertModel {
     },
     {
       tableName: 'Alert',
+      modelName: 'alert',
       sequelize,
     },
   );

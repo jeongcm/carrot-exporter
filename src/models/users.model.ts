@@ -2,7 +2,10 @@ import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { User } from '@interfaces/users.interface';
 import { TenancyModel } from './tenancy.model';
 
-export type UserCreationAttributes = Optional<User, 'id' | 'email' | 'password' | 'username'|'firstName'|'lastAccess'|'lastName'|'mobile'|'photo'|'createdAt'|'updatedAt'>;
+export type UserCreationAttributes = Optional<
+  User,
+  'id' | 'email' | 'password' | 'username' | 'firstName' | 'lastAccess' | 'lastName' | 'mobile' | 'photo' | 'createdAt' | 'updatedAt'
+>;
 
 export class UserModel extends Model<User, UserCreationAttributes> implements User {
   public id: string;
@@ -39,7 +42,6 @@ export default function (sequelize: Sequelize): typeof UserModel {
       email: {
         allowNull: false,
         type: DataTypes.STRING(45),
-        
       },
       username: {
         allowNull: false,
@@ -101,7 +103,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
       sequelize,
     },
   );
-  UserModel.hasOne(TenancyModel, { foreignKey: 'id' });
-  TenancyModel.belongsTo(UserModel, { foreignKey: 'id' });
+
+
   return UserModel;
 }

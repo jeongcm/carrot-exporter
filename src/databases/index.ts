@@ -12,12 +12,12 @@ import AccessGroupClusterModel from '@models/accessGroupCluster.model';
 import AccessGroupMemberModel from '@models/accessGroupMember.model';
 import ChannelModel from '@models/channel.model';
 import TenancyModel from '@/models/tenancy.model';
+import IncidentModel from '@/models/incident.model';
+import IncidentRelAlertModel from '@/models/incidentRelAlert.model';
+import IncidentActionModel from '@/models/incidentAction.model';
 import TenancyMemberModel from '@/models/tenancyMember.model';
 
 const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
-
-console.log(host, user, password);
-
 const sequelize = new Sequelize.Sequelize(database, user, password, {
   host: host,
   dialect: 'mariadb',
@@ -41,6 +41,12 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
 
 sequelize.authenticate();
 
+// below script is used to create table again with new model structure and data
+sequelize.sync({force: false})
+.then(()=>{
+    console.log("Yes resync done")
+})
+
 const DB = {
   Users: UserModel(sequelize),
   AccessGroup: AccessGroupModel(sequelize),
@@ -53,7 +59,23 @@ const DB = {
   Log: LogModel(sequelize),
   Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
+  Incident: IncidentModel(sequelize),
+  IncidentRelAlert: IncidentRelAlertModel(sequelize),
+  IncidentAction: IncidentActionModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
+
+//Different Relations among different tables
+DB.Tenancies.hasOne(DB.Users, { as: 'users', foreignKey: 'currentTenancyId'});
+DB.Users.belongsTo(DB.Tenancies, {as: 'currentTenancy',foreignKey: 'currentTenancyId'});
+
+DB.TenancyMembers.hasMany(DB.Users, {foreignKey: 'id'});
+DB.Users.belongsTo(DB.TenancyMembers, { foreignKey: 'id'});
+
+DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneeId', as:"incidents" });
+DB.Incident.belongsTo(DB.Users, {foreignKey: 'assigneeId' ,as: "assignee" });
+
+DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
+DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
 
 export default DB;

@@ -27,14 +27,13 @@ class UsersRoute implements Routes {
 
     this.router.post(
       '/tenancies/:tenancyId/members/:userId',
-      this.authservice.authenticate,
+      authMiddleware,
       validationMiddleware(CreateTenancyMemberDto, 'body'),
       this.tenancyController.createTenancyMember,
     );
     this.router.put(
       '/current-tenancy/:tenancyId',
       authMiddleware,
-      // validationMiddleware(updateTenancyMemberDto, 'body'),
       this.tenancyMemberController.updateTenancyMemberToUser,
     );
 
