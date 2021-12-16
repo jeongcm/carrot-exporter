@@ -41,12 +41,6 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
 
 sequelize.authenticate();
 
-// below script is used to create table again with new model structure and data
-sequelize.sync({force: false})
-.then(()=>{
-    console.log("Yes resync done")
-})
-
 const DB = {
   Users: UserModel(sequelize),
   AccessGroup: AccessGroupModel(sequelize),
@@ -77,5 +71,18 @@ DB.Incident.belongsTo(DB.Users, {foreignKey: 'assigneeId' ,as: "assignee" });
 
 DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
 DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
+
+DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertId' });
+DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentId' });
+
+//-----------------------------BE-CAREFULL------------------------------------
+// below script is used to create table again with new model structure and data
+//[[force: true]] is used when changes made in database.
+
+DB.sequelize.sync({ force: false }).then(() => {
+  console.log('Yes resync done');
+});
+
+//-----------------------------------------------------------------------------
 
 export default DB;

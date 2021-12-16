@@ -5,6 +5,8 @@ import { CreateIncidentDto } from '@dtos/incident.dto';
 import { currentUser } from '@/utils/currentUser';
 import { IIncidentAction } from '@/interfaces/incidentAction.interface';
 import { CreateActionDto } from '@/dtos/incidentAction.dto';
+import { IAlert } from '@/interfaces/alert.interface';
+import { IIncidentRelAlert } from '@/interfaces/incidentRelAlert.interface';
 
 class IncidentController {
   public incidentService = new IncidentService();
@@ -34,9 +36,24 @@ class IncidentController {
     }
   };
 
+  public getAlertByIncident = async (req: Request, res: Response, next: NextFunction) => {
+    const id = parseInt(req.params.incidentId);
+
+    try {
+      const alerts: IIncidentRelAlert[] = await this.incidentService.getAlertsByIncidentId(id);
+
+      if (alerts) {
+        res.status(200).json({ data: alerts, message: `find alerts related to incident id (${id}) ` });
+      } else {
+        res.status(404).json({ message: `Incident id(${id}) not found` });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getIncidentActions = async (req: Request, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
-
     try {
       const actions: IIncidentAction[] = await this.incidentService.getIncidentActionsById(id);
 
