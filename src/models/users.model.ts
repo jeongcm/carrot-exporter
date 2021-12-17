@@ -4,7 +4,7 @@ import { TenancyModel } from './tenancy.model';
 
 export type UserCreationAttributes = Optional<
   User,
-  'id' | 'email' | 'password' | 'username' | 'firstName' | 'lastAccess' | 'lastName' | 'mobile' | 'photo' | 'createdAt' | 'updatedAt'
+  'id' | 'email' | 'password' | 'username' | 'firstName' | 'lastAccess' | 'lastName' | 'mobile' | 'photo' | 'createdAt' | 'updatedAt' | 'currentTenancyId'
 >;
 
 export class UserModel extends Model<User, UserCreationAttributes> implements User {
@@ -16,7 +16,7 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
   public lastName: string;
   public mobile: string;
   public photo: string;
-  public currentTenancy: string;
+  public currentTenancyId: string;
   public isEmailValidated: boolean;
   public emailValidatedOn: Date;
   public token: string;
