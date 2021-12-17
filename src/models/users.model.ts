@@ -4,7 +4,18 @@ import { TenancyModel } from './tenancy.model';
 
 export type UserCreationAttributes = Optional<
   User,
-  'id' | 'email' | 'password' | 'username' | 'firstName' | 'lastAccess' | 'lastName' | 'mobile' | 'photo' | 'createdAt' | 'updatedAt' | 'currentTenancyId'
+  | 'id'
+  | 'email'
+  | 'password'
+  | 'username'
+  | 'firstName'
+  | 'lastAccess'
+  | 'lastName'
+  | 'mobile'
+  | 'photo'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'currentTenancyId'
 >;
 
 export class UserModel extends Model<User, UserCreationAttributes> implements User {
@@ -70,7 +81,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
       isEmailValidated: {
         allowNull: true,
         type: DataTypes.BOOLEAN,
-        defaultValue:false
+        defaultValue: false,
       },
       emailValidatedOn: {
         allowNull: true,
@@ -99,11 +110,10 @@ export default function (sequelize: Sequelize): typeof UserModel {
     },
     {
       tableName: 'users',
-      modelName:"users",
+      modelName: 'users',
       sequelize,
     },
   );
-
 
   return UserModel;
 }
