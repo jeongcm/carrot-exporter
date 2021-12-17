@@ -17,6 +17,17 @@ class AlertController {
     }
   };
 
+  public getAllPinnedAlerts = async (req: Request, res: Response, next: NextFunction) => {
+    const tenancyId = req.headers.tenancyid as string;
+
+    try {
+      const allPinnedAlerts: IAlert[] = await this.alertService.getAllPinnedAlerts(tenancyId);
+      res.status(200).json({ data: allPinnedAlerts, message: 'findAllPinned' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getAlert = async (req: Request, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
 
@@ -51,6 +62,38 @@ class AlertController {
     try {
       await this.alertService.deleteAlertById(id);
       res.status(204).json({ message: `delete alert id(${id})` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public updateAlertPin = async (req: Request, res: Response, next: NextFunction) => {
+    const id = parseInt(req.params.id);
+    const alert = await this.alertService.getAlertById(id);
+
+    if (!alert) {
+      return res.sendStatus(404);
+    }
+
+    try {
+      await this.alertService.updateAlertPin(id);
+      res.status(200).json({ message: `pin alert id(${id}) success.` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteAlertPin = async (req: Request, res: Response, next: NextFunction) => {
+    const id = parseInt(req.params.id);
+    const alert = await this.alertService.getAlertById(id);
+
+    if (!alert) {
+      return res.sendStatus(404);
+    }
+
+    try {
+      await this.alertService.deleteAlertPin(id);
+      res.status(200).json({ message: `unpin alert id(${id}) success.` });
     } catch (error) {
       next(error);
     }

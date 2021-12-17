@@ -14,4 +14,5 @@ export interface IAlert {
   alertRule: string;
   node: string;
   numberOfOccurrences: number;
+  pinned: number;
 }

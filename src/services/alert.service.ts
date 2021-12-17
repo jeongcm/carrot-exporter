@@ -24,9 +24,26 @@ class AlertService {
     return allAlerts;
   }
 
+  public async getAllPinnedAlerts(tenancyId: string): Promise<IAlert[]> {
+    if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
+
+    const allPinnedAlerts: IAlert[] = await this.alert.findAll({
+      where: { tenancyId, pinned: 1 },
+      attributes: { exclude: ['tenancyId', 'alertRule', 'note', 'node', 'numberOfOccurrences'] },
+      include: [
+        {
+          model: IncidentModel,
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+    return allPinnedAlerts;
+  }
+
   public async getAlertById(id: number): Promise<IAlert> {
     const alert: IAlert = await this.alert.findOne({
       where: { id },
+      attributes: { exclude: ['tenancyId'] },
       include: [
         {
           model: IncidentModel,
@@ -46,6 +63,14 @@ class AlertService {
   public async deleteAlertById(id: number): Promise<void> {
     const alert: void = await this.alert.findByPk(id).then(alert => alert.destroy());
     return alert;
+  }
+
+  public async updateAlertPin(id: number): Promise<void> {
+    await this.alert.update({ pinned: 1 }, { where: { id } });
+  }
+
+  public async deleteAlertPin(id: number): Promise<void> {
+    await this.alert.update({ pinned: 0 }, { where: { id } });
   }
 }
 

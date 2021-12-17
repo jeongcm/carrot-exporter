@@ -18,6 +18,7 @@ export type AlertCreationAttributes = Optional<
   | 'note'
   | 'tenancyId'
   | 'numberOfOccurrences'
+  | 'pinned'
 >;
 
 export class AlertModel extends Model<IAlert, AlertCreationAttributes> implements IAlert {
@@ -34,6 +35,7 @@ export class AlertModel extends Model<IAlert, AlertCreationAttributes> implement
   public node: string;
   public note: string;
   public numberOfOccurrences: number;
+  public pinned: number;
 
   public readonly lastUpdatedAt!: Date;
   public readonly startAt!: Date;
@@ -87,6 +89,10 @@ export default function (sequelize: Sequelize): typeof AlertModel {
       },
       numberOfOccurrences: {
         type: DataTypes.INTEGER,
+      },
+      pinned: {
+        type: DataTypes.TINYINT,
+        defaultValue: 0,
       },
       lastUpdatedAt: {
         type: DataTypes.DATE(),

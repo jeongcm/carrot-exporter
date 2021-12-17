@@ -15,7 +15,11 @@ class AlertRoute implements Routes {
   }
 
   private initializeRoutes() {
+    this.router.get('/alerts/pinned', authMiddleware, this.alertController.getAllPinnedAlerts);
     this.router.get('/alerts', authMiddleware, this.alertController.getAlerts);
+    this.router.put('/alerts/pin/:id', authMiddleware, this.alertController.updateAlertPin);
+    this.router.delete('/alerts/pin/:id', authMiddleware, this.alertController.deleteAlertPin);
+
     this.router.get('/alerts/:id', authMiddleware, this.alertController.getAlert);
     this.router.post('/alerts', authMiddleware, validationMiddleware(CreateAlertDto, 'body'), this.alertController.createAlert);
     this.router.delete('/alerts/:id', authMiddleware, this.alertController.deleteAlert);
