@@ -17,7 +17,7 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
 
       if (findUser) {
         req.user = findUser;
-        req.tenancyId = findUser.currentTenancy;
+        req.tenancyId = (req.headers.tenancyid as string) || findUser.currentTenancy;
 
         next();
       } else {
