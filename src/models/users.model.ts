@@ -82,7 +82,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
       currentTenancyId: {
         allowNull: true,
-        type: DataTypes.STRING(255),
+        type: DataTypes.UUID,
       },
       createdAt: {
         allowNull: false,
