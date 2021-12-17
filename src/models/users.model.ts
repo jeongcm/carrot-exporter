@@ -1,6 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { User } from '@interfaces/users.interface';
-import { TenancyMemberModel } from './tenancyMember.model';
 import { TenancyModel } from './tenancy.model';
 
 export type UserCreationAttributes = Optional<
@@ -81,7 +80,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
         allowNull: true,
         type: DataTypes.STRING(255),
       },
-      currentTenancy: {
+      currentTenancyId: {
         allowNull: true,
         type: DataTypes.STRING(255),
       },

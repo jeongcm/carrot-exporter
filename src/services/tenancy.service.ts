@@ -1,3 +1,4 @@
+import { User } from '@/interfaces/users.interface';
 import { TenancyModel } from '@/models/tenancy.model';
 import { UserModel } from '@/models/users.model';
 import DB from '@databases';
@@ -11,6 +12,7 @@ import { isEmpty } from '@utils/util';
 class TenancyService {
   public tenancies = DB.Tenancies;
   public tenancyMember = DB.TenancyMembers;
+  public user = DB.Users;
 
   public async findAllTenancy(): Promise<Tenancy[]> {
     const allUser: Tenancy[] = await this.tenancies.findAll({ where: { isDeleted: false } });
@@ -114,12 +116,14 @@ class TenancyService {
     return findTenancyMember;
   }
 
-  public async updateTenancyMember(tenancyMemberData, tenancyMemberId: string): Promise<TenancyMember> {
-    if (isEmpty(tenancyMemberId)) throw new HttpException(400, 'TenancyMemberid is required');
-    const findTenancyMember: TenancyMember = await this.tenancyMember.findByPk();
-    if (!findTenancyMember) throw new HttpException(409, "Tenancy doesn't exist");
-    await this.tenancies.update({ ...tenancyMemberData }, { where: { id: tenancyMemberId } });
-    return await this.tenancyMember.findByPk();
+  public async updateTenancyMemberToUser(userId, tenancyId: string): Promise<TenancyMember> {
+    if (isEmpty(tenancyId)) throw new HttpException(400, 'tenancyId is required');
+    const userDetail: User = await this.user.findByPk(userId);
+    const tenancyDetail: Tenancy = await this.tenancies.findByPk(tenancyId);
+    if (!userDetail) throw new HttpException(409, "User doesn't exist");
+    if (!tenancyDetail) throw new HttpException(409, "Tenancy doesn't exist");
+    await this.user.update({ currentTenancyId:tenancyId }, { where: { id: userId } });
+    return;
   }
 }
 

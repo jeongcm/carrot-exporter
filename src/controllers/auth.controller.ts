@@ -22,7 +22,7 @@ class AuthController {
         isEmailValidated: signUpUserData.isEmailValidated,
         emailValidatedOn: signUpUserData.emailValidatedOn,
         token: signUpUserData.token,
-        currentTenancy: signUpUserData.currentTenancy,
+        currentTenancyId: signUpUserData.currentTenancyId,
         lastAccess: signUpUserData.lastAccess,
         updatedAt: signUpUserData.updatedAt,
         createdAt: signUpUserData.createdAt,
@@ -67,8 +67,8 @@ class AuthController {
 
   public info = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const logOutUserData: User = await this.authService.info(req);
-      res.status(200).json(logOutUserData);
+      const userData: User = await this.authService.info(req);
+      res.status(200).json(userData);
     } catch (error) {
       next(error);
     }

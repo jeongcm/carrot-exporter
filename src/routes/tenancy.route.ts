@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import TenancyController from '@controllers/tenancy.controller';
+import TenancyMemberController from '@controllers/tenancyMember.controller';
 import { CreateTenancyDto } from '@dtos/tenancy.dto';
 import { CreateTenancyMemberDto } from '@dtos/tenancyMember.dto';
 import { Routes } from '@interfaces/routes.interface';
@@ -10,6 +11,7 @@ class UsersRoute implements Routes {
   // public path = '/users/tenancies';
   public router = Router();
   public tenancyController = new TenancyController();
+  public tenancyMemberController = new TenancyMemberController();
   public authservice = new AuthService();
   constructor() {
     this.initializeRoutes();
@@ -25,16 +27,15 @@ class UsersRoute implements Routes {
 
     this.router.post(
       '/tenancies/:tenancyId/members/:userId',
-      this.authservice.authenticate,
+      authMiddleware,
       validationMiddleware(CreateTenancyMemberDto, 'body'),
       this.tenancyController.createTenancyMember,
     );
-    // this.router.put(
-    //   '/tenancies/:tenancyId/members/:userId',
-    //   this.authservice.authenticate,
-    //   validationMiddleware(updateTenancyMemberDto, 'body'),
-    //   this.tenancyController.createTenancyMember,
-    // );
+    this.router.put(
+      '/current-tenancy/:tenancyId',
+      authMiddleware,
+      this.tenancyMemberController.updateTenancyMemberToUser,
+    );
 
     this.router.get('/tenancies/:tenancyId/members', authMiddleware, this.tenancyController.getAllTenancyMember);
     this.router.delete('/tenancies/:tenancyId/members', authMiddleware, this.tenancyController.deleteTenancyMember);
