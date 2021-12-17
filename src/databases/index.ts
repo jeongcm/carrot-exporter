@@ -60,6 +60,7 @@ const DB = {
 };
 
 //Different Relations among different tables
+
 DB.Tenancies.hasOne(DB.Users, { as: 'users', foreignKey: 'currentTenancyId'});
 DB.Users.belongsTo(DB.Tenancies, {as: 'currentTenancy',foreignKey: 'currentTenancyId'});
 
