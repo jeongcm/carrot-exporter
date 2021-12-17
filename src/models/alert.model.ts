@@ -3,17 +3,37 @@ import { IAlert } from '@interfaces/alert.interface';
 
 export type AlertCreationAttributes = Optional<
   IAlert,
-  'alertName' | 'from' | 'id' | 'lastUpdatedAt' | 'severity' | 'source' | 'startAt' | 'status' | 'summary'
+  | 'alertName'
+  | 'from'
+  | 'id'
+  | 'lastUpdatedAt'
+  | 'severity'
+  | 'source'
+  | 'startAt'
+  | 'status'
+  | 'summary'
+  | 'description'
+  | 'alertRule'
+  | 'node'
+  | 'note'
+  | 'tenancyId'
+  | 'numberOfOccurrences'
 >;
 
 export class AlertModel extends Model<IAlert, AlertCreationAttributes> implements IAlert {
   public id: number;
+  public tenancyId: string;
   public alertName: string;
   public from: 'LARI' | 'PROMETHEUS';
   public severity: string;
   public source: string;
   public status: 'CLOSED' | 'HIDED' | 'OPEN' | 'REFERENCED';
   public summary: string;
+  public description: string;
+  public alertRule: string;
+  public node: string;
+  public note: string;
+  public numberOfOccurrences: number;
 
   public readonly lastUpdatedAt!: Date;
   public readonly startAt!: Date;
@@ -27,6 +47,10 @@ export default function (sequelize: Sequelize): typeof AlertModel {
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
+      },
+      tenancyId: {
+        allowNull: false,
+        type: DataTypes.UUID,
       },
       alertName: {
         type: DataTypes.STRING(128),
@@ -48,6 +72,21 @@ export default function (sequelize: Sequelize): typeof AlertModel {
       summary: {
         type: DataTypes.TEXT,
         allowNull: false,
+      },
+      description: {
+        type: DataTypes.TEXT,
+      },
+      note: {
+        type: DataTypes.TEXT,
+      },
+      alertRule: {
+        type: DataTypes.TEXT,
+      },
+      node: {
+        type: DataTypes.TEXT,
+      },
+      numberOfOccurrences: {
+        type: DataTypes.INTEGER,
       },
       lastUpdatedAt: {
         type: DataTypes.DATE(),

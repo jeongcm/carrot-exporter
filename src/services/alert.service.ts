@@ -8,8 +8,12 @@ import { IncidentModel } from '@/models/incident.model';
 class AlertService {
   public alert = DB.Alerts;
 
-  public async getAllAlerts(): Promise<IAlert[]> {
+  public async getAllAlerts(tenancyId: string): Promise<IAlert[]> {
+    if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
+
     const allAlerts: IAlert[] = await this.alert.findAll({
+      where: { tenancyId },
+      attributes: { exclude: ['tenancyId', 'alertRule', 'note', 'node', 'numberOfOccurrences'] },
       include: [
         {
           model: IncidentModel,
@@ -26,16 +30,16 @@ class AlertService {
       include: [
         {
           model: IncidentModel,
-        }
+        },
       ],
     });
     return alert;
   }
 
-  public async createAlert(alertData: CreateAlertDto): Promise<IAlert> {
+  public async createAlert(alertData: CreateAlertDto, tenancyId: string): Promise<IAlert> {
     if (isEmpty(alertData)) throw new HttpException(400, 'Alert must not be empty');
 
-    const createAlertData: IAlert = await this.alert.create(alertData);
+    const createAlertData: IAlert = await this.alert.create({ ...alertData, tenancyId });
     return createAlertData;
   }
 
