@@ -16,10 +16,10 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
   public lastName: string;
   public mobile: string;
   public photo: string;
-  public currentTenancyId:string;
-  public isEmailValidated:boolean;
-  public emailValidatedOn:Date;
-  public token:string;
+  public currentTenancy: string;
+  public isEmailValidated: boolean;
+  public emailValidatedOn: Date;
+  public token: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
