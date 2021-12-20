@@ -17,6 +17,8 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
 
       if (findUser) {
         req.user = findUser;
+        req.tenancyId = (req.headers.tenancyid as string) || findUser.currentTenancy;
+
         next();
       } else {
         next(new HttpException(401, 'Wrong authentication token'));

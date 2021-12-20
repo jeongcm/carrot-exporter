@@ -1,5 +1,7 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Tenancy } from '@interfaces/tenancy.interface';
+import { TenancyMember } from '@interfaces/tenancyMember.interface';
+import { UserModel } from './users.model';
 
 export type TenancyCreationAttributes = Optional<Tenancy, 'id' | 'tenancyCode' | 'tenancyName'>;
 
@@ -67,6 +69,5 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
       sequelize,
     },
   );
-
-  return TenancyModel;
+   return TenancyModel;
 }

@@ -1,11 +1,21 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { User } from '@interfaces/users.interface';
-import { TenancyMemberModel } from './tenancyMember.model';
 import { TenancyModel } from './tenancy.model';
 
 export type UserCreationAttributes = Optional<
   User,
-  'id' | 'email' | 'password' | 'username' | 'firstName' | 'lastAccess' | 'lastName' | 'mobile' | 'photo' | 'createdAt' | 'updatedAt'
+  | 'id'
+  | 'email'
+  | 'password'
+  | 'username'
+  | 'firstName'
+  | 'lastAccess'
+  | 'lastName'
+  | 'mobile'
+  | 'photo'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'currentTenancyId'
 >;
 
 export class UserModel extends Model<User, UserCreationAttributes> implements User {
@@ -17,10 +27,10 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
   public lastName: string;
   public mobile: string;
   public photo: string;
-  public currentTenancy:string;
-  public isEmailValidated:boolean;
-  public emailValidatedOn:Date;
-  public token:string;
+  public currentTenancyId: string;
+  public isEmailValidated: boolean;
+  public emailValidatedOn: Date;
+  public token: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -71,7 +81,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
       isEmailValidated: {
         allowNull: true,
         type: DataTypes.BOOLEAN,
-        defaultValue:false
+        defaultValue: false,
       },
       emailValidatedOn: {
         allowNull: true,
@@ -81,9 +91,9 @@ export default function (sequelize: Sequelize): typeof UserModel {
         allowNull: true,
         type: DataTypes.STRING(255),
       },
-      currentTenancy: {
+      currentTenancyId: {
         allowNull: true,
-        type: DataTypes.STRING(255),
+        type: DataTypes.UUID,
       },
       createdAt: {
         allowNull: false,
@@ -100,11 +110,10 @@ export default function (sequelize: Sequelize): typeof UserModel {
     },
     {
       tableName: 'users',
-      modelName:"users",
+      modelName: 'users',
       sequelize,
     },
   );
-
 
   return UserModel;
 }
