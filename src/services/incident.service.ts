@@ -1,7 +1,7 @@
 import DB from 'databases';
 import { IIncident } from '@/interfaces/incident.interface';
 import { IAlert } from '@/interfaces/alert.interface';
-import { CreateIncidentDto } from '@dtos/incident.dto';
+import { CreateIncidentDto, UpdateIncidentStatusDto } from '@dtos/incident.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { IncidentModel } from '@/models/incident.model';
@@ -151,6 +151,12 @@ class IncidentService {
       });
       await this.incidentAction.bulkCreate(incidentActions);
     }
+
+    return this.getIncidentById(id);
+  }
+
+  public async updateIncidentStatus(id: number, incidentStatusData: UpdateIncidentStatusDto, currentUserId: string): Promise<IIncident> {
+    await this.incident.update({ status: incidentStatusData.status, updatedBy: currentUserId }, { where: { id } });
 
     return this.getIncidentById(id);
   }

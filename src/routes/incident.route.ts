@@ -2,11 +2,10 @@ import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
 import IncidentController from '@/controllers/incident.controller';
 import validationMiddleware from '@middlewares/validation.middleware';
-import { CreateIncidentDto } from '@dtos/incident.dto';
+import { CreateIncidentDto, UpdateIncidentStatusDto } from '@dtos/incident.dto';
 import AuthService from '@/services/auth.service';
 import { CreateActionDto } from '@/dtos/incidentAction.dto';
 import authMiddleware from '@middlewares/auth.middleware';
-
 
 class IncidentRoute implements Routes {
   public path = '/incidents';
@@ -35,23 +34,16 @@ class IncidentRoute implements Routes {
       this.incidentController.updateIncidentAction,
     );
     this.router.delete(`${this.path}/:incidentId/actions/:actionId`, authMiddleware, this.incidentController.deleteIncidentAction);
-    this.router.post(
-      `${this.path}`,
-      authMiddleware,
-      validationMiddleware(CreateIncidentDto, 'body'),
-      this.incidentController.createIncident,
-    );
-    this.router.get(
-      `${this.path}/:incidentId/relates/alerts`,
-      authMiddleware,
-      this.incidentController.getAlertByIncident,
-    );    
+    this.router.post(`${this.path}`, authMiddleware, validationMiddleware(CreateIncidentDto, 'body'), this.incidentController.createIncident);
+    this.router.get(`${this.path}/:incidentId/relates/alerts`, authMiddleware, this.incidentController.getAlertByIncident);
     this.router.delete(`${this.path}/:id`, authMiddleware, this.incidentController.deleteIncident);
+    this.router.put(`${this.path}/:id`, authMiddleware, validationMiddleware(CreateIncidentDto, 'body'), this.incidentController.updateIncident);
+
     this.router.put(
-      `${this.path}/:id`,
+      `${this.path}/:id/status`,
       authMiddleware,
-      validationMiddleware(CreateIncidentDto, 'body'),
-      this.incidentController.updateIncident,
+      validationMiddleware(UpdateIncidentStatusDto, 'body'),
+      this.incidentController.updateIncidentStatus,
     );
   }
 }

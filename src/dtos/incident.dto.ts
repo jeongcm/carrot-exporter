@@ -2,7 +2,7 @@ import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateIncidentDto {
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public assigneeId: string;
 
   @IsString()
@@ -29,4 +29,10 @@ export class CreateIncidentDto {
   @IsString()
   @IsNotEmpty()
   public title: string;
+}
+
+export class UpdateIncidentStatusDto {
+  @IsString()
+  @IsNotEmpty()
+  public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
 }
