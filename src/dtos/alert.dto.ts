@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateAlertDto {
   @IsString()
@@ -24,4 +24,19 @@ export class CreateAlertDto {
   @IsString()
   @IsNotEmpty()
   public summary: string;
+
+  @IsString()
+  public note: string;
+
+  @IsString()
+  public description: string;
+
+  @IsString()
+  public node: string;
+
+  @IsString()
+  public alertRule: string;
+
+  @IsNumber()
+  public numberOfOccurrences: number;
 }
