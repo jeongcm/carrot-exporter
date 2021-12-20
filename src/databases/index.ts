@@ -60,11 +60,12 @@ const DB = {
 };
 
 //Different Relations among different tables
+
 DB.Tenancies.hasOne(DB.Users, { as: 'users', foreignKey: 'currentTenancyId' });
 DB.Users.belongsTo(DB.Tenancies, { as: 'currentTenancy', foreignKey: 'currentTenancyId' });
 
-DB.TenancyMembers.hasMany(DB.Users, { foreignKey: 'id' });
-DB.Users.belongsTo(DB.TenancyMembers, { foreignKey: 'id' });
+DB.Users.hasMany(DB.TenancyMembers, {  foreignKey: 'userId' });
+DB.TenancyMembers.belongsTo(DB.Users, {foreignKey: 'userId' });
 
 DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneeId', as: 'incidents' });
 DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneeId', as: 'assignee' });
