@@ -2,8 +2,8 @@
     "env": "development",
     "dbConfig": {
         "host": "143.198.157.129",
-        "user": "user",
-        "password": "user",
+        "user": "root",
+        "password": "root",
         "database": "mydb",
         "pool": {
             "min": 0,
