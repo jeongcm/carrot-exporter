@@ -69,7 +69,11 @@ class AuthService {
         },
       ],
     });
-    return findUser;
+    if (findUser) {
+      return findUser[0];
+    } else {
+      return null;
+    }
   }
 
   public createToken(user: User): TokenData {
