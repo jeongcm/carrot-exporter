@@ -33,6 +33,7 @@ class AccessGroupsRoute implements Routes {
     this.router.get('/accessgroups/:id/clusters', authMiddleware, this.accessGroupsController.getAccessGroupClusters);
     this.router.post('/accessgroups/:id/channels', authMiddleware, this.accessGroupsController.updateAccessGroupChannels);
     this.router.get('/accessgroups/:id/channels', authMiddleware, this.accessGroupsController.getAccessGroupChannels);
+    this.router.get('/accessgroups/:id/detail', authMiddleware, this.accessGroupsController.getAccessGroupDetail);
   }
 }
 

@@ -35,6 +35,16 @@ class AccessGroupController {
     }
   };
 
+  public getAccessGroupDetail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const accessGroupId = req.params.id;
+      const accessGroupData: AccessGroup = await this.accessGroupService.findAccessGroupByIdDetail(accessGroupId);
+      res.status(200).json({ data: accessGroupData, message: 'Access group Detail by group id' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getAccessGroupsByUserId = async (req: Request, res: Response, next: NextFunction) => {
     try {
       let currentUserId = currentUser(req).id;

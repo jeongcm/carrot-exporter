@@ -3,13 +3,13 @@ import { AccessGroupMember } from '@interfaces/accessGroupMember.interface';
 
 export type AccessGroupMemberCreationAttributes = Optional<
   AccessGroupMember,
-  'id' | 'groupId' | 'memberId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'id' | 'accessGroupId' | 'userId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class AccessGroupMemberModel extends Model<AccessGroupMember, AccessGroupMemberCreationAttributes> implements AccessGroupMember {
   public id: string;
-  public groupId: string;
-  public memberId: string;
+  public accessGroupId: string;
+  public userId: string;
   public createdBy: string;
   public updatedBy: string;
   public isDeleted: boolean;
@@ -27,11 +27,11 @@ export default function (sequelize: Sequelize): typeof AccessGroupMemberModel {
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
       },
-      groupId: {
+      accessGroupId: {
         allowNull: false,
         type: DataTypes.STRING(45),
       },
-      memberId: {
+      userId: {
         allowNull: false,
         type: DataTypes.STRING(45),
       },
@@ -59,6 +59,7 @@ export default function (sequelize: Sequelize): typeof AccessGroupMemberModel {
     },
     {
       tableName: 'AccessGroupMember',
+      modelName: 'AccessGroupMember',
       sequelize,
     },
   );
