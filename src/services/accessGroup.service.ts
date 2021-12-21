@@ -1,5 +1,6 @@
 import DB from 'databases';
 import { CreateAccessGroupDto } from '@dtos/accessGroup.dto';
+import { CreateAccessGroupChannelDto } from '@dtos/accessGroupChannel.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { AccessGroup } from '@interfaces/accessGroup.interface';
 import { AccessGroupMember } from '@interfaces/accessGroupMember.interface';
@@ -127,7 +128,7 @@ class AccessGroupService {
     accessGroupId: string,
     accessGroupChannels: AccessGroupChannel[],
     currentUserId: string,
-  ): Promise<AccessGroupChannel[]> {
+  ): Promise<CreateAccessGroupChannelDto[]> {
 
     if (isEmpty(accessGroupChannels)) throw new HttpException(400, 'Channels Data cannot be blank');
     accessGroupChannels = Array.from(new Set(accessGroupChannels.map(a => a.channelId))).map(id => {
@@ -138,10 +139,10 @@ class AccessGroupService {
 
     const currentTime = new Date();
 
-    let updatedAccessGroupChannels: AccessGroupChannel[];
+    let updatedAccessGroupChannels: CreateAccessGroupChannelDto[];
 
     if (findAccessGroupChannels.length === 0) {
-      const updatedChannels = accessGroupChannels.map((accessGroupChannelsX: AccessGroupChannel) => {
+      const updatedChannels: CreateAccessGroupChannelDto[] = accessGroupChannels.map((accessGroupChannelsX: AccessGroupChannel) => {
         return {
           channelId: accessGroupChannelsX.channelId,
           accessGroupId: accessGroupId,

@@ -4,6 +4,7 @@ import { currentUser } from '@/utils/currentUser';
 import AccessGroupService from '@services/accessGroup.service';
 
 import { CreateAccessGroupDto } from '@dtos/accessGroup.dto';
+import { CreateAccessGroupChannelDto } from '@dtos/accessGroupChannel.dto';
 
 import { AccessGroup } from '@interfaces/accessGroup.interface';
 import { AccessGroupMember } from '@/interfaces/accessGroupMember.interface';
@@ -100,7 +101,7 @@ class AccessGroupController {
       const accessGroupId = req.params.id;
       const channelsData = req.body;
       let currentUserId = currentUser(req).id;
-      const updateAccessGroupData: AccessGroupChannel[] = await this.accessGroupService.updateAccessGroupChannels(
+      const updateAccessGroupData: CreateAccessGroupChannelDto[] = await this.accessGroupService.updateAccessGroupChannels(
         accessGroupId,
         channelsData,
         currentUserId,
