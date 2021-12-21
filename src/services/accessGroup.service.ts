@@ -6,6 +6,8 @@ import { AccessGroupMember } from '@interfaces/accessGroupMember.interface';
 import { AccessGroupCluster } from '@interfaces/accessGroupCluster.interface';
 import { AccessGroupChannel } from '@interfaces/accessGroupChannel.interface';
 import { isEmpty } from '@utils/util';
+import { AccessGroupChannelModel } from '@/models/accessGroupChannel.model';
+import { ChannelModel } from '@/models/channel.model';
 
 class AccessGroupService {
   public accessGroup = DB.AccessGroup;
@@ -15,9 +17,11 @@ class AccessGroupService {
 
   public async createAccessGroup(accessGroupData: CreateAccessGroupDto, currentUserId: string, tenancyId: string): Promise<AccessGroup> {
     if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
+
     if (isEmpty(accessGroupData)) throw new HttpException(400, 'Access Group must not be empty');
 
     const findAccessGroup: AccessGroup = await this.accessGroup.findOne({ where: { groupName: accessGroupData.groupName } });
+
     if (findAccessGroup) throw new HttpException(409, `You're group name ${accessGroupData.groupName} already exist.`);
 
     const createAccessGroupData: AccessGroup = await this.accessGroup.create({
@@ -40,7 +44,13 @@ class AccessGroupService {
   public async findAccessGroupById(id: string): Promise<AccessGroup> {
     if (isEmpty(id)) throw new HttpException(400, 'Not a valid Access Group');
 
-    const findAccessGroup: AccessGroup = await this.accessGroup.findByPk(id);
+    const findAccessGroup: AccessGroup = await this.accessGroup.findByPk(id, {
+      include: [
+        {
+          model: ChannelModel,
+        },
+      ],
+    });
     if (!findAccessGroup) throw new HttpException(409, 'Access Group Not found');
     return findAccessGroup;
   }
@@ -118,48 +128,56 @@ class AccessGroupService {
     accessGroupChannels: AccessGroupChannel[],
     currentUserId: string,
   ): Promise<AccessGroupChannel[]> {
+
     if (isEmpty(accessGroupChannels)) throw new HttpException(400, 'Channels Data cannot be blank');
     accessGroupChannels = Array.from(new Set(accessGroupChannels.map(a => a.channelId))).map(id => {
       return accessGroupChannels.find(a => a.channelId === id);
     });
-    const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({ where: { groupId: accessGroupId } });
+
+    const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({ where: { accessGroupId: accessGroupId } });
+
     const currentTime = new Date();
+
     let updatedAccessGroupChannels: AccessGroupChannel[];
+
     if (findAccessGroupChannels.length === 0) {
       const updatedChannels = accessGroupChannels.map((accessGroupChannelsX: AccessGroupChannel) => {
         return {
           channelId: accessGroupChannelsX.channelId,
-          groupId: accessGroupId,
+          accessGroupId: accessGroupId,
           createdBy: currentUserId,
           updatedBy: currentUserId,
           createdAt: currentTime,
           updatedAt: currentTime,
         };
       });
+
+      console.log(updatedChannels);
+      
       updatedAccessGroupChannels = await this.accessGroupChannel.bulkCreate(updatedChannels);
     } else {
       await this.accessGroupChannel.update(
         { isDeleted: true, updatedAt: currentTime, updatedBy: currentUserId },
-        { where: { groupId: accessGroupId } },
+        { where: { accessGroupId: accessGroupId } },
       );
       const updatedChannels = accessGroupChannels.map((accessGroupChannelsX: AccessGroupChannel) => {
         return {
           channelId: accessGroupChannelsX.channelId,
-          groupId: accessGroupId,
+          accessGroupId: accessGroupId,
           createdBy: currentUserId,
           updatedBy: currentUserId,
           createdAt: currentTime,
           updatedAt: currentTime,
         };
       });
-      updatedAccessGroupChannels = await this.accessGroupChannel.bulkCreate(updatedChannels, { updateOnDuplicate: ['groupId', 'channelId'] });
+      updatedAccessGroupChannels = await this.accessGroupChannel.bulkCreate(updatedChannels, { updateOnDuplicate: ['accessGroupId', 'channelId'] });
     }
     return updatedAccessGroupChannels;
   }
 
   public async getAccessGroupChannels(accessGroupId: string): Promise<AccessGroupChannel[]> {
     const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({
-      where: { groupId: accessGroupId, isDeleted: false },
+      where: { accessGroupId: accessGroupId, isDeleted: false },
     });
     return findAccessGroupChannels;
   }

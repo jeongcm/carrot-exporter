@@ -64,11 +64,14 @@ const DB = {
 DB.Tenancies.hasOne(DB.Users, { as: 'users', foreignKey: 'currentTenancyId' });
 DB.Users.belongsTo(DB.Tenancies, { as: 'currentTenancy', foreignKey: 'currentTenancyId' });
 
-DB.Users.hasMany(DB.TenancyMembers, {  foreignKey: 'userId' });
-DB.TenancyMembers.belongsTo(DB.Users, {foreignKey: 'userId' });
+DB.Users.hasMany(DB.TenancyMembers, { foreignKey: 'userId' });
+DB.TenancyMembers.belongsTo(DB.Users, { foreignKey: 'userId' });
 
 DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneeId', as: 'incidents' });
 DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneeId', as: 'assignee' });
+
+DB.AccessGroup.belongsToMany(DB.Channel, { through: 'AccessGroupChannel' });
+DB.Channel.belongsToMany(DB.AccessGroup, { through: 'AccessGroupChannel' });
 
 DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
 DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });

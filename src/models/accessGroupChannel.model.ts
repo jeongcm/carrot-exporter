@@ -3,12 +3,11 @@ import { AccessGroupChannel } from '@interfaces/accessGroupChannel.interface';
 
 export type AccessGroupChannelCreationAttributes = Optional<
   AccessGroupChannel,
-  'id' | 'groupId' | 'channelId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
+ 'accessGroupId' | 'channelId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class AccessGroupChannelModel extends Model<AccessGroupChannel, AccessGroupChannelCreationAttributes> implements AccessGroupChannel {
-  public id: string;
-  public groupId: string;
+  public accessGroupId: string;
   public channelId: string;
   public createdBy: string;
   public updatedBy: string;
@@ -21,19 +20,13 @@ export class AccessGroupChannelModel extends Model<AccessGroupChannel, AccessGro
 export default function (sequelize: Sequelize): typeof AccessGroupChannelModel {
   AccessGroupChannelModel.init(
     {
-      id: {
-        primaryKey: true,
+      accessGroupId: {
         allowNull: false,
-        defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
-      },
-      groupId: {
-        allowNull: false,
-        type: DataTypes.STRING(45),
       },
       channelId: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.UUID,
       },
       createdBy: {
         allowNull: false,
@@ -59,6 +52,7 @@ export default function (sequelize: Sequelize): typeof AccessGroupChannelModel {
     },
     {
       tableName: 'AccessGroupChannel',
+      modelName: "AccessGroupChannel",
       sequelize,
     },
   );
