@@ -6,6 +6,7 @@ import { IIncidentAction } from '@/interfaces/incidentAction.interface';
 import { CreateActionDto } from '@/dtos/incidentAction.dto';
 import { IAlert } from '@/interfaces/alert.interface';
 import { IIncidentRelAlert } from '@/interfaces/incidentRelAlert.interface';
+import { IIncidentCounts } from '@/interfaces/incidentCounts.interface';
 
 class IncidentController {
   public incidentService = new IncidentService();
@@ -61,6 +62,15 @@ class IncidentController {
       } else {
         res.status(404).json({ message: `Incident id(${id})'s action not found` });
       }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getIncidentCounts = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const incidentCounts: IIncidentCounts = await this.incidentService.getIncidentCounts();
+      res.status(200).json({ data: incidentCounts, message: 'All Counts' });
     } catch (error) {
       next(error);
     }

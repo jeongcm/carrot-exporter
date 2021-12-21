@@ -11,6 +11,7 @@ import { CreateActionDto } from '@/dtos/incidentAction.dto';
 import { IncidentActionModel } from '@/models/incidentAction.model';
 import { AlertModel } from '@/models/alert.model';
 import { IIncidentRelAlert } from '@/interfaces/incidentRelAlert.interface';
+import { IIncidentCounts } from '@/interfaces/incidentCounts.interface';
 
 class IncidentService {
   public incident = DB.Incident;
@@ -69,6 +70,30 @@ class IncidentService {
     });
 
     return incidentActions;
+  }
+
+  public async getIncidentCounts(): Promise<IIncidentCounts> {
+    const closedAmount = await this.incident.count({
+      where: { isDeleted: 0, status: 'CLOSED' },
+    });
+    const inprogressAmount = await this.incident.count({
+      where: { isDeleted: 0, status: 'IN_PROGRESS' },
+    });
+    const openAmount = await this.incident.count({
+      where: { isDeleted: 0, status: 'OPEN' },
+    });
+    const resolvedAmount = await this.incident.count({
+      where: { isDeleted: 0, status: 'RESOLVED' },
+    });
+
+    const incidentCounts: IIncidentCounts = {
+      closedCount: closedAmount,
+      inprogressCount: inprogressAmount,
+      openCount: openAmount,
+      resolvedCount: resolvedAmount,
+    };
+
+    return incidentCounts;
   }
 
   public async createIncident(incidentData: CreateIncidentDto, currentUserId: string): Promise<IIncident> {
