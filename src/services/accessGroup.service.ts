@@ -57,11 +57,7 @@ class AccessGroupService {
           model: UserModel,
           as: 'members',
           attributes: ['email', 'username', 'photo', 'id'],
-        },
-        {
-          model: ClusterModel,
-          as: 'clusters',
-        },
+        }
       ],
     });
 
