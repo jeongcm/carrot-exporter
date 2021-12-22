@@ -4,6 +4,7 @@ import { currentUser } from '@/utils/currentUser';
 import AccessGroupService from '@services/accessGroup.service';
 
 import { CreateAccessGroupDto } from '@dtos/accessGroup.dto';
+import { CreateAccessGroupChannelDto } from '@dtos/accessGroupChannel.dto';
 
 import { AccessGroup } from '@interfaces/accessGroup.interface';
 import { AccessGroupMember } from '@/interfaces/accessGroupMember.interface';
@@ -29,6 +30,16 @@ class AccessGroupController {
       const accessGroupId = req.params.id;
       const findOneUserData: AccessGroup = await this.accessGroupService.findAccessGroupById(accessGroupId);
       res.status(200).json({ data: findOneUserData, message: 'Access group by group id' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAccessGroupDetail = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const accessGroupId = req.params.id;
+      const accessGroupData: AccessGroup = await this.accessGroupService.findAccessGroupByIdDetail(accessGroupId);
+      res.status(200).json({ data: accessGroupData, message: 'Access group Detail by group id' });
     } catch (error) {
       next(error);
     }
@@ -100,7 +111,7 @@ class AccessGroupController {
       const accessGroupId = req.params.id;
       const channelsData = req.body;
       let currentUserId = currentUser(req).id;
-      const updateAccessGroupData: AccessGroupChannel[] = await this.accessGroupService.updateAccessGroupChannels(
+      const updateAccessGroupData: CreateAccessGroupChannelDto[] = await this.accessGroupService.updateAccessGroupChannels(
         accessGroupId,
         channelsData,
         currentUserId,

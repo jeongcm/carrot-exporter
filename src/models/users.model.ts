@@ -45,10 +45,6 @@ export default function (sequelize: Sequelize): typeof UserModel {
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
-        // references:{
-        //   model:TenancyMemberModel,
-        //   key:"userId"
-        // }
       },
       email: {
         allowNull: false,

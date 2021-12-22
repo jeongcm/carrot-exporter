@@ -69,6 +69,7 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
     },
     {
       tableName: 'Channel',
+      modelName: 'Channel',
       sequelize,
     },
   );
