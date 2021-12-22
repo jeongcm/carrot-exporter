@@ -56,6 +56,7 @@ class IncidentService {
       include: [
         {
           model: AlertModel,
+          attributes: { exclude: ['tenancyId', 'alertRule', 'note', 'node', 'numberOfOccurrences'] },
         },
       ],
     });
