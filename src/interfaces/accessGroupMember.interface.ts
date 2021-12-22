@@ -1,7 +1,7 @@
 export interface AccessGroupMember {
   id: string;
-  groupId: string;
-  memberId: string;
+  accessGroupId: string;
+  userId: string;
   createdAt: Date;
   createdBy: string;
   updatedAt: Date;

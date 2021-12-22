@@ -1,6 +1,6 @@
 export interface AccessGroupChannel {
   id: string;
-  groupId: string;
+  accessGroupId: string;
   channelId: string;
   createdAt: Date;
   createdBy: string;

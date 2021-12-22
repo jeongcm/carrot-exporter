@@ -60,14 +60,34 @@ const DB = {
 };
 
 //Different Relations among different tables
+
 DB.Tenancies.hasOne(DB.Users, { as: 'users', foreignKey: 'currentTenancyId' });
 DB.Users.belongsTo(DB.Tenancies, { as: 'currentTenancy', foreignKey: 'currentTenancyId' });
 
-DB.TenancyMembers.hasMany(DB.Users, { foreignKey: 'id' });
-DB.Users.belongsTo(DB.TenancyMembers, { foreignKey: 'id' });
+DB.Users.hasMany(DB.TenancyMembers, { foreignKey: 'userId' });
+DB.TenancyMembers.belongsTo(DB.Users, { foreignKey: 'userId' });
 
 DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneeId', as: 'incidents' });
 DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneeId', as: 'assignee' });
+
+DB.AccessGroup.belongsToMany(DB.Channel, { through: 'AccessGroupChannel', sourceKey: 'id', targetKey: 'id', as: 'channels' });
+DB.Channel.belongsToMany(DB.AccessGroup, { through: 'AccessGroupChannel', sourceKey: 'id', targetKey: 'id', as: 'accessGroup' });
+
+DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelId' });
+DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupId' });
+
+DB.AccessGroup.belongsToMany(DB.Users, { through: 'AccessGroupMember', sourceKey: 'id', targetKey: 'id', as: 'members' });
+DB.Users.belongsToMany(DB.AccessGroup, { through: 'AccessGroupMember', sourceKey: 'id', targetKey: 'id', as: 'accessGroup' });
+
+DB.AccessGroupMember.belongsTo(DB.Users, { foreignKey: 'userId' });
+DB.AccessGroupMember.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupId' });
+
+DB.AccessGroup.belongsToMany(DB.Clusters, { through: 'AccessGroupCluster', sourceKey: 'id', targetKey: 'id', as: 'clusters' });
+DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourceKey: 'id', targetKey: 'id', as: "accessGroupClusters" });
+
+DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterId' });
+DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupId' });
+
 
 DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
 DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });

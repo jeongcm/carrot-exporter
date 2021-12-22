@@ -63,6 +63,7 @@ export default function (sequelize: Sequelize): typeof AccessGroupModel {
     },
     {
       tableName: 'AccessGroup',
+      modelName: 'AccessGroup',
       sequelize,
     },
   );

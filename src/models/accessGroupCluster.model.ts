@@ -3,12 +3,12 @@ import { AccessGroupCluster } from '@interfaces/accessGroupCluster.interface';
 
 export type AccessGroupClusterCreationAttributes = Optional<
   AccessGroupCluster,
-  'id' | 'groupId' | 'clusterId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'id' | 'accessGroupId' | 'clusterId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class AccessGroupClusterModel extends Model<AccessGroupCluster, AccessGroupClusterCreationAttributes> implements AccessGroupCluster {
   public id: string;
-  public groupId: string;
+  public accessGroupId: string;
   public clusterId: string;
   public createdBy: string;
   public updatedBy: string;
@@ -27,7 +27,7 @@ export default function (sequelize: Sequelize): typeof AccessGroupClusterModel {
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
       },
-      groupId: {
+      accessGroupId: {
         allowNull: false,
         type: DataTypes.STRING(45),
       },
@@ -59,6 +59,7 @@ export default function (sequelize: Sequelize): typeof AccessGroupClusterModel {
     },
     {
       tableName: 'AccessGroupCluster',
+      modelName: 'AccessGroupCluster',
       sequelize,
     },
   );
