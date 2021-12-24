@@ -1,7 +1,7 @@
 import DB from 'databases';
 import { IIncident } from '@/interfaces/incident.interface';
 import { IAlert } from '@/interfaces/alert.interface';
-import { CreateIncidentDto, UpdateIncidentStatusDto } from '@dtos/incident.dto';
+import { CreateIncidentDto, UpdateIncidentStatusDto, UpdateIncidentDto } from '@dtos/incident.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { IncidentModel } from '@/models/incident.model';
@@ -28,7 +28,7 @@ class IncidentService {
         {
           as: 'assignee',
           model: UserModel,
-          attributes: ['email', 'lastAccess', 'username', 'photo'],
+          attributes: ['email', 'lastAccess', 'username', 'photo', 'id'],
         },
       ],
     });
@@ -147,7 +147,7 @@ class IncidentService {
     return deletedIncident;
   }
 
-  public async updateIncident(id: number, incidentData: CreateIncidentDto, currentUserId: string): Promise<IIncident> {
+  public async updateIncident(id: number, incidentData: UpdateIncidentDto, currentUserId: string): Promise<IIncident> {
     const { relatedAlertIds, actions } = incidentData;
 
     await this.incident.update({ ...incidentData, updatedBy: currentUserId }, { where: { id } });

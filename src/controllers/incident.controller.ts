@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { IIncident } from '@/interfaces/incident.interface';
 import IncidentService from '@/services/incident.service';
-import { CreateIncidentDto, UpdateIncidentStatusDto } from '@dtos/incident.dto';
+import { CreateIncidentDto, UpdateIncidentStatusDto, UpdateIncidentDto } from '@dtos/incident.dto';
 import { IIncidentAction } from '@/interfaces/incidentAction.interface';
 import { CreateActionDto } from '@/dtos/incidentAction.dto';
 import { IAlert } from '@/interfaces/alert.interface';
@@ -112,7 +112,7 @@ class IncidentController {
   public updateIncident = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const incidentId = parseInt(req.params.id);
-      const incidentData: CreateIncidentDto = req.body;
+      const incidentData: UpdateIncidentDto = req.body;
       //@ts-expect-error
       const currentUserId = req.user.id;
 
