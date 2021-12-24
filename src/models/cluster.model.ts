@@ -70,6 +70,7 @@ export default function (sequelize: Sequelize): typeof ClusterModel {
     },
     {
       tableName: 'Cluster',
+      modelName: 'Cluster',
       sequelize,
     },
   );
