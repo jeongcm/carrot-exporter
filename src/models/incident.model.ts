@@ -9,7 +9,7 @@ export type IncidentCreationAttributes = Optional<
 
 export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> implements IIncident {
   public id: number;
-  public tenancyId: number;
+  public tenancyId: string;
   public assigneeId: string;
   public title: string;
   public note: string;
@@ -35,7 +35,7 @@ export default function (sequelize: Sequelize): typeof IncidentModel {
         primaryKey: true,
       },
       tenancyId: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.UUID,
         allowNull: false,
       },
       assigneeId: {

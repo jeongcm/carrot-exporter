@@ -19,9 +19,9 @@ class IncidentService {
   public incidentRelAlert = DB.IncidentRelAlert;
   public incidentAction = DB.IncidentAction;
 
-  public async getAllIncidents(): Promise<IIncident[]> {
+  public async getAllIncidents(currentTenancyId: string): Promise<IIncident[]> {
     const allIncidents: IIncident[] = await this.incident.findAll({
-      where: { isDeleted: 0 },
+      where: { isDeleted: 0, tenancyId: currentTenancyId },
       order: [['createdAt', 'DESC']],
       attributes: { exclude: ['isDeleted', 'assigneeId'] },
       include: [
@@ -73,18 +73,18 @@ class IncidentService {
     return incidentActions;
   }
 
-  public async getIncidentCounts(): Promise<IIncidentCounts> {
+  public async getIncidentCounts(currentTenancyId: string): Promise<IIncidentCounts> {
     const closedAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'CLOSED' },
+      where: { isDeleted: 0, status: 'CLOSED', tenancyId: currentTenancyId },
     });
     const inprogressAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'IN_PROGRESS' },
+      where: { isDeleted: 0, status: 'IN_PROGRESS', tenancyId: currentTenancyId },
     });
     const openAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'OPEN' },
+      where: { isDeleted: 0, status: 'OPEN', tenancyId: currentTenancyId },
     });
     const resolvedAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'RESOLVED' },
+      where: { isDeleted: 0, status: 'RESOLVED', tenancyId: currentTenancyId },
     });
 
     const incidentCounts: IIncidentCounts = {
@@ -97,7 +97,7 @@ class IncidentService {
     return incidentCounts;
   }
 
-  public async createIncident(incidentData: CreateIncidentDto, currentUserId: string): Promise<IIncident> {
+  public async createIncident(incidentData: CreateIncidentDto, currentUserId: string, currentTenancyId: string): Promise<IIncident> {
     if (isEmpty(incidentData)) throw new HttpException(400, 'Incident must not be empty');
 
     const { assigneeId, title, note, status, priority, dueDate, relatedAlertIds, actions } = incidentData;
@@ -109,7 +109,7 @@ class IncidentService {
       status,
       priority,
       dueDate,
-      tenancyId: 1,
+      tenancyId: currentTenancyId,
       createdBy: currentUserId,
     });
 

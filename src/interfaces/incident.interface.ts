@@ -1,6 +1,6 @@
 export interface IIncident {
   id: number;
-  tenancyId: number;
+  tenancyId: string;
   assigneeId: string;
   title: string;
   note: string;
