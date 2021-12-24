@@ -1,7 +1,7 @@
 import DB from 'databases';
 import { IIncident } from '@/interfaces/incident.interface';
 import { IAlert } from '@/interfaces/alert.interface';
-import { CreateIncidentDto } from '@dtos/incident.dto';
+import { CreateIncidentDto, UpdateIncidentStatusDto } from '@dtos/incident.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { IncidentModel } from '@/models/incident.model';
@@ -11,6 +11,7 @@ import { CreateActionDto } from '@/dtos/incidentAction.dto';
 import { IncidentActionModel } from '@/models/incidentAction.model';
 import { AlertModel } from '@/models/alert.model';
 import { IIncidentRelAlert } from '@/interfaces/incidentRelAlert.interface';
+import { IIncidentCounts } from '@/interfaces/incidentCounts.interface';
 
 class IncidentService {
   public incident = DB.Incident;
@@ -55,6 +56,7 @@ class IncidentService {
       include: [
         {
           model: AlertModel,
+          attributes: { exclude: ['tenancyId', 'alertRule', 'note', 'node', 'numberOfOccurrences'] },
         },
       ],
     });
@@ -69,6 +71,30 @@ class IncidentService {
     });
 
     return incidentActions;
+  }
+
+  public async getIncidentCounts(): Promise<IIncidentCounts> {
+    const closedAmount = await this.incident.count({
+      where: { isDeleted: 0, status: 'CLOSED' },
+    });
+    const inprogressAmount = await this.incident.count({
+      where: { isDeleted: 0, status: 'IN_PROGRESS' },
+    });
+    const openAmount = await this.incident.count({
+      where: { isDeleted: 0, status: 'OPEN' },
+    });
+    const resolvedAmount = await this.incident.count({
+      where: { isDeleted: 0, status: 'RESOLVED' },
+    });
+
+    const incidentCounts: IIncidentCounts = {
+      closedCount: closedAmount,
+      inprogressCount: inprogressAmount,
+      openCount: openAmount,
+      resolvedCount: resolvedAmount,
+    };
+
+    return incidentCounts;
   }
 
   public async createIncident(incidentData: CreateIncidentDto, currentUserId: string): Promise<IIncident> {
@@ -151,6 +177,12 @@ class IncidentService {
       });
       await this.incidentAction.bulkCreate(incidentActions);
     }
+
+    return this.getIncidentById(id);
+  }
+
+  public async updateIncidentStatus(id: number, incidentStatusData: UpdateIncidentStatusDto, currentUserId: string): Promise<IIncident> {
+    await this.incident.update({ status: incidentStatusData.status, updatedBy: currentUserId }, { where: { id } });
 
     return this.getIncidentById(id);
   }
