@@ -7,6 +7,7 @@ export interface Invitation {
     rejectedAt: Date;
     tenancyId: string;
     invitedByUserId: string; 
+    invitedTo:string;
     token: string;
     createdAt:Date;
     updatedAt:Date;

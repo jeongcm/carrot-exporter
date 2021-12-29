@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
-import LogController from '@/controllers/log.controller';
+import InvitationController from '@/controllers/invitation.controller';
 import AuthService from '@/services/auth.service';
+import validationMiddleware from '@middlewares/validation.middleware';
+import { CreateInvitationDto } from '@dtos/invitation.dto';
 import authMiddleware from '@middlewares/auth.middleware';
 
-
-class LogRoute implements Routes {
+class InvitationRoute implements Routes {
   public router = Router();
-  public logController = new LogController();
+  public invitationController = new InvitationController();
   public authservice = new AuthService();
 
   constructor() {
@@ -15,12 +16,12 @@ class LogRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get('/invite/email?email={string}',authMiddleware, this.logController.getLogs);
-    this.router.post('/invite/email',authMiddleware, this.logController.getLog);
-    this.router.put('/invite/email',authMiddleware, this.logController.getLog);
-    this.router.get('/invite/accept?token={string}',authMiddleware, this.logController.getLog);
-    this.router.get('/invite/reject?token={string}',authMiddleware, this.logController.getLog);
+    this.router.get('/invite/email',authMiddleware, this.invitationController.checkForDuplicateInvitation);
+    this.router.get('/invite/accept', this.invitationController.acceptInvitation);
+    this.router.get('/invite/reject', this.invitationController.rejectInvitation);
+    this.router.post('/invite/email', authMiddleware, validationMiddleware(CreateInvitationDto, 'body'), this.invitationController.createInvitation);
+    this.router.put('/invite/email',authMiddleware, this.invitationController.updateInvitation);
   }
 }
 
-export default LogRoute;
+export default InvitationRoute;

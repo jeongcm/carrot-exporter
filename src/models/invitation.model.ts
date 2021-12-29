@@ -14,6 +14,7 @@ export class InvitationModel extends Model<Invitation> implements Invitation {
   public isRejected: boolean;
   public rejectedAt: Date;
   public tenancyId: string;
+  public invitedTo: string;
   public invitedByUserId: string; 
   public token: string;
   public readonly createdAt!: Date;
@@ -31,10 +32,12 @@ export default function (sequelize: Sequelize): typeof InvitationModel {
       },
       isActive: {
         allowNull: false,
+        defaultValue:true,
         type: DataTypes.BOOLEAN,
       },
       isAccepted: {
         allowNull: false,
+        defaultValue:false,
         type: DataTypes.BOOLEAN,
       },
       acceptedAt: {
@@ -47,7 +50,7 @@ export default function (sequelize: Sequelize): typeof InvitationModel {
         type: DataTypes.BOOLEAN,
       },
       tenancyId: {
-        allowNull: true,
+        allowNull: false,
         type: DataTypes.UUID,
       },
       rejectedAt: {
@@ -58,8 +61,12 @@ export default function (sequelize: Sequelize): typeof InvitationModel {
         allowNull: true,
         type: DataTypes.UUID,
       },
+      invitedTo: {
+        allowNull: false,
+        type: DataTypes.STRING,
+      },
       token: {
-        allowNull: true,
+        allowNull: false,
         type: DataTypes.STRING,
       },
       createdAt: {
@@ -74,7 +81,7 @@ export default function (sequelize: Sequelize): typeof InvitationModel {
       },
     },
     {
-      tableName: 'invitations',
+      tableName: 'Invitations',
       sequelize,
     },
   );

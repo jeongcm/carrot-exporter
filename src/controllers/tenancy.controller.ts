@@ -102,16 +102,16 @@ class TenancyController {
     }
   };
 
-  public updateTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const tenancyId = req.params.tenancyId;
-      const updatedData = req.body;
-      const deleteTenancyData: TenancyMember = await this.tenancyService.updateTenancyMember(updatedData, tenancyId);
-      res.status(200).json({ data: deleteTenancyData, message: 'deleted' });
-    } catch (error) {
-      next(error);
-    }
-  };
+  // public updateTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     const tenancyId = req.params.tenancyId;
+  //     const updatedData = req.body;
+  //     const deleteTenancyData: TenancyMember = await this.tenancyService.updateTenancyMember(updatedData, tenancyId);
+  //     res.status(200).json({ data: deleteTenancyData, message: 'deleted' });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
 }
 
 export default TenancyController;
