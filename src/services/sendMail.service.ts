@@ -4,17 +4,13 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+import config from 'config';
+const { auth } = config.get('mailgunAuth');
 
 class MailService {
   public sendMail = (req, res) => {
-      console.log("_dirrrr", __dirname)
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../templates/email.hbs'), 'utf8');
-    const mailgunAuth = {
-      auth: {
-        api_key: 'afc38a0b3a279b1c3da684fcaf5b6ede-7fba8a4e-6df6e2b9',
-        domain: 'sandboxf34105cd97c4421d8286857b8c3be8bb.mailgun.org',
-      },
-    };
+    const mailgunAuth = {auth};
     const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
     const template = handlebars.compile(emailTemplateSource);
     const { email, username } = req.body;
