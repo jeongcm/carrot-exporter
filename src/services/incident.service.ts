@@ -50,7 +50,7 @@ class IncidentService {
     return incident;
   }
 
-  public async getAlertsByIncidentId(id: number): Promise<IIncidentRelAlert[]> {
+  public async getAlertsByIncidentId(id: number, currentTenancyId: string): Promise<IIncidentRelAlert[]> {
     const alerts: IIncidentRelAlert[] = await this.incidentRelAlert.findAll({
       where: { incidentId: id },
       include: [
@@ -60,6 +60,7 @@ class IncidentService {
           include: [
             {
               model: IncidentModel,
+              where: { isDeleted: 0, tenancyId: currentTenancyId },
             },
           ],
         },
