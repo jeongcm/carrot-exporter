@@ -1,7 +1,8 @@
 import _ from 'lodash';
 import DB from 'databases';
 import { IIncident } from '@/interfaces/incident.interface';
-import { CreateIncidentDto, UpdateIncidentStatusDto } from '@dtos/incident.dto';
+import { IAlert } from '@/interfaces/alert.interface';
+import { CreateIncidentDto, UpdateIncidentStatusDto, UpdateIncidentDto } from '@dtos/incident.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { IncidentModel } from '@/models/incident.model';
@@ -19,16 +20,16 @@ class IncidentService {
   public incidentRelAlert = DB.IncidentRelAlert;
   public incidentAction = DB.IncidentAction;
 
-  public async getAllIncidents(): Promise<IIncident[]> {
+  public async getAllIncidents(currentTenancyId: string): Promise<IIncident[]> {
     const allIncidents: IIncident[] = await this.incident.findAll({
-      where: { isDeleted: 0 },
+      where: { isDeleted: 0, tenancyId: currentTenancyId },
       order: [['createdAt', 'DESC']],
       attributes: { exclude: ['isDeleted', 'assigneeId'] },
       include: [
         {
           as: 'assignee',
           model: UserModel,
-          attributes: ['email', 'lastAccess', 'username', 'photo'],
+          attributes: ['email', 'lastAccess', 'username', 'photo', 'id'],
         },
       ],
     });
@@ -91,18 +92,18 @@ class IncidentService {
     return incidentActions;
   }
 
-  public async getIncidentCounts(): Promise<IIncidentCounts> {
+  public async getIncidentCounts(currentTenancyId: string): Promise<IIncidentCounts> {
     const closedAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'CLOSED' },
+      where: { isDeleted: 0, status: 'CLOSED', tenancyId: currentTenancyId },
     });
     const inprogressAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'IN_PROGRESS' },
+      where: { isDeleted: 0, status: 'IN_PROGRESS', tenancyId: currentTenancyId },
     });
     const openAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'OPEN' },
+      where: { isDeleted: 0, status: 'OPEN', tenancyId: currentTenancyId },
     });
     const resolvedAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'RESOLVED' },
+      where: { isDeleted: 0, status: 'RESOLVED', tenancyId: currentTenancyId },
     });
 
     const incidentCounts: IIncidentCounts = {
@@ -115,7 +116,7 @@ class IncidentService {
     return incidentCounts;
   }
 
-  public async createIncident(incidentData: CreateIncidentDto, currentUserId: string): Promise<IIncident> {
+  public async createIncident(incidentData: CreateIncidentDto, currentUserId: string, currentTenancyId: string): Promise<IIncident> {
     if (isEmpty(incidentData)) throw new HttpException(400, 'Incident must not be empty');
 
     const { assigneeId, title, note, status, priority, dueDate, relatedAlertIds, actions } = incidentData;
@@ -127,7 +128,7 @@ class IncidentService {
       status,
       priority,
       dueDate,
-      tenancyId: 1,
+      tenancyId: currentTenancyId,
       createdBy: currentUserId,
     });
 
@@ -165,7 +166,7 @@ class IncidentService {
     return deletedIncident;
   }
 
-  public async updateIncident(id: number, incidentData: CreateIncidentDto, currentUserId: string): Promise<IIncident> {
+  public async updateIncident(id: number, incidentData: UpdateIncidentDto, currentUserId: string): Promise<IIncident> {
     const { relatedAlertIds, actions } = incidentData;
 
     await this.incident.update({ ...incidentData, updatedBy: currentUserId }, { where: { id } });

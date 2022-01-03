@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { IIncident } from '@/interfaces/incident.interface';
 import IncidentService from '@/services/incident.service';
-import { CreateIncidentDto, UpdateIncidentStatusDto } from '@dtos/incident.dto';
+import { CreateIncidentDto, UpdateIncidentStatusDto, UpdateIncidentDto } from '@dtos/incident.dto';
 import { IIncidentAction } from '@/interfaces/incidentAction.interface';
 import { CreateActionDto } from '@/dtos/incidentAction.dto';
 import { IAlert } from '@/interfaces/alert.interface';
@@ -12,8 +12,11 @@ class IncidentController {
   public incidentService = new IncidentService();
 
   public getIncidents = async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-expect-error
+    const currentTenancyId = req.user.currentTenancyId;
+
     try {
-      const allIncidents: IIncident[] = await this.incidentService.getAllIncidents();
+      const allIncidents: IIncident[] = await this.incidentService.getAllIncidents(currentTenancyId);
       res.status(200).json({ data: allIncidents, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -22,11 +25,15 @@ class IncidentController {
 
   public getIncident = async (req: Request, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
+    // @ts-expect-error
+    const currentTenancyId = req.user.currentTenancyId;
 
     try {
       const incident: IIncident = await this.incidentService.getIncidentById(id);
 
-      if (incident) {
+      if (incident.tenancyId !== currentTenancyId) {
+        res.status(404).json({ message: `Incident id(${id}) not found` });
+      } else if (incident) {
         res.status(200).json({ data: incident, message: `find incident id(${id}) ` });
       } else {
         res.status(404).json({ message: `Incident id(${id}) not found` });
@@ -68,8 +75,11 @@ class IncidentController {
   };
 
   public getIncidentCounts = async (req: Request, res: Response, next: NextFunction) => {
+    // @ts-expect-error
+    const currentTenancyId = req.user.currentTenancyId;
+
     try {
-      const incidentCounts: IIncidentCounts = await this.incidentService.getIncidentCounts();
+      const incidentCounts: IIncidentCounts = await this.incidentService.getIncidentCounts(currentTenancyId);
       res.status(200).json({ data: incidentCounts, message: 'All Counts' });
     } catch (error) {
       next(error);
@@ -82,8 +92,10 @@ class IncidentController {
 
       //@ts-expect-error
       const currentUserId = req.user.id;
+      // @ts-expect-error
+      const currentTenancyId = req.user.currentTenancyId;
 
-      const createAlertData: IIncident = await this.incidentService.createIncident(incidentData, currentUserId);
+      const createAlertData: IIncident = await this.incidentService.createIncident(incidentData, currentUserId, currentTenancyId);
       res.status(201).json({ data: createAlertData, message: 'created' });
     } catch (error) {
       next(error);
@@ -92,9 +104,16 @@ class IncidentController {
 
   public deleteIncident = async (req: Request, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
+    // @ts-expect-error
+    const currentTenancyId = req.user.currentTenancyId;
+
     const incident = await this.incidentService.getIncidentById(id);
 
     if (!incident) {
+      return res.sendStatus(404);
+    }
+
+    if (incident.tenancyId !== currentTenancyId) {
       return res.sendStatus(404);
     }
 
@@ -110,9 +129,22 @@ class IncidentController {
   };
 
   public updateIncident = async (req: Request, res: Response, next: NextFunction) => {
+    const incidentId = parseInt(req.params.id);
+    // @ts-expect-error
+    const currentTenancyId = req.user.currentTenancyId;
+
+    const incident = await this.incidentService.getIncidentById(incidentId);
+
+    if (!incident) {
+      return res.sendStatus(404);
+    }
+
+    if (incident.tenancyId !== currentTenancyId) {
+      return res.sendStatus(404);
+    }
+
     try {
-      const incidentId = parseInt(req.params.id);
-      const incidentData: CreateIncidentDto = req.body;
+      const incidentData: UpdateIncidentDto = req.body;
       //@ts-expect-error
       const currentUserId = req.user.id;
 
