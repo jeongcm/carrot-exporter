@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import DB from 'databases';
 import { IIncident } from '@/interfaces/incident.interface';
 import { IAlert } from '@/interfaces/alert.interface';
@@ -52,16 +53,34 @@ class IncidentService {
   public async getAlertsByIncidentId(id: number): Promise<IIncidentRelAlert[]> {
     const alerts: IIncidentRelAlert[] = await this.incidentRelAlert.findAll({
       where: { incidentId: id },
-      attributes: { exclude: ['alertId'] },
       include: [
         {
           model: AlertModel,
           attributes: { exclude: ['tenancyId', 'alertRule', 'note', 'node', 'numberOfOccurrences'] },
+          include: [
+            {
+              model: IncidentModel,
+            },
+          ],
         },
       ],
     });
 
-    return alerts;
+    let modifiedAlerts: IIncidentRelAlert[] = [];
+
+    alerts.forEach(alertsX => {
+      let incidents = alertsX['alert']['incidents'];
+
+      let tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
+
+      tempAlertsX.alert.incidentId = _.map(incidents, incidentsX => incidentsX.id);
+
+      delete tempAlertsX.alert.incidents;
+
+      modifiedAlerts.push(tempAlertsX.alert);
+    });
+
+    return modifiedAlerts;
   }
 
   public async getIncidentActionsById(id: number): Promise<IIncidentAction[]> {
@@ -154,13 +173,13 @@ class IncidentService {
 
     if (relatedAlertIds) {
       await this.incidentRelAlert.destroy({ where: { incidentId: id } });
+
       let relatedAlerts = relatedAlertIds.map(alertId => {
         return {
           incidentId: id,
           alertId,
         };
       });
-      console.log(relatedAlerts);
 
       await this.incidentRelAlert.bulkCreate(relatedAlerts);
     }
