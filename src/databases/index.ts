@@ -14,6 +14,7 @@ import ChannelModel from '@models/channel.model';
 import TenancyModel from '@/models/tenancy.model';
 import IncidentModel from '@/models/incident.model';
 import IncidentRelAlertModel from '@/models/incidentRelAlert.model';
+import InvitationModel from '@/models/invitation.model';
 import IncidentActionModel from '@/models/incidentAction.model';
 import TenancyMemberModel from '@/models/tenancyMember.model';
 
@@ -56,6 +57,7 @@ const DB = {
   Incident: IncidentModel(sequelize),
   IncidentRelAlert: IncidentRelAlertModel(sequelize),
   IncidentAction: IncidentActionModel(sequelize),
+  Invitations: InvitationModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
