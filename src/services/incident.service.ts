@@ -105,8 +105,11 @@ class IncidentService {
 
     const { relatedAlertIds } = relatedAlertData;
 
-    relatedAlertIds.forEach(async alertId => {
-      await this.incidentRelAlert.destroy({ where: { incidentId, alertId } });
+    await this.incidentRelAlert.destroy({
+      where: {
+        incidentId,
+        alertId: relatedAlertIds,
+      },
     });
   }
 
