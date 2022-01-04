@@ -42,6 +42,12 @@ class IncidentRoute implements Routes {
       validationMiddleware(CreateRelatedAlertDto, 'body'),
       this.incidentController.createRelatedAlertsByIncident,
     );
+    this.router.delete(
+      '/incidents/:incidentId/relates/alerts',
+      authMiddleware,
+      validationMiddleware(CreateRelatedAlertDto, 'body'),
+      this.incidentController.deleteRelatedAlertsByIncident,
+    );
 
     this.router.delete('/incidents/:id', authMiddleware, this.incidentController.deleteIncident);
     this.router.put('/incidents/:id', authMiddleware, validationMiddleware(UpdateIncidentDto, 'body'), this.incidentController.updateIncident);

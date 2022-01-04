@@ -100,6 +100,16 @@ class IncidentService {
     return result;
   }
 
+  public async deleteRelatedAlertsByIncident(incidentId: number, relatedAlertData: CreateRelatedAlertDto): Promise<void> {
+    if (isEmpty(relatedAlertData)) throw new HttpException(400, 'Incident must not be empty');
+
+    const { relatedAlertIds } = relatedAlertData;
+
+    relatedAlertIds.forEach(async alertId => {
+      await this.incidentRelAlert.destroy({ where: { incidentId, alertId } });
+    });
+  }
+
   public async getIncidentActionsById(id: number): Promise<IIncidentAction[]> {
     const incidentActions: IIncidentAction[] = await this.incidentAction.findAll({
       where: { incidentId: id, isDeleted: 0 },

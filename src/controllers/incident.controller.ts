@@ -76,6 +76,18 @@ class IncidentController {
     }
   };
 
+  public deleteRelatedAlertsByIncident = async (req: Request, res: Response, next: NextFunction) => {
+    const id = parseInt(req.params.incidentId);
+    const relatedAlertData: CreateRelatedAlertDto = req.body;
+
+    try {
+      await this.incidentService.deleteRelatedAlertsByIncident(id, relatedAlertData);
+      res.status(204).json({ message: 'deleted' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getIncidentActions = async (req: Request, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
     try {
