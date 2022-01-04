@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
 import IncidentController from '@/controllers/incident.controller';
 import validationMiddleware from '@middlewares/validation.middleware';
-import { CreateIncidentDto, UpdateIncidentStatusDto, UpdateIncidentDto } from '@dtos/incident.dto';
+import { CreateIncidentDto, UpdateIncidentStatusDto, UpdateIncidentDto, CreateRelatedAlertDto } from '@dtos/incident.dto';
 import AuthService from '@/services/auth.service';
 import { CreateActionDto } from '@/dtos/incidentAction.dto';
 import authMiddleware from '@middlewares/auth.middleware';
@@ -36,6 +36,13 @@ class IncidentRoute implements Routes {
     this.router.delete('/incidents/:incidentId/actions/:actionId', authMiddleware, this.incidentController.deleteIncidentAction);
     this.router.post('/incidents', authMiddleware, validationMiddleware(CreateIncidentDto, 'body'), this.incidentController.createIncident);
     this.router.get('/incidents/:incidentId/relates/alerts', authMiddleware, this.incidentController.getAlertByIncident);
+    this.router.post(
+      '/incidents/:incidentId/relates/alerts',
+      authMiddleware,
+      validationMiddleware(CreateRelatedAlertDto, 'body'),
+      this.incidentController.createRelatedAlertsByIncident,
+    );
+
     this.router.delete('/incidents/:id', authMiddleware, this.incidentController.deleteIncident);
     this.router.put('/incidents/:id', authMiddleware, validationMiddleware(UpdateIncidentDto, 'body'), this.incidentController.updateIncident);
 
