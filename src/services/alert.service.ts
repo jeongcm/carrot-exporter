@@ -1,5 +1,5 @@
 import DB from 'databases';
-import _ from "lodash"
+import _ from 'lodash';
 import { IAlert } from '@/interfaces/alert.interface';
 import { CreateAlertDto } from '@dtos/alert.dto';
 import { HttpException } from '@exceptions/HttpException';
@@ -22,10 +22,10 @@ class AlertService {
       ],
       order: [['createdAt', 'DESC']],
     });
-   let modifiedAlerts: IAlert[] = [];
+
+    let modifiedAlerts: IAlert[] = [];
 
     allAlerts.forEach(alertsX => {
-
       let incidents = alertsX['incidents'];
 
       let tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
@@ -53,7 +53,22 @@ class AlertService {
       ],
       order: [['createdAt', 'DESC']],
     });
-    return allPinnedAlerts;
+
+    let modifiedAlerts: IAlert[] = [];
+
+    allPinnedAlerts.forEach(alertsX => {
+      let incidents = alertsX['incidents'];
+
+      let tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
+
+      tempAlertsX.incidentId = _.map(incidents, incidentsX => incidentsX.id);
+
+      delete tempAlertsX.incidents;
+
+      modifiedAlerts.push(tempAlertsX);
+    });
+
+    return modifiedAlerts;
   }
 
   public async getAlertById(id: number): Promise<IAlert> {
