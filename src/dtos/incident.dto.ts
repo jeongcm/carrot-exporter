@@ -67,3 +67,8 @@ export class UpdateIncidentDto {
   @IsNotEmpty()
   public title: string;
 }
+
+export class CreateRelatedAlertDto {
+  @IsNotEmpty()
+  public relatedAlertIds: [number];
+}

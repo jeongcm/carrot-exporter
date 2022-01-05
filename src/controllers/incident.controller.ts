@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { IIncident } from '@/interfaces/incident.interface';
 import IncidentService from '@/services/incident.service';
-import { CreateIncidentDto, UpdateIncidentStatusDto, UpdateIncidentDto } from '@dtos/incident.dto';
+import { CreateIncidentDto, UpdateIncidentStatusDto, UpdateIncidentDto, CreateRelatedAlertDto } from '@dtos/incident.dto';
 import { IIncidentAction } from '@/interfaces/incidentAction.interface';
 import { CreateActionDto } from '@/dtos/incidentAction.dto';
 import { IAlert } from '@/interfaces/alert.interface';
@@ -56,6 +56,35 @@ class IncidentController {
       } else {
         res.status(404).json({ message: `Incident id(${id}) not found` });
       }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public createRelatedAlertsByIncident = async (req: Request, res: Response, next: NextFunction) => {
+    const id = parseInt(req.params.incidentId);
+    const relatedAlertData: CreateRelatedAlertDto = req.body;
+
+    try {
+      const relatedAlerts: IIncidentRelAlert[] = await this.incidentService.createRelatedAlertsByIncident(id, relatedAlertData);
+
+      if (relatedAlerts) {
+        res.status(200).json({ data: relatedAlerts, message: `alerts have been connected to the incident(id: ${id}).` });
+      } else {
+        res.status(404).json({ message: `Incident id(${id}) not found` });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteRelatedAlertsByIncident = async (req: Request, res: Response, next: NextFunction) => {
+    const id = parseInt(req.params.incidentId);
+    const relatedAlertData: CreateRelatedAlertDto = req.body;
+
+    try {
+      await this.incidentService.deleteRelatedAlertsByIncident(id, relatedAlertData);
+      res.status(204).json({ message: 'deleted' });
     } catch (error) {
       next(error);
     }

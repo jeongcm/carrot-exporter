@@ -2,7 +2,7 @@ import _ from 'lodash';
 import DB from 'databases';
 import { IIncident } from '@/interfaces/incident.interface';
 import { IAlert } from '@/interfaces/alert.interface';
-import { CreateIncidentDto, UpdateIncidentStatusDto, UpdateIncidentDto } from '@dtos/incident.dto';
+import { CreateIncidentDto, UpdateIncidentStatusDto, UpdateIncidentDto, CreateRelatedAlertDto } from '@dtos/incident.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { IncidentModel } from '@/models/incident.model';
@@ -82,6 +82,36 @@ class IncidentService {
     });
 
     return modifiedAlerts;
+  }
+
+  public async createRelatedAlertsByIncident(incidentId: number, relatedAlertData: CreateRelatedAlertDto): Promise<IIncidentRelAlert[]> {
+    if (isEmpty(relatedAlertData)) throw new HttpException(400, 'Incident must not be empty');
+
+    const { relatedAlertIds } = relatedAlertData;
+
+    let relatedAlerts = relatedAlertIds.map(alertId => {
+      return {
+        incidentId,
+        alertId,
+      };
+    });
+
+    const result = await this.incidentRelAlert.bulkCreate(relatedAlerts, { returning: true });
+
+    return result;
+  }
+
+  public async deleteRelatedAlertsByIncident(incidentId: number, relatedAlertData: CreateRelatedAlertDto): Promise<void> {
+    if (isEmpty(relatedAlertData)) throw new HttpException(400, 'Incident must not be empty');
+
+    const { relatedAlertIds } = relatedAlertData;
+
+    await this.incidentRelAlert.destroy({
+      where: {
+        incidentId,
+        alertId: relatedAlertIds,
+      },
+    });
   }
 
   public async getIncidentActionsById(id: number): Promise<IIncidentAction[]> {
