@@ -10,6 +10,8 @@ import hpp from 'hpp';
 import morgan from 'morgan';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import session from 'express-session';
+const passport = require('passport');
 import DB from 'databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
@@ -63,8 +65,32 @@ class App {
     this.app.use(helmet());
     this.app.use(compression());
     this.app.use(express.json());
+    this.app.use(
+      session({
+        secret: 's3cr3t',
+        resave: true,
+        saveUninitialized: true,
+      }),
+    );
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+    this.app.use(passport.initialize());
+    this.app.use(passport.session());
+    //serialize
+    passport.serializeUser(function (user, done) {
+      done(null, user.id);
+    });
+
+    // deserialize user
+    passport.deserializeUser(function (id, done) {
+      DB.Users.findByPk(id).then(function (user) {
+        if (user) {
+          done(null, user.get());
+        } else {
+          done(user, null);
+        }
+      });
+    });
   }
 
   private initializeRoutes(routes: Routes[]) {

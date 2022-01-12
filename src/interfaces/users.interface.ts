@@ -11,6 +11,7 @@ export interface User {
   isEmailValidated:boolean;
   emailValidatedOn:Date;
   token:string;
+  google:string;
   lastAccess: Date;
   createdAt: Date;
   updatedAt: Date;
