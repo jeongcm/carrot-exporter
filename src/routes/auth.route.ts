@@ -4,8 +4,8 @@ import { CreateUserDto, LoginUserDto } from '@dtos/users.dto';
 import { Routes } from '@interfaces/routes.interface';
 import validationMiddleware from '@middlewares/validation.middleware';
 import authMiddleware from '@middlewares/auth.middleware';
-import passport from 'passport';
 import Google from '../services/google.service';
+import GitHub from '../services/github.services';
 class AuthRoute implements Routes {
   public router = Router();
   public authController = new AuthController();
@@ -23,6 +23,12 @@ class AuthRoute implements Routes {
 
     this.router.get('/google/callback', Google.authenticate('google', { failureRedirect: '/login' }), function (req, res) {
       res.redirect('/');
+    });
+    this.router.get('/github', GitHub.authenticate('github', { session:false, scope: ['user:email'] }));
+
+    this.router.get('/github/callback', GitHub.authenticate('github', { failureRedirect: '/login' }), function (req, res) {
+      // Successful authentication, redirect home.
+     res.redirect('/users');
     });
   }
 }
