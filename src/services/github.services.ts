@@ -3,8 +3,9 @@
  */
 
  import DB from 'databases';
- const passport = require('passport');
- const GitHubStrategy = require('passport-github').Strategy;
+ import passport from 'passport';
+import passportGithub from 'passport-github';
+const GitHubStrategy = passportGithub.Strategy;
  
  passport.use(
    new GitHubStrategy({
