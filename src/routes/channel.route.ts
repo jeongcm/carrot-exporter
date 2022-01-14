@@ -7,7 +7,7 @@ import AuthService from '@services/auth.service';
 import authMiddleware from '@middlewares/auth.middleware';
 
 
-class UsersRoute implements Routes {
+class ChannelsRoute implements Routes {
   public router = Router();
   public channelController = new ChannelController();
   public authservice = new AuthService();
@@ -30,4 +30,4 @@ class UsersRoute implements Routes {
   }
 }
 
-export default UsersRoute;
+export default ChannelsRoute;

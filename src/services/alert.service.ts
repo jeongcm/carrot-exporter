@@ -5,9 +5,12 @@ import { CreateAlertDto } from '@dtos/alert.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { IncidentModel } from '@/models/incident.model';
+import SlackService from '@services/slack.service';
+import { SlackMessage } from '@/interfaces/slack.interface';
 
 class AlertService {
   public alert = DB.Alerts;
+  public slackService = new SlackService();
 
   public async getAllAlerts(tenancyId: string): Promise<IAlert[]> {
     if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
@@ -73,6 +76,19 @@ class AlertService {
     if (isEmpty(alertData)) throw new HttpException(400, 'Alert must not be empty');
 
     const createAlertData: IAlert = await this.alert.create({ ...alertData, tenancyId });
+
+    console.log(createAlertData);
+    if(createAlertData){
+      let slackData: SlackMessage = {
+        name: createAlertData.alertName,
+        description: createAlertData.description,
+        clusterName: "some clustername",
+        severity: createAlertData.severity,
+      }
+      let slackHook = "https://hooks.slack.com/services/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"
+      await this.slackService.sendSlack(slackData, slackHook);
+    }
+
     return createAlertData;
   }
 

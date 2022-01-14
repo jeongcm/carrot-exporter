@@ -13,7 +13,7 @@ export class CreateChannelDto {
   @IsNotEmpty()
   public description: string;
 
-  @IsAlpha()
+  // @IsAlpha()
   @IsNotEmpty()
   public configJSON: string;
 
