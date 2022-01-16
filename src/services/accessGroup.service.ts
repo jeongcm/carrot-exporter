@@ -57,7 +57,7 @@ class AccessGroupService {
           model: UserModel,
           as: 'members',
           attributes: ['email', 'username', 'photo', 'id'],
-        }
+        },
       ],
     });
 
@@ -228,6 +228,13 @@ class AccessGroupService {
   public async getAccessGroupChannels(accessGroupId: string): Promise<AccessGroupChannel[]> {
     const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({
       where: { accessGroupId: accessGroupId, isDeleted: false },
+      attributes: ['id'],
+      include: [
+        {
+          model: ChannelModel,
+          attributes: ['name', 'channelType', 'description', 'configJSON', 'id'],
+        },
+      ],
     });
 
     return findAccessGroupChannels;
@@ -261,7 +268,6 @@ class AccessGroupService {
           updatedAt: currentTime,
         };
       });
-      console.log(updatedClusters)
 
       updatedAccessGroupClusters = await this.accessGroupCluster.bulkCreate(updatedClusters);
     } else {

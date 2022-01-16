@@ -7,13 +7,23 @@ import axios from 'axios';
 class SlackService {
   public async sendSlack(slackData: SlackMessage, slackHook: string): Promise<any> {
     if (isEmpty(slackData)) throw new HttpException(400, 'must be valid data into it');
-    console.log(slackData);
-    console.log(slackHook);
 
-    const data = { username: 'example' };
     axios
       .post(slackHook, {
-        text: JSON.stringify(slackData),
+        attachments: [
+          {
+            color: '#B22222',
+            blocks: [
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: `${slackData.name} \n Description: ${slackData.description} \n cluster_name: ${slackData.clusterName} \n severity: ${slackData.severity}`,
+                },
+              },
+            ],
+          },
+        ],
       })
       .catch(err => {
         console.log(err);

@@ -1,5 +1,5 @@
 import DB from 'databases';
-import _ from "lodash"
+import _ from 'lodash';
 import { IAlert } from '@/interfaces/alert.interface';
 import { CreateAlertDto } from '@dtos/alert.dto';
 import { HttpException } from '@exceptions/HttpException';
@@ -25,10 +25,9 @@ class AlertService {
       ],
       order: [['createdAt', 'DESC']],
     });
-   let modifiedAlerts: IAlert[] = [];
+    let modifiedAlerts: IAlert[] = [];
 
     allAlerts.forEach(alertsX => {
-
       let incidents = alertsX['incidents'];
 
       let tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
@@ -76,18 +75,6 @@ class AlertService {
     if (isEmpty(alertData)) throw new HttpException(400, 'Alert must not be empty');
 
     const createAlertData: IAlert = await this.alert.create({ ...alertData, tenancyId });
-
-    console.log(createAlertData);
-    if(createAlertData){
-      let slackData: SlackMessage = {
-        name: createAlertData.alertName,
-        description: createAlertData.description,
-        clusterName: "some clustername",
-        severity: createAlertData.severity,
-      }
-      let slackHook = "https://hooks.slack.com/services/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"
-      await this.slackService.sendSlack(slackData, slackHook);
-    }
 
     return createAlertData;
   }

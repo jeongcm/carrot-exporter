@@ -24,9 +24,11 @@ class ChannelsRoute implements Routes {
       this.channelController.createChannel,
     );
     this.router.get('/channels', authMiddleware, this.channelController.getAllChannels);
+    this.router.get('/channels/:id/accessgroup', authMiddleware, this.channelController.getAccessGroupByChannel);
     this.router.get('/channels/:id', authMiddleware, this.channelController.getChannelById);
     this.router.delete('/channels/:id', authMiddleware, this.channelController.deleteChannel);
     this.router.put('/channels/:id', authMiddleware, this.channelController.updateChannel);
+
   }
 }
 
