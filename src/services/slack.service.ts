@@ -34,3 +34,24 @@ class SlackService {
 }
 
 export default SlackService;
+
+
+
+/// how to use slack service//
+// below are the service used to call SlackService.sendSlack
+
+// if(createAlertData){
+//   let slackData: SlackMessage = {
+//     name: createAlertData.alertName,
+//     webLink: "https://www.google.com",
+//     description: createAlertData.description,
+//     clusterName: "some clustername",
+//     severity: createAlertData.severity,
+//   }
+  
+//   let slackHook = "https://hooks.slack.com/services/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";
+
+//   await this.slackService.sendSlack(slackData, slackHook);
+
+// }
+
