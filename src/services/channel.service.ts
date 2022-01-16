@@ -4,9 +4,12 @@ import { HttpException } from '@exceptions/HttpException';
 import { Channel } from '@interfaces/channel.interface';
 import { isEmpty } from '@utils/util';
 import { ChannelType, Platform } from '../enums';
+import { AccessGroupChannel } from '@interfaces/accessGroupChannel.interface';
+import { AccessGroupModel } from '@/models/accessGroup.model';
 
 class ChannelService {
   public channels = DB.Channel;
+  public accessGroupChannel = DB.AccessGroupChannel;
 
   public async findAllChannel(): Promise<Channel[]> {
     const allUser: Channel[] = await this.channels.findAll({ where: { isDeleted: false } });
@@ -61,6 +64,21 @@ class ChannelService {
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
     await this.channels.update({ isDeleted: true }, { where: { id: channelId } });
     return findChannel;
+  }
+
+  public async getAccessGroupByChannels(channelId: string): Promise<AccessGroupChannel[]> {
+    const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({
+      where: { channelId: channelId, isDeleted: false },
+      attributes: ['id'],
+      include: [
+        {
+          model: AccessGroupModel,
+          attributes: ['groupName', 'icon', 'description', 'id'],
+        },
+      ],
+    });
+
+    return findAccessGroupChannels;
   }
 }
 
