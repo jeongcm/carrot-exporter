@@ -7,10 +7,11 @@ import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 
 const authMiddleware = async (req, res: Response, next: NextFunction) => {
   try {
-    const Authorization = req.cookies['X-AUTHORIZATION'] || req.header('x-authorization').split('Bearer ')[1] || null;
+    console.log("req,", req.isAuthenticated(), req.isAuthorized())
     if (req.isAuthenticated()) {
-      return next();
+       next();
     }
+    const Authorization = req.cookies['X-AUTHORIZATION'] || req.header('x-authorization').split('Bearer ')[1] || null;
     if (Authorization) {
       const secretKey: string = config.get('secretKey');
       const verificationResponse = jwt.verify(Authorization, secretKey) as DataStoredInToken;

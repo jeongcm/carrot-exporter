@@ -76,6 +76,11 @@ class App {
     );
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+    this.app.use(session({
+      secret: 'secrettexthere',
+      saveUninitialized: true,
+      resave: true,
+    }));
     this.app = Passport.mountPackage(this.app);
   }
 

@@ -4,9 +4,10 @@
  */
 
  class Social {
-	public static googleCallback(req, res): any {
+	public static googleCallback(req, res, next): any {
         console.log("in google call back", req.isAuthenticated())
-		return res.redirect('/');
+        next();
+		return res.status(200).json({msg:"Successfully login"});
 	}
 }
 
