@@ -16,7 +16,7 @@ export type UserCreationAttributes = Optional<
   | 'createdAt'
   | 'updatedAt'
   | 'currentTenancyId'
-  | 'google'
+  | 'socialProviderId'
 >;
 
 export class UserModel extends Model<User, UserCreationAttributes> implements User {
@@ -26,7 +26,7 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
   public username: string;
   public firstName: string;
   public lastName: string;
-  public google: string;
+  public socialProviderId: string;
   public mobile: string;
   public photo: string;
   public currentTenancyId: string;
@@ -70,9 +70,9 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
       photo: {
         allowNull: true,
-        type: DataTypes.STRING(45),
+        type: DataTypes.STRING,
       },
-      google: {
+      socialProviderId: {
         allowNull: true,
         type: DataTypes.STRING(45),
       },

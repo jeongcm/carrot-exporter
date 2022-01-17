@@ -4,8 +4,10 @@ import { CreateUserDto, LoginUserDto } from '@dtos/users.dto';
 import { Routes } from '@interfaces/routes.interface';
 import validationMiddleware from '@middlewares/validation.middleware';
 import authMiddleware from '@middlewares/auth.middleware';
+import SocialController from '@controllers/social.controller'
 import Google from '../services/google.service';
 import GitHub from '../services/github.services';
+import passport from 'passport';
 class AuthRoute implements Routes {
   public router = Router();
   public authController = new AuthController();
@@ -19,16 +21,16 @@ class AuthRoute implements Routes {
     this.router.post('/login', validationMiddleware(LoginUserDto, 'body'), this.authController.logIn);
     this.router.get('/me', authMiddleware, this.authController.info);
     this.router.get('/logout', this.authController.logOut);
-    this.router.get('/google', Google.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] }));
+    // router.get('/account', Passport.isAuthenticated, AccountController.index);
 
-    this.router.get('/google/callback', Google.authenticate('google', { failureRedirect: '/login' }), function (req, res) {
-      res.redirect('/');
-    });
-    this.router.get('/github', GitHub.authenticate('github', { session:false, scope: ['user:email'] }));
+    this.router.get('/auth/google', passport.authenticate('google', { scope: ['email', 'profile'], failureRedirect: '/login' }));
+    this.router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login' }),SocialController.googleCallback)
+   
+    this.router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
 
-    this.router.get('/github/callback', GitHub.authenticate('github', { failureRedirect: '/login' }), function (req, res) {
+    this.router.get('/github/callback', passport.authenticate('github', { failureRedirect: '/login' }), function (req, res) {
       // Successful authentication, redirect home.
-     res.redirect('/users');
+     return res.redirect('/');
     });
   }
 }

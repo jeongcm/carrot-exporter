@@ -5,10 +5,12 @@ import DB from '@databases';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 
-const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+const authMiddleware = async (req, res: Response, next: NextFunction) => {
   try {
     const Authorization = req.cookies['X-AUTHORIZATION'] || req.header('x-authorization').split('Bearer ')[1] || null;
-
+    if (req.isAuthenticated()) {
+      return next();
+    }
     if (Authorization) {
       const secretKey: string = config.get('secretKey');
       const verificationResponse = jwt.verify(Authorization, secretKey) as DataStoredInToken;

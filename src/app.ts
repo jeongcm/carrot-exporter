@@ -16,6 +16,8 @@ import DB from 'databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import Passport from './provider/passport';
+
 
 class App {
   public app: express.Application;
@@ -74,23 +76,7 @@ class App {
     );
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
-    this.app.use(passport.initialize());
-    this.app.use(passport.session());
-    //serialize
-    passport.serializeUser(function (user, done) {
-      done(null, user.id);
-    });
-
-    // deserialize user
-    passport.deserializeUser(function (id, done) {
-      DB.Users.findByPk(id).then(function (user) {
-        if (user) {
-          done(null, user.get());
-        } else {
-          done(user, null);
-        }
-      });
-    });
+    this.app = Passport.mountPackage(this.app);
   }
 
   private initializeRoutes(routes: Routes[]) {
