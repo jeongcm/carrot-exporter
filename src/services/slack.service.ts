@@ -18,7 +18,7 @@ class SlackService {
                 type: 'section',
                 text: {
                   type: 'mrkdwn',
-                  text: `${slackData.name} \n Description: ${slackData.description} \n cluster_name: ${slackData.clusterName} \n severity: ${slackData.severity}`,
+                  text: `*<fakeLink.toEmployeeProfile.com|${slackData.name}>* \n *Description*: ${slackData.description} \n *cluster_name*: ${slackData.clusterName} \n *severity*: ${slackData.severity}`,
                 },
               },
             ],
