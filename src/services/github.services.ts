@@ -3,15 +3,18 @@
  */
 
 import DB from 'databases';
-import { Strategy } from 'passport-github';
+import {Strategy} from 'passport-github';
+import config from 'config';
+
 class Github {
   public static init(_passport: any): any {
+    const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK} = config.get('social_key');
     _passport.use(
       new Strategy(
         {
-          clientID: '69029aa26fcbc11e176f',
-          clientSecret: '10c6618a2cc103441c603798b083e1b1f0666965',
-          callbackURL: 'http://localhost:5000/auth/github/callback',
+          clientID: GITHUB_CLIENT_ID,
+          clientSecret: GITHUB_CLIENT_SECRET,
+          callbackURL:  GITHUB_CALLBACK,
           passReqToCallback: true,
         },
         async (req, accessToken, refreshToken, profile, done) => {
@@ -47,7 +50,6 @@ class Github {
                 });
               } else {
                 const user = new DB.Users();
-
                 user.email = profile.emails[0].value;
                 user.socialProviderId = profile.id;
                 user.token = accessToken;
@@ -60,7 +62,7 @@ class Github {
               }
             }
           } catch (err) {
-            return done(err);
+            console.log(err);
           }
         },
       ),
@@ -69,3 +71,33 @@ class Github {
 }
 
 export default Github;
+
+
+// import DB from 'databases';
+//  import passport from 'passport';
+// import passportGithub from 'passport-github';
+// const GitHubStrategy = passportGithub.Strategy;
+
+//  passport.use(
+//    new GitHubStrategy({
+//      clientID: "69029aa26fcbc11e176f",
+//      clientSecret: "10c6618a2cc103441c603798b083e1b1f0666965",
+//      callbackURL: "http://localhost:5000/github/callback"
+//    },
+//      async function (accessToken, refreshToken, profile, done) {
+//        const [user, status] = await DB.Users.findOrCreate({
+//          where: {
+//            socialProviderId: profile.id,
+//            username: profile.displayName,
+//            photo: profile.photos[0].value,
+//            lastAccess: new Date(),
+//            token:accessToken,
+//            password: profile.displayName,
+//          },
+//        });
+//        done(null, user);
+//      },
+//    ),
+//  );
+
+//  export default passport;

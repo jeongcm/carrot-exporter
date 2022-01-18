@@ -59,6 +59,7 @@ class AuthController {
   public logOut = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       res.setHeader('set-cookie', ['X-AUTHORIZATION=; Max-age=0']);
+      req.logOut();
       res.status(200).send({ message: 'logged out successfully' });
     } catch (error) {
       next(error);

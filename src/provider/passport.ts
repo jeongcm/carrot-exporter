@@ -10,6 +10,7 @@ import DB from 'databases';
  
 //  import LocalStrategy from '../services/strategies/Local';
  import GoogleStrategy from '../services/google.service';
+ import GithubStrategy from '../services/github.services';
 //  import TwitterStrategy from '../services/strategies/Twitter';
  
 //  import User from '../models/User';
@@ -26,7 +27,8 @@ import DB from 'databases';
          });
  
          passport.deserializeUser<any, any>((id, done) => {
-             DB.Users.findOne({where:{id}})
+            const user =  DB.Users.findOne({where:{id}});
+            done(null, user);
          });
  
          this.mountLocalStrategies();
@@ -37,9 +39,8 @@ import DB from 'databases';
      public mountLocalStrategies(): void {
          try {
              console.log("mountLocalStrategies===========")
-            //  LocalStrategy.init(passport);
              GoogleStrategy.init(passport);
-            //  TwitterStrategy.init(passport);
+             GithubStrategy.init(passport);
          } catch (_err) {
              console.log("errrrr", _err.stack)
             //  Log.error(_err.stack);
@@ -47,11 +48,12 @@ import DB from 'databases';
      }
  
      public isAuthenticated (req, res, next): any {
+         console.log(req.session.passport)
          if (req.isAuthenticated()) {
              return next();
          }
  
-         req.flash('errors', { msg: 'Please Log-In to access any further!'});
+        //  req.flash('errors', { msg: 'Please Log-In to access any further!'});
          return res.redirect('/login');
      }
  

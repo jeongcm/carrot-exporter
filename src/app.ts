@@ -67,19 +67,12 @@ class App {
     this.app.use(helmet());
     this.app.use(compression());
     this.app.use(express.json());
-    this.app.use(
-      session({
-        secret: 's3cr3t',
-        resave: true,
-        saveUninitialized: true,
-      }),
-    );
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
     this.app.use(session({
       secret: 'secrettexthere',
-      saveUninitialized: true,
-      resave: true,
+      saveUninitialized: false,
+      resave: false,
     }));
     this.app = Passport.mountPackage(this.app);
   }
