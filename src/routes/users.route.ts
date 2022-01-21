@@ -24,6 +24,8 @@ class UsersRoute implements Routes {
     this.router.post('/users/sendMail', this.sendMailController.processMail);
     this.router.get('/verify', this.usersController.verifyMail);
     this.router.post('/users/duplicateMail', this.usersController.checkForDuplicateMail);
+    // this.router.post('/recoverPassword', this.usersController.recoverPassword);
+    // this.router.post('/password_resets/:reset_token(\\reset_token+)', this.usersController.resetPassword);
   }
 }
 

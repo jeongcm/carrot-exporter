@@ -16,6 +16,8 @@ export type UserCreationAttributes = Optional<
   | 'createdAt'
   | 'updatedAt'
   | 'currentTenancyId'
+  | 'token'
+  
 >;
 
 export class UserModel extends Model<User, UserCreationAttributes> implements User {
