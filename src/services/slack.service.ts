@@ -49,7 +49,7 @@ export default SlackService;
 //     severity: createAlertData.severity,
 //   }
   
-//   let slackHook = "https://hooks.slack.com/services/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";
+//   let slackHook = "https://hooks.slack.com/services/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";
 
 //   await this.slackService.sendSlack(slackData, slackHook);
 
