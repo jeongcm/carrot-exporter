@@ -1,34 +1,30 @@
 import nodemailer from 'nodemailer';
-import { RequestHandler } from 'express';
-import { smtpMessage } from '@/interfaces/smtp.interface';
 
-class SmtpService {
-  public sendSmtp: RequestHandler = (req, res) => {
+import { HttpException } from '@exceptions/HttpException';
+import { isEmpty } from '@utils/util';
+import { SMTPConfig, SMTPMessage } from '@/interfaces/smtp.interface';
+
+class SMTPService {
+  public async sendSMTP(config: SMTPConfig, SMTPData: SMTPMessage): Promise<any> {
+    if (isEmpty(SMTPData)) throw new HttpException(400, 'must be valid data into it');
+
+    if (isEmpty(config)) throw new HttpException(400, 'must be valid config into it');
+
     let mailTransporter = nodemailer.createTransport({
-      // service: 'gmail',
-      host: 'smtp.gmail.com',
-      Port: 587,
+      host: config.host,
+      Port: config.port,
       auth: {
-        user: 'jaswantlog@gmail.com',
-        pass: 'pyuoupmvspnktrwz',
+        user: config.userName,
+        pass: config.password,
       },
     });
 
-    let mailDetails: smtpMessage = {
-      from: req.body.from,
-      to: req.body.to,
-      subject: req.body.subject,
-      text: req.body.text,
-    };
-
-    mailTransporter.sendMail(mailDetails, (err: string, res) => {
+    mailTransporter.sendMail(SMTPData, (err: string) => {
       if (err) {
-        return res.status(400).json({ mesaage: 'Error while sending mail' });
-      } else {
-        return res.status(200).json({ mesaage: 'Successfully sent email.' });
+        throw new HttpException(502, 'Unable to send email.');
       }
     });
-  };
+  }
 }
 
-export default SmtpService;
+export default SMTPService;

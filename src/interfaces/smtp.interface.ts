@@ -1,6 +1,12 @@
-export interface smtpMessage {
+export interface SMTPMessage {
   from: string;
   to: string[];
   subject: string;
-  text: string;
+  html: string;
+}
+export interface SMTPConfig {
+  host: string;
+  port: number;
+  userName: string;
+  password: string;
 }

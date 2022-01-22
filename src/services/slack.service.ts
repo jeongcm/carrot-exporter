@@ -1,4 +1,3 @@
-import DB from 'databases';
 import { SlackMessage } from '@/interfaces/slack.interface';
 import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
@@ -8,7 +7,7 @@ class SlackService {
   public async sendSlack(slackData: SlackMessage, slackHook: string): Promise<any> {
     if (isEmpty(slackData)) throw new HttpException(400, 'must be valid data into it');
 
-    axios
+    await axios
       .post(slackHook, {
         attachments: [
           {
@@ -24,6 +23,9 @@ class SlackService {
             ],
           },
         ],
+      })
+      .then(e => {
+        return true;
       })
       .catch(err => {
         console.log(err);
@@ -43,20 +45,8 @@ export default SlackService;
 //     webLink: "https://www.google.com",
 //     description: "some description to be shown in slack message",
 //     clusterName: "some clustername",
-<<<<<<< HEAD
 //     severity: createAlertData.severity,
 //   }
-  
-//   let slackHook = "https://hooks.slack.com/services/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";
-
-//   await this.slackService.sendSlack(slackData, slackHook);
-
-=======
-//     severity: "SOME_SEVERITY_LEVEL",
->>>>>>> b0cd8712ac2fe8c809801961040f4e9344cf51eb
-// }
-
 //   let slackHook = "SLACK__CHANNEL_WEBHOOK_URL";
-
 //   await this.slackService.sendSlack(slackData, slackHook);
 // }
