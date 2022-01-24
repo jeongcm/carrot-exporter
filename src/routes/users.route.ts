@@ -3,6 +3,7 @@ import UsersController from '@controllers/users.controller';
 import SendMailController from '@controllers/sendMail.controller';
 import { CreateUserDto } from '@dtos/users.dto';
 import { Routes } from '@interfaces/routes.interface';
+import authMiddleware from '@middlewares/auth.middleware';
 import validationMiddleware from '@middlewares/validation.middleware';
 
 class UsersRoute implements Routes {
@@ -24,8 +25,8 @@ class UsersRoute implements Routes {
     this.router.post('/users/sendMail', this.sendMailController.processMail);
     this.router.get('/verify', this.usersController.verifyMail);
     this.router.post('/users/duplicateMail', this.usersController.checkForDuplicateMail);
-    // this.router.post('/recoverPassword', this.usersController.recoverPassword);
-    // this.router.post('/password_resets/:reset_token(\\reset_token+)', this.usersController.resetPassword);
+    this.router.post('/recoverPassword',authMiddleware, this.usersController.recoverPassword);
+    this.router.post('/password_reset', this.usersController.resetPassword);
   }
 }
 

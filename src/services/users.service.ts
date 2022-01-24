@@ -11,7 +11,6 @@ const fs = require('fs');
 const path = require('path');
 import config from 'config';
 const { auth } = config.get('mailgunAuth');
-
 class UserService {
   public users = DB.Users;
 
@@ -81,12 +80,11 @@ class UserService {
 
   public sendRecoveryMail = (req, res) => {
     try{
-      const {isResetMail} = req.body;
-      const emailTemplateSource = isResetMail ? fs.readFileSync(path.join(__dirname, '../templates/passwordReset.hbs'), 'utf8') : fs.readFileSync(path.join(__dirname, '../templates/recoverMail.hbs'), 'utf8');
+      const { isResetMail, email, username, subject, from, reset_token } = req.body;
+      const emailTemplateSource = isResetMail ? fs.readFileSync(path.join(__dirname, '../templates/passwordReset.hbs'), 'utf8') : fs.readFileSync(path.join(__dirname, '../templates/recoveryMail.hbs'), 'utf8');
       const mailgunAuth = {auth};
       const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
       const template = handlebars.compile(emailTemplateSource);
-      const { email, username, subject, from, reset_token } = req.body;
       const host = req.get('host');
       let link , htmlToSend
       if(!isResetMail){
@@ -103,13 +101,13 @@ class UserService {
       };
       smtpTransport.sendMail(mailOptions, function (error, response) {
         if (error && Object.keys(error).length) {
-          return res.status(400).json({ message: 'Error while sending mail' });
+          return res.status(400).json({ message: 'Error while sending mail' ,error });
         } else {
           return res.status(200).json({ message: 'Successfully sent email.' });
         }
       });
     }catch(err){
-      return res.status(400).json({ message: 'Error while sending mail' });
+      return res.status(400).json({ message: 'Error while sending mail', error:err });
     }
   };
 }

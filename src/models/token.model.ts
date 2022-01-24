@@ -1,71 +1,68 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IToken } from '@interfaces/token.interface';
+import { TenancyMember } from '@interfaces/tenancyMember.interface';
+import { UserModel } from './users.model';
 
-export type CreationAttributes = Optional<
-IToken,
-  | 'userId1'
-  | 'id'
-  | 'token1'
-  | 'createdAt1'
-  | 'updatedAt1'
-  | 'counter1'
-  | 'expiresDate'
+export type TenancyCreationAttributes = Optional<IToken, "id"| "userId"|  "token"|"expiryTime"|"maximumLimit"|"createdAt"|"updatedAt"
 >;
 
-export class TokenModel extends Model<IToken, CreationAttributes> implements IToken {
-  public userId1: string;
-  public token1: string;
+export class TokenModel extends Model<IToken> implements IToken {
   public id: string;
-  public counter1: number;
-  public expiresDate: number;
-
-  public readonly createdAt1!: Date;
-  public readonly updatedAt1!: Date;
+public userId:string;
+public token:string;
+public maximumLimit:number;
+public expiryTime:number;
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof TokenModel {
-  TokenModel.init(
-    {
-      id: {
-        primaryKey: true,
-        allowNull: true,
-        defaultValue: DataTypes.UUIDV4,
-        type: DataTypes.UUID
-      },
-      token1: {
-        type: DataTypes.STRING,
-        allowNull: true
-      },
-      userId1: {
-        type: DataTypes.UUID,
-        allowNull: true
-      },
-      counter1: {
-        type: DataTypes.NUMBER,
-        allowNull: false,
-        defaultValue:0
-      },
-      createdAt1: {
-        type: DataTypes.DATE(),
-        allowNull: false,
-        defaultValue: new Date(),
-      },
-      updatedAt1: {
-        type: DataTypes.DATE(),
-        allowNull: false,
-        defaultValue: new Date(),
-      },
-      expiresDate: {
-        type: DataTypes.DOUBLE,
-        allowNull: true,
-        defaultValue: Date.now()+360000
-      }
-    },
-    {
-      tableName: 'tokens',
-      sequelize,
-    },
-  );
+  try{
 
-  return TokenModel;
+    TokenModel.init(
+      {
+        id: {
+          primaryKey: true,
+          allowNull: false,
+          defaultValue: DataTypes.UUIDV4,
+          type: DataTypes.UUID
+        },
+        userId: {
+          allowNull: true,
+          type: DataTypes.UUID,
+        },
+        token: {
+          allowNull: true,
+          type: DataTypes.STRING,
+        },
+        maximumLimit: {
+          allowNull: true,
+          type: DataTypes.INTEGER,
+          defaultValue:1
+        },
+        expiryTime: {
+          allowNull: true,
+          type: DataTypes.BIGINT,
+          defaultValue: Date.now() + 36000000
+        },
+        createdAt: {
+          allowNull: true,
+          defaultValue: new Date(),
+          type: DataTypes.DATE,
+        },
+        updatedAt: {
+          allowNull: true,
+          defaultValue: new Date(),
+          type: DataTypes.DATE
+        }
+      },
+      {
+        tableName: 'Tokens',
+        sequelize,
+      },
+    );
+  }catch(err){
+    console.log(err);
+  }
+   return TokenModel;
 }

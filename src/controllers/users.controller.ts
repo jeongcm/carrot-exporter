@@ -2,16 +2,16 @@ import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import userService from '@services/users.service';
-// import TokenService from '@services/token.service';
+import TokenService from '@services/token.service';
 import config from 'config';
 import DB from 'databases';
 const crypto = require('crypto');
 
 class UsersController {
   public userService = new userService();
-  // public tokenService = new TokenService();
+  public tokenService = new TokenService();
   public users = DB.Users;
-  // public token = DB.Tokens;
+  public token = DB.Tokens;
 
   public getUsers = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -98,51 +98,53 @@ class UsersController {
     }
   };
 
-  // public recoverPassword = async (req: Request, res: Response, next: NextFunction) => {
-  //   try {
-  //     const { email } = req.body;
-  //     const userDetail: User = await this.userService.findUserByEmail(email);
-  //     if (!userDetail) {
-  //       return res.status(200).json({ ok: false, message: 'USER_NOT_FOUND_WITH_THIS_EMAIL_ID' });
-  //     }
-  //     let reset_token = crypto.randomBytes(48).toString('base64').slice(0, 48);
-  //     let obj = {
-  //       userId: userDetail.id,
-  //       token: reset_token,
-  //       count: 1
-  //     };
-  //     await this.tokenService.createTokenDetail(obj);
-  //     req.body['from'] = config.get('fromMail') || 'jaswant.singh@exubers.com';
-  //     req.body['email'] = email;
-  //     req.body['username'] = userDetail.username;
-  //     req.body['reset_token'] = reset_token;
-  //     req.body['subject'] = 'Reset Password !!';
-  //     return await this.userService.sendRecoveryMail(req, res);
-  //   } catch (err) {
-  //     return res.status(400).json({ message: 'Error while sending passwor reset mail', error: err });
-  //   }
-  // };
+  public recoverPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email } = req.body;
+      const userDetail: User = await this.userService.findUserByEmail(email);
+      if (!userDetail) {
+        return res.status(200).json({ ok: false, message: 'USER_NOT_FOUND_WITH_THIS_EMAIL_ID' });
+      }
+      let reset_token = crypto.randomBytes(32).toString("hex");
+      let obj = {
+        userId: userDetail.id,
+        token: reset_token
+      };
+      await this.tokenService.createTokenDetail(obj);
+      req.body['from'] = config.get('fromMail') || 'jaswant.singh@exubers.com';
+      req.body['email'] = email;
+      req.body['username'] = userDetail.username;
+      req.body['reset_token'] = reset_token;
+      req.body['subject'] = 'Reset Password !!';
+      return await this.userService.sendRecoveryMail(req, res);
+    } catch (err) {
+      return res.status(400).json({ message: 'Error while sending passwor reset mail', error: err });
+    }
+  };
 
-  // public resetPassword = async (req: Request, res: Response, next: NextFunction) => {
-  //   try {
-  //     const { emailId, newPassword } = req.body;
-  //     const { reset_token } = req.query;
-  //     const token = await this.tokenService.findTokenDetail(reset_token);
-  //     if (!token) {
-  //       res.status(400).json({ message: 'Invalid Token' });
-  //     }
-  //     if(token.expiresDate - Date.now()<0){
-  //       res.status(400).json({ message: 'Token has been expired, Please try resetting again' });
-  //     }
-  //     await this.userService.updateUser(token.userId, {loginPw:newPassword});
-  //     req.body['from'] = config.get('fromMail') || 'jaswant.singh@exubers.com';
-  //     req.body['subject'] = 'Password Reset Successfully !!';
-  //     await this.userService.sendRecoveryMail(req, res);
+  public resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, newPassword } = req.body;
+      const { reset_token } = req.query;
+      const token = await this.tokenService.findTokenDetail(reset_token);
+      if (!token) {
+        return res.status(400).json({ message: 'Invalid Token' });
+      }
+      if(token.expiryTime - Date.now()<0){
+        return res.status(400).json({ message: 'Token has been expired, Please try resetting again' });
+      }
+      await this.userService.updateUser(token.userId, {loginPw:newPassword});
+      req.body['from'] = config.get('fromMail') || 'jaswant.singh@exubers.com';
+      req.body['subject'] = 'Password Reset Successfully !!';
+      req.body['email'] = email;
+      req.body['isResetMail'] = true;
+      return await this.userService.sendRecoveryMail(req, res);
 
-  //   } catch (err) {
 
-  //   }
-  // };
+    } catch (err) {
+
+    }
+  };
 }
 
 export default UsersController;

@@ -22,68 +22,73 @@ export class InvitationModel extends Model<Invitation> implements Invitation {
 }
 
 export default function (sequelize: Sequelize): typeof InvitationModel {
-  InvitationModel.init(
-    {
-      id: {
-        primaryKey: true,
-        allowNull: false,
-        defaultValue: DataTypes.UUIDV4,
-        type: DataTypes.UUID,
+  try{
+
+    InvitationModel.init(
+      {
+        id: {
+          primaryKey: true,
+          allowNull: false,
+          defaultValue: DataTypes.UUIDV4,
+          type: DataTypes.UUID,
+        },
+        isActive: {
+          allowNull: false,
+          defaultValue:true,
+          type: DataTypes.BOOLEAN,
+        },
+        isAccepted: {
+          allowNull: false,
+          defaultValue:false,
+          type: DataTypes.BOOLEAN,
+        },
+        acceptedAt: {
+          allowNull: true,
+          type: DataTypes.DATE,
+        },
+        isRejected: {
+          allowNull: true,
+          defaultValue: false,
+          type: DataTypes.BOOLEAN,
+        },
+        tenancyId: {
+          allowNull: false,
+          type: DataTypes.UUID,
+        },
+        rejectedAt: {
+          allowNull: true,
+          type: DataTypes.DATE,
+        },
+        invitedByUserId: {
+          allowNull: true,
+          type: DataTypes.UUID,
+        },
+        invitedTo: {
+          allowNull: false,
+          type: DataTypes.STRING,
+        },
+        token: {
+          allowNull: false,
+          type: DataTypes.STRING,
+        },
+        createdAt: {
+          allowNull: false,
+          defaultValue: new Date(),
+          type: DataTypes.DATE(),
+        },
+        updatedAt: {
+          allowNull: false,
+          defaultValue: new Date(),
+          type: DataTypes.DATE(),
+        },
       },
-      isActive: {
-        allowNull: false,
-        defaultValue:true,
-        type: DataTypes.BOOLEAN,
+      {
+        tableName: 'Invitations',
+        sequelize,
       },
-      isAccepted: {
-        allowNull: false,
-        defaultValue:false,
-        type: DataTypes.BOOLEAN,
-      },
-      acceptedAt: {
-        allowNull: true,
-        type: DataTypes.DATE,
-      },
-      isRejected: {
-        allowNull: true,
-        defaultValue: false,
-        type: DataTypes.BOOLEAN,
-      },
-      tenancyId: {
-        allowNull: false,
-        type: DataTypes.UUID,
-      },
-      rejectedAt: {
-        allowNull: true,
-        type: DataTypes.DATE,
-      },
-      invitedByUserId: {
-        allowNull: true,
-        type: DataTypes.UUID,
-      },
-      invitedTo: {
-        allowNull: false,
-        type: DataTypes.STRING,
-      },
-      token: {
-        allowNull: false,
-        type: DataTypes.STRING,
-      },
-      createdAt: {
-        allowNull: false,
-        defaultValue: new Date(),
-        type: DataTypes.DATE(),
-      },
-      updatedAt: {
-        allowNull: false,
-        defaultValue: new Date(),
-        type: DataTypes.DATE(),
-      },
-    },
-    {
-      tableName: 'Invitations',
-      sequelize,
-    },
-  );
+    );
+  }catch(err){
+    console.log(err);
+  }
    return InvitationModel;
 }
