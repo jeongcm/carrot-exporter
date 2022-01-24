@@ -124,9 +124,10 @@ class UsersController {
 
   public resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email, newPassword } = req.body;
+      const {  newPassword } = req.body;
       const { reset_token } = req.query;
       const token = await this.tokenService.findTokenDetail(reset_token);
+      const userDetails = await this.userService.findUserById(token.userId);
       if (!token) {
         return res.status(400).json({ message: 'Invalid Token' });
       }
@@ -136,7 +137,7 @@ class UsersController {
       await this.userService.updateUser(token.userId, {loginPw:newPassword});
       req.body['from'] = config.get('fromMail') || 'jaswant.singh@exubers.com';
       req.body['subject'] = 'Password Reset Successfully !!';
-      req.body['email'] = email;
+      req.body['email'] = userDetails.email;
       req.body['isResetMail'] = true;
       return await this.userService.sendRecoveryMail(req, res);
 

@@ -88,7 +88,7 @@ class UserService {
       const host = req.get('host');
       let link , htmlToSend
       if(!isResetMail){
-        link= `http://${host}/password_resets/${reset_token}`;
+        link= `http://${host}/password_reset/${reset_token}`;
         htmlToSend = template({ link, username });
       }else{
         htmlToSend = template();
