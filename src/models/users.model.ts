@@ -17,7 +17,7 @@ export type UserCreationAttributes = Optional<
   | 'updatedAt'
   | 'currentTenancyId'
   | 'token'
-  
+  | 'socialProviderId'
 >;
 
 export class UserModel extends Model<User, UserCreationAttributes> implements User {
@@ -27,6 +27,7 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
   public username: string;
   public firstName: string;
   public lastName: string;
+  public socialProviderId: string;
   public mobile: string;
   public photo: string;
   public currentTenancyId: string;
@@ -70,10 +71,14 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
       photo: {
         allowNull: true,
+        type: DataTypes.STRING,
+      },
+      socialProviderId: {
+        allowNull: true,
         type: DataTypes.STRING(45),
       },
       password: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING(255),
       },
       isEmailValidated: {
@@ -94,15 +99,15 @@ export default function (sequelize: Sequelize): typeof UserModel {
         type: DataTypes.UUID,
       },
       createdAt: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE(),
       },
       lastAccess: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE(),
       },
       updatedAt: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE(),
       },
     },

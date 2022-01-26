@@ -5,10 +5,12 @@ import DB from '@databases';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 
-const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+const authMiddleware = async (req, res: Response, next: NextFunction) => {
   try {
-    const Authorization = req.cookies['X-AUTHORIZATION'] || req.header('x-authorization').split('Bearer ')[1] || null;
-
+    if (req.isAuthenticated()) {
+       return next();
+    }
+    const Authorization = req.cookies['X-AUTHORIZATION'] || req.header('x-authorization') && req.header('x-authorization').split('Bearer ')[1] || null;
     if (Authorization) {
       const secretKey: string = config.get('secretKey');
       const verificationResponse = jwt.verify(Authorization, secretKey) as DataStoredInToken;
@@ -24,9 +26,10 @@ const authMiddleware = async (req: RequestWithUser, res: Response, next: NextFun
         next(new HttpException(401, 'Wrong authentication token'));
       }
     } else {
-      next(new HttpException(404, 'Authentication token missing'));
+      next(new HttpException(401, 'Authentication token missing'));
     }
   } catch (error) {
+    console.log(error)
     next(new HttpException(401, 'Wrong authentication token'));
   }
 };
