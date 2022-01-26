@@ -7,7 +7,8 @@ import { Routes } from '@interfaces/routes.interface';
 import validationMiddleware from '@middlewares/validation.middleware';
 import AuthService from '@services/auth.service';
 import authMiddleware from '@middlewares/auth.middleware';
-class UsersRoute implements Routes {
+import Passport from 'provider/passport'
+class TenancyRoute implements Routes {
   // public path = '/users/tenancies';
   public router = Router();
   public tenancyController = new TenancyController();
@@ -43,4 +44,4 @@ class UsersRoute implements Routes {
   }
 }
 
-export default UsersRoute;
+export default TenancyRoute;

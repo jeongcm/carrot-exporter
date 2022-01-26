@@ -25,6 +25,7 @@ class AlertService {
       ],
       order: [['createdAt', 'DESC']],
     });
+
     let modifiedAlerts: IAlert[] = [];
 
     allAlerts.forEach(alertsX => {
@@ -55,7 +56,22 @@ class AlertService {
       ],
       order: [['createdAt', 'DESC']],
     });
-    return allPinnedAlerts;
+
+    let modifiedAlerts: IAlert[] = [];
+
+    allPinnedAlerts.forEach(alertsX => {
+      let incidents = alertsX['incidents'];
+
+      let tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
+
+      tempAlertsX.incidentId = _.map(incidents, incidentsX => incidentsX.id);
+
+      delete tempAlertsX.incidents;
+
+      modifiedAlerts.push(tempAlertsX);
+    });
+
+    return modifiedAlerts;
   }
 
   public async getAlertById(id: number): Promise<IAlert> {
