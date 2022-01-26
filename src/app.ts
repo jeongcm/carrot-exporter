@@ -14,7 +14,7 @@ import DB from 'databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
-
+import { Request, Response, NextFunction } from 'express'
 class App {
   public app: express.Application;
   public port: string | number;
@@ -63,6 +63,7 @@ class App {
     this.app.use(helmet());
     this.app.use(compression());
     this.app.use(express.json());
+    this.intializeMiddlewareLogging();
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
   }
@@ -91,6 +92,20 @@ class App {
 
   private initializeErrorHandling() {
     this.app.use(errorMiddleware);
+  }
+  private intializeMiddlewareLogging() {
+    this.app.use((req: Request, res: Response, next: NextFunction) => {
+      let send = res.send;
+      res.send = c => {
+        logger.info(`url is ${req.url}`);
+        logger.info(`Status code is ${res.statusCode}`);
+        logger.info(`Request Body is ${JSON.stringify(req.body || {})}`);
+        logger.info(`Response Body is ${c}`);
+        res.send = send;
+        return res.send(c);
+      }
+      next();
+    });
   }
 }
 
