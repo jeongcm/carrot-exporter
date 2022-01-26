@@ -11,6 +11,8 @@ import { RequestWithUser } from '@interfaces/auth.interface';
 import { BadRequestError } from '@/exceptions/badRequestError';
 import { nextTick } from 'process';
 import { TenancyModel } from '@/models/tenancy.model';
+ import passport from 'passport';
+
 
 class AuthService {
   public users = DB.Users;

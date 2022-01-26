@@ -10,11 +10,15 @@ import hpp from 'hpp';
 import morgan from 'morgan';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import session from 'express-session';
+const passport = require('passport');
 import DB from 'databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
+import Passport from './provider/passport';
 import { Request, Response, NextFunction } from 'express'
+
 class App {
   public app: express.Application;
   public port: string | number;
@@ -66,6 +70,12 @@ class App {
     this.intializeMiddlewareLogging();
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+    this.app.use(session({
+      secret: 'secrettexthere',
+      saveUninitialized: false,
+      resave: false,
+    }));
+    this.app = Passport.mountPackage(this.app);
   }
 
   private initializeRoutes(routes: Routes[]) {
