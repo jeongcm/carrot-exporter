@@ -3,6 +3,7 @@ import { CreateChannelDto } from '@dtos/channel.dto';
 import { Channel } from '@interfaces/channel.interface';
 import ChannelService from '@services/channel.service';
 import { currentUser } from '@/utils/currentUser';
+import { AccessGroupChannel } from '@/interfaces/accessGroupChannel.interface';
 
 class ChannelController {
   public channelService = new ChannelService();
@@ -54,6 +55,16 @@ class ChannelController {
       const channelId = req.params.id;
       const deleteChannelData: Channel = await this.channelService.deleteChannel(channelId);
       res.status(200).json({ data: deleteChannelData, message: 'deleted' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAccessGroupByChannel = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const channelId = req.params.id;
+      const currentAcessGroupData: AccessGroupChannel[] = await this.channelService.getAccessGroupByChannels(channelId);
+      res.status(200).json({ data: currentAcessGroupData, message: 'Get Access groups of specfic channel' });
     } catch (error) {
       next(error);
     }
