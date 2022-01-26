@@ -45,9 +45,11 @@ class IncidentController {
 
   public getAlertByIncident = async (req: Request, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.incidentId);
+    // @ts-expect-error
+    const currentTenancyId = req.user.currentTenancyId;
 
     try {
-      const alerts: IIncidentRelAlert[] = await this.incidentService.getAlertsByIncidentId(id);
+      const alerts: IIncidentRelAlert[] = await this.incidentService.getAlertsByIncidentId(id, currentTenancyId);
 
       if (alerts) {
         res.status(200).json({ data: alerts, message: `find alerts related to incident id (${id}) ` });
