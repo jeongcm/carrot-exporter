@@ -8,8 +8,11 @@ const mg = require('nodemailer-mailgun-transport');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
-import config from 'config';
-const { auth } = config.get('mailgunAuth');
+
+const auth = {
+  api_key: process.env.NX_NODE_MAILGUN_API_KEY,
+  domain: process.env.NX_NODE_MAILGUN_DOMAIN,
+};
 
 class InvitationService {
   public invitations = DB.Invitations;
@@ -20,12 +23,11 @@ class InvitationService {
   }
 
   public sendInvitationMail = (req, res) => {
-    try{
-
+    try {
       const emailTemplateSource = req.body.newUser
         ? fs.readFileSync(path.join(__dirname, '../templates/newUserEmail.hbs'), 'utf8')
         : fs.readFileSync(path.join(__dirname, '../templates/tenancyMail.hbs'), 'utf8');
-      const mailgunAuth = {auth};
+      const mailgunAuth = { auth };
       const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
       const template = handlebars.compile(emailTemplateSource);
       const { email, username, subject, from, newUser, newInvitation } = req.body;
@@ -40,7 +42,7 @@ class InvitationService {
         rejectLink = `http://${host}/invite/reject?token=${token}`;
         htmlToSend = template({ acceptLink, rejectLink, username });
       }
-  
+
       const mailOptions = {
         from: from || 'jaswant.singh@exubers.com',
         to: email,
@@ -54,7 +56,7 @@ class InvitationService {
           return res.status(200).json({ message: 'Successfully sent email.' });
         }
       });
-    }catch(err){
+    } catch (err) {
       return res.status(400).json({ message: 'Error while sending mail' });
     }
   };

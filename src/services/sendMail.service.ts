@@ -4,13 +4,15 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-import config from 'config';
-const { auth } = config.get('mailgunAuth');
 
+const auth = {
+  api_key: process.env.NX_NODE_MAILGUN_API_KEY,
+  domain: process.env.NX_NODE_MAILGUN_DOMAIN,
+};
 class MailService {
   public sendMail = (req, res) => {
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../templates/email.hbs'), 'utf8');
-    const mailgunAuth = {auth};
+    const mailgunAuth = { auth };
     const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
     const template = handlebars.compile(emailTemplateSource);
     const { email, username } = req.body;
@@ -29,8 +31,8 @@ class MailService {
     smtpTransport.sendMail(mailOptions, function (error, response) {
       if (error) {
         return res.status(400).json({ mesaage: 'Error while sending mail' });
-    } else {
-          this.users.update({ token: token }, { where: { email } });
+      } else {
+        this.users.update({ token: token }, { where: { email } });
         return res.status(200).json({ mesaage: 'Successfully sent email.' });
       }
     });

@@ -5,7 +5,6 @@ import TenancyService from '@/services/tenancy.service';
 import MailService from '@/services/sendMail.service';
 import UsersService from '@/services/users.service';
 import { User } from '@/interfaces/users.interface';
-import config from 'config';
 
 
 class InvitationController {
@@ -40,7 +39,7 @@ class InvitationController {
         return res.status(200).json({ ok: false, message: 'USER_ALREADY_INVITED' });
       }
       let newInvitation = await this.invitationService.createInvitation(req.body);
-      req.body['from'] = config.get('fromMail')||'jaswant.singh@exubers.com';
+      req.body['from'] = process.env.NX_NODE_FROM_MAIL||'jaswant.singh@exubers.com';
       req.body['email'] = req.body.invitedTo;
       req.body['newInvitation'] = newInvitation;
       if (!userDetail) {

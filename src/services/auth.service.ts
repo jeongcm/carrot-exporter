@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt';
-import config from 'config';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import DB from 'databases';
 import { CreateUserDto } from '@dtos/users.dto';
@@ -80,7 +79,7 @@ class AuthService {
 
   public createToken(user: User): TokenData {
     const dataStoredInToken: DataStoredInToken = { id: user.id };
-    const secretKey: string = config.get('secretKey');
+    const secretKey: string = process.env.NX_NODE_SECRET_KEY;
     const expiresIn: number = 60 * 60;
 
     return { expiresIn, token: jwt.sign(dataStoredInToken, secretKey, { expiresIn }) };
@@ -93,7 +92,7 @@ class AuthService {
   public async authenticate(req: RequestWithUser, res, next): Promise<any> {
     const currentCookie = req.cookies['X-AUTHORIZATION'];
     if (currentCookie) {
-      const secretKey: string = config.get('secretKey');
+      const secretKey: string = process.env.NX_NODE_SECRET_KEY;
       const payload = jwt.verify(currentCookie, secretKey) as JwtPayload;
       if (isEmpty(payload.id)) res.status(400).json({ message: 'UnAuthorized' });
       if (req.path == '/users/tenancies' && req.method == 'POST') {
