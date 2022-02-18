@@ -12,9 +12,9 @@ class Github {
     _passport.use(
       new Strategy(
         {
-          clientID: process.env.NX_NODE_SOCIALKEY_GITHUB_CLIENT_ID,
-          clientSecret: process.env.NX_NODE_SOCIALKEY_GITHUB_CLIENT_SECRET,
-          callbackURL:  process.env.NX_NODE_SOCIALKEY_GITHUB_CALLBACK,
+          clientID: process.env.NC_NODE_SOCIALKEY_GITHUB_CLIENT_ID,
+          clientSecret: process.env.NC_NODE_SOCIALKEY_GITHUB_CLIENT_SECRET,
+          callbackURL:  process.env.NC_NODE_SOCIALKEY_GITHUB_CALLBACK,
           passReqToCallback: true,
         },
         async (req, accessToken, refreshToken, profile, done) => {

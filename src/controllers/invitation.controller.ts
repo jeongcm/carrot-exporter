@@ -39,7 +39,7 @@ class InvitationController {
         return res.status(200).json({ ok: false, message: 'USER_ALREADY_INVITED' });
       }
       let newInvitation = await this.invitationService.createInvitation(req.body);
-      req.body['from'] = process.env.NX_NODE_FROM_MAIL||'jaswant.singh@exubers.com';
+      req.body['from'] = process.env.NC_NODE_FROM_MAIL||'jaswant.singh@exubers.com';
       req.body['email'] = req.body.invitedTo;
       req.body['newInvitation'] = newInvitation;
       if (!userDetail) {

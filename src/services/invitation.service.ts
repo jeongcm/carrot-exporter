@@ -10,8 +10,8 @@ const fs = require('fs');
 const path = require('path');
 
 const auth = {
-  api_key: process.env.NX_NODE_MAILGUN_API_KEY,
-  domain: process.env.NX_NODE_MAILGUN_DOMAIN,
+  api_key: process.env.NC_NODE_MAILGUN_API_KEY,
+  domain: process.env.NC_NODE_MAILGUN_DOMAIN,
 };
 
 class InvitationService {

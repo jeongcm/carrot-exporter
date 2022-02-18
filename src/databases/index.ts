@@ -19,13 +19,13 @@ import IncidentActionModel from '@/models/incidentAction.model';
 import TenancyMemberModel from '@/models/tenancyMember.model';
 
 // const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
-const host = process.env.NX_NODE_DB_CONFIG_HOST;
-const user = process.env.NX_NODE_DB_CONFIG_USER;
-const password = process.env.NX_NODE_DB_CONFIG_PASSWORD;
-const database = process.env.NX_NODE_DB_CONFIG_DB_NAME;
+const host = process.env.NC_NODE_DB_CONFIG_HOST;
+const user = process.env.NC_NODE_DB_CONFIG_USER;
+const password = process.env.NC_NODE_DB_CONFIG_PASSWORD;
+const database = process.env.NC_NODE_DB_CONFIG_DB_NAME;
 const pool = {
-  min: Number(process.env.NX_NODE_DB_CONFIG_POOL_MIN),
-  max: Number(process.env.NX_NODE_DB_CONFIG_POOL_MAX),
+  min: Number(process.env.NC_NODE_DB_CONFIG_POOL_MIN),
+  max: Number(process.env.NC_NODE_DB_CONFIG_POOL_MAX),
 };
 const sequelize = new Sequelize.Sequelize(database, user, password, {
   host: host,

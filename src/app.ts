@@ -26,7 +26,7 @@ class App {
   constructor(routes: Routes[]) {
     this.app = express();
     this.port = Number(process.env.PORT) || 5000;
-    this.env = process.env.NX_NODE_ENV || 'development';
+    this.env = process.env.NC_NODE_ENV || 'development';
 
     this.connectToDatabase();
     this.initializeMiddlewares();
@@ -60,9 +60,9 @@ class App {
   }
 
   private initializeMiddlewares() {
-    let logFormat = process.env.NX_NODE_LOG_FORMAT
-    this.app.use(morgan(process.env.NX_NODE_LOG_FORMAT, { stream }));
-    this.app.use(cors({ origin: Boolean(process.env.NX_NODE_CORS_ORIGIN), credentials: process.env.NX_NODE_CORS_CREDENTIALS==="true"  }));
+    let logFormat = process.env.NC_NODE_LOG_FORMAT
+    this.app.use(morgan(process.env.NC_NODE_LOG_FORMAT, { stream }));
+    this.app.use(cors({ origin: Boolean(process.env.NC_NODE_CORS_ORIGIN), credentials: process.env.NC_NODE_CORS_CREDENTIALS==="true"  }));
     this.app.use(hpp());
     this.app.use(helmet());
     this.app.use(compression());
