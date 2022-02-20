@@ -6,6 +6,7 @@ import UserModel from '@models/users.model';
 import AccessGroupModel from '@models/accessGroup.model';
 import AlertModel from '@/models/alert.model';
 import LogModel from '@/models/log.model';
+import TokenModel from '@/models/token.model';
 import ClusterModel from '@models/cluster.model';
 import AccessGroupChannelModel from '@models/accessGroupChannel.model';
 import AccessGroupClusterModel from '@models/accessGroupCluster.model';
@@ -58,6 +59,7 @@ const DB = {
   IncidentRelAlert: IncidentRelAlertModel(sequelize),
   IncidentAction: IncidentActionModel(sequelize),
   Invitations: InvitationModel(sequelize),
+  Tokens: TokenModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 

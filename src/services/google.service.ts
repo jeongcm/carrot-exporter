@@ -28,10 +28,11 @@ class Google {
                   return done(null, profile)
                 } else {
                   const user = await DB.Users.findOne({where:{id:req.user.id}})
-  
+                    user.email =  profile.emails[0].value,
                     user.socialProviderId = profile.id;
                     user.token =  accessToken;                  
                     user.firstName = user.firstName || profile.displayName;
+                    user.username = user.username || profile.displayName;
                     if (profile.photos) {
                       user.photo = user.photo || profile.photos[0].value;
                     }
@@ -54,13 +55,12 @@ class Google {
                       socialProviderId: profile.id,
                       token:  accessToken,
                       firstName: profile.displayName,
+                      username: profile.displayName,
                     }
                     if (profile.photos) {
                       user["photo"] =  profile.photos[0].value;
                     }
-                    console.log("user created", typeof user, user)
-  
-                    const newUser = await DB.Users.create(user);
+                    await DB.Users.create(user);
                     return done(null, profile);
                   }
             }

@@ -2,11 +2,15 @@ import bcrypt from 'bcrypt';
 import DB from 'databases';
 import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
-import { NotAuthorizedError } from '@exceptions/notAuthorizedError';
-import { BadRequestError } from '@exceptions/badRequestError';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
-
+const nodemailer = require('nodemailer');
+const mg = require('nodemailer-mailgun-transport');
+const handlebars = require('handlebars');
+const fs = require('fs');
+const path = require('path');
+import config from 'config';
+const { auth } = config.get('mailgunAuth');
 class UserService {
   public users = DB.Users;
 
@@ -49,13 +53,14 @@ class UserService {
     return createUserData;
   }
 
-  public async updateUser(userId: number, userData: CreateUserDto): Promise<User> {
+  public async updateUser(userId: string, userData: any): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await this.users.findByPk(userId);
     if (!findUser) throw new HttpException(409, "You're not user");
 
     const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
+    userData['updatedAt'] = new Date();
     await this.users.update({ ...userData, password: hashedPassword }, { where: { id: userId } });
 
     const updateUser: User = await this.users.findByPk(userId);
@@ -72,6 +77,39 @@ class UserService {
 
     return findUser;
   }
+
+  public sendRecoveryMail = (req, res) => {
+    try{
+      const { isResetMail, email, username, subject, from, reset_token } = req.body;
+      const emailTemplateSource = isResetMail ? fs.readFileSync(path.join(__dirname, '../templates/passwordReset.hbs'), 'utf8') : fs.readFileSync(path.join(__dirname, '../templates/recoveryMail.hbs'), 'utf8');
+      const mailgunAuth = {auth};
+      const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
+      const template = handlebars.compile(emailTemplateSource);
+      const host = req.get('host');
+      let link , htmlToSend
+      if(!isResetMail){
+        link= `http://${host}/password_reset/${reset_token}`;
+        htmlToSend = template({ link, username });
+      }else{
+        htmlToSend = template();
+      }
+      const mailOptions = {
+        from: from || 'jaswant.singh@exubers.com',
+        to: email,
+        subject: subject,
+        html: htmlToSend,
+      };
+      smtpTransport.sendMail(mailOptions, function (error, response) {
+        if (error && Object.keys(error).length) {
+          return res.status(400).json({ message: 'Error while sending mail' ,error });
+        } else {
+          return res.status(200).json({ message: 'Successfully sent email.' });
+        }
+      });
+    }catch(err){
+      return res.status(400).json({ message: 'Error while sending mail', error:err });
+    }
+  };
 }
 
 export default UserService;

@@ -16,6 +16,7 @@ export type UserCreationAttributes = Optional<
   | 'createdAt'
   | 'updatedAt'
   | 'currentTenancyId'
+  | 'token'
   | 'socialProviderId'
 >;
 
@@ -49,11 +50,11 @@ export default function (sequelize: Sequelize): typeof UserModel {
         type: DataTypes.UUID,
       },
       email: {
-        allowNull: true,
+        allowNull: false,
         type: DataTypes.STRING(45),
       },
       username: {
-        allowNull: true,
+        allowNull: false,
         type: DataTypes.STRING(45),
       },
       firstName: {
