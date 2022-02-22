@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
 import { logger } from '@utils/logger';
-import { dbConfig } from '@interfaces/db.interface';
 import UserModel from '@models/users.model';
 import AccessGroupModel from '@models/accessGroup.model';
 import AlertModel from '@/models/alert.model';
