@@ -1,4 +1,3 @@
-import config from 'config';
 import Sequelize from 'sequelize';
 import { logger } from '@utils/logger';
 import { dbConfig } from '@interfaces/db.interface';
@@ -18,7 +17,6 @@ import InvitationModel from '@/models/invitation.model';
 import IncidentActionModel from '@/models/incidentAction.model';
 import TenancyMemberModel from '@/models/tenancyMember.model';
 
-// const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
 const host = process.env.NC_NODE_DB_CONFIG_HOST;
 const user = process.env.NC_NODE_DB_CONFIG_USER;
 const password = process.env.NC_NODE_DB_CONFIG_PASSWORD;
