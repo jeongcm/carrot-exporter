@@ -3,7 +3,6 @@ process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import config from 'config';
 import express from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
@@ -17,17 +16,17 @@ import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import Passport from './provider/passport';
-import { Request, Response, NextFunction } from 'express'
+import { Request, Response, NextFunction } from 'express';
 
 class App {
   public app: express.Application;
-  public port: string | number;
+  public port: number;
   public env: string;
 
   constructor(routes: Routes[]) {
     this.app = express();
-    this.port = process.env.NEXCLIPPER_NODE_PORT || 5000;
-    this.env = process.env.NODE_ENV || 'development';
+    this.port = Number(process.env.NC_NODE_PORT) || 5000;
+    this.env = process.env.NC_NODE_ENV || 'development';
 
     this.connectToDatabase();
     this.initializeMiddlewares();
@@ -61,8 +60,9 @@ class App {
   }
 
   private initializeMiddlewares() {
-    this.app.use(morgan(config.get('log.format'), { stream }));
-    this.app.use(cors({ origin: config.get('cors.origin'), credentials: config.get('cors.credentials') }));
+    let logFormat = process.env.NC_NODE_LOG_FORMAT
+    this.app.use(morgan(process.env.NC_NODE_LOG_FORMAT, { stream }));
+    this.app.use(cors({ origin: Boolean(process.env.NC_NODE_CORS_ORIGIN), credentials: process.env.NC_NODE_CORS_CREDENTIALS==="true"  }));
     this.app.use(hpp());
     this.app.use(helmet());
     this.app.use(compression());
@@ -70,11 +70,13 @@ class App {
     this.intializeMiddlewareLogging();
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
-    this.app.use(session({
-      secret: 'secrettexthere',
-      saveUninitialized: false,
-      resave: false,
-    }));
+    this.app.use(
+      session({
+        secret: 'secrettexthere',
+        saveUninitialized: false,
+        resave: false,
+      }),
+    );
     this.app = Passport.mountPackage(this.app);
   }
 
@@ -113,7 +115,7 @@ class App {
         logger.info(`Response Body is ${c}`);
         res.send = send;
         return res.send(c);
-      }
+      };
       next();
     });
   }
