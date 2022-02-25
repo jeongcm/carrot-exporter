@@ -17,6 +17,57 @@ class UsersRoute implements Routes {
   }
 
   private initializeRoutes() {
+    /**
+     * @swagger
+     * definitions:
+     *   getAllUsers:
+     *     type: array
+     *     items:
+     *       type: object
+     *       properties:
+     *         id:
+     *           type: string
+     *           description: user uuid
+     *           example: f9e28e11-08f1-4a35-b6c4-330531e36fd3
+     *         email:
+     *           type: string
+     *           description: user Email
+     *           example: jaswant.test@gmail.com
+     *         username:
+     *           type: string
+     *           description: username
+     *           example: jaswant
+     *         firstName:
+     *            type: string
+     *            description: user firstName
+     *            example: jaswant
+     *         lastName:
+     *            type: string
+     *            description: user lastname
+     *            example: singh
+     *         mobile:
+     *            type: string
+     *            description: user mobile number
+     *            example: 732947349
+     *         photo:
+     *            type: string
+     *            description: user profile photo
+     *            example: image1
+    */
+    /**
+      * @swagger
+      * /users:
+      *  get:
+      *    tags: [users]
+      *    summary: Find All Users
+      *    responses:
+      *      '200':
+      *         description: OK
+      *         schema:
+      *             $ref: '#/definitions/getAllUsers'
+      *      '500':
+      *          description: Server Error
+    */
     this.router.get('/users', this.usersController.getUsers);
     this.router.get('/users/:id(\\d+)', this.usersController.getUserById);
     this.router.post('/users', validationMiddleware(CreateUserDto, 'body'), this.usersController.createUser);

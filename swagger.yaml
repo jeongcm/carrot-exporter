@@ -28,6 +28,7 @@ paths:
           description: 'OK'
           schema:
             $ref: '#/definitions/getAllUsers'
+            
         500:
           description: 'Server Error'
 
