@@ -1,7 +1,5 @@
-import config from 'config';
 import Sequelize from 'sequelize';
 import { logger } from '@utils/logger';
-import { dbConfig } from '@interfaces/db.interface';
 import UserModel from '@models/users.model';
 import AccessGroupModel from '@models/accessGroup.model';
 import AlertModel from '@/models/alert.model';
@@ -19,7 +17,14 @@ import InvitationModel from '@/models/invitation.model';
 import IncidentActionModel from '@/models/incidentAction.model';
 import TenancyMemberModel from '@/models/tenancyMember.model';
 
-const { host, user, password, database, pool }: dbConfig = config.get('dbConfig');
+const host = process.env.NC_NODE_DB_CONFIG_HOST;
+const user = process.env.NC_NODE_DB_CONFIG_USER;
+const password = process.env.NC_NODE_DB_CONFIG_PASSWORD;
+const database = process.env.NC_NODE_DB_CONFIG_DB_NAME;
+const pool = {
+  min: Number(process.env.NC_NODE_DB_CONFIG_POOL_MIN),
+  max: Number(process.env.NC_NODE_DB_CONFIG_POOL_MAX),
+};
 const sequelize = new Sequelize.Sequelize(database, user, password, {
   host: host,
   dialect: 'mariadb',
@@ -32,7 +37,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   },
   pool: {
     min: pool.min,
-    max: pool.max,
+    max: pool.max
   },
   logQueryParameters: process.env.NODE_ENV === 'development',
   logging: (query, time) => {
@@ -87,11 +92,10 @@ DB.AccessGroupMember.belongsTo(DB.Users, { foreignKey: 'userId' });
 DB.AccessGroupMember.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupId' });
 
 DB.AccessGroup.belongsToMany(DB.Clusters, { through: 'AccessGroupCluster', sourceKey: 'id', targetKey: 'id', as: 'clusters' });
-DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourceKey: 'id', targetKey: 'id', as: "accessGroupClusters" });
+DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourceKey: 'id', targetKey: 'id', as: 'accessGroupClusters' });
 
 DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterId' });
 DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupId' });
-
 
 DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
 DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });

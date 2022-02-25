@@ -8,13 +8,13 @@ import config from 'config';
 
 class Github {
   public static init(_passport: any): any {
-    const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK} = config.get('social_key');
+    // const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK} = config.get('social_key');
     _passport.use(
       new Strategy(
         {
-          clientID: GITHUB_CLIENT_ID,
-          clientSecret: GITHUB_CLIENT_SECRET,
-          callbackURL:  GITHUB_CALLBACK,
+          clientID: process.env.NC_NODE_SOCIALKEY_GITHUB_CLIENT_ID,
+          clientSecret: process.env.NC_NODE_SOCIALKEY_GITHUB_CLIENT_SECRET,
+          callbackURL:  process.env.NC_NODE_SOCIALKEY_GITHUB_CALLBACK,
           passReqToCallback: true,
         },
         async (req, accessToken, refreshToken, profile, done) => {

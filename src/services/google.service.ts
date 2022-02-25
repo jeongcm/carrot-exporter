@@ -4,16 +4,14 @@
 
 import DB from 'databases';
 import { Strategy } from 'passport-google-oauth20';
-import config from 'config';
 class Google {
   public static init(_passport: any): any {
-    const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK} = config.get('social_key');
     _passport.use(
       new Strategy(
         {
-          clientID: GOOGLE_CLIENT_ID,
-          clientSecret: GOOGLE_CLIENT_SECRET,
-          callbackURL: GOOGLE_CALLBACK,
+          clientID: process.env.NC_NODE_SOCIALKEY_GOOGLE_CLIENT_ID,
+          clientSecret: process.env.NC_NODE_SOCIALKEY_GOOGLE_CLIENT_SECRET,
+          callbackURL: process.env.NC_NODE_SOCIALKEY_GOOGLE_CALLBACK,
           passReqToCallback: true,
         },
         async (req, accessToken, refreshToken, profile, done) => {
