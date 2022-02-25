@@ -2,13 +2,12 @@ import bcrypt from 'bcrypt';
 import DB from 'databases';
 import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
-import { NotAuthorizedError } from '@exceptions/notAuthorizedError';
-import { BadRequestError } from '@exceptions/badRequestError';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
 
 class UserService {
   public users = DB.Users;
+
 
   public async findAllUser(): Promise<User[]> {
     const allUser: User[] = await this.users.findAll({
