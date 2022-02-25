@@ -14,6 +14,7 @@ const { auth } = config.get('mailgunAuth');
 class UserService {
   public users = DB.Users;
 
+
   public async findAllUser(): Promise<User[]> {
     const allUser: User[] = await this.users.findAll({
       attributes: { exclude: ['password'] },
