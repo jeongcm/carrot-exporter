@@ -9,10 +9,14 @@ const mg = require('nodemailer-mailgun-transport');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
-import config from 'config';
-const { auth } = config.get('mailgunAuth');
+
+const auth = {
+  api_key: process.env.NC_NODE_MAILGUN_API_KEY,
+  domain: process.env.NC_NODE_MAILGUN_DOMAIN,
+};
 class UserService {
   public users = DB.Users;
+
 
   public async findAllUser(): Promise<User[]> {
     const allUser: User[] = await this.users.findAll({
