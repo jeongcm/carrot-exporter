@@ -4,11 +4,9 @@
 
 import DB from 'databases';
 import {Strategy} from 'passport-github';
-import config from 'config';
 
 class Github {
   public static init(_passport: any): any {
-    // const { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_CALLBACK} = config.get('social_key');
     _passport.use(
       new Strategy(
         {

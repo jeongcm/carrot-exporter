@@ -1,5 +1,4 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import config from 'config';
 import { CurrentUser } from '@/interfaces/users.interface';
 
 export const currentUser = (req): CurrentUser => {

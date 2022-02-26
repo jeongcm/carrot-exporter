@@ -3,7 +3,6 @@ import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import userService from '@services/users.service';
 import TokenService from '@services/token.service';
-import config from 'config';
 import DB from 'databases';
 const crypto = require('crypto');
 
@@ -111,7 +110,7 @@ class UsersController {
         token: reset_token
       };
       await this.tokenService.createTokenDetail(obj);
-      req.body['from'] = config.get('fromMail') || 'jaswant.singh@exubers.com';
+      req.body['from'] = process.env.NC_NODE_FROM_MAIL;
       req.body['email'] = email;
       req.body['username'] = userDetail.username;
       req.body['reset_token'] = reset_token;
@@ -135,7 +134,7 @@ class UsersController {
         return res.status(400).json({ message: 'Token has been expired, Please try resetting again' });
       }
       await this.userService.updateUser(token.userId, {loginPw:newPassword});
-      req.body['from'] = config.get('fromMail') || 'jaswant.singh@exubers.com';
+      req.body['from'] = process.env.NC_NODE_FROM_MAIL;
       req.body['subject'] = 'Password Reset Successfully !!';
       req.body['email'] = userDetails.email;
       req.body['isResetMail'] = true;
