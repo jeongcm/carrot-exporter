@@ -9,8 +9,6 @@ const mg = require('nodemailer-mailgun-transport');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
-import config from 'config';
-const { auth } = config.get('mailgunAuth');
 
 class TokenService {
   public tokens = DB.Tokens;
