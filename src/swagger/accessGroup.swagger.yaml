@@ -1,0 +1,59 @@
+swagger: '2.0'
+info:
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: accessGroup
+    description: accessGroup API
+
+paths:
+  # [POST] accessGroup
+  /accessgroups:
+    post:
+      tags:
+        - accessGroup
+      summary: Create AccessGroup
+      parameters:
+        - name: body
+          in: body
+          description: accessGroup data
+          required: true
+          schema:
+            $ref: '#/definitions/createAccessGroup'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+# definitions
+definitions:
+  createAccessGroup:
+    type: object
+    required:
+      - groupName
+      - description
+      - icon
+    properties:
+      groupName:
+        type: string
+        description: accessGroup groupName
+        example: Access Group New Name
+      description:
+        type: string
+        description: accessGroup description
+        example: Some description
+      icon:
+        type: string
+        description: accessGroup icon
+        example: sdf

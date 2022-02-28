@@ -9,7 +9,7 @@ info:
 host: 'nexclipper.com'
 basePath: '/'
 tags:
-  - name: Users
+  - name: users
     description: users API
 
 paths:
@@ -24,12 +24,11 @@ paths:
           description: 'OK'
           schema:
             $ref: '#/definitions/getAllUsers'
-            
         500:
           description: 'Server Error'
 
   # [POST] users
-  /singup:
+  /signup:
     post:
       tags:
         - users
@@ -67,71 +66,50 @@ paths:
         200:
           description: 'OK'
         500:
-          description: 'Server Error'        
-
-  # [GET] users/id
-  /users/{id}:
+          description: 'Server Error'
+  # [GET] me
+  /me:
     get:
       tags:
         - users
-      summary: Find User By Id
-      parameters:
-        - name: id
-          in: path
-          description: User Id
-          required: true
-          type: integer
+      summary: Current User
       responses:
-        '200':
+        200:
           description: 'OK'
           schema:
-            $ref: '#/definitions/getUsers'
-        409:
-          description: 'Conflict'
+            $ref: '#/definitions/me'
         500:
           description: 'Server Error'
-
-    # [PUT] users/id
-    put:
+  # [GET] logout
+  /logout:
+    get:
       tags:
         - users
-      summary: Update User By Id
+      summary: User Logout
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+  # [POST] recoverPassword
+  /recoverPassword:
+    post:
+      tags:
+        - users
+      summary: Recover Password
       parameters:
-        - name: id
-          in: path
-          description: user Id
-          required: true
-          type: integer
         - name: body
           in: body
-          description: user Data
           required: true
           schema:
-            $ref: '#/definitions/users'
+            $ref: '#/definitions/recoverPassword'
       responses:
         200:
           description: 'OK'
         400:
           description: 'Bad Request'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
-
-    # [DELETE] users/id
-    delete:
-      tags:
-        - users
-      summary: Delete User By Id
-      parameters:
-        - name: id
-          in: path
-          description: user Id
-          required: true
-          type: integer
-      responses:
-        200:
-          description: 'OK'
+        401:
+          description: 'Unauthorized'
         409:
           description: 'Conflict'
         500:
@@ -163,7 +141,7 @@ definitions:
       firstName:
         type: string
         description: user firstName
-        example: Shrishti
+        example: jaswant
       lastName:
         type: string
         description: user lastname
@@ -181,40 +159,7 @@ definitions:
       loginPw:
         type: string
         description: user Password
-        example: admin      
-  getUsers:
-    type: object
-    required:
-      - id
-    properties:
-      id:
-        type: string
-        description: user uuid
-        example: f9e28e11-08f1-4a35-b6c4-330531e36fd3
-      email:
-        type: string
-        description: user Email
-        example: shrishti.test@gmail.com
-      username:
-        type: string
-        description: username
-        example: Shrishti
-      firstName:
-        type: string
-        description: user firstName
-        example: Shrishti
-      lastName:
-        type: string
-        description: user lastname
-        example: Raj
-      mobile:
-        type: string
-        description: user mobile number
-        example: 732947349
-      photo:
-        type: string
-        description: user profile photo
-        example: image1
+        example: admin
   getAllUsers:
     type: array
     items:
@@ -248,3 +193,43 @@ definitions:
           type: string
           description: user profile photo
           example: image1
+  me:
+    type: object
+    properties:
+      id:
+        type: string
+        description: user uuid
+        example: f9e28e11-08f1-4a35-b6c4-330531e36fd3
+      email:
+        type: string
+        description: user Email
+        example: jaswant.test@gmail.com
+      username:
+        type: string
+        description: username
+        example: jas
+      firstName:
+        type: string
+        description: user firstName
+        example: jaswant
+      lastName:
+        type: string
+        description: user lastname
+        example: singh
+      mobile:
+        type: string
+        description: user mobile number
+        example: 00000000
+      photo:
+        type: string
+        description: user profile photo
+        example: image1
+  recoverPassword:
+    type: object
+    required:
+      -email
+    properties:
+      email:
+        type: string
+        description: user Email
+        example: jaswant.test@gmail.com

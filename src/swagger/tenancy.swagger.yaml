@@ -1,0 +1,172 @@
+swagger: '2.0'
+info:
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: tenancy
+    description: tenancy API
+
+paths:
+  # [POST] tenancy
+  /tenancies:
+    post:
+      tags:
+        - tenancy
+      summary: Create Tenancy
+      parameters:
+        - name: body
+          in: body
+          description: tenancy data
+          required: true
+          schema:
+            $ref: '#/definitions/createTenancy'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [GET] tenancy
+    get:
+      tags:
+        - tenancy
+      summary: Find All Tenancy
+      responses:
+        200:
+          description: 'OK'      
+        500:
+          description: 'Server Error'
+  # [GET] tenancy/id
+  /tenancies/{id}:
+    get:
+      tags:
+        - tenancy
+      summary: Get Tenancy By Id
+      parameters:
+        - name: id
+          in: path
+          description: Tenancy Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'OK'      
+        500:
+          description: 'Server Error'
+    # [DELETE] tenancy/id
+    delete:
+      tags:
+        - tenancy
+      summary: Delete Tenancy By Id
+      parameters:
+        - name: id
+          in: path
+          description: Tenancy Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'deleted successfully'
+        204:
+          description: 'No Content'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
+    # [PUT] tenancy/id
+    put:
+      tags:
+        - tenancy
+      summary: Update tenancy By Id
+      parameters:
+        - name: id
+          in: path
+          description: Tenancy Id
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: Tenancy Data
+          required: true
+          schema:
+            $ref: '#/definitions/updateTenancy'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [PUT] currentTenancy/id
+  /current-tenancy/{tenancyId}:
+    put:
+      tags:
+        - tenancy
+      summary: Update tenancyId
+      parameters:
+        - name: tenancyId
+          in: path
+          description: Tenancy Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'       
+
+# definitions
+definitions:
+  createTenancy:
+    type: object
+    required:
+      - tenancyCode
+      - description
+      - icon
+    properties:
+      tenancyCode:
+        type: string
+        description: tenancy tenancyCode
+        example: mycompany
+      tenancyDescription:
+        type: string
+        description: tenancy tenancyDescription
+        example: for testing
+      tenancyName:
+        type: string
+        description: tenancy tenancyName
+        example: jaswant
+  updateTenancy:
+    type: object
+    required:
+      - tenancyName
+      - tenancyCode
+      - tenancyDescription
+    properties:
+      tenancyName:
+        type: string
+        description: tenancyName
+        example: jaswant Edit
+      tenancyCode:
+        type: string
+        description: tenancyCode
+        example: mycomapny edit
+      tenancyDescription:
+        type: string
+        description: tenancyDescription
+        example: for testing
