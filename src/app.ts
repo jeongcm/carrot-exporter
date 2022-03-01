@@ -95,7 +95,6 @@ class App {
           description: 'API TESTING',
         },
       },
-      // apis: ['src/routes/*.ts'],
       apis: ['src/swagger/*.yaml'],
     };
 

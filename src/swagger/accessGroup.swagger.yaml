@@ -20,6 +20,11 @@ paths:
         - accessGroup
       summary: Create AccessGroup
       parameters:
+        - name: header
+          in: header
+          description: an authorization header
+          required: true
+          type: string
         - name: body
           in: body
           description: accessGroup data
