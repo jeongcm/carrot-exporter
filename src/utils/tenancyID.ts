@@ -1,5 +1,8 @@
 import { CurrentTenancy } from '@/interfaces/users.interface';
-
+/**
+ * @param  {} req
+ * @returns currentTenancyId
+ */
 export const tenancyId = (req): CurrentTenancy => {
   const currentTenancyId = req.headers['tenancyId'];
   if (currentTenancyId) {

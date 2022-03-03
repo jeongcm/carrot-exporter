@@ -2,7 +2,16 @@ import { plainToClass } from 'class-transformer';
 import { validate, ValidationError } from 'class-validator';
 import { RequestHandler } from 'express';
 import { HttpException } from '@exceptions/HttpException';
-
+/**
+ * Validatation middleware to check for particular validation
+ * @param  type
+ * @param  {string|'body'|'query'|'params'='body'} value
+ * @param  {} skipMissingProperties=false
+ * @param  {} whitelist=true
+ * @param  {} forbidNonWhitelisted=true
+ * @param  {} res
+ * @param  {} next
+ */
 const validationMiddleware = (
   type: any,
   value: string | 'body' | 'query' | 'params' = 'body',

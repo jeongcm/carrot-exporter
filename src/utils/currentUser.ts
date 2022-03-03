@@ -1,6 +1,9 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { CurrentUser } from '@/interfaces/users.interface';
-
+/**
+ * @param  {} req
+ * @returns payload
+ */
 export const currentUser = (req): CurrentUser => {
   const currentCookie = req.cookies['X-AUTHORIZATION'];
   if (currentCookie) {
