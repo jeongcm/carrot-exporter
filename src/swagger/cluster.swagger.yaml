@@ -1,0 +1,161 @@
+swagger: '2.0'
+info:
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: cluster
+    description: cluster API
+
+paths:
+  # [POST] clusters
+  /clusters:
+    post:
+      tags:
+        - cluster
+      summary: Create Cluster
+      parameters:
+        - name: body
+          in: body
+          description: Cluster data
+          required: true
+          schema:
+            $ref: '#/definitions/createCluster'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [GET] cluster
+    get:
+      tags:
+        - cluster
+      summary: Find All Cluster
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+  # [GET] clusters/id
+  /clusters/{id}:
+    get:
+      tags:
+        - cluster
+      summary: Get Cluster By Id
+      parameters:
+        - name: id
+          in: path
+          description: Cluster Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [PUT] clusters/id
+    put:
+      tags:
+        - cluster
+      summary: Update Cluster By Id
+      parameters:
+        - name: id
+          in: path
+          description: Cluster Id
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: Cluster Data
+          required: true
+          schema:
+            $ref: '#/definitions/updateCluster'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [DELETE] clusters/id
+    delete:
+      tags:
+        - cluster
+      summary: Delete Cluster By Id
+      parameters:
+        - name: id
+          in: path
+          description: Cluster Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'deleted'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'      
+
+# definitions
+definitions:
+  createCluster:
+    type: object
+    required:
+      - name
+      - description
+      - icon
+      - platform
+    properties:
+      name:
+        type: string
+        description: cluster name
+        example: example
+      description:
+        type: string
+        description: cluster description
+        example: example
+      icon:
+        type: string
+        description: cluster icon
+        example: example
+      platform:
+        type: string
+        description: cluster platform
+        example: example
+  updateCluster:
+    type: object
+    required:
+      - name
+      - description
+      - icon
+      - platform
+    properties:
+      name:
+        type: string
+        description: cluster name
+        example: example edit
+      description:
+        type: string
+        description: cluster description
+        example: example edit
+      icon:
+        type: string
+        description: cluster icon
+        example: example edit
+      platform:
+        type: string
+        description: cluster platform
+        example: example edit

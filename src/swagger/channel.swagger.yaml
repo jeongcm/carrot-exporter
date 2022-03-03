@@ -1,0 +1,180 @@
+swagger: '2.0'
+info:
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: channel
+    description: channel API
+
+paths:
+  # [POST] channels
+  /channels:
+    post:
+      tags:
+        - channel
+      summary: Create Channel
+      parameters:
+        - name: body
+          in: body
+          description: Channel data
+          required: true
+          schema:
+            $ref: '#/definitions/createChannel'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [GET] channel
+    get:
+      tags:
+        - channel
+      summary: Find All Channel
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+  # [GET] channels/id
+  /channels/{id}:
+    get:
+      tags:
+        - channel
+      summary: Get Channel By Id
+      parameters:
+        - name: id
+          in: path
+          description: Channel Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [PUT] channels/id
+    put:
+      tags:
+        - channel
+      summary: Update Channel By Id
+      parameters:
+        - name: id
+          in: path
+          description: Channel Id
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: Channel Data
+          required: true
+          schema:
+            $ref: '#/definitions/updateChannel'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [DELETE] channels/id
+    delete:
+      tags:
+        - channel
+      summary: Delete Channel By Id
+      parameters:
+        - name: id
+          in: path
+          description: Channel Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'deleted'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [GET] /channels/id/accessgroup
+  /channels/{id}/accessgroup:
+    get:
+      tags:
+        - channel
+      summary: List AccessGroup Through Channel
+      parameters:
+        - name: id
+          in: path
+          description: Channel Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'     
+
+# definitions
+definitions:
+  createChannel:
+    type: object
+    required:
+      - channelType
+      - name
+      - description
+      - configJSON
+    properties:
+      channelType:
+        type: string
+        description: channel channelType
+        example: example
+      name:
+        type: string
+        description: channel name
+        example: example
+      description:
+        type: string
+        description: channel description
+        example: example
+      configJSON:
+        type: string
+        description: channel configJSON
+        example: example
+  updateChannel:
+    type: object
+    required:
+      - channelType
+      - name
+      - description
+      - configJSON
+    properties:
+      channelType:
+        type: string
+        description: channel channelType
+        example: example edit
+      name:
+        type: string
+        description: channel name
+        example: example edit
+      description:
+        type: string
+        description: channel description
+        example: example edit
+      configJSON:
+        type: string
+        description: channel configJSON
+        example: example edit
