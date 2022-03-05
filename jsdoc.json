@@ -9,6 +9,7 @@
       "excludePattern": "(^|\\/|\\\\)_"
   },
   "plugins": [
+    "jsdoc-mermaid",
     "node_modules/jsdoc-babel"
   ],
   "babel": {
@@ -20,7 +21,14 @@
       "@babel/proposal-class-properties", "@babel/proposal-object-rest-spread"]
   },
   "opts": {
+    "readme": "README.md",
     "destination": "./jsdocs/",
-    "recurse": true
+    "recurse": true,
+    "template": "node_modules/better-docs"
+  },
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "search": true
   }
 }

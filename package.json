@@ -11,7 +11,7 @@
     "test": "jest --forceExit --detectOpenHandles",
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
-    "doc": "jsdoc -c jsdoc.json --debug -r",
+    "doc": "node_modules/.bin/jsdoc -c jsdoc.json --debug -r",
     "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod",
     "deploy:dev": "pm2 start ecosystem.config.js --only dev"
   },
@@ -88,6 +88,7 @@
     "husky": "^7.0.1",
     "jsdoc": "^3.6.10",
     "jsdoc-babel": "^0.5.0",
+    "jsdoc-mermaid": "^1.0.0",
     "lint-staged": "^11.0.0",
     "node-config": "^0.0.2",
     "node-gyp": "^8.1.0",

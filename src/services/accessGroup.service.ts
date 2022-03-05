@@ -27,7 +27,19 @@ class AccessGroupService {
    * @param  {number} currentUserId
    * @param  {number} tenancyId
    * @returns Promise
-   */
+   * @mermaid
+      sequenceDiagram
+        participant Alice
+        participant Bob
+        Alice->>John: Hello John, how are you?
+        loop Healthcheck
+            John->>John: Fight against hypochondria
+        end
+        Note right of John: Rational thoughts <br/>prevail!
+        John-->>Alice: Great!
+        John->>Bob: How about you?
+        Bob-->>John: Jolly good!
+  */
   public async createAccessGroup(accessGroupData: CreateAccessGroupDto, currentUserId: number, tenancyId: number): Promise<AccessGroup> {
     if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
 
