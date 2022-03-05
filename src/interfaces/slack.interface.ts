@@ -1,4 +1,4 @@
-import { ChannelType } from '@/enums';
+import { ChannelType } from '@/types';
 
 export interface SlackMessage {
   name: string;

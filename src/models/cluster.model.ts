@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IClusterAdd } from '@interfaces/cluster.interface';
+import { PlatformEnum } from '@/enums';
 
 export type ClusterCreationAttributes = Optional<
   IClusterAdd,
@@ -13,7 +14,7 @@ export class ClusterModel extends Model<IClusterAdd, ClusterCreationAttributes> 
   public icon: string;
   public installParams: string;
   public name: string;
-  public platform: 'AWS' | 'baremetal' | 'kubernetes';
+  public platform: PlatformEnum;
   public tags: string;
   public tenancyId: string;
   public isDeleted: boolean;

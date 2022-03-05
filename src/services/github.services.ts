@@ -4,15 +4,16 @@
 
 import DB from 'databases';
 import {Strategy} from 'passport-github';
+import config from 'config';
 
 class Github {
   public static init(_passport: any): any {
     _passport.use(
       new Strategy(
         {
-          clientID: process.env.NC_NODE_SOCIALKEY_GITHUB_CLIENT_ID,
-          clientSecret: process.env.NC_NODE_SOCIALKEY_GITHUB_CLIENT_SECRET,
-          callbackURL:  process.env.NC_NODE_SOCIALKEY_GITHUB_CALLBACK,
+          clientID: config.socialKey.github.clientID,
+          clientSecret: config.socialKey.github.clientSecret,
+          callbackURL: config.socialKey.github.callbackUrl,
           passReqToCallback: true,
         },
         async (req, accessToken, refreshToken, profile, done) => {

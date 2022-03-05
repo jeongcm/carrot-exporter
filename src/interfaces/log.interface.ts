@@ -1,4 +1,4 @@
-import { LogStatus, LogType } from '@/enums';
+import { LogStatus, LogType } from '@/types';
 
 export interface Log {
   id: string;

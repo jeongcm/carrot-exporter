@@ -3,7 +3,7 @@ import { CreateClusterDto } from '@dtos/cluster.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { IClusterAdd as Cluster } from '@interfaces/cluster.interface';
 import { isEmpty } from '@utils/util';
-import { Platform } from '../enums';
+import { Platform } from '../types';
 
 class ClusterService {
   public clusters = DB.Clusters;

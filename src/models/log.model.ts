@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Log } from '@interfaces/log.interface';
-import { LogStatus, LogType } from '@/enums';
+import { LogStatus, LogType } from '@/types';
 
 export type AlertCreationAttributes = Optional<
   Log,

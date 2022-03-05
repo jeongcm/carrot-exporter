@@ -3,7 +3,7 @@ import { CreateChannelDto } from '@dtos/channel.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { Channel } from '@interfaces/channel.interface';
 import { isEmpty } from '@utils/util';
-import { ChannelType, Platform } from '../enums';
+import { ChannelType, Platform } from '../types';
 import { AccessGroupChannel } from '@interfaces/accessGroupChannel.interface';
 import { AccessGroupModel } from '@/models/accessGroup.model';
 

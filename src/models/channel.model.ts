@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Channel } from '@interfaces/channel.interface';
-import { ChannelType } from '@/enums';
+import { ChannelType } from '@/types';
 
 export type ChannelCreationAttributes = Optional<
   Channel,

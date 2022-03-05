@@ -1,3 +1,9 @@
+/*
+Alert Routes
+
+Notion:
+https://www.notion.so/nexclipper/Alert-Feature-Design-dcdd6130e1bf4f05a8333a2b31a5756c
+*/
 import { Router } from 'express';
 import { Routes } from '@interfaces/routes.interface';
 import AlertController from '@/controllers/alert.controller';
