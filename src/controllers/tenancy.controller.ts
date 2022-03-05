@@ -31,7 +31,6 @@ class TenancyController {
   public createTenancy = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenancyData: CreateTenancyDto = req.body;
-      console.log(tenancyData);
       const createTenancyData: Tenancy = await this.tenancyService.createTenancy(tenancyData);
       res.status(201).json({ data: createTenancyData, message: 'created' });
     } catch (error) {
@@ -63,7 +62,6 @@ class TenancyController {
   public createTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tenancyMemberData: CreateTenancyMemberDto = req.body;
-      console.log('tenancyMemberData', tenancyMemberData);
       const currentUserId = currentUser(req).id;
       const createTenancyData: TenancyMember = await this.tenancyService.createTenancyMember(tenancyMemberData, currentUserId);
       res.status(201).json({ data: createTenancyData, message: 'created' });

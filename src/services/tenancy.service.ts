@@ -47,7 +47,6 @@ class TenancyService {
 
   public async createTenancyMember(tenancyData: CreateTenancyMemberDto, currentUserId: number): Promise<TenancyMember> {
     if (isEmpty(tenancyData)) throw new HttpException(400, 'Tenancy Data cannot be blank');
-    console.log('tenancyData', tenancyData);
     const newTenancy = {
       userName: tenancyData.userName,
       userId: tenancyData.userId,
@@ -60,7 +59,6 @@ class TenancyService {
       isDeleted: tenancyData.isDeleted,
       isActivated: tenancyData.isActivated,
     };
-    console.log('newtenancy', newTenancy);
     const createTenancyData: TenancyMember = await this.tenancyMember.create(newTenancy);
     return createTenancyData;
   }
