@@ -28,8 +28,8 @@ class InvitationService {
   public sendInvitationMail = (req, res) => {
     try {
       const emailTemplateSource = req.body.newUser
-        ? fs.readFileSync(path.join(__dirname, '../templates/newUserEmail.hbs'), 'utf8')
-        : fs.readFileSync(path.join(__dirname, '../templates/tenancyMail.hbs'), 'utf8');
+        ? fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/newUserEmail.hbs'), 'utf8')
+        : fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/tenancyMail.hbs'), 'utf8');
       const mailgunAuth = { auth };
       const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
       const template = handlebars.compile(emailTemplateSource);

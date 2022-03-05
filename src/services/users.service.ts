@@ -85,10 +85,10 @@ class UserService {
 
   public sendRecoveryMail = (req, res) => {
     try {
-      const { isResetMail, email, username, subject, from, reset_token } = req.body;
+      const { isResetMail, email, username, subject, reset_token } = req.body;
       const emailTemplateSource = isResetMail
-        ? fs.readFileSync(path.join(__dirname, '../templates/passwordReset.hbs'), 'utf8')
-        : fs.readFileSync(path.join(__dirname, '../templates/recoveryMail.hbs'), 'utf8');
+        ? fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/passwordReset.hbs'), 'utf8')
+        : fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/recoveryMail.hbs'), 'utf8');
       const mailgunAuth = { auth };
       const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
       const template = handlebars.compile(emailTemplateSource);

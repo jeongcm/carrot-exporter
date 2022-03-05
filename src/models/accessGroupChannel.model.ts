@@ -3,7 +3,7 @@ import { AccessGroupChannel } from '@interfaces/accessGroupChannel.interface';
 
 export type AccessGroupChannelCreationAttributes = Optional<
   AccessGroupChannel,
- 'id'|'accessGroupId' | 'channelId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
+ 'id' |'accessGroupId' | 'channelId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class AccessGroupChannelModel extends Model<AccessGroupChannel, AccessGroupChannelCreationAttributes> implements AccessGroupChannel {
@@ -66,7 +66,7 @@ export default function (sequelize: Sequelize): typeof AccessGroupChannelModel {
     },
     {
       tableName: 'AccessGroupChannel',
-      modelName: "AccessGroupChannel",
+      modelName: 'AccessGroupChannel',
       sequelize,
     },
   );
