@@ -13,39 +13,37 @@ export enum PlatformEnum {
 }
 
 export enum ChannelTypeEnum {
-  EMAIL,
-  SLACK,
-  WEBHOOK,
+  EMAIL = 'EMAIL',
+  SLACK = 'SLACK',
+  WEBHOOK = 'WEBHOOK',
 }
 
-console.log(ChannelTypeEnum.EMAIL);
-
 export enum LogType {
-  INDEPENDENT,
-  CHAINED,
+  INDEPENDENT = 'INDEPENDENT',
+  CHAINED = 'CHAINED',
 }
 
 export enum LogOrigin {
-  USER,
-  LARI,
-  SYSTEM,
+  USER = 'USER',
+  LARI = 'LARI',
+  SYSTEM = 'SYSTEM',
 }
 
 export enum LogStatus {
-  CLOSED,
-  HIDDEN,
-  OPEN,
-  REFERENCED,
+  CLOSED = 'CLOSED',
+  HIDDEN = 'HIDDEN',
+  OPEN = 'OPEN',
+  REFERENCED = 'REFERENCED',
 }
 
 export enum EventStatus {
-  CLOSED,
-  HIDDEN,
-  OPEN,
-  REFERENCED,
+  CLOSED = 'CLOSED',
+  HIDDEN = 'HIDDEN',
+  OPEN = 'OPEN',
+  REFERENCED = 'REFERENCED',
 }
 
 export enum EventFrom {
-  LARI,
-  PROMETHEUS,
+  LARI = 'LARI',
+  PROMETHEUS = 'PROMETHEUS',
 }
