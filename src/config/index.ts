@@ -19,7 +19,7 @@ export default {
   logFormat: process.env.NC_LARI_LOG_FORMAT,
   cors: {
     allowAnyOrigin: process.env.NC_LARI_CORS_ORIGIN === 'true' ? Boolean(process.env.NC_LARI_CORS_ORIGIN) : process.env.NC_LARI_CORS_ORIGIN,
-    credentials: process.env.NC_LARI_CORS_CREDENTIALS === 'true' ? Boolean(process.env.NC_LARI_CORS_CREDENTIALS) : process.env.NC_LARI_CORS_CREDENTIALS,
+    credentials: process.env.NC_LARI_CORS_CREDENTIALS === 'true',
   },
   email: {
     defaultFrom: process.env.NC_LARI_EMAIL_DEFAULT_FROM || 'info@nexclipper.io',
