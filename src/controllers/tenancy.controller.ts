@@ -64,7 +64,7 @@ class TenancyController {
     try {
       const tenancyMemberData: CreateTenancyMemberDto = req.body;
       console.log('tenancyMemberData', tenancyMemberData);
-      let currentUserId = currentUser(req).id;
+      const currentUserId = currentUser(req).id;
       const createTenancyData: TenancyMember = await this.tenancyService.createTenancyMember(tenancyMemberData, currentUserId);
       res.status(201).json({ data: createTenancyData, message: 'created' });
     } catch (error) {
@@ -102,6 +102,8 @@ class TenancyController {
     }
   };
 
+  // RYAN: whenever you comment something out please provide a context with a ticket number
+  //
   // public updateTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
   //   try {
   //     const tenancyId = req.params.tenancyId;

@@ -141,12 +141,9 @@ class UsersController {
       req.body['isResetMail'] = true;
       return await this.userService.sendRecoveryMail(req, res);
     } catch (err) {
-      // RYAN: some catch (err) were missing.
-      // but it's ok since we didn't have an error format
-      return res.status(500).json({
-        ok: false,
-        err,
-      });
+      // RYAN: some catch (err) were missing res return
+      // let's use next and pass it to our routes
+      next(err);
     }
   };
 }

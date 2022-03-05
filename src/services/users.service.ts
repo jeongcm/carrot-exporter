@@ -92,7 +92,6 @@ class UserService {
       const mailgunAuth = { auth };
       const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
       const template = handlebars.compile(emailTemplateSource);
-      const host = req.get('host');
       let link, htmlToSend;
       if (!isResetMail) {
         link = urlJoin(config.email.passwordReset.resetPageURL, reset_token);

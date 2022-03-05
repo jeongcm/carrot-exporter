@@ -47,7 +47,7 @@ class AccessGroupController {
 
   public getAccessGroupsByUserId = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let currentUserId = currentUser(req).id;
+      const currentUserId = currentUser(req).id;
       const findAllAccessGroupData: AccessGroup[] = await this.accessGroupService.findAllAccessGroupByUserId(currentUserId);
       res.status(200).json({ data: findAllAccessGroupData, message: 'Access Group By User id' });
     } catch (error) {
@@ -60,7 +60,7 @@ class AccessGroupController {
 
     try {
       const accessGroupData: CreateAccessGroupDto = req.body;
-      let currentUserId = currentUser(req).id;
+      const currentUserId = currentUser(req).id;
       const createAccessGroupData: AccessGroup = await this.accessGroupService.createAccessGroup(accessGroupData, currentUserId, tenancyId);
       res.status(201).json({ data: createAccessGroupData, message: 'Created Access Group' });
     } catch (error) {
@@ -72,7 +72,7 @@ class AccessGroupController {
     try {
       const accessGroupId = req.params.id;
       const accessGroupData = req.body;
-      let currentUserId = currentUser(req).id;
+      const currentUserId = currentUser(req).id;
       const updateAccessGroupData: AccessGroup = await this.accessGroupService.updateAccessGroup(accessGroupId, accessGroupData, currentUserId);
       res.status(200).json({ data: updateAccessGroupData, message: 'updated Access Group' });
     } catch (error) {
@@ -84,7 +84,7 @@ class AccessGroupController {
     try {
       const accessGroupId = req.params.id;
       const membersData = req.body;
-      let currentUserId = currentUser(req).id;
+      const currentUserId = currentUser(req).id;
       const updateAccessGroupData: AccessGroupMember[] = await this.accessGroupService.updateAccessGroupMembers(
         accessGroupId,
         membersData,
@@ -110,7 +110,7 @@ class AccessGroupController {
     try {
       const accessGroupId = req.params.id;
       const channelsData = req.body;
-      let currentUserId = currentUser(req).id;
+      const currentUserId = currentUser(req).id;
       const updateAccessGroupData: CreateAccessGroupChannelDto[] = await this.accessGroupService.updateAccessGroupChannels(
         accessGroupId,
         channelsData,
@@ -136,7 +136,7 @@ class AccessGroupController {
     try {
       const accessGroupId = req.params.id;
       const clustersData = req.body;
-      let currentUserId = currentUser(req).id;
+      const currentUserId = currentUser(req).id;
       const updateAccessGroupData: AccessGroupCluster[] = await this.accessGroupService.updateAccessGroupClusters(
         accessGroupId,
         clustersData,
