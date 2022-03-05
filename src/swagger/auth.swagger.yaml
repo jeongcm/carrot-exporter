@@ -133,7 +133,7 @@ definitions:
       email:
         type: string
         description: user Email
-        example: jaswant.test@gmail.com
+        example: dev@nexclipper.com
       loginPw:
         type: string
         description: user Password
@@ -155,7 +155,7 @@ definitions:
       email:
         type: string
         description: user Email
-        example: jaswant.test@gmail.com
+        example: dev@nexclipper.com
       loginPw:
         type: string
         description: user Password
@@ -172,7 +172,7 @@ definitions:
         email:
           type: string
           description: user Email
-          example: jaswant.test@gmail.com
+          example: dev@nexclipper.com
         username:
           type: string
           description: username
@@ -203,7 +203,7 @@ definitions:
       email:
         type: string
         description: user Email
-        example: jaswant.test@gmail.com
+        example: dev@nexclipper.com
       username:
         type: string
         description: username
@@ -232,4 +232,4 @@ definitions:
       email:
         type: string
         description: user Email
-        example: jaswant.test@gmail.com
+        example: dev@nexclipper.com
