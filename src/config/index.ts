@@ -1,3 +1,10 @@
+/*
+How to add config:
+1. define a config here using the right nested object
+2. add the environment variable in .env.sample file
+3. define the type of the environment variable in validateEnv, IF the variable is required
+*/
+
 // RYAN: we still need to use config to control all the environment variables
 // 1. For organization using nested objects
 // 2. For value control (default, computed)
@@ -16,6 +23,9 @@ export default {
   },
   email: {
     defaultFrom: process.env.NC_LARI_EMAIL_DEFAULT_FROM || 'info@nexclipper.io',
+    verification: {
+      verityPageURL: process.env.NC_LARI_EMAIL_VERIFICATION_PAGE_URL,
+    },
     invitation: {
       from: process.env.NC_LARI_EMAIL_DEFAULT_FROM || 'info@nexclipper.io',
     },
