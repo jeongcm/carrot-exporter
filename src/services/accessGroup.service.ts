@@ -16,12 +16,8 @@ class AccessGroupService {
   public accessGroupMember = DB.AccessGroupMember;
   public accessGroupCluster = DB.AccessGroupCluster;
   public accessGroupChannel = DB.AccessGroupChannel;
-  /**
-   * @param  {CreateAccessGroupDto} accessGroupData
-   * @param  {string} currentUserId
-   * @param  {string} tenancyId
-   */
-  public async createAccessGroup(accessGroupData: CreateAccessGroupDto, currentUserId: string, tenancyId: string): Promise<AccessGroup> {
+
+  public async createAccessGroup(accessGroupData: CreateAccessGroupDto, currentUserId: number, tenancyId: number): Promise<AccessGroup> {
     if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
 
     if (isEmpty(accessGroupData)) throw new HttpException(400, 'Access Group must not be empty');
@@ -39,19 +35,15 @@ class AccessGroupService {
 
     return createAccessGroupData;
   }
-  /**
-   * @param  {string} tenancyId
-   */
-  public async findAllAccessGroup(tenancyId: string): Promise<AccessGroup[]> {
+
+  public async findAllAccessGroup(tenancyId: number): Promise<AccessGroup[]> {
     if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
 
     const allAccessGroup: AccessGroup[] = await this.accessGroup.findAll({ where: { tenancyId } });
     return allAccessGroup;
   }
-  /**
-   * @param  {string} id
-   */
-  public async findAccessGroupById(id: string): Promise<AccessGroup> {
+
+  public async findAccessGroupById(id: number): Promise<AccessGroup> {
     if (isEmpty(id)) throw new HttpException(400, 'Not a valid Access Group');
 
     const findAccessGroup: AccessGroup = await this.accessGroup.findByPk(id, {
@@ -73,10 +65,8 @@ class AccessGroupService {
 
     return findAccessGroup;
   }
-  /**
-   * @param  {string} id
-   */
-  public async findAccessGroupByIdDetail(id: string): Promise<AccessGroup> {
+
+  public async findAccessGroupByIdDetail(id: number): Promise<AccessGroup> {
     if (isEmpty(id)) throw new HttpException(400, 'Not a valid Access Group');
 
     const findAccessGroup: AccessGroup = await this.accessGroup.findByPk(id, {
@@ -97,19 +87,13 @@ class AccessGroupService {
 
     return findAccessGroup;
   }
-  /**
-   * @param  {string} currentUserId
-   */
-  public async findAllAccessGroupByUserId(currentUserId: string): Promise<AccessGroup[]> {
+
+  public async findAllAccessGroupByUserId(currentUserId: number): Promise<AccessGroup[]> {
     const allAccessGroup: AccessGroup[] = await this.accessGroup.findAll({ where: { createdBy: currentUserId } });
     return allAccessGroup;
   }
-  /**
-   * @param  {string} accessGroupId
-   * @param  {CreateAccessGroupDto} accessGroupData
-   * @param  {string} currentUserId
-   */
-  public async updateAccessGroup(accessGroupId: string, accessGroupData: CreateAccessGroupDto, currentUserId: string): Promise<AccessGroup> {
+
+  public async updateAccessGroup(accessGroupId: number, accessGroupData: CreateAccessGroupDto, currentUserId: number): Promise<AccessGroup> {
     if (isEmpty(accessGroupData)) throw new HttpException(400, 'Access Group Data cannot be blank');
 
     const findaccessGroup: AccessGroup = await this.accessGroup.findByPk(accessGroupId);
@@ -128,15 +112,11 @@ class AccessGroupService {
 
     return updateData;
   }
-  /**
-   * @param  {string} accessGroupId
-   * @param  {AccessGroupMember[]} accessGroupMembers
-   * @param  {string} currentUserId
-   */
+
   public async updateAccessGroupMembers(
-    accessGroupId: string,
+    accessGroupId: number,
     accessGroupMembers: AccessGroupMember[],
-    currentUserId: string,
+    currentUserId: number,
   ): Promise<AccessGroupMember[]> {
     if (isEmpty(accessGroupMembers)) throw new HttpException(400, 'Members Data cannot be blank');
 
@@ -184,10 +164,8 @@ class AccessGroupService {
     }
     return updatedAccessGroupMembers;
   }
-  /**
-   * @param  {string} accessGroupId
-   */
-  public async getAccessGroupMembers(accessGroupId: string): Promise<AccessGroupMember[]> {
+
+  public async getAccessGroupMembers(accessGroupId: number): Promise<AccessGroupMember[]> {
     const findAccessGroupMembers: AccessGroupMember[] = await this.accessGroupMember.findAll({
       where: { accessGroupId: accessGroupId, isDeleted: false },
     });
@@ -195,9 +173,9 @@ class AccessGroupService {
   }
 
   public async updateAccessGroupChannels(
-    accessGroupId: string,
+    accessGroupId: number,
     accessGroupChannels: AccessGroupChannel[],
-    currentUserId: string,
+    currentUserId: number,
   ): Promise<CreateAccessGroupChannelDto[]> {
     if (isEmpty(accessGroupChannels)) throw new HttpException(400, 'Channels Data cannot be blank');
 
@@ -247,7 +225,7 @@ class AccessGroupService {
     return updatedAccessGroupChannels;
   }
 
-  public async getAccessGroupChannels(accessGroupId: string): Promise<AccessGroupChannel[]> {
+  public async getAccessGroupChannels(accessGroupId: number): Promise<AccessGroupChannel[]> {
     const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({
       where: { accessGroupId: accessGroupId, isDeleted: false },
       attributes: ['id'],
@@ -263,9 +241,9 @@ class AccessGroupService {
   }
 
   public async updateAccessGroupClusters(
-    accessGroupId: string,
+    accessGroupId: number,
     accessGroupClusters: AccessGroupCluster[],
-    currentUserId: string,
+    currentUserId: number,
   ): Promise<AccessGroupCluster[]> {
     if (isEmpty(accessGroupClusters)) throw new HttpException(400, 'Clusters Data cannot be blank');
 
@@ -315,7 +293,7 @@ class AccessGroupService {
     return updatedAccessGroupClusters;
   }
 
-  public async getAccessGroupClusters(accessGroupId: string): Promise<AccessGroupCluster[]> {
+  public async getAccessGroupClusters(accessGroupId: number): Promise<AccessGroupCluster[]> {
     const findAccessGroupClusters: AccessGroupCluster[] = await this.accessGroupCluster.findAll({
       where: { accessGroupId: accessGroupId, isDeleted: false },
     });

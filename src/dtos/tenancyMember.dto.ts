@@ -12,7 +12,7 @@ export class CreateTenancyMemberDto {
   public userRole: 'owner' | 'member' | 'maintainer';
 
   @IsString()
-  public tenancyId: string;
+  public tenancyId: number;
 
   @IsString()
   @IsOptional()

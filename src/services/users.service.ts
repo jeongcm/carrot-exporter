@@ -27,7 +27,7 @@ class UserService {
     return allUser;
   }
 
-  public async findUserById(userId: string): Promise<User> {
+  public async findUserById(userId: number): Promise<User> {
     if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
 
     const findUser: User = await this.users.findByPk(userId, { attributes: { exclude: ['password'] } });
@@ -58,7 +58,7 @@ class UserService {
     return createUserData;
   }
 
-  public async updateUser(userId: string, userData: any): Promise<User> {
+  public async updateUser(userId: number, userData: any): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await this.users.findByPk(userId);

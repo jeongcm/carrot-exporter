@@ -24,7 +24,7 @@ class LogService {
     return createLogData;
   }
 
-  public async updateLog(logId: string, logData: CreateLogDto, currentUserId: string): Promise<Log> {
+  public async updateLog(logId: number, logData: CreateLogDto, currentUserId: number): Promise<Log> {
     if (isEmpty(logData)) throw new HttpException(400, 'Log Data cannot be blank');
     const findLog: Log = await this.log.findByPk(logId);
     if (!findLog) throw new HttpException(409, "Log doesn't exist");
