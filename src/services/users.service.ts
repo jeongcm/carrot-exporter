@@ -4,6 +4,9 @@ import { CreateUserDto } from '@dtos/users.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
+import config from 'config';
+import urlJoin from 'url-join';
+
 const nodemailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
 const handlebars = require('handlebars');
@@ -11,12 +14,11 @@ const fs = require('fs');
 const path = require('path');
 
 const auth = {
-  api_key: process.env.NC_NODE_MAILGUN_API_KEY,
-  domain: process.env.NC_NODE_MAILGUN_DOMAIN,
+  api_key: config.email.mailgun.apiKey,
+  domain: config.email.mailgun.domain,
 };
 class UserService {
   public users = DB.Users;
-
 
   public async findAllUser(): Promise<User[]> {
     const allUser: User[] = await this.users.findAll({
@@ -25,7 +27,7 @@ class UserService {
     return allUser;
   }
 
-  public async findUserById(userId: string): Promise<User> {
+  public async findUserById(userId: number): Promise<User> {
     if (isEmpty(userId)) throw new HttpException(400, "You're not userId");
 
     const findUser: User = await this.users.findByPk(userId, { attributes: { exclude: ['password'] } });
@@ -36,10 +38,9 @@ class UserService {
 
   public async findUserByEmail(email: string): Promise<User> {
     if (isEmpty(email)) throw new HttpException(400, "User doen't exist");
-    const findUser: User = await this.users.findOne({where:{email}});
+    const findUser: User = await this.users.findOne({ where: { email } });
     return findUser;
   }
-
 
   public async createUser(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
@@ -57,7 +58,7 @@ class UserService {
     return createUserData;
   }
 
-  public async updateUser(userId: string, userData: any): Promise<User> {
+  public async updateUser(userId: number, userData: any): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
     const findUser: User = await this.users.findByPk(userId);
@@ -83,35 +84,36 @@ class UserService {
   }
 
   public sendRecoveryMail = (req, res) => {
-    try{
-      const { isResetMail, email, username, subject, from, reset_token } = req.body;
-      const emailTemplateSource = isResetMail ? fs.readFileSync(path.join(__dirname, '../templates/passwordReset.hbs'), 'utf8') : fs.readFileSync(path.join(__dirname, '../templates/recoveryMail.hbs'), 'utf8');
-      const mailgunAuth = {auth};
+    try {
+      const { isResetMail, email, username, subject, reset_token } = req.body;
+      const emailTemplateSource = isResetMail
+        ? fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/passwordReset.hbs'), 'utf8')
+        : fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/recoveryMail.hbs'), 'utf8');
+      const mailgunAuth = { auth };
       const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
       const template = handlebars.compile(emailTemplateSource);
-      const host = req.get('host');
-      let link , htmlToSend
-      if(!isResetMail){
-        link= `http://${host}/password_reset/${reset_token}`;
+      let link, htmlToSend;
+      if (!isResetMail) {
+        link = urlJoin(config.email.passwordReset.resetPageURL, reset_token);
         htmlToSend = template({ link, username });
-      }else{
+      } else {
         htmlToSend = template();
       }
       const mailOptions = {
-        from: from || 'jaswant.singh@exubers.com',
+        from: config.email.defaultFrom,
         to: email,
         subject: subject,
         html: htmlToSend,
       };
       smtpTransport.sendMail(mailOptions, function (error, response) {
         if (error && Object.keys(error).length) {
-          return res.status(400).json({ message: 'Error while sending mail' ,error });
+          return res.status(400).json({ message: 'Error while sending mail', error });
         } else {
           return res.status(200).json({ message: 'Successfully sent email.' });
         }
       });
-    }catch(err){
-      return res.status(400).json({ message: 'Error while sending mail', error:err });
+    } catch (err) {
+      return res.status(400).json({ message: 'Error while sending mail', error: err });
     }
   };
 }

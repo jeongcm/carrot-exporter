@@ -3,6 +3,9 @@ import { HttpException } from '@exceptions/HttpException';
 import { isEmpty } from '@utils/util';
 import { CreateInvitationDto } from '@dtos/invitation.dto';
 import { Invitation } from '@/interfaces/invitation.interface';
+import config from 'config';
+
+// RYAN: please keep it in our convention using import
 const nodemailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
 const handlebars = require('handlebars');
@@ -10,8 +13,8 @@ const fs = require('fs');
 const path = require('path');
 
 const auth = {
-  api_key: process.env.NC_NODE_MAILGUN_API_KEY,
-  domain: process.env.NC_NODE_MAILGUN_DOMAIN,
+  api_key: config.email.mailgun.apiKey,
+  domain: config.email.mailgun.domain,
 };
 
 class InvitationService {
@@ -25,8 +28,8 @@ class InvitationService {
   public sendInvitationMail = (req, res) => {
     try {
       const emailTemplateSource = req.body.newUser
-        ? fs.readFileSync(path.join(__dirname, '../templates/newUserEmail.hbs'), 'utf8')
-        : fs.readFileSync(path.join(__dirname, '../templates/tenancyMail.hbs'), 'utf8');
+        ? fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/newUserEmail.hbs'), 'utf8')
+        : fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/tenancyMail.hbs'), 'utf8');
       const mailgunAuth = { auth };
       const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
       const template = handlebars.compile(emailTemplateSource);
@@ -44,9 +47,9 @@ class InvitationService {
       }
 
       const mailOptions = {
-        from: from || 'jaswant.singh@exubers.com',
+        from: from || config.email.defaultFrom,
         to: email,
-        subject: subject || 'Email Verification from Exubers',
+        subject: subject || 'Email Verification from Nexclipper',
         html: htmlToSend,
       };
       smtpTransport.sendMail(mailOptions, function (error, response) {

@@ -4,6 +4,7 @@ import { User } from '@interfaces/users.interface';
 import userService from '@services/users.service';
 import TokenService from '@services/token.service';
 import DB from 'databases';
+import config from 'config';
 const crypto = require('crypto');
 
 class UsersController {
@@ -104,16 +105,23 @@ class UsersController {
       if (!userDetail) {
         return res.status(200).json({ ok: false, message: 'USER_NOT_FOUND_WITH_THIS_EMAIL_ID' });
       }
-      let reset_token = crypto.randomBytes(32).toString("hex");
-      let obj = {
+
+      //RYAN: we should really move this inside the token service FROM:
+      const resetToken = crypto.randomBytes(32).toString('hex');
+      const obj = {
         userId: userDetail.id,
-        token: reset_token
+        token: resetToken,
       };
+      // RYAN: till HERE. One of the reasons that we might reluctant to put into token
+      // is the name "token" is away too ambiguous.
+      // What if we call it recoverPasswordToken Service?
+      // What if we call createRecoverPasswordToken method?
+
       await this.tokenService.createTokenDetail(obj);
-      req.body['from'] = process.env.NC_NODE_FROM_MAIL;
+      req.body['from'] = config.email.defaultFrom;
       req.body['email'] = email;
       req.body['username'] = userDetail.username;
-      req.body['reset_token'] = reset_token;
+      req.body['reset_token'] = resetToken;
       req.body['subject'] = 'Reset Password !!';
       return await this.userService.sendRecoveryMail(req, res);
     } catch (err) {
@@ -123,26 +131,26 @@ class UsersController {
 
   public resetPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const {  newPassword } = req.body;
+      const { newPassword } = req.body;
       const { reset_token } = req.query;
       const token = await this.tokenService.findTokenDetail(reset_token);
       const userDetails = await this.userService.findUserById(token.userId);
       if (!token) {
         return res.status(400).json({ message: 'Invalid Token' });
       }
-      if(token.expiryTime - Date.now()<0){
+      if (token.expiryTime - Date.now() < 0) {
         return res.status(400).json({ message: 'Token has been expired, Please try resetting again' });
       }
-      await this.userService.updateUser(token.userId, {loginPw:newPassword});
-      req.body['from'] = process.env.NC_NODE_FROM_MAIL;
-      req.body['subject'] = 'Password Reset Successfully !!';
+      await this.userService.updateUser(token.userId, { loginPw: newPassword });
+      req.body['from'] = config.email.defaultFrom;
+      req.body['subject'] = 'Password Reset Successfully!!';
       req.body['email'] = userDetails.email;
       req.body['isResetMail'] = true;
       return await this.userService.sendRecoveryMail(req, res);
-
-
     } catch (err) {
-
+      // RYAN: some catch (err) were missing res return
+      // let's use next and pass it to our routes
+      next(err);
     }
   };
 }

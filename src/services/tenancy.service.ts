@@ -19,7 +19,7 @@ class TenancyService {
     return allUser;
   }
 
-  public async findTenancyById(id: string): Promise<Tenancy> {
+  public async findTenancyById(id: number): Promise<Tenancy> {
     if (isEmpty(id)) throw new HttpException(400, 'Not a valid tenancy');
 
     const findTenancy: Tenancy = await this.tenancies.findByPk(id);
@@ -45,9 +45,8 @@ class TenancyService {
     return createTenancyData;
   }
 
-  public async createTenancyMember(tenancyData: CreateTenancyMemberDto, currentUserId: string): Promise<TenancyMember> {
+  public async createTenancyMember(tenancyData: CreateTenancyMemberDto, currentUserId: number): Promise<TenancyMember> {
     if (isEmpty(tenancyData)) throw new HttpException(400, 'Tenancy Data cannot be blank');
-    console.log('tenancyData', tenancyData);
     const newTenancy = {
       userName: tenancyData.userName,
       userId: tenancyData.userId,
@@ -60,12 +59,11 @@ class TenancyService {
       isDeleted: tenancyData.isDeleted,
       isActivated: tenancyData.isActivated,
     };
-    console.log('newtenancy', newTenancy);
     const createTenancyData: TenancyMember = await this.tenancyMember.create(newTenancy);
     return createTenancyData;
   }
 
-  public async findAllTenancyMembers(tenancyId: string): Promise<TenancyMember[]> {
+  public async findAllTenancyMembers(tenancyId: number): Promise<TenancyMember[]> {
     // const allTenancyMembers: TenancyMember[] = await this.tenancyMember.findAll({ where: { isDeleted: false, tenancyId } });
 
     const allTenancyMembers: TenancyMember[] = await this.tenancyMember.findAll({
@@ -86,7 +84,7 @@ class TenancyService {
     return allTenancyMembers;
   }
 
-  public async updateTenancy(tenancyId: string, tenancyData: CreateTenancyDto): Promise<Tenancy> {
+  public async updateTenancy(tenancyId: number, tenancyData: CreateTenancyDto): Promise<Tenancy> {
     if (isEmpty(tenancyData)) throw new HttpException(400, 'Tenancy Data cannot be blank');
     const findTenancy: Tenancy = await this.tenancies.findByPk(tenancyId);
     if (!findTenancy) throw new HttpException(409, "Tenancy doesn't exist");
@@ -95,28 +93,28 @@ class TenancyService {
     return updateUser;
   }
 
-  public async deleteTenancy(tenancyId: string): Promise<Tenancy> {
+  public async deleteTenancy(tenancyId: number): Promise<Tenancy> {
     if (isEmpty(tenancyId)) throw new HttpException(400, 'Tenancyid is required');
     const findTenancy: Tenancy = await this.tenancies.findByPk(tenancyId);
     if (!findTenancy) throw new HttpException(409, "Tenancy doesn't exist");
     await this.tenancies.update({ isDeleted: true }, { where: { id: tenancyId } });
     return findTenancy;
   }
-  public async deleteTenancyMember(tenancyId: string): Promise<TenancyMember> {
+  public async deleteTenancyMember(tenancyId: number): Promise<TenancyMember> {
     if (isEmpty(tenancyId)) throw new HttpException(400, 'Tenancyid is required');
     const findTenancyMember: TenancyMember = await this.tenancyMember.findOne({ where: { tenancyId, isDeleted: false } });
     if (!findTenancyMember) throw new HttpException(409, "Tenancy doesn't exist");
     await this.tenancyMember.update({ isDeleted: true }, { where: { id: findTenancyMember.id } });
     return findTenancyMember;
   }
-  public async findTenancyMember(tenancyMemberId: string): Promise<TenancyMember> {
+  public async findTenancyMember(tenancyMemberId: number): Promise<TenancyMember> {
     if (isEmpty(tenancyMemberId)) throw new HttpException(400, 'TenancyMemberid is required');
     const findTenancyMember: TenancyMember = await this.tenancyMember.findByPk(tenancyMemberId);
     if (!findTenancyMember) throw new HttpException(409, "Tenancy doesn't exist");
     return findTenancyMember;
   }
 
-  public async updateTenancyMemberToUser(userId, tenancyId: string): Promise<TenancyMember> {
+  public async updateTenancyMemberToUser(userId, tenancyId: number): Promise<TenancyMember> {
     if (isEmpty(tenancyId)) throw new HttpException(400, 'tenancyId is required');
     const userDetail: User = await this.user.findByPk(userId);
     const tenancyDetail: Tenancy = await this.tenancies.findByPk(tenancyId);
@@ -133,7 +131,7 @@ class TenancyService {
     await this.user.update({...updatedData }, { where: { id: tenancyId } });
     return;
   }
-  
+
 }
 
 export default TenancyService;

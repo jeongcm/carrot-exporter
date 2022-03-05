@@ -1,5 +1,6 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { CurrentUser } from '@/interfaces/users.interface';
+import config from '@/config';
 /**
  * @param  {} req
  * @returns payload
@@ -7,7 +8,7 @@ import { CurrentUser } from '@/interfaces/users.interface';
 export const currentUser = (req): CurrentUser => {
   const currentCookie = req.cookies['X-AUTHORIZATION'];
   if (currentCookie) {
-    const secretKey: string = process.env.NC_NODE_SECRET_KEY;
+    const secretKey: string = config.auth.jwtSecretKey;
     const payload = jwt.verify(currentCookie, secretKey) as JwtPayload;
     const currentUser: CurrentUser = {
       id: payload?.id,

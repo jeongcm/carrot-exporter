@@ -20,7 +20,7 @@ class IncidentService {
   public incidentRelAlert = DB.IncidentRelAlert;
   public incidentAction = DB.IncidentAction;
 
-  public async getAllIncidents(currentTenancyId: string): Promise<IIncident[]> {
+  public async getAllIncidents(currentTenancyId: number): Promise<IIncident[]> {
     const allIncidents: IIncident[] = await this.incident.findAll({
       where: { isDeleted: 0, tenancyId: currentTenancyId },
       order: [['createdAt', 'DESC']],
@@ -50,7 +50,7 @@ class IncidentService {
     return incident;
   }
 
-  public async getAlertsByIncidentId(id: number, currentTenancyId: string): Promise<IIncidentRelAlert[]> {
+  public async getAlertsByIncidentId(id: number, currentTenancyId: number): Promise<IIncidentRelAlert[]> {
     const alerts: IIncidentRelAlert[] = await this.incidentRelAlert.findAll({
       where: { incidentId: id },
       include: [
@@ -123,7 +123,7 @@ class IncidentService {
     return incidentActions;
   }
 
-  public async getIncidentCounts(currentTenancyId: string): Promise<IIncidentCounts> {
+  public async getIncidentCounts(currentTenancyId: number): Promise<IIncidentCounts> {
     const closedAmount = await this.incident.count({
       where: { isDeleted: 0, status: 'CLOSED', tenancyId: currentTenancyId },
     });
@@ -147,7 +147,7 @@ class IncidentService {
     return incidentCounts;
   }
 
-  public async createIncident(incidentData: CreateIncidentDto, currentUserId: string, currentTenancyId: string): Promise<IIncident> {
+  public async createIncident(incidentData: CreateIncidentDto, currentUserId: number, currentTenancyId: number): Promise<IIncident> {
     if (isEmpty(incidentData)) throw new HttpException(400, 'Incident must not be empty');
 
     const { assigneeId, title, note, status, priority, dueDate, relatedAlertIds, actions } = incidentData;
@@ -189,7 +189,7 @@ class IncidentService {
     return createIncidentData;
   }
 
-  public async deleteIncidentById(id: number, currentUserId: string): Promise<[number, IncidentModel[]]> {
+  public async deleteIncidentById(id: number, currentUserId: number): Promise<[number, IncidentModel[]]> {
     const deletedIncident: [number, IncidentModel[]] = await this.incident.update({ isDeleted: 1, updatedBy: currentUserId }, { where: { id } });
     await this.incidentRelAlert.destroy({ where: { incidentId: id } });
     await this.incidentAction.destroy({ where: { incidentId: id } });
@@ -197,7 +197,7 @@ class IncidentService {
     return deletedIncident;
   }
 
-  public async updateIncident(id: number, incidentData: UpdateIncidentDto, currentUserId: string): Promise<IIncident> {
+  public async updateIncident(id: number, incidentData: UpdateIncidentDto, currentUserId: number): Promise<IIncident> {
     const { relatedAlertIds, actions } = incidentData;
 
     await this.incident.update({ ...incidentData, updatedBy: currentUserId }, { where: { id } });
@@ -231,13 +231,13 @@ class IncidentService {
     return this.getIncidentById(id);
   }
 
-  public async updateIncidentStatus(id: number, incidentStatusData: UpdateIncidentStatusDto, currentUserId: string): Promise<IIncident> {
+  public async updateIncidentStatus(id: number, incidentStatusData: UpdateIncidentStatusDto, currentUserId: number): Promise<IIncident> {
     await this.incident.update({ status: incidentStatusData.status, updatedBy: currentUserId }, { where: { id } });
 
     return this.getIncidentById(id);
   }
 
-  public async createIncidentAction(actionData: any, currentUserId: string, incidentId: number): Promise<IIncidentAction> {
+  public async createIncidentAction(actionData: any, currentUserId: number, incidentId: number): Promise<IIncidentAction> {
     if (isEmpty(actionData)) throw new HttpException(400, 'Incident must not be empty');
 
     const createActionData: IIncidentAction = await this.incidentAction.create({
@@ -249,7 +249,7 @@ class IncidentService {
     return createActionData;
   }
 
-  public async updateIncidentAction(actionData: any, currentUserId: string, incidentId: number, actionId: number): Promise<IIncidentAction> {
+  public async updateIncidentAction(actionData: any, currentUserId: number, incidentId: number, actionId: number): Promise<IIncidentAction> {
     if (isEmpty(actionData)) throw new HttpException(400, 'Incident must not be empty');
 
     await this.incidentAction.update(
@@ -264,7 +264,7 @@ class IncidentService {
     return updateResult;
   }
 
-  public async deleteIncidentActionById(incidentId: number, currentUserId: string, actionId: number): Promise<[number, IncidentActionModel[]]> {
+  public async deleteIncidentActionById(incidentId: number, currentUserId: number, actionId: number): Promise<[number, IncidentActionModel[]]> {
     const deletedIncidentAction: [number, IncidentActionModel[]] = await this.incidentAction.update(
       { isDeleted: 1, updatedBy: currentUserId },
       { where: { id: actionId, incidentId } },

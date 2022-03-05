@@ -16,14 +16,15 @@ import IncidentRelAlertModel from '@/models/incidentRelAlert.model';
 import InvitationModel from '@/models/invitation.model';
 import IncidentActionModel from '@/models/incidentAction.model';
 import TenancyMemberModel from '@/models/tenancyMember.model';
+import config from 'config';
 
-const host = process.env.NC_NODE_DB_CONFIG_HOST;
-const user = process.env.NC_NODE_DB_CONFIG_USER;
-const password = process.env.NC_NODE_DB_CONFIG_PASSWORD;
-const database = process.env.NC_NODE_DB_CONFIG_DB_NAME;
+const host = config.db.mariadb.host;
+const user = config.db.mariadb.user;
+const password = config.db.mariadb.password;
+const database = config.db.mariadb.dbName;
 const pool = {
-  min: Number(process.env.NC_NODE_DB_CONFIG_POOL_MIN),
-  max: Number(process.env.NC_NODE_DB_CONFIG_POOL_MAX),
+  min: config.db.mariadb.poolMin,
+  max: config.db.mariadb.poolMax,
 };
 const sequelize = new Sequelize.Sequelize(database, user, password, {
   host: host,
@@ -37,9 +38,9 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   },
   pool: {
     min: pool.min,
-    max: pool.max
+    max: pool.max,
   },
-  logQueryParameters: process.env.NODE_ENV === 'development',
+  logQueryParameters: config.nodeEnv === 'development',
   logging: (query, time) => {
     logger.info(time + 'ms' + ' ' + query);
   },

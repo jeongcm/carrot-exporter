@@ -19,13 +19,14 @@ export type TenancyMemberCreationAttributes = Optional<
 >;
 
 export class TenancyMemberModel extends Model<TenancyMember> implements TenancyMember {
-  public id: string;
+  public id: number;
+  public uuid: string;
   public userName: string;
-  public userId: string;
+  public userId: number;
   public userRole: 'owner' | 'member' | 'maintainer';
   public verificationCode: string;
   public tenancyLastAccess: Date;
-  public tenancyId: string;
+  public tenancyId: number;
   public isDeleted: boolean;
   public isActivated: boolean;
   public invitedBy: string;
@@ -38,6 +39,12 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
   TenancyMemberModel.init(
     {
       id: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      uuid: {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
@@ -45,11 +52,11 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
       },
       userId: {
         allowNull: false,
-        type: DataTypes.UUID,
-        // references:{
-        //   model:UserModel,
-        //   key:"id"
-        // }
+        type: DataTypes.BIGINT,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
       },
       userName: {
         allowNull: false,

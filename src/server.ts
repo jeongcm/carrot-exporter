@@ -1,5 +1,3 @@
-process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
-
 import 'dotenv/config';
 import App from '@/app';
 import AuthRoute from '@routes/auth.route';
@@ -12,10 +10,7 @@ import LogRoute from '@routes/log.route';
 import ClusterRoute from '@routes/cluster.route';
 import ChannelRoute from '@routes/channel.route';
 import IncidentRoute from '@routes/incident.route';
-import  InvitationRoute from '@routes/invitation.route';
-import validateEnv from '@utils/validateEnv';
-
-validateEnv();
+import InvitationRoute from '@routes/invitation.route';
 
 const app = new App([
   new IndexRoute(),
@@ -28,7 +23,7 @@ const app = new App([
   new ClusterRoute(),
   new ChannelRoute(),
   new IncidentRoute(),
-  new InvitationRoute()
+  new InvitationRoute(),
 ]);
 
 app.listen();

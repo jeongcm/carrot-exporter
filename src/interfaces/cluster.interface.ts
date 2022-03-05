@@ -1,6 +1,6 @@
 import { ClusterP8sService, IClusterService } from './clusterService.interface';
 
-import { Platform } from '@/enums';
+import { PlatformEnum } from '@/enums';
 
 export interface ICluster {
   agentStatus: string;
@@ -25,7 +25,7 @@ export interface ICluster {
   installCommand: string;
   name: string;
   objectId: number;
-  platform: Platform;
+  platform: PlatformEnum;
   primaryAgentKey: string;
   provider: string;
   tags: string;
@@ -35,16 +35,17 @@ export interface ICluster {
 }
 
 export interface IClusterAdd {
-  id: string;
+  id: number;
+  uuid: string;
+  tenancyId: number;
   description: string;
   global: boolean;
   icon: string;
   installParams: string;
   name: string;
   // objectId: number;
-  platform: Platform;
+  platform: PlatformEnum;
   tags: string;
-  tenancyId: string;
   isDeleted: boolean;
 }
 
@@ -172,7 +173,7 @@ export interface IGlobalViewCluster {
     | 'INSTALL_FAILED'
     | 'NOT_INSTALLED';
   name: string;
-  platform: 'AWS' | 'baremetal' | 'kubernetes';
+  platform: PlatformEnum;
   primaryAgentKey: string;
   tenancyId: number;
 }

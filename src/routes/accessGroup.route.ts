@@ -1,3 +1,9 @@
+/*
+Access Group Routes
+
+Notion:
+https://www.notion.so/nexclipper/Feature-Access-Group-21340340a14c4037b22ebda3ebc76e83
+*/
 import { Router } from 'express';
 import AccessGroupController from '@controllers/accessGroup.controller';
 import { CreateAccessGroupDto } from '@dtos/accessGroup.dto';
@@ -5,7 +11,6 @@ import { Routes } from '@interfaces/routes.interface';
 import validationMiddleware from '@middlewares/validation.middleware';
 import AuthService from '@services/auth.service';
 import authMiddleware from '@middlewares/auth.middleware';
-
 
 class AccessGroupsRoute implements Routes {
   public router = Router();

@@ -44,6 +44,12 @@ export default function (sequelize: Sequelize): typeof UserModel {
   UserModel.init(
     {
       id: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      uuid: {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,

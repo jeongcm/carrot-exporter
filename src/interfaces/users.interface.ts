@@ -31,5 +31,5 @@ export interface CurrentUser {
 }
 
 export interface CurrentTenancy {
-  tenancyId: string;
+  tenancyId: number;
 }

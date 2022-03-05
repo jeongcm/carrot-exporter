@@ -3,7 +3,7 @@ import { CreateChannelDto } from '@dtos/channel.dto';
 import { HttpException } from '@exceptions/HttpException';
 import { Channel } from '@interfaces/channel.interface';
 import { isEmpty } from '@utils/util';
-import { ChannelType, Platform } from '../enums';
+import { ChannelType, Platform } from '../types';
 import { AccessGroupChannel } from '@interfaces/accessGroupChannel.interface';
 import { AccessGroupModel } from '@/models/accessGroup.model';
 
@@ -16,7 +16,7 @@ class ChannelService {
     return allUser;
   }
 
-  public async findChannelById(id: string): Promise<Channel> {
+  public async findChannelById(id: number): Promise<Channel> {
     if (isEmpty(id)) throw new HttpException(400, 'Not a valid channel');
 
     const findChannel: Channel = await this.channels.findByPk(id);
@@ -25,7 +25,7 @@ class ChannelService {
     return findChannel;
   }
 
-  public async createChannel(channelData: CreateChannelDto, currentUserId: string): Promise<Channel> {
+  public async createChannel(channelData: CreateChannelDto, currentUserId: number): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const currentDate = new Date();
     const newChannel = {
@@ -43,7 +43,7 @@ class ChannelService {
     return createChannelData;
   }
 
-  public async updateChannel(channelId: string, channelData: CreateChannelDto, currentUserId: string): Promise<Channel> {
+  public async updateChannel(channelId: number, channelData: CreateChannelDto, currentUserId: number): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const findChannel: Channel = await this.channels.findByPk(channelId);
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
@@ -58,7 +58,7 @@ class ChannelService {
     return updateUser;
   }
 
-  public async deleteChannel(channelId: string): Promise<Channel> {
+  public async deleteChannel(channelId: number): Promise<Channel> {
     if (isEmpty(channelId)) throw new HttpException(400, 'Channelid is required');
     const findChannel: Channel = await this.channels.findByPk(channelId);
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
@@ -66,7 +66,7 @@ class ChannelService {
     return findChannel;
   }
 
-  public async getAccessGroupByChannels(channelId: string): Promise<AccessGroupChannel[]> {
+  public async getAccessGroupByChannels(channelId: number): Promise<AccessGroupChannel[]> {
     const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({
       where: { channelId: channelId, isDeleted: false },
       attributes: ['id'],

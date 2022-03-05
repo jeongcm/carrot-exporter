@@ -120,3 +120,6 @@ dist
 
 # misc
 .DS_Store
+
+# jsdocs
+jsdocs

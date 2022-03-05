@@ -11,7 +11,7 @@ class AuthController {
     try {
       const userData: CreateUserDto = req.body;
       const signUpUserData: User = await this.authService.signup(userData);
-      let createdData = {
+      const createdData = {
         id: signUpUserData.id,
         email: signUpUserData.email,
         username: signUpUserData.username,
@@ -37,7 +37,7 @@ class AuthController {
     try {
       const userData: CreateUserDto = req.body;
       const { cookie, findUser, token } = await this.authService.login(userData);
-      let loggedInUser = {
+      const loggedInUser = {
         id: findUser.id,
         email: findUser.email,
         username: findUser.username,
@@ -66,9 +66,16 @@ class AuthController {
     }
   };
 
-  public info = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getCurrentUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    if (!req.user) {
+      res.status(404).json({
+        ok: false,
+        msg: 'no user found',
+      });
+    }
+
     try {
-      const userData: User = await this.authService.info(req);
+      const userData: User = await this.authService.getUser(req.user.id);
       res.status(200).json(userData);
     } catch (error) {
       next(error);

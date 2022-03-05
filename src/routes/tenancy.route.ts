@@ -7,7 +7,6 @@ import { Routes } from '@interfaces/routes.interface';
 import validationMiddleware from '@middlewares/validation.middleware';
 import AuthService from '@services/auth.service';
 import authMiddleware from '@middlewares/auth.middleware';
-import Passport from 'provider/passport'
 class TenancyRoute implements Routes {
   // public path = '/users/tenancies';
   public router = Router();
@@ -32,11 +31,7 @@ class TenancyRoute implements Routes {
       validationMiddleware(CreateTenancyMemberDto, 'body'),
       this.tenancyController.createTenancyMember,
     );
-    this.router.put(
-      '/current-tenancy/:tenancyId',
-      authMiddleware,
-      this.tenancyMemberController.updateTenancyMemberToUser,
-    );
+    this.router.put('/current-tenancy/:tenancyId', authMiddleware, this.tenancyMemberController.updateTenancyMemberToUser);
 
     this.router.get('/tenancies/:tenancyId/members', authMiddleware, this.tenancyController.getAllTenancyMember);
     this.router.delete('/tenancies/:tenancyId/members', authMiddleware, this.tenancyController.deleteTenancyMember);

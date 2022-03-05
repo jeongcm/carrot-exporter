@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IClusterAdd } from '@interfaces/cluster.interface';
+import { PlatformEnum } from '@/enums';
 
 export type ClusterCreationAttributes = Optional<
   IClusterAdd,
@@ -7,15 +8,16 @@ export type ClusterCreationAttributes = Optional<
 >;
 
 export class ClusterModel extends Model<IClusterAdd, ClusterCreationAttributes> implements IClusterAdd {
-  public id: string;
+  public id: number;
+  public uuid: string;
+  public tenancyId: number;
   public description: string;
   public global: boolean;
   public icon: string;
   public installParams: string;
   public name: string;
-  public platform: 'AWS' | 'baremetal' | 'kubernetes';
+  public platform: PlatformEnum;
   public tags: string;
-  public tenancyId: string;
   public isDeleted: boolean;
 
   public readonly createdAt!: Date;
@@ -26,10 +28,20 @@ export default function (sequelize: Sequelize): typeof ClusterModel {
   ClusterModel.init(
     {
       id: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      uuid: {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
+      },
+      tenancyId: {
+        allowNull: true,
+        type: DataTypes.BIGINT,
       },
       description: {
         allowNull: false,
@@ -56,10 +68,6 @@ export default function (sequelize: Sequelize): typeof ClusterModel {
         type: DataTypes.STRING(45),
       },
       tags: {
-        allowNull: true,
-        type: DataTypes.STRING(45),
-      },
-      tenancyId: {
         allowNull: true,
         type: DataTypes.STRING(45),
       },

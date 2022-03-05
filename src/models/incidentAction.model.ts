@@ -28,6 +28,12 @@ export default function (sequelize: Sequelize): typeof IncidentActionModel {
         allowNull: false,
         primaryKey: true,
       },
+      uuid: {
+        primaryKey: true,
+        allowNull: false,
+        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.UUID,
+      },
       incidentId: {
         type: DataTypes.BIGINT,
         allowNull: false,

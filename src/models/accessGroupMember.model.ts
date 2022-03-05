@@ -7,9 +7,9 @@ export type AccessGroupMemberCreationAttributes = Optional<
 >;
 
 export class AccessGroupMemberModel extends Model<AccessGroupMember, AccessGroupMemberCreationAttributes> implements AccessGroupMember {
-  public id: string;
-  public accessGroupId: string;
-  public userId: string;
+  public id: number;
+  public accessGroupId: number;
+  public userId: number;
   public createdBy: string;
   public updatedBy: string;
   public isDeleted: boolean;
@@ -22,6 +22,12 @@ export default function (sequelize: Sequelize): typeof AccessGroupMemberModel {
   AccessGroupMemberModel.init(
     {
       id: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      uuid: {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
@@ -29,11 +35,11 @@ export default function (sequelize: Sequelize): typeof AccessGroupMemberModel {
       },
       accessGroupId: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.BIGINT,
       },
       userId: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.BIGINT,
       },
       createdBy: {
         allowNull: false,

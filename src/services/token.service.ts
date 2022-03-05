@@ -1,15 +1,8 @@
 import bcrypt from 'bcrypt';
 import DB from 'databases';
-import { CreateUserDto } from '@dtos/users.dto';
-import { HttpException } from '@exceptions/HttpException';
 import { IToken } from '@interfaces/token.interface';
-import { isEmpty } from '@utils/util';
-const nodemailer = require('nodemailer');
-const mg = require('nodemailer-mailgun-transport');
-const handlebars = require('handlebars');
-const fs = require('fs');
-const path = require('path');
 
+// RYAN: this token can do more.
 class TokenService {
   public tokens = DB.Tokens;
 

@@ -1,5 +1,3 @@
-process.env['NODE_CONFIG_DIR'] = __dirname + '/configs';
-
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -10,23 +8,25 @@ import morgan from 'morgan';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import session from 'express-session';
-const passport = require('passport');
 import DB from 'databases';
 import { Routes } from '@interfaces/routes.interface';
 import errorMiddleware from '@middlewares/error.middleware';
 import { logger, stream } from '@utils/logger';
 import Passport from './provider/passport';
 import { Request, Response, NextFunction } from 'express';
+import config from 'config';
 
+// RYAN: for git commit, please do not just use wip, as it's impossible to track it in logs. Please at least mark the ticket number:
+// eg: wip: NEX-1123
 class App {
-  public app: express.Application;
   public port: number;
   public env: string;
+  public app: express.Application;
 
   constructor(routes: Routes[]) {
     this.app = express();
-    this.port = Number(process.env.NC_NODE_PORT) || 5000;
-    this.env = process.env.NC_NODE_ENV || 'development';
+    this.port = Number(config.appPort);
+    this.env = config.nodeEnv;
 
     this.connectToDatabase();
     this.initializeMiddlewares();
@@ -60,9 +60,8 @@ class App {
   }
 
   private initializeMiddlewares() {
-    let logFormat = process.env.NC_NODE_LOG_FORMAT
-    this.app.use(morgan(process.env.NC_NODE_LOG_FORMAT, { stream }));
-    this.app.use(cors({ origin: Boolean(process.env.NC_NODE_CORS_ORIGIN), credentials: process.env.NC_NODE_CORS_CREDENTIALS==="true"  }));
+    this.app.use(morgan(config.logFormat, { stream }));
+    this.app.use(cors({ origin: config.cors.allowAnyOrigin, credentials: config.cors.credentials }));
     this.app.use(hpp());
     this.app.use(helmet());
     this.app.use(compression());

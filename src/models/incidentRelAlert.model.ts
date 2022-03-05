@@ -12,11 +12,11 @@ export default function (sequelize: Sequelize): typeof IncidentRelAlertModel {
   IncidentRelAlertModel.init(
     {
       incidentId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: false,
       },
       alertId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: false,
       },
     },

@@ -1,8 +1,9 @@
 export interface IAlert {
-  tenancyId: string;
+  id: number;
+  uuid: string;
+  tenancyId: number;
   alertName: string;
   from: 'LARI' | 'PROMETHEUS';
-  id: number;
   lastUpdatedAt: Date;
   severity: string;
   source: string;

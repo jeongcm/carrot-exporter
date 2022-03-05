@@ -30,7 +30,7 @@ class ChannelController {
   public createChannel = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const channelData: CreateChannelDto = req.body;
-      let currentUserId = currentUser(req).id;
+      const currentUserId = currentUser(req).id;
       const createChannelData: Channel = await this.channelService.createChannel(channelData, currentUserId);
       res.status(201).json({ data: createChannelData, message: 'created' });
     } catch (error) {
@@ -42,7 +42,7 @@ class ChannelController {
     try {
       const channelId = req.params.id;
       const channelData = req.body;
-      let currentUserId = currentUser(req).id;
+      const currentUserId = currentUser(req).id;
       const updateChannelData: Channel = await this.channelService.updateChannel(channelId, channelData, currentUserId);
       res.status(200).json({ data: updateChannelData, message: 'updated' });
     } catch (error) {

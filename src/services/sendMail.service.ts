@@ -1,3 +1,7 @@
+import config from 'config';
+import urlJoin from 'url-join';
+
+// RYAN: please keep it our convention by using import
 const nodemailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
 const handlebars = require('handlebars');
@@ -6,25 +10,23 @@ const path = require('path');
 const crypto = require('crypto');
 
 const auth = {
-  api_key: process.env.NC_NODE_MAILGUN_API_KEY,
-  domain: process.env.NC_NODE_MAILGUN_DOMAIN,
+  api_key: config.email.mailgun.apiKey,
+  domain: config.email.mailgun.domain,
 };
 class MailService {
   public sendMail = (req, res) => {
-    const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../templates/email.hbs'), 'utf8');
+    const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/verifyEmail.hbs'), 'utf8');
     const mailgunAuth = { auth };
     const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
     const template = handlebars.compile(emailTemplateSource);
     const { email, username } = req.body;
-    let token;
-    token = crypto.randomBytes(48).toString('base64').slice(0, 48);
-    const host = req.get('host');
-    const link = `http://${host}/verify?email=${email}&token=${token}`;
+    const token = crypto.randomBytes(48).toString('base64').slice(0, 48);
+    const link = urlJoin(config.email.verification.verityPageURL, `/verify`) + `?email=${email}&token=${token}`;
     const htmlToSend = template({ link, username });
     const mailOptions = {
-      from: 'jaswant.singh@exubers.com',
+      from: config.email.defaultFrom,
       to: email,
-      subject: 'Email Verification from Exubers',
+      subject: 'Email Verification from Nexclipper',
       html: htmlToSend,
     };
 

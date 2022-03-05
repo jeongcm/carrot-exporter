@@ -23,7 +23,8 @@ export type AlertCreationAttributes = Optional<
 
 export class AlertModel extends Model<IAlert, AlertCreationAttributes> implements IAlert {
   public id: number;
-  public tenancyId: string;
+  public uuid: string;
+  public tenancyId: number;
   public alertName: string;
   public from: 'LARI' | 'PROMETHEUS';
   public severity: string;
@@ -45,14 +46,20 @@ export default function (sequelize: Sequelize): typeof AlertModel {
   AlertModel.init(
     {
       id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
+      uuid: {
+        primaryKey: true,
+        allowNull: false,
+        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.UUID,
+      },
       tenancyId: {
         allowNull: false,
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
       },
       alertName: {
         type: DataTypes.STRING(128),

@@ -1,13 +1,49 @@
-export type Platform = 'AWS' | 'baremetal' | 'kubernetes';
+// RYAN: if there are one or more value under a "type" it's always better to use an enum
+// instead of type a = 'a' | 'b'
 
-export type ChannelType = 'EMAIL' | 'SLACK' | 'WEBHOOK';
+export enum SocialLoginEnum {
+  GOOGLE = 'GOOGLE',
+  GITHUB = 'GITHUB',
+}
 
-export type LogType = 'INDEPENDENT' | 'CHAINED';
+export enum PlatformEnum {
+  AWS = 'AWS',
+  BAREMETAL = 'BAREMETAL',
+  KUBERNETES = 'KUBERNETES',
+}
 
-export type LogOrigin = 'USER' | 'LARI' | 'SYSTEM';
+export enum ChannelTypeEnum {
+  EMAIL = 'EMAIL',
+  SLACK = 'SLACK',
+  WEBHOOK = 'WEBHOOK',
+}
 
-export type LogStatus = 'CLOSED' | 'HIDDEN' | 'OPEN' | 'REFERENCED';
+export enum LogType {
+  INDEPENDENT = 'INDEPENDENT',
+  CHAINED = 'CHAINED',
+}
 
-export type EventStatus = 'CLOSED' | 'HIDDEN' | 'OPEN' | 'REFERENCED';
+export enum LogOrigin {
+  USER = 'USER',
+  LARI = 'LARI',
+  SYSTEM = 'SYSTEM',
+}
 
-export type EventFrom = 'LARI' | 'PROMETHEUS';
+export enum LogStatus {
+  CLOSED = 'CLOSED',
+  HIDDEN = 'HIDDEN',
+  OPEN = 'OPEN',
+  REFERENCED = 'REFERENCED',
+}
+
+export enum EventStatus {
+  CLOSED = 'CLOSED',
+  HIDDEN = 'HIDDEN',
+  OPEN = 'OPEN',
+  REFERENCED = 'REFERENCED',
+}
+
+export enum EventFrom {
+  LARI = 'LARI',
+  PROMETHEUS = 'PROMETHEUS',
+}

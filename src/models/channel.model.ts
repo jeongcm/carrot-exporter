@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Channel } from '@interfaces/channel.interface';
-import { ChannelType } from '@/enums';
+import { ChannelType } from '@/types';
 
 export type ChannelCreationAttributes = Optional<
   Channel,
@@ -8,7 +8,8 @@ export type ChannelCreationAttributes = Optional<
 >;
 
 export class ChannelModel extends Model<Channel, ChannelCreationAttributes> implements Channel {
-  public id: string;
+  public id: number;
+  public uuid: string;
   public channelType: ChannelType;
   public name: string;
   public description: string;
@@ -25,6 +26,12 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
   ChannelModel.init(
     {
       id: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      uuid: {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,

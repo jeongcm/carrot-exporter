@@ -6,7 +6,7 @@ import { UserModel } from './users.model';
 export type TenancyCreationAttributes = Optional<Tenancy, 'id' | 'tenancyCode' | 'tenancyName'>;
 
 export class TenancyModel extends Model<Tenancy> implements Tenancy {
-  public id: string;
+  public id: number;
   public tenancyName: string;
   public tenancyCode: string;
   public tenancyDescription: string;
@@ -22,6 +22,12 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
   TenancyModel.init(
     {
       id: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      uuid: {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,

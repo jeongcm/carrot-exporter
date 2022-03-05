@@ -2,7 +2,9 @@ import { NextFunction, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import DB from '@databases';
 import { HttpException } from '@exceptions/HttpException';
-import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
+import { DataStoredInToken } from '@interfaces/auth.interface';
+import config from 'config';
+
 /**
  * Middleware to be used to authenticate a particular request.
  * @param  {} req
@@ -12,11 +14,12 @@ import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
 const authMiddleware = async (req, res: Response, next: NextFunction) => {
   try {
     if (req.isAuthenticated()) {
-       return next();
+      return next();
     }
-    const Authorization = req.cookies['X-AUTHORIZATION'] || req.header('x-authorization') && req.header('x-authorization').split('Bearer ')[1] || null;
+    const Authorization =
+      req.cookies['X-AUTHORIZATION'] || (req.header('x-authorization') && req.header('x-authorization').split('Bearer ')[1]) || null;
     if (Authorization) {
-      const secretKey: string = process.env.NC_NODE_SECRET_KEY;
+      const secretKey: string = config.auth.jwtSecretKey;
       const verificationResponse = jwt.verify(Authorization, secretKey) as DataStoredInToken;
       const userId = verificationResponse.id;
       const findUser = await DB.Users.findByPk(userId);

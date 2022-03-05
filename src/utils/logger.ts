@@ -1,13 +1,16 @@
 import fs from 'fs';
-import path from 'path';
 import winston from 'winston';
 import winstonDaily from 'winston-daily-rotate-file';
 
-// logs dir
-const logDir: string = path.join(__dirname,process.env.NC_NODE_LOG_DIR);
+// RYAN:
+// 1. As per Sebastian's decision, we are going to enforce /var/log path as default
+// 2. if you really need to set up a custom path, please set NC_LARI_LOG_DIR_OVERRIDE_NOT_FOR_PRODUCTION
 
-if (!fs.existsSync(logDir)) {
-  fs.mkdirSync(logDir);
+// logs dir
+const LOG_DIR = '/var/log';
+
+if (!fs.existsSync(LOG_DIR)) {
+  fs.mkdirSync(LOG_DIR);
 }
 
 // Define log format
@@ -29,8 +32,8 @@ const logger = winston.createLogger({
     new winstonDaily({
       level: 'debug',
       datePattern: 'YYYY-MM-DD',
-      dirname: logDir + '/debug', // log file /logs/debug/*.log in save
-      filename: `%DATE%.log`,
+      dirname: LOG_DIR, // log file /logs/debug/*.log in save
+      filename: `debug.%DATE%.log`,
       maxFiles: 30, // 30 Days saved
       json: false,
       zippedArchive: true,
@@ -39,8 +42,8 @@ const logger = winston.createLogger({
     new winstonDaily({
       level: 'error',
       datePattern: 'YYYY-MM-DD',
-      dirname: logDir + '/error', // log file /logs/error/*.log in save
-      filename: `%DATE%.log`,
+      dirname: LOG_DIR, // log file /logs/error/*.log in save
+      filename: `error.%DATE%.log`,
       maxFiles: 30, // 30 Days saved
       handleExceptions: true,
       json: false,

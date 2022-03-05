@@ -1,12 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
-import { CreateTenancyDto } from '@dtos/tenancy.dto';
-import { CreateTenancyMemberDto } from '@dtos/tenancyMember.dto';
-import { Tenancy } from '@interfaces/tenancy.interface';
+import { NextFunction, Response } from 'express';
 import TenancyService from '@services/tenancy.service';
-import { currentUser } from '@/utils/currentUser';
 import { RequestWithUser } from '@/interfaces/auth.interface';
-import { User } from '@/interfaces/users.interface';
-
 class TenancyMemberController {
   public tenancyService = new TenancyService();
   public updateTenancyMemberToUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {

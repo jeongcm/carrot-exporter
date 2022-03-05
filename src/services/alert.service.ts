@@ -12,7 +12,7 @@ class AlertService {
   public alert = DB.Alerts;
   public slackService = new SlackService();
 
-  public async getAllAlerts(tenancyId: string): Promise<IAlert[]> {
+  public async getAllAlerts(tenancyId: number): Promise<IAlert[]> {
     if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
 
     const allAlerts: IAlert[] = await this.alert.findAll({
@@ -43,7 +43,7 @@ class AlertService {
     return modifiedAlerts;
   }
 
-  public async getAllPinnedAlerts(tenancyId: string): Promise<IAlert[]> {
+  public async getAllPinnedAlerts(tenancyId: number): Promise<IAlert[]> {
     if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
 
     const allPinnedAlerts: IAlert[] = await this.alert.findAll({
@@ -87,7 +87,7 @@ class AlertService {
     return alert;
   }
 
-  public async createAlert(alertData: CreateAlertDto, tenancyId: string): Promise<IAlert> {
+  public async createAlert(alertData: CreateAlertDto, tenancyId: number): Promise<IAlert> {
     if (isEmpty(alertData)) throw new HttpException(400, 'Alert must not be empty');
 
     const createAlertData: IAlert = await this.alert.create({ ...alertData, tenancyId });
