@@ -31,7 +31,10 @@
       "@models/*": ["models/*"],
       "@routes/*": ["routes/*"],
       "@services/*": ["services/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@types/*": ["types/*"],
+      "@enums/*": ["enums/*"],
+      "@config/*": ["config/*"],
     }
   },
   "include": ["src/**/*.ts", "src/**/*.json", ".env", "src/configs/development.js"],
