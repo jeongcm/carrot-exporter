@@ -15,9 +15,9 @@ export default {
     credentials: Boolean(process.env.NC_NODE_CORS_CREDENTIALS),
   },
   email: {
-    defaultFrom: process.env.NC_NODE_FROM_MAIL || 'info@nexclipper.io',
+    defaultFrom: process.env.NC_NODE_EMAIL_DEFAULT_FROM || 'info@nexclipper.io',
     invitation: {
-      from: process.env.NC_NODE_FROM_MAIL || 'info@nexclipper.io',
+      from: process.env.NC_NODE_EMAIL_DEFAULT_FROM || 'info@nexclipper.io',
     },
     passwordReset: {
       resetPageURL: process.env.NC_NODE_EMAIL_PASSWORD_RESET_PAGE_URL,
