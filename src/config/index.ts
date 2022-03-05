@@ -18,8 +18,8 @@ export default {
   nodeEnv: process.env.NC_LARI_ENV || 'development',
   logFormat: process.env.NC_LARI_LOG_FORMAT,
   cors: {
-    allowAnyOrigin: Boolean(process.env.NC_LARI_CORS_ORIGIN) || false,
-    credentials: Boolean(process.env.NC_LARI_CORS_CREDENTIALS),
+    allowAnyOrigin: process.env.NC_LARI_CORS_ORIGIN === 'true' ? Boolean(process.env.NC_LARI_CORS_ORIGIN) : process.env.NC_LARI_CORS_ORIGIN,
+    credentials: process.env.NC_LARI_CORS_CREDENTIALS === 'true' ? Boolean(process.env.NC_LARI_CORS_CREDENTIALS) : process.env.NC_LARI_CORS_CREDENTIALS,
   },
   email: {
     defaultFrom: process.env.NC_LARI_EMAIL_DEFAULT_FROM || 'info@nexclipper.io',
