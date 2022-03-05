@@ -1,5 +1,5 @@
 export interface Tenancy {
-  id: string;
+  id: number;
   tenancyCode: string;
   tenancyName: string;
   tenancyDescription: string;

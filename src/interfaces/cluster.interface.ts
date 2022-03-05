@@ -35,7 +35,9 @@ export interface ICluster {
 }
 
 export interface IClusterAdd {
-  id: string;
+  id: number;
+  uuid: string;
+  tenancyId: number;
   description: string;
   global: boolean;
   icon: string;
@@ -44,7 +46,6 @@ export interface IClusterAdd {
   // objectId: number;
   platform: PlatformEnum;
   tags: string;
-  tenancyId: string;
   isDeleted: boolean;
 }
 

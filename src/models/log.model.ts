@@ -20,10 +20,11 @@ export type AlertCreationAttributes = Optional<
 >;
 
 export class LogModel extends Model<Log, AlertCreationAttributes> implements Log {
+  public id: number;
+  public uuid: string;
   public name: string;
   public from: 'USER' | 'LARI' | 'SYSTEM';
   public type: LogType;
-  public id: string;
   public status: LogStatus;
   public isActive: boolean;
   public createdBy: string;
@@ -40,6 +41,12 @@ export default function (sequelize: Sequelize): typeof LogModel {
   LogModel.init(
     {
       id: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      uuid: {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,

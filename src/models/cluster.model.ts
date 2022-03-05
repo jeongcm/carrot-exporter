@@ -8,7 +8,9 @@ export type ClusterCreationAttributes = Optional<
 >;
 
 export class ClusterModel extends Model<IClusterAdd, ClusterCreationAttributes> implements IClusterAdd {
-  public id: string;
+  public id: number;
+  public uuid: string;
+  public tenancyId: number;
   public description: string;
   public global: boolean;
   public icon: string;
@@ -16,7 +18,6 @@ export class ClusterModel extends Model<IClusterAdd, ClusterCreationAttributes> 
   public name: string;
   public platform: PlatformEnum;
   public tags: string;
-  public tenancyId: string;
   public isDeleted: boolean;
 
   public readonly createdAt!: Date;
@@ -27,10 +28,20 @@ export default function (sequelize: Sequelize): typeof ClusterModel {
   ClusterModel.init(
     {
       id: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      uuid: {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
+      },
+      tenancyId: {
+        allowNull: true,
+        type: DataTypes.BIGINT,
       },
       description: {
         allowNull: false,
@@ -57,10 +68,6 @@ export default function (sequelize: Sequelize): typeof ClusterModel {
         type: DataTypes.STRING(45),
       },
       tags: {
-        allowNull: true,
-        type: DataTypes.STRING(45),
-      },
-      tenancyId: {
         allowNull: true,
         type: DataTypes.STRING(45),
       },

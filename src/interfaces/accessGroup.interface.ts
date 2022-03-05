@@ -1,5 +1,7 @@
 export interface AccessGroup {
-  id: string;
+  id: number;
+  uuid: string;
+  tenancyId: number;
   groupName: string;
   description: string;
   icon: string;
@@ -7,5 +9,4 @@ export interface AccessGroup {
   updatedAt: Date;
   createdBy: string;
   updatedBy: string;
-  tenancyId: string;
 }

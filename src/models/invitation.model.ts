@@ -1,45 +1,55 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Invitation } from '@interfaces/invitation.interface';
-import { TenancyMember } from '@interfaces/tenancyMember.interface';
-import { UserModel } from './users.model';
 
-export type TenancyCreationAttributes = Optional<Invitation, "isActive"| "isAccepted"|  "acceptedAt"| "isRejected" | "rejectedAt"| "tenancyId"| "invitedByUserId"| "token"|"createdAt"|"updatedAt"
+export type TenancyCreationAttributes = Optional<
+  Invitation,
+  'isActive' | 'isAccepted' | 'acceptedAt' | 'isRejected' | 'rejectedAt' | 'tenancyId' | 'invitedByUserId' | 'token' | 'createdAt' | 'updatedAt'
 >;
 
 export class InvitationModel extends Model<Invitation> implements Invitation {
-  public id: string;
+  public id: number;
+  public uuid: string;
+  public tenancyId: number;
+  public invitedByUserId: number;
   public isActive: boolean;
   public isAccepted: boolean;
   public acceptedAt: Date;
   public isRejected: boolean;
   public rejectedAt: Date;
-  public tenancyId: string;
   public invitedTo: string;
-  public invitedByUserId: string; 
   public token: string;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof InvitationModel {
-  try{
-
+  try {
     InvitationModel.init(
       {
         id: {
+          type: DataTypes.BIGINT,
+          autoIncrement: true,
+          allowNull: false,
+          primaryKey: true,
+        },
+        uuid: {
           primaryKey: true,
           allowNull: false,
           defaultValue: DataTypes.UUIDV4,
           type: DataTypes.UUID,
         },
+        invitedByUserId: {
+          allowNull: true,
+          type: DataTypes.BIGINT,
+        },
         isActive: {
           allowNull: false,
-          defaultValue:true,
+          defaultValue: true,
           type: DataTypes.BOOLEAN,
         },
         isAccepted: {
           allowNull: false,
-          defaultValue:false,
+          defaultValue: false,
           type: DataTypes.BOOLEAN,
         },
         acceptedAt: {
@@ -58,10 +68,6 @@ export default function (sequelize: Sequelize): typeof InvitationModel {
         rejectedAt: {
           allowNull: true,
           type: DataTypes.DATE,
-        },
-        invitedByUserId: {
-          allowNull: true,
-          type: DataTypes.UUID,
         },
         invitedTo: {
           allowNull: false,
@@ -87,8 +93,8 @@ export default function (sequelize: Sequelize): typeof InvitationModel {
         sequelize,
       },
     );
-  }catch(err){
+  } catch (err) {
     console.log(err);
   }
-   return InvitationModel;
+  return InvitationModel;
 }

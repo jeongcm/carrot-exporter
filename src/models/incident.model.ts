@@ -1,6 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IIncident } from './../interfaces/incident.interface';
-import { UserModel } from './users.model';
 
 export type IncidentCreationAttributes = Optional<
   IIncident,
@@ -9,8 +8,9 @@ export type IncidentCreationAttributes = Optional<
 
 export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> implements IIncident {
   public id: number;
-  public tenancyId: string;
-  public assigneeId: string;
+  public uuid: string;
+  public tenancyId: number;
+  public assigneeId: number;
   public title: string;
   public note: string;
   public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
@@ -35,11 +35,11 @@ export default function (sequelize: Sequelize): typeof IncidentModel {
         primaryKey: true,
       },
       tenancyId: {
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
         allowNull: false,
       },
       assigneeId: {
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
       },
       title: {
         type: DataTypes.STRING(300),

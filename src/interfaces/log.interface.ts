@@ -1,7 +1,8 @@
 import { LogStatus, LogType } from '@/types';
 
 export interface Log {
-  id: string;
+  id: number;
+  uuid: string;
   name: string;
   from: 'USER' | 'LARI' | 'SYSTEM';
   type: LogType;

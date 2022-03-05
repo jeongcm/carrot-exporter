@@ -7,9 +7,10 @@ export type AccessGroupClusterCreationAttributes = Optional<
 >;
 
 export class AccessGroupClusterModel extends Model<AccessGroupCluster, AccessGroupClusterCreationAttributes> implements AccessGroupCluster {
-  public id: string;
-  public accessGroupId: string;
-  public clusterId: string;
+  public id: number;
+  public uuid: string;
+  public accessGroupId: number;
+  public clusterId: number;
   public createdBy: string;
   public updatedBy: string;
   public isDeleted: boolean;
@@ -22,6 +23,12 @@ export default function (sequelize: Sequelize): typeof AccessGroupClusterModel {
   AccessGroupClusterModel.init(
     {
       id: {
+        type: DataTypes.BIGINT,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
+      uuid: {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
@@ -29,11 +36,11 @@ export default function (sequelize: Sequelize): typeof AccessGroupClusterModel {
       },
       accessGroupId: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.BIGINT,
       },
       clusterId: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.BIGINT,
       },
       createdBy: {
         allowNull: false,

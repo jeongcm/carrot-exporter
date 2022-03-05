@@ -3,8 +3,8 @@ import { isDate } from 'util/types';
 export class CreateInvitationDto {
   @IsString()
   @IsOptional()
-  public id:string
-  
+  public id: number;
+
   @IsBoolean()
   @IsOptional()
   public isActive: boolean;
@@ -15,7 +15,7 @@ export class CreateInvitationDto {
 
   @IsString()
   @IsOptional()
-  public acceptedAt:Date
+  public acceptedAt: Date;
 
   @IsBoolean()
   @IsOptional()
@@ -23,11 +23,11 @@ export class CreateInvitationDto {
 
   @IsString()
   @IsOptional()
-  public rejectedAt:Date
+  public rejectedAt: Date;
 
   @IsString()
   @IsOptional()
-  public tenancyId: string;
+  public tenancyId: number;
 
   @IsString()
   @IsOptional()

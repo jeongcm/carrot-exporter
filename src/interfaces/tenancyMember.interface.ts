@@ -1,9 +1,10 @@
 export interface TenancyMember {
-  id: string;
+  id: number;
+  uuid: string;
   userName: string;
-  userId: string;
+  userId: number;
   userRole: 'owner' | 'member' | 'maintainer';
-  tenancyId: string;
+  tenancyId: number;
   isActivated: boolean;
   invitedBy: string;
   verificationCode: string;

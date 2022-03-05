@@ -40,7 +40,8 @@ export interface ISlackChannel {
 }
 
 export interface Channel {
-  id: string;
+  id: number;
+  uuid: string;
   name: string;
   channelType: ChannelType;
   description: string;
