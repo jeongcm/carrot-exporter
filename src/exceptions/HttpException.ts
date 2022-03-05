@@ -1,3 +1,7 @@
+/**
+ * @param  {number} status
+ * @param  {string} message
+ */
 export class HttpException extends Error {
   public status: number;
   public message: string;

@@ -3,7 +3,12 @@ import jwt from 'jsonwebtoken';
 import DB from '@databases';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, RequestWithUser } from '@interfaces/auth.interface';
-
+/**
+ * Middleware to be used to authenticate a particular request.
+ * @param  {} req
+ * @param  {Response} res
+ * @param  {NextFunction} next
+ */
 const authMiddleware = async (req, res: Response, next: NextFunction) => {
   try {
     if (req.isAuthenticated()) {

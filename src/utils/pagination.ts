@@ -6,7 +6,11 @@ export const getPagination = (req, res): Paginate => {
 
   return { limit, offset };
 };
-
+/**
+ * @param  {} data
+ * @param  {} page
+ * @param  {} limit
+ */
 export const getPagingData = (data, page, limit) => {
   const { count: totalItems, rows } = data;
   const currentPage = page ? +page : 0;

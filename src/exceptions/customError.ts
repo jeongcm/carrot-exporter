@@ -1,3 +1,7 @@
+/**
+ * @param  {string} message
+ * @returns string
+ */
 export abstract class CustomError extends Error {
   abstract statusCode: number;
 

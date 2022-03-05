@@ -1,0 +1,364 @@
+swagger: '2.0'
+info:
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: alerts
+    description: alert API
+
+paths:
+  # [GET] alerts
+  /alerts:
+    get:
+      tags:
+        - alerts
+      summary: Find All Alerts
+      responses:
+        200:
+          description: 'OK'
+          schema:
+            $ref: '#/definitions/getAllAlerts'
+        500:
+          description: 'Server Error'
+    # [POST] alerts
+    post:
+      tags:
+        - alerts
+      summary: Create Alert
+      parameters:
+        - name: body
+          in: body
+          description: Alert Data
+          required: true
+          schema:
+            $ref: '#/definitions/createAlert'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [GET] alerts/id
+  /alerts/{id}:
+    get:
+      tags:
+        - alerts
+      summary: Find Alert By Id
+      parameters:
+        - name: id
+          in: path
+          description: Alert Id
+          required: true
+          type: number
+      responses:
+        200:
+          description: 'OK'
+          schema:
+            $ref: '#/definitions/getAlert'
+        500:
+          description: 'Server Error'
+    # [DELETE] alerts/id
+    delete:
+      tags:
+        - alerts
+      summary: Delete Alert By Id
+      parameters:
+        - name: id
+          in: path
+          description: Alert Id
+          required: true
+          type: number
+      responses:
+        200:
+          description: 'deleted successfully'
+        204:
+          description: 'No Content'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
+  # [GET] alerts/pinned
+  /alerts/pinned:
+    get:
+      tags:
+        - alerts
+      summary: Get Pinned Alerts
+      parameters:
+        - name: id
+          in: path
+          description: PinnedAlert Id
+          required: true
+          type: number
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+  # [PUT] /alerts/pin/id
+  /alerts/pin/{id}:
+    put:
+      tags:
+        - alerts
+      summary: Update Alert Pin By Id
+      parameters:
+        - name: id
+          in: path
+          description: PinnedAlert Id
+          required: true
+          type: number
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [DELETE] /alerts/pin/id
+    delete:
+      tags:
+        - alerts
+      summary: Delete PinnedAlert By Id
+      parameters:
+        - name: id
+          in: path
+          description: PinnedAlert
+          required: true
+          type: number
+      responses:
+        200:
+          description: 'deleted successfully'
+        204:
+          description: 'No Content'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'      
+          
+  
+# definitions
+definitions:
+  getAllAlerts:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: number
+          description: alert id
+          example: 0
+        alertName:
+          type: string
+          descripton: alert name
+          example: string
+        from:
+          type: string
+          enum: [LARI, PROMETHEUS]
+          description: alert from
+          example: LARI
+        severity:
+          type: string
+          description: severity of alert
+          example: string
+        source:
+          type: string
+          description: source of alert
+          example: string
+        summary:
+          type: string
+          description: summary of alert
+          example: string
+        lastUpdatedAt:
+          type: string
+          description: last updated time
+          example: string
+        startAt:
+          type: string
+          description: started time
+          example: string
+        status:
+          type: string
+          enum: [CLOSED, HIDED, OPEN, REFERENCED]
+          description: status of alert
+          example: string
+        createdAt:
+          type: string
+          description: created time
+          example: string
+        updateAt:
+          type: string
+          description: updated time
+          example: string
+  getAlert:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        type: number
+        description: alert id
+        example: 0
+      alertName:
+        type: string
+        descripton: alert name
+        example: string
+      from:
+        type: string
+        enum: [LARI, PROMETHEUS]
+        description: alert from
+        example: LARI
+      severity:
+        type: string
+        description: severity of alert
+        example: string
+      source:
+        type: string
+        description: source of alert
+        example: string
+      summary:
+        type: string
+        description: summary of alert
+        example: string
+      lastUpdatedAt:
+        type: string
+        description: last updated time
+        example: string
+      startAt:
+        type: string
+        description: started time
+        example: string
+      status:
+        type: string
+        enum: [CLOSED, HIDED, OPEN, REFERENCED]
+        description: status of alert
+        example: string
+      createdAt:
+        type: string
+        description: created time
+        example: string
+      updateAt:
+        type: string
+        description: updated time
+        example: string
+  createAlert:
+    type: object
+    required:
+      - alertName
+      - from
+      - severity
+      - source
+      - status
+      - summary
+      - alertRule
+      - node
+      - description
+      - note
+      - numberOfOccurrences
+    properties:
+      alertName:
+        type: string
+        description: alert name
+        example: string
+      from:
+        type: string
+        description: alert from
+        example: LARI
+      severity:
+        type: string
+        description: severity of alert
+        example: string
+      source:
+        type: string
+        description: source of alert
+        example: string
+      status:
+        type: string
+        description: status of alert
+        example: OPEN
+      summary:
+        type: string
+        description: summary of alert
+        example: string
+      alertRule:
+        type: string
+        description: alertRule of alert
+        example: string
+      node:
+        type: string
+        description: node of alert
+        example: string
+      description:
+        type: string
+        description: description of alert
+        example: string
+      note:
+        type: string
+        description: note of alert
+        example: string
+      numberOfOccurrences:
+        type: number
+        description: numberOfOccurrences of alert
+        example: 0
+  getPinnedAlert:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: number
+          description: alert id
+          example: 0
+        alertName:
+          type: string
+          descripton: alert name
+          example: string
+        from:
+          type: string
+          enum: [LARI, PROMETHEUS]
+          description: alert from
+          example: LARI
+        severity:
+          type: string
+          description: severity of alert
+          example: string
+        source:
+          type: string
+          description: source of alert
+          example: string
+        summary:
+          type: string
+          description: summary of alert
+          example: string
+        lastUpdatedAt:
+          type: string
+          description: last updated time
+          example: string
+        startAt:
+          type: string
+          description: started time
+          example: string
+        status:
+          type: string
+          enum: [CLOSED, HIDED, OPEN, REFERENCED]
+          description: status of alert
+          example: string
+        createdAt:
+          type: string
+          description: created time
+          example: string
+        updateAt:
+          type: string
+          description: updated time
+          example: string
+
+  

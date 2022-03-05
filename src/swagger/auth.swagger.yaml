@@ -1,0 +1,235 @@
+swagger: '2.0'
+info:
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: users
+    description: users API
+
+paths:
+  # [GET] users
+  /users:
+    get:
+      tags:
+        - users
+      summary: Find All Users
+      responses:
+        200:
+          description: 'OK'
+          schema:
+            $ref: '#/definitions/getAllUsers'
+        500:
+          description: 'Server Error'
+
+  # [POST] users
+  /signup:
+    post:
+      tags:
+        - users
+      summary: Add User
+      parameters:
+        - name: body
+          in: body
+          description: user Data
+          required: true
+          schema:
+            $ref: '#/definitions/signup'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+  # [POST] users login
+  /login:
+    post:
+      tags:
+        - users
+      summary: User Login
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/login'
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+  # [GET] me
+  /me:
+    get:
+      tags:
+        - users
+      summary: Current User
+      responses:
+        200:
+          description: 'OK'
+          schema:
+            $ref: '#/definitions/me'
+        500:
+          description: 'Server Error'
+  # [GET] logout
+  /logout:
+    get:
+      tags:
+        - users
+      summary: User Logout
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+  # [POST] recoverPassword
+  /recoverPassword:
+    post:
+      tags:
+        - users
+      summary: Recover Password
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/recoverPassword'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        401:
+          description: 'Unauthorized'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+# definitions
+definitions:
+  signup:
+    type: object
+    required:
+      - username
+      - email
+      - loginPw
+      - firstName
+      - lastName
+    properties:
+      username:
+        type: string
+        description: username
+        example: jas
+      email:
+        type: string
+        description: user Email
+        example: jaswant.test@gmail.com
+      loginPw:
+        type: string
+        description: user Password
+        example: admin
+      firstName:
+        type: string
+        description: user firstName
+        example: jaswant
+      lastName:
+        type: string
+        description: user lastname
+        example: singh
+  login:
+    type: object
+    required:
+      - email
+      - loginPw
+    properties:
+      email:
+        type: string
+        description: user Email
+        example: jaswant.test@gmail.com
+      loginPw:
+        type: string
+        description: user Password
+        example: admin
+  getAllUsers:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          description: user uuid
+          example: f9e28e11-08f1-4a35-b6c4-330531e36fd3
+        email:
+          type: string
+          description: user Email
+          example: jaswant.test@gmail.com
+        username:
+          type: string
+          description: username
+          example: jas
+        firstName:
+          type: string
+          description: user firstName
+          example: jaswant
+        lastName:
+          type: string
+          description: user lastname
+          example: singh
+        mobile:
+          type: string
+          description: user mobile number
+          example: 0000000
+        photo:
+          type: string
+          description: user profile photo
+          example: image1
+  me:
+    type: object
+    properties:
+      id:
+        type: string
+        description: user uuid
+        example: f9e28e11-08f1-4a35-b6c4-330531e36fd3
+      email:
+        type: string
+        description: user Email
+        example: jaswant.test@gmail.com
+      username:
+        type: string
+        description: username
+        example: jas
+      firstName:
+        type: string
+        description: user firstName
+        example: jaswant
+      lastName:
+        type: string
+        description: user lastname
+        example: singh
+      mobile:
+        type: string
+        description: user mobile number
+        example: 00000000
+      photo:
+        type: string
+        description: user profile photo
+        example: image1
+  recoverPassword:
+    type: object
+    required:
+      -email
+    properties:
+      email:
+        type: string
+        description: user Email
+        example: jaswant.test@gmail.com

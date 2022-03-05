@@ -90,12 +90,12 @@ class App {
     const options = {
       swaggerDefinition: {
         info: {
-          title: 'REST API',
+          title: 'NEXCLIPPER-NODE API',
           version: '1.0.0',
-          description: 'Example docs',
+          description: 'API TESTING',
         },
       },
-      apis: ['swagger.yaml'],
+      apis: ['src/swagger/*.yaml'],
     };
 
     const specs = swaggerJSDoc(options);

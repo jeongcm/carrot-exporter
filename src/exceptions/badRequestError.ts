@@ -1,5 +1,8 @@
 import { CustomError } from './customError';
-
+/**
+ * @param  {string} publicmessage
+ * @returns this
+ */
 export class BadRequestError extends CustomError {
   statusCode = 400;
 

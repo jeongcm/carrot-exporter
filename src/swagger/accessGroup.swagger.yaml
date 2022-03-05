@@ -1,0 +1,210 @@
+swagger: '2.0'
+info:
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: accessGroup
+    description: accessGroup API
+
+paths:
+  # [POST] accessGroup
+  /accessgroups:
+    post:
+      tags:
+        - accessGroup
+      summary: Create AccessGroup
+      parameters:
+        - name: tenancyId
+          in: header
+          description: tenancyId in header
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: accessGroup data
+          required: true
+          schema:
+            $ref: '#/definitions/createAccessGroup'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [GET] accessGroup
+    get:
+      tags:
+        - accessGroup
+      summary: Find All AccesssGroup
+      parameters:
+        - name: tenancyId
+          in: header
+          description: tenancyId in header
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+  # [GET] accessGroup/my
+  /accessgroups/my:
+    get:
+      tags:
+        - accessGroup
+      summary: AccesssGroup Created By Me
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+  # [GET] /accessgroups/id
+  /accessgroups/{id}:
+    get:
+      tags:
+        - accessGroup
+      summary: Find AccessGroup By Id
+      parameters:
+        - name: id
+          in: path
+          description: AccessGroup Id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [PUT] /accessgroups/id
+    put:
+      tags:
+        - accessGroup
+      summary: Update AccessGroup By Id
+      parameters:
+        - name: id
+          in: path
+          description: AccessGroup Id
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: AccessGroup Data
+          required: true
+          schema:
+            $ref: '#/definitions/updateAccessGroup'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [GET] /accessgroups/id/detail
+  /accessgroups/{id}/detail:
+    get:
+      tags:
+        - accessGroup
+      summary: Find AccessGroup Detail By Id
+      parameters:
+        - name: id
+          in: path
+          description: AccessGroup Id
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [POST] /accessgroups/id/members
+  /accessgroups/{id}/members:
+    post:
+      tags:
+        - accessGroup
+      summary: Add AccessGroup Members
+      parameters:
+        - name: id
+          in: header
+          description: id in header
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: accessGroup data
+          required: true
+          schema:
+            $ref: '#/definitions/createAccessGroupMember'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'  
+    
+# definitions
+definitions:
+  createAccessGroup:
+    type: object
+    required:
+      - groupName
+      - description
+      - icon
+    properties:
+      groupName:
+        type: string
+        description: accessGroup groupName
+        example: Access Group New Name
+      description:
+        type: string
+        description: accessGroup description
+        example: Some description
+      icon:
+        type: string
+        description: accessGroup icon
+        example: sdf
+  updateAccessGroup:
+    type: object
+    required:
+      - groupName
+      - description
+      - icon
+    properties:
+      groupName:
+        type: string
+        description: accessGroup groupName
+        example: Access Group New Name edit
+      description:
+        type: string
+        description: accessGroup description
+        example: Some description edit
+      icon:
+        type: string
+        description: accessGroup icon
+        example: sdf edit
+  createAccessGroupMember:
+    type: array
+    items:
+      type: object
+      properties:
+       userId:
+         type: string
+         description: userId
+         example: example
