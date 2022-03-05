@@ -105,11 +105,18 @@ class UsersController {
       if (!userDetail) {
         return res.status(200).json({ ok: false, message: 'USER_NOT_FOUND_WITH_THIS_EMAIL_ID' });
       }
+
+      //RYAN: we should really move this inside the token service FROM:
       const resetToken = crypto.randomBytes(32).toString('hex');
       const obj = {
         userId: userDetail.id,
         token: resetToken,
       };
+      // RYAN: till HERE. One of the reasons that we might reluctant to put into token
+      // is the name "token" is away too ambiguous.
+      // What if we call it recoverPasswordToken Service?
+      // What if we call createRecoverPasswordToken method?
+
       await this.tokenService.createTokenDetail(obj);
       req.body['from'] = config.email.defaultFrom;
       req.body['email'] = email;
