@@ -53,10 +53,10 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
       userId: {
         allowNull: false,
         type: DataTypes.BIGINT,
-        // references:{
-        //   model:UserModel,
-        //   key:"id"
-        // }
+        references: {
+          model: 'users',
+          key: 'id',
+        },
       },
       userName: {
         allowNull: false,

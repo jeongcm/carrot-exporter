@@ -11,12 +11,23 @@ import { ChannelModel } from '@/models/channel.model';
 import { UserModel } from '@/models/users.model';
 import { ClusterModel } from '@/models/cluster.model';
 
+/**
+ * For Access Group
+ */
 class AccessGroupService {
   public accessGroup = DB.AccessGroup;
   public accessGroupMember = DB.AccessGroupMember;
   public accessGroupCluster = DB.AccessGroupCluster;
   public accessGroupChannel = DB.AccessGroupChannel;
 
+  /**
+   * Create a new Access Group
+   *
+   * @param  {CreateAccessGroupDto} accessGroupData
+   * @param  {number} currentUserId
+   * @param  {number} tenancyId
+   * @returns Promise
+   */
   public async createAccessGroup(accessGroupData: CreateAccessGroupDto, currentUserId: number, tenancyId: number): Promise<AccessGroup> {
     if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
 
