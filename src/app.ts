@@ -15,6 +15,9 @@ import { logger, stream } from '@utils/logger';
 import Passport from './provider/passport';
 import { Request, Response, NextFunction } from 'express';
 import config from 'config';
+
+// RYAN: for git commit, please do not just use wip, as it's impossible to track it in logs. Please at least mark the ticket number:
+// eg: wip: NEX-1123
 class App {
   public app: express.Application;
   public port: number;
