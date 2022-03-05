@@ -40,7 +40,7 @@ vim .env
 ```
 
 ```
-# NC_NODE_PORT=5000
+# NC_LARI_PORT=5000
 ```
 
 ### Run the app
