@@ -1,11 +1,13 @@
 import Sequelize from 'sequelize';
+import { writeFileSync } from 'fs';
+import sequelizeErd from 'sequelize-erd';
 import { logger } from '@/common/utils/logger';
 import UserModel from '@/modules/UserTenancy/models/users.model';
 import AccessGroupModel from '@/modules/UserTenancy/models/accessGroup.model';
 import AlertModel from '@/modules/Alert/models/alert.model';
 import LogModel from '@/modules/Log/models/log.model';
 import TokenModel from '@/modules/UserTenancy/models/token.model';
-import ClusterModel from '@/modules/Resource/models/cluster.model';
+import ClusterModel from '@/modules/K8sResource/models/cluster.model';
 import AccessGroupChannelModel from '@/modules/UserTenancy/models/accessGroupChannel.model';
 import AccessGroupClusterModel from '@/modules/UserTenancy/models/accessGroupCluster.model';
 import AccessGroupMemberModel from '@/modules/UserTenancy/models/accessGroupMember.model';
@@ -113,5 +115,29 @@ DB.sequelize.sync({ force: false }).then(() => {
 });
 
 //-----------------------------------------------------------------------------
+
+/**
+ * Save live ERD in svg on development mode
+ */
+if (config.nodeEnv === 'development') {
+  const saveErdToSvg = async () => {
+    const svg = await sequelizeErd({
+      source: sequelize,
+      engine: 'twopi', // "circo", "dot", "fdp", "neato", "osage", "twopi".
+      arrowShapes: {
+        // Any of the below 4 options formatted ['startShape', 'endShape']. If excluded, the default is used.
+        BelongsToMany: ['crow', 'crow'], // Default: ['none', 'crow']
+        BelongsTo: ['inv', 'crow'], // Default: ['crow', 'none']
+        HasMany: ['crow', 'inv'], // Default: ['none', 'crow']
+        HasOne: ['dot', 'dot'], // Default: ['none', 'none']
+      },
+      arrowSize: 1.2, // Default: 0.6
+      lineWidth: 1, // Default: 0.75
+      color: 'green3', // Default: 'black'
+    });
+    writeFileSync('./readmes/img/erd.svg', svg);
+  };
+  saveErdToSvg();
+}
 
 export default DB;

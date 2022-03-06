@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import ClusterController from '@/modules/Resource/controllers/cluster.controller';
-import { CreateClusterDto } from '@/modules/Resource/dtos/cluster.dto';
+import ClusterController from '@/modules/K8sResource/controllers/cluster.controller';
+import { CreateClusterDto } from '@/modules/K8sResource/dtos/cluster.dto';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import AuthService from '@/modules/UserTenancy/services/auth.service';

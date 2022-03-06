@@ -1,5 +1,5 @@
 import DB from '@/database';
-import { CreateClusterDto } from '@/modules/Resource/dtos/cluster.dto';
+import { CreateClusterDto } from '@/modules/K8sResource/dtos/cluster.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IClusterAdd as Cluster } from '@/common/interfaces/cluster.interface';
 import { isEmpty } from '@/common/utils/util';

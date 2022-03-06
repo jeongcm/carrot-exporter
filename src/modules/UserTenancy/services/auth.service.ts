@@ -9,13 +9,18 @@ import { isEmpty } from '@/common/utils/util';
 import { TenancyModel } from '@/modules/UserTenancy/models/tenancy.model';
 import config from 'config';
 
+/**
+ *
+ *
+ * @memberof UserTenancy
+ */
 class AuthService {
   public users = DB.Users;
   public tenancy = DB.Tenancies;
 
   /**
    * @param  {CreateUserDto} userData
-   * @returns {Promise<User>} a promise that returns User object
+   * @returns {"Promise<User>"} a promise that returns User object
    */
   public async signup(userData: CreateUserDto): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
@@ -47,7 +52,7 @@ class AuthService {
 
   /**
    * @param  {CreateUserDto} userData
-   * @returns {Promise<{ cookie: string; findUser: User; token: string }>} a promise that returns (1) cookie (2) User Object (3) auth token
+   * @returns {"Promise<{ cookie: string; findUser: User; token: string }>"} a promise that returns (1) cookie (2) User Object (3) auth token
    */
   public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User; token: string }> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");

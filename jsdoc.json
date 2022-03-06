@@ -9,6 +9,7 @@
       "excludePattern": "(^|\\/|\\\\)_"
   },
   "plugins": [
+    "plugins/markdown",
     "jsdoc-mermaid",
     "node_modules/jsdoc-babel"
   ],
@@ -17,18 +18,24 @@
     "ignore": ["**/*.(test|spec).ts"],
     "babelrc": true,
     "presets": [["@babel/preset-env", { "targets": { "node": true } }], "@babel/preset-typescript"],
-    "plugins": [["@babel/plugin-proposal-decorators", { "decoratorsBeforeExport": true }], 
+    "plugins": [["@babel/plugin-proposal-decorators", { "decoratorsBeforeExport": true }],
       "@babel/proposal-class-properties", "@babel/proposal-object-rest-spread"]
   },
   "opts": {
-    "readme": "README.md",
+    "readme": "./readmes/README.md",
     "destination": "./jsdocs/",
     "recurse": true,
-    "template": "node_modules/better-docs"
+    "template": "node_modules/better-docs",
+    "tutorials": "./readmes"
   },
   "templates": {
     "cleverLinks": false,
     "monospaceLinks": false,
-    "search": true
+    "search": true,
+    "default": {
+      "staticFiles": {
+        "paths": ["./readmes/img/"]
+      }
+    }
   }
 }
