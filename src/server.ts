@@ -1,16 +1,16 @@
 import 'dotenv/config';
 import App from '@/app';
-import AuthRoute from '@routes/auth.route';
-import IndexRoute from '@routes/index.route';
-import UsersRoute from '@routes/users.route';
-import AccessGroupRoute from '@routes/accessGroup.route';
-import TenancyRoute from '@routes/tenancy.route';
-import AlertRoute from '@routes/alert.route';
-import LogRoute from '@routes/log.route';
-import ClusterRoute from '@routes/cluster.route';
-import ChannelRoute from '@routes/channel.route';
-import IncidentRoute from '@routes/incident.route';
-import InvitationRoute from '@routes/invitation.route';
+import AuthRoute from '@/modules/UserTenancy/routes/auth.route';
+import IndexRoute from '@/modules/ApiGateway/routes/index.route';
+import UsersRoute from '@/modules/UserTenancy/routes/users.route';
+import AccessGroupRoute from '@/modules/UserTenancy/routes/accessGroup.route';
+import TenancyRoute from '@/modules/UserTenancy/routes/tenancy.route';
+import AlertRoute from '@/modules/Alert/routes/alert.route';
+import LogRoute from '@/modules/Log/routes/log.route';
+import ClusterRoute from '@/modules/Resource/routes/cluster.route';
+import ChannelRoute from '@/modules/Messaging/routes/channel.route';
+import IncidentRoute from '@/modules/Incident/routes/incident.route';
+import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
 
 const app = new App([
   new IndexRoute(),
