@@ -22,7 +22,7 @@
       "@babel/proposal-class-properties", "@babel/proposal-object-rest-spread"]
   },
   "opts": {
-    "readme": "./readmes/README.md",
+    "readme": "./readmes/0.README.md",
     "destination": "./jsdocs/",
     "recurse": true,
     "template": "node_modules/better-docs",
