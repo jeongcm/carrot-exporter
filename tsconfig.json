@@ -35,6 +35,8 @@
       "@types/*": ["types/*"],
       "@enums/*": ["enums/*"],
       "@config/*": ["config/*"],
+      "@modules/*": ["modules/*"],
+      "@common/*": ["common/*"],
     }
   },
   "include": ["src/**/*.ts", "src/**/*.json", ".env", "src/configs/development.js"],

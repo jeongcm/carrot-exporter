@@ -8,11 +8,11 @@ import morgan from 'morgan';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import session from 'express-session';
-import DB from 'databases';
-import { Routes } from '@interfaces/routes.interface';
-import errorMiddleware from '@middlewares/error.middleware';
-import { logger, stream } from '@utils/logger';
-import Passport from './provider/passport';
+import DB from '@/database';
+import { Routes } from '@/common/interfaces/routes.interface';
+import errorMiddleware from '@/common/middlewares/error.middleware';
+import { logger, stream } from '@/common/utils/logger';
+import Passport from './modules/UserTenancy/provider/passport';
 import { Request, Response, NextFunction } from 'express';
 import config from 'config';
 
@@ -94,7 +94,7 @@ class App {
           description: 'API TESTING',
         },
       },
-      apis: ['src/swagger/*.yaml'],
+      apis: ['src/modules/**/swagger/*.yaml'],
     };
 
     const specs = swaggerJSDoc(options);
