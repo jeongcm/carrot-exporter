@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateClusterDto } from '@/modules/K8sResource/dtos/cluster.dto';
+import { CreateClusterDto } from '@/modules/K8s/dtos/cluster.dto';
 import { IClusterAdd as Cluster } from '@/common/interfaces/cluster.interface';
-import ClusterService from '@/modules/K8sResource/services/cluster.service';
+import ClusterService from '@/modules/K8s/services/cluster.service';
 
 class ClusterController {
   public clusterService = new ClusterService();

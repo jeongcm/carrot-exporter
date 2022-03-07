@@ -7,7 +7,7 @@ import AccessGroupRoute from '@/modules/UserTenancy/routes/accessGroup.route';
 import TenancyRoute from '@/modules/UserTenancy/routes/tenancy.route';
 import AlertRoute from '@/modules/Alert/routes/alert.route';
 import LogRoute from '@/modules/Log/routes/log.route';
-import ClusterRoute from '@/modules/K8sResource/routes/cluster.route';
+import ClusterRoute from '@/modules/K8s/routes/cluster.route';
 import ChannelRoute from '@/modules/Messaging/routes/channel.route';
 import IncidentRoute from '@/modules/Incident/routes/incident.route';
 import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';

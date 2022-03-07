@@ -9,7 +9,7 @@ import { AccessGroupChannel } from '@/common/interfaces/accessGroupChannel.inter
 import { isEmpty } from '@/common/utils/util';
 import { ChannelModel } from '@/modules/Messaging/models/channel.model';
 import { UserModel } from '@/modules/UserTenancy/models/users.model';
-import { ClusterModel } from '@/modules/K8sResource/models/cluster.model';
+import { ClusterModel } from '@/modules/K8s/models/cluster.model';
 
 /**
  * For Access Group

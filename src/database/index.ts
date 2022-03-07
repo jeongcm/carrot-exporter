@@ -7,7 +7,7 @@ import AccessGroupModel from '@/modules/UserTenancy/models/accessGroup.model';
 import AlertModel from '@/modules/Alert/models/alert.model';
 import LogModel from '@/modules/Log/models/log.model';
 import TokenModel from '@/modules/UserTenancy/models/token.model';
-import ClusterModel from '@/modules/K8sResource/models/cluster.model';
+import ClusterModel from '@/modules/K8s/models/cluster.model';
 import AccessGroupChannelModel from '@/modules/UserTenancy/models/accessGroupChannel.model';
 import AccessGroupClusterModel from '@/modules/UserTenancy/models/accessGroupCluster.model';
 import AccessGroupMemberModel from '@/modules/UserTenancy/models/accessGroupMember.model';

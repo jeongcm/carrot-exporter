@@ -11,10 +11,20 @@ import { AccessGroupMember } from '@/common/interfaces/accessGroupMember.interfa
 import { AccessGroupCluster } from '@/common/interfaces/accessGroupCluster.interface';
 import { AccessGroupChannel } from '@/common/interfaces/accessGroupChannel.interface';
 
+/**
+ * Controller for Access Groups APIs.
+ * @memberof UserTenancy
+ */
 class AccessGroupController {
   public accessGroupService = new AccessGroupService();
 
-  public getAccessGroups = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * getAccessGroup
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async getAccessGroups(req: Request, res: Response, next: NextFunction) {
     const tenancyId = req.headers.tenancyid as string;
 
     try {
@@ -25,7 +35,12 @@ class AccessGroupController {
     }
   };
 
-  public getAccessGroupById = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async getAccessGroupById(req: Request, res: Response, next: NextFunction) {
     try {
       const accessGroupId = req.params.id;
       const findOneUserData: AccessGroup = await this.accessGroupService.findAccessGroupById(accessGroupId);
@@ -34,8 +49,12 @@ class AccessGroupController {
       next(error);
     }
   };
-
-  public getAccessGroupDetail = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async getAccessGroupDetail(req: Request, res: Response, next: NextFunction) {
     try {
       const accessGroupId = req.params.id;
       const accessGroupData: AccessGroup = await this.accessGroupService.findAccessGroupByIdDetail(accessGroupId);
@@ -45,7 +64,13 @@ class AccessGroupController {
     }
   };
 
-  public getAccessGroupsByUserId = async (req: Request, res: Response, next: NextFunction) => {
+  // RYAN: Please use type of funciton declaration instead of public async aaa = async() {} because JSDoc cannot parse it
+  /**
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async getAccessGroupsByUserId(req: Request, res: Response, next: NextFunction) {
     try {
       const currentUserId = currentUser(req).id;
       const findAllAccessGroupData: AccessGroup[] = await this.accessGroupService.findAllAccessGroupByUserId(currentUserId);
@@ -55,7 +80,12 @@ class AccessGroupController {
     }
   };
 
-  public createAccessGroup = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async createAccessGroup(req: Request, res: Response, next: NextFunction) {
     const tenancyId = req.headers.tenancyid as string;
 
     try {
@@ -68,7 +98,12 @@ class AccessGroupController {
     }
   };
 
-  public updateAccessGroup = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async updateAccessGroup(req: Request, res: Response, next: NextFunction) {
     try {
       const accessGroupId = req.params.id;
       const accessGroupData = req.body;
@@ -80,7 +115,12 @@ class AccessGroupController {
     }
   };
 
-  public updateAccessGroupMembers = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async updateAccessGroupMembers(req: Request, res: Response, next: NextFunction) {
     try {
       const accessGroupId = req.params.id;
       const membersData = req.body;
@@ -96,7 +136,12 @@ class AccessGroupController {
     }
   };
 
-  public getAccessGroupMembers = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async getAccessGroupMembers(req: Request, res: Response, next: NextFunction) {
     try {
       const accessGroupId = req.params.id;
       const currentAcessGroupData: AccessGroupMember[] = await this.accessGroupService.getAccessGroupMembers(accessGroupId);
@@ -106,7 +151,12 @@ class AccessGroupController {
     }
   };
 
-  public updateAccessGroupChannels = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async updateAccessGroupChannels(req: Request, res: Response, next: NextFunction) {
     try {
       const accessGroupId = req.params.id;
       const channelsData = req.body;
@@ -122,7 +172,12 @@ class AccessGroupController {
     }
   };
 
-  public getAccessGroupChannels = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async getAccessGroupChannels(req: Request, res: Response, next: NextFunction) {
     try {
       const accessGroupId = req.params.id;
       const currentAcessGroupData: AccessGroupChannel[] = await this.accessGroupService.getAccessGroupChannels(accessGroupId);
@@ -132,7 +187,12 @@ class AccessGroupController {
     }
   };
 
-  public updateAccessGroupClusters = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async updateAccessGroupClusters(req: Request, res: Response, next: NextFunction) {
     try {
       const accessGroupId = req.params.id;
       const clustersData = req.body;
@@ -148,7 +208,12 @@ class AccessGroupController {
     }
   };
 
-  public getAccessGroupClusters = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * @param  {Request} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public async getAccessGroupClusters(req: Request, res: Response, next: NextFunction) {
     try {
       const accessGroupId = req.params.id;
       const currentAcessGroupData: AccessGroupCluster[] = await this.accessGroupService.getAccessGroupClusters(accessGroupId);
