@@ -1,4 +1,4 @@
 /**
  *
- * @namespace K8sResource
+ * @namespace Openstack
  */

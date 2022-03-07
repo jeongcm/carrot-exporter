@@ -5,14 +5,31 @@ import { IClusterAdd as Cluster } from '@/common/interfaces/cluster.interface';
 import { isEmpty } from '@/common/utils/util';
 import { Platform } from '../../../types';
 
+/**
+ * @memberof K8s
+ */
 class ClusterService {
   public clusters = DB.Clusters;
 
+  // RYAN: missing tenancyId NEX-1420
+  /**
+   * Get all Clusters
+   *
+   * @returns Promise<Cluster[]>
+   * @author Jaswant
+   */
   public async findAllCluster(): Promise<Cluster[]> {
     const allUser: Cluster[] = await this.clusters.findAll({ where: { isDeleted: false } });
     return allUser;
   }
 
+  /**
+   * get a cluster by pk
+   *
+   * @param {number} id
+   * @returns Promise<Cluster[]>
+   * @author Jaswant
+   */
   public async findClusterById(id: number): Promise<Cluster> {
     if (isEmpty(id)) throw new HttpException(400, 'Not a valid cluster');
 
@@ -22,6 +39,15 @@ class ClusterService {
     return findCluster;
   }
 
+  /**
+   * create a new cluster.
+   * Note:
+   * - as of 2022-03-07 there is no business logic and side effects
+   *
+   * @param  {CreateClusterDto} clusterData
+   * @returns Promise<Cluster>
+   * @author Jaswant
+   */
   public async createCluster(clusterData: CreateClusterDto): Promise<Cluster> {
     if (isEmpty(clusterData)) throw new HttpException(400, 'Cluster Data cannot be blank');
     const currentDate = new Date();
@@ -38,6 +64,14 @@ class ClusterService {
     return createClusterData;
   }
 
+  /**
+   * Update a cluster
+   *
+   * @param  {number} clusterId
+   * @param  {CreateClusterDto} clusterData
+   * @returns Promise<Cluster>
+   * @author Jaswant
+   */
   public async updateCluster(clusterId: number, clusterData: CreateClusterDto): Promise<Cluster> {
     if (isEmpty(clusterData)) throw new HttpException(400, 'Cluster Data cannot be blank');
     const findCluster: Cluster = await this.clusters.findByPk(clusterId);
@@ -52,6 +86,13 @@ class ClusterService {
     return updateUser;
   }
 
+  /**
+   * Delete a cluster
+   *
+   * @param  {number} clusterId
+   * @returns Promise<Cluster>
+   * @author Jaswant
+   */
   public async deleteCluster(clusterId: number): Promise<Cluster> {
     if (isEmpty(clusterId)) throw new HttpException(400, 'Clusterid is required');
     const findCluster: Cluster = await this.clusters.findByPk(clusterId);
