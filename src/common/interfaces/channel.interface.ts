@@ -13,12 +13,12 @@ export interface IAlertChannel {
 export interface IEmailChannel {
   channelType: 'EMAIL' | 'SLACK';
   createdAt: string;
-  createdBy: string;
+  createdBy: number;
   description: string;
   id: number;
   name: string;
   updatedAt: string;
-  updatedBy: string;
+  updatedBy: number;
   fromEmail: string;
   host: string;
   password: string;
@@ -34,7 +34,7 @@ export interface ISlackChannel {
   id: number;
   name: string;
   updatedAt: string;
-  updatedBy: string;
+  updatedBy: number;
   apiUrl: string;
   slackChannelName: string;
 }
@@ -47,8 +47,8 @@ export interface Channel {
   description: string;
   configJSON: string;
   createdAt: Date;
-  createdBy: string;
+  createdBy: number;
   updatedAt: Date;
-  updatedBy: string;
+  updatedBy: number;
   isDeleted: boolean;
 }

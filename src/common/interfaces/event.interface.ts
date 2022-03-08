@@ -6,9 +6,9 @@ export interface Event {
   type: string;
   id: string;
   createdAt: Date;
-  createdBy: string;
+  createdBy: number;
   updatedAt: Date;
-  updatedBy: string;
+  updatedBy: number;
   source: string;
   startAt: Date;
   status: EventStatus;

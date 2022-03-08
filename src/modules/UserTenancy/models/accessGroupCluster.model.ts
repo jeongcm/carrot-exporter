@@ -11,8 +11,8 @@ export class AccessGroupClusterModel extends Model<AccessGroupCluster, AccessGro
   public uuid: string;
   public accessGroupId: number;
   public clusterId: number;
-  public createdBy: string;
-  public updatedBy: string;
+  public createdBy: number;
+  public updatedBy: number;
   public isDeleted: boolean;
 
   public readonly createdAt!: Date;

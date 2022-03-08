@@ -21,7 +21,8 @@ export type UserCreationAttributes = Optional<
 >;
 
 export class UserModel extends Model<User, UserCreationAttributes> implements User {
-  public id: string;
+  public id: number;
+  public uuid: string;
   public email: string;
   public password: string;
   public username: string;
@@ -102,7 +103,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
       },
       currentTenancyId: {
         allowNull: true,
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
       },
       createdAt: {
         allowNull: true,

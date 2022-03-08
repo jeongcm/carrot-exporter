@@ -8,10 +8,11 @@ export type AccessGroupMemberCreationAttributes = Optional<
 
 export class AccessGroupMemberModel extends Model<AccessGroupMember, AccessGroupMemberCreationAttributes> implements AccessGroupMember {
   public id: number;
+  public uuid: string;
   public accessGroupId: number;
   public userId: number;
-  public createdBy: string;
-  public updatedBy: string;
+  public createdBy: number;
+  public updatedBy: number;
   public isDeleted: boolean;
 
   public readonly createdAt!: Date;

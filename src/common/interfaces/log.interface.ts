@@ -9,9 +9,9 @@ export interface Log {
   status: LogStatus;
   isActive: boolean;
   createdAt: Date;
-  createdBy: string;
+  createdBy: number;
   updatedAt: Date;
-  updatedBy: string;
+  updatedBy: number;
   message: string;
   hasDescriptiveLog: boolean;
   descriptiveLog: string;

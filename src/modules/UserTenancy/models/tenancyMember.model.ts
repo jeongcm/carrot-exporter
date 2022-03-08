@@ -72,7 +72,7 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
       },
       tenancyId: {
         allowNull: true,
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
       },
       tenancyLastAccess: {
         allowNull: true,
@@ -91,7 +91,7 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
       },
       invitedBy: {
         allowNull: true,
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
       },
       createdAt: {
         allowNull: false,

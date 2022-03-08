@@ -24,9 +24,9 @@ export class CreateAccessGroupDto {
 
   @IsString()
   @IsOptional()
-  public createdBy: string;
+  public createdBy: number;
 
   @IsString()
   @IsOptional()
-  public updatedBy: string;
+  public updatedBy: number;
 }

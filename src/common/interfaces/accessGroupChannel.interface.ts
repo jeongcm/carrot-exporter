@@ -4,8 +4,8 @@ export interface AccessGroupChannel {
   accessGroupId: number;
   channelId: number;
   createdAt: Date;
-  createdBy: string;
+  createdBy: number;
   updatedAt: Date;
-  updatedBy: string;
+  updatedBy: number;
   isDeleted: boolean;
 }

@@ -8,8 +8,8 @@ export interface IIncident {
   status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
   priority: 'HIGH' | 'LOW' | 'MEDIUM' | 'URGENT';
   dueDate: Date;
-  createdBy: string;
-  updatedBy: string;
+  createdBy: number;
+  updatedBy: number;
   isDeleted: number;
   pinned: string;
 }

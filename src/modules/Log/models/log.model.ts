@@ -27,8 +27,8 @@ export class LogModel extends Model<Log, AlertCreationAttributes> implements Log
   public type: LogType;
   public status: LogStatus;
   public isActive: boolean;
-  public createdBy: string;
-  public updatedBy: string;
+  public createdBy: number;
+  public updatedBy: number;
   public message: string;
   public hasDescriptiveLog: boolean;
   public descriptiveLog: string;

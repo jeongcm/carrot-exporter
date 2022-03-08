@@ -1,10 +1,11 @@
 export interface AccessGroupMember {
   id: number;
+  uuid: string;
   accessGroupId: number;
   userId: number;
   createdAt: Date;
-  createdBy: string;
+  createdBy: number;
   updatedAt: Date;
-  updatedBy: string;
+  updatedBy: number;
   isDeleted: boolean;
 }

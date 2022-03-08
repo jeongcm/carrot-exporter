@@ -7,12 +7,13 @@ export type TenancyCreationAttributes = Optional<Tenancy, 'id' | 'tenancyCode' |
 
 export class TenancyModel extends Model<Tenancy> implements Tenancy {
   public id: number;
+  public uuid: string;
   public tenancyName: string;
   public tenancyCode: string;
   public tenancyDescription: string;
   public isDeleted: boolean;
-  public createdBy: string;
-  public updatedBy: string;
+  public createdBy: number;
+  public updatedBy: number;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -52,11 +53,11 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
       },
       createdBy: {
         allowNull: true,
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
       },
       updatedBy: {
         allowNull: true,
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
       },
 
       createdAt: {

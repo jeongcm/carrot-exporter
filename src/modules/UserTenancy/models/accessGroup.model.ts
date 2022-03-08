@@ -11,8 +11,8 @@ export class AccessGroupModel extends Model<AccessGroup, AccessGroupCreationAttr
   public uuid: string;
   public tenancyId: number;
   public groupName: string;
-  public createdBy: string;
-  public updatedBy: string;
+  public createdBy: number;
+  public updatedBy: number;
   public description: string;
   public icon: string;
 

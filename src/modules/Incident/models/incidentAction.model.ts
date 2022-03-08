@@ -8,11 +8,12 @@ export type IIncidentActionCreationAttributes = Optional<
 
 export class IncidentActionModel extends Model<IIncidentAction, IIncidentActionCreationAttributes> implements IIncidentAction {
   public id: number;
+  public uuid: string;
   public incidentId: number;
   public title: string;
   public description: string;
-  public createdBy: string;
-  public updatedBy: string;
+  public createdBy: number;
+  public updatedBy: number;
   public isDeleted: number;
 
   public readonly createdAt!: Date;
@@ -47,11 +48,11 @@ export default function (sequelize: Sequelize): typeof IncidentActionModel {
         defaultValue: null,
       },
       createdBy: {
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
         defaultValue: null,
       },
       updatedBy: {
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
         defaultValue: null,
       },
       isDeleted: {

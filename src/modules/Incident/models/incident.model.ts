@@ -16,8 +16,8 @@ export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> 
   public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
   public priority: 'HIGH' | 'LOW' | 'MEDIUM' | 'URGENT';
   public dueDate: Date;
-  public createdBy: string;
-  public updatedBy: string;
+  public createdBy: number;
+  public updatedBy: number;
   public isDeleted: number;
   public pinned: string;
 
@@ -33,6 +33,12 @@ export default function (sequelize: Sequelize): typeof IncidentModel {
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
+      },
+      uuid: {
+        primaryKey: true,
+        allowNull: false,
+        defaultValue: DataTypes.UUIDV4,
+        type: DataTypes.UUID,
       },
       tenancyId: {
         type: DataTypes.BIGINT,
@@ -57,13 +63,13 @@ export default function (sequelize: Sequelize): typeof IncidentModel {
         allowNull: false,
       },
       dueDate: {
-        type: DataTypes.DATE(),
+        type: DataTypes.BIGINT,
       },
       createdBy: {
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
       },
       updatedBy: {
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
       },
       isDeleted: {
         type: DataTypes.TINYINT,

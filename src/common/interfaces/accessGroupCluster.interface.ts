@@ -4,8 +4,8 @@ export interface AccessGroupCluster {
   accessGroupId: number;
   clusterId: number;
   createdAt: Date;
-  createdBy: string;
+  createdBy: number;
   updatedAt: Date;
-  updatedBy: string;
+  updatedBy: number;
   isDeleted: boolean;
 }

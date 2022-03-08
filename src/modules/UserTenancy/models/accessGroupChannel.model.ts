@@ -11,8 +11,8 @@ export class AccessGroupChannelModel extends Model<AccessGroupChannel, AccessGro
   public uuid: string;
   public accessGroupId: number;
   public channelId: number;
-  public createdBy: string;
-  public updatedBy: string;
+  public createdBy: number;
+  public updatedBy: number;
   public isDeleted: boolean;
 
   public readonly createdAt!: Date;

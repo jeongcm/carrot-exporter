@@ -44,7 +44,7 @@
 <text text-anchor="start" x="438.7241" y="-172.3657" font-family="Times,serif" font-size="10.00" fill="#000000">token: STRING</text>
 <polygon fill="none" stroke="#000000" points="433.7241,-142.3657 433.7241,-164.3657 565.7241,-164.3657 565.7241,-142.3657 433.7241,-142.3657"/>
 <text text-anchor="start" x="438.7241" y="-151.3657" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">currentTenancyId</text>
-<text text-anchor="start" x="509.7941" y="-151.3657" font-family="Times,serif" font-size="10.00" fill="#000000">: UUID</text>
+<text text-anchor="start" x="509.7941" y="-151.3657" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="433.7241,-120.3657 433.7241,-142.3657 565.7241,-142.3657 565.7241,-120.3657 433.7241,-120.3657"/>
 <text text-anchor="start" x="438.7241" y="-128.3657" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="433.7241,-98.3657 433.7241,-120.3657 565.7241,-120.3657 565.7241,-98.3657 433.7241,-98.3657"/>
@@ -110,9 +110,9 @@
 <polygon fill="none" stroke="#000000" points=".5,-680.6065 .5,-702.6065 129.5,-702.6065 129.5,-680.6065 .5,-680.6065"/>
 <text text-anchor="start" x="5.5" y="-688.6065" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: BOOLEAN</text>
 <polygon fill="none" stroke="#000000" points=".5,-658.6065 .5,-680.6065 129.5,-680.6065 129.5,-658.6065 .5,-658.6065"/>
-<text text-anchor="start" x="5.5" y="-666.6065" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: UUID</text>
+<text text-anchor="start" x="5.5" y="-666.6065" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: NUMBER</text>
 <polygon fill="none" stroke="#000000" points=".5,-636.6065 .5,-658.6065 129.5,-658.6065 129.5,-636.6065 .5,-636.6065"/>
-<text text-anchor="start" x="5.5" y="-644.6065" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: UUID</text>
+<text text-anchor="start" x="5.5" y="-644.6065" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: NUMBER</text>
 <polygon fill="none" stroke="#000000" points=".5,-614.6065 .5,-636.6065 129.5,-636.6065 129.5,-614.6065 .5,-614.6065"/>
 <text text-anchor="start" x="5.5" y="-622.6065" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
 <polygon fill="none" stroke="#000000" points=".5,-592.6065 .5,-614.6065 129.5,-614.6065 129.5,-592.6065 .5,-592.6065"/>
@@ -263,7 +263,7 @@
 <polygon fill="none" stroke="#000000" points="65.9938,-263.6887 65.9938,-285.6887 183.9938,-285.6887 183.9938,-263.6887 65.9938,-263.6887"/>
 <text text-anchor="start" x="70.7028" y="-271.6887" font-family="Times,serif" font-size="10.00" fill="#000000">verificationCode: STRING</text>
 <polygon fill="none" stroke="#000000" points="65.9938,-241.6887 65.9938,-263.6887 183.9938,-263.6887 183.9938,-241.6887 65.9938,-241.6887"/>
-<text text-anchor="start" x="70.9938" y="-249.6887" font-family="Times,serif" font-size="10.00" fill="#000000">tenancyId: UUID</text>
+<text text-anchor="start" x="70.9938" y="-249.6887" font-family="Times,serif" font-size="10.00" fill="#000000">tenancyId: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="65.9938,-219.6887 65.9938,-241.6887 183.9938,-241.6887 183.9938,-219.6887 65.9938,-219.6887"/>
 <text text-anchor="start" x="70.7133" y="-227.6887" font-family="Times,serif" font-size="10.00" fill="#000000">tenancyLastAccess: DATE</text>
 <polygon fill="none" stroke="#000000" points="65.9938,-197.6887 65.9938,-219.6887 183.9938,-219.6887 183.9938,-197.6887 65.9938,-197.6887"/>
@@ -271,7 +271,7 @@
 <polygon fill="none" stroke="#000000" points="65.9938,-175.6887 65.9938,-197.6887 183.9938,-197.6887 183.9938,-175.6887 65.9938,-175.6887"/>
 <text text-anchor="start" x="70.9938" y="-183.6887" font-family="Times,serif" font-size="10.00" fill="#000000">isActivated: BOOLEAN</text>
 <polygon fill="none" stroke="#000000" points="65.9938,-153.6887 65.9938,-175.6887 183.9938,-175.6887 183.9938,-153.6887 65.9938,-153.6887"/>
-<text text-anchor="start" x="70.9938" y="-161.6887" font-family="Times,serif" font-size="10.00" fill="#000000">invitedBy: UUID</text>
+<text text-anchor="start" x="70.9938" y="-161.6887" font-family="Times,serif" font-size="10.00" fill="#000000">invitedBy: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="65.9938,-131.6887 65.9938,-153.6887 183.9938,-153.6887 183.9938,-131.6887 65.9938,-131.6887"/>
 <text text-anchor="start" x="70.9938" y="-139.6887" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="65.9938,-109.6887 65.9938,-131.6887 183.9938,-131.6887 183.9938,-109.6887 65.9938,-109.6887"/>
@@ -471,81 +471,84 @@
 <!-- incident -->
 <g id="node12" class="node">
 <title>incident</title>
-<polygon fill="#add8e6" stroke="transparent" points="715.3083,-664.1581 715.3083,-686.1581 815.3083,-686.1581 815.3083,-664.1581 715.3083,-664.1581"/>
-<polygon fill="none" stroke="#000000" points="715.3083,-664.1581 715.3083,-686.1581 815.3083,-686.1581 815.3083,-664.1581 715.3083,-664.1581"/>
-<text text-anchor="start" x="749.2008" y="-673.1581" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">incident</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-642.1581 715.3083,-664.1581 815.3083,-664.1581 815.3083,-642.1581 715.3083,-642.1581"/>
-<text text-anchor="start" x="720.3083" y="-651.1581" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">id</text>
-<text text-anchor="start" x="728.0873" y="-651.1581" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-620.1581 715.3083,-642.1581 815.3083,-642.1581 815.3083,-620.1581 715.3083,-620.1581"/>
-<text text-anchor="start" x="720.3083" y="-628.1581" font-family="Times,serif" font-size="10.00" fill="#000000">tenancyId: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-598.1581 715.3083,-620.1581 815.3083,-620.1581 815.3083,-598.1581 715.3083,-598.1581"/>
-<text text-anchor="start" x="720.1803" y="-607.1581" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">assigneeId</text>
-<text text-anchor="start" x="762.3833" y="-607.1581" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-576.1581 715.3083,-598.1581 815.3083,-598.1581 815.3083,-576.1581 715.3083,-576.1581"/>
-<text text-anchor="start" x="720.3083" y="-584.1581" font-family="Times,serif" font-size="10.00" fill="#000000">title: STRING</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-554.1581 715.3083,-576.1581 815.3083,-576.1581 815.3083,-554.1581 715.3083,-554.1581"/>
-<text text-anchor="start" x="720.3083" y="-562.1581" font-family="Times,serif" font-size="10.00" fill="#000000">note: TEXT</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-532.1581 715.3083,-554.1581 815.3083,-554.1581 815.3083,-532.1581 715.3083,-532.1581"/>
-<text text-anchor="start" x="720.3083" y="-540.1581" font-family="Times,serif" font-size="10.00" fill="#000000">status: STRING</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-510.1581 715.3083,-532.1581 815.3083,-532.1581 815.3083,-510.1581 715.3083,-510.1581"/>
-<text text-anchor="start" x="720.3083" y="-518.1581" font-family="Times,serif" font-size="10.00" fill="#000000">priority: STRING</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-488.1581 715.3083,-510.1581 815.3083,-510.1581 815.3083,-488.1581 715.3083,-488.1581"/>
-<text text-anchor="start" x="720.3083" y="-496.1581" font-family="Times,serif" font-size="10.00" fill="#000000">dueDate: DATE</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-466.1581 715.3083,-488.1581 815.3083,-488.1581 815.3083,-466.1581 715.3083,-466.1581"/>
-<text text-anchor="start" x="720.3083" y="-474.1581" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: UUID</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-444.1581 715.3083,-466.1581 815.3083,-466.1581 815.3083,-444.1581 715.3083,-444.1581"/>
-<text text-anchor="start" x="720.3083" y="-452.1581" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: UUID</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-422.1581 715.3083,-444.1581 815.3083,-444.1581 815.3083,-422.1581 715.3083,-422.1581"/>
-<text text-anchor="start" x="720.3083" y="-430.1581" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-400.1581 715.3083,-422.1581 815.3083,-422.1581 815.3083,-400.1581 715.3083,-400.1581"/>
-<text text-anchor="start" x="720.3083" y="-408.1581" font-family="Times,serif" font-size="10.00" fill="#000000">pinned: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-378.1581 715.3083,-400.1581 815.3083,-400.1581 815.3083,-378.1581 715.3083,-378.1581"/>
-<text text-anchor="start" x="720.3083" y="-386.1581" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="715.3083,-356.1581 715.3083,-378.1581 815.3083,-378.1581 815.3083,-356.1581 715.3083,-356.1581"/>
-<text text-anchor="start" x="720.3083" y="-364.1581" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
+<polygon fill="#add8e6" stroke="transparent" points="715.3083,-675.1581 715.3083,-697.1581 816.3083,-697.1581 816.3083,-675.1581 715.3083,-675.1581"/>
+<polygon fill="none" stroke="#000000" points="715.3083,-675.1581 715.3083,-697.1581 816.3083,-697.1581 816.3083,-675.1581 715.3083,-675.1581"/>
+<text text-anchor="start" x="749.7008" y="-684.1581" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">incident</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-653.1581 715.3083,-675.1581 816.3083,-675.1581 816.3083,-653.1581 715.3083,-653.1581"/>
+<text text-anchor="start" x="720.3083" y="-662.1581" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">id</text>
+<text text-anchor="start" x="728.0873" y="-662.1581" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-631.1581 715.3083,-653.1581 816.3083,-653.1581 816.3083,-631.1581 715.3083,-631.1581"/>
+<text text-anchor="start" x="720.3083" y="-640.1581" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">uuid</text>
+<text text-anchor="start" x="738.0873" y="-640.1581" font-family="Times,serif" font-size="10.00" fill="#000000">: UUID</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-609.1581 715.3083,-631.1581 816.3083,-631.1581 816.3083,-609.1581 715.3083,-609.1581"/>
+<text text-anchor="start" x="720.3083" y="-617.1581" font-family="Times,serif" font-size="10.00" fill="#000000">tenancyId: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-587.1581 715.3083,-609.1581 816.3083,-609.1581 816.3083,-587.1581 715.3083,-587.1581"/>
+<text text-anchor="start" x="720.3083" y="-596.1581" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">assigneeId</text>
+<text text-anchor="start" x="762.5113" y="-596.1581" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-565.1581 715.3083,-587.1581 816.3083,-587.1581 816.3083,-565.1581 715.3083,-565.1581"/>
+<text text-anchor="start" x="720.3083" y="-573.1581" font-family="Times,serif" font-size="10.00" fill="#000000">title: STRING</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-543.1581 715.3083,-565.1581 816.3083,-565.1581 816.3083,-543.1581 715.3083,-543.1581"/>
+<text text-anchor="start" x="720.3083" y="-551.1581" font-family="Times,serif" font-size="10.00" fill="#000000">note: TEXT</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-521.1581 715.3083,-543.1581 816.3083,-543.1581 816.3083,-521.1581 715.3083,-521.1581"/>
+<text text-anchor="start" x="720.3083" y="-529.1581" font-family="Times,serif" font-size="10.00" fill="#000000">status: STRING</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-499.1581 715.3083,-521.1581 816.3083,-521.1581 816.3083,-499.1581 715.3083,-499.1581"/>
+<text text-anchor="start" x="720.3083" y="-507.1581" font-family="Times,serif" font-size="10.00" fill="#000000">priority: STRING</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-477.1581 715.3083,-499.1581 816.3083,-499.1581 816.3083,-477.1581 715.3083,-477.1581"/>
+<text text-anchor="start" x="720.3083" y="-485.1581" font-family="Times,serif" font-size="10.00" fill="#000000">dueDate: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-455.1581 715.3083,-477.1581 816.3083,-477.1581 816.3083,-455.1581 715.3083,-455.1581"/>
+<text text-anchor="start" x="720.3083" y="-463.1581" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-433.1581 715.3083,-455.1581 816.3083,-455.1581 816.3083,-433.1581 715.3083,-433.1581"/>
+<text text-anchor="start" x="720.1188" y="-441.1581" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-411.1581 715.3083,-433.1581 816.3083,-433.1581 816.3083,-411.1581 715.3083,-411.1581"/>
+<text text-anchor="start" x="720.3083" y="-419.1581" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-389.1581 715.3083,-411.1581 816.3083,-411.1581 816.3083,-389.1581 715.3083,-389.1581"/>
+<text text-anchor="start" x="720.3083" y="-397.1581" font-family="Times,serif" font-size="10.00" fill="#000000">pinned: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-367.1581 715.3083,-389.1581 816.3083,-389.1581 816.3083,-367.1581 715.3083,-367.1581"/>
+<text text-anchor="start" x="720.3083" y="-375.1581" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="715.3083,-345.1581 715.3083,-367.1581 816.3083,-367.1581 816.3083,-345.1581 715.3083,-345.1581"/>
+<text text-anchor="start" x="720.3083" y="-353.1581" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
 </g>
 <!-- incident&#45;&gt;users -->
 <g id="edge11" class="edge">
 <title>incident&#45;&gt;users</title>
-<path fill="none" stroke="#00cd00" d="M706.1273,-466.1644C667.3917,-430.1696 616.4397,-382.8229 574.8522,-344.1779"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="712.1827,-477.5249 706.2512,-466.2795 717.9008,-471.3715 712.1827,-477.5249"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="574.6481,-343.9883 569.5334,-331.8639 570.2528,-339.904 565.8575,-335.8197 565.8575,-335.8197 565.8575,-335.8197 570.2528,-339.904 562.1816,-339.7754 574.6481,-343.9883 574.6481,-343.9883"/>
+<path fill="none" stroke="#00cd00" d="M705.8419,-465.8992C667.2368,-430.0257 616.5875,-382.9601 575.1584,-344.4625"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="711.8698,-477.2341 705.9383,-465.9888 717.5879,-471.0807 711.8698,-477.2341"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="574.9868,-344.303 569.872,-332.1786 570.5915,-340.2186 566.1962,-336.1343 566.1962,-336.1343 566.1962,-336.1343 570.5915,-340.2186 562.5203,-340.0901 574.9868,-344.303 574.9868,-344.303"/>
 </g>
 <!-- incident&#45;&gt;IncidentRelAlert -->
 <g id="edge8" class="edge">
 <title>incident&#45;&gt;IncidentRelAlert</title>
-<path fill="none" stroke="#00cd00" d="M827.0951,-541.1305C877.549,-557.4397 948.4573,-580.3606 998.6003,-596.5692"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="826.9228,-541.0749 817.1654,-532.2457 821.2136,-539.2294 815.5045,-537.3839 815.5045,-537.3839 815.5045,-537.3839 821.2136,-539.2294 813.8435,-542.5221 826.9228,-541.0749 826.9228,-541.0749"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="1008.9465,-604.3276 998.8201,-596.6402 1011.5302,-596.3348 1008.9465,-604.3276"/>
+<path fill="none" stroke="#00cd00" d="M827.4018,-541.2297C877.7195,-557.4948 948.2319,-580.2878 998.2528,-596.4569"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="827.2568,-541.1828 817.4994,-532.3536 821.5476,-539.3373 815.8385,-537.4918 815.8385,-537.4918 815.8385,-537.4918 821.5476,-539.3373 814.1775,-542.6301 827.2568,-541.1828 827.2568,-541.1828"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="1008.5752,-604.2076 998.4488,-596.5202 1011.1589,-596.2148 1008.5752,-604.2076"/>
 </g>
 <!-- incidentAction -->
 <g id="node14" class="node">
 <title>incidentAction</title>
-<polygon fill="#add8e6" stroke="transparent" points="549.4793,-1439.5978 549.4793,-1461.5978 647.4793,-1461.5978 647.4793,-1439.5978 549.4793,-1439.5978"/>
-<polygon fill="none" stroke="#000000" points="549.4793,-1439.5978 549.4793,-1461.5978 647.4793,-1461.5978 647.4793,-1439.5978 549.4793,-1439.5978"/>
-<text text-anchor="start" x="568.7638" y="-1448.5978" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">incidentAction</text>
-<polygon fill="none" stroke="#000000" points="549.4793,-1417.5978 549.4793,-1439.5978 647.4793,-1439.5978 647.4793,-1417.5978 549.4793,-1417.5978"/>
-<text text-anchor="start" x="554.4793" y="-1426.5978" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">id</text>
-<text text-anchor="start" x="562.2583" y="-1426.5978" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="549.4793,-1395.5978 549.4793,-1417.5978 647.4793,-1417.5978 647.4793,-1395.5978 549.4793,-1395.5978"/>
-<text text-anchor="start" x="554.4793" y="-1403.5978" font-family="Times,serif" font-size="10.00" fill="#000000">uuid: UUID</text>
-<polygon fill="none" stroke="#000000" points="549.4793,-1373.5978 549.4793,-1395.5978 647.4793,-1395.5978 647.4793,-1373.5978 549.4793,-1373.5978"/>
-<text text-anchor="start" x="554.1808" y="-1381.5978" font-family="Times,serif" font-size="10.00" fill="#000000">incidentId: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="549.4793,-1351.5978 549.4793,-1373.5978 647.4793,-1373.5978 647.4793,-1351.5978 549.4793,-1351.5978"/>
-<text text-anchor="start" x="554.4793" y="-1359.5978" font-family="Times,serif" font-size="10.00" fill="#000000">title: STRING</text>
-<polygon fill="none" stroke="#000000" points="549.4793,-1329.5978 549.4793,-1351.5978 647.4793,-1351.5978 647.4793,-1329.5978 549.4793,-1329.5978"/>
-<text text-anchor="start" x="554.4793" y="-1337.5978" font-family="Times,serif" font-size="10.00" fill="#000000">description: TEXT</text>
-<polygon fill="none" stroke="#000000" points="549.4793,-1307.5978 549.4793,-1329.5978 647.4793,-1329.5978 647.4793,-1307.5978 549.4793,-1307.5978"/>
-<text text-anchor="start" x="554.4793" y="-1315.5978" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: UUID</text>
-<polygon fill="none" stroke="#000000" points="549.4793,-1285.5978 549.4793,-1307.5978 647.4793,-1307.5978 647.4793,-1285.5978 549.4793,-1285.5978"/>
-<text text-anchor="start" x="554.4793" y="-1293.5978" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: UUID</text>
-<polygon fill="none" stroke="#000000" points="549.4793,-1263.5978 549.4793,-1285.5978 647.4793,-1285.5978 647.4793,-1263.5978 549.4793,-1263.5978"/>
-<text text-anchor="start" x="554.4793" y="-1271.5978" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="549.4793,-1241.5978 549.4793,-1263.5978 647.4793,-1263.5978 647.4793,-1241.5978 549.4793,-1241.5978"/>
-<text text-anchor="start" x="554.4793" y="-1249.5978" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="549.4793,-1219.5978 549.4793,-1241.5978 647.4793,-1241.5978 647.4793,-1219.5978 549.4793,-1219.5978"/>
-<text text-anchor="start" x="554.4793" y="-1227.5978" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
+<polygon fill="#add8e6" stroke="transparent" points="550.4793,-1439.5978 550.4793,-1461.5978 651.4793,-1461.5978 651.4793,-1439.5978 550.4793,-1439.5978"/>
+<polygon fill="none" stroke="#000000" points="550.4793,-1439.5978 550.4793,-1461.5978 651.4793,-1461.5978 651.4793,-1439.5978 550.4793,-1439.5978"/>
+<text text-anchor="start" x="571.2638" y="-1448.5978" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">incidentAction</text>
+<polygon fill="none" stroke="#000000" points="550.4793,-1417.5978 550.4793,-1439.5978 651.4793,-1439.5978 651.4793,-1417.5978 550.4793,-1417.5978"/>
+<text text-anchor="start" x="555.4793" y="-1426.5978" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">id</text>
+<text text-anchor="start" x="563.2583" y="-1426.5978" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="550.4793,-1395.5978 550.4793,-1417.5978 651.4793,-1417.5978 651.4793,-1395.5978 550.4793,-1395.5978"/>
+<text text-anchor="start" x="555.4793" y="-1403.5978" font-family="Times,serif" font-size="10.00" fill="#000000">uuid: UUID</text>
+<polygon fill="none" stroke="#000000" points="550.4793,-1373.5978 550.4793,-1395.5978 651.4793,-1395.5978 651.4793,-1373.5978 550.4793,-1373.5978"/>
+<text text-anchor="start" x="555.4793" y="-1381.5978" font-family="Times,serif" font-size="10.00" fill="#000000">incidentId: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="550.4793,-1351.5978 550.4793,-1373.5978 651.4793,-1373.5978 651.4793,-1351.5978 550.4793,-1351.5978"/>
+<text text-anchor="start" x="555.4793" y="-1359.5978" font-family="Times,serif" font-size="10.00" fill="#000000">title: STRING</text>
+<polygon fill="none" stroke="#000000" points="550.4793,-1329.5978 550.4793,-1351.5978 651.4793,-1351.5978 651.4793,-1329.5978 550.4793,-1329.5978"/>
+<text text-anchor="start" x="555.4793" y="-1337.5978" font-family="Times,serif" font-size="10.00" fill="#000000">description: TEXT</text>
+<polygon fill="none" stroke="#000000" points="550.4793,-1307.5978 550.4793,-1329.5978 651.4793,-1329.5978 651.4793,-1307.5978 550.4793,-1307.5978"/>
+<text text-anchor="start" x="555.4793" y="-1315.5978" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="550.4793,-1285.5978 550.4793,-1307.5978 651.4793,-1307.5978 651.4793,-1285.5978 550.4793,-1285.5978"/>
+<text text-anchor="start" x="555.2898" y="-1293.5978" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="550.4793,-1263.5978 550.4793,-1285.5978 651.4793,-1285.5978 651.4793,-1263.5978 550.4793,-1263.5978"/>
+<text text-anchor="start" x="555.4793" y="-1271.5978" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="550.4793,-1241.5978 550.4793,-1263.5978 651.4793,-1263.5978 651.4793,-1241.5978 550.4793,-1241.5978"/>
+<text text-anchor="start" x="555.4793" y="-1249.5978" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="550.4793,-1219.5978 550.4793,-1241.5978 651.4793,-1241.5978 651.4793,-1219.5978 550.4793,-1219.5978"/>
+<text text-anchor="start" x="555.4793" y="-1227.5978" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
 </g>
 <!-- InvitationModel -->
 <g id="node15" class="node">
@@ -557,8 +560,7 @@
 <text text-anchor="start" x="737.4793" y="-1492.5978" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">id</text>
 <text text-anchor="start" x="745.2583" y="-1492.5978" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="732.4793,-1461.5978 732.4793,-1483.5978 856.4793,-1483.5978 856.4793,-1461.5978 732.4793,-1461.5978"/>
-<text text-anchor="start" x="737.4793" y="-1470.5978" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">uuid</text>
-<text text-anchor="start" x="755.2583" y="-1470.5978" font-family="Times,serif" font-size="10.00" fill="#000000">: UUID</text>
+<text text-anchor="start" x="737.4793" y="-1469.5978" font-family="Times,serif" font-size="10.00" fill="#000000">uuid: UUID</text>
 <polygon fill="none" stroke="#000000" points="732.4793,-1439.5978 732.4793,-1461.5978 856.4793,-1461.5978 856.4793,-1439.5978 732.4793,-1439.5978"/>
 <text text-anchor="start" x="737.1278" y="-1447.5978" font-family="Times,serif" font-size="10.00" fill="#000000">invitedByUserId: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="732.4793,-1417.5978 732.4793,-1439.5978 856.4793,-1439.5978 856.4793,-1417.5978 732.4793,-1417.5978"/>
@@ -570,7 +572,7 @@
 <polygon fill="none" stroke="#000000" points="732.4793,-1351.5978 732.4793,-1373.5978 856.4793,-1373.5978 856.4793,-1351.5978 732.4793,-1351.5978"/>
 <text text-anchor="start" x="737.4793" y="-1359.5978" font-family="Times,serif" font-size="10.00" fill="#000000">isRejected: BOOLEAN</text>
 <polygon fill="none" stroke="#000000" points="732.4793,-1329.5978 732.4793,-1351.5978 856.4793,-1351.5978 856.4793,-1329.5978 732.4793,-1329.5978"/>
-<text text-anchor="start" x="737.4793" y="-1337.5978" font-family="Times,serif" font-size="10.00" fill="#000000">tenancyId: UUID</text>
+<text text-anchor="start" x="737.4793" y="-1337.5978" font-family="Times,serif" font-size="10.00" fill="#000000">tenancyId: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="732.4793,-1307.5978 732.4793,-1329.5978 856.4793,-1329.5978 856.4793,-1307.5978 732.4793,-1307.5978"/>
 <text text-anchor="start" x="737.4793" y="-1315.5978" font-family="Times,serif" font-size="10.00" fill="#000000">rejectedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="732.4793,-1285.5978 732.4793,-1307.5978 856.4793,-1307.5978 856.4793,-1285.5978 732.4793,-1285.5978"/>

@@ -33,7 +33,7 @@ export default function (sequelize: Sequelize): typeof InvitationModel {
           primaryKey: true,
         },
         uuid: {
-          primaryKey: true,
+          primaryKey: false,
           allowNull: false,
           defaultValue: DataTypes.UUIDV4,
           type: DataTypes.UUID,
@@ -63,7 +63,7 @@ export default function (sequelize: Sequelize): typeof InvitationModel {
         },
         tenancyId: {
           allowNull: false,
-          type: DataTypes.UUID,
+          type: DataTypes.BIGINT,
         },
         rejectedAt: {
           allowNull: true,

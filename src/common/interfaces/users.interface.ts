@@ -1,5 +1,6 @@
 export interface User {
-  id: string;
+  id: number;
+  uuid: string;
   email: string;
   password: string;
   username: string;
@@ -7,11 +8,11 @@ export interface User {
   lastName: string;
   mobile: string;
   photo: string;
-  currentTenancyId:string;
-  isEmailValidated:boolean;
-  emailValidatedOn:Date;
-  token:string;
-  socialProviderId:string;
+  currentTenancyId: string;
+  isEmailValidated: boolean;
+  emailValidatedOn: Date;
+  token: string;
+  socialProviderId: string;
   lastAccess: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -23,11 +24,10 @@ export interface NewUser {
   username: string;
 }
 
-
 export interface CurrentUser {
   id: string;
   iat: number;
-  exp: number
+  exp: number;
 }
 
 export interface CurrentTenancy {

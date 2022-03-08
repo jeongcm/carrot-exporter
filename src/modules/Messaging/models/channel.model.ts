@@ -14,8 +14,8 @@ export class ChannelModel extends Model<Channel, ChannelCreationAttributes> impl
   public name: string;
   public description: string;
   public configJSON: string;
-  public createdBy: string;
-  public updatedBy: string;
+  public createdBy: number;
+  public updatedBy: number;
   public isDeleted: boolean;
 
   public readonly createdAt!: Date;
