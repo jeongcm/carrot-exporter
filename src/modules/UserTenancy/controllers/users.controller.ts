@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateUserDto } from '@/modules/UserTenancy/dtos/users.dto';
+import { CreateUserDto } from '@/modules/UserTenancy/dtos/user.dto';
 import { User } from '@/common/interfaces/users.interface';
 import userService from '@/modules/UserTenancy/services/users.service';
 import TokenService from '@/modules/UserTenancy/services/token.service';
@@ -86,7 +86,7 @@ class UsersController {
       return res.status(400).json({ message: 'Token is missing in the url' });
     }
     if (token && userDetail.token == token) {
-      let obj = {
+      const obj = {
         isEmailValidated: true,
         emailValidatedOn: new Date(),
         token,

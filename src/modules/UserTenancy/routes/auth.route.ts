@@ -3,7 +3,7 @@ Auth Routes
 */
 import { Router } from 'express';
 import AuthController from '@/modules/UserTenancy/controllers/auth.controller';
-import { CreateUserDto, LoginUserDto } from '@/modules/UserTenancy/dtos/users.dto';
+import { CreateUserDto, LoginUserDto } from '@/modules/UserTenancy/dtos/user.dto';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';

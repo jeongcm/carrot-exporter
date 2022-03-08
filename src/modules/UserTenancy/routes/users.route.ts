@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import UsersController from '@/modules/UserTenancy/controllers/users.controller';
 import SendMailController from '@/modules/Messaging/controllers/sendMail.controller';
-import { CreateUserDto } from '@/modules/UserTenancy/dtos/users.dto';
+import { CreateUserDto } from '@/modules/UserTenancy/dtos/user.dto';
 import { Routes } from '@/common/interfaces/routes.interface';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
@@ -25,7 +25,7 @@ class UsersRoute implements Routes {
     this.router.post('/users/sendMail', this.sendMailController.processMail);
     this.router.get('/verify', this.usersController.verifyMail);
     this.router.post('/users/duplicateMail', this.usersController.checkForDuplicateMail);
-    this.router.post('/recoverPassword',authMiddleware, this.usersController.recoverPassword);
+    this.router.post('/recoverPassword', authMiddleware, this.usersController.recoverPassword);
     this.router.post('/password_reset', this.usersController.resetPassword);
   }
 }

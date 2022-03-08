@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import DB from '@/database';
-import { CreateUserDto } from '@/modules/UserTenancy/dtos/users.dto';
+import { CreateUserDto } from '@/modules/UserTenancy/dtos/user.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { User } from '@/common/interfaces/users.interface';
 import { isEmpty } from '@/common/utils/util';
