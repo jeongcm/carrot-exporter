@@ -7,15 +7,31 @@ import { ChannelType, Platform } from '../../../types';
 import { AccessGroupChannel } from '@/common/interfaces/accessGroupChannel.interface';
 import { AccessGroupModel } from '@/modules/UserTenancy/models/accessGroup.model';
 
+/**
+ * @memberof Messaging
+ */
 class ChannelService {
   public channels = DB.Channel;
   public accessGroupChannel = DB.AccessGroupChannel;
 
+  /**
+   * Find all channels
+   *
+   * @returns Promise<Channel[]>
+   * @author Jaswant
+   */
   public async findAllChannel(): Promise<Channel[]> {
     const allUser: Channel[] = await this.channels.findAll({ where: { isDeleted: false } });
     return allUser;
   }
 
+  /**
+   * find channel by Id
+   *
+   * @param  {number} id
+   * @returns Promise<Channel>
+   * @author Jaswant
+   */
   public async findChannelById(id: number): Promise<Channel> {
     if (isEmpty(id)) throw new HttpException(400, 'Not a valid channel');
 
@@ -25,6 +41,14 @@ class ChannelService {
     return findChannel;
   }
 
+  /**
+   * Create a new channel
+   *
+   * @param  {CreateChannelDto} channelData
+   * @param  {number} currentUserId
+   * @returns Promise<Channel>
+   * @author Jaswant
+   */
   public async createChannel(channelData: CreateChannelDto, currentUserId: number): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const currentDate = new Date();

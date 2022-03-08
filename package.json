@@ -11,7 +11,7 @@
     "test": "jest --forceExit --detectOpenHandles",
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
-    "doc": "node_modules/.bin/jsdoc -c jsdoc.json --debug -r",
+    "doc": "node_modules/.bin/jsdoc -c jsdoc.json -r && node node_modules/serve/bin/serve.js ./jsdocs -p 30886",
     "deploy:prod": "npm run build && pm2 start ecosystem.config.js --only prod",
     "deploy:dev": "pm2 start ecosystem.config.js --only dev"
   },
@@ -95,6 +95,8 @@
     "nodemon": "^2.0.9",
     "prettier": "^2.3.2",
     "sequelize-cli": "^6.2.0",
+    "sequelize-erd": "^1.3.1",
+    "serve": "^13.0.2",
     "supertest": "^6.1.3",
     "tsconfig-paths": "^3.10.1",
     "typescript": "^4.6.0-dev.20211118"

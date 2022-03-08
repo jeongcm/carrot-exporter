@@ -9,30 +9,11 @@ import { AccessGroupChannel } from '@/common/interfaces/accessGroupChannel.inter
 import { isEmpty } from '@/common/utils/util';
 import { ChannelModel } from '@/modules/Messaging/models/channel.model';
 import { UserModel } from '@/modules/UserTenancy/models/users.model';
-import { ClusterModel } from '@/modules/Resource/models/cluster.model';
-
-/**
- * @namespace UserAccess
- *
- *
- * @mermaid
-      sequenceDiagram
-        participant Alice
-        participant Bob
-        Alice->>John: Hello John, how are you?
-        loop Healthcheck
-            John->>John: Fight against hypochondria
-        end
-        Note right of John: Rational thoughts <br/>prevail!
-        John-->>Alice: Great!
-        John->>Bob: How about you?
-        Bob-->>John: Jolly good!
- */
-
+import { ClusterModel } from '@/modules/K8s/models/cluster.model';
 
 /**
  * For Access Group
- * @memberof UserAccess
+ * @memberof UserTenancy
  */
 class AccessGroupService {
   public accessGroup = DB.AccessGroup;

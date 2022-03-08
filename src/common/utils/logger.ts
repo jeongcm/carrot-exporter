@@ -4,7 +4,6 @@ import winstonDaily from 'winston-daily-rotate-file';
 
 // RYAN:
 // 1. As per Sebastian's decision, we are going to enforce /var/log path as default
-// 2. if you really need to set up a custom path, please set NC_LARI_LOG_DIR_OVERRIDE_NOT_FOR_PRODUCTION
 
 // logs dir
 const LOG_DIR = '/var/log';

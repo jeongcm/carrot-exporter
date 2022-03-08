@@ -5,7 +5,7 @@ import { HttpException } from '@/common/exceptions/HttpException';
 /**
  * Validatation middleware to check for particular validation
  * @param  type
- * @param  {string|'body'|'query'|'params'='body'} value
+ * @param  {"string|'body'|'query'|'params'='body'"} value
  * @param  {} skipMissingProperties=false
  * @param  {} whitelist=true
  * @param  {} forbidNonWhitelisted=true

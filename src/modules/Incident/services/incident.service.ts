@@ -14,12 +14,22 @@ import { AlertModel } from '@/modules/Alert/models/alert.model';
 import { IIncidentRelAlert } from '@/common/interfaces/incidentRelAlert.interface';
 import { IIncidentCounts } from '@/common/interfaces/incidentCounts.interface';
 
+/**
+ * @memberof Incident
+ */
 class IncidentService {
   public incident = DB.Incident;
   public alert = DB.Alerts;
   public incidentRelAlert = DB.IncidentRelAlert;
   public incidentAction = DB.IncidentAction;
 
+  /**
+   * Get all incidents in the tenancy
+   *
+   * @param  {number} currentTenancyId
+   * @returns Promise<IIncident[]>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async getAllIncidents(currentTenancyId: number): Promise<IIncident[]> {
     const allIncidents: IIncident[] = await this.incident.findAll({
       where: { isDeleted: 0, tenancyId: currentTenancyId },
@@ -36,6 +46,13 @@ class IncidentService {
     return allIncidents;
   }
 
+  /**
+   * Get an incident by pk
+   *
+   * @param  {number} id
+   * @returns Promise<IIncident>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async getIncidentById(id: number): Promise<IIncident> {
     const incident: IIncident = await this.incident.findOne({
       where: { id },
@@ -50,6 +67,14 @@ class IncidentService {
     return incident;
   }
 
+  /**
+   * Get all the alerts related to an invident
+   *
+   * @param  {number} id
+   * @param  {number} currentTenancyId
+   * @returns Promise<IIncidentRelAlert[]>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async getAlertsByIncidentId(id: number, currentTenancyId: number): Promise<IIncidentRelAlert[]> {
     const alerts: IIncidentRelAlert[] = await this.incidentRelAlert.findAll({
       where: { incidentId: id },
@@ -84,6 +109,14 @@ class IncidentService {
     return modifiedAlerts;
   }
 
+  /**
+   * Relate alerts to an incident
+   *
+   * @param  {number} incidentId
+   * @param  {CreateRelatedAlertDto} relatedAlertData
+   * @returns Promise<IIncidentRelAlert[]>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async createRelatedAlertsByIncident(incidentId: number, relatedAlertData: CreateRelatedAlertDto): Promise<IIncidentRelAlert[]> {
     if (isEmpty(relatedAlertData)) throw new HttpException(400, 'Incident must not be empty');
 
@@ -101,6 +134,15 @@ class IncidentService {
     return result;
   }
 
+  // RYAN: @saemsol NEX-1417
+  /**
+   * Dissociate alerts from an incident
+   *
+   * @param  {number} incidentId
+   * @param  {CreateRelatedAlertDto} relatedAlertData
+   * @returns Promise<void>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async deleteRelatedAlertsByIncident(incidentId: number, relatedAlertData: CreateRelatedAlertDto): Promise<void> {
     if (isEmpty(relatedAlertData)) throw new HttpException(400, 'Incident must not be empty');
 
@@ -114,6 +156,13 @@ class IncidentService {
     });
   }
 
+  /**
+   * Get all the actions in an incident
+   *
+   * @param  {number} id
+   * @returns Promise<IIncidentAction[]>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async getIncidentActionsById(id: number): Promise<IIncidentAction[]> {
     const incidentActions: IIncidentAction[] = await this.incidentAction.findAll({
       where: { incidentId: id, isDeleted: 0 },
@@ -122,7 +171,19 @@ class IncidentService {
 
     return incidentActions;
   }
-
+  /**
+   * Get numbers of incidents status.
+   *
+   * For eg:
+   * closedCount: 3
+   * inprogressCount: 5
+   * openCount: 2
+   * resolvedCount: 3
+   *
+   * @param  {number} currentTenancyId
+   * @returns Promise<IIncidentCounts>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async getIncidentCounts(currentTenancyId: number): Promise<IIncidentCounts> {
     const closedAmount = await this.incident.count({
       where: { isDeleted: 0, status: 'CLOSED', tenancyId: currentTenancyId },
@@ -147,6 +208,15 @@ class IncidentService {
     return incidentCounts;
   }
 
+  /**
+   * Create a new incident
+   *
+   * @param  {CreateIncidentDto} incidentData
+   * @param  {number} currentUserId
+   * @param  {number} currentTenancyId
+   * @returns Promise<IIncident>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async createIncident(incidentData: CreateIncidentDto, currentUserId: number, currentTenancyId: number): Promise<IIncident> {
     if (isEmpty(incidentData)) throw new HttpException(400, 'Incident must not be empty');
 
@@ -189,6 +259,14 @@ class IncidentService {
     return createIncidentData;
   }
 
+  /**
+   * Delete an incident
+   *
+   * @param  {number} id
+   * @param  {number} currentUserId
+   * @returns Promise<[number, IncidentModel[]]>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async deleteIncidentById(id: number, currentUserId: number): Promise<[number, IncidentModel[]]> {
     const deletedIncident: [number, IncidentModel[]] = await this.incident.update({ isDeleted: 1, updatedBy: currentUserId }, { where: { id } });
     await this.incidentRelAlert.destroy({ where: { incidentId: id } });
@@ -197,6 +275,15 @@ class IncidentService {
     return deletedIncident;
   }
 
+  /**
+   * Update an incident
+   *
+   * @param  {number} id
+   * @param  {UpdateIncidentDto} incidentData
+   * @param  {number} currentUserId
+   * @returns Promise<IIncident>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async updateIncident(id: number, incidentData: UpdateIncidentDto, currentUserId: number): Promise<IIncident> {
     const { relatedAlertIds, actions } = incidentData;
 
@@ -231,12 +318,30 @@ class IncidentService {
     return this.getIncidentById(id);
   }
 
+  /**
+   * Update the "status" field of an incident specifically
+   *
+   * @param  {number} id
+   * @param  {UpdateIncidentStatusDto} incidentStatusData
+   * @param  {number} currentUserId
+   * @returns Promise<IIncident>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async updateIncidentStatus(id: number, incidentStatusData: UpdateIncidentStatusDto, currentUserId: number): Promise<IIncident> {
     await this.incident.update({ status: incidentStatusData.status, updatedBy: currentUserId }, { where: { id } });
 
     return this.getIncidentById(id);
   }
 
+  /**
+   * Create an action for an incident
+   *
+   * @param  {any} actionData
+   * @param  {number} currentUserId
+   * @param  {number} incidentId
+   * @returns Promise<IIncidentAction>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async createIncidentAction(actionData: any, currentUserId: number, incidentId: number): Promise<IIncidentAction> {
     if (isEmpty(actionData)) throw new HttpException(400, 'Incident must not be empty');
 
@@ -249,6 +354,16 @@ class IncidentService {
     return createActionData;
   }
 
+  /**
+   * Update an anction within incident
+   *
+   * @param  {any} actionData
+   * @param  {number} currentUserId
+   * @param  {number} incidentId
+   * @param  {number} actionId
+   * @returns Promise<IIncidentAction>
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async updateIncidentAction(actionData: any, currentUserId: number, incidentId: number, actionId: number): Promise<IIncidentAction> {
     if (isEmpty(actionData)) throw new HttpException(400, 'Incident must not be empty');
 
@@ -264,6 +379,15 @@ class IncidentService {
     return updateResult;
   }
 
+  /**
+   * Delete an action from incident
+   *
+   * @param  {number} incidentId
+   * @param  {number} currentUserId
+   * @param  {number} actionId
+   * @returns Promise
+   * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
+   */
   public async deleteIncidentActionById(incidentId: number, currentUserId: number, actionId: number): Promise<[number, IncidentActionModel[]]> {
     const deletedIncidentAction: [number, IncidentActionModel[]] = await this.incidentAction.update(
       { isDeleted: 1, updatedBy: currentUserId },
