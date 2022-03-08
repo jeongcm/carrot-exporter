@@ -1,10 +1,11 @@
-import { EventFrom, EventStatus } from '@/types';
+import { EventFrom, EventStatus } from '@/common/types';
 
 export interface Event {
+  id: number;
+  uuid: string;
   name: string;
   from: EventFrom;
   type: string;
-  id: string;
   createdAt: Date;
   createdBy: number;
   updatedAt: Date;

@@ -1,4 +1,4 @@
-import { LogOrigin, LogStatus, LogType } from '@/types';
+import { LogOrigin, LogStatus, LogType } from '@/common/types';
 import { IsString, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
 
 export class CreateLogDto {

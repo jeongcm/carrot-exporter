@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Log } from '@/common/interfaces/log.interface';
-import { LogStatus, LogType } from '@/types';
+import { LogStatus, LogType } from '@/common/types';
 
 export type AlertCreationAttributes = Optional<
   Log,

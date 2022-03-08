@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Channel } from '@/common/interfaces/channel.interface';
-import { ChannelType } from '@/types';
+import { ChannelType } from '@/common/types';
 
 export type ChannelCreationAttributes = Optional<
   Channel,

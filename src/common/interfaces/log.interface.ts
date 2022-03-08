@@ -1,4 +1,4 @@
-import { LogStatus, LogType } from '@/types';
+import { LogStatus, LogType } from '@/common/types';
 
 export interface Log {
   id: number;
