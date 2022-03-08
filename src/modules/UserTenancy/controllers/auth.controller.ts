@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateUserDto } from '@/modules/UserTenancy/dtos/users.dto';
+import { CreateUserDto } from '@/modules/UserTenancy/dtos/user.dto';
 import { User } from '@/common/interfaces/users.interface';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
 import AuthService from '@/modules/UserTenancy/services/auth.service';
-
 class AuthController {
   public authService = new AuthService();
 
@@ -75,7 +74,7 @@ class AuthController {
     }
 
     try {
-      const userData: User = await this.authService.getUser(req.user.id);
+      const userData: User = await this.authService.getMeUser(req.user.id);
       res.status(200).json(userData);
     } catch (error) {
       next(error);

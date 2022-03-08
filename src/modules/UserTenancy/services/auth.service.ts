@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import DB from '@/database';
-import { CreateUserDto } from '@/modules/UserTenancy/dtos/users.dto';
+import { CreateUserDto } from '@/modules/UserTenancy/dtos/user.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@/common/interfaces/auth.interface';
 import { User } from '@/common/interfaces/users.interface';
@@ -87,6 +87,34 @@ class AuthService {
     });
     if (findUser) {
       return findUser[0];
+    } else {
+      return null;
+    }
+  }
+
+  /**
+   * Mainly serving /me controller
+   *
+   * @param  {string} id
+   * @returns Promise<User>
+   * @author Ryan Lee <ryan@nexclipper.io>
+   */
+  public async getMeUser(id): Promise<User> {
+    const findUser = await this.users.findOne({
+      where: {
+        id,
+      },
+      attributes: ['uuid', 'email', 'username', 'firstName', 'lastName', 'mobile', 'photo', 'socialProviderId', 'currentTenancyId', 'lastAccess'],
+      include: [
+        {
+          model: TenancyModel,
+          attributes: ['id', 'tenancyCode', 'tenancyName', 'tenancyDescription', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'isDeleted'],
+          as: 'currentTenancy',
+        },
+      ],
+    });
+    if (findUser) {
+      return findUser;
     } else {
       return null;
     }
