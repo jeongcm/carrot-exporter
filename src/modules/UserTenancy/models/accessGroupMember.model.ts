@@ -28,7 +28,7 @@ export default function (sequelize: Sequelize): typeof AccessGroupMemberModel {
         primaryKey: true,
       },
       uuid: {
-        primaryKey: true,
+        primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,

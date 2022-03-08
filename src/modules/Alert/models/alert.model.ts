@@ -52,7 +52,7 @@ export default function (sequelize: Sequelize): typeof AlertModel {
         primaryKey: true,
       },
       uuid: {
-        primaryKey: true,
+        primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
