@@ -3,7 +3,7 @@ import { AccessGroupCluster } from '@/common/interfaces/accessGroupCluster.inter
 
 export type AccessGroupClusterCreationAttributes = Optional<
   AccessGroupCluster,
-  'id' | 'accessGroupId' | 'clusterId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'id' | 'uuid' | 'accessGroupId' | 'clusterId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class AccessGroupClusterModel extends Model<AccessGroupCluster, AccessGroupClusterCreationAttributes> implements AccessGroupCluster {

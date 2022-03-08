@@ -4,7 +4,7 @@ import { ChannelType } from '@/common/types';
 
 export type ChannelCreationAttributes = Optional<
   Channel,
-  'id' | 'channelType' | 'name' | 'description' | 'configJSON' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'id' | 'uuid' | 'channelType' | 'name' | 'description' | 'configJSON' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class ChannelModel extends Model<Channel, ChannelCreationAttributes> implements Channel {

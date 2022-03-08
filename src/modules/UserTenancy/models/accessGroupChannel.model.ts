@@ -3,7 +3,7 @@ import { AccessGroupChannel } from '@/common/interfaces/accessGroupChannel.inter
 
 export type AccessGroupChannelCreationAttributes = Optional<
   AccessGroupChannel,
- 'id' |'accessGroupId' | 'channelId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'id' | 'uuid' | 'accessGroupId' | 'channelId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class AccessGroupChannelModel extends Model<AccessGroupChannel, AccessGroupChannelCreationAttributes> implements AccessGroupChannel {

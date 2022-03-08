@@ -1,6 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { User } from '@/common/interfaces/users.interface';
-import { TenancyModel } from './tenancy.model';
 
 export type UserCreationAttributes = Optional<
   User,

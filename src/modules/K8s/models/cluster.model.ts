@@ -4,7 +4,7 @@ import { PlatformEnum } from '@/common/enums';
 
 export type ClusterCreationAttributes = Optional<
   IClusterAdd,
-  'id' | 'description' | 'global' | 'icon' | 'installParams' | 'name' | 'platform' | 'tags' | 'tenancyId'
+  'id' | 'uuid' | 'description' | 'global' | 'icon' | 'installParams' | 'name' | 'platform' | 'tags' | 'tenancyId'
 >;
 
 export class ClusterModel extends Model<IClusterAdd, ClusterCreationAttributes> implements IClusterAdd {

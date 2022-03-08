@@ -1,9 +1,7 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Tenancy } from '@/common/interfaces/tenancy.interface';
-import { TenancyMember } from '@/common/interfaces/tenancyMember.interface';
-import { UserModel } from './users.model';
 
-export type TenancyCreationAttributes = Optional<Tenancy, 'id' | 'tenancyCode' | 'tenancyName'>;
+export type TenancyCreationAttributes = Optional<Tenancy, 'id' | 'uuid' | 'tenancyCode' | 'tenancyName'>;
 
 export class TenancyModel extends Model<Tenancy> implements Tenancy {
   public id: number;
@@ -76,5 +74,6 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
       sequelize,
     },
   );
-   return TenancyModel;
+
+  return TenancyModel;
 }

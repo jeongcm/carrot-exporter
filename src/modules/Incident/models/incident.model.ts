@@ -3,7 +3,19 @@ import { IIncident } from '../../../common/interfaces/incident.interface';
 
 export type IncidentCreationAttributes = Optional<
   IIncident,
-  'id' | 'tenancyId' | 'assigneeId' | 'title' | 'note' | 'status' | 'priority' | 'dueDate' | 'createdBy' | 'updatedBy' | 'isDeleted' | 'pinned'
+  | 'id'
+  | 'uuid'
+  | 'tenancyId'
+  | 'assigneeId'
+  | 'title'
+  | 'note'
+  | 'status'
+  | 'priority'
+  | 'dueDate'
+  | 'createdBy'
+  | 'updatedBy'
+  | 'isDeleted'
+  | 'pinned'
 >;
 
 export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> implements IIncident {

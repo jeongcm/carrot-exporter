@@ -3,7 +3,18 @@ import { Invitation } from '@/common/interfaces/invitation.interface';
 
 export type TenancyCreationAttributes = Optional<
   Invitation,
-  'isActive' | 'isAccepted' | 'acceptedAt' | 'isRejected' | 'rejectedAt' | 'tenancyId' | 'invitedByUserId' | 'token' | 'createdAt' | 'updatedAt'
+  | 'id'
+  | 'uuid'
+  | 'isActive'
+  | 'isAccepted'
+  | 'acceptedAt'
+  | 'isRejected'
+  | 'rejectedAt'
+  | 'tenancyId'
+  | 'invitedByUserId'
+  | 'token'
+  | 'createdAt'
+  | 'updatedAt'
 >;
 
 export class InvitationModel extends Model<Invitation> implements Invitation {

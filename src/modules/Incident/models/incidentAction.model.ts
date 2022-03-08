@@ -3,7 +3,7 @@ import { IIncidentAction } from '../../../common/interfaces/incidentAction.inter
 
 export type IIncidentActionCreationAttributes = Optional<
   IIncidentAction,
-  'id' | 'incidentId' | 'title' | 'description' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'id' | 'uuid' | 'incidentId' | 'title' | 'description' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class IncidentActionModel extends Model<IIncidentAction, IIncidentActionCreationAttributes> implements IIncidentAction {

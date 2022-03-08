@@ -1,6 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { TenancyMember } from '@/common/interfaces/tenancyMember.interface';
-import { UserModel } from './users.model';
 
 export type TenancyMemberCreationAttributes = Optional<
   TenancyMember,
@@ -29,7 +28,7 @@ export class TenancyMemberModel extends Model<TenancyMember> implements TenancyM
   public tenancyId: number;
   public isDeleted: boolean;
   public isActivated: boolean;
-  public invitedBy: string;
+  public invitedBy: number;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;

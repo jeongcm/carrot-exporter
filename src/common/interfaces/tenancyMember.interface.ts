@@ -6,7 +6,7 @@ export interface TenancyMember {
   userRole: 'owner' | 'member' | 'maintainer';
   tenancyId: number;
   isActivated: boolean;
-  invitedBy: string;
+  invitedBy: number;
   verificationCode: string;
   isDeleted: boolean;
   tenancyLastAccess: Date;

@@ -3,9 +3,10 @@ import { IAlert } from '@/common/interfaces/alert.interface';
 
 export type AlertCreationAttributes = Optional<
   IAlert,
+  | 'id'
+  | 'uuid'
   | 'alertName'
   | 'from'
-  | 'id'
   | 'lastUpdatedAt'
   | 'severity'
   | 'source'

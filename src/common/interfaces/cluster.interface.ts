@@ -43,7 +43,6 @@ export interface IClusterAdd {
   icon: string;
   installParams: string;
   name: string;
-  // objectId: number;
   platform: PlatformEnum;
   tags: string;
   isDeleted: boolean;
@@ -79,7 +78,7 @@ export interface IClusterDetail {
   nodeCount: number;
   objectId: number;
   p8sStatus: string;
-  platform: Platform;
+  platform: PlatformEnum;
   primaryAgentKey: string;
   provider: string;
   size: number;

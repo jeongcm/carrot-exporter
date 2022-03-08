@@ -4,10 +4,11 @@ import { LogStatus, LogType } from '@/common/types';
 
 export type AlertCreationAttributes = Optional<
   Log,
+  | 'id'
+  | 'uuid'
   | 'name'
   | 'from'
   | 'type'
-  | 'id'
   | 'status'
   | 'isActive'
   | 'createdAt'
