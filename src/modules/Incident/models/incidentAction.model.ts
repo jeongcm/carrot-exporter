@@ -3,13 +3,13 @@ import { IIncidentAction } from '../../../common/interfaces/incidentAction.inter
 
 export type IIncidentActionCreationAttributes = Optional<
   IIncidentAction,
-  'id' | 'uuid' | 'incidentId' | 'title' | 'description' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'id' | 'pk' | 'incidentPk' | 'title' | 'description' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class IncidentActionModel extends Model<IIncidentAction, IIncidentActionCreationAttributes> implements IIncidentAction {
-  public id: number;
-  public uuid: string;
-  public incidentId: number;
+  public pk: number;
+  public id: string;
+  public incidentPk: string;
   public title: string;
   public description: string;
   public createdBy: number;
@@ -23,19 +23,19 @@ export class IncidentActionModel extends Model<IIncidentAction, IIncidentActionC
 export default function (sequelize: Sequelize): typeof IncidentActionModel {
   IncidentActionModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
       },
-      incidentId: {
+      incidentPk: {
         type: DataTypes.BIGINT,
         allowNull: false,
       },

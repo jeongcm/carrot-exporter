@@ -1,8 +1,8 @@
 export interface AccessGroupChannel {
-  id: number;
-  uuid: string;
-  accessGroupId: number;
-  channelId: number;
+  pk: number;
+  id: string;
+  accessGroupPk: string;
+  channelPk: string;
   createdAt: Date;
   createdBy: number;
   updatedAt: Date;

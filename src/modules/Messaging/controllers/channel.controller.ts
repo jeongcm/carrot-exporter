@@ -19,8 +19,8 @@ class ChannelController {
 
   public getChannelById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const channelId = req.params.id;
-      const findOneUserData: Channel = await this.channelService.findChannelById(channelId);
+      const channelPk = req.params.id;
+      const findOneUserData: Channel = await this.channelService.findChannelById(channelPk);
       res.status(200).json({ data: findOneUserData, message: 'findOne' });
     } catch (error) {
       next(error);
@@ -40,10 +40,10 @@ class ChannelController {
 
   public updateChannel = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const channelId = req.params.id;
+      const channelPk = req.params.id;
       const channelData = req.body;
       const currentUserId = currentUser(req).id;
-      const updateChannelData: Channel = await this.channelService.updateChannel(channelId, channelData, currentUserId);
+      const updateChannelData: Channel = await this.channelService.updateChannel(channelPk, channelData, currentUserId);
       res.status(200).json({ data: updateChannelData, message: 'updated' });
     } catch (error) {
       next(error);
@@ -52,8 +52,8 @@ class ChannelController {
 
   public deleteChannel = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const channelId = req.params.id;
-      const deleteChannelData: Channel = await this.channelService.deleteChannel(channelId);
+      const channelPk = req.params.id;
+      const deleteChannelData: Channel = await this.channelService.deleteChannel(channelPk);
       res.status(200).json({ data: deleteChannelData, message: 'deleted' });
     } catch (error) {
       next(error);
@@ -62,8 +62,8 @@ class ChannelController {
 
   public getAccessGroupByChannel = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const channelId = req.params.id;
-      const currentAcessGroupData: AccessGroupChannel[] = await this.channelService.getAccessGroupByChannels(channelId);
+      const channelPk = req.params.id;
+      const currentAcessGroupData: AccessGroupChannel[] = await this.channelService.getAccessGroupByChannels(channelPk);
       res.status(200).json({ data: currentAcessGroupData, message: 'Get Access groups of specfic channel' });
     } catch (error) {
       next(error);

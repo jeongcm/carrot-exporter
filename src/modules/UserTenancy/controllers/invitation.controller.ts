@@ -29,9 +29,9 @@ class InvitationController {
 
   public createInvitation = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { tenancyId, invitedTo } = req.body;
+      const { tenancyPk, invitedTo } = req.body;
       const userDetail: User = await this.usersService.findUserByEmail(invitedTo);
-      if (userDetail.currentTenancyId && userDetail.currentTenancyId === tenancyId) {
+      if (userDetail.currentTenancyPk && userDetail.currentTenancyPk === tenancyPk) {
         return res.status(200).json({ ok: false, message: 'USER_ALREADY_IN_TENANCY' });
       }
       const invitationDetail: Invitation = await this.invitationService.getInvitationByEmail(invitedTo);
@@ -86,7 +86,7 @@ class InvitationController {
         return res.status(200).json({ message: 'REQUEST_IS_ALEARDY_REJECTED' });
       } else {
         await this.invitationService.updateInvitation(invitationData.id, { isActive: false, isAccepted: true, acceptedAt: new Date() });
-        await this.tenancyService.updateTenancyMemberDetail(invitationData.tenancyId, { invitedBy: invitationData.invitedTo });
+        await this.tenancyService.updateTenancyMemberDetail(invitationData.tenancyPk, { invitedBy: invitationData.invitedTo });
         return res.status(200).json({ message: 'VERIFICATION_DONE_SUCCESSFULLY' });
       }
     } catch (error) {

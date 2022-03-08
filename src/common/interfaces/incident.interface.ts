@@ -1,8 +1,8 @@
 export interface IIncident {
-  id: number;
-  uuid: string;
-  tenancyId: number;
-  assigneeId: number;
+  pk: number;
+  id: string;
+  tenancyPk: string;
+  assigneePk: string;
   title: string;
   note: string;
   status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';

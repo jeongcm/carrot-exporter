@@ -1,7 +1,7 @@
 export interface IIncidentAction {
-  id: number;
-  uuid: string;
-  incidentId: number;
+  pk: number;
+  id: string;
+  incidentPk: string;
   title: string;
   description: string;
   createdBy: number;

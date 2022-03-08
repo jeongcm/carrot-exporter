@@ -1,4 +1,4 @@
 export interface IIncidentRelAlert {
-  incidentId: number;
-  alertId: number;
+  incidentPk: string;
+  alertPk: string;
 }

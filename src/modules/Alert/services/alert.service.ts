@@ -18,15 +18,15 @@ class AlertService {
   /**
    * Get all alerts
    *
-   * @param  {number} tenancyId
+   * @param  {number} tenancyPk
    * @returns Promise<IAlert[]>
    */
-  public async getAllAlerts(tenancyId: number): Promise<IAlert[]> {
-    if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
+  public async getAllAlerts(tenancyPk: string): Promise<IAlert[]> {
+    if (!tenancyPk) throw new HttpException(400, `tenancyPk is required in headers.`);
 
     const allAlerts: IAlert[] = await this.alert.findAll({
-      where: { tenancyId },
-      attributes: { exclude: ['tenancyId', 'alertRule', 'note', 'node', 'numberOfOccurrences'] },
+      where: { tenancyPk },
+      attributes: { exclude: ['tenancyPk', 'alertRule', 'note', 'node', 'numberOfOccurrences'] },
       include: [
         {
           model: IncidentModel,
@@ -42,7 +42,7 @@ class AlertService {
 
       let tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
 
-      tempAlertsX.incidentId = _.map(incidents, incidentsX => incidentsX.id);
+      tempAlertsX.incidentPk = _.map(incidents, incidentsX => incidentsX.id);
 
       delete tempAlertsX.incidents;
 
@@ -55,15 +55,15 @@ class AlertService {
   /**
    * Get all the pinned alerts
    *
-   * @param  {number} tenancyId
+   * @param  {number} tenancyPk
    * @returns Promise<IAlert[]>
    */
-  public async getAllPinnedAlerts(tenancyId: number): Promise<IAlert[]> {
-    if (!tenancyId) throw new HttpException(400, `tenancyId is required in headers.`);
+  public async getAllPinnedAlerts(tenancyPk: string): Promise<IAlert[]> {
+    if (!tenancyPk) throw new HttpException(400, `tenancyPk is required in headers.`);
 
     const allPinnedAlerts: IAlert[] = await this.alert.findAll({
-      where: { tenancyId, pinned: 1 },
-      attributes: { exclude: ['tenancyId', 'alertRule', 'note', 'node', 'numberOfOccurrences'] },
+      where: { tenancyPk, pinned: 1 },
+      attributes: { exclude: ['tenancyPk', 'alertRule', 'note', 'node', 'numberOfOccurrences'] },
       include: [
         {
           model: IncidentModel,
@@ -79,7 +79,7 @@ class AlertService {
 
       let tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
 
-      tempAlertsX.incidentId = _.map(incidents, incidentsX => incidentsX.id);
+      tempAlertsX.incidentPk = _.map(incidents, incidentsX => incidentsX.id);
 
       delete tempAlertsX.incidents;
 
@@ -98,7 +98,7 @@ class AlertService {
   public async getAlertById(id: number): Promise<IAlert> {
     const alert: IAlert = await this.alert.findOne({
       where: { id },
-      attributes: { exclude: ['tenancyId'] },
+      attributes: { exclude: ['tenancyPk'] },
       include: [
         {
           model: IncidentModel,
@@ -112,13 +112,13 @@ class AlertService {
    * Create a new alert
    *
    * @param  {CreateAlertDto} alertData
-   * @param  {number} tenancyId
+   * @param  {number} tenancyPk
    * @returns Promise<IAlert>
    */
-  public async createAlert(alertData: CreateAlertDto, tenancyId: number): Promise<IAlert> {
+  public async createAlert(alertData: CreateAlertDto, tenancyPk: string): Promise<IAlert> {
     if (isEmpty(alertData)) throw new HttpException(400, 'Alert must not be empty');
 
-    const createAlertData: IAlert = await this.alert.create({ ...alertData, tenancyId });
+    const createAlertData: IAlert = await this.alert.create({ ...alertData, tenancyPk });
 
     return createAlertData;
   }

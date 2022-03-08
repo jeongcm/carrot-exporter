@@ -3,14 +3,14 @@ import { AccessGroupChannel } from '@/common/interfaces/accessGroupChannel.inter
 
 export type AccessGroupChannelCreationAttributes = Optional<
   AccessGroupChannel,
-  'id' | 'uuid' | 'accessGroupId' | 'channelId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'id' | 'pk' | 'accessGroupPk' | 'channelPk' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class AccessGroupChannelModel extends Model<AccessGroupChannel, AccessGroupChannelCreationAttributes> implements AccessGroupChannel {
-  public id: number;
-  public uuid: string;
-  public accessGroupId: number;
-  public channelId: number;
+  public pk: number;
+  public id: string;
+  public accessGroupPk: string;
+  public channelPk: string;
   public createdBy: number;
   public updatedBy: number;
   public isDeleted: boolean;
@@ -22,33 +22,33 @@ export class AccessGroupChannelModel extends Model<AccessGroupChannel, AccessGro
 export default function (sequelize: Sequelize): typeof AccessGroupChannelModel {
   AccessGroupChannelModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
       },
-      accessGroupId: {
+      accessGroupPk: {
         allowNull: false,
-        type: DataTypes.BIGINT,
+        type: DataTypes.UUID,
       },
-      channelId: {
+      channelPk: {
         allowNull: false,
-        type: DataTypes.BIGINT,
+        type: DataTypes.UUID,
       },
       createdBy: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.UUID,
       },
       updatedBy: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.UUID,
       },
       createdAt: {
         allowNull: false,

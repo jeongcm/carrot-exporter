@@ -28,22 +28,22 @@ class IncidentRoute implements Routes {
       this.incidentController.createIncidentAction,
     );
     this.router.put(
-      '/incidents/:incidentId/actions/:actionId',
+      '/incidents/:incidentPk/actions/:actionId',
       authMiddleware,
       validationMiddleware(CreateActionDto, 'body'),
       this.incidentController.updateIncidentAction,
     );
-    this.router.delete('/incidents/:incidentId/actions/:actionId', authMiddleware, this.incidentController.deleteIncidentAction);
+    this.router.delete('/incidents/:incidentPk/actions/:actionId', authMiddleware, this.incidentController.deleteIncidentAction);
     this.router.post('/incidents', authMiddleware, validationMiddleware(CreateIncidentDto, 'body'), this.incidentController.createIncident);
-    this.router.get('/incidents/:incidentId/relates/alerts', authMiddleware, this.incidentController.getAlertByIncident);
+    this.router.get('/incidents/:incidentPk/relates/alerts', authMiddleware, this.incidentController.getAlertByIncident);
     this.router.post(
-      '/incidents/:incidentId/relates/alerts',
+      '/incidents/:incidentPk/relates/alerts',
       authMiddleware,
       validationMiddleware(CreateRelatedAlertDto, 'body'),
       this.incidentController.createRelatedAlertsByIncident,
     );
     this.router.delete(
-      '/incidents/:incidentId/relates/alerts',
+      '/incidents/:incidentPk/relates/alerts',
       authMiddleware,
       validationMiddleware(CreateRelatedAlertDto, 'body'),
       this.incidentController.deleteRelatedAlertsByIncident,

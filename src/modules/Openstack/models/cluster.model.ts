@@ -4,13 +4,13 @@ import { PlatformEnum } from '@/common/enums';
 
 export type ClusterCreationAttributes = Optional<
   IClusterAdd,
-  'id' | 'uuid' | 'description' | 'global' | 'icon' | 'installParams' | 'name' | 'platform' | 'tags' | 'tenancyId'
+  'id' | 'pk' | 'description' | 'global' | 'icon' | 'installParams' | 'name' | 'platform' | 'tags' | 'tenancyPk'
 >;
 
 export class ClusterModel extends Model<IClusterAdd, ClusterCreationAttributes> implements IClusterAdd {
-  public id: number;
-  public uuid: string;
-  public tenancyId: number;
+  public pk: number;
+  public id: string;
+  public tenancyPk: string;
   public description: string;
   public global: boolean;
   public icon: string;
@@ -27,19 +27,19 @@ export class ClusterModel extends Model<IClusterAdd, ClusterCreationAttributes> 
 export default function (sequelize: Sequelize): typeof ClusterModel {
   ClusterModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
       },
-      tenancyId: {
+      tenancyPk: {
         allowNull: true,
         type: DataTypes.BIGINT,
       },

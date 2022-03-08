@@ -112,14 +112,14 @@ definitions:
   createInvitation:
     type: object
     required:
-      - tenancyId
+      - tenancyPk
       - invitedByUserId
       - invitedTo
       - token
     properties:
-      tenancyId:
+      tenancyPk:
         type: string
-        description: invitation tenancyId
+        description: invitation tenancyPk
         example: example
       invitedByUserId:
         type: string

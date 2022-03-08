@@ -3,7 +3,7 @@ export interface IClusterServiceLabel {
   id: number;
   label: string;
   name: string;
-  serviceId: number;
+  serviceId: string;
 }
 
 export interface IClusterServciePort {
@@ -13,12 +13,12 @@ export interface IClusterServciePort {
   nodePort: string;
   port: string;
   protocol: string;
-  serviceId: number;
+  serviceId: string;
   targetPort: string;
 }
 
 export interface IClusterService {
-  clusterId: number;
+  clusterPk: string;
   exporterKey: string;
   exporterStatus:
     | 'ACTIVE'
@@ -30,14 +30,14 @@ export interface IClusterService {
     | 'INACTIVE'
     | 'INSTALL_FAILED'
     | 'NOT_INSTALLED';
-  groupId: number;
+  groupId: string;
   id: number;
   labels: IClusterServiceLabel[];
   name: string;
   namespace: string;
   ports: IClusterServciePort[];
   serviceType: string;
-  tenancyId: number;
+  tenancyPk: string;
   type: 'ClusterIP' | 'LoadBalancer' | 'NodePort';
 }
 
@@ -52,7 +52,7 @@ export interface ClusterP8sService {
   linkUrl: string;
   name: string;
   new: boolean;
-  p8sId: number;
+  p8sId: string;
   status: string;
   updatedAt: string;
   updatedBy: number;

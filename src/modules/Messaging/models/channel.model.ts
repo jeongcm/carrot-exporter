@@ -4,12 +4,12 @@ import { ChannelType } from '@/common/types';
 
 export type ChannelCreationAttributes = Optional<
   Channel,
-  'id' | 'uuid' | 'channelType' | 'name' | 'description' | 'configJSON' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'id' | 'pk' | 'channelType' | 'name' | 'description' | 'configJSON' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class ChannelModel extends Model<Channel, ChannelCreationAttributes> implements Channel {
-  public id: number;
-  public uuid: string;
+  public pk: number;
+  public id: string;
   public channelType: ChannelType;
   public name: string;
   public description: string;
@@ -25,13 +25,13 @@ export class ChannelModel extends Model<Channel, ChannelCreationAttributes> impl
 export default function (sequelize: Sequelize): typeof ChannelModel {
   ChannelModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,

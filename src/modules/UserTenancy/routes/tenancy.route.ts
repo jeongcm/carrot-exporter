@@ -26,15 +26,15 @@ class TenancyRoute implements Routes {
     this.router.put('/tenancies/:id', authMiddleware, this.tenancyController.updateTenancy);
 
     this.router.post(
-      '/tenancies/:tenancyId/members/:userId',
+      '/tenancies/:tenancyPk/members/:userPk',
       authMiddleware,
       validationMiddleware(CreateTenancyMemberDto, 'body'),
       this.tenancyController.createTenancyMember,
     );
-    this.router.put('/current-tenancy/:tenancyId', authMiddleware, this.tenancyMemberController.updateTenancyMemberToUser);
+    this.router.put('/current-tenancy/:tenancyPk', authMiddleware, this.tenancyMemberController.updateTenancyMemberToUser);
 
-    this.router.get('/tenancies/:tenancyId/members', authMiddleware, this.tenancyController.getAllTenancyMember);
-    this.router.delete('/tenancies/:tenancyId/members', authMiddleware, this.tenancyController.deleteTenancyMember);
+    this.router.get('/tenancies/:tenancyPk/members', authMiddleware, this.tenancyController.getAllTenancyMember);
+    this.router.delete('/tenancies/:tenancyPk/members', authMiddleware, this.tenancyController.deleteTenancyMember);
     this.router.get('/tenancies/member/:tenancyMemberId', authMiddleware, this.tenancyController.getTenancyMember);
   }
 }

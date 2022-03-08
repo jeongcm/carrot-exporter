@@ -153,14 +153,14 @@ paths:
           description: 'Conflict'
         500:
           description: 'Server Error'
-  # [PUT] incidents/incidentId/actions/actionId
-  /incidents/{incidentId}/actions/{actionId}:
+  # [PUT] incidents/incidentPk/actions/actionId
+  /incidents/{incidentPk}/actions/{actionId}:
     put:
       tags:
         - incident
       summary: Update Incident Action
       parameters:
-        - name: incidentId
+        - name: incidentPk
           in: path
           description: Incident Id
           required: true
@@ -183,13 +183,13 @@ paths:
           description: 'Not Found'
         500:
           description: 'Server Error'
-    # [DELETE] incidents/incidentId/actions/actionId
+    # [DELETE] incidents/incidentPk/actions/actionId
     delete:
       tags:
         - incident
       summary: Delete Incident Action (soft)
       parameters:
-        - name: incidentId
+        - name: incidentPk
           in: path
           description: Incident Id
           required: true
@@ -206,8 +206,8 @@ paths:
           description: 'Conflict'
         500:
           description: 'Server Error'
-  # [GET] incidents/incidentId/relates/alerts
-  /incidents/{incidentId}/relates/alerts:
+  # [GET] incidents/incidentPk/relates/alerts
+  /incidents/{incidentPk}/relates/alerts:
     get:
       tags:
         - incident
@@ -225,7 +225,7 @@ paths:
           description: 'Not Found'
         500:
           description: 'Server Error'
-    # [POST] incidents/incidentId/relates/alerts
+    # [POST] incidents/incidentPk/relates/alerts
     post:
       tags:
         - incident
@@ -251,7 +251,7 @@ paths:
           description: 'Conflict'
         500:
           description: 'Server Error'
-    # [DELETE] incidents/incidentId/relates/alerts
+    # [DELETE] incidents/incidentPk/relates/alerts
     delete:
       tags:
         - incident
@@ -307,7 +307,7 @@ paths:
           description: 'Conflict'
         500:
           description: 'Server Error'
-  
+
 
 # definitions
 definitions:
@@ -315,7 +315,7 @@ definitions:
     type: object
     required:
       - actions
-      - assigneeId
+      - assigneePk
       - dueDate
       - note
       - priority
@@ -336,7 +336,7 @@ definitions:
               type: string
               description: Incident Title
               example: first action title
-      assigneeId:
+      assigneePk:
         type: string
         description: Incident AssigneeId
         example: example

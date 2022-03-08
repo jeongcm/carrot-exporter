@@ -26,15 +26,15 @@ class IncidentService {
   /**
    * Get all incidents in the tenancy
    *
-   * @param  {number} currentTenancyId
+   * @param  {number} currentTenancyPk
    * @returns Promise<IIncident[]>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async getAllIncidents(currentTenancyId: number): Promise<IIncident[]> {
+  public async getAllIncidents(currentTenancyPk: string): Promise<IIncident[]> {
     const allIncidents: IIncident[] = await this.incident.findAll({
-      where: { isDeleted: 0, tenancyId: currentTenancyId },
+      where: { isDeleted: 0, tenancyPk: currentTenancyPk },
       order: [['createdAt', 'DESC']],
-      attributes: { exclude: ['isDeleted', 'assigneeId'] },
+      attributes: { exclude: ['isDeleted', 'assigneePk'] },
       include: [
         {
           as: 'assignee',
@@ -71,21 +71,21 @@ class IncidentService {
    * Get all the alerts related to an invident
    *
    * @param  {number} id
-   * @param  {number} currentTenancyId
+   * @param  {number} currentTenancyPk
    * @returns Promise<IIncidentRelAlert[]>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async getAlertsByIncidentId(id: number, currentTenancyId: number): Promise<IIncidentRelAlert[]> {
+  public async getAlertsByIncidentId(id: number, currentTenancyPk: string): Promise<IIncidentRelAlert[]> {
     const alerts: IIncidentRelAlert[] = await this.incidentRelAlert.findAll({
-      where: { incidentId: id },
+      where: { incidentPk: id },
       include: [
         {
           model: AlertModel,
-          attributes: { exclude: ['tenancyId', 'alertRule', 'note', 'node', 'numberOfOccurrences'] },
+          attributes: { exclude: ['tenancyPk', 'alertRule', 'note', 'node', 'numberOfOccurrences'] },
           include: [
             {
               model: IncidentModel,
-              where: { isDeleted: 0, tenancyId: currentTenancyId },
+              where: { isDeleted: 0, tenancyPk: currentTenancyPk },
             },
           ],
         },
@@ -99,7 +99,7 @@ class IncidentService {
 
       let tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
 
-      tempAlertsX.alert.incidentId = _.map(incidents, incidentsX => incidentsX.id);
+      tempAlertsX.alert.incidentPk = _.map(incidents, incidentsX => incidentsX.id);
 
       delete tempAlertsX.alert.incidents;
 
@@ -112,20 +112,20 @@ class IncidentService {
   /**
    * Relate alerts to an incident
    *
-   * @param  {number} incidentId
+   * @param  {number} incidentPk
    * @param  {CreateRelatedAlertDto} relatedAlertData
    * @returns Promise<IIncidentRelAlert[]>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async createRelatedAlertsByIncident(incidentId: number, relatedAlertData: CreateRelatedAlertDto): Promise<IIncidentRelAlert[]> {
+  public async createRelatedAlertsByIncident(incidentPk: string, relatedAlertData: CreateRelatedAlertDto): Promise<IIncidentRelAlert[]> {
     if (isEmpty(relatedAlertData)) throw new HttpException(400, 'Incident must not be empty');
 
     const { relatedAlertIds } = relatedAlertData;
 
-    let relatedAlerts = relatedAlertIds.map(alertId => {
+    let relatedAlerts = relatedAlertIds.map(alertPk => {
       return {
-        incidentId,
-        alertId,
+        incidentPk,
+        alertPk,
       };
     });
 
@@ -138,20 +138,20 @@ class IncidentService {
   /**
    * Dissociate alerts from an incident
    *
-   * @param  {number} incidentId
+   * @param  {number} incidentPk
    * @param  {CreateRelatedAlertDto} relatedAlertData
    * @returns Promise<void>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async deleteRelatedAlertsByIncident(incidentId: number, relatedAlertData: CreateRelatedAlertDto): Promise<void> {
+  public async deleteRelatedAlertsByIncident(incidentPk: string, relatedAlertData: CreateRelatedAlertDto): Promise<void> {
     if (isEmpty(relatedAlertData)) throw new HttpException(400, 'Incident must not be empty');
 
     const { relatedAlertIds } = relatedAlertData;
 
     await this.incidentRelAlert.destroy({
       where: {
-        incidentId,
-        alertId: relatedAlertIds,
+        incidentPk,
+        alertPk: relatedAlertIds,
       },
     });
   }
@@ -165,7 +165,7 @@ class IncidentService {
    */
   public async getIncidentActionsById(id: number): Promise<IIncidentAction[]> {
     const incidentActions: IIncidentAction[] = await this.incidentAction.findAll({
-      where: { incidentId: id, isDeleted: 0 },
+      where: { incidentPk: id, isDeleted: 0 },
       attributes: { exclude: ['isDeleted'] },
     });
 
@@ -180,22 +180,22 @@ class IncidentService {
    * openCount: 2
    * resolvedCount: 3
    *
-   * @param  {number} currentTenancyId
+   * @param  {number} currentTenancyPk
    * @returns Promise<IIncidentCounts>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async getIncidentCounts(currentTenancyId: number): Promise<IIncidentCounts> {
+  public async getIncidentCounts(currentTenancyPk: string): Promise<IIncidentCounts> {
     const closedAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'CLOSED', tenancyId: currentTenancyId },
+      where: { isDeleted: 0, status: 'CLOSED', tenancyPk: currentTenancyPk },
     });
     const inprogressAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'IN_PROGRESS', tenancyId: currentTenancyId },
+      where: { isDeleted: 0, status: 'IN_PROGRESS', tenancyPk: currentTenancyPk },
     });
     const openAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'OPEN', tenancyId: currentTenancyId },
+      where: { isDeleted: 0, status: 'OPEN', tenancyPk: currentTenancyPk },
     });
     const resolvedAmount = await this.incident.count({
-      where: { isDeleted: 0, status: 'RESOLVED', tenancyId: currentTenancyId },
+      where: { isDeleted: 0, status: 'RESOLVED', tenancyPk: currentTenancyPk },
     });
 
     const incidentCounts: IIncidentCounts = {
@@ -213,31 +213,31 @@ class IncidentService {
    *
    * @param  {CreateIncidentDto} incidentData
    * @param  {number} currentUserId
-   * @param  {number} currentTenancyId
+   * @param  {number} currentTenancyPk
    * @returns Promise<IIncident>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async createIncident(incidentData: CreateIncidentDto, currentUserId: number, currentTenancyId: number): Promise<IIncident> {
+  public async createIncident(incidentData: CreateIncidentDto, currentUserId: string, currentTenancyPk: string): Promise<IIncident> {
     if (isEmpty(incidentData)) throw new HttpException(400, 'Incident must not be empty');
 
-    const { assigneeId, title, note, status, priority, dueDate, relatedAlertIds, actions } = incidentData;
+    const { assigneePk, title, note, status, priority, dueDate, relatedAlertIds, actions } = incidentData;
 
     const createIncidentData: any = await this.incident.create({
-      assigneeId,
+      assigneePk,
       title,
       note,
       status,
       priority,
       dueDate,
-      tenancyId: currentTenancyId,
+      tenancyPk: currentTenancyPk,
       createdBy: currentUserId,
     });
 
     if (relatedAlertIds) {
-      let relatedAlerts = relatedAlertIds.map(alertId => {
+      let relatedAlerts = relatedAlertIds.map(alertPk => {
         return {
-          incidentId: createIncidentData.dataValues.id,
-          alertId,
+          incidentPk: createIncidentData.dataValues.id,
+          alertPk,
         };
       });
 
@@ -247,7 +247,7 @@ class IncidentService {
     if (actions) {
       let incidentActions = actions.map(action => {
         return {
-          incidentId: createIncidentData.dataValues.id,
+          incidentPk: createIncidentData.dataValues.id,
           title: action.title,
           description: action.description,
           createdBy: currentUserId,
@@ -267,10 +267,10 @@ class IncidentService {
    * @returns Promise<[number, IncidentModel[]]>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async deleteIncidentById(id: number, currentUserId: number): Promise<[number, IncidentModel[]]> {
+  public async deleteIncidentById(id: number, currentUserId: string): Promise<[number, IncidentModel[]]> {
     const deletedIncident: [number, IncidentModel[]] = await this.incident.update({ isDeleted: 1, updatedBy: currentUserId }, { where: { id } });
-    await this.incidentRelAlert.destroy({ where: { incidentId: id } });
-    await this.incidentAction.destroy({ where: { incidentId: id } });
+    await this.incidentRelAlert.destroy({ where: { incidentPk: id } });
+    await this.incidentAction.destroy({ where: { incidentPk: id } });
 
     return deletedIncident;
   }
@@ -284,18 +284,18 @@ class IncidentService {
    * @returns Promise<IIncident>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async updateIncident(id: number, incidentData: UpdateIncidentDto, currentUserId: number): Promise<IIncident> {
+  public async updateIncident(id: number, incidentData: UpdateIncidentDto, currentUserId: string): Promise<IIncident> {
     const { relatedAlertIds, actions } = incidentData;
 
     await this.incident.update({ ...incidentData, updatedBy: currentUserId }, { where: { id } });
 
     if (relatedAlertIds) {
-      await this.incidentRelAlert.destroy({ where: { incidentId: id } });
+      await this.incidentRelAlert.destroy({ where: { incidentPk: id } });
 
-      let relatedAlerts = relatedAlertIds.map(alertId => {
+      let relatedAlerts = relatedAlertIds.map(alertPk => {
         return {
-          incidentId: id,
-          alertId,
+          incidentPk: id,
+          alertPk,
         };
       });
 
@@ -303,10 +303,10 @@ class IncidentService {
     }
 
     if (actions) {
-      await this.incidentAction.destroy({ where: { incidentId: id } });
+      await this.incidentAction.destroy({ where: { incidentPk: id } });
       let incidentActions = actions.map(action => {
         return {
-          incidentId: id,
+          incidentPk: id,
           title: action.title,
           description: action.description,
           createdBy: currentUserId,
@@ -327,7 +327,7 @@ class IncidentService {
    * @returns Promise<IIncident>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async updateIncidentStatus(id: number, incidentStatusData: UpdateIncidentStatusDto, currentUserId: number): Promise<IIncident> {
+  public async updateIncidentStatus(id: number, incidentStatusData: UpdateIncidentStatusDto, currentUserId: string): Promise<IIncident> {
     await this.incident.update({ status: incidentStatusData.status, updatedBy: currentUserId }, { where: { id } });
 
     return this.getIncidentById(id);
@@ -338,16 +338,16 @@ class IncidentService {
    *
    * @param  {any} actionData
    * @param  {number} currentUserId
-   * @param  {number} incidentId
+   * @param  {number} incidentPk
    * @returns Promise<IIncidentAction>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async createIncidentAction(actionData: any, currentUserId: number, incidentId: number): Promise<IIncidentAction> {
+  public async createIncidentAction(actionData: any, currentUserId: string, incidentPk: string): Promise<IIncidentAction> {
     if (isEmpty(actionData)) throw new HttpException(400, 'Incident must not be empty');
 
     const createActionData: IIncidentAction = await this.incidentAction.create({
       createdBy: currentUserId,
-      incidentId,
+      incidentPk,
       ...actionData,
     });
 
@@ -359,12 +359,12 @@ class IncidentService {
    *
    * @param  {any} actionData
    * @param  {number} currentUserId
-   * @param  {number} incidentId
+   * @param  {number} incidentPk
    * @param  {number} actionId
    * @returns Promise<IIncidentAction>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async updateIncidentAction(actionData: any, currentUserId: number, incidentId: number, actionId: number): Promise<IIncidentAction> {
+  public async updateIncidentAction(actionData: any, currentUserId: string, incidentPk: string, actionId: string): Promise<IIncidentAction> {
     if (isEmpty(actionData)) throw new HttpException(400, 'Incident must not be empty');
 
     await this.incidentAction.update(
@@ -372,7 +372,7 @@ class IncidentService {
         updatedBy: currentUserId,
         ...actionData,
       },
-      { where: { id: actionId, incidentId } },
+      { where: { id: actionId, incidentPk } },
     );
 
     const updateResult: IIncidentAction = await this.incidentAction.findByPk(actionId);
@@ -382,16 +382,16 @@ class IncidentService {
   /**
    * Delete an action from incident
    *
-   * @param  {number} incidentId
+   * @param  {number} incidentPk
    * @param  {number} currentUserId
    * @param  {number} actionId
    * @returns Promise
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async deleteIncidentActionById(incidentId: number, currentUserId: number, actionId: number): Promise<[number, IncidentActionModel[]]> {
+  public async deleteIncidentActionById(incidentPk: string, currentUserId: string, actionId: string): Promise<[number, IncidentActionModel[]]> {
     const deletedIncidentAction: [number, IncidentActionModel[]] = await this.incidentAction.update(
       { isDeleted: 1, updatedBy: currentUserId },
-      { where: { id: actionId, incidentId } },
+      { where: { id: actionId, incidentPk } },
     );
 
     return deletedIncidentAction;

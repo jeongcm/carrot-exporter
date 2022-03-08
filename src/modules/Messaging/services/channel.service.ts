@@ -49,7 +49,7 @@ class ChannelService {
    * @returns Promise<Channel>
    * @author Jaswant
    */
-  public async createChannel(channelData: CreateChannelDto, currentUserId: number): Promise<Channel> {
+  public async createChannel(channelData: CreateChannelDto, currentUserId: string): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const currentDate = new Date();
     const newChannel = {
@@ -67,9 +67,9 @@ class ChannelService {
     return createChannelData;
   }
 
-  public async updateChannel(channelId: number, channelData: CreateChannelDto, currentUserId: number): Promise<Channel> {
+  public async updateChannel(channelPk: string, channelData: CreateChannelDto, currentUserId: string): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
-    const findChannel: Channel = await this.channels.findByPk(channelId);
+    const findChannel: Channel = await this.channels.findByPk(channelPk);
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
     const updatedChannelData = {
       ...channelData,
@@ -77,22 +77,22 @@ class ChannelService {
       updatedBy: currentUserId,
       updatedAt: new Date(),
     };
-    await this.channels.update(updatedChannelData, { where: { id: channelId } });
-    const updateUser: Channel = await this.channels.findByPk(channelId);
+    await this.channels.update(updatedChannelData, { where: { id: channelPk } });
+    const updateUser: Channel = await this.channels.findByPk(channelPk);
     return updateUser;
   }
 
-  public async deleteChannel(channelId: number): Promise<Channel> {
-    if (isEmpty(channelId)) throw new HttpException(400, 'Channelid is required');
-    const findChannel: Channel = await this.channels.findByPk(channelId);
+  public async deleteChannel(channelPk: string): Promise<Channel> {
+    if (isEmpty(channelPk)) throw new HttpException(400, 'Channelid is required');
+    const findChannel: Channel = await this.channels.findByPk(channelPk);
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
-    await this.channels.update({ isDeleted: true }, { where: { id: channelId } });
+    await this.channels.update({ isDeleted: true }, { where: { id: channelPk } });
     return findChannel;
   }
 
-  public async getAccessGroupByChannels(channelId: number): Promise<AccessGroupChannel[]> {
+  public async getAccessGroupByChannels(channelPk: string): Promise<AccessGroupChannel[]> {
     const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({
-      where: { channelId: channelId, isDeleted: false },
+      where: { channelPk: channelPk, isDeleted: false },
       attributes: ['id'],
       include: [
         {

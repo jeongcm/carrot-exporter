@@ -8,10 +8,10 @@ class AlertController {
 
   public getAlerts = async (req: Request, res: Response, next: NextFunction) => {
     // @ts-expect-error
-    const currentTenancyId = req.user.currentTenancyId;
+    const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
-      const allAlerts: IAlert[] = await this.alertService.getAllAlerts(currentTenancyId);
+      const allAlerts: IAlert[] = await this.alertService.getAllAlerts(currentTenancyPk);
       res.status(200).json({ data: allAlerts, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -20,10 +20,10 @@ class AlertController {
 
   public getAllPinnedAlerts = async (req: Request, res: Response, next: NextFunction) => {
     // @ts-expect-error
-    const currentTenancyId = req.user.currentTenancyId;
+    const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
-      const allPinnedAlerts: IAlert[] = await this.alertService.getAllPinnedAlerts(currentTenancyId);
+      const allPinnedAlerts: IAlert[] = await this.alertService.getAllPinnedAlerts(currentTenancyPk);
       res.status(200).json({ data: allPinnedAlerts, message: 'findAllPinned' });
     } catch (error) {
       next(error);
@@ -43,11 +43,11 @@ class AlertController {
 
   public createAlert = async (req: Request, res: Response, next: NextFunction) => {
     // @ts-expect-error
-    const currentTenancyId = req.user.currentTenancyId;
+    const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
       const alertData: CreateAlertDto = req.body;
-      const createAlertData: IAlert = await this.alertService.createAlert(alertData, currentTenancyId);
+      const createAlertData: IAlert = await this.alertService.createAlert(alertData, currentTenancyPk);
       res.status(201).json({ data: createAlertData, message: 'created' });
     } catch (error) {
       next(error);

@@ -3,6 +3,7 @@ import { User } from '@/common/interfaces/users.interface';
 
 export type UserCreationAttributes = Optional<
   User,
+  | 'pk'
   | 'id'
   | 'email'
   | 'password'
@@ -14,14 +15,14 @@ export type UserCreationAttributes = Optional<
   | 'photo'
   | 'createdAt'
   | 'updatedAt'
-  | 'currentTenancyId'
+  | 'currentTenancyPk'
   | 'token'
   | 'socialProviderId'
 >;
 
 export class UserModel extends Model<User, UserCreationAttributes> implements User {
-  public id: number;
-  public uuid: string;
+  public pk: number;
+  public id: string;
   public email: string;
   public password: string;
   public username: string;
@@ -30,7 +31,7 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
   public socialProviderId: string;
   public mobile: string;
   public photo: string;
-  public currentTenancyId: string;
+  public currentTenancyPk: string;
   public isEmailValidated: boolean;
   public emailValidatedOn: Date;
   public token: string;
@@ -43,13 +44,13 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
 export default function (sequelize: Sequelize): typeof UserModel {
   UserModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
@@ -100,7 +101,7 @@ export default function (sequelize: Sequelize): typeof UserModel {
         allowNull: true,
         type: DataTypes.STRING(255),
       },
-      currentTenancyId: {
+      currentTenancyPk: {
         allowNull: true,
         type: DataTypes.BIGINT,
       },

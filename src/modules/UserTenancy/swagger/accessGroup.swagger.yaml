@@ -20,9 +20,9 @@ paths:
         - accessGroup
       summary: Create AccessGroup
       parameters:
-        - name: tenancyId
+        - name: tenancyPk
           in: header
-          description: tenancyId in header
+          description: tenancyPk in header
           required: true
           type: string
         - name: body
@@ -46,9 +46,9 @@ paths:
         - accessGroup
       summary: Find All AccesssGroup
       parameters:
-        - name: tenancyId
+        - name: tenancyPk
           in: header
-          description: tenancyId in header
+          description: tenancyPk in header
           required: true
           type: string
       responses:
@@ -157,8 +157,8 @@ paths:
         409:
           description: 'Conflict'
         500:
-          description: 'Server Error'  
-    
+          description: 'Server Error'
+
 # definitions
 definitions:
   createAccessGroup:
@@ -204,7 +204,7 @@ definitions:
     items:
       type: object
       properties:
-       userId:
+       userPk:
          type: string
-         description: userId
+         description: userPk
          example: example

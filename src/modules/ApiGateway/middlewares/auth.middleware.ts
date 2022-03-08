@@ -21,12 +21,12 @@ const authMiddleware = async (req, res: Response, next: NextFunction) => {
     if (Authorization) {
       const secretKey: string = config.auth.jwtSecretKey;
       const verificationResponse = jwt.verify(Authorization, secretKey) as DataStoredInToken;
-      const userId = verificationResponse.id;
-      const findUser = await DB.Users.findByPk(userId);
+      const userPk = verificationResponse.id;
+      const findUser = await DB.Users.findByPk(userPk);
 
       if (findUser) {
         req.user = findUser;
-        req.tenancyId = (req.headers.tenancyid as string) || findUser.currentTenancy;
+        req.tenancyPk = (req.headers.tenancyid as string) || findUser.currentTenancy;
 
         next();
       } else {

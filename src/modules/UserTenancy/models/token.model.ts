@@ -1,12 +1,11 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IToken } from '@/common/interfaces/token.interface';
 
-export type TenancyCreationAttributes = Optional<IToken, 'id' | 'userId' | 'token' | 'expiryTime' | 'maximumLimit' | 'createdAt' | 'updatedAt'>;
+export type TenancyCreationAttributes = Optional<IToken, 'id' | 'userPk' | 'token' | 'expiryTime' | 'maximumLimit' | 'createdAt' | 'updatedAt'>;
 
 export class TokenModel extends Model<IToken> implements IToken {
-  public id: number;
-  public uuid: string;
-  public userId: number;
+  public pk: number;
+  public userPk: string;
   public token: string;
   public maximumLimit: number;
   public expiryTime: number;
@@ -18,13 +17,13 @@ export default function (sequelize: Sequelize): typeof TokenModel {
   try {
     TokenModel.init(
       {
-        id: {
+        pk: {
           type: DataTypes.BIGINT,
           autoIncrement: true,
           allowNull: false,
           primaryKey: true,
         },
-        userId: {
+        userPk: {
           allowNull: true,
           type: DataTypes.BIGINT,
         },

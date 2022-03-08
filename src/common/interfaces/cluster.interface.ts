@@ -24,20 +24,20 @@ export interface ICluster {
     | 'NOT_INSTALLED';
   installCommand: string;
   name: string;
-  objectId: number;
+  objectId: string;
   platform: PlatformEnum;
   primaryAgentKey: string;
   provider: string;
   tags: string;
-  tenancyId: number;
+  tenancyPk: string;
   updatedAt: string;
   updatedBy: number;
 }
 
 export interface IClusterAdd {
-  id: number;
-  uuid: string;
-  tenancyId: number;
+  pk: number;
+  id: string;
+  tenancyPk: string;
   description: string;
   global: boolean;
   icon: string;
@@ -76,14 +76,14 @@ export interface IClusterDetail {
   license: string;
   name: string;
   nodeCount: number;
-  objectId: number;
+  objectId: string;
   p8sStatus: string;
   platform: PlatformEnum;
   primaryAgentKey: string;
   provider: string;
   size: number;
   tags: string;
-  tenancyId: number;
+  tenancyPk: string;
   version: string;
 }
 
@@ -174,7 +174,7 @@ export interface IGlobalViewCluster {
   name: string;
   platform: PlatformEnum;
   primaryAgentKey: string;
-  tenancyId: number;
+  tenancyPk: string;
 }
 
 export interface IP8sService {

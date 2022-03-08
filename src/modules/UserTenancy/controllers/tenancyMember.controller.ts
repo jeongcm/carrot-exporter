@@ -5,9 +5,9 @@ class TenancyMemberController {
   public tenancyService = new TenancyService();
   public updateTenancyMemberToUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const tenancyId = req.params.tenancyId;
-      const userId = req.user.id;
-      const updateUserData = await this.tenancyService.updateTenancyMemberToUser(userId, tenancyId);
+      const tenancyPk = req.params.tenancyPk;
+      const userPk = req.user.id;
+      const updateUserData = await this.tenancyService.updateTenancyMemberToUser(userPk, tenancyPk);
       return res.status(200).json({ data: updateUserData, message: 'updated tenancy id' });
     } catch (error) {
       next(error);

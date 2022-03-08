@@ -27,7 +27,7 @@ export class CreateInvitationDto {
 
   @IsString()
   @IsOptional()
-  public tenancyId: number;
+  public tenancyPk: string;
 
   @IsString()
   @IsOptional()

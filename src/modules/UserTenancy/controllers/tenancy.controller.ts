@@ -20,8 +20,8 @@ class TenancyController {
 
   public getTenancyById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.params.id;
-      const findOneUserData: Tenancy = await this.tenancyService.findTenancyById(userId);
+      const userPk = req.params.id;
+      const findOneUserData: Tenancy = await this.tenancyService.findTenancyById(userPk);
       res.status(200).json({ data: findOneUserData, message: 'findOne' });
     } catch (error) {
       next(error);
@@ -40,9 +40,9 @@ class TenancyController {
 
   public updateTenancy = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const tenancyId = req.params.id;
+      const tenancyPk = req.params.id;
       const tenancyData = req.body;
-      const updateTenancyData: Tenancy = await this.tenancyService.updateTenancy(tenancyId, tenancyData);
+      const updateTenancyData: Tenancy = await this.tenancyService.updateTenancy(tenancyPk, tenancyData);
       res.status(200).json({ data: updateTenancyData, message: 'updated' });
     } catch (error) {
       next(error);
@@ -51,8 +51,8 @@ class TenancyController {
 
   public deleteTenancy = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const tenancyId = req.params.id;
-      const deleteTenancyData: Tenancy = await this.tenancyService.deleteTenancy(tenancyId);
+      const tenancyPk = req.params.id;
+      const deleteTenancyData: Tenancy = await this.tenancyService.deleteTenancy(tenancyPk);
       res.status(200).json({ data: deleteTenancyData, message: 'deleted' });
     } catch (error) {
       next(error);
@@ -72,7 +72,7 @@ class TenancyController {
 
   public getAllTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const id = req.params.tenancyId;
+      const id = req.params.tenancyPk;
       const findAllTenancyMembers: TenancyMember[] = await this.tenancyService.findAllTenancyMembers(id);
       res.status(200).json({ data: findAllTenancyMembers, message: 'findAllTenancyMembers' });
     } catch (error) {
@@ -92,8 +92,8 @@ class TenancyController {
 
   public deleteTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const tenancyId = req.params.tenancyId;
-      const deleteTenancyData: TenancyMember = await this.tenancyService.deleteTenancyMember(tenancyId);
+      const tenancyPk = req.params.tenancyPk;
+      const deleteTenancyData: TenancyMember = await this.tenancyService.deleteTenancyMember(tenancyPk);
       res.status(200).json({ data: deleteTenancyData, message: 'deleted' });
     } catch (error) {
       next(error);
@@ -104,9 +104,9 @@ class TenancyController {
   //
   // public updateTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
   //   try {
-  //     const tenancyId = req.params.tenancyId;
+  //     const tenancyPk = req.params.tenancyPk;
   //     const updatedData = req.body;
-  //     const deleteTenancyData: TenancyMember = await this.tenancyService.updateTenancyMember(updatedData, tenancyId);
+  //     const deleteTenancyData: TenancyMember = await this.tenancyService.updateTenancyMember(updatedData, tenancyPk);
   //     res.status(200).json({ data: deleteTenancyData, message: 'deleted' });
   //   } catch (error) {
   //     next(error);

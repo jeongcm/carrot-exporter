@@ -17,8 +17,8 @@ class ClusterController {
 
   public getClusterById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.params.id;
-      const findOneUserData: Cluster = await this.clusterService.findClusterById(userId);
+      const userPk = req.params.id;
+      const findOneUserData: Cluster = await this.clusterService.findClusterById(userPk);
       res.status(200).json({ data: findOneUserData, message: 'findOne' });
     } catch (error) {
       next(error);
@@ -37,9 +37,9 @@ class ClusterController {
 
   public updateCluster = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const clusterId = req.params.id;
+      const clusterPk = req.params.id;
       const clusterData = req.body;
-      const updateClusterData: Cluster = await this.clusterService.updateCluster(clusterId, clusterData);
+      const updateClusterData: Cluster = await this.clusterService.updateCluster(clusterPk, clusterData);
       res.status(200).json({ data: updateClusterData, message: 'updated' });
     } catch (error) {
       next(error);
@@ -48,8 +48,8 @@ class ClusterController {
 
   public deleteCluster = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const clusterId = req.params.id;
-      const deleteClusterData: Cluster = await this.clusterService.deleteCluster(clusterId);
+      const clusterPk = req.params.id;
+      const deleteClusterData: Cluster = await this.clusterService.deleteCluster(clusterPk);
       res.status(200).json({ data: deleteClusterData, message: 'deleted' });
     } catch (error) {
       next(error);

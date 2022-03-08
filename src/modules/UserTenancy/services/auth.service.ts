@@ -104,7 +104,7 @@ class AuthService {
       where: {
         id,
       },
-      attributes: ['uuid', 'email', 'username', 'firstName', 'lastName', 'mobile', 'photo', 'socialProviderId', 'currentTenancyId', 'lastAccess'],
+      attributes: ['id', 'email', 'username', 'firstName', 'lastName', 'mobile', 'photo', 'socialProviderId', 'currentTenancyPk', 'lastAccess'],
       include: [
         {
           model: TenancyModel,

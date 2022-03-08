@@ -5,7 +5,7 @@ import { LogStatus, LogType } from '@/common/types';
 export type AlertCreationAttributes = Optional<
   Log,
   | 'id'
-  | 'uuid'
+  | 'pk'
   | 'name'
   | 'from'
   | 'type'
@@ -21,8 +21,8 @@ export type AlertCreationAttributes = Optional<
 >;
 
 export class LogModel extends Model<Log, AlertCreationAttributes> implements Log {
-  public id: number;
-  public uuid: string;
+  public pk: number;
+  public id: string;
   public name: string;
   public from: 'USER' | 'LARI' | 'SYSTEM';
   public type: LogType;
@@ -41,13 +41,13 @@ export class LogModel extends Model<Log, AlertCreationAttributes> implements Log
 export default function (sequelize: Sequelize): typeof LogModel {
   LogModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
