@@ -31,7 +31,7 @@ export class UserModel extends Model<User, UserCreationAttributes> implements Us
   public socialProviderId: string;
   public mobile: string;
   public photo: string;
-  public currentTenancyPk: string;
+  public currentTenancyPk: number;
   public isEmailValidated: boolean;
   public emailValidatedOn: Date;
   public token: string;

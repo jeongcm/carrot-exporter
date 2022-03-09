@@ -21,7 +21,7 @@ const authMiddleware = async (req, res: Response, next: NextFunction) => {
     if (Authorization) {
       const secretKey: string = config.auth.jwtSecretKey;
       const verificationResponse = jwt.verify(Authorization, secretKey) as DataStoredInToken;
-      const userPk = verificationResponse.id;
+      const userPk = verificationResponse.pk;
       const findUser = await DB.Users.findByPk(userPk);
 
       if (findUser) {

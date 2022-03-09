@@ -1,12 +1,11 @@
 import DB from '@/database';
 import _ from 'lodash';
 import { IAlert } from '@/common/interfaces/alert.interface';
-import { CreateAlertDto } from '@/modules/Alert/dtos/alert.dto';
+import { AlertListDto, CreateAlertDto } from '@/modules/Alert/dtos/alert.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import { IncidentModel } from '@/modules/Incident/models/incident.model';
 import SlackService from '@/modules/Messaging/services/slack.service';
-import { SlackMessage } from '@/common/interfaces/slack.interface';
 
 /**
  * @memberof Alert
@@ -21,7 +20,7 @@ class AlertService {
    * @param  {number} tenancyPk
    * @returns Promise<IAlert[]>
    */
-  public async getAllAlerts(tenancyPk: string): Promise<IAlert[]> {
+  public async getAllAlerts(tenancyPk: string): Promise<AlertListDto[]> {
     if (!tenancyPk) throw new HttpException(400, `tenancyPk is required in headers.`);
 
     const allAlerts: IAlert[] = await this.alert.findAll({
@@ -35,14 +34,14 @@ class AlertService {
       order: [['createdAt', 'DESC']],
     });
 
-    let modifiedAlerts: IAlert[] = [];
+    const modifiedAlerts: AlertListDto[] = [];
 
     allAlerts.forEach(alertsX => {
-      let incidents = alertsX['incidents'];
+      const incidents = alertsX['incidents'];
 
-      let tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
+      const tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
 
-      tempAlertsX.incidentPk = _.map(incidents, incidentsX => incidentsX.id);
+      tempAlertsX.incidentId = _.map(incidents, incidentsX => incidentsX.id);
 
       delete tempAlertsX.incidents;
 
@@ -58,7 +57,7 @@ class AlertService {
    * @param  {number} tenancyPk
    * @returns Promise<IAlert[]>
    */
-  public async getAllPinnedAlerts(tenancyPk: string): Promise<IAlert[]> {
+  public async getAllPinnedAlerts(tenancyPk: string): Promise<AlertListDto[]> {
     if (!tenancyPk) throw new HttpException(400, `tenancyPk is required in headers.`);
 
     const allPinnedAlerts: IAlert[] = await this.alert.findAll({
@@ -72,14 +71,14 @@ class AlertService {
       order: [['createdAt', 'DESC']],
     });
 
-    let modifiedAlerts: IAlert[] = [];
+    const modifiedAlerts: AlertListDto[] = [];
 
     allPinnedAlerts.forEach(alertsX => {
-      let incidents = alertsX['incidents'];
+      const incidents = alertsX['incidents'];
 
-      let tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
+      const tempAlertsX = { ...JSON.parse(JSON.stringify(alertsX)) };
 
-      tempAlertsX.incidentPk = _.map(incidents, incidentsX => incidentsX.id);
+      tempAlertsX.incidentId = _.map(incidents, incidentsX => incidentsX.id);
 
       delete tempAlertsX.incidents;
 

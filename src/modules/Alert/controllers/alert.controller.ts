@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { IAlert } from '@/common/interfaces/alert.interface';
 import AlertService from '@/modules/Alert/services/alert.service';
-import { CreateAlertDto } from '@/modules/Alert/dtos/alert.dto';
+import { CreateAlertDto, AlertListDto } from '@/modules/Alert/dtos/alert.dto';
 
 class AlertController {
   public alertService = new AlertService();
@@ -11,7 +11,7 @@ class AlertController {
     const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
-      const allAlerts: IAlert[] = await this.alertService.getAllAlerts(currentTenancyPk);
+      const allAlerts: AlertListDto[] = await this.alertService.getAllAlerts(currentTenancyPk);
       res.status(200).json({ data: allAlerts, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -23,7 +23,7 @@ class AlertController {
     const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
-      const allPinnedAlerts: IAlert[] = await this.alertService.getAllPinnedAlerts(currentTenancyPk);
+      const allPinnedAlerts: AlertListDto[] = await this.alertService.getAllPinnedAlerts(currentTenancyPk);
       res.status(200).json({ data: allPinnedAlerts, message: 'findAllPinned' });
     } catch (error) {
       next(error);

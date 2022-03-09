@@ -125,7 +125,7 @@ class AuthService {
    * @returns TokenData
    */
   public createToken(user: User): TokenData {
-    const dataStoredInToken: DataStoredInToken = { id: user.id };
+    const dataStoredInToken: DataStoredInToken = { pk: user.pk };
     const secretKey: string = config.auth.jwtSecretKey;
     const expiresIn: number = 60 * 60;
 
