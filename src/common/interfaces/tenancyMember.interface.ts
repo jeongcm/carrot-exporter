@@ -1,10 +1,11 @@
+import { UserRole } from '@common/enums';
 export interface TenancyMember {
-  id: number;
-  uuid: string;
+  pk: number;
+  id: string;
   userName: string;
-  userId: number;
-  userRole: 'owner' | 'member' | 'maintainer';
-  tenancyId: number;
+  userPk: number;
+  userRole: UserRole;
+  tenancyPk: number;
   isActivated: boolean;
   invitedBy: number;
   verificationCode: string;

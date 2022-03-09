@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { Invitation } from '@/common/interfaces/invitation.interface';
 import InvitationService from '@/modules/UserTenancy/services/invitation.service';
 import TenancyService from '@/modules/UserTenancy/services/tenancy.service';
@@ -6,6 +6,7 @@ import MailService from '@/modules/Messaging/services/sendMail.service';
 import UsersService from '@/modules/UserTenancy/services/users.service';
 import { User } from '@/common/interfaces/users.interface';
 import config from 'config';
+import { RequestWithUser } from '@/common/interfaces/auth.interface';
 
 class InvitationController {
   public invitationService = new InvitationService();
@@ -13,7 +14,7 @@ class InvitationController {
   public usersService = new UsersService();
   public mailService = new MailService();
 
-  public checkForDuplicateInvitation = async (req: Request, res: Response, next: NextFunction) => {
+  public checkForDuplicateInvitation = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { email } = req.query;
       const findInvitationData: Invitation = await this.invitationService.getInvitationByEmail(email);
@@ -27,11 +28,11 @@ class InvitationController {
     }
   };
 
-  public createInvitation = async (req: Request, res: Response, next: NextFunction) => {
+  public createInvitation = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const { tenancyId, invitedTo } = req.body;
+      const { tenancyPk, invitedTo } = req.body;
       const userDetail: User = await this.usersService.findUserByEmail(invitedTo);
-      if (userDetail.currentTenancyId && userDetail.currentTenancyId === tenancyId) {
+      if (userDetail.currentTenancyPk && userDetail.currentTenancyPk === tenancyPk) {
         return res.status(200).json({ ok: false, message: 'USER_ALREADY_IN_TENANCY' });
       }
       const invitationDetail: Invitation = await this.invitationService.getInvitationByEmail(invitedTo);
@@ -55,7 +56,7 @@ class InvitationController {
     }
   };
 
-  public updateInvitation = async (req: Request, res: Response, next: NextFunction) => {
+  public updateInvitation = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body;
       const isEmailExist = await this.invitationService.getInvitationByEmail(email);
@@ -76,7 +77,7 @@ class InvitationController {
     }
   };
 
-  public acceptInvitation = async (req: Request, res: Response, next: NextFunction) => {
+  public acceptInvitation = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { token } = req.query;
       const invitationData = await this.invitationService.checkForToken(token);
@@ -86,7 +87,7 @@ class InvitationController {
         return res.status(200).json({ message: 'REQUEST_IS_ALEARDY_REJECTED' });
       } else {
         await this.invitationService.updateInvitation(invitationData.id, { isActive: false, isAccepted: true, acceptedAt: new Date() });
-        await this.tenancyService.updateTenancyMemberDetail(invitationData.tenancyId, { invitedBy: invitationData.invitedTo });
+        await this.tenancyService.updateTenancyMemberDetail(invitationData.tenancyPk, { invitedBy: invitationData.invitedTo });
         return res.status(200).json({ message: 'VERIFICATION_DONE_SUCCESSFULLY' });
       }
     } catch (error) {
@@ -94,7 +95,7 @@ class InvitationController {
     }
   };
 
-  public rejectInvitation = async (req: Request, res: Response, next: NextFunction) => {
+  public rejectInvitation = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { token } = req.query;
       const invitationData = await this.invitationService.checkForToken(token);

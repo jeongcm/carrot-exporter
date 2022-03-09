@@ -1,11 +1,11 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Tenancy } from '@/common/interfaces/tenancy.interface';
 
-export type TenancyCreationAttributes = Optional<Tenancy, 'id' | 'uuid' | 'tenancyCode' | 'tenancyName'>;
+export type TenancyCreationAttributes = Optional<Tenancy, 'id' | 'pk' | 'tenancyCode' | 'tenancyName'>;
 
 export class TenancyModel extends Model<Tenancy> implements Tenancy {
-  public id: number;
-  public uuid: string;
+  public pk: number;
+  public id: string;
   public tenancyName: string;
   public tenancyCode: string;
   public tenancyDescription: string;
@@ -20,13 +20,13 @@ export class TenancyModel extends Model<Tenancy> implements Tenancy {
 export default function (sequelize: Sequelize): typeof TenancyModel {
   TenancyModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
@@ -37,6 +37,7 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
         type: DataTypes.STRING,
       },
       tenancyCode: {
+        unique: true,
         allowNull: false,
         type: DataTypes.STRING,
       },
@@ -57,7 +58,6 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
         allowNull: true,
         type: DataTypes.BIGINT,
       },
-
       createdAt: {
         allowNull: false,
         defaultValue: new Date(),

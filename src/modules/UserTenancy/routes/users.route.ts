@@ -17,16 +17,16 @@ class UsersRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get('/users', this.usersController.getUsers);
-    this.router.get('/users/:id(\\d+)', this.usersController.getUserById);
+    this.router.get('/users', authMiddleware, this.usersController.getUsers);
+    this.router.get('/users/:id(\\d+)', authMiddleware, this.usersController.getUserById);
     this.router.post('/users', validationMiddleware(CreateUserDto, 'body'), this.usersController.createUser);
-    this.router.put('/users/:id(\\d+)', validationMiddleware(CreateUserDto, 'body', true), this.usersController.updateUser);
-    this.router.delete('/users/:id(\\d+)', this.usersController.deleteUser);
+    this.router.put('/users/:id(\\d+)', authMiddleware, validationMiddleware(CreateUserDto, 'body', true), this.usersController.updateUser);
+    this.router.delete('/users/:id(\\d+)', authMiddleware, this.usersController.deleteUser);
     this.router.post('/users/sendMail', this.sendMailController.processMail);
     this.router.get('/verify', this.usersController.verifyMail);
     this.router.post('/users/duplicateMail', this.usersController.checkForDuplicateMail);
-    this.router.post('/recoverPassword', authMiddleware, this.usersController.recoverPassword);
-    this.router.post('/password_reset', this.usersController.resetPassword);
+    this.router.post('/recover-password', this.usersController.recoverPassword);
+    this.router.post('/password-reset', this.usersController.resetPassword);
   }
 }
 

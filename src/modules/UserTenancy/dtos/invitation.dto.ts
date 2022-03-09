@@ -1,10 +1,6 @@
 import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional, IsArray, IsBoolean } from 'class-validator';
 import { isDate } from 'util/types';
 export class CreateInvitationDto {
-  @IsString()
-  @IsOptional()
-  public id: number;
-
   @IsBoolean()
   @IsOptional()
   public isActive: boolean;
@@ -27,7 +23,7 @@ export class CreateInvitationDto {
 
   @IsString()
   @IsOptional()
-  public tenancyId: number;
+  public tenancyPk: number;
 
   @IsString()
   @IsOptional()

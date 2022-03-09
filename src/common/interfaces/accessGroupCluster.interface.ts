@@ -1,8 +1,8 @@
 export interface AccessGroupCluster {
-  id: number;
-  uuid: string;
-  accessGroupId: number;
-  clusterId: number;
+  pk: number;
+  id: string;
+  accessGroupPk: number;
+  clusterPk: number;
   createdAt: Date;
   createdBy: number;
   updatedAt: Date;

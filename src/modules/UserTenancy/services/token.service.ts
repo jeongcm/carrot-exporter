@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import DB from '@/database';
 import { IToken } from '@/common/interfaces/token.interface';
 
@@ -12,9 +11,16 @@ class TokenService {
   }
 
   public async findTokenDetail(token): Promise<IToken> {
-    const tokenDetail: IToken = await this.tokens.findOne({where:{token}});
+    const tokenDetail: IToken = await this.tokens.findOne({ where: { token } });
     return tokenDetail;
   }
 
+  public async deleteTokenByToken(token): Promise<void> {
+    await this.tokens.destroy({
+      where: {
+        token,
+      },
+    });
+  }
 }
 export default TokenService;

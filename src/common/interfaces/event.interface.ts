@@ -1,8 +1,8 @@
 import { EventFrom, EventStatus } from '@/common/types';
 
 export interface Event {
-  id: number;
-  uuid: string;
+  pk: number;
+  id: string;
   name: string;
   from: EventFrom;
   type: string;

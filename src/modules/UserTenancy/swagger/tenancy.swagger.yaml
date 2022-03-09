@@ -42,7 +42,7 @@ paths:
       summary: Find All Tenancy
       responses:
         200:
-          description: 'OK'      
+          description: 'OK'
         500:
           description: 'Server Error'
   # [GET] tenancy/id
@@ -59,7 +59,7 @@ paths:
           type: string
       responses:
         200:
-          description: 'OK'      
+          description: 'OK'
         500:
           description: 'Server Error'
     # [DELETE] tenancy/id
@@ -109,13 +109,13 @@ paths:
         500:
           description: 'Server Error'
   # [PUT] currentTenancy/id
-  /current-tenancy/{tenancyId}:
+  /current-tenancy/{tenancyPk}:
     put:
       tags:
         - tenancy
-      summary: Update tenancyId
+      summary: Update tenancyPk
       parameters:
-        - name: tenancyId
+        - name: tenancyPk
           in: path
           description: Tenancy Id
           required: true
@@ -128,7 +128,7 @@ paths:
         409:
           description: 'Conflict'
         500:
-          description: 'Server Error'       
+          description: 'Server Error'
 
 # definitions
 definitions:

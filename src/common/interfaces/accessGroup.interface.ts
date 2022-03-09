@@ -1,7 +1,7 @@
 export interface AccessGroup {
-  id: number;
-  uuid: string;
-  tenancyId: number;
+  pk: number;
+  id: string;
+  tenancyPk: number;
   groupName: string;
   description: string;
   icon: string;

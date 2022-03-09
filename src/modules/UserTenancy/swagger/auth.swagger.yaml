@@ -167,7 +167,7 @@ definitions:
       properties:
         id:
           type: string
-          description: user uuid
+          description: user id
           example: f9e28e11-08f1-4a35-b6c4-330531e36fd3
         email:
           type: string

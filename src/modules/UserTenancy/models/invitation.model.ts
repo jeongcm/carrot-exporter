@@ -4,13 +4,13 @@ import { Invitation } from '@/common/interfaces/invitation.interface';
 export type TenancyCreationAttributes = Optional<
   Invitation,
   | 'id'
-  | 'uuid'
+  | 'pk'
   | 'isActive'
   | 'isAccepted'
   | 'acceptedAt'
   | 'isRejected'
   | 'rejectedAt'
-  | 'tenancyId'
+  | 'tenancyPk'
   | 'invitedByUserId'
   | 'token'
   | 'createdAt'
@@ -18,10 +18,10 @@ export type TenancyCreationAttributes = Optional<
 >;
 
 export class InvitationModel extends Model<Invitation> implements Invitation {
-  public id: number;
-  public uuid: string;
-  public tenancyId: number;
-  public invitedByUserId: number;
+  public pk: number;
+  public id: string;
+  public tenancyPk: number;
+  public invitedByUserId: string;
   public isActive: boolean;
   public isAccepted: boolean;
   public acceptedAt: Date;
@@ -37,13 +37,13 @@ export default function (sequelize: Sequelize): typeof InvitationModel {
   try {
     InvitationModel.init(
       {
-        id: {
+        pk: {
           type: DataTypes.BIGINT,
           autoIncrement: true,
           allowNull: false,
           primaryKey: true,
         },
-        uuid: {
+        id: {
           primaryKey: false,
           allowNull: false,
           defaultValue: DataTypes.UUIDV4,
@@ -72,7 +72,7 @@ export default function (sequelize: Sequelize): typeof InvitationModel {
           defaultValue: false,
           type: DataTypes.BOOLEAN,
         },
-        tenancyId: {
+        tenancyPk: {
           allowNull: false,
           type: DataTypes.BIGINT,
         },

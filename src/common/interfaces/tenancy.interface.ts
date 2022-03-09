@@ -1,6 +1,6 @@
 export interface Tenancy {
-  id: number;
-  uuid: string;
+  pk: number;
+  id: string;
   tenancyCode: string;
   tenancyName: string;
   tenancyDescription: string;

@@ -3,10 +3,10 @@ import { IIncident } from '../../../common/interfaces/incident.interface';
 
 export type IncidentCreationAttributes = Optional<
   IIncident,
+  | 'pk'
   | 'id'
-  | 'uuid'
-  | 'tenancyId'
-  | 'assigneeId'
+  | 'tenancyPk'
+  | 'assigneePk'
   | 'title'
   | 'note'
   | 'status'
@@ -19,10 +19,10 @@ export type IncidentCreationAttributes = Optional<
 >;
 
 export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> implements IIncident {
-  public id: number;
-  public uuid: string;
-  public tenancyId: number;
-  public assigneeId: number;
+  public pk: number;
+  public id: string;
+  public tenancyPk: number;
+  public assigneePk: number;
   public title: string;
   public note: string;
   public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
@@ -40,23 +40,23 @@ export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> 
 export default function (sequelize: Sequelize): typeof IncidentModel {
   IncidentModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: true,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
       },
-      tenancyId: {
+      tenancyPk: {
         type: DataTypes.BIGINT,
         allowNull: false,
       },
-      assigneeId: {
+      assigneePk: {
         type: DataTypes.BIGINT,
       },
       title: {

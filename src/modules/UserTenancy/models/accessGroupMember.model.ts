@@ -3,14 +3,14 @@ import { AccessGroupMember } from '@/common/interfaces/accessGroupMember.interfa
 
 export type AccessGroupMemberCreationAttributes = Optional<
   AccessGroupMember,
-  'id' | 'uuid' | 'accessGroupId' | 'userId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'id' | 'pk' | 'accessGroupPk' | 'userPk' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class AccessGroupMemberModel extends Model<AccessGroupMember, AccessGroupMemberCreationAttributes> implements AccessGroupMember {
-  public id: number;
-  public uuid: string;
-  public accessGroupId: number;
-  public userId: number;
+  public pk: number;
+  public id: string;
+  public accessGroupPk: number;
+  public userPk: number;
   public createdBy: number;
   public updatedBy: number;
   public isDeleted: boolean;
@@ -22,33 +22,33 @@ export class AccessGroupMemberModel extends Model<AccessGroupMember, AccessGroup
 export default function (sequelize: Sequelize): typeof AccessGroupMemberModel {
   AccessGroupMemberModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
       },
-      accessGroupId: {
+      accessGroupPk: {
         allowNull: false,
         type: DataTypes.BIGINT,
       },
-      userId: {
+      userPk: {
         allowNull: false,
         type: DataTypes.BIGINT,
       },
       createdBy: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.UUID,
       },
       updatedBy: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.UUID,
       },
       createdAt: {
         allowNull: false,

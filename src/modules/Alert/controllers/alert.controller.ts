@@ -1,36 +1,37 @@
 import { NextFunction, Request, Response } from 'express';
 import { IAlert } from '@/common/interfaces/alert.interface';
 import AlertService from '@/modules/Alert/services/alert.service';
-import { CreateAlertDto } from '@/modules/Alert/dtos/alert.dto';
+import { CreateAlertDto, AlertListDto } from '@/modules/Alert/dtos/alert.dto';
+import { RequestWithUser } from '@/common/interfaces/auth.interface';
 
 class AlertController {
   public alertService = new AlertService();
 
-  public getAlerts = async (req: Request, res: Response, next: NextFunction) => {
+  public getAlerts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     // @ts-expect-error
-    const currentTenancyId = req.user.currentTenancyId;
+    const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
-      const allAlerts: IAlert[] = await this.alertService.getAllAlerts(currentTenancyId);
+      const allAlerts: AlertListDto[] = await this.alertService.getAllAlerts(currentTenancyPk);
       res.status(200).json({ data: allAlerts, message: 'findAll' });
     } catch (error) {
       next(error);
     }
   };
 
-  public getAllPinnedAlerts = async (req: Request, res: Response, next: NextFunction) => {
+  public getAllPinnedAlerts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     // @ts-expect-error
-    const currentTenancyId = req.user.currentTenancyId;
+    const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
-      const allPinnedAlerts: IAlert[] = await this.alertService.getAllPinnedAlerts(currentTenancyId);
+      const allPinnedAlerts: AlertListDto[] = await this.alertService.getAllPinnedAlerts(currentTenancyPk);
       res.status(200).json({ data: allPinnedAlerts, message: 'findAllPinned' });
     } catch (error) {
       next(error);
     }
   };
 
-  public getAlert = async (req: Request, res: Response, next: NextFunction) => {
+  public getAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
 
     try {
@@ -41,20 +42,20 @@ class AlertController {
     }
   };
 
-  public createAlert = async (req: Request, res: Response, next: NextFunction) => {
+  public createAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     // @ts-expect-error
-    const currentTenancyId = req.user.currentTenancyId;
+    const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
       const alertData: CreateAlertDto = req.body;
-      const createAlertData: IAlert = await this.alertService.createAlert(alertData, currentTenancyId);
+      const createAlertData: IAlert = await this.alertService.createAlert(alertData, currentTenancyPk);
       res.status(201).json({ data: createAlertData, message: 'created' });
     } catch (error) {
       next(error);
     }
   };
 
-  public deleteAlert = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
     const alert = await this.alertService.getAlertById(id);
 
@@ -70,7 +71,7 @@ class AlertController {
     }
   };
 
-  public updateAlertPin = async (req: Request, res: Response, next: NextFunction) => {
+  public updateAlertPin = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
     const alert = await this.alertService.getAlertById(id);
 
@@ -86,7 +87,7 @@ class AlertController {
     }
   };
 
-  public deleteAlertPin = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteAlertPin = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
     const alert = await this.alertService.getAlertById(id);
 

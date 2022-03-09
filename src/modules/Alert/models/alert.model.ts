@@ -4,7 +4,7 @@ import { IAlert } from '@/common/interfaces/alert.interface';
 export type AlertCreationAttributes = Optional<
   IAlert,
   | 'id'
-  | 'uuid'
+  | 'pk'
   | 'alertName'
   | 'from'
   | 'lastUpdatedAt'
@@ -17,15 +17,15 @@ export type AlertCreationAttributes = Optional<
   | 'alertRule'
   | 'node'
   | 'note'
-  | 'tenancyId'
+  | 'tenancyPk'
   | 'numberOfOccurrences'
   | 'pinned'
 >;
 
 export class AlertModel extends Model<IAlert, AlertCreationAttributes> implements IAlert {
-  public id: number;
-  public uuid: string;
-  public tenancyId: number;
+  public pk: number;
+  public id: string;
+  public tenancyPk: number;
   public alertName: string;
   public from: 'LARI' | 'PROMETHEUS';
   public severity: string;
@@ -46,19 +46,19 @@ export class AlertModel extends Model<IAlert, AlertCreationAttributes> implement
 export default function (sequelize: Sequelize): typeof AlertModel {
   AlertModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
       },
-      tenancyId: {
+      tenancyPk: {
         allowNull: false,
         type: DataTypes.BIGINT,
       },

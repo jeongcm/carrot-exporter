@@ -68,6 +68,7 @@ class AuthService {
 
     return { cookie, findUser, token: tokenData.token };
   }
+
   /**
    * @param  {string} id
    * @returns Promise
@@ -104,7 +105,7 @@ class AuthService {
       where: {
         id,
       },
-      attributes: ['uuid', 'email', 'username', 'firstName', 'lastName', 'mobile', 'photo', 'socialProviderId', 'currentTenancyId', 'lastAccess'],
+      attributes: ['id', 'email', 'username', 'firstName', 'lastName', 'mobile', 'photo', 'socialProviderId', 'currentTenancyPk', 'lastAccess'],
       include: [
         {
           model: TenancyModel,
@@ -125,7 +126,7 @@ class AuthService {
    * @returns TokenData
    */
   public createToken(user: User): TokenData {
-    const dataStoredInToken: DataStoredInToken = { id: user.id };
+    const dataStoredInToken: DataStoredInToken = { pk: user.pk };
     const secretKey: string = config.auth.jwtSecretKey;
     const expiresIn: number = 60 * 60;
 

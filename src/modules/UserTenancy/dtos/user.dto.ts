@@ -41,7 +41,7 @@ export class CreateUserDto {
 
   @IsString()
   @IsOptional()
-  public currentTenancyId: string;
+  public currentTenancyPk: number;
 }
 
 export class LoginUserDto {

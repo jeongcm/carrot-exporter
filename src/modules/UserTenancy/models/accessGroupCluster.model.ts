@@ -3,14 +3,14 @@ import { AccessGroupCluster } from '@/common/interfaces/accessGroupCluster.inter
 
 export type AccessGroupClusterCreationAttributes = Optional<
   AccessGroupCluster,
-  'id' | 'uuid' | 'accessGroupId' | 'clusterId' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'id' | 'pk' | 'accessGroupPk' | 'clusterPk' | 'createdAt' | 'updatedAt' | 'createdBy' | 'updatedBy' | 'isDeleted'
 >;
 
 export class AccessGroupClusterModel extends Model<AccessGroupCluster, AccessGroupClusterCreationAttributes> implements AccessGroupCluster {
-  public id: number;
-  public uuid: string;
-  public accessGroupId: number;
-  public clusterId: number;
+  public pk: number;
+  public id: string;
+  public accessGroupPk: number;
+  public clusterPk: number;
   public createdBy: number;
   public updatedBy: number;
   public isDeleted: boolean;
@@ -22,23 +22,23 @@ export class AccessGroupClusterModel extends Model<AccessGroupCluster, AccessGro
 export default function (sequelize: Sequelize): typeof AccessGroupClusterModel {
   AccessGroupClusterModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
       },
-      accessGroupId: {
+      accessGroupPk: {
         allowNull: false,
         type: DataTypes.BIGINT,
       },
-      clusterId: {
+      clusterPk: {
         allowNull: false,
         type: DataTypes.BIGINT,
       },

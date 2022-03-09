@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
 
 export class CreateTenancyDto {
   @IsString()
@@ -34,4 +34,13 @@ export class CreateTenancyDto {
   @IsString()
   @IsOptional()
   public isDeleted: boolean;
+}
+
+export interface CreatedTenancyDto {
+  id: string;
+  tenancyCode: string;
+  tenancyName: string;
+  tenancyDescription: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

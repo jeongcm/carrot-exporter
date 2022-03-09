@@ -1,8 +1,8 @@
 export interface Invitation {
-  id: number;
-  uuid: string;
-  tenancyId: number;
-  invitedByUserId: number;
+  pk: number;
+  id: string;
+  tenancyPk: number;
+  invitedByUserId: string;
   isActive: boolean;
   isAccepted: boolean;
   acceptedAt: Date;

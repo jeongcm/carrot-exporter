@@ -11,7 +11,7 @@ import { Platform } from '../../../types';
 class ClusterService {
   public clusters = DB.Clusters;
 
-  // RYAN: missing tenancyId NEX-1420
+  // RYAN: missing tenancyPk NEX-1420
   /**
    * Get all Clusters
    *
@@ -67,37 +67,37 @@ class ClusterService {
   /**
    * Update a cluster
    *
-   * @param  {number} clusterId
+   * @param  {number} clusterPk
    * @param  {CreateClusterDto} clusterData
    * @returns Promise<Cluster>
    * @author Jaswant
    */
-  public async updateCluster(clusterId: number, clusterData: CreateClusterDto): Promise<Cluster> {
+  public async updateCluster(clusterPk: number, clusterData: CreateClusterDto): Promise<Cluster> {
     if (isEmpty(clusterData)) throw new HttpException(400, 'Cluster Data cannot be blank');
-    const findCluster: Cluster = await this.clusters.findByPk(clusterId);
+    const findCluster: Cluster = await this.clusters.findByPk(clusterPk);
     if (!findCluster) throw new HttpException(409, "Cluster doesn't exist");
     const updatingCluster = {
       ...clusterData,
       platform: <Platform>clusterData.platform,
       updatedAt: new Date(),
     };
-    await this.clusters.update({ ...updatingCluster }, { where: { id: clusterId } });
-    const updateUser: Cluster = await this.clusters.findByPk(clusterId);
+    await this.clusters.update({ ...updatingCluster }, { where: { id: clusterPk } });
+    const updateUser: Cluster = await this.clusters.findByPk(clusterPk);
     return updateUser;
   }
 
   /**
    * Delete a cluster
    *
-   * @param  {number} clusterId
+   * @param  {number} clusterPk
    * @returns Promise<Cluster>
    * @author Jaswant
    */
-  public async deleteCluster(clusterId: number): Promise<Cluster> {
-    if (isEmpty(clusterId)) throw new HttpException(400, 'Clusterid is required');
-    const findCluster: Cluster = await this.clusters.findByPk(clusterId);
+  public async deleteCluster(clusterPk: number): Promise<Cluster> {
+    if (isEmpty(clusterPk)) throw new HttpException(400, 'Clusterid is required');
+    const findCluster: Cluster = await this.clusters.findByPk(clusterPk);
     if (!findCluster) throw new HttpException(409, "Cluster doesn't exist");
-    await this.clusters.update({ isDeleted: true }, { where: { id: clusterId } });
+    await this.clusters.update({ isDeleted: true }, { where: { id: clusterPk } });
     return findCluster;
   }
 }

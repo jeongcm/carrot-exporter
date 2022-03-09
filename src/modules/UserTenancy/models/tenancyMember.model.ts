@@ -1,11 +1,13 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { TenancyMember } from '@/common/interfaces/tenancyMember.interface';
+import { UserRole } from '@common/enums';
 
 export type TenancyMemberCreationAttributes = Optional<
   TenancyMember,
   | 'id'
-  | 'userId'
-  | 'tenancyId'
+  | 'pk'
+  | 'userPk'
+  | 'tenancyPk'
   | 'createdAt'
   | 'updatedAt'
   | 'isActivated'
@@ -18,14 +20,14 @@ export type TenancyMemberCreationAttributes = Optional<
 >;
 
 export class TenancyMemberModel extends Model<TenancyMember> implements TenancyMember {
-  public id: number;
-  public uuid: string;
+  public pk: number;
+  public id: string;
   public userName: string;
-  public userId: number;
-  public userRole: 'owner' | 'member' | 'maintainer';
+  public userPk: number;
+  public userRole: UserRole;
   public verificationCode: string;
   public tenancyLastAccess: Date;
-  public tenancyId: number;
+  public tenancyPk: number;
   public isDeleted: boolean;
   public isActivated: boolean;
   public invitedBy: number;
@@ -37,24 +39,24 @@ export class TenancyMemberModel extends Model<TenancyMember> implements TenancyM
 export default function (sequelize: Sequelize): typeof TenancyMemberModel {
   TenancyMemberModel.init(
     {
-      id: {
+      pk: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      uuid: {
+      id: {
         primaryKey: false,
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
       },
-      userId: {
+      userPk: {
         allowNull: false,
         type: DataTypes.BIGINT,
         references: {
           model: 'users',
-          key: 'id',
+          key: 'pk',
         },
       },
       userName: {
@@ -69,7 +71,7 @@ export default function (sequelize: Sequelize): typeof TenancyMemberModel {
         allowNull: true,
         type: DataTypes.STRING,
       },
-      tenancyId: {
+      tenancyPk: {
         allowNull: true,
         type: DataTypes.BIGINT,
       },

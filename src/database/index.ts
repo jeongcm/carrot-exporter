@@ -73,38 +73,41 @@ const DB = {
 
 //Different Relations among different tables
 
-DB.Tenancies.hasOne(DB.Users, { as: 'users', foreignKey: 'currentTenancyId' });
-DB.Users.belongsTo(DB.Tenancies, { as: 'currentTenancy', foreignKey: 'currentTenancyId' });
+DB.Tenancies.hasOne(DB.Users, { as: 'users', foreignKey: 'currentTenancyPk' });
+DB.Users.belongsTo(DB.Tenancies, { as: 'currentTenancy', foreignKey: 'currentTenancyPk' });
 
-DB.Users.hasMany(DB.TenancyMembers, { foreignKey: 'userId' });
-DB.TenancyMembers.belongsTo(DB.Users, { foreignKey: 'userId' });
+DB.Users.hasMany(DB.TenancyMembers, { foreignKey: 'userPk' });
+DB.TenancyMembers.belongsTo(DB.Users, { foreignKey: 'userPk' });
 
-DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneeId', as: 'incidents' });
-DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneeId', as: 'assignee' });
+DB.Tenancies.hasMany(DB.TenancyMembers, { foreignKey: 'tenancyPk' });
+DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
 
-DB.AccessGroup.belongsToMany(DB.Channel, { through: 'AccessGroupChannel', sourceKey: 'id', targetKey: 'id', as: 'channels' });
-DB.Channel.belongsToMany(DB.AccessGroup, { through: 'AccessGroupChannel', sourceKey: 'id', targetKey: 'id', as: 'accessGroup' });
+DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneePk', as: 'incidents' });
+DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneePk', as: 'assignee' });
 
-DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelId' });
-DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupId' });
+DB.AccessGroup.belongsToMany(DB.Channel, { through: 'AccessGroupChannel', sourceKey: 'pk', targetKey: 'pk', as: 'channels' });
+DB.Channel.belongsToMany(DB.AccessGroup, { through: 'AccessGroupChannel', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
 
-DB.AccessGroup.belongsToMany(DB.Users, { through: 'AccessGroupMember', sourceKey: 'id', targetKey: 'id', as: 'members' });
-DB.Users.belongsToMany(DB.AccessGroup, { through: 'AccessGroupMember', sourceKey: 'id', targetKey: 'id', as: 'accessGroup' });
+DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
+DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
-DB.AccessGroupMember.belongsTo(DB.Users, { foreignKey: 'userId' });
-DB.AccessGroupMember.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupId' });
+DB.AccessGroup.belongsToMany(DB.Users, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'members' });
+DB.Users.belongsToMany(DB.AccessGroup, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
 
-DB.AccessGroup.belongsToMany(DB.Clusters, { through: 'AccessGroupCluster', sourceKey: 'id', targetKey: 'id', as: 'clusters' });
-DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourceKey: 'id', targetKey: 'id', as: 'accessGroupClusters' });
+DB.AccessGroupMember.belongsTo(DB.Users, { foreignKey: 'userPk' });
+DB.AccessGroupMember.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
-DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterId' });
-DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupId' });
+DB.AccessGroup.belongsToMany(DB.Clusters, { through: 'AccessGroupCluster', sourceKey: 'pk', targetKey: 'pk', as: 'clusters' });
+DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroupClusters' });
+
+DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterPk' });
+DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
 DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
 DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
 
-DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertId' });
-DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentId' });
+DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
+DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
