@@ -169,6 +169,9 @@ class UsersController {
       const userDetails = await this.userService.findUserByPk(token.userPk);
 
       await this.userService.updateUserPassword(token.userPk, newPassword);
+
+      this.tokenService.deleteTokenByToken(reset_token);
+
       req.body['from'] = config.email.defaultFrom;
       req.body['subject'] = 'Password Reset Successfully!';
       req.body['email'] = userDetails.email;

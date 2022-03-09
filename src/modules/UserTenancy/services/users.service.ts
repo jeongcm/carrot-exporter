@@ -88,7 +88,8 @@ class UserService {
     if (!findUser) throw new HttpException(409, 'no user found');
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await this.users.update({ password: hashedPassword, updatedAt: new Date() }, { where: { id: userPk } });
+
+    await this.users.update({ password: hashedPassword, updatedAt: new Date() }, { where: { pk: userPk } });
 
     const updateUser: User = await this.users.findByPk(userPk);
     return updateUser;
