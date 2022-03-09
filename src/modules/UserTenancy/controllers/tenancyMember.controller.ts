@@ -39,8 +39,8 @@ class TenancyMemberController {
     try {
       const memberId = req.params.memberId;
       const tenancyId = req.params.tenancyId;
-      const deleteTenancyData: TenancyMember = await this.tenancyService.deleteTenancyMemberById(req.user.pk, tenancyId, memberId);
-      res.status(200).json({ data: deleteTenancyData, message: 'deleted' });
+      const deleted: boolean = await this.tenancyService.deleteTenancyMemberById(req.user.pk, tenancyId, memberId);
+      res.status(200).json({ deleted });
     } catch (error) {
       next(error);
     }

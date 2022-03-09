@@ -9,7 +9,7 @@ import { TenancyMember } from '@/common/interfaces/tenancyMember.interface';
 import { isEmpty } from '@/common/utils/util';
 import getToken from '@/common/utils/getToken';
 import { UserRole } from '@/common/enums';
-
+import { Op } from 'sequelize';
 class TenancyService {
   public tenancies = DB.Tenancies;
   public tenancyMember = DB.TenancyMembers;
@@ -205,12 +205,56 @@ class TenancyService {
     return allTenancyMembers;
   }
 
-  public async deleteTenancyMemberById(currentUserPk: number, tenancyId: string, memberId: string): Promise<TenancyMember> {
+  public async deleteTenancyMemberById(currentUserPk: number, tenancyId: string, memberId: string): Promise<boolean> {
     if (isEmpty(tenancyId)) throw new HttpException(400, 'Tenancyid is required');
-    const findTenancyMember: TenancyMember = await this.tenancyMember.findOne({ where: { id: tenancyId, isDeleted: false } });
-    if (!findTenancyMember) throw new HttpException(400, "Tenancy doesn't exist");
-    await this.tenancyMember.update({ isDeleted: true }, { where: { id: findTenancyMember.id } });
-    return findTenancyMember;
+
+    const tenancyMember = await this.tenancyMember.findOne({
+      where: {
+        [Op.and]: {
+          id: memberId,
+          isDeleted: false,
+          userPk: {
+            [Op.ne]: currentUserPk,
+          },
+        },
+      },
+      include: [
+        {
+          model: DB.Tenancies,
+          required: true,
+          where: {
+            id: tenancyId,
+            isDeleted: false,
+          },
+          include: [
+            {
+              model: DB.TenancyMembers,
+              required: true,
+              where: {
+                userPk: currentUserPk,
+                isDeleted: false,
+                [Op.or]: [
+                  {
+                    userRole: UserRole.OWNER,
+                  },
+                  {
+                    userRole: UserRole.MAINTAINER,
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!tenancyMember) {
+      return false;
+    }
+
+    const destroyed = await this.tenancyMember.update({ isDeleted: true }, { where: { pk: tenancyMember.pk } });
+
+    return destroyed.indexOf(1) > -1;
   }
 
   public async updateUserCurrentTenancy(userPk, tenancyId: string): Promise<boolean> {
