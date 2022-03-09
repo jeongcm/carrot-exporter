@@ -227,7 +227,7 @@ definitions:
   recoverPassword:
     type: object
     required:
-      -email
+      - email
     properties:
       email:
         type: string

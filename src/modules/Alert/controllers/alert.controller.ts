@@ -8,7 +8,6 @@ class AlertController {
   public alertService = new AlertService();
 
   public getAlerts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
@@ -20,7 +19,6 @@ class AlertController {
   };
 
   public getAllPinnedAlerts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
@@ -32,7 +30,7 @@ class AlertController {
   };
 
   public getAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
 
     try {
       const alert: IAlert = await this.alertService.getAlertById(id);
@@ -43,7 +41,6 @@ class AlertController {
   };
 
   public createAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
@@ -56,7 +53,7 @@ class AlertController {
   };
 
   public deleteAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const alert = await this.alertService.getAlertById(id);
 
     if (!alert) {
@@ -72,7 +69,7 @@ class AlertController {
   };
 
   public updateAlertPin = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const alert = await this.alertService.getAlertById(id);
 
     if (!alert) {
@@ -88,7 +85,7 @@ class AlertController {
   };
 
   public deleteAlertPin = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const alert = await this.alertService.getAlertById(id);
 
     if (!alert) {

@@ -89,15 +89,15 @@ class AlertService {
   }
 
   /**
-   * Get an alert by pk
+   * Get an alert by id
    *
-   * @param  {number} id
+   * @param  {string} id
    * @returns Promise<IAlert>
    */
-  public async getAlertById(id: number): Promise<IAlert> {
+  public async getAlertById(id: string): Promise<IAlert> {
     const alert: IAlert = await this.alert.findOne({
       where: { id },
-      attributes: { exclude: ['tenancyPk'] },
+      attributes: { exclude: ['tenancyPk', 'pk'] },
       include: [
         {
           model: IncidentModel,
@@ -126,31 +126,31 @@ class AlertService {
   /**
    * Delete an alert
    *
-   * @param  {number} id
+   * @param  {string} id
    * @returns Promise<void>
    */
-  public async deleteAlertById(id: number): Promise<void> {
-    const alert: void = await this.alert.findByPk(id).then(alert => alert.destroy());
+  public async deleteAlertById(id: string): Promise<void> {
+    const alert: void = await this.alert.findOne({ where: { id } }).then(alert => alert.destroy());
     return alert;
   }
 
   /**
    * Add a pin from an alert
    *
-   * @param  {number} id
+   * @param  {string} id
    * @returns Promise<void>
    */
-  public async updateAlertPin(id: number): Promise<void> {
+  public async updateAlertPin(id: string): Promise<void> {
     await this.alert.update({ pinned: 1 }, { where: { id } });
   }
 
   /**
    * Remove a pin from an alert
    *
-   * @param  {number} id
+   * @param  {string} id
    * @returns Promise<void>
    */
-  public async deleteAlertPin(id: number): Promise<void> {
+  public async deleteAlertPin(id: string): Promise<void> {
     await this.alert.update({ pinned: 0 }, { where: { id } });
   }
 }
