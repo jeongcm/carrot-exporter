@@ -12,7 +12,6 @@ class IncidentController {
   public incidentService = new IncidentService();
 
   public getIncidents = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
@@ -24,8 +23,7 @@ class IncidentController {
   };
 
   public getIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = parseInt(req.params.id);
-    // @ts-expect-error
+    const id = req.params.id;
     const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
@@ -44,8 +42,7 @@ class IncidentController {
   };
 
   public getAlertByIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = parseInt(req.params.incidentPk);
-    // @ts-expect-error
+    const id = req.params.incidentId;
     const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
@@ -62,7 +59,7 @@ class IncidentController {
   };
 
   public createRelatedAlertsByIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = parseInt(req.params.incidentPk);
+    const id = req.params.incidentId;
     const relatedAlertData: CreateRelatedAlertDto = req.body;
 
     try {
@@ -79,7 +76,7 @@ class IncidentController {
   };
 
   public deleteRelatedAlertsByIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = parseInt(req.params.incidentPk);
+    const id = req.params.incidentId;
     const relatedAlertData: CreateRelatedAlertDto = req.body;
 
     try {
@@ -91,7 +88,7 @@ class IncidentController {
   };
 
   public getIncidentActions = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     try {
       const actions: IIncidentAction[] = await this.incidentService.getIncidentActionsById(id);
 
@@ -106,7 +103,6 @@ class IncidentController {
   };
 
   public getIncidentCounts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
 
     try {
@@ -120,13 +116,10 @@ class IncidentController {
   public createIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const incidentData: CreateIncidentDto = req.body;
-
-      //@ts-expect-error
-      const currentUserId = req.user.id;
-      // @ts-expect-error
+      const currentUserPk = req.user.pk;
       const currentTenancyPk = req.user.currentTenancyPk;
 
-      const createAlertData: IIncident = await this.incidentService.createIncident(incidentData, currentUserId, currentTenancyPk);
+      const createAlertData: IIncident = await this.incidentService.createIncident(incidentData, currentUserPk, currentTenancyPk);
       res.status(201).json({ data: createAlertData, message: 'created' });
     } catch (error) {
       next(error);
@@ -134,8 +127,7 @@ class IncidentController {
   };
 
   public deleteIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = parseInt(req.params.id);
-    // @ts-expect-error
+    const id = req.params.id;
     const currentTenancyPk = req.user.currentTenancyPk;
 
     const incident = await this.incidentService.getIncidentById(id);
@@ -149,10 +141,9 @@ class IncidentController {
     }
 
     try {
-      //@ts-expect-error
-      const currentUserId = req.user.id;
+      const currentUserPk = req.user.pk;
 
-      await this.incidentService.deleteIncidentById(id, currentUserId);
+      await this.incidentService.deleteIncidentById(id, currentUserPk);
       res.status(204).json({ message: `delete incident id(${id})` });
     } catch (error) {
       next(error);
@@ -160,11 +151,10 @@ class IncidentController {
   };
 
   public updateIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const incidentPk = parseInt(req.params.id);
-    // @ts-expect-error
+    const incidentId = req.params.id;
     const currentTenancyPk = req.user.currentTenancyPk;
 
-    const incident = await this.incidentService.getIncidentById(incidentPk);
+    const incident = await this.incidentService.getIncidentById(incidentId);
 
     if (!incident) {
       return res.sendStatus(404);
@@ -176,10 +166,9 @@ class IncidentController {
 
     try {
       const incidentData: UpdateIncidentDto = req.body;
-      //@ts-expect-error
-      const currentUserId = req.user.id;
+      const currentUserPk = req.user.pk;
 
-      const updateAlertData: IIncident = await this.incidentService.updateIncident(incidentPk, incidentData, currentUserId);
+      const updateAlertData: IIncident = await this.incidentService.updateIncident(incidentId, incidentData, currentUserPk);
       res.status(200).json({ data: updateAlertData, message: 'updated' });
     } catch (error) {
       next(error);
@@ -187,8 +176,8 @@ class IncidentController {
   };
 
   public updateIncidentStatus = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const incidentPk = parseInt(req.params.id);
-    const incident: IIncident = await this.incidentService.getIncidentById(incidentPk);
+    const incidentId = req.params.id;
+    const incident: IIncident = await this.incidentService.getIncidentById(incidentId);
 
     if (!incident) {
       return res.sendStatus(404);
@@ -196,10 +185,9 @@ class IncidentController {
 
     try {
       const incidentStatus: UpdateIncidentStatusDto = req.body;
-      //@ts-expect-error
-      const currentUserId = req.user.id;
+      const currentUserPk = req.user.pk;
 
-      const updateIncidentData: IIncident = await this.incidentService.updateIncidentStatus(incidentPk, incidentStatus, currentUserId);
+      const updateIncidentData: IIncident = await this.incidentService.updateIncidentStatus(incidentId, incidentStatus, currentUserPk);
       res.status(200).json({ data: updateIncidentData, message: 'updated' });
     } catch (error) {
       next(error);
@@ -207,8 +195,8 @@ class IncidentController {
   };
 
   public createIncidentAction = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const incidentPk = parseInt(req.params.id);
-    const incident = await this.incidentService.getIncidentById(incidentPk);
+    const incidentId = req.params.id;
+    const incident = await this.incidentService.getIncidentById(incidentId);
 
     if (!incident) {
       return res.sendStatus(404);
@@ -216,10 +204,9 @@ class IncidentController {
 
     try {
       const actionData: CreateActionDto = req.body;
-      //@ts-expect-error
-      const currentUserId = req.user.id;
+      const currentUserPk = req.user.pk;
 
-      const createActionData: IIncidentAction = await this.incidentService.createIncidentAction(actionData, currentUserId, incidentPk);
+      const createActionData: IIncidentAction = await this.incidentService.createIncidentAction(actionData, currentUserPk, incidentId);
       res.status(201).json({ data: createActionData, message: 'created' });
     } catch (error) {
       next(error);
@@ -227,21 +214,14 @@ class IncidentController {
   };
 
   public updateIncidentAction = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const incidentPk = parseInt(req.params.incidentPk);
-    const actionId = parseInt(req.params.actionId);
-
-    const incident = await this.incidentService.getIncidentById(incidentPk);
-
-    if (!incident) {
-      return res.sendStatus(404);
-    }
+    const incidentId = req.params.incidentId;
+    const actionId = req.params.actionId;
 
     try {
       const actionData: CreateActionDto = req.body;
-      //@ts-expect-error
-      const currentUserId = req.user.id;
+      const currentUserPk = req.user.pk;
 
-      const updateActionData: IIncidentAction = await this.incidentService.updateIncidentAction(actionData, currentUserId, incidentPk, actionId);
+      const updateActionData: IIncidentAction = await this.incidentService.updateIncidentAction(actionData, currentUserPk, incidentId, actionId);
       res.status(201).json({ data: updateActionData, message: 'created' });
     } catch (error) {
       next(error);
@@ -249,20 +229,19 @@ class IncidentController {
   };
 
   public deleteIncidentAction = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const incidentPk = parseInt(req.params.incidentPk);
-    const actionId = parseInt(req.params.actionId);
+    const incidentId = req.params.incidentId;
+    const actionId = req.params.actionId;
 
-    const incident = await this.incidentService.getIncidentById(incidentPk);
+    const incident = await this.incidentService.getIncidentById(incidentId);
 
     if (!incident) {
       return res.sendStatus(404);
     }
 
     try {
-      //@ts-expect-error
-      const currentUserId = req.user.id;
+      const currentUserPk = req.user.pk;
 
-      await this.incidentService.deleteIncidentActionById(incidentPk, currentUserId, actionId);
+      await this.incidentService.deleteIncidentActionById(incident.pk, currentUserPk, actionId);
       res.status(204).json({ message: `delete incident action id(${actionId})` });
     } catch (error) {
       next(error);
