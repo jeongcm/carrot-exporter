@@ -1,14 +1,14 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { CreateChannelDto } from '@/modules/Messaging/dtos/channel.dto';
 import { Channel } from '@/common/interfaces/channel.interface';
 import ChannelService from '@/modules/Messaging/services/channel.service';
-import { currentUser } from '@/common/utils/currentUser';
 import { AccessGroupChannel } from '@/common/interfaces/accessGroupChannel.interface';
+import { RequestWithUser } from '@/common/interfaces/auth.interface';
 
 class ChannelController {
   public channelService = new ChannelService();
 
-  public getAllChannels = async (req: Request, res: Response, next: NextFunction) => {
+  public getAllChannels = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const findAllChannelsData: Channel[] = await this.channelService.findAllChannel();
       res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
@@ -17,7 +17,7 @@ class ChannelController {
     }
   };
 
-  public getChannelById = async (req: Request, res: Response, next: NextFunction) => {
+  public getChannelById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const channelPk = req.params.id;
       const findOneUserData: Channel = await this.channelService.findChannelById(channelPk);
@@ -27,10 +27,10 @@ class ChannelController {
     }
   };
 
-  public createChannel = async (req: Request, res: Response, next: NextFunction) => {
+  public createChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const channelData: CreateChannelDto = req.body;
-      const currentUserId = currentUser(req).id;
+      const currentUserId = req.user.id;
       const createChannelData: Channel = await this.channelService.createChannel(channelData, currentUserId);
       res.status(201).json({ data: createChannelData, message: 'created' });
     } catch (error) {
@@ -38,11 +38,11 @@ class ChannelController {
     }
   };
 
-  public updateChannel = async (req: Request, res: Response, next: NextFunction) => {
+  public updateChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const channelPk = req.params.id;
       const channelData = req.body;
-      const currentUserId = currentUser(req).id;
+      const currentUserId = req.user.id;
       const updateChannelData: Channel = await this.channelService.updateChannel(channelPk, channelData, currentUserId);
       res.status(200).json({ data: updateChannelData, message: 'updated' });
     } catch (error) {
@@ -50,7 +50,7 @@ class ChannelController {
     }
   };
 
-  public deleteChannel = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const channelPk = req.params.id;
       const deleteChannelData: Channel = await this.channelService.deleteChannel(channelPk);
@@ -60,7 +60,7 @@ class ChannelController {
     }
   };
 
-  public getAccessGroupByChannel = async (req: Request, res: Response, next: NextFunction) => {
+  public getAccessGroupByChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const channelPk = req.params.id;
       const currentAcessGroupData: AccessGroupChannel[] = await this.channelService.getAccessGroupByChannels(channelPk);

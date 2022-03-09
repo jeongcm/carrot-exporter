@@ -68,6 +68,7 @@ class AuthService {
 
     return { cookie, findUser, token: tokenData.token };
   }
+
   /**
    * @param  {string} id
    * @returns Promise

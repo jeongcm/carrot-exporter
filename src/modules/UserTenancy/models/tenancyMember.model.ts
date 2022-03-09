@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { TenancyMember } from '@/common/interfaces/tenancyMember.interface';
+import { UserRole } from '@common/enums';
 
 export type TenancyMemberCreationAttributes = Optional<
   TenancyMember,
@@ -23,7 +24,7 @@ export class TenancyMemberModel extends Model<TenancyMember> implements TenancyM
   public id: string;
   public userName: string;
   public userPk: number;
-  public userRole: 'owner' | 'member' | 'maintainer';
+  public userRole: UserRole;
   public verificationCode: string;
   public tenancyLastAccess: Date;
   public tenancyPk: number;

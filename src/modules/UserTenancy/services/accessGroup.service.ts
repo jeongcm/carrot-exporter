@@ -105,7 +105,7 @@ class AccessGroupService {
     return allAccessGroup;
   }
 
-  public async updateAccessGroup(accessGroupPk: number, accessGroupData: CreateAccessGroupDto, currentUserId: string): Promise<AccessGroup> {
+  public async updateAccessGroup(accessGroupId: number, accessGroupData: CreateAccessGroupDto, currentUserId: string): Promise<AccessGroup> {
     if (isEmpty(accessGroupData)) throw new HttpException(400, 'Access Group Data cannot be blank');
 
     const findaccessGroup: AccessGroup = await this.accessGroup.findByPk(accessGroupPk);

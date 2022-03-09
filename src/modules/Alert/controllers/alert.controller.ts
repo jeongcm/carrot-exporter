@@ -2,11 +2,12 @@ import { NextFunction, Request, Response } from 'express';
 import { IAlert } from '@/common/interfaces/alert.interface';
 import AlertService from '@/modules/Alert/services/alert.service';
 import { CreateAlertDto, AlertListDto } from '@/modules/Alert/dtos/alert.dto';
+import { RequestWithUser } from '@/common/interfaces/auth.interface';
 
 class AlertController {
   public alertService = new AlertService();
 
-  public getAlerts = async (req: Request, res: Response, next: NextFunction) => {
+  public getAlerts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
 
@@ -18,7 +19,7 @@ class AlertController {
     }
   };
 
-  public getAllPinnedAlerts = async (req: Request, res: Response, next: NextFunction) => {
+  public getAllPinnedAlerts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
 
@@ -30,7 +31,7 @@ class AlertController {
     }
   };
 
-  public getAlert = async (req: Request, res: Response, next: NextFunction) => {
+  public getAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
 
     try {
@@ -41,7 +42,7 @@ class AlertController {
     }
   };
 
-  public createAlert = async (req: Request, res: Response, next: NextFunction) => {
+  public createAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
 
@@ -54,7 +55,7 @@ class AlertController {
     }
   };
 
-  public deleteAlert = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
     const alert = await this.alertService.getAlertById(id);
 
@@ -70,7 +71,7 @@ class AlertController {
     }
   };
 
-  public updateAlertPin = async (req: Request, res: Response, next: NextFunction) => {
+  public updateAlertPin = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
     const alert = await this.alertService.getAlertById(id);
 
@@ -86,7 +87,7 @@ class AlertController {
     }
   };
 
-  public deleteAlertPin = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteAlertPin = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
     const alert = await this.alertService.getAlertById(id);
 

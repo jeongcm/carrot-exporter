@@ -47,3 +47,9 @@ export enum EventFrom {
   LARI = 'LARI',
   PROMETHEUS = 'PROMETHEUS',
 }
+
+export enum UserRole {
+  OWNER = 'OWNER',
+  MAINTAINER = 'MAINTAINER',
+  MEMBER = 'MEMBER',
+}

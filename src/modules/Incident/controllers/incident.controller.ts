@@ -4,14 +4,14 @@ import IncidentService from '@/modules/Incident/services/incident.service';
 import { CreateIncidentDto, UpdateIncidentStatusDto, UpdateIncidentDto, CreateRelatedAlertDto } from '@/modules/Incident/dtos/incident.dto';
 import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
 import { CreateActionDto } from '@/modules/Incident/dtos/incidentAction.dto';
-import { IAlert } from '@/common/interfaces/alert.interface';
 import { IIncidentRelAlert } from '@/common/interfaces/incidentRelAlert.interface';
 import { IIncidentCounts } from '@/common/interfaces/incidentCounts.interface';
+import { RequestWithUser } from '@/common/interfaces/auth.interface';
 
 class IncidentController {
   public incidentService = new IncidentService();
 
-  public getIncidents = async (req: Request, res: Response, next: NextFunction) => {
+  public getIncidents = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
 
@@ -23,7 +23,7 @@ class IncidentController {
     }
   };
 
-  public getIncident = async (req: Request, res: Response, next: NextFunction) => {
+  public getIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
     // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
@@ -43,7 +43,7 @@ class IncidentController {
     }
   };
 
-  public getAlertByIncident = async (req: Request, res: Response, next: NextFunction) => {
+  public getAlertByIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.incidentPk);
     // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
@@ -61,7 +61,7 @@ class IncidentController {
     }
   };
 
-  public createRelatedAlertsByIncident = async (req: Request, res: Response, next: NextFunction) => {
+  public createRelatedAlertsByIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.incidentPk);
     const relatedAlertData: CreateRelatedAlertDto = req.body;
 
@@ -78,7 +78,7 @@ class IncidentController {
     }
   };
 
-  public deleteRelatedAlertsByIncident = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteRelatedAlertsByIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.incidentPk);
     const relatedAlertData: CreateRelatedAlertDto = req.body;
 
@@ -90,7 +90,7 @@ class IncidentController {
     }
   };
 
-  public getIncidentActions = async (req: Request, res: Response, next: NextFunction) => {
+  public getIncidentActions = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
     try {
       const actions: IIncidentAction[] = await this.incidentService.getIncidentActionsById(id);
@@ -105,7 +105,7 @@ class IncidentController {
     }
   };
 
-  public getIncidentCounts = async (req: Request, res: Response, next: NextFunction) => {
+  public getIncidentCounts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
 
@@ -117,7 +117,7 @@ class IncidentController {
     }
   };
 
-  public createIncident = async (req: Request, res: Response, next: NextFunction) => {
+  public createIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const incidentData: CreateIncidentDto = req.body;
 
@@ -133,7 +133,7 @@ class IncidentController {
     }
   };
 
-  public deleteIncident = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const id = parseInt(req.params.id);
     // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
@@ -159,7 +159,7 @@ class IncidentController {
     }
   };
 
-  public updateIncident = async (req: Request, res: Response, next: NextFunction) => {
+  public updateIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const incidentPk = parseInt(req.params.id);
     // @ts-expect-error
     const currentTenancyPk = req.user.currentTenancyPk;
@@ -186,7 +186,7 @@ class IncidentController {
     }
   };
 
-  public updateIncidentStatus = async (req: Request, res: Response, next: NextFunction) => {
+  public updateIncidentStatus = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const incidentPk = parseInt(req.params.id);
     const incident: IIncident = await this.incidentService.getIncidentById(incidentPk);
 
@@ -206,7 +206,7 @@ class IncidentController {
     }
   };
 
-  public createIncidentAction = async (req: Request, res: Response, next: NextFunction) => {
+  public createIncidentAction = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const incidentPk = parseInt(req.params.id);
     const incident = await this.incidentService.getIncidentById(incidentPk);
 
@@ -226,7 +226,7 @@ class IncidentController {
     }
   };
 
-  public updateIncidentAction = async (req: Request, res: Response, next: NextFunction) => {
+  public updateIncidentAction = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const incidentPk = parseInt(req.params.incidentPk);
     const actionId = parseInt(req.params.actionId);
 
@@ -248,7 +248,7 @@ class IncidentController {
     }
   };
 
-  public deleteIncidentAction = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteIncidentAction = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const incidentPk = parseInt(req.params.incidentPk);
     const actionId = parseInt(req.params.actionId);
 

@@ -37,6 +37,7 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
         type: DataTypes.STRING,
       },
       tenancyCode: {
+        unique: true,
         allowNull: false,
         type: DataTypes.STRING,
       },
@@ -57,7 +58,6 @@ export default function (sequelize: Sequelize): typeof TenancyModel {
         allowNull: true,
         type: DataTypes.BIGINT,
       },
-
       createdAt: {
         allowNull: false,
         defaultValue: new Date(),

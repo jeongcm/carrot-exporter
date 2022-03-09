@@ -79,6 +79,9 @@ DB.Users.belongsTo(DB.Tenancies, { as: 'currentTenancy', foreignKey: 'currentTen
 DB.Users.hasMany(DB.TenancyMembers, { foreignKey: 'userPk' });
 DB.TenancyMembers.belongsTo(DB.Users, { foreignKey: 'userPk' });
 
+DB.Tenancies.hasMany(DB.TenancyMembers, { foreignKey: 'tenancyPk' });
+DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
+
 DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneePk', as: 'incidents' });
 DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneePk', as: 'assignee' });
 

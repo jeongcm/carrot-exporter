@@ -2,11 +2,12 @@ import { NextFunction, Request, Response } from 'express';
 import { CreateClusterDto } from '@/modules/K8s/dtos/cluster.dto';
 import { IClusterAdd as Cluster } from '@/common/interfaces/cluster.interface';
 import ClusterService from '@/modules/K8s/services/cluster.service';
+import { RequestWithUser } from '@/common/interfaces/auth.interface';
 
 class ClusterController {
   public clusterService = new ClusterService();
 
-  public getAllClusters = async (req: Request, res: Response, next: NextFunction) => {
+  public getAllClusters = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const findAllClustersData: Cluster[] = await this.clusterService.findAllCluster();
       res.status(200).json({ data: findAllClustersData, message: 'findAll' });
@@ -15,7 +16,7 @@ class ClusterController {
     }
   };
 
-  public getClusterById = async (req: Request, res: Response, next: NextFunction) => {
+  public getClusterById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const userPk = req.params.id;
       const findOneUserData: Cluster = await this.clusterService.findClusterById(userPk);
@@ -25,7 +26,7 @@ class ClusterController {
     }
   };
 
-  public createCluster = async (req: Request, res: Response, next: NextFunction) => {
+  public createCluster = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterData: CreateClusterDto = req.body;
       const createClusterData: Cluster = await this.clusterService.createCluster(clusterData);
@@ -35,7 +36,7 @@ class ClusterController {
     }
   };
 
-  public updateCluster = async (req: Request, res: Response, next: NextFunction) => {
+  public updateCluster = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterPk = req.params.id;
       const clusterData = req.body;
@@ -46,7 +47,7 @@ class ClusterController {
     }
   };
 
-  public deleteCluster = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteCluster = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterPk = req.params.id;
       const deleteClusterData: Cluster = await this.clusterService.deleteCluster(clusterPk);

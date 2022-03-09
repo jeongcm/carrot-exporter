@@ -106,7 +106,7 @@ class App {
   }
   private intializeMiddlewareLogging() {
     this.app.use((req: Request, res: Response, next: NextFunction) => {
-      let send = res.send;
+      const send = res.send;
       res.send = c => {
         logger.info(`url is ${req.url}`);
         logger.info(`Status code is ${res.statusCode}`);

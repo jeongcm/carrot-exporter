@@ -1,15 +1,14 @@
-import { NextFunction, Request, Response } from 'express';
-import { CreateTenancyDto } from '@/modules/UserTenancy/dtos/tenancy.dto';
-import { CreateTenancyMemberDto } from '@/modules/UserTenancy/dtos/tenancyMember.dto';
+import { NextFunction, Response } from 'express';
+import { CreateTenancyDto, CreatedTenancyDto } from '@/modules/UserTenancy/dtos/tenancy.dto';
 import { Tenancy } from '@/common/interfaces/tenancy.interface';
+import { User } from '@/common/interfaces/users.interface';
 import TenancyService from '@/modules/UserTenancy/services/tenancy.service';
-import { currentUser } from '@/common/utils/currentUser';
-import { TenancyMember } from '@/common/interfaces/tenancyMember.interface';
+import { RequestWithUser } from '@/common/interfaces/auth.interface';
 
 class TenancyController {
   public tenancyService = new TenancyService();
 
-  public getAllTenancies = async (req: Request, res: Response, next: NextFunction) => {
+  public getAllTenancies = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const findAllTenanciesData: Tenancy[] = await this.tenancyService.findAllTenancy();
       res.status(200).json({ data: findAllTenanciesData, message: 'findAll' });
@@ -18,7 +17,17 @@ class TenancyController {
     }
   };
 
-  public getTenancyById = async (req: Request, res: Response, next: NextFunction) => {
+  public getUserTenancies = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const userPk = req.user.pk;
+      const findAllTenanciesData: Tenancy[] = await this.tenancyService.findUserTenanciesByUserPk(userPk);
+      res.status(200).json({ data: findAllTenanciesData, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getTenancyById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const userPk = req.params.id;
       const findOneUserData: Tenancy = await this.tenancyService.findTenancyById(userPk);
@@ -28,81 +37,46 @@ class TenancyController {
     }
   };
 
-  public createTenancy = async (req: Request, res: Response, next: NextFunction) => {
+  // RYAN: we need to use proper DTO
+  public createTenancy = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const tenancyData: CreateTenancyDto = req.body;
-      const createTenancyData: Tenancy = await this.tenancyService.createTenancy(tenancyData);
-      res.status(201).json({ data: createTenancyData, message: 'created' });
+      const ownerUser: User = {
+        ...req.user.toJSON(),
+      };
+      const createdTenancyData: CreatedTenancyDto = await this.tenancyService.createTenancy(tenancyData, ownerUser);
+      res.status(201).json({ data: createdTenancyData, message: 'created' });
     } catch (error) {
       next(error);
     }
   };
 
-  public updateTenancy = async (req: Request, res: Response, next: NextFunction) => {
+  public updateTenancy = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const tenancyPk = req.params.id;
+      const tenancyId = req.params.id;
       const tenancyData = req.body;
-      const updateTenancyData: Tenancy = await this.tenancyService.updateTenancy(tenancyPk, tenancyData);
-      res.status(200).json({ data: updateTenancyData, message: 'updated' });
+      const updated: boolean = await this.tenancyService.updateTenancyById(tenancyId, req.user.pk, tenancyData);
+      res.status(200).json({ updated });
     } catch (error) {
       next(error);
     }
   };
 
-  public deleteTenancy = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteTenancy = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const tenancyPk = req.params.id;
-      const deleteTenancyData: Tenancy = await this.tenancyService.deleteTenancy(tenancyPk);
-      res.status(200).json({ data: deleteTenancyData, message: 'deleted' });
+      const tenancyId = req.params.id;
+      const deleted: boolean = await this.tenancyService.deleteTenancyById(tenancyId, req.user.pk);
+      res.status(200).json({ deleted });
     } catch (error) {
       next(error);
     }
   };
 
-  public createTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const tenancyMemberData: CreateTenancyMemberDto = req.body;
-      const currentUserId = currentUser(req).id;
-      const createTenancyData: TenancyMember = await this.tenancyService.createTenancyMember(tenancyMemberData, currentUserId);
-      res.status(201).json({ data: createTenancyData, message: 'created' });
-    } catch (error) {
-      next(error);
-    }
-  };
 
-  public getAllTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const id = req.params.tenancyPk;
-      const findAllTenancyMembers: TenancyMember[] = await this.tenancyService.findAllTenancyMembers(id);
-      res.status(200).json({ data: findAllTenancyMembers, message: 'findAllTenancyMembers' });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public getTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const id = req.params.tenancyMemberId;
-      const findTenancyMembers: TenancyMember = await this.tenancyService.findTenancyMember(id);
-      res.status(200).json({ data: findTenancyMembers, message: 'findATenancyMembers' });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public deleteTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const tenancyPk = req.params.tenancyPk;
-      const deleteTenancyData: TenancyMember = await this.tenancyService.deleteTenancyMember(tenancyPk);
-      res.status(200).json({ data: deleteTenancyData, message: 'deleted' });
-    } catch (error) {
-      next(error);
-    }
-  };
 
   // RYAN: whenever you comment something out please provide a context with a ticket number
   //
-  // public updateTenancyMember = async (req: Request, res: Response, next: NextFunction) => {
+  // public updateTenancyMember = async (req: RequestWithUser, res: Response, next: NextFunction) => {
   //   try {
   //     const tenancyPk = req.params.tenancyPk;
   //     const updatedData = req.body;

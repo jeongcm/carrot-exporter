@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { Invitation } from '@/common/interfaces/invitation.interface';
 import InvitationService from '@/modules/UserTenancy/services/invitation.service';
 import TenancyService from '@/modules/UserTenancy/services/tenancy.service';
@@ -6,6 +6,7 @@ import MailService from '@/modules/Messaging/services/sendMail.service';
 import UsersService from '@/modules/UserTenancy/services/users.service';
 import { User } from '@/common/interfaces/users.interface';
 import config from 'config';
+import { RequestWithUser } from '@/common/interfaces/auth.interface';
 
 class InvitationController {
   public invitationService = new InvitationService();
@@ -13,7 +14,7 @@ class InvitationController {
   public usersService = new UsersService();
   public mailService = new MailService();
 
-  public checkForDuplicateInvitation = async (req: Request, res: Response, next: NextFunction) => {
+  public checkForDuplicateInvitation = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { email } = req.query;
       const findInvitationData: Invitation = await this.invitationService.getInvitationByEmail(email);
@@ -27,7 +28,7 @@ class InvitationController {
     }
   };
 
-  public createInvitation = async (req: Request, res: Response, next: NextFunction) => {
+  public createInvitation = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { tenancyPk, invitedTo } = req.body;
       const userDetail: User = await this.usersService.findUserByEmail(invitedTo);
@@ -55,7 +56,7 @@ class InvitationController {
     }
   };
 
-  public updateInvitation = async (req: Request, res: Response, next: NextFunction) => {
+  public updateInvitation = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body;
       const isEmailExist = await this.invitationService.getInvitationByEmail(email);
@@ -76,7 +77,7 @@ class InvitationController {
     }
   };
 
-  public acceptInvitation = async (req: Request, res: Response, next: NextFunction) => {
+  public acceptInvitation = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { token } = req.query;
       const invitationData = await this.invitationService.checkForToken(token);
@@ -94,7 +95,7 @@ class InvitationController {
     }
   };
 
-  public rejectInvitation = async (req: Request, res: Response, next: NextFunction) => {
+  public rejectInvitation = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { token } = req.query;
       const invitationData = await this.invitationService.checkForToken(token);

@@ -1,10 +1,12 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { CreateUserDto } from '@/modules/UserTenancy/dtos/user.dto';
 import { User } from '@/common/interfaces/users.interface';
 import userService from '@/modules/UserTenancy/services/users.service';
 import TokenService from '@/modules/UserTenancy/services/token.service';
 import DB from '@/database';
 import config from 'config';
+import { RequestWithUser } from '@/common/interfaces/auth.interface';
+
 const crypto = require('crypto');
 
 class UsersController {
@@ -13,7 +15,7 @@ class UsersController {
   public users = DB.Users;
   public token = DB.Tokens;
 
-  public getUsers = async (req: Request, res: Response, next: NextFunction) => {
+  public getUsers = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const findAllUsersData: User[] = await this.userService.findAllUser();
       res.status(200).json({ data: findAllUsersData, message: 'findAll' });
@@ -22,7 +24,7 @@ class UsersController {
     }
   };
 
-  public getUserById = async (req: Request, res: Response, next: NextFunction) => {
+  public getUserById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const userPk = req.params.id;
       const findOneUserData: User = await this.userService.findUserById(userPk);
@@ -31,7 +33,7 @@ class UsersController {
       next(error);
     }
   };
-  public checkForDuplicateMail = async (req: Request, res: Response, next: NextFunction) => {
+  public checkForDuplicateMail = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body;
       const findOneUserData: User = await this.userService.findUserByEmail(email);
@@ -45,7 +47,7 @@ class UsersController {
     }
   };
 
-  public createUser = async (req: Request, res: Response, next: NextFunction) => {
+  public createUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const userData: CreateUserDto = req.body;
       const createUserData: User = await this.userService.createUser(userData);
@@ -56,7 +58,7 @@ class UsersController {
     }
   };
 
-  public updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  public updateUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const userId = req.params.id;
       const userData: CreateUserDto = req.body;
@@ -68,7 +70,7 @@ class UsersController {
     }
   };
 
-  public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  public deleteUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const userPk = Number(req.params.id);
       const deleteUserData: User = await this.userService.deleteUser(userPk);
@@ -98,7 +100,7 @@ class UsersController {
     }
   };
 
-  public recoverPassword = async (req: Request, res: Response, next: NextFunction) => {
+  public recoverPassword = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const { email } = req.body;
     const userDetail: User = await this.userService.findUserByEmail(email);
     if (!userDetail) {
@@ -154,7 +156,7 @@ class UsersController {
     });
   };
 
-  public resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  public resetPassword = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { newPassword } = req.body;
       const { reset_token } = req.query;
