@@ -2,11 +2,11 @@ import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 export class CreateAccessGroupMemberDto {
   @IsString()
   @IsNotEmpty()
-  public accessGroupPk: string;
+  public accessGroupPk: number;
 
   @IsString()
   @IsNotEmpty()
-  public userPk: string;
+  public userPk: number;
 
   @IsString()
   @IsOptional()

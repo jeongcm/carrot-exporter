@@ -58,9 +58,9 @@ class UsersController {
 
   public updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userPk = req.params.id;
+      const userId = req.params.id;
       const userData: CreateUserDto = req.body;
-      const updateUserData: User = await this.userService.updateUser(userPk, userData);
+      const updateUserData: User = await this.userService.updateUserById(userId, userData);
       delete updateUserData.password;
       res.status(200).json({ data: updateUserData, message: 'updated' });
     } catch (error) {
@@ -99,34 +99,59 @@ class UsersController {
   };
 
   public recoverPassword = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { email } = req.body;
-      const userDetail: User = await this.userService.findUserByEmail(email);
-      if (!userDetail) {
-        return res.status(200).json({ ok: false, message: 'USER_NOT_FOUND_WITH_THIS_EMAIL_ID' });
-      }
-
-      //RYAN: we should really move this inside the token service FROM:
-      const resetToken = crypto.randomBytes(32).toString('hex');
-      const obj = {
-        userPk: userDetail.id,
-        token: resetToken,
-      };
-      // RYAN: till HERE. One of the reasons that we might reluctant to put into token
-      // is the name "token" is away too ambiguous.
-      // What if we call it recoverPasswordToken Service?
-      // What if we call createRecoverPasswordToken method?
-
-      await this.tokenService.createTokenDetail(obj);
-      req.body['from'] = config.email.defaultFrom;
-      req.body['email'] = email;
-      req.body['username'] = userDetail.username;
-      req.body['reset_token'] = resetToken;
-      req.body['subject'] = 'Reset Password !!';
-      return await this.userService.sendRecoveryMail(req, res);
-    } catch (err) {
-      return res.status(400).json({ message: 'Error while sending passwor reset mail', error: err });
+    const { email } = req.body;
+    const userDetail: User = await this.userService.findUserByEmail(email);
+    if (!userDetail) {
+      return res.status(200).json({ ok: false, message: 'USER_NOT_FOUND_WITH_THIS_EMAIL_ID' });
     }
+
+    //RYAN: we should really move this inside the token service FROM:
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const obj = {
+      userPk: userDetail.pk,
+      token: resetToken,
+    };
+    // RYAN: till HERE. One of the reasons that we might reluctant to put into token
+    // is the name "token" is away too ambiguous.
+    // What if we call it recoverPasswordToken Service?
+    // What if we call createRecoverPasswordToken method?
+
+    const tokenResult = await this.tokenService.createTokenDetail(obj);
+    req.body['from'] = config.email.defaultFrom;
+    req.body['email'] = email;
+    req.body['username'] = userDetail.username;
+    req.body['reset_token'] = resetToken;
+    req.body['subject'] = 'Reset Password';
+
+    let emailResult = {
+      ok: false,
+      emailResult: null,
+    };
+    try {
+      emailResult = {
+        ok: true,
+        emailResult: await this.userService.sendRecoveryMail(req, res),
+      };
+    } catch (err) {
+      emailResult = {
+        ok: false,
+        emailResult: err,
+      };
+    }
+
+    if (!emailResult.ok) {
+      return res.status(400).json({
+        ok: false,
+        message: 'Failed to send recover email',
+        emailResult,
+        tokenResult,
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      message: 'recovery email sent',
+    });
   };
 
   public resetPassword = async (req: Request, res: Response, next: NextFunction) => {
@@ -134,22 +159,22 @@ class UsersController {
       const { newPassword } = req.body;
       const { reset_token } = req.query;
       const token = await this.tokenService.findTokenDetail(reset_token);
-      const userDetails = await this.userService.findUserById(token.userPk);
+
       if (!token) {
         return res.status(400).json({ message: 'Invalid Token' });
       }
       if (token.expiryTime - Date.now() < 0) {
         return res.status(400).json({ message: 'Token has been expired, Please try resetting again' });
       }
-      await this.userService.updateUser(token.userPk, { loginPw: newPassword });
+      const userDetails = await this.userService.findUserByPk(token.userPk);
+
+      await this.userService.updateUserPassword(token.userPk, newPassword);
       req.body['from'] = config.email.defaultFrom;
-      req.body['subject'] = 'Password Reset Successfully!!';
+      req.body['subject'] = 'Password Reset Successfully!';
       req.body['email'] = userDetails.email;
       req.body['isResetMail'] = true;
       return await this.userService.sendRecoveryMail(req, res);
     } catch (err) {
-      // RYAN: some catch (err) were missing res return
-      // let's use next and pass it to our routes
       next(err);
     }
   };

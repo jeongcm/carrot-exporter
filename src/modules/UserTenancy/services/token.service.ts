@@ -12,7 +12,7 @@ class TokenService {
   }
 
   public async findTokenDetail(token): Promise<IToken> {
-    const tokenDetail: IToken = await this.tokens.findOne({where:{token}});
+    const tokenDetail: IToken = await this.tokens.findOne({ where: { token } });
     return tokenDetail;
   }
 

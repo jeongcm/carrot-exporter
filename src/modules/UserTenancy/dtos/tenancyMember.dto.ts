@@ -5,14 +5,14 @@ export class CreateTenancyMemberDto {
   public userName: string;
 
   @IsString()
-  public userPk: string;
+  public userPk: number;
 
   @IsString()
   @IsNotEmpty()
   public userRole: 'owner' | 'member' | 'maintainer';
 
   @IsString()
-  public tenancyPk: string;
+  public tenancyPk: number;
 
   @IsString()
   @IsOptional()
@@ -45,14 +45,14 @@ export class updateTenancyMemberDto {
 
   @IsString()
   @IsOptional()
-  public userPk: string;
+  public userPk: number;
 
   @IsString()
   @IsOptional()
   public userRole: 'owner' | 'member' | 'maintainer';
 
   @IsString()
-  public tenancyPk: string;
+  public tenancyPk: number;
 
   @IsString()
   @IsOptional()

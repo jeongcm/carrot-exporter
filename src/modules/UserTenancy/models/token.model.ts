@@ -5,7 +5,7 @@ export type TenancyCreationAttributes = Optional<IToken, 'id' | 'userPk' | 'toke
 
 export class TokenModel extends Model<IToken> implements IToken {
   public pk: number;
-  public userPk: string;
+  public userPk: number;
   public token: string;
   public maximumLimit: number;
   public expiryTime: number;

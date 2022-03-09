@@ -10,7 +10,7 @@ export type ClusterCreationAttributes = Optional<
 export class ClusterModel extends Model<IClusterAdd, ClusterCreationAttributes> implements IClusterAdd {
   public pk: number;
   public id: string;
-  public tenancyPk: string;
+  public tenancyPk: number;
   public description: string;
   public global: boolean;
   public icon: string;

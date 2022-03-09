@@ -72,7 +72,7 @@ class ClusterService {
    * @returns Promise<Cluster>
    * @author Jaswant
    */
-  public async updateCluster(clusterPk: string, clusterData: CreateClusterDto): Promise<Cluster> {
+  public async updateCluster(clusterPk: number, clusterData: CreateClusterDto): Promise<Cluster> {
     if (isEmpty(clusterData)) throw new HttpException(400, 'Cluster Data cannot be blank');
     const findCluster: Cluster = await this.clusters.findByPk(clusterPk);
     if (!findCluster) throw new HttpException(409, "Cluster doesn't exist");
@@ -93,7 +93,7 @@ class ClusterService {
    * @returns Promise<Cluster>
    * @author Jaswant
    */
-  public async deleteCluster(clusterPk: string): Promise<Cluster> {
+  public async deleteCluster(clusterPk: number): Promise<Cluster> {
     if (isEmpty(clusterPk)) throw new HttpException(400, 'Clusterid is required');
     const findCluster: Cluster = await this.clusters.findByPk(clusterPk);
     if (!findCluster) throw new HttpException(409, "Cluster doesn't exist");

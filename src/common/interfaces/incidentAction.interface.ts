@@ -1,7 +1,7 @@
 export interface IIncidentAction {
   pk: number;
   id: string;
-  incidentPk: string;
+  incidentPk: number;
   title: string;
   description: string;
   createdBy: number;

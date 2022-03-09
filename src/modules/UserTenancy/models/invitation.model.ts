@@ -20,7 +20,7 @@ export type TenancyCreationAttributes = Optional<
 export class InvitationModel extends Model<Invitation> implements Invitation {
   public pk: number;
   public id: string;
-  public tenancyPk: string;
+  public tenancyPk: number;
   public invitedByUserId: string;
   public isActive: boolean;
   public isAccepted: boolean;

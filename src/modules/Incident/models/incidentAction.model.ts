@@ -9,7 +9,7 @@ export type IIncidentActionCreationAttributes = Optional<
 export class IncidentActionModel extends Model<IIncidentAction, IIncidentActionCreationAttributes> implements IIncidentAction {
   public pk: number;
   public id: string;
-  public incidentPk: string;
+  public incidentPk: number;
   public title: string;
   public description: string;
   public createdBy: number;

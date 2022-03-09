@@ -18,7 +18,7 @@ export interface IClusterServciePort {
 }
 
 export interface IClusterService {
-  clusterPk: string;
+  clusterPk: number;
   exporterKey: string;
   exporterStatus:
     | 'ACTIVE'
@@ -37,7 +37,7 @@ export interface IClusterService {
   namespace: string;
   ports: IClusterServciePort[];
   serviceType: string;
-  tenancyPk: string;
+  tenancyPk: number;
   type: 'ClusterIP' | 'LoadBalancer' | 'NodePort';
 }
 

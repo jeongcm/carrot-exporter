@@ -1,8 +1,8 @@
 export interface AccessGroupChannel {
   pk: number;
   id: string;
-  accessGroupPk: string;
-  channelPk: string;
+  accessGroupPk: number;
+  channelPk: number;
   createdAt: Date;
   createdBy: number;
   updatedAt: Date;

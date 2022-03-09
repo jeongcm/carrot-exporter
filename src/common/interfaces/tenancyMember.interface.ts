@@ -2,9 +2,9 @@ export interface TenancyMember {
   pk: number;
   id: string;
   userName: string;
-  userPk: string;
+  userPk: number;
   userRole: 'owner' | 'member' | 'maintainer';
-  tenancyPk: string;
+  tenancyPk: number;
   isActivated: boolean;
   invitedBy: number;
   verificationCode: string;

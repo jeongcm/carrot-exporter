@@ -9,8 +9,8 @@ export type AccessGroupChannelCreationAttributes = Optional<
 export class AccessGroupChannelModel extends Model<AccessGroupChannel, AccessGroupChannelCreationAttributes> implements AccessGroupChannel {
   public pk: number;
   public id: string;
-  public accessGroupPk: string;
-  public channelPk: string;
+  public accessGroupPk: number;
+  public channelPk: number;
   public createdBy: number;
   public updatedBy: number;
   public isDeleted: boolean;

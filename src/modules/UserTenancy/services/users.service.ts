@@ -27,10 +27,19 @@ class UserService {
     return allUser;
   }
 
-  public async findUserById(userPk: string): Promise<User> {
-    if (isEmpty(userPk)) throw new HttpException(400, "You're not userPk");
+  public async findUserByPk(userPk: number): Promise<User> {
+    if (isEmpty(userPk)) throw new HttpException(400, 'Missing UserId');
 
     const findUser: User = await this.users.findByPk(userPk, { attributes: { exclude: ['password'] } });
+    if (!findUser) throw new HttpException(409, "You're not user");
+
+    return findUser;
+  }
+
+  public async findUserById(userId: string): Promise<User> {
+    if (isEmpty(userId)) throw new HttpException(400, 'Missing UserId');
+
+    const findUser: User = await this.users.findOne({ where: { id: userId }, attributes: { exclude: ['password'] } });
     if (!findUser) throw new HttpException(409, "You're not user");
 
     return findUser;
@@ -58,21 +67,34 @@ class UserService {
     return createUserData;
   }
 
-  public async updateUser(userPk: string, userData: any): Promise<User> {
+  public async updateUserById(userId: string, userData: any): Promise<User> {
     if (isEmpty(userData)) throw new HttpException(400, "You're not userData");
 
-    const findUser: User = await this.users.findByPk(userPk);
+    const findUser: User = await this.users.findOne({ where: { id: userId }});
     if (!findUser) throw new HttpException(409, "You're not user");
 
     const hashedPassword = await bcrypt.hash(userData.loginPw, 10);
     userData['updatedAt'] = new Date();
-    await this.users.update({ ...userData, password: hashedPassword }, { where: { id: userPk } });
+    await this.users.update({ ...userData, password: hashedPassword }, { where: { id: userId } });
+
+    const updateUser: User = await this.users.findByPk(findUser.pk);
+    return updateUser;
+  }
+
+  public async updateUserPassword(userPk: number, password: string): Promise<User> {
+    if (isEmpty(password)) throw new HttpException(400, 'new password is missing');
+
+    const findUser: User = await this.users.findByPk(userPk);
+    if (!findUser) throw new HttpException(409, 'no user found');
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await this.users.update({ password: hashedPassword, updatedAt: new Date() }, { where: { id: userPk } });
 
     const updateUser: User = await this.users.findByPk(userPk);
     return updateUser;
   }
 
-  public async deleteUser(userPk: string): Promise<User> {
+  public async deleteUser(userPk: number): Promise<User> {
     if (isEmpty(userPk)) throw new HttpException(400, "You're not userPk");
 
     const findUser: User = await this.users.findByPk(userPk);

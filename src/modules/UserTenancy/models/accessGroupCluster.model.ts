@@ -9,8 +9,8 @@ export type AccessGroupClusterCreationAttributes = Optional<
 export class AccessGroupClusterModel extends Model<AccessGroupCluster, AccessGroupClusterCreationAttributes> implements AccessGroupCluster {
   public pk: number;
   public id: string;
-  public accessGroupPk: string;
-  public clusterPk: string;
+  public accessGroupPk: number;
+  public clusterPk: number;
   public createdBy: number;
   public updatedBy: number;
   public isDeleted: boolean;

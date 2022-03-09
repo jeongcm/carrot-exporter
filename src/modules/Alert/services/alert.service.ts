@@ -20,7 +20,7 @@ class AlertService {
    * @param  {number} tenancyPk
    * @returns Promise<IAlert[]>
    */
-  public async getAllAlerts(tenancyPk: string): Promise<AlertListDto[]> {
+  public async getAllAlerts(tenancyPk: number): Promise<AlertListDto[]> {
     if (!tenancyPk) throw new HttpException(400, `tenancyPk is required in headers.`);
 
     const allAlerts: IAlert[] = await this.alert.findAll({
@@ -57,7 +57,7 @@ class AlertService {
    * @param  {number} tenancyPk
    * @returns Promise<IAlert[]>
    */
-  public async getAllPinnedAlerts(tenancyPk: string): Promise<AlertListDto[]> {
+  public async getAllPinnedAlerts(tenancyPk: number): Promise<AlertListDto[]> {
     if (!tenancyPk) throw new HttpException(400, `tenancyPk is required in headers.`);
 
     const allPinnedAlerts: IAlert[] = await this.alert.findAll({
@@ -114,7 +114,7 @@ class AlertService {
    * @param  {number} tenancyPk
    * @returns Promise<IAlert>
    */
-  public async createAlert(alertData: CreateAlertDto, tenancyPk: string): Promise<IAlert> {
+  public async createAlert(alertData: CreateAlertDto, tenancyPk: number): Promise<IAlert> {
     if (isEmpty(alertData)) throw new HttpException(400, 'Alert must not be empty');
 
     const createAlertData: IAlert = await this.alert.create({ ...alertData, tenancyPk });

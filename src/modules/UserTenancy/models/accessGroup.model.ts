@@ -9,7 +9,7 @@ export type AccessGroupCreationAttributes = Optional<
 export class AccessGroupModel extends Model<AccessGroup, AccessGroupCreationAttributes> implements AccessGroup {
   public pk: number;
   public id: string;
-  public tenancyPk: string;
+  public tenancyPk: number;
   public groupName: string;
   public createdBy: number;
   public updatedBy: number;

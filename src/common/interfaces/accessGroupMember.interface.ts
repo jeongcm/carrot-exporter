@@ -1,8 +1,8 @@
 export interface AccessGroupMember {
   pk: number;
   id: string;
-  accessGroupPk: string;
-  userPk: string;
+  accessGroupPk: number;
+  userPk: number;
   createdAt: Date;
   createdBy: number;
   updatedAt: Date;

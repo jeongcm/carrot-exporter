@@ -29,7 +29,7 @@ export interface ICluster {
   primaryAgentKey: string;
   provider: string;
   tags: string;
-  tenancyPk: string;
+  tenancyPk: number;
   updatedAt: string;
   updatedBy: number;
 }
@@ -37,7 +37,7 @@ export interface ICluster {
 export interface IClusterAdd {
   pk: number;
   id: string;
-  tenancyPk: string;
+  tenancyPk: number;
   description: string;
   global: boolean;
   icon: string;
@@ -83,7 +83,7 @@ export interface IClusterDetail {
   provider: string;
   size: number;
   tags: string;
-  tenancyPk: string;
+  tenancyPk: number;
   version: string;
 }
 
@@ -174,7 +174,7 @@ export interface IGlobalViewCluster {
   name: string;
   platform: PlatformEnum;
   primaryAgentKey: string;
-  tenancyPk: string;
+  tenancyPk: number;
 }
 
 export interface IP8sService {

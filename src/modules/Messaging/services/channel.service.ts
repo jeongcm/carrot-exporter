@@ -67,7 +67,7 @@ class ChannelService {
     return createChannelData;
   }
 
-  public async updateChannel(channelPk: string, channelData: CreateChannelDto, currentUserId: string): Promise<Channel> {
+  public async updateChannel(channelPk: number, channelData: CreateChannelDto, currentUserId: string): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const findChannel: Channel = await this.channels.findByPk(channelPk);
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
@@ -82,7 +82,7 @@ class ChannelService {
     return updateUser;
   }
 
-  public async deleteChannel(channelPk: string): Promise<Channel> {
+  public async deleteChannel(channelPk: number): Promise<Channel> {
     if (isEmpty(channelPk)) throw new HttpException(400, 'Channelid is required');
     const findChannel: Channel = await this.channels.findByPk(channelPk);
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
@@ -90,7 +90,7 @@ class ChannelService {
     return findChannel;
   }
 
-  public async getAccessGroupByChannels(channelPk: string): Promise<AccessGroupChannel[]> {
+  public async getAccessGroupByChannels(channelPk: number): Promise<AccessGroupChannel[]> {
     const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({
       where: { channelPk: channelPk, isDeleted: false },
       attributes: ['id'],

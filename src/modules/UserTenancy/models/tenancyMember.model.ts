@@ -22,11 +22,11 @@ export class TenancyMemberModel extends Model<TenancyMember> implements TenancyM
   public pk: number;
   public id: string;
   public userName: string;
-  public userPk: string;
+  public userPk: number;
   public userRole: 'owner' | 'member' | 'maintainer';
   public verificationCode: string;
   public tenancyLastAccess: Date;
-  public tenancyPk: string;
+  public tenancyPk: number;
   public isDeleted: boolean;
   public isActivated: boolean;
   public invitedBy: number;

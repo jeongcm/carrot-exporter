@@ -4,8 +4,8 @@ import { IIncidentRelAlert } from '../../../common/interfaces/incidentRelAlert.i
 export type IIncidentRelAlertCreationAttributes = Optional<IIncidentRelAlert, 'incidentPk' | 'alertPk'>;
 
 export class IncidentRelAlertModel extends Model<IIncidentRelAlert, IIncidentRelAlertCreationAttributes> implements IIncidentRelAlert {
-  public incidentPk: string;
-  public alertPk: string;
+  public incidentPk: number;
+  public alertPk: number;
 }
 
 export default function (sequelize: Sequelize): typeof IncidentRelAlertModel {

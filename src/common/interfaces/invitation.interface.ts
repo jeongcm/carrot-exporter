@@ -1,7 +1,7 @@
 export interface Invitation {
   pk: number;
   id: string;
-  tenancyPk: string;
+  tenancyPk: number;
   invitedByUserId: string;
   isActive: boolean;
   isAccepted: boolean;

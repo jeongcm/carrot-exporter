@@ -21,8 +21,8 @@ export type IncidentCreationAttributes = Optional<
 export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> implements IIncident {
   public pk: number;
   public id: string;
-  public tenancyPk: string;
-  public assigneePk: string;
+  public tenancyPk: number;
+  public assigneePk: number;
   public title: string;
   public note: string;
   public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';

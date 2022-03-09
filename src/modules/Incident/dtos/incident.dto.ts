@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 export class CreateIncidentDto {
   @IsString()
   @IsOptional()
-  public assigneePk: string;
+  public assigneePk: number;
 
   @IsString()
   @IsNotEmpty()
@@ -40,7 +40,7 @@ export class UpdateIncidentStatusDto {
 export class UpdateIncidentDto {
   @IsString()
   @IsOptional()
-  public assigneePk: string;
+  public assigneePk: number;
 
   @IsString()
   @IsNotEmpty()

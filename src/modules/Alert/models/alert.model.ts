@@ -25,7 +25,7 @@ export type AlertCreationAttributes = Optional<
 export class AlertModel extends Model<IAlert, AlertCreationAttributes> implements IAlert {
   public pk: number;
   public id: string;
-  public tenancyPk: string;
+  public tenancyPk: number;
   public alertName: string;
   public from: 'LARI' | 'PROMETHEUS';
   public severity: string;
