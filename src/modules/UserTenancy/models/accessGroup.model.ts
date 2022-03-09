@@ -15,6 +15,7 @@ export class AccessGroupModel extends Model<AccessGroup, AccessGroupCreationAttr
   public updatedBy: number;
   public description: string;
   public icon: string;
+  public isDeleted: boolean;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -66,6 +67,11 @@ export default function (sequelize: Sequelize): typeof AccessGroupModel {
       updatedAt: {
         allowNull: false,
         type: DataTypes.DATE(),
+      },
+      isDeleted: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
     },
     {

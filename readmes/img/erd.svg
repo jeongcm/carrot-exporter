@@ -128,30 +128,32 @@
 <!-- AccessGroup -->
 <g id="node2" class="node">
 <title>AccessGroup</title>
-<polygon fill="#add8e6" stroke="transparent" points="594.8138,-1645.194 594.8138,-1667.194 693.8138,-1667.194 693.8138,-1645.194 594.8138,-1645.194"/>
-<polygon fill="none" stroke="#000000" points="594.8138,-1645.194 594.8138,-1667.194 693.8138,-1667.194 693.8138,-1645.194 594.8138,-1645.194"/>
-<text text-anchor="start" x="617.3828" y="-1654.194" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">AccessGroup</text>
-<polygon fill="none" stroke="#000000" points="594.8138,-1623.194 594.8138,-1645.194 693.8138,-1645.194 693.8138,-1623.194 594.8138,-1623.194"/>
-<text text-anchor="start" x="599.8138" y="-1632.194" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">pk</text>
-<text text-anchor="start" x="609.8138" y="-1632.194" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="594.8138,-1601.194 594.8138,-1623.194 693.8138,-1623.194 693.8138,-1601.194 594.8138,-1601.194"/>
-<text text-anchor="start" x="599.8138" y="-1609.194" font-family="Times,serif" font-size="10.00" fill="#000000">id: UUID</text>
-<polygon fill="none" stroke="#000000" points="594.8138,-1579.194 594.8138,-1601.194 693.8138,-1601.194 693.8138,-1579.194 594.8138,-1579.194"/>
-<text text-anchor="start" x="599.4598" y="-1587.194" font-family="Times,serif" font-size="10.00" fill="#000000">tenancyPk: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="594.8138,-1557.194 594.8138,-1579.194 693.8138,-1579.194 693.8138,-1557.194 594.8138,-1557.194"/>
-<text text-anchor="start" x="599.8138" y="-1565.194" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="594.8138,-1535.194 594.8138,-1557.194 693.8138,-1557.194 693.8138,-1535.194 594.8138,-1535.194"/>
-<text text-anchor="start" x="599.8138" y="-1543.194" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="594.8138,-1513.194 594.8138,-1535.194 693.8138,-1535.194 693.8138,-1513.194 594.8138,-1513.194"/>
-<text text-anchor="start" x="599.8138" y="-1521.194" font-family="Times,serif" font-size="10.00" fill="#000000">groupName: STRING</text>
-<polygon fill="none" stroke="#000000" points="594.8138,-1491.194 594.8138,-1513.194 693.8138,-1513.194 693.8138,-1491.194 594.8138,-1491.194"/>
-<text text-anchor="start" x="599.8138" y="-1499.194" font-family="Times,serif" font-size="10.00" fill="#000000">icon: STRING</text>
-<polygon fill="none" stroke="#000000" points="594.8138,-1469.194 594.8138,-1491.194 693.8138,-1491.194 693.8138,-1469.194 594.8138,-1469.194"/>
-<text text-anchor="start" x="599.8138" y="-1477.194" font-family="Times,serif" font-size="10.00" fill="#000000">description: STRING</text>
-<polygon fill="none" stroke="#000000" points="594.8138,-1447.194 594.8138,-1469.194 693.8138,-1469.194 693.8138,-1447.194 594.8138,-1447.194"/>
-<text text-anchor="start" x="599.8138" y="-1455.194" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="594.8138,-1425.194 594.8138,-1447.194 693.8138,-1447.194 693.8138,-1425.194 594.8138,-1425.194"/>
-<text text-anchor="start" x="599.8138" y="-1433.194" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
+<polygon fill="#add8e6" stroke="transparent" points="593.8138,-1656.194 593.8138,-1678.194 693.8138,-1678.194 693.8138,-1656.194 593.8138,-1656.194"/>
+<polygon fill="none" stroke="#000000" points="593.8138,-1656.194 593.8138,-1678.194 693.8138,-1678.194 693.8138,-1656.194 593.8138,-1656.194"/>
+<text text-anchor="start" x="616.8828" y="-1665.194" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">AccessGroup</text>
+<polygon fill="none" stroke="#000000" points="593.8138,-1634.194 593.8138,-1656.194 693.8138,-1656.194 693.8138,-1634.194 593.8138,-1634.194"/>
+<text text-anchor="start" x="598.8138" y="-1643.194" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">pk</text>
+<text text-anchor="start" x="608.8138" y="-1643.194" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="593.8138,-1612.194 593.8138,-1634.194 693.8138,-1634.194 693.8138,-1612.194 593.8138,-1612.194"/>
+<text text-anchor="start" x="598.8138" y="-1620.194" font-family="Times,serif" font-size="10.00" fill="#000000">id: UUID</text>
+<polygon fill="none" stroke="#000000" points="593.8138,-1590.194 593.8138,-1612.194 693.8138,-1612.194 693.8138,-1590.194 593.8138,-1590.194"/>
+<text text-anchor="start" x="598.8138" y="-1598.194" font-family="Times,serif" font-size="10.00" fill="#000000">tenancyPk: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="593.8138,-1568.194 593.8138,-1590.194 693.8138,-1590.194 693.8138,-1568.194 593.8138,-1568.194"/>
+<text text-anchor="start" x="598.8138" y="-1576.194" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="593.8138,-1546.194 593.8138,-1568.194 693.8138,-1568.194 693.8138,-1546.194 593.8138,-1546.194"/>
+<text text-anchor="start" x="598.8138" y="-1554.194" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="593.8138,-1524.194 593.8138,-1546.194 693.8138,-1546.194 693.8138,-1524.194 593.8138,-1524.194"/>
+<text text-anchor="start" x="598.8138" y="-1532.194" font-family="Times,serif" font-size="10.00" fill="#000000">groupName: STRING</text>
+<polygon fill="none" stroke="#000000" points="593.8138,-1502.194 593.8138,-1524.194 693.8138,-1524.194 693.8138,-1502.194 593.8138,-1502.194"/>
+<text text-anchor="start" x="598.8138" y="-1510.194" font-family="Times,serif" font-size="10.00" fill="#000000">icon: STRING</text>
+<polygon fill="none" stroke="#000000" points="593.8138,-1480.194 593.8138,-1502.194 693.8138,-1502.194 693.8138,-1480.194 593.8138,-1480.194"/>
+<text text-anchor="start" x="598.8138" y="-1488.194" font-family="Times,serif" font-size="10.00" fill="#000000">description: STRING</text>
+<polygon fill="none" stroke="#000000" points="593.8138,-1458.194 593.8138,-1480.194 693.8138,-1480.194 693.8138,-1458.194 593.8138,-1458.194"/>
+<text text-anchor="start" x="598.8138" y="-1466.194" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="593.8138,-1436.194 593.8138,-1458.194 693.8138,-1458.194 693.8138,-1436.194 593.8138,-1436.194"/>
+<text text-anchor="start" x="598.8138" y="-1444.194" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="593.8138,-1414.194 593.8138,-1436.194 693.8138,-1436.194 693.8138,-1414.194 593.8138,-1414.194"/>
+<text text-anchor="start" x="598.4118" y="-1422.194" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: BOOLEAN</text>
 </g>
 <!-- AccessGroupChannel -->
 <g id="node3" class="node">
@@ -190,9 +192,9 @@
 <!-- AccessGroup&#45;&gt;AccessGroupChannel -->
 <g id="edge2" class="edge">
 <title>AccessGroup&#45;&gt;AccessGroupChannel</title>
-<path fill="none" stroke="#00cd00" d="M701.8173,-1482.1608C809.7111,-1363.051 1040.7959,-1107.944 1156.7007,-979.9905"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="701.5062,-1482.5043 689.4477,-1487.7727 697.478,-1486.9512 693.4499,-1491.398 693.4499,-1491.398 693.4499,-1491.398 697.478,-1486.9512 697.4521,-1495.0233 701.5062,-1482.5043 701.5062,-1482.5043"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="1167.9563,-973.8208 1156.7873,-979.8949 1161.7307,-968.1815 1167.9563,-973.8208"/>
+<path fill="none" stroke="#00cd00" d="M702.0118,-1481.9461C810.0329,-1362.6958 1041.0553,-1107.6577 1156.8435,-979.8329"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="702.01,-1481.9481 689.9516,-1487.2165 697.9819,-1486.3949 693.9538,-1490.8418 693.9538,-1490.8418 693.9538,-1490.8418 697.9819,-1486.3949 697.956,-1494.4671 702.01,-1481.9481 702.01,-1481.9481"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="1168.0906,-973.6726 1156.9215,-979.7467 1161.865,-968.0333 1168.0906,-973.6726"/>
 </g>
 <!-- AccessGroupCluster -->
 <g id="node4" class="node">
@@ -231,16 +233,16 @@
 <!-- AccessGroup&#45;&gt;AccessGroupCluster -->
 <g id="edge4" class="edge">
 <title>AccessGroup&#45;&gt;AccessGroupCluster</title>
-<path fill="none" stroke="#00cd00" d="M584.1677,-1501.0555C481.9668,-1423.7129 273.8326,-1266.2031 164.3533,-1183.3524"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="584.4293,-1501.2534 590.7394,-1512.8009 589.2137,-1504.8742 593.9981,-1508.4949 593.9981,-1508.4949 593.9981,-1508.4949 589.2137,-1504.8742 597.2567,-1504.1889 584.4293,-1501.2534 584.4293,-1501.2534"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="157.2504,-1172.7101 164.2847,-1183.3006 152.1814,-1179.4082 157.2504,-1172.7101"/>
+<path fill="none" stroke="#00cd00" d="M583.6543,-1500.667C481.2229,-1423.1499 273.4531,-1265.9159 164.1982,-1183.2351"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="583.9409,-1500.8839 590.2511,-1512.4313 588.7253,-1504.5046 593.5097,-1508.1253 593.5097,-1508.1253 593.5097,-1508.1253 588.7253,-1504.5046 596.7684,-1503.8193 583.9409,-1500.8839 583.9409,-1500.8839"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="157.1152,-1172.6078 164.1496,-1183.1983 152.0462,-1179.306 157.1152,-1172.6078"/>
 </g>
 <!-- AccessGroup&#45;&gt;AccessGroupMember -->
 <g id="edge3" class="edge">
 <title>AccessGroup&#45;&gt;AccessGroupMember</title>
-<path fill="none" stroke="#00cd00" d="M651.2692,-1412.9163C654.5799,-1353.7316 658.468,-1284.2248 661.779,-1225.0333"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="651.2639,-1413.0128 645.202,-1424.6925 650.9287,-1419.0035 650.5936,-1424.9941 650.5936,-1424.9941 650.5936,-1424.9941 650.9287,-1419.0035 655.9851,-1425.2957 651.2639,-1413.0128 651.2639,-1413.0128"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="666.6482,-1213.1878 661.7845,-1224.9344 658.2613,-1212.7186 666.6482,-1213.1878"/>
+<path fill="none" stroke="#00cd00" d="M651.8758,-1402.0712C655.0502,-1345.3235 658.6733,-1280.5546 661.7856,-1224.9159"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="651.8719,-1402.1428 645.8101,-1413.8224 651.5368,-1408.1334 651.2016,-1414.124 651.2016,-1414.124 651.2016,-1414.124 651.5368,-1408.1334 656.5932,-1414.4257 651.8719,-1402.1428 651.8719,-1402.1428"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="666.6555,-1213.0573 661.7918,-1224.8039 658.2686,-1212.5881 666.6555,-1213.0573"/>
 </g>
 <!-- tenancyMember -->
 <g id="node7" class="node">

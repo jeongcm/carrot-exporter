@@ -4,6 +4,7 @@ export interface AccessGroup {
   tenancyPk: number;
   groupName: string;
   description: string;
+  isDeleted: boolean;
   icon: string;
   createdAt: Date;
   updatedAt: Date;
