@@ -463,16 +463,20 @@ class IncidentService {
   /**
    * Delete an action from incident
    *
-   * @param  {number} incidentPk
+   * @param  {string} incidentId
    * @param  {number} currentUserPk
    * @param  {number} actionId
    * @returns Promise
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async deleteIncidentActionById(incidentPk: number, currentUserPk: number, actionId: string): Promise<[number, IncidentActionModel[]]> {
+  public async deleteIncidentActionById(incidentId: string, currentUserPk: number, actionId: string): Promise<[number, IncidentActionModel[]]> {
+    const incident: IIncident = await this.incident.findOne({
+      where: { id: incidentId },
+    });
+
     const deletedIncidentAction: [number, IncidentActionModel[]] = await this.incidentAction.update(
       { isDeleted: 1, updatedBy: currentUserPk },
-      { where: { id: actionId, incidentPk } },
+      { where: { id: actionId, incidentPk: incident.pk } },
     );
 
     return deletedIncidentAction;

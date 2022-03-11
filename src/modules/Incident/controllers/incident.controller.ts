@@ -244,7 +244,7 @@ class IncidentController {
     try {
       const currentUserPk = req.user.pk;
 
-      await this.incidentService.deleteIncidentActionById(incident.pk, currentUserPk, actionId);
+      await this.incidentService.deleteIncidentActionById(incidentId, currentUserPk, actionId);
       res.status(204).json({ message: `delete incident action id(${actionId})` });
     } catch (error) {
       next(error);
