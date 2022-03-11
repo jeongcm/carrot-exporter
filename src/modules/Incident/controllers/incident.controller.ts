@@ -171,8 +171,8 @@ class IncidentController {
       const incidentData: UpdateIncidentDto = req.body;
       const currentUserPk = req.user.pk;
 
-      const updateAlertData: IIncident = await this.incidentService.updateIncident(incidentId, incidentData, currentUserPk);
-      res.status(200).json({ data: updateAlertData, message: 'updated' });
+      const updateIncidentData: IIncident = await this.incidentService.updateIncident(incidentId, incidentData, currentUserPk);
+      res.status(200).json({ data: updateIncidentData, message: 'updated' });
     } catch (error) {
       next(error);
     }

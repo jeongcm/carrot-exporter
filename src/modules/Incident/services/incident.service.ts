@@ -351,14 +351,21 @@ class IncidentService {
     if (relatedAlertIds) {
       await this.incidentRelAlert.destroy({ where: { incidentPk } });
 
-      const relatedAlerts = relatedAlertIds.map(alertPk => {
+      const relatedAlertDetails = await this.alert.findAll({
+        where: { id: { [Op.in]: relatedAlertIds } },
+        attributes: ['pk'],
+      });
+
+      const relatedAlertalertPks = relatedAlertDetails.map(item => item.pk);
+
+      const relatedAlerts = relatedAlertalertPks.map(alertPk => {
         return {
           incidentPk,
           alertPk,
         };
       });
 
-      await this.incidentRelAlert.bulkCreate(relatedAlerts);
+      await this.incidentRelAlert.bulkCreate(relatedAlerts, { returning: true });
     }
 
     if (actions) {

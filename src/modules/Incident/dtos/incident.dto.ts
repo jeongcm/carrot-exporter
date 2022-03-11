@@ -40,7 +40,7 @@ export class UpdateIncidentStatusDto {
 export class UpdateIncidentDto {
   @IsString()
   @IsOptional()
-  public assigneePk: number;
+  public assigneeId: string;
 
   @IsString()
   @IsNotEmpty()
@@ -58,7 +58,7 @@ export class UpdateIncidentDto {
   public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
 
   @IsOptional()
-  public relatedAlertIds: [number];
+  public relatedAlertIds: [string];
 
   @IsOptional()
   public actions: { description: string; title: string }[];
