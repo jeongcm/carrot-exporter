@@ -61,16 +61,16 @@ class IncidentController {
   };
 
   public createRelatedAlertsByIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = req.params.incidentId;
+    const incidentId = req.params.incidentId;
     const relatedAlertData: CreateRelatedAlertDto = req.body;
 
     try {
-      const relatedAlerts: IIncidentRelAlert[] = await this.incidentService.createRelatedAlertsByIncident(id, relatedAlertData);
+      const relatedAlerts: IIncidentRelAlert[] = await this.incidentService.createRelatedAlertsByIncident(incidentId, relatedAlertData);
 
       if (relatedAlerts) {
-        res.status(200).json({ data: relatedAlerts, message: `alerts have been connected to the incident(id: ${id}).` });
+        res.status(200).json({ data: relatedAlerts, message: `alerts have been connected to the incident(id: ${incidentId}).` });
       } else {
-        res.status(404).json({ message: `Incident id(${id}) not found` });
+        res.status(404).json({ message: `Incident id(${incidentId}) not found` });
       }
     } catch (error) {
       next(error);
@@ -78,11 +78,11 @@ class IncidentController {
   };
 
   public deleteRelatedAlertsByIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = req.params.incidentId;
+    const incidentId = req.params.incidentId;
     const relatedAlertData: CreateRelatedAlertDto = req.body;
 
     try {
-      await this.incidentService.deleteRelatedAlertsByIncident(id, relatedAlertData);
+      await this.incidentService.deleteRelatedAlertsByIncident(incidentId, relatedAlertData);
       res.status(204).json({ message: 'deleted' });
     } catch (error) {
       next(error);

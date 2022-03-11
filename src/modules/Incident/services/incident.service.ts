@@ -142,23 +142,28 @@ class IncidentService {
 
     const { relatedAlertIds } = relatedAlertData;
 
-    const relatedAlerts = relatedAlertIds.map(alertPk => {
+    const relatedAlertDetails = await this.alert.findAll({
+      where: { id: { [Op.in]: relatedAlertIds } },
+      attributes: ['pk'],
+    });
+
+    const relatedAlertalertPks = relatedAlertDetails.map(item => item.pk);
+
+    const relatedAlerts = relatedAlertalertPks.map(alertPk => {
       return {
         incidentPk,
         alertPk,
       };
     });
 
-    const result = await this.incidentRelAlert.bulkCreate(relatedAlerts, { returning: true });
-
-    return result;
+    return await this.incidentRelAlert.bulkCreate(relatedAlerts, { returning: true });
   }
 
   // RYAN: @saemsol NEX-1417
   /**
    * Dissociate alerts from an incident
    *
-   * @param  {string} incidentPk
+   * @param  {string} incidentId
    * @param  {CreateRelatedAlertDto} relatedAlertData
    * @returns Promise<void>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
@@ -176,10 +181,19 @@ class IncidentService {
 
     const { relatedAlertIds } = relatedAlertData;
 
+    //here
+
+    const relatedAlertDetails = await this.alert.findAll({
+      where: { id: { [Op.in]: relatedAlertIds } },
+      attributes: ['pk'],
+    });
+
+    const relatedAlertalertPks = relatedAlertDetails.map(item => item.pk);
+
     await this.incidentRelAlert.destroy({
       where: {
         incidentPk,
-        alertPk: relatedAlertIds,
+        alertPk: { [Op.in]: relatedAlertalertPks },
       },
     });
   }
