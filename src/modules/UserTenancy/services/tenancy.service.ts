@@ -272,8 +272,6 @@ class TenancyService {
 
     const result = await this.user.update({ currentTenancyPk: tenancyDetail.pk }, { where: { pk: userPk } });
 
-    console.log('💙💙💙', 'result :', result);
-
     return result.indexOf(1) > -1;
   }
 

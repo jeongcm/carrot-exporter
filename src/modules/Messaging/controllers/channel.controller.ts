@@ -19,8 +19,8 @@ class ChannelController {
 
   public getChannelById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const channelPk = req.params.id;
-      const findOneUserData: Channel = await this.channelService.findChannelById(channelPk);
+      const channelId = req.params.id;
+      const findOneUserData: Channel = await this.channelService.findChannelById(channelId);
       res.status(200).json({ data: findOneUserData, message: 'findOne' });
     } catch (error) {
       next(error);
@@ -30,8 +30,8 @@ class ChannelController {
   public createChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const channelData: CreateChannelDto = req.body;
-      const currentUserId = req.user.id;
-      const createChannelData: Channel = await this.channelService.createChannel(channelData, currentUserId);
+      const currentUserPk = req.user.pk;
+      const createChannelData: Channel = await this.channelService.createChannel(channelData, currentUserPk);
       res.status(201).json({ data: createChannelData, message: 'created' });
     } catch (error) {
       next(error);
@@ -40,10 +40,10 @@ class ChannelController {
 
   public updateChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const channelPk = req.params.id;
+      const channelId = req.params.id;
       const channelData = req.body;
-      const currentUserId = req.user.id;
-      const updateChannelData: Channel = await this.channelService.updateChannel(channelPk, channelData, currentUserId);
+      const currentUserPk = req.user.pk;
+      const updateChannelData: Channel = await this.channelService.updateChannel(channelId, channelData, currentUserPk);
       res.status(200).json({ data: updateChannelData, message: 'updated' });
     } catch (error) {
       next(error);
@@ -52,8 +52,8 @@ class ChannelController {
 
   public deleteChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const channelPk = req.params.id;
-      const deleteChannelData: Channel = await this.channelService.deleteChannel(channelPk);
+      const channelId = req.params.id;
+      const deleteChannelData: Channel = await this.channelService.deleteChannel(channelId);
       res.status(200).json({ data: deleteChannelData, message: 'deleted' });
     } catch (error) {
       next(error);

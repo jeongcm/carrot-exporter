@@ -463,11 +463,11 @@
 <polygon fill="none" stroke="#000000" points="1128.791,-1442.235 1128.791,-1464.235 1231.791,-1464.235 1231.791,-1442.235 1128.791,-1442.235"/>
 <text text-anchor="start" x="1133.791" y="-1450.235" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1128.791,-1420.235 1128.791,-1442.235 1231.791,-1442.235 1231.791,-1420.235 1128.791,-1420.235"/>
-<text text-anchor="start" x="1133.791" y="-1428.235" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
+<text text-anchor="start" x="1133.791" y="-1428.235" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="1128.791,-1398.235 1128.791,-1420.235 1231.791,-1420.235 1231.791,-1398.235 1128.791,-1398.235"/>
 <text text-anchor="start" x="1133.791" y="-1406.235" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1128.791,-1376.235 1128.791,-1398.235 1231.791,-1398.235 1231.791,-1376.235 1128.791,-1376.235"/>
-<text text-anchor="start" x="1133.791" y="-1384.235" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
+<text text-anchor="start" x="1133.791" y="-1384.235" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="1128.791,-1354.235 1128.791,-1376.235 1231.791,-1376.235 1231.791,-1354.235 1128.791,-1354.235"/>
 <text text-anchor="start" x="1133.791" y="-1362.235" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: BOOLEAN</text>
 </g>
