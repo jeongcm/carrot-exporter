@@ -192,23 +192,22 @@ class IncidentService {
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
   public async getIncidentActionsById(id: string): Promise<IIncidentAction[]> {
+    const incident = await this.incident.findOne({ where: { id } });
+
+    if (!incident) {
+      return;
+    }
+
+    const incidentPk = incident.pk;
+
     const incidentActions: IIncidentAction[] = await this.incidentAction.findAll({
-      where: { incidentPk: id, isDeleted: 0 },
-      attributes: { exclude: ['pk', 'isDeleted'] },
-      include: [
-        {
-          model: DB.Incident,
-          required: true,
-          attributes: [],
-          where: {
-            id,
-          },
-        },
-      ],
+      where: { incidentPk, isDeleted: 0 },
+      attributes: { exclude: ['pk', 'incidentPk', 'isDeleted'] },
     });
 
     return incidentActions;
   }
+
   /**
    * Get numbers of incidents status.
    *
