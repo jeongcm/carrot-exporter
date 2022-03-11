@@ -12,6 +12,7 @@ import { AlertModel } from '@/modules/Alert/models/alert.model';
 import { IIncidentRelAlert } from '@/common/interfaces/incidentRelAlert.interface';
 import { IIncidentCounts } from '@/common/interfaces/incidentCounts.interface';
 import sequelize from 'sequelize';
+import { Op } from 'sequelize';
 
 /**
  * @memberof Incident
@@ -250,10 +251,15 @@ class IncidentService {
    * @returns Promise<IIncident>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async createIncident(incidentData: CreateIncidentDto, currentUserPk: number, currentTenancyPk: number): Promise<IIncident> {
+  public async createIncident(
+    incidentData: CreateIncidentDto,
+    currentUserPk: number,
+    currentTenancyPk: number,
+    assigneePk: number,
+  ): Promise<IIncident> {
     if (isEmpty(incidentData)) throw new HttpException(400, 'Incident must not be empty');
 
-    const { assigneePk, title, note, status, priority, dueDate, relatedAlertIds, actions } = incidentData;
+    const { title, note, status, priority, dueDate, relatedAlertIds, actions } = incidentData;
 
     const createIncidentData: any = await this.incident.create({
       assigneePk,
@@ -267,9 +273,16 @@ class IncidentService {
     });
 
     if (relatedAlertIds) {
-      const relatedAlerts = relatedAlertIds.map(alertPk => {
+      const relatedAlertDetails = await this.alert.findAll({
+        where: { id: { [Op.in]: relatedAlertIds } },
+        attributes: ['pk'],
+      });
+
+      const relatedAlertalertPks = relatedAlertDetails.map(item => item.pk);
+
+      const relatedAlerts = relatedAlertalertPks.map(alertPk => {
         return {
-          incidentPk: createIncidentData.dataValues.id,
+          incidentPk: createIncidentData.dataValues.pk,
           alertPk,
         };
       });

@@ -7,9 +7,11 @@ import { CreateActionDto } from '@/modules/Incident/dtos/incidentAction.dto';
 import { IIncidentRelAlert } from '@/common/interfaces/incidentRelAlert.interface';
 import { IIncidentCounts } from '@/common/interfaces/incidentCounts.interface';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
+import DB from '@/database';
 
 class IncidentController {
   public incidentService = new IncidentService();
+  public users = DB.Users;
 
   public getIncidents = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const currentTenancyPk = req.user.currentTenancyPk;
@@ -118,8 +120,9 @@ class IncidentController {
       const incidentData: CreateIncidentDto = req.body;
       const currentUserPk = req.user.pk;
       const currentTenancyPk = req.user.currentTenancyPk;
+      const assigneeDetail = await this.users.findOne({ where: { id: req.body.assigneeId } });
 
-      const createAlertData: IIncident = await this.incidentService.createIncident(incidentData, currentUserPk, currentTenancyPk);
+      const createAlertData: IIncident = await this.incidentService.createIncident(incidentData, currentUserPk, currentTenancyPk, assigneeDetail.pk);
       res.status(201).json({ data: createAlertData, message: 'created' });
     } catch (error) {
       next(error);

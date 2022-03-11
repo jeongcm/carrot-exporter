@@ -3,19 +3,7 @@ import { IIncident } from '../../../common/interfaces/incident.interface';
 
 export type IncidentCreationAttributes = Optional<
   IIncident,
-  | 'pk'
-  | 'id'
-  | 'tenancyPk'
-  | 'assigneePk'
-  | 'title'
-  | 'note'
-  | 'status'
-  | 'priority'
-  | 'dueDate'
-  | 'createdBy'
-  | 'updatedBy'
-  | 'isDeleted'
-  | 'pinned'
+  'pk' | 'id' | 'tenancyPk' | 'assigneePk' | 'title' | 'note' | 'status' | 'priority' | 'dueDate' | 'createdBy' | 'updatedBy' | 'isDeleted' | 'pinned'
 >;
 
 export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> implements IIncident {
@@ -75,7 +63,7 @@ export default function (sequelize: Sequelize): typeof IncidentModel {
         allowNull: false,
       },
       dueDate: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.DATE,
       },
       createdBy: {
         type: DataTypes.BIGINT,
