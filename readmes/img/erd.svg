@@ -504,7 +504,7 @@
 <polygon fill="none" stroke="#000000" points="390.7101,-576.4836 390.7101,-598.4836 492.7101,-598.4836 492.7101,-576.4836 390.7101,-576.4836"/>
 <text text-anchor="start" x="395.7101" y="-584.4836" font-family="Times,serif" font-size="10.00" fill="#000000">priority: STRING</text>
 <polygon fill="none" stroke="#000000" points="390.7101,-554.4836 390.7101,-576.4836 492.7101,-576.4836 492.7101,-554.4836 390.7101,-554.4836"/>
-<text text-anchor="start" x="395.7101" y="-562.4836" font-family="Times,serif" font-size="10.00" fill="#000000">dueDate: NUMBER</text>
+<text text-anchor="start" x="395.7101" y="-562.4836" font-family="Times,serif" font-size="10.00" fill="#000000">dueDate: DATE</text>
 <polygon fill="none" stroke="#000000" points="390.7101,-532.4836 390.7101,-554.4836 492.7101,-554.4836 492.7101,-532.4836 390.7101,-532.4836"/>
 <text text-anchor="start" x="395.7101" y="-540.4836" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="390.7101,-510.4836 390.7101,-532.4836 492.7101,-532.4836 492.7101,-510.4836 390.7101,-510.4836"/>

@@ -1,13 +1,16 @@
 import { NextFunction, Response } from 'express';
 import TenancyService from '@/modules/UserTenancy/services/tenancy.service';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
+import { TenancyMember } from '@/common/interfaces/tenancyMember.interface';
 class TenancyMemberController {
   public tenancyService = new TenancyService();
   public updateUserCurrentTenancy = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const tenancyId = req.params.tenancyId;
-      const userPk = req.user.id;
+      const userPk = req.user.pk;
+
       const updateUserData = await this.tenancyService.updateUserCurrentTenancy(userPk, tenancyId);
+
       return res.status(200).json({ data: updateUserData, message: 'updated tenancy id' });
     } catch (error) {
       next(error);
@@ -44,6 +47,7 @@ class TenancyMemberController {
     } catch (error) {
       next(error);
     }
-  };}
+  };
+}
 
 export default TenancyMemberController;
