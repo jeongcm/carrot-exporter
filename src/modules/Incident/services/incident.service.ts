@@ -56,7 +56,7 @@ class IncidentService {
   public async getIncidentById(id: string): Promise<IIncident> {
     const incident: IIncident = await this.incident.findOne({
       where: { id },
-      attributes: { exclude: ['pk', 'isDeleted'] },
+      attributes: { exclude: ['pk', 'isDeleted', 'assigneePk'] },
       include: {
         as: 'assignee',
         model: UserModel,
@@ -78,14 +78,15 @@ class IncidentService {
    */
   public async getAlertsByIncidentId(incidentId: string, currentTenancyPk: number): Promise<IIncidentRelAlert[]> {
     const incident: IIncident = await this.incident.findOne({ where: { id: incidentId } });
+
     const alerts: IIncidentRelAlert[] = await this.incidentRelAlert.findAll({
       where: { incidentPk: incident.pk },
       include: [
         {
           model: AlertModel,
           attributes: {
-            exclude: ['tenancyPk', 'alertRule', 'note', 'node', 'numberOfOccurrences'],
-            include: [[sequelize.col('incidents.id'), 'incidentId']],
+            exclude: ['pk', 'tenancyPk', 'alertRule', 'note', 'node', 'numberOfOccurrences'],
+            // include: [[sequelize.col('incidents.id'), 'incidentId']],
           },
           include: [
             {
@@ -96,6 +97,9 @@ class IncidentService {
           ],
         },
       ],
+      attributes: {
+        include: [[sequelize.col('alert.id'), 'alertId']],
+      },
     });
 
     /*
@@ -248,6 +252,7 @@ class IncidentService {
    * @param  {CreateIncidentDto} incidentData
    * @param  {number} currentUserPk
    * @param  {number} currentTenancyPk
+   * @param  {number} assigneePk
    * @returns Promise<IIncident>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
