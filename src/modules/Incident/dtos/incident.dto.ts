@@ -3,7 +3,7 @@ import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 export class CreateIncidentDto {
   @IsString()
   @IsOptional()
-  public assigneePk: number;
+  public assigneeId: string;
 
   @IsString()
   @IsNotEmpty()
@@ -21,7 +21,7 @@ export class CreateIncidentDto {
   public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
 
   @IsOptional()
-  public relatedAlertIds: [number];
+  public relatedAlertIds: [string];
 
   @IsOptional()
   public actions: { description: string; title: string }[];
@@ -40,7 +40,7 @@ export class UpdateIncidentStatusDto {
 export class UpdateIncidentDto {
   @IsString()
   @IsOptional()
-  public assigneePk: number;
+  public assigneeId: string;
 
   @IsString()
   @IsNotEmpty()
@@ -58,7 +58,7 @@ export class UpdateIncidentDto {
   public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
 
   @IsOptional()
-  public relatedAlertIds: [number];
+  public relatedAlertIds: [string];
 
   @IsOptional()
   public actions: { description: string; title: string }[];
@@ -70,5 +70,5 @@ export class UpdateIncidentDto {
 
 export class CreateRelatedAlertDto {
   @IsNotEmpty()
-  public relatedAlertIds: [number];
+  public relatedAlertIds: [string];
 }

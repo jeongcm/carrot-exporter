@@ -260,14 +260,18 @@ class TenancyService {
   public async updateUserCurrentTenancy(userPk, tenancyId: string): Promise<boolean> {
     if (isEmpty(tenancyId)) throw new HttpException(400, 'tenancyPk is required');
     const userDetail: User = await this.user.findByPk(userPk);
+
     const tenancyDetail: Tenancy = await this.tenancies.findOne({
       where: {
         id: tenancyId,
       },
     });
+
     if (!userDetail) throw new HttpException(400, "User doesn't exist");
     if (!tenancyDetail) throw new HttpException(400, "Tenancy doesn't exist");
-    const result = await this.user.update({ currentTenancyPk: tenancyDetail.pk }, { where: { id: userPk } });
+
+    const result = await this.user.update({ currentTenancyPk: tenancyDetail.pk }, { where: { pk: userPk } });
+
     return result.indexOf(1) > -1;
   }
 

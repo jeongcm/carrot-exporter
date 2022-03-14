@@ -59,7 +59,7 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
       },
       updatedBy: {
         allowNull: true,
-        type: DataTypes.STRING(45),
+        type: DataTypes.BIGINT,
       },
       updatedAt: {
         allowNull: true,
@@ -67,7 +67,7 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
       },
       createdBy: {
         allowNull: true,
-        type: DataTypes.STRING(45),
+        type: DataTypes.BIGINT,
       },
       isDeleted: {
         allowNull: false,

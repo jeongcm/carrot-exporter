@@ -7,9 +7,11 @@ import { CreateActionDto } from '@/modules/Incident/dtos/incidentAction.dto';
 import { IIncidentRelAlert } from '@/common/interfaces/incidentRelAlert.interface';
 import { IIncidentCounts } from '@/common/interfaces/incidentCounts.interface';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
+import DB from '@/database';
 
 class IncidentController {
   public incidentService = new IncidentService();
+  public users = DB.Users;
 
   public getIncidents = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const currentTenancyPk = req.user.currentTenancyPk;
@@ -59,16 +61,16 @@ class IncidentController {
   };
 
   public createRelatedAlertsByIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = req.params.incidentId;
+    const incidentId = req.params.incidentId;
     const relatedAlertData: CreateRelatedAlertDto = req.body;
 
     try {
-      const relatedAlerts: IIncidentRelAlert[] = await this.incidentService.createRelatedAlertsByIncident(id, relatedAlertData);
+      const relatedAlerts: IIncidentRelAlert[] = await this.incidentService.createRelatedAlertsByIncident(incidentId, relatedAlertData);
 
       if (relatedAlerts) {
-        res.status(200).json({ data: relatedAlerts, message: `alerts have been connected to the incident(id: ${id}).` });
+        res.status(200).json({ data: relatedAlerts, message: `alerts have been connected to the incident(id: ${incidentId}).` });
       } else {
-        res.status(404).json({ message: `Incident id(${id}) not found` });
+        res.status(404).json({ message: `Incident id(${incidentId}) not found` });
       }
     } catch (error) {
       next(error);
@@ -76,11 +78,11 @@ class IncidentController {
   };
 
   public deleteRelatedAlertsByIncident = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = req.params.incidentId;
+    const incidentId = req.params.incidentId;
     const relatedAlertData: CreateRelatedAlertDto = req.body;
 
     try {
-      await this.incidentService.deleteRelatedAlertsByIncident(id, relatedAlertData);
+      await this.incidentService.deleteRelatedAlertsByIncident(incidentId, relatedAlertData);
       res.status(204).json({ message: 'deleted' });
     } catch (error) {
       next(error);
@@ -118,8 +120,9 @@ class IncidentController {
       const incidentData: CreateIncidentDto = req.body;
       const currentUserPk = req.user.pk;
       const currentTenancyPk = req.user.currentTenancyPk;
+      const assigneeDetail = await this.users.findOne({ where: { id: req.body.assigneeId } });
 
-      const createAlertData: IIncident = await this.incidentService.createIncident(incidentData, currentUserPk, currentTenancyPk);
+      const createAlertData: IIncident = await this.incidentService.createIncident(incidentData, currentUserPk, currentTenancyPk, assigneeDetail.pk);
       res.status(201).json({ data: createAlertData, message: 'created' });
     } catch (error) {
       next(error);
@@ -168,8 +171,8 @@ class IncidentController {
       const incidentData: UpdateIncidentDto = req.body;
       const currentUserPk = req.user.pk;
 
-      const updateAlertData: IIncident = await this.incidentService.updateIncident(incidentId, incidentData, currentUserPk);
-      res.status(200).json({ data: updateAlertData, message: 'updated' });
+      const updateIncidentData: IIncident = await this.incidentService.updateIncident(incidentId, incidentData, currentUserPk);
+      res.status(200).json({ data: updateIncidentData, message: 'updated' });
     } catch (error) {
       next(error);
     }
@@ -241,7 +244,7 @@ class IncidentController {
     try {
       const currentUserPk = req.user.pk;
 
-      await this.incidentService.deleteIncidentActionById(incident.pk, currentUserPk, actionId);
+      await this.incidentService.deleteIncidentActionById(incidentId, currentUserPk, actionId);
       res.status(204).json({ message: `delete incident action id(${actionId})` });
     } catch (error) {
       next(error);
