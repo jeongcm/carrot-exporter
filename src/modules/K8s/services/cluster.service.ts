@@ -19,11 +19,10 @@ class ClusterService {
    * @author Jaswant
    */
   public async findAllCluster(tenancyPk: number): Promise<Cluster[]> {
-    if(!tenancyPk) throw new HttpException(400, `tenancyPk is required in headers.`);
-    // where: { isDeleted: false }
+    if (!tenancyPk) throw new HttpException(400, `tenancyPk is required in headers.`);
     const allUser: Cluster[] = await this.clusters.findAll({
-      where: { tenancyPk },
-      attributes: { exclude: ['tenancyPk', 'pk' ] },
+      where: { tenancyPk, isDeleted: false },
+      attributes: { exclude: ['tenancyPk', 'pk'] },
     });
     return allUser;
   }
@@ -40,8 +39,8 @@ class ClusterService {
 
     const findCluster: Cluster = await this.clusters.findOne({
       where: { id },
-      attributes: { exclude: ['tenancyPk', 'pk'] }
-    })
+      attributes: { exclude: ['tenancyPk', 'pk'] },
+    });
     if (!findCluster) throw new HttpException(409, 'Cluster Not found');
     return findCluster;
   }
@@ -56,7 +55,6 @@ class ClusterService {
    * @author Jaswant
    */
   public async createCluster(clusterData: CreateClusterDto, tenancyPk: number): Promise<Cluster> {
-    
     if (isEmpty(clusterData)) throw new HttpException(400, 'Cluster Data cannot be blank');
     const currentDate = new Date();
     const newCluster = {
@@ -68,7 +66,7 @@ class ClusterService {
       isDeleted: false,
       platform: <Platform>clusterData.platform,
     };
-    const createClusterData: Cluster = await this.clusters.create({...newCluster, tenancyPk});
+    const createClusterData: Cluster = await this.clusters.create({ ...newCluster, tenancyPk });
 
     return createClusterData;
   }
@@ -81,17 +79,23 @@ class ClusterService {
    * @returns Promise<Cluster>
    * @author Jaswant
    */
-  public async updateCluster(clusterPk: number, clusterData: CreateClusterDto): Promise<Cluster> {
+  public async updateCluster(clusterId: string, clusterData: CreateClusterDto): Promise<Cluster> {
     if (isEmpty(clusterData)) throw new HttpException(400, 'Cluster Data cannot be blank');
-    const findCluster: Cluster = await this.clusters.findByPk(clusterPk);
+    const findCluster: Cluster = await this.clusters.findOne({
+      where: { id: clusterId },
+      attributes: { exclude: ['tenancyPk', 'pk'] },
+    });
     if (!findCluster) throw new HttpException(409, "Cluster doesn't exist");
     const updatingCluster = {
       ...clusterData,
       platform: <Platform>clusterData.platform,
       updatedAt: new Date(),
     };
-    await this.clusters.update({ ...updatingCluster }, { where: { id: clusterPk } });
-    const updateUser: Cluster = await this.clusters.findByPk(clusterPk);
+    await this.clusters.update({ ...updatingCluster }, { where: { id: clusterId } });
+    const updateUser: Cluster = await this.clusters.findOne({
+      where: { id: clusterId },
+      attributes: { exclude: ['tenancyPk', 'pk'] },
+    });
     return updateUser;
   }
 
@@ -102,11 +106,14 @@ class ClusterService {
    * @returns Promise<Cluster>
    * @author Jaswant
    */
-  public async deleteCluster(clusterPk: number): Promise<Cluster> {
-    if (isEmpty(clusterPk)) throw new HttpException(400, 'Clusterid is required');
-    const findCluster: Cluster = await this.clusters.findByPk(clusterPk);
+  public async deleteCluster(clusterId: string): Promise<Cluster> {
+    if (isEmpty(clusterId)) throw new HttpException(400, 'Clusterid is required');
+    const findCluster: Cluster = await this.clusters.findOne({
+      where: { id: clusterId },
+      attributes: { exclude: ['tenancyPk', 'pk'] },
+    });
     if (!findCluster) throw new HttpException(409, "Cluster doesn't exist");
-    await this.clusters.update({ isDeleted: true }, { where: { id: clusterPk } });
+    await this.clusters.update({ isDeleted: true }, { where: { id: clusterId } });
     return findCluster;
   }
 }
