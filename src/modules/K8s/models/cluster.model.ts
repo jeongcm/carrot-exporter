@@ -40,7 +40,7 @@ export default function (sequelize: Sequelize): typeof ClusterModel {
         type: DataTypes.UUID,
       },
       tenancyPk: {
-        allowNull: true,
+        allowNull: false,
         type: DataTypes.BIGINT,
       },
       description: {
