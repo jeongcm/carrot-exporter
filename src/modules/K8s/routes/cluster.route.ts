@@ -16,17 +16,13 @@ class UsersRoute implements Routes {
   }
 
   private initializeRoutes() {
-    // this.router.get( '/clusters', this.clusterController.getUserClusters);
     this.router.post(
       '/clusters',
       authMiddleware,
       validationMiddleware(CreateClusterDto, 'body'),
       this.clusterController.createCluster,
     );
-
-    //NEX-1420 as per the ticket we are commenting getAllCluster.   
-    // this.router.get('/clusters', authMiddleware, this.clusterController.getAllClusters);
-
+    this.router.get('/clusters', authMiddleware, this.clusterController.getAllClusters);
     this.router.get('/clusters/:id', authMiddleware, this.clusterController.getClusterById);
     this.router.delete('/clusters/:id', authMiddleware, this.clusterController.deleteCluster);
     this.router.put('/clusters/:id', authMiddleware, this.clusterController.updateCluster);
