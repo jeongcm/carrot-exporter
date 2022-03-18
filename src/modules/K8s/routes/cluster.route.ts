@@ -16,7 +16,6 @@ class UsersRoute implements Routes {
   }
 
   private initializeRoutes() {
-    // this.router.get( '/clusters', this.clusterController.getUserClusters);
     this.router.post(
       '/clusters',
       authMiddleware,

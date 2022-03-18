@@ -8,8 +8,10 @@ class ClusterController {
   public clusterService = new ClusterService();
 
   public getAllClusters = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    const currentTenancyPk = req.user.currentTenancyPk;
+
     try {
-      const findAllClustersData: Cluster[] = await this.clusterService.findAllCluster();
+      const findAllClustersData: Cluster[] = await this.clusterService.findAllCluster(currentTenancyPk);
       res.status(200).json({ data: findAllClustersData, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -17,9 +19,10 @@ class ClusterController {
   };
 
   public getClusterById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    const id = req.params.id;
+
     try {
-      const userPk = req.params.id;
-      const findOneUserData: Cluster = await this.clusterService.findClusterById(userPk);
+      const findOneUserData: Cluster = await this.clusterService.findClusterById(id);
       res.status(200).json({ data: findOneUserData, message: 'findOne' });
     } catch (error) {
       next(error);
@@ -27,9 +30,11 @@ class ClusterController {
   };
 
   public createCluster = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    const currentTenancyPk = req.user.currentTenancyPk;
+    
     try {
       const clusterData: CreateClusterDto = req.body;
-      const createClusterData: Cluster = await this.clusterService.createCluster(clusterData);
+      const createClusterData: Cluster = await this.clusterService.createCluster(clusterData, currentTenancyPk);
       res.status(201).json({ data: createClusterData, message: 'created' });
     } catch (error) {
       next(error);
