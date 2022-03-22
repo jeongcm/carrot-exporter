@@ -18,6 +18,7 @@ import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.mo
 import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
+import CommonCodeModel  from '@/modules/CommonCode/models/commonCode.model';
 import config from 'config';
 
 const host = config.db.mariadb.host;
@@ -68,6 +69,7 @@ const DB = {
   IncidentAction: IncidentActionModel(sequelize),
   Invitations: InvitationModel(sequelize),
   Tokens: TokenModel(sequelize),
+  CommonCode: CommonCodeModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
