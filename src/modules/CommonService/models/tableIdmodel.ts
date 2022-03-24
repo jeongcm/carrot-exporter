@@ -52,10 +52,12 @@ export default function (sequelize: Sequelize): typeof tableIdModel {
       },
       tableIdTableName: {
         allowNull: false,
+        unique: true,
         type: DataTypes.STRING(100),
       },
       tableIdHeader: {
         allowNull: false,
+        unique: true,
         type: DataTypes.STRING(2),
       },
       tableMonth: {
