@@ -168,10 +168,10 @@
 <text text-anchor="start" x="1169.9906" y="-977.4976" font-family="Times,serif" font-size="10.00" fill="#000000">id: UUID</text>
 <polygon fill="none" stroke="#000000" points="1164.9906,-947.4976 1164.9906,-969.4976 1286.9906,-969.4976 1286.9906,-947.4976 1164.9906,-947.4976"/>
 <text text-anchor="start" x="1169.9906" y="-956.4976" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">accessGroupPk</text>
-<text text-anchor="start" x="1231.6316" y="-956.4976" font-family="Times,serif" font-size="10.00" fill="#000000">: UUID</text>
+<text text-anchor="start" x="1231.6316" y="-956.4976" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="1164.9906,-925.4976 1164.9906,-947.4976 1286.9906,-947.4976 1286.9906,-925.4976 1164.9906,-925.4976"/>
 <text text-anchor="start" x="1169.9906" y="-934.4976" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">channelPk</text>
-<text text-anchor="start" x="1211.6456" y="-934.4976" font-family="Times,serif" font-size="10.00" fill="#000000">: UUID</text>
+<text text-anchor="start" x="1211.6456" y="-934.4976" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="1164.9906,-903.4976 1164.9906,-925.4976 1286.9906,-925.4976 1286.9906,-903.4976 1164.9906,-903.4976"/>
 <text text-anchor="start" x="1169.9906" y="-911.4976" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: UUID</text>
 <polygon fill="none" stroke="#000000" points="1164.9906,-881.4976 1164.9906,-903.4976 1286.9906,-903.4976 1286.9906,-881.4976 1164.9906,-881.4976"/>

@@ -38,7 +38,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   define: {
     charset: 'utf8mb4',
     collate: 'utf8mb4_general_ci',
-    underscored: false,
+    underscored: true,
     freezeTableName: true,
   },
   pool: {
