@@ -1,14 +1,6 @@
 import { IsString, IsOptional, IsNotEmpty, IsNumber, IsDate } from 'class-validator';
 
 export class CommonCodeDto {
-  @IsNumber()
-  @IsNotEmpty()
-  public pk: number;
-
-  @IsString()
-  @IsNotEmpty()
-  public id: string;
-
   @IsString()
   @IsOptional()
   public createdBy: string;

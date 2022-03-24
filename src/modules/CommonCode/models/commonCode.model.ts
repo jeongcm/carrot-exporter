@@ -51,7 +51,7 @@ export default function (sequelize: Sequelize): typeof CommonCodeModel {
         type: DataTypes.DATE,
       },
       isDeleted: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.BOOLEAN,
       },
       description: {

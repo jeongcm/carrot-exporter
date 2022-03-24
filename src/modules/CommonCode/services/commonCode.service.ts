@@ -11,13 +11,13 @@ class CommonCodeService {
   public async createCommonCode(commonCodeData: CommonCodeDto): Promise<ICommonCode> {
     if (isEmpty(commonCodeData)) throw new HttpException(400, 'CommonCode must not be empty');
 
-    const createCommonCodeData: ICommonCode = await this.commonCode.create({ ...commonCodeData });
+    const createCommonCodeData: ICommonCode = await this.commonCode.create(commonCodeData);
     return createCommonCodeData;
   }
 
   public async getAllCommonCodel(): Promise<ICommonCode[]> {
     const allCommonCode: ICommonCode[] = await this.commonCode.findAll({
-      where: { isDeleted: false },
+      // where: { isDeleted: false },
       attributes: { exclude: ['pk', 'isDeleted', 'updatedBy', 'createdBy'] },
     });
     return allCommonCode;
@@ -45,3 +45,5 @@ class CommonCodeService {
     return this.getCommonCodeById(commonCodeId);
   }
 }
+
+export default CommonCodeService;

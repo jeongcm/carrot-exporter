@@ -1,0 +1,114 @@
+swagger: '2.0'
+info:
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: commonCode
+    description: commonCode API
+
+paths:
+  # [POST] commonCode
+  /commonCode:
+    post:
+      tags:
+        - commonCode
+      summary: Create CommonCode
+      parameters:
+        - name: body
+          in: body
+          description: CommonCode data
+          required: true
+          schema:
+            $ref: '#/definitions/commonCode'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [GET] commonCode
+    get:
+      tags:
+        - commonCode
+      summary: Find All CommonCode
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+   # [GET] commonCode/id
+  /commonCode/{id}:
+    get:
+      tags:
+        - commonCode
+      summary: Get CommonCode By Id
+      parameters:
+        - name: id
+          in: path
+          description: CommonCode Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [PUT] commonCode/id
+    put:
+      tags:
+        - commonCode
+      summary: Update CommonCode By Id
+      parameters:
+        - name: id
+          in: path
+          description: CommonCode Id
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: CommonCode Data
+          required: true
+          schema:
+            $ref: '#/definitions/commonCode'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+# definitions
+definitions:
+  commonCode:
+    type: object
+    required:
+      - description
+      - displayEng
+      - displayKOR
+    properties:
+      description:
+        type: string
+        description: commonCode description
+        example: example
+      displayEng:
+        type: string
+        description: commonCode displayEng
+        example: example
+      displayKOR:
+        type: string
+        description: commonCode displayKOR
+        example: example
