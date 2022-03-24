@@ -18,6 +18,7 @@ import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.mo
 import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
+import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import config from 'config';
 
 const host = config.db.mariadb.host;
@@ -37,14 +38,14 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   define: {
     charset: 'utf8mb4',
     collate: 'utf8mb4_general_ci',
-    underscored: true,
+    underscored: false,
     freezeTableName: true,
   },
   pool: {
     min: pool.min,
     max: pool.max,
   },
-  logQueryParameters: config.nodeEnv === 'development',
+  logQueryParameters: config.nodeEnv === 'development', 
   logging: (query, time) => {
     logger.info(time + 'ms' + ' ' + query);
   },
@@ -70,6 +71,7 @@ const DB = {
   IncidentAction: IncidentActionModel(sequelize),
   Invitations: InvitationModel(sequelize),
   Tokens: TokenModel(sequelize),
+  tableId: tableIdModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
