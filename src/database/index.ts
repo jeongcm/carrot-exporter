@@ -22,6 +22,7 @@ import CommonCodeModel  from '@/modules/CommonCode/models/commonCode.model';
 import config from 'config';
 
 const host = config.db.mariadb.host;
+const port = config.db.mariadb.port || 3306;
 const user = config.db.mariadb.user;
 const password = config.db.mariadb.password;
 const database = config.db.mariadb.dbName;
@@ -30,7 +31,8 @@ const pool = {
   max: config.db.mariadb.poolMax,
 };
 const sequelize = new Sequelize.Sequelize(database, user, password, {
-  host: host,
+  host,
+  port,
   dialect: 'mariadb',
   timezone: '+00:00',
   define: {

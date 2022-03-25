@@ -8,6 +8,7 @@ function validateEnv() {
       NC_LARI_PORT: port(),
       NC_LARI_ENV: str(),
       NC_LARI_DB_CONFIG_HOST: str(),
+      NC_LARI_DB_CONFIG_PORT: num(),
       NC_LARI_DB_CONFIG_USER: str(),
       NC_LARI_DB_CONFIG_PASSWORD: str(),
       NC_LARI_DB_CONFIG_DB_NAME: str(),
