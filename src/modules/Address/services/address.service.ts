@@ -10,6 +10,8 @@ import sequelize from 'sequelize';
 import { Op } from 'sequelize';
 
 import { CreateAddressDto } from '@/modules/Address/dtos/address.dto';
+import tableIdService from '@/modules/CommonService/services/tableId.service';
+import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
 /**
  * @memberof Address
@@ -17,17 +19,29 @@ import { CreateAddressDto } from '@/modules/Address/dtos/address.dto';
 class AddressService {
   public address = DB.Address;
   public custoemrAccountAdress = DB.CustomerAccountAddress;
+  public tableIdService = new tableIdService();
 
   public async createAddress(addressData: CreateAddressDto, currentPartyUserPk: number): Promise<IAddress> {
     if (isEmpty(addressData)) throw new HttpException(400, 'Address must not be empty');
 
-    const createdAddress: IAddress = await this.address.create({
-      ...addressData,
-      addressId: Date.now().toString(),
-      createdBy: 'system',
-    });
+    try {
+      const tableIdTableName = 'address';
+      const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
 
-    return createdAddress;
+      if (!tableId) {
+        return;
+      }
+
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+
+      const createdAddress: IAddress = await this.address.create({
+        ...addressData,
+        addressId: responseTableIdData.tableIdFinalIssued,
+        createdBy: 'system',
+      });
+
+      return createdAddress;
+    } catch (error) {}
   }
 }
 

@@ -4,7 +4,6 @@ import tableIdController from '@/modules/CommonService/controllers/tableId.contr
 import AuthService from '@/modules/UserTenancy/services/auth.service';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 
-
 class tableIdRoute implements Routes {
   public router = Router();
   public tableIdController = new tableIdController();
@@ -14,7 +13,8 @@ class tableIdRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/tableId', authMiddleware, this.tableIdController.issueTableId);
+    // this.router.post('/tableId', authMiddleware, this.tableIdController.issueTableId);
+    this.router.post('/tableId', this.tableIdController.issueTableId);
   }
 }
 

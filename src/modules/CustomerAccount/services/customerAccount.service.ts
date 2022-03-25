@@ -10,6 +10,8 @@ import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface'
 import { CustomerAccountModel } from '../models/customerAccount.model';
 import { CustomerAccountAddressModel } from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import { AddressModel } from '@/modules/Address/models/address.model';
+import tableIdService from '@/modules/CommonService/services/tableId.service';
+import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
 /**
  * @memberof CustomerAccount
@@ -18,17 +20,29 @@ class CustomerAccountService {
   public customerAccount = DB.CustomerAccount;
   public address = DB.Address;
   public customerAccountAdress = DB.CustomerAccountAddress;
+  public tableIdService = new tableIdService();
 
   public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, currentPartyUserPk: number): Promise<ICustomerAccount> {
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
 
-    const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create({
-      ...customerAccountData,
-      customerAccountId: Date.now().toString(),
-      createdBy: 'system',
-    });
+    try {
+      const tableIdTableName = 'customerAccount';
+      const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
 
-    return createdCustomerAccount;
+      if (!tableId) {
+        return;
+      }
+
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+
+      const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create({
+        ...customerAccountData,
+        customerAccountId: responseTableIdData.tableIdFinalIssued,
+        createdBy: 'system',
+      });
+
+      return createdCustomerAccount;
+    } catch (error) {}
   }
 
   public async getCustomerAccounts(): Promise<ICustomerAccount[]> {
@@ -74,6 +88,15 @@ class CustomerAccountService {
 
   public async addCustomerAddress(customerAccountId: string, newAddressKey: number, currentUserPk: number): Promise<ICustomerAccount> {
     try {
+      const tableIdTableName = 'customerAccountAddress';
+      const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
+
+      if (!tableId) {
+        return;
+      }
+
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+
       await DB.sequelize.transaction(async t => {
         const customerAccount = await this.customerAccount.findOne({
           where: { customerAccountId },
@@ -91,7 +114,7 @@ class CustomerAccountService {
             customerAccountKey: customerAccount.customerAccountKey,
             addressKey: newAddressKey,
             createdBy: 'system',
-            customerAccountAddressId: Date.now().toString(),
+            customerAccountAddressId: responseTableIdData.tableIdFinalIssued,
             customerAccountAddressFrom: new Date(),
           },
           { transaction: t },
