@@ -12,6 +12,7 @@ import ChannelRoute from '@/modules/Messaging/routes/channel.route';
 import IncidentRoute from '@/modules/Incident/routes/incident.route';
 import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
 import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccount.route';
+import tableIdRoute from '@/modules/CommonService/routes/tableId.route';
 
 const app = new App([
   new IndexRoute(),
@@ -26,6 +27,7 @@ const app = new App([
   new IncidentRoute(),
   new InvitationRoute(),
   new CustomerAccountRoute(),
+  new tableIdRoute(),
 ]);
 
 app.listen();

@@ -22,9 +22,11 @@ import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccou
 import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import AddressModel from '@/modules/Address/models/address.model';
 
+import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import config from 'config';
 
 const host = config.db.mariadb.host;
+const port = config.db.mariadb.port || 3306;
 const user = config.db.mariadb.user;
 const password = config.db.mariadb.password;
 const database = config.db.mariadb.dbName;
@@ -33,7 +35,8 @@ const pool = {
   max: config.db.mariadb.poolMax,
 };
 const sequelize = new Sequelize.Sequelize(database, user, password, {
-  host: host,
+  host,
+  port,
   dialect: 'mariadb',
   timezone: '+00:00',
   define: {
@@ -75,6 +78,7 @@ const DB = {
   CustomerAccount: CustomerAccountModel(sequelize),
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
+  tableId: tableIdModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 

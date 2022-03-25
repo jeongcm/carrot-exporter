@@ -36,11 +36,11 @@ export default function (sequelize: Sequelize): typeof AccessGroupChannelModel {
       },
       accessGroupPk: {
         allowNull: false,
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
       },
       channelPk: {
         allowNull: false,
-        type: DataTypes.UUID,
+        type: DataTypes.BIGINT,
       },
       createdBy: {
         allowNull: false,

@@ -40,6 +40,7 @@ export default {
   db: {
     mariadb: {
       host: process.env.NC_LARI_DB_CONFIG_HOST,
+      port: Number(process.env.NC_LARI_DB_CONFIG_PORT),
       user: process.env.NC_LARI_DB_CONFIG_USER,
       password: process.env.NC_LARI_DB_CONFIG_PASSWORD,
       dbName: process.env.NC_LARI_DB_CONFIG_DB_NAME,
