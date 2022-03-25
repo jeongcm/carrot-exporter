@@ -2,14 +2,14 @@ import DB from '@/database';
 import _ from 'lodash';
 import { ICommonCode } from '@/common/interfaces/commonCode.interface';
 import { CommonCodeDto } from '../dtos/commonCode.dto';
-import { HttpException } from '@/common/exceptions/HttpException';
+import { IsEmptyError } from '@/common/exceptions/isEmpty';
 import { isEmpty } from '@/common/utils/util';
 
 class CommonCodeService {
   public commonCode = DB.CommonCode;
 
   public async createCommonCode(commonCodeData: CommonCodeDto, currentUserId: string): Promise<ICommonCode> {
-    if (isEmpty(commonCodeData)) throw new HttpException(400, 'CommonCode must not be empty');
+    if (isEmpty(commonCodeData)) throw new IsEmptyError('CommonCode must not be empty');
 
     const createCommonCodeData: ICommonCode = await this.commonCode.create({
       createdBy: currentUserId,
@@ -37,9 +37,9 @@ class CommonCodeService {
   }
 
   public async updateCommonCode(commonCodeId: string, commonCodeData: CommonCodeDto, currentUserId: string): Promise<ICommonCode> {
-    if (isEmpty(commonCodeData)) throw new HttpException(400, 'CommonCode Data cannot be blank');
+    if (isEmpty(commonCodeData)) throw new IsEmptyError('CommonCode Data cannot be blank');
     const findCommonCode: ICommonCode = await this.commonCode.findOne({ where: { id: commonCodeId } });
-    if (!findCommonCode) throw new HttpException(409, "CommonCode doesn't exist");
+    if (!findCommonCode) throw new IsEmptyError("CommonCode doesn't exist");
     const updatedCommonCodeData = {
       ...commonCodeData,
       updatedBy: currentUserId,
