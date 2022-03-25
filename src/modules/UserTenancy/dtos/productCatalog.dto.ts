@@ -1,77 +1,82 @@
 import { IsString, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
 
 /**
- * DTO with information to create a new access group
- * @typedef {Object} CreateProductPlanDto
- * @property {string} groupName - Name of the new access group to be created
- * @property {string} description - Description
- * @property {string} icon - Icon name
- * @property {string} createdBy - UUID of a user created the access group
- * @property {string} groupName - UUID of a user last updated the access group
+ * DTO with information to create a new catalog plan
+ * @typedef {Object} CreateCatalogPlanDto
+ * @property {string} catalogPlanName - Name of the new product plan to be created
+ * @property {string} catalogPlanDescription - Description
  */
-export class CreateProductPlanDto {
+export class CreateCatalogPlanDto {
   @IsString()
   @IsNotEmpty()
-  public groupName: string;
+  public catalogPlanName : string;
 
   @IsString()
   @IsNotEmpty()
-  public description: string;
+  public catalogPlanDescription : string;
 
-  @IsAlpha()
-  @IsNotEmpty()
-  public icon: string;
-
-  @IsString()
-  @IsOptional()
-  public createdBy: number;
-
-  @IsString()
-  @IsOptional()
-  public updatedBy: number;
 }
 
-export class CreateProductPlanProductDto {
+
+/**
+ * DTO with information to create a new catalog  plan product
+ * @typedef {Object} CreateCatalogPlanProductDto
+ * @property {string} catalogPlanProductName - Name of the new product plan to be created
+ * @property {string} catalogPlanProductDescription - Description
+ * @property {number} catalogPlanProductMonthlyPrice - monthly price
+ * @property {string} catalogPlanProductUOM - ProductUOM
+ * @property {string} catalogPlanProductCurrency - currency
+ * @property {string} catalogPlanKey - catalogPlan id 
+ */
+export class CreateCatalogPlanProductDto {
     @IsString()
     @IsNotEmpty()
-    public groupName: string;
+    public catalogPlanProductName: string;
   
     @IsString()
     @IsNotEmpty()
-    public description: string;
-  
-    @IsAlpha()
+    public catalogPlanProductDescription: string;
+
+    @IsString()
     @IsNotEmpty()
-    public icon: string;
-  
+    public catalogPlanProductMonthlyPrice: number;
+
     @IsString()
-    @IsOptional()
-    public createdBy: number;
-  
+    @IsNotEmpty()
+    public catalogPlanProductUOM: string;
+
     @IsString()
-    @IsOptional()
-    public updatedBy: number;
+    @IsNotEmpty()
+    public catalogPlanProductCurrency: string;
+
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanKey: string;
+  
   }
 
-
+/**
+ * DTO with information to create a new catalog  plan product pricing
+ * @typedef {Object} CreateProductPricingDto
+ * @property {string} catalogPlanProductPriceFrom - Name of the new product plan to be created
+ * @property {string} catalogPlanProductPriceTo - Description
+ * @property {number} catalogPlanProductMonthlyPrice - monthly price
+ * @property {string} catalogPlanProductKey - catalog Plan product key
+ */
   export class CreateProductPricingDto {
     @IsString()
     @IsNotEmpty()
-    public groupName: string;
+    public catalogPlanProductMonthlyPriceFrom: Date;
   
     @IsString()
     @IsNotEmpty()
-    public description: string;
-  
-    @IsAlpha()
+    public catalogPlanProductMonthlyPriceTo: Date;
+
+    @IsString()
     @IsNotEmpty()
-    public icon: string;
-  
+    public catalogPlanProductMonthlyPrice: number;
+
     @IsString()
-    @IsOptional()
-    public createdBy: number;
-  
-    @IsString()
-    @IsOptional()
-    public updatedBy: number;
+    @IsNotEmpty()
+    public catalogPlanProductKey: string;
   }

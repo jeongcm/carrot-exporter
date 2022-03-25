@@ -13,6 +13,9 @@ import AccessGroupClusterModel from '@/modules/UserTenancy/models/accessGroupClu
 import AccessGroupMemberModel from '@/modules/UserTenancy/models/accessGroupMember.model';
 import ChannelModel from '@/modules/Messaging/models/channel.model';
 import TenancyModel from '@/modules/UserTenancy/models/tenancy.model';
+import CatalogPlanModel from '@/modules/UserTenancy/models/catalogPlan.model';
+import CatalogPlanProductModel from '@/modules/UserTenancy/models/catalogPlanProduct.model';
+import CatalogPlanProductPriceModel from '@/modules/UserTenancy/models/catalogPlanProductPrice.model';
 import IncidentModel from '@/modules/Incident/models/incident.model';
 import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.model';
 import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
@@ -68,6 +71,9 @@ const DB = {
   IncidentAction: IncidentActionModel(sequelize),
   Invitations: InvitationModel(sequelize),
   Tokens: TokenModel(sequelize),
+  CatalogPlan: CatalogPlanModel(sequelize),
+  CatalogPlanProduct:CatalogPlanProductModel(sequelize),
+  CatalogPlanProductPrice:CatalogPlanProductPriceModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
