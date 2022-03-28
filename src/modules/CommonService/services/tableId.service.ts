@@ -43,20 +43,10 @@ class tableIdService {
       currentSequenceText = "0" + currentSequenceText; 
     }
 
-<<<<<<< HEAD
-    while (currentSequenceText.length < getTableId.tableIdSequenceDigit) currentSequenceText = '0' + currentSequenceText;
-
     const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonth + currentDay + currentSequenceText;
     const idIssuedSequence = getTableId.tableIdIssuedSequence + 1;
 
-    /**  Update database table **/
     const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date() };
-=======
-    const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonth + currentDay + currentSequenceText;
-    const idIssuedSequence = getTableId.tableIdIssuedSequence + 1;
-
-    const updateDataSet = {tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date()}; 
->>>>>>> feature/NEX-1481
     await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
 
     const updateResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
