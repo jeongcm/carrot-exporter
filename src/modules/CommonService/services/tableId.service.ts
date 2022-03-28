@@ -3,8 +3,11 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { HttpException } from '@/common/exceptions/HttpException';
 import { ITableId as tableId } from '@/common/interfaces/tableId.interface';
 import { isEmpty } from '@/common/utils/util';
+<<<<<<< HEAD
 import { Platform } from '../../../common/types';
 import { num } from 'envalid';
+=======
+>>>>>>> feature/NEX-1481
 
 /**
  * @memberof tableId
@@ -17,7 +20,7 @@ class tableIdService {
    *
    * @param  {UpdateTableIdDto} tableIdData
    * @returns IResponseIssueTableIdDto
-   * @author Jerry Lee
+   * @author Jerry Lee jerry.lee@nexclipper.io
    */
   public async issueTableId(tableIdTableName: string): Promise<IResponseIssueTableIdDto> {
     if (isEmpty(tableIdTableName)) throw new HttpException(400, 'TableName Data cannot be blank');
@@ -34,8 +37,13 @@ class tableIdService {
     const currentYear = currentYearText.substring(2, 4);
 
     const currentSequence = getTableId.tableIdIssuedSequence;
-    var currentSequenceText = currentSequence.toString();
+    let currentSequenceText = currentSequence.toString();
 
+    while (currentSequenceText.length < getTableId.tableIdSequenceDigit) {
+      currentSequenceText = "0" + currentSequenceText; 
+    }
+
+<<<<<<< HEAD
     while (currentSequenceText.length < getTableId.tableIdSequenceDigit) currentSequenceText = '0' + currentSequenceText;
 
     const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonth + currentDay + currentSequenceText;
@@ -43,6 +51,12 @@ class tableIdService {
 
     /**  Update database table **/
     const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date() };
+=======
+    const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonth + currentDay + currentSequenceText;
+    const idIssuedSequence = getTableId.tableIdIssuedSequence + 1;
+
+    const updateDataSet = {tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date()}; 
+>>>>>>> feature/NEX-1481
     await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
 
     const updateResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
@@ -54,7 +68,7 @@ class tableIdService {
    *
    * @param  {IssueTableIdDto} tableIdData
    * @returns tableIdTableName
-   * @author Jerry Lee
+   * @author Jerry Lee jerry.lee@nexclipper.io
    */
 
   public async getTableIdByTableName(tableIdTableName: string): Promise<tableId> {
