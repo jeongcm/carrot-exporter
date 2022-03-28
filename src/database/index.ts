@@ -18,15 +18,12 @@ import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.mo
 import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
-<<<<<<< HEAD
 import CommonCodeModel  from '@/modules/CommonCode/models/commonCode.model';
-=======
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import AddressModel from '@/modules/Address/models/address.model';
 
 import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
->>>>>>> a453c6373231f0670d2077ae4ba7fcef542a68d0
 import config from 'config';
 
 const host = config.db.mariadb.host;
@@ -79,14 +76,11 @@ const DB = {
   IncidentAction: IncidentActionModel(sequelize),
   Invitations: InvitationModel(sequelize),
   Tokens: TokenModel(sequelize),
-<<<<<<< HEAD
   CommonCode: CommonCodeModel(sequelize),
-=======
   CustomerAccount: CustomerAccountModel(sequelize),
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
   tableId: tableIdModel(sequelize),
->>>>>>> a453c6373231f0670d2077ae4ba7fcef542a68d0
   sequelize, // connection instance (RAW queries)
 };
 

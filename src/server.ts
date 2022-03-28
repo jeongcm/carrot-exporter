@@ -11,12 +11,9 @@ import ClusterRoute from '@/modules/K8s/routes/cluster.route';
 import ChannelRoute from '@/modules/Messaging/routes/channel.route';
 import IncidentRoute from '@/modules/Incident/routes/incident.route';
 import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
-<<<<<<< HEAD
 import CommonCodeRoute from './modules/CommonCode/routes/commonCode.route';
-=======
 import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccount.route';
 import tableIdRoute from '@/modules/CommonService/routes/tableId.route';
->>>>>>> a453c6373231f0670d2077ae4ba7fcef542a68d0
 
 const app = new App([
   new IndexRoute(),
@@ -30,12 +27,9 @@ const app = new App([
   new ChannelRoute(),
   new IncidentRoute(),
   new InvitationRoute(),
-<<<<<<< HEAD
   new CommonCodeRoute(),
-=======
   new CustomerAccountRoute(),
   new tableIdRoute(),
->>>>>>> a453c6373231f0670d2077ae4ba7fcef542a68d0
 ]);
 
 app.listen();
