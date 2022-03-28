@@ -11,7 +11,7 @@ class tableIdController {
   public issueTableId = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const tableIdTableName = req.body.tableName;
-      console.log(req.body);
+
       const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
 
       if (!tableId) {
