@@ -38,7 +38,6 @@ export default function (sequelize: Sequelize): typeof CommonCodeModel {
         type: DataTypes.STRING(16),
       },
       updatedBy: {
-        allowNull: true,
         type: DataTypes.STRING(16),
       },
       createdAt: {

@@ -30,21 +30,14 @@ class CommonCodeService {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
       const createCommonCode: ICommonCode = await this.commonCode.create({
-        ...commonCodeData,
         commonCodeId: responseTableIdData.tableIdFinalIssued,
         createdBy: 'system',
+        createdAt: new Date(),
+        ...commonCodeData,
       });
 
       return createCommonCode;
     } catch (error) {}
-
-    // const createCommonCodeData: ICommonCode = await this.commonCode.create({
-    //   createdBy: currentUserId,
-    //   createdAt: new Date(),
-    //   ...commonCodeData,
-    // });
-
-    // return createCommonCodeData;
   }
 
   /**
@@ -82,7 +75,7 @@ class CommonCodeService {
     if (!findCommonCode) throw new IsEmptyError("CommonCode doesn't exist");
     const updatedCommonCodeData = {
       ...commonCodeData,
-      updatedBy: currentUserId,
+      updatedBy: 'system',
       updatedAt: new Date(),
     };
     await this.commonCode.update(updatedCommonCodeData, { where: { commonCodeId: commonCodeId } });

@@ -16,8 +16,8 @@ class CommonCodeRoute implements Routes {
     private initializeRoutes() {
         this.router.post('/commonCode', authMiddleware, validationMiddleware(CommonCodeDto, 'body'), this.commonCodeController.createCommonCode);
         this.router.get('/commonCode', authMiddleware, this.commonCodeController.getAllCommonCode);
-        this.router.get('/commonCode/:id', authMiddleware, this.commonCodeController.getCommonCode);
-        this.router.put('/commonCode/:id', authMiddleware, validationMiddleware(CommonCodeDto, 'body'), this.commonCodeController.updateCommonCode);
+        this.router.get('/commonCode/:id', authMiddleware, this.commonCodeController.getCommonCodeById);
+        this.router.put('/commonCode/:id', authMiddleware, validationMiddleware(CommonCodeDto, 'body'), this.commonCodeController.updateCommonCodeById);
     }
 }
 
