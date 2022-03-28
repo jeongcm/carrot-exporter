@@ -1,6 +1,6 @@
 export interface ICommonCode {
-  pk: number;
-  id: string;
+  commonCodeKey: number;
+  commonCodeId: string;
   createdBy: string;
   updatedBy: string;
   createdAt: Date;

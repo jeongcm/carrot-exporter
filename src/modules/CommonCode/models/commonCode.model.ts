@@ -3,12 +3,12 @@ import { ICommonCode } from '@/common/interfaces/commonCode.interface';
 
 export type CommonCodeCreationAttributes = Optional<
   ICommonCode,
-  'pk' | 'id' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'isDeleted' | 'description' | 'displayEng' | 'displayKOR'
+  'commonCodeKey' | 'commonCodeId' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'isDeleted' | 'description' | 'displayEng' | 'displayKOR'
 >;
 
 export class CommonCodeModel extends Model<ICommonCode, CommonCodeCreationAttributes> implements ICommonCode {
-  public pk: number;
-  public id: string;
+  public commonCodeKey: number;
+  public commonCodeId: string;
   public createdBy: string;
   public updatedBy: string;
   public createdAt: Date;
@@ -22,37 +22,35 @@ export class CommonCodeModel extends Model<ICommonCode, CommonCodeCreationAttrib
 export default function (sequelize: Sequelize): typeof CommonCodeModel {
   CommonCodeModel.init(
     {
-      pk: {
+      commonCodeKey: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      id: {
-        primaryKey: false,
+      commonCodeId: {
         allowNull: false,
-        defaultValue: DataTypes.UUIDV4,
-        type: DataTypes.UUID,
+        type: DataTypes.STRING(16),
         unique: true
       },
       createdBy: {
-        allowNull: true,
-        type: DataTypes.UUID,
+        allowNull: false,
+        type: DataTypes.STRING(16),
       },
       updatedBy: {
         allowNull: true,
-        type: DataTypes.UUID,
+        type: DataTypes.STRING(16),
       },
       createdAt: {
-        allowNull: true,
+        allowNull: false,
         type: DataTypes.DATE,
       },
       updatedAt: {
-        allowNull: true,
         type: DataTypes.DATE,
       },
       isDeleted: {
-        allowNull: true,
+        allowNull: false,
+        defaultValue: false,
         type: DataTypes.BOOLEAN,
       },
       description: {

@@ -11,8 +11,19 @@ class CommonCodeController {
     try {
       const commonCodeData: CommonCodeDto = req.body;
       const currentUserId = req.user.id;
-      const createCommonCodeData: ICommonCode = await this.commonCodeService.createCommonCode(commonCodeData,currentUserId);
-      res.status(201).json({ data: createCommonCodeData, message: 'created' });
+      const createCommonCodeData: ICommonCode = await this.commonCodeService.createCommonCode(commonCodeData, currentUserId);
+
+      const { commonCodeId, createdBy, createdAt, description, displayEng, displayKOR } = createCommonCodeData;
+
+      const response = {
+        commonCodeId,
+        createdBy,
+        createdAt,
+        description,
+        displayEng,
+        displayKOR,
+      };
+      res.status(201).json({ data: response, message: 'created' });
     } catch (error) {
       next(error);
     }
@@ -27,29 +38,28 @@ class CommonCodeController {
     }
   };
 
-  public getCommonCode = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = req.params.id;
+  public getCommonCodeById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    const commonCodeId = req.params.commonCodeId;
 
     try {
-      const commonCode: ICommonCode = await this.commonCodeService.getCommonCodeById(id);
-      res.status(200).json({ data: commonCode, message: `find commonCode id(${id}) ` });
+      const commonCode: ICommonCode = await this.commonCodeService.getCommonCodeById(commonCodeId);
+      res.status(200).json({ data: commonCode, message: `find commonCode id(${commonCodeId}) ` });
     } catch (error) {
       next(error);
     }
   };
 
-  public updateCommonCode = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public updateCommonCodeById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const commonCodeId = req.params.id;
+      const commonCodeId = req.params.commonCodeId;
       const commonCodeData = req.body;
       const currentUserId = req.user.id;
-      const updateCommonCodeData: ICommonCode = await this.commonCodeService.updateCommonCode(commonCodeId, commonCodeData, currentUserId);
+      const updateCommonCodeData: ICommonCode = await this.commonCodeService.updateCommonCodeById(commonCodeId, commonCodeData, currentUserId);
       res.status(200).json({ data: updateCommonCodeData, message: 'updated' });
     } catch (error) {
       next(error);
     }
   };
-
 }
 
 export default CommonCodeController;
