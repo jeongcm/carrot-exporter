@@ -18,6 +18,11 @@ import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.mo
 import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
+import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
+import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
+import AddressModel from '@/modules/Address/models/address.model';
+
+import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import config from 'config';
 
 const host = config.db.mariadb.host;
@@ -70,6 +75,10 @@ const DB = {
   IncidentAction: IncidentActionModel(sequelize),
   Invitations: InvitationModel(sequelize),
   Tokens: TokenModel(sequelize),
+  CustomerAccount: CustomerAccountModel(sequelize),
+  Address: AddressModel(sequelize),
+  CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
+  tableId: tableIdModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -110,6 +119,18 @@ DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
 
 DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
 DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
+
+DB.CustomerAccount.belongsToMany(DB.Address, {
+  through: 'CustomerAccountAddress',
+  foreignKey: 'customerAccountKey',
+  otherKey: 'addressKey',
+  as: 'address',
+});
+DB.Address.belongsToMany(DB.CustomerAccount, {
+  through: 'CustomerAccountAddress',
+  foreignKey: 'addressKey',
+  otherKey: 'customerAccountKey',
+});
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
