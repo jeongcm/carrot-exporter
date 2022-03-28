@@ -47,8 +47,8 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
             catalogPlanProductId: {
                 primaryKey: false,
                 allowNull: false,
-                defaultValue: DataTypes.UUIDV4,
-                type: DataTypes.UUID
+                type: DataTypes.STRING(16),
+                unique:true
             },
             catalogPlanKey: {
                 allowNull: false,
@@ -81,19 +81,19 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
             },
             updatedBy: {
                 allowNull: true,
-                type: DataTypes.STRING(45),
+                type: DataTypes.STRING(16),
                 defaultValue:'system'
             },
             createdAt: {
-                allowNull: true,
+                allowNull: false,
                 type: DataTypes.DATE(),
             },
             updatedAt: {
-                allowNull: true,
+                allowNull: false,
                 type: DataTypes.DATE(),
             },
             isDeleted: {
-                allowNull: true,
+                allowNull: false,
                 type: DataTypes.BOOLEAN,
                 defaultValue:false
             },

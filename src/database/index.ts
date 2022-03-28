@@ -21,9 +21,15 @@ import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.mo
 import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
+import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
+import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
+import AddressModel from '@/modules/Address/models/address.model';
+
+import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import config from 'config';
 
 const host = config.db.mariadb.host;
+const port = config.db.mariadb.port || 3306;
 const user = config.db.mariadb.user;
 const password = config.db.mariadb.password;
 const database = config.db.mariadb.dbName;
@@ -32,7 +38,8 @@ const pool = {
   max: config.db.mariadb.poolMax,
 };
 const sequelize = new Sequelize.Sequelize(database, user, password, {
-  host: host,
+  host,
+  port,
   dialect: 'mariadb',
   timezone: '+00:00',
   define: {
@@ -74,6 +81,10 @@ const DB = {
   CatalogPlan: CatalogPlanModel(sequelize),
   CatalogPlanProduct:CatalogPlanProductModel(sequelize),
   CatalogPlanProductPrice:CatalogPlanProductPriceModel(sequelize),
+  CustomerAccount: CustomerAccountModel(sequelize),
+  Address: AddressModel(sequelize),
+  CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
+  tableId: tableIdModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -114,6 +125,32 @@ DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
 
 DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
 DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
+
+DB.CustomerAccount.belongsToMany(DB.Address, {
+  through: 'CustomerAccountAddress',
+  foreignKey: 'customerAccountKey',
+  otherKey: 'addressKey',
+  as: 'address',
+});
+DB.Address.belongsToMany(DB.CustomerAccount, {
+  through: 'CustomerAccountAddress',
+  foreignKey: 'addressKey',
+  otherKey: 'customerAccountKey',
+});
+
+DB.CatalogPlan.belongsToMany(DB.CatalogPlanProduct, {
+  through: 'catalogPlanProducts',
+  foreignKey: 'catalogPlankey',
+  otherKey: 'catalogPlankey',
+  as: 'catalogPlanProduct',
+});
+DB.CatalogPlanProduct.belongsToMany(DB.CatalogPlan, {
+  through: 'catalogPlanProducts',
+  foreignKey: 'catalogPlankey',
+  otherKey: 'catalogPlankey',
+});
+
+
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

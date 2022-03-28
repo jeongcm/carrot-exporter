@@ -80,7 +80,7 @@
 <polygon fill="none" stroke="#000000" points="608.2377,-992.6968 608.2377,-1014.6968 730.2377,-1014.6968 730.2377,-992.6968 608.2377,-992.6968"/>
 <text text-anchor="start" x="613.2377" y="-1000.6968" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: BOOLEAN</text>
 <polygon fill="none" stroke="#000000" points="608.2377,-970.6968 608.2377,-992.6968 730.2377,-992.6968 730.2377,-970.6968 608.2377,-970.6968"/>
-<text text-anchor="start" x="613.0007" y="-979.6968" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">AccessGroupPk</text>
+<text text-anchor="start" x="613.0007" y="-979.6968" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">accessGroupPk</text>
 <text text-anchor="start" x="677.4217" y="-979.6968" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
 </g>
 <!-- users&#45;&gt;AccessGroupMember -->
@@ -183,10 +183,10 @@
 <polygon fill="none" stroke="#000000" points="1164.9906,-815.4976 1164.9906,-837.4976 1286.9906,-837.4976 1286.9906,-815.4976 1164.9906,-815.4976"/>
 <text text-anchor="start" x="1169.9906" y="-823.4976" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: BOOLEAN</text>
 <polygon fill="none" stroke="#000000" points="1164.9906,-793.4976 1164.9906,-815.4976 1286.9906,-815.4976 1286.9906,-793.4976 1164.9906,-793.4976"/>
-<text text-anchor="start" x="1169.7536" y="-802.4976" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">AccessGroupPk</text>
+<text text-anchor="start" x="1169.7536" y="-802.4976" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">accessGroupPk</text>
 <text text-anchor="start" x="1234.1746" y="-802.4976" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="1164.9906,-771.4976 1164.9906,-793.4976 1286.9906,-793.4976 1286.9906,-771.4976 1164.9906,-771.4976"/>
-<text text-anchor="start" x="1169.9906" y="-780.4976" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">ChannelPk</text>
+<text text-anchor="start" x="1169.9906" y="-780.4976" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">channelPk</text>
 <text text-anchor="start" x="1213.8756" y="-780.4976" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
 </g>
 <!-- AccessGroup&#45;&gt;AccessGroupChannel -->
@@ -224,10 +224,10 @@
 <polygon fill="none" stroke="#000000" points="32.4064,-1041.6619 32.4064,-1063.6619 154.4064,-1063.6619 154.4064,-1041.6619 32.4064,-1041.6619"/>
 <text text-anchor="start" x="37.4064" y="-1049.6619" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: BOOLEAN</text>
 <polygon fill="none" stroke="#000000" points="32.4064,-1019.6619 32.4064,-1041.6619 154.4064,-1041.6619 154.4064,-1019.6619 32.4064,-1019.6619"/>
-<text text-anchor="start" x="37.1694" y="-1028.6619" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">AccessGroupPk</text>
+<text text-anchor="start" x="37.1694" y="-1028.6619" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">cccessGroupPk</text>
 <text text-anchor="start" x="101.5904" y="-1028.6619" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
 <polygon fill="none" stroke="#000000" points="32.4064,-997.6619 32.4064,-1019.6619 154.4064,-1019.6619 154.4064,-997.6619 32.4064,-997.6619"/>
-<text text-anchor="start" x="37.4064" y="-1006.6619" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">ClusterPk</text>
+<text text-anchor="start" x="37.4064" y="-1006.6619" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">clusterPk</text>
 <text text-anchor="start" x="76.8494" y="-1006.6619" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
 </g>
 <!-- AccessGroup&#45;&gt;AccessGroupCluster -->

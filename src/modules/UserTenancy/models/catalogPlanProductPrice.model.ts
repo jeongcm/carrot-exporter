@@ -41,8 +41,8 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
       catalogPlanProductPricingId: {
         primaryKey: false,
         allowNull: false,
-        defaultValue: DataTypes.UUIDV4,
-        type: DataTypes.UUID,
+        type: DataTypes.STRING(16),
+        unique:true
       },
       catalogPlanProductKey:{
         allowNull: false,
@@ -66,7 +66,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
         defaultValue:'system'
       },
       updatedBy: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING(16),
         defaultValue:'system'
       },

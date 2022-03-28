@@ -40,8 +40,8 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
       catalogPlanId: {
         primaryKey: false,
         allowNull: false,
-        defaultValue: DataTypes.UUIDV4,
-        type: DataTypes.UUID,
+        type: DataTypes.STRING(16),
+        unique:true
       },
       catalogPlanName: {
         allowNull: false,
@@ -62,7 +62,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
         defaultValue: 'SYSTEM'
       },
       updatedBy: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING(45),
         defaultValue: 'SYSTEM'
       },

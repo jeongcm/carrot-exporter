@@ -6,11 +6,14 @@ import config from 'config';
 import urlJoin from 'url-join';
 import { ICatalogPlan, ICatalogPlanProduct, ICatalogPlanProductPrice } from '@/common/interfaces/productCatalog.interface';
 import { CreateCatalogPlanDto, CreateCatalogPlanProductDto, CreateProductPricingDto } from '../dtos/productCatalog.dto';
+import tableIdService from '@/modules/CommonService/services/tableId.service';
+import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
 class ProductCatlogService {
   public catalogPlan = DB.CatalogPlan;
   public catalogPlanProduct = DB.CatalogPlanProduct;
-  public catalogPlanProductPrice = DB.CatalogPlanProductPrice
+  public catalogPlanProductPrice = DB.CatalogPlanProductPrice;
+  public tableIdService = new tableIdService();
 
 
   /**
@@ -27,7 +30,9 @@ class ProductCatlogService {
    * @param {object} new catalog plan data 
    * @returns {object} new catalog plan created
    */
-  public async createCatalogPlan(data): Promise<ICatalogPlan> {
+  public async createCatalogPlan(data:CreateCatalogPlanDto): Promise<ICatalogPlan> {
+    const catalogPlanId = await  this.getTableId('catalogPlans');
+    data = {...data, catalogPlanId}
     const newCatalogPlan: ICatalogPlan = await this.catalogPlan.create(data);
     return newCatalogPlan;
   }
@@ -102,6 +107,8 @@ class ProductCatlogService {
    */
 
   public async createCatalogPlanProduct(newData: CreateCatalogPlanProductDto): Promise<ICatalogPlanProduct> {
+    const catalogPlanProductId = await  this.getTableId('catalogPlanProducts');
+    newData = {...newData, catalogPlanProductId};
     const newCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.create(newData);
     return newCatalogPlanProduct;
   }
@@ -141,11 +148,13 @@ class ProductCatlogService {
       ...productData,
       updatedAt: new Date(),
     };
-console.log("updatedPlanProduct", updatedPlanProduct)
+
     await this.catalogPlanProduct.update(updatedPlanProduct, { where: { catalogPlanProductId: productId } });
     const updateData: ICatalogPlanProduct = await this.catalogPlanProduct.findByPk(planProductData.catalogPlanProductKey);
     return updateData;
   }
+
+
 
   /**
    * @function createProductPricing 
@@ -153,9 +162,24 @@ console.log("updatedPlanProduct", updatedPlanProduct)
    * @returns {object} ICatalogPlanProductPrice
    */
 
-  public async createProductPricing(pricingData:any): Promise<ICatalogPlanProductPrice> {
+  public async createProductPricing(pricingData:CreateProductPricingDto): Promise<ICatalogPlanProductPrice> {
+    const catalogPlanProductId = await  this.getTableId('catalogPlanProductPrice');
+    pricingData = {...pricingData, catalogPlanProductId}
     const newData: ICatalogPlanProductPrice =await  this.catalogPlanProductPrice.create(pricingData);
     return newData
+  }
+
+
+  
+
+  public  getTableId  = async (tableIdTableName:string)=>{
+      const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
+
+      if (!tableId) {
+        return;
+      }
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+      return responseTableIdData.tableIdFinalIssued;
   }
 
 

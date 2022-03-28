@@ -69,7 +69,7 @@ class ProductCatalogController {
   public createCatalogPlansProduct = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const productData: CreateCatalogPlanProductDto = req.body;
-      const newCatalogPlan: CreateCatalogPlanProductDto = await this.productCatalogService.createCatalogPlanProduct(productData);
+      const newCatalogPlan: ICatalogPlanProduct = await this.productCatalogService.createCatalogPlanProduct(productData);
       res.status(201).json({ data: newCatalogPlan, message: 'success' });
     } catch (error) {
       next(error);

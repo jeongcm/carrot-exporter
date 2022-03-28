@@ -13,6 +13,8 @@ import IncidentRoute from '@/modules/Incident/routes/incident.route';
 import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
 import ProductCatalogRoute from '@/modules/UserTenancy/routes/productCatalog.route';
 
+import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccount.route';
+import tableIdRoute from '@/modules/CommonService/routes/tableId.route';
 
 const app = new App([
   new IndexRoute(),
@@ -26,7 +28,9 @@ const app = new App([
   new ChannelRoute(),
   new IncidentRoute(),
   new InvitationRoute(),
-  new ProductCatalogRoute()
+  new ProductCatalogRoute(),
+  new CustomerAccountRoute(),
+  new tableIdRoute(),
 ]);
 
 app.listen();
