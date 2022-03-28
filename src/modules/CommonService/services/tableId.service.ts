@@ -3,11 +3,7 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { HttpException } from '@/common/exceptions/HttpException';
 import { ITableId as tableId } from '@/common/interfaces/tableId.interface';
 import { isEmpty } from '@/common/utils/util';
-<<<<<<< HEAD
-import { Platform } from '../../../common/types';
-import { num } from 'envalid';
-=======
->>>>>>> feature/NEX-1481
+
 
 /**
  * @memberof tableId
