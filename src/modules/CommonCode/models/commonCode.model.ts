@@ -33,14 +33,15 @@ export default function (sequelize: Sequelize): typeof CommonCodeModel {
         allowNull: false,
         defaultValue: DataTypes.UUIDV4,
         type: DataTypes.UUID,
+        unique: true
       },
       createdBy: {
         allowNull: true,
-        type: DataTypes.STRING(16),
+        type: DataTypes.UUID,
       },
       updatedBy: {
         allowNull: true,
-        type: DataTypes.STRING(16),
+        type: DataTypes.UUID,
       },
       createdAt: {
         allowNull: true,
