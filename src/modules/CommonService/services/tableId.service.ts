@@ -8,7 +8,7 @@ import { isEmpty } from '@/common/utils/util';
 /**
  * @memberof tableId
  */
-class tableIdService {
+class TableIdService {
   public tableId = DB.tableId;
 
   /**
@@ -66,4 +66,4 @@ class tableIdService {
   }
 }
 
-export default tableIdService;
+export default TableIdService;
