@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
-import ProductCatalogController from '@/modules/UserTenancy/controllers/productCatalog.controller';
+import ProductCatalogController from '@/modules/ProductCatalog/controllers/productCatalog.controller';
 import AuthService from '@/modules/UserTenancy/services/auth.service';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
-import { CreateCatalogPlanDto, CreateCatalogPlanProductDto, CreateProductPricingDto } from '@/modules/UserTenancy/dtos/productCatalog.dto';
+import { CreateCatalogPlanDto, CreateCatalogPlanProductDto, CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 
 class ProductCatalogRoute implements Routes {

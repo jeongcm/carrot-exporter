@@ -13,9 +13,9 @@ import AccessGroupClusterModel from '@/modules/UserTenancy/models/accessGroupClu
 import AccessGroupMemberModel from '@/modules/UserTenancy/models/accessGroupMember.model';
 import ChannelModel from '@/modules/Messaging/models/channel.model';
 import TenancyModel from '@/modules/UserTenancy/models/tenancy.model';
-import CatalogPlanModel from '@/modules/UserTenancy/models/catalogPlan.model';
-import CatalogPlanProductModel from '@/modules/UserTenancy/models/catalogPlanProduct.model';
-import CatalogPlanProductPriceModel from '@/modules/UserTenancy/models/catalogPlanProductPrice.model';
+import CatalogPlanModel from '@/modules/ProductCatalog/models/catalogPlan.model';
+import CatalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
+import CatalogPlanProductPriceModel from '@/modules/ProductCatalog/models/catalogPlanProductPrice.model';
 import IncidentModel from '@/modules/Incident/models/incident.model';
 import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.model';
 import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
@@ -24,6 +24,7 @@ import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import AddressModel from '@/modules/Address/models/address.model';
+import MessageModel from '@/modules/Messaging/models/message.model';
 
 import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import config from 'config';
@@ -85,6 +86,7 @@ const DB = {
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
   tableId: tableIdModel(sequelize),
+  Messages: MessageModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 

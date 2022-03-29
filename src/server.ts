@@ -11,7 +11,8 @@ import ClusterRoute from '@/modules/K8s/routes/cluster.route';
 import ChannelRoute from '@/modules/Messaging/routes/channel.route';
 import IncidentRoute from '@/modules/Incident/routes/incident.route';
 import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
-import ProductCatalogRoute from '@/modules/UserTenancy/routes/productCatalog.route';
+import ProductCatalogRoute from '@/modules/ProductCatalog/routes/productCatalog.route';
+import MessageRoute from '@/modules/Messaging/routes/message.route';
 
 import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccount.route';
 import tableIdRoute from '@/modules/CommonService/routes/tableId.route';
@@ -31,6 +32,7 @@ const app = new App([
   new ProductCatalogRoute(),
   new CustomerAccountRoute(),
   new tableIdRoute(),
+  new MessageRoute()
 ]);
 
 app.listen();

@@ -18,7 +18,7 @@ export type CatalogPlanProductPriceCreationAttributes = Optional<
     |'catalogPlanProductCurrency'
 >;
 
-export class CatalogPlanProductModel extends Model<ICatalogPlanProduct, CatalogPlanProductCreationAttributes> implements ICatalogPlanProduct {
+export class CatalogPlanProductModel extends Model<ICatalogPlanProduct, CatalogPlanProductPriceCreationAttributes> implements ICatalogPlanProduct {
     public catalogPlanProductKey:number;
     public catalogPlanProductId:string
     public catalogPlanKey:number;

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateCatalogPlanProductDto, CreateCatalogPlanDto, CreateProductPricingDto } from '@/modules/UserTenancy/dtos/productCatalog.dto';
+import { CreateCatalogPlanProductDto, CreateCatalogPlanDto, CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
 import { ICatalogPlan, ICatalogPlanProduct, ICatalogPlanProductPrice } from '@/common/interfaces/productCatalog.interface';
-import ProductCatalogService from '@/modules/UserTenancy/services/productCatalog.service';
+import ProductCatalogService from '@/modules/ProductCatalog/services/productCatalog.service';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
 class ProductCatalogController {
   public productCatalogService = new ProductCatalogService();
