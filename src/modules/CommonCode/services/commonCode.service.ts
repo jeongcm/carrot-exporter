@@ -32,7 +32,6 @@ class CommonCodeService {
       const createCommonCode: ICommonCode = await this.commonCode.create({
         commonCodeId: responseTableIdData.tableIdFinalIssued,
         createdBy: 'system',
-        createdAt: new Date(),
         ...commonCodeData,
       });
 

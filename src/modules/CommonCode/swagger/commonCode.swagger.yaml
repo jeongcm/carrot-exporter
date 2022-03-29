@@ -45,14 +45,14 @@ paths:
           description: 'OK'
         500:
           description: 'Server Error'
-   # [GET] commonCode/id
-  /commonCode/{id}:
+   # [GET] commonCode/commonCodeId
+  /commonCode/{commonCodeId}:
     get:
       tags:
         - commonCode
       summary: Get CommonCode By Id
       parameters:
-        - name: id
+        - name: commonCodeId
           in: path
           description: CommonCode Id
           required: true
@@ -64,13 +64,13 @@ paths:
           description: 'Conflict'
         500:
           description: 'Server Error'
-    # [PUT] commonCode/id
+    # [PUT] commonCode/commonCodeId
     put:
       tags:
         - commonCode
       summary: Update CommonCode By Id
       parameters:
-        - name: id
+        - name: commonCodeId
           in: path
           description: CommonCode Id
           required: true
