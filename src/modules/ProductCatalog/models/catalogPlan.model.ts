@@ -78,8 +78,8 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
       },
     },
     {
-      tableName: 'catalogPlans',
-      modelName: 'catalogPlans',
+      tableName: 'CatalogPlan',
+      modelName: 'CatalogPlan',
       sequelize,
     },
   );

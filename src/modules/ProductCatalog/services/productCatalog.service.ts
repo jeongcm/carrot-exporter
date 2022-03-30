@@ -31,7 +31,7 @@ class ProductCatlogService {
    * @returns {object} new catalog plan created
    */
   public async createCatalogPlan(data:CreateCatalogPlanDto): Promise<ICatalogPlan> {
-    const catalogPlanId = await  this.getTableId('catalogPlan');
+    const catalogPlanId = await  this.getTableId('CatalogPlan');
     console.log("catalogPlanId", catalogPlanId)
     data = {...data, catalogPlanId}
     const newCatalogPlan: ICatalogPlan = await this.catalogPlan.create(data);
@@ -108,7 +108,7 @@ class ProductCatlogService {
    */
 
   public async createCatalogPlanProduct(newData: CreateCatalogPlanProductDto): Promise<ICatalogPlanProduct> {
-    const catalogPlanProductId = await  this.getTableId('catalogPlanProduct');
+    const catalogPlanProductId = await  this.getTableId('CatalogPlanProduct');
     newData = {...newData, catalogPlanProductId};
     const newCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.create(newData);
     return newCatalogPlanProduct;
@@ -164,7 +164,7 @@ class ProductCatlogService {
    */
 
   public async createProductPricing(pricingData:CreateProductPricingDto): Promise<ICatalogPlanProductPrice> {
-    const catalogPlanProductPricingId = await  this.getTableId('catalogPlanProductPrice');
+    const catalogPlanProductPricingId = await  this.getTableId('CatalogPlanProductPrice');
     pricingData = {...pricingData, catalogPlanProductPricingId}
     const newData: ICatalogPlanProductPrice =await  this.catalogPlanProductPrice.create(pricingData);
     return newData
@@ -175,9 +175,6 @@ class ProductCatlogService {
 
   public  getTableId  = async (tableIdTableName:string)=>{
       const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-
-
-      console.log("tableId-------------", tableId)
 
       if (!tableId) {
         return;

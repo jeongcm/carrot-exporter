@@ -87,8 +87,8 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
       },
     },
     {
-      tableName: 'catalogPlanProductPrice',
-      modelName: 'catalogPlanProductPrice',
+      tableName: 'CatalogPlanProductPrice',
+      modelName: 'CatalogPlanProductPrice',
       sequelize,
     },
   );
