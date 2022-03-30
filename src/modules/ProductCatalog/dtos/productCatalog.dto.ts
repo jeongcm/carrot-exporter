@@ -58,7 +58,7 @@ export class CreateCatalogPlanProductDto {
     public catalogPlanKey: string;
 
     @IsString()
-    @IsNotEmpty()
+    @IsOptional()
     public catalogPlanProductId: string;
   
   }
@@ -88,7 +88,9 @@ export class CreateCatalogPlanProductDto {
     @IsNotEmpty()
     public catalogPlanProductKey: number;
     
+  
+
     @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductId: string;
+    @IsOptional()
+    public catalogPlanProductPricingId: string;
   }
