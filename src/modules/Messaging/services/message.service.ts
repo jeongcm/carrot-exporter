@@ -1,9 +1,6 @@
-import bcrypt from 'bcrypt';
 import DB from '@/database';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
-import config from 'config';
-import urlJoin from 'url-join';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IMessage } from '@/common/interfaces/message.interface';
@@ -32,7 +29,6 @@ class MessageServices {
    */
   public async createMessage(data:CreateMessageDto): Promise<IMessage> {
     const messageId = await  this.getTableId('message');
-    console.log("messageId===================", messageId)
     data = {...data, messageId}
     const newCatalogPlan: IMessage = await this.messages.create(data);
     return newCatalogPlan;
@@ -72,13 +68,13 @@ class MessageServices {
     if (!findMessageData) throw new HttpException(409, "Access Group doesn't exist");
     const updatedMessageData = {
       ...messageData,
-      updatedBy: 'system',
+      updatedBy: 'SYSTEM',
       updatedAt: new Date(),
     };
 
     await this.messages.update(updatedMessageData, { where: { messageId } });
 
-    const updateData: IMessage = await this.messages.findByPk(findMessageData.messageId);
+    const updateData: IMessage = await this.messages.findByPk(findMessageData.messageKey);
 
     return updateData;
   }
@@ -90,7 +86,6 @@ class MessageServices {
       return;
     }
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
-    console.log("responseTableIdData.tableIdFinalIssued=======", responseTableIdData)
     return responseTableIdData.tableIdFinalIssued;
 }
 }

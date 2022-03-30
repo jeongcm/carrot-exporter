@@ -1,9 +1,9 @@
-import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateMessageDto {
   @IsString()
   @IsNotEmpty()
-  public messageType: string;
+  public messageType: 'MK' |'BL' | 'OP'| 'PY';
 
   @IsString()
   @IsOptional()

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import MessageController from '@/modules/Messaging/controllers/channel.controller';
+import MessageController from '@/modules/Messaging/controllers/message.controller';
 import { CreateMessageDto } from '@/modules/Messaging/dtos/message.dto';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
@@ -15,10 +15,10 @@ class MessageRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/message', authMiddleware, validationMiddleware(CreateMessageDto, 'body'), this.messageController.createChannel);
-    this.router.get('/messages', authMiddleware, this.messageController.getAllChannels);
-    this.router.get('/message/:messageId', authMiddleware, this.messageController.getAccessGroupByChannel);
-    this.router.put('/message/:messageId', authMiddleware, validationMiddleware(CreateMessageDto, 'body'), this.messageController.updateChannel);
+    this.router.post('/message', authMiddleware, validationMiddleware(CreateMessageDto, 'body'), this.messageController.createMessage);
+    this.router.get('/messages', authMiddleware, this.messageController.getAllMessages);
+    this.router.get('/message/:messageId', authMiddleware, this.messageController.getMessageById);
+    this.router.put('/message/:messageId', authMiddleware, validationMiddleware(CreateMessageDto, 'body'), this.messageController.updateMessage);
   }
 }
 

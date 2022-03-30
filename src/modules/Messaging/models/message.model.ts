@@ -4,17 +4,17 @@ import { IMessage } from '@/common/interfaces/message.interface';
 import { ITableId } from '@/common/interfaces/tableId.interface';
 
 export type CreateMessageAttributes = Optional<
-IMessage,
-| "messageId"
-| "messageKey"
-| "messageType"
-| "messageVerbiage"
-| "customerAccountKey"
-| "createdAt"
-| "updatedAt"
-| "createdBy"
-| "updatedBy"
-| "isDeleted"
+    IMessage,
+    | "messageId"
+    | "messageKey"
+    | "messageType"
+    | "messageVerbiage"
+    | "customerAccountKey"
+    | "createdAt"
+    | "updatedAt"
+    | "createdBy"
+    | "updatedBy"
+    | "isDeleted"
 >;
 
 
@@ -22,7 +22,7 @@ IMessage,
 export class MessageModel extends Model<IMessage, CreateMessageAttributes> implements IMessage {
     public messageKey: number;
     public messageId: string;
-    public messageType: string;
+    public messageType: 'MK' | 'BL' | 'OP' | 'PY';
     public customerAccountKey: number;
     public messageVerbiage: string;
 
@@ -53,6 +53,12 @@ export default function (sequelize: Sequelize): typeof MessageModel {
             messageType: {
                 allowNull: false,
                 type: DataTypes.STRING(2),
+                validate: {
+                    isIn: {
+                        args: [['MK', 'BL', 'OP', 'PY']],
+                        msg: " message must be of type  ['MK' ,'BL' , 'OP', 'PY'] MK: marketing, BL: billing, OP: operations, PY: payment in commonCode customerAccountKey : number;"
+                    }
+                }
             },
             customerAccountKey: {
                 allowNull: false,
@@ -89,8 +95,8 @@ export default function (sequelize: Sequelize): typeof MessageModel {
             },
         },
         {
-            tableName: 'message',
-            modelName: 'message',
+            tableName: 'Message',
+            modelName: 'Message',
             sequelize,
         },
     );

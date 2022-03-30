@@ -8,7 +8,7 @@ export interface IMessage {
   updatedAt: Date;
   updatedBy: string;
   isDeleted: boolean;
-  messageType : string;
+  messageType : 'MK' |'BL' | 'OP'| 'PY'; // message type - MK: marketing, BL: billing, OP: operations, PY: payment in commonCode
   customerAccountKey : number;
   messageVerbiage : string;
 }
