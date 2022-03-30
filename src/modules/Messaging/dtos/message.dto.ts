@@ -6,7 +6,7 @@ export class CreateMessageDto {
   public messageType: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public messageId: string;
 
   @IsString()

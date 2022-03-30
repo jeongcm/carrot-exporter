@@ -31,7 +31,8 @@ class MessageServices {
    * @author shrishti
    */
   public async createMessage(data:CreateMessageDto): Promise<IMessage> {
-    const messageId = await  this.getTableId('messages');
+    const messageId = await  this.getTableId('message');
+    console.log("messageId===================", messageId)
     data = {...data, messageId}
     const newCatalogPlan: IMessage = await this.messages.create(data);
     return newCatalogPlan;
@@ -89,6 +90,7 @@ class MessageServices {
       return;
     }
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+    console.log("responseTableIdData.tableIdFinalIssued=======", responseTableIdData)
     return responseTableIdData.tableIdFinalIssued;
 }
 }
