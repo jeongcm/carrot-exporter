@@ -133,48 +133,53 @@ definitions:
   createChannel:
     type: object
     required:
+      - channelId
+      - channelName
+      - channelDescription
       - channelType
-      - name
-      - description
-      - configJSON
+      - channelAdaptor
     properties:
+      channelId:
+        type: string
+        description: channel channelId
+        example: '1234'
+      channelDescription:
+        type: string
+        description: channel channelDescription
+        example: example
       channelType:
         type: string
         description: channel channelType
-        example: example
-      name:
+        example: EMAIL
+      channelName:
         type: string
-        description: channel name
+        description: channel channelName
         example: example
-      description:
-        type: string
-        description: channel description
-        example: example
-      configJSON:
-        type: string
-        description: channel configJSON
-        example: example
+      channelAdaptor:
+        type: json
+        description: channel descrichannelAdaptorption
+        example: {"key":"value"}
   updateChannel:
     type: object
     required:
+      - channelName
+      - channelDescription
       - channelType
-      - name
-      - description
-      - configJSON
+      - channelAdaptor
     properties:
+      channelDescription:
+        type: string
+        description: channel channelDescription
+        example: example edit
       channelType:
         type: string
         description: channel channelType
-        example: example edit
-      name:
+        example: EMAIL
+      channelName:
         type: string
-        description: channel name
+        description: channel channelName
         example: example edit
-      description:
-        type: string
-        description: channel description
-        example: example edit
-      configJSON:
-        type: string
-        description: channel configJSON
-        example: example edit
+      channelAdaptor:
+        type: json
+        description: channel descrichannelAdaptorption
+        example: {"key":"value"}

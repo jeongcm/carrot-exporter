@@ -40,15 +40,16 @@ export interface ISlackChannel {
 }
 
 export interface Channel {
-  pk: number;
-  id: string;
-  name: string;
-  channelType: ChannelType;
-  description: string;
-  configJSON: string;
+  channelKey: number;
+  customerAccountId: string;
+  channelId: string;
+  createdBy: string;
+  updatedBy: string;
   createdAt: Date;
-  createdBy: number;
   updatedAt: Date;
-  updatedBy: number;
   isDeleted: boolean;
+  channelName: string;
+  channelDescription: string;
+  channelType: string;
+  channelAdaptor: string;
 }

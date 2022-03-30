@@ -4,19 +4,20 @@ import { ChannelType } from '@/common/types';
 
 export type ChannelCreationAttributes = Optional<
   Channel,
-  'id' | 'pk' | 'channelType' | 'name' | 'description' | 'configJSON' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  'channelKey' | 'customerAccountId' | 'channelId' | 'createdBy' | 'updatedBy' | 'isDeleted' | 'channelName' | 'channelDescription' | 'channelType' | 'channelAdaptor'
 >;
 
 export class ChannelModel extends Model<Channel, ChannelCreationAttributes> implements Channel {
-  public pk: number;
-  public id: string;
-  public channelType: ChannelType;
-  public name: string;
-  public description: string;
-  public configJSON: string;
-  public createdBy: number;
-  public updatedBy: number;
+  public channelKey: number;
+  public customerAccountId: string;
+  public channelId: string;
+  public createdBy: string;
+  public updatedBy: string;
   public isDeleted: boolean;
+  public channelName: string;
+  public channelDescription: string;
+  public channelType: ChannelType;
+  public channelAdaptor: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -25,53 +26,55 @@ export class ChannelModel extends Model<Channel, ChannelCreationAttributes> impl
 export default function (sequelize: Sequelize): typeof ChannelModel {
   ChannelModel.init(
     {
-      pk: {
+      channelKey: {
         type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      id: {
-        primaryKey: false,
+      customerAccountId: {
         allowNull: false,
-        defaultValue: DataTypes.UUIDV4,
-        type: DataTypes.UUID,
+        type: DataTypes.STRING(16),
       },
-      name: {
+      channelId: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.STRING(16),
+      },
+      createdBy: {
+        allowNull: false,
+        type: DataTypes.STRING(16),
+      },
+      updatedBy: {
+        allowNull: false,
+        type: DataTypes.STRING(16),
+      },
+      isDeleted: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+      },
+      channelName: {
+        allowNull: false,
+        type: DataTypes.STRING(100),
+      },
+      channelDescription: {
+        allowNull: false,
+        type: DataTypes.STRING(500),
       },
       channelType: {
         allowNull: false,
-        type: DataTypes.STRING(45),
+        type: DataTypes.STRING(8),
       },
-      description: {
+      channelAdaptor: {
         allowNull: false,
-        type: DataTypes.STRING(255),
-      },
-      configJSON: {
-        allowNull: true,
         type: DataTypes.STRING(),
       },
       createdAt: {
         allowNull: true,
         type: DataTypes.DATE,
       },
-      updatedBy: {
-        allowNull: true,
-        type: DataTypes.BIGINT,
-      },
       updatedAt: {
         allowNull: true,
         type: DataTypes.DATE,
-      },
-      createdBy: {
-        allowNull: true,
-        type: DataTypes.BIGINT,
-      },
-      isDeleted: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
       },
     },
     {

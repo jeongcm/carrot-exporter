@@ -31,6 +31,7 @@ class ChannelController {
     try {
       const channelData: CreateChannelDto = req.body;
       const currentUserPk = req.user.pk;
+      channelData.channelAdaptor = JSON.stringify(channelData.channelAdaptor)
       const createChannelData: Channel = await this.channelService.createChannel(channelData, currentUserPk);
       res.status(201).json({ data: createChannelData, message: 'created' });
     } catch (error) {
@@ -40,9 +41,10 @@ class ChannelController {
 
   public updateChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const channelId = req.params.id;
+      const channelId = req.params.channelId;
       const channelData = req.body;
       const currentUserPk = req.user.pk;
+      channelData.channelAdaptor = JSON.stringify(channelData.channelAdaptor)
       const updateChannelData: Channel = await this.channelService.updateChannel(channelId, channelData, currentUserPk);
       res.status(200).json({ data: updateChannelData, message: 'updated' });
     } catch (error) {
@@ -55,16 +57,6 @@ class ChannelController {
       const channelId = req.params.id;
       const deleteChannelData: Channel = await this.channelService.deleteChannel(channelId);
       res.status(200).json({ data: deleteChannelData, message: 'deleted' });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public getAccessGroupByChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    try {
-      const channelPk = req.params.id;
-      const currentAcessGroupData: AccessGroupChannel[] = await this.channelService.getAccessGroupByChannels(channelPk);
-      res.status(200).json({ data: currentAcessGroupData, message: 'Get Access groups of specfic channel' });
     } catch (error) {
       next(error);
     }
