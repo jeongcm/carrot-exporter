@@ -96,19 +96,19 @@ definitions:
   commonCode:
     type: object
     required:
-      - description
-      - displayEng
-      - displayKOR
+      - commonCodeDescription
+      - commonCodeDisplayENG
+      - commonCodeDisplayKOR
     properties:
-      description:
+      commonCodeDescription:
         type: string
         description: commonCode description
         example: example
-      displayEng:
+      commonCodeDisplayENG:
         type: string
-        description: commonCode displayEng
+        description: commonCode displayENG
         example: example
-      displayKOR:
+      commonCodeDisplayKOR:
         type: string
         description: commonCode displayKOR
         example: example

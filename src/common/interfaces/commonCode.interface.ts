@@ -6,7 +6,7 @@ export interface ICommonCode {
   createdAt: Date;
   updatedAt: Date;
   isDeleted: boolean;
-  description: string;
-  displayEng: string;
-  displayKOR: string;
+  commonCodeDescription: string;
+  commonCodeDisplayENG: string;
+  commonCodeDisplayKOR: string;
 }

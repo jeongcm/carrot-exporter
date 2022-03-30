@@ -13,15 +13,15 @@ class CommonCodeController {
       const currentUserId = req.user.id;
       const createCommonCodeData: ICommonCode = await this.commonCodeService.createCommonCode(commonCodeData, currentUserId);
 
-      const { commonCodeId, createdBy, createdAt, description, displayEng, displayKOR } = createCommonCodeData;
+      const { commonCodeId, createdBy, createdAt, commonCodeDescription, commonCodeDisplayENG, commonCodeDisplayKOR } = createCommonCodeData;
 
       const response = {
         commonCodeId,
         createdBy,
         createdAt,
-        description,
-        displayEng,
-        displayKOR,
+        commonCodeDescription,
+        commonCodeDisplayENG,
+        commonCodeDisplayKOR,
       };
       res.status(201).json({ data: response, message: 'created' });
     } catch (error) {

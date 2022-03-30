@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsNotEmpty, IsNumber, IsDate } from 'class-validator';
+import { IsString, IsOptional, IsNotEmpty, IsDate } from 'class-validator';
 
 export class CommonCodeDto {
   @IsString()
@@ -23,11 +23,11 @@ export class CommonCodeDto {
 
   @IsString()
   @IsNotEmpty()
-  public description: string;
+  public commonCodeDescription: string;
 
   @IsString()
-  public displayEng: string;
+  public commonCodeDisplayENG: string;
 
   @IsString()
-  public displayKOR: string;
+  public commonCodeDisplayKOR: string;
 }
