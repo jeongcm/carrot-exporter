@@ -76,7 +76,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
         defaultValue:new Date()
       },
       updatedAt: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE(),
         defaultValue:new Date()
       },

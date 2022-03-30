@@ -89,7 +89,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
                 type: DataTypes.DATE(),
             },
             updatedAt: {
-                allowNull: false,
+                allowNull: true,
                 type: DataTypes.DATE(),
             },
             isDeleted: {

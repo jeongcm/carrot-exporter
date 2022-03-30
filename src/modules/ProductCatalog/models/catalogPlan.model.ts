@@ -72,7 +72,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
         defaultValue: new Date()
       },
       updatedAt: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE(),
         defaultValue: new Date()
       },
