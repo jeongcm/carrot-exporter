@@ -90,43 +90,7 @@ paths:
           description: 'Conflict'
         500:
           description: 'Server Error'
-    # [DELETE] channels/id
-    delete:
-      tags:
-        - channel
-      summary: Delete Channel By Id
-      parameters:
-        - name: id
-          in: path
-          description: Channel Id
-          required: true
-          type: string
-      responses:
-        200:
-          description: 'deleted'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
-  # [GET] /channels/id/accessgroup
-  /channels/{id}/accessgroup:
-    get:
-      tags:
-        - channel
-      summary: List AccessGroup Through Channel
-      parameters:
-        - name: id
-          in: path
-          description: Channel Id
-          required: true
-          type: string
-      responses:
-        200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'     
+       
 
 # definitions
 definitions:
