@@ -25,17 +25,19 @@ class CustomerAccountRoute implements Routes {
     this.router.get('/customerAccount/:customerAccountId', this.customerAccountController.getCustomerAccountById);
     this.router.put(
       '/customerAccount/:customerAccountId',
+      authMiddleware,
       validationMiddleware(CreateCustomerAccountDto, 'body'),
       this.customerAccountController.updateCustomerAccountById,
     );
 
     this.router.post(
       '/customerAccount/:customerAccountId/address',
+      authMiddleware,
       validationMiddleware(CreateAddressDto, 'body'),
       this.customerAccountController.addCustomerAddress,
     );
 
-    this.router.delete('/customerAccount/:customerAccountId/address', this.customerAccountController.dropCustomerAddress);
+    this.router.delete('/customerAccount/:customerAccountId/address', authMiddleware, this.customerAccountController.dropCustomerAddress);
   }
 }
 

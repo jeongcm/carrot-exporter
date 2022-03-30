@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
 export type CustomerAccountCreationAttributes = Optional<
   ICustomerAccount,
@@ -26,7 +26,7 @@ export class CustomerAccountModel extends Model<ICustomerAccount, CustomerAccoun
   public customerAccountName: string;
   public customerAccountDescription: string;
   public parentCustomerAccountId: string;
-  public customerAccountType: string;
+  public customerAccountType: customerAccountType;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;

@@ -12,6 +12,7 @@ import { CustomerAccountAddressModel } from '@/modules/CustomerAccount/models/cu
 import { AddressModel } from '@/modules/Address/models/address.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import { IParty } from '@/common/interfaces/party.interface';
 
 /**
  * @memberof CustomerAccount
@@ -20,9 +21,10 @@ class CustomerAccountService {
   public customerAccount = DB.CustomerAccount;
   public address = DB.Address;
   public customerAccountAdress = DB.CustomerAccountAddress;
+  public party = DB.Party;
   public tableIdService = new tableIdService();
 
-  public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, currentPartyUserPk: number): Promise<ICustomerAccount> {
+  public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto): Promise<ICustomerAccount> {
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
 
     try {
@@ -35,10 +37,13 @@ class CustomerAccountService {
 
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
+      const IA_KEY: number = await this.party.min('partyKey');
+      const IA: IParty = await this.party.findByPk(IA_KEY, { raw: true });
+
       const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create({
         ...customerAccountData,
         customerAccountId: responseTableIdData.tableIdFinalIssued,
-        createdBy: 'system',
+        createdBy: IA ? IA.partyId : 'SYSTEM',
       });
 
       return createdCustomerAccount;
@@ -71,13 +76,22 @@ class CustomerAccountService {
     return customerAccount;
   }
 
+  public async getCustomerAccountKeyById(customerAccountId: string): Promise<ICustomerAccount> {
+    const customerAccountKey: ICustomerAccount = await this.customerAccount.findOne({
+      where: { customerAccountId },
+      attributes: ['customerAccountKey'],
+    });
+
+    return customerAccountKey;
+  }
+
   public async updateCustomerAccount(
     customerAccountId: string,
     coustomerAccountData: CreateCustomerAccountDto,
-    currentUserPk: number,
+    logginedUserId: string,
   ): Promise<ICustomerAccount> {
     const updatedCustomerAccount: [number, CustomerAccountModel[]] = await this.customerAccount.update(
-      { ...coustomerAccountData, updatedBy: 'system' },
+      { ...coustomerAccountData, updatedBy: logginedUserId },
       { where: { customerAccountId } },
     );
 
@@ -86,7 +100,7 @@ class CustomerAccountService {
     }
   }
 
-  public async addCustomerAddress(customerAccountId: string, newAddressKey: number, currentUserPk: number): Promise<ICustomerAccount> {
+  public async addCustomerAddress(customerAccountId: string, newAddressKey: number, logginedUserId: string): Promise<ICustomerAccount> {
     try {
       const tableIdTableName = 'customerAccountAddress';
       const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
@@ -105,7 +119,7 @@ class CustomerAccountService {
         });
 
         await this.customerAccountAdress.update(
-          { isDeleted: true, updatedBy: 'system', customerAccountAddressTo: new Date() },
+          { isDeleted: true, updatedBy: logginedUserId, customerAccountAddressTo: new Date() },
           { where: { customerAccountKey: customerAccount.customerAccountKey }, transaction: t },
         );
 
@@ -113,7 +127,7 @@ class CustomerAccountService {
           {
             customerAccountKey: customerAccount.customerAccountKey,
             addressKey: newAddressKey,
-            createdBy: 'system',
+            createdBy: logginedUserId,
             customerAccountAddressId: responseTableIdData.tableIdFinalIssued,
             customerAccountAddressFrom: new Date(),
           },
@@ -125,14 +139,14 @@ class CustomerAccountService {
     } catch (error) {}
   }
 
-  public async dropCustomerAddress(customerAccountId: string, currentUserPk: number): Promise<[number, CustomerAccountAddressModel[]]> {
+  public async dropCustomerAddress(customerAccountId: string, logginedUserId: string): Promise<[number, CustomerAccountAddressModel[]]> {
     const customerAccount = await this.customerAccount.findOne({
       where: { customerAccountId },
       attributes: ['customerAccountKey'],
     });
 
     const droppedCustomerAddress: [number, CustomerAccountAddressModel[]] = await this.customerAccountAdress.update(
-      { isDeleted: true, updatedBy: 'system', customerAccountAddressTo: new Date() },
+      { isDeleted: true, updatedBy: logginedUserId, customerAccountAddressTo: new Date() },
       { where: { customerAccountKey: customerAccount.customerAccountKey, isDeleted: false } },
     );
 
