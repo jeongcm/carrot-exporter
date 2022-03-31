@@ -11,6 +11,7 @@ import ClusterRoute from '@/modules/K8s/routes/cluster.route';
 import ChannelRoute from '@/modules/Messaging/routes/channel.route';
 import IncidentRoute from '@/modules/Incident/routes/incident.route';
 import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
+import CommonCodeRoute from '@/modules/CommonCode/routes/commonCode.route';
 import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccount.route';
 import tableIdRoute from '@/modules/CommonService/routes/tableId.route';
 
@@ -26,6 +27,7 @@ const app = new App([
   new ChannelRoute(),
   new IncidentRoute(),
   new InvitationRoute(),
+  new CommonCodeRoute(),
   new CustomerAccountRoute(),
   new tableIdRoute(),
 ]);
