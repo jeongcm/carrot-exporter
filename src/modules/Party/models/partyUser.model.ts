@@ -111,6 +111,7 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       isEmailValidated: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
+        defaultValue: false,
       },
       emailValidatedAt: {
         type: DataTypes.DATE,
