@@ -13,6 +13,7 @@ import IncidentRoute from '@/modules/Incident/routes/incident.route';
 import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
 import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccount.route';
 import tableIdRoute from '@/modules/CommonService/routes/tableId.route';
+import ApiRoute from '@/modules/Api/routes/api.route';
 
 const app = new App([
   new IndexRoute(),
@@ -28,6 +29,7 @@ const app = new App([
   new InvitationRoute(),
   new CustomerAccountRoute(),
   new tableIdRoute(),
+  new ApiRoute(),
 ]);
 
 app.listen();

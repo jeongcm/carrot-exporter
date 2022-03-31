@@ -21,6 +21,7 @@ import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import AddressModel from '@/modules/Address/models/address.model';
+import ApiModel from '@/modules/Api/models/api.models';
 
 import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import config from 'config';
@@ -78,6 +79,7 @@ const DB = {
   CustomerAccount: CustomerAccountModel(sequelize),
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
+  Api: ApiModel(sequelize),
   tableId: tableIdModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
