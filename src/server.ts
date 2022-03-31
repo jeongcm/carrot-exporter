@@ -14,6 +14,7 @@ import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
 import CommonCodeRoute from '@/modules/CommonCode/routes/commonCode.route';
 import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccount.route';
 import tableIdRoute from '@/modules/CommonService/routes/tableId.route';
+import PartyRoute from '@modules/Party/routes/party.route';
 
 const app = new App([
   new IndexRoute(),
@@ -30,6 +31,7 @@ const app = new App([
   new CommonCodeRoute(),
   new CustomerAccountRoute(),
   new tableIdRoute(),
+  new PartyRoute(),
 ]);
 
 app.listen();

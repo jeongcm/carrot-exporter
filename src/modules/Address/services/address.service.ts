@@ -21,7 +21,7 @@ class AddressService {
   public custoemrAccountAdress = DB.CustomerAccountAddress;
   public tableIdService = new tableIdService();
 
-  public async createAddress(addressData: CreateAddressDto, currentPartyUserPk: number): Promise<IAddress> {
+  public async createAddress(addressData: CreateAddressDto, logginedUserId: string): Promise<IAddress> {
     if (isEmpty(addressData)) throw new HttpException(400, 'Address must not be empty');
 
     try {
@@ -37,7 +37,7 @@ class AddressService {
       const createdAddress: IAddress = await this.address.create({
         ...addressData,
         addressId: responseTableIdData.tableIdFinalIssued,
-        createdBy: 'system',
+        createdBy: logginedUserId,
       });
 
       return createdAddress;
