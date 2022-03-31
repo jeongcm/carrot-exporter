@@ -24,8 +24,8 @@ class AuthRoute implements Routes {
 
     // Native Auth: START
     this.router.post('/signup', validationMiddleware(CreateUserDto, 'body'), this.authController.signUp);
-    this.router.post('/login', validationMiddleware(LoginUserDto, 'body'), this.authController.logIn);
-    this.router.get('/logout', this.authController.logOut);
+    // this.router.post('/login', validationMiddleware(LoginUserDto, 'body'), this.authController.logIn);
+    // this.router.get('/logout', this.authController.logOut);
     // Native Auth: END
 
     // Google Auth: START

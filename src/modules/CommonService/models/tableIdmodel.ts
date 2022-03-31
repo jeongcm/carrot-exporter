@@ -18,8 +18,6 @@ export type TableIdUpdateAttributes = Optional<
   | 'updatedBy'
 >;
 
-
-
 export class TableIdModel extends Model<ITableId, TableIdUpdateAttributes> implements ITableId {
   public tableIdKey: number;
   public tableIdTableName: string;
@@ -37,8 +35,6 @@ export class TableIdModel extends Model<ITableId, TableIdUpdateAttributes> imple
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-
-
 }
 
 export default function (sequelize: Sequelize): typeof TableIdModel {
@@ -87,6 +83,7 @@ export default function (sequelize: Sequelize): typeof TableIdModel {
       isDeleted: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
       createdBy: {
         allowNull: false,
@@ -104,7 +101,7 @@ export default function (sequelize: Sequelize): typeof TableIdModel {
         allowNull: true,
         type: DataTypes.DATE(),
       },
-    },      
+    },
     {
       tableName: 'TableId',
       modelName: 'TableId',
