@@ -24,7 +24,7 @@ class CustomerAccountService {
   public party = DB.Party;
   public tableIdService = new tableIdService();
 
-  public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto): Promise<ICustomerAccount> {
+  public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, systemId: string): Promise<ICustomerAccount> {
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
 
     try {
@@ -37,13 +37,10 @@ class CustomerAccountService {
 
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
-      const IA_KEY: number = await this.party.min('partyKey');
-      const IA: IParty = await this.party.findByPk(IA_KEY, { raw: true });
-
       const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create({
         ...customerAccountData,
         customerAccountId: responseTableIdData.tableIdFinalIssued,
-        createdBy: IA ? IA.partyId : 'SYSTEM',
+        createdBy: systemId,
       });
 
       return createdCustomerAccount;

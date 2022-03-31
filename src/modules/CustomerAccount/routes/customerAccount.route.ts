@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
+import systemAuthMiddleware from '@/modules/ApiGateway/middlewares/systemAuth.middleware';
+
 import CustomerAccountController from '@modules/CustomerAccount/controllers/customerAccount.controller';
 import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/customerAccount.dto';
 import { CreateAddressDto } from '@/modules/Address/dtos/address.dto';
@@ -17,6 +19,7 @@ class CustomerAccountRoute implements Routes {
   private initializeRoutes() {
     this.router.post(
       '/customerAccount',
+      systemAuthMiddleware,
       validationMiddleware(CreateCustomerAccountDto, 'body'),
       this.customerAccountController.createCustomerAccount,
     );

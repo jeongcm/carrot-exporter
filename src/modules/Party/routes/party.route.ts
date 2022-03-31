@@ -7,6 +7,7 @@ import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/par
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 
 import PartyController from '../controllers/party.controller';
+import systemAuthMiddleware from '@/modules/ApiGateway/middlewares/systemAuth.middleware';
 
 class tableIdRoute implements Routes {
   public router = Router();
@@ -20,7 +21,7 @@ class tableIdRoute implements Routes {
     this.router.post('/login', validationMiddleware(LoginDto, 'body'), this.partyController.login);
     this.router.get('/logout', this.partyController.logout);
 
-    this.router.post('/party/user', validationMiddleware(CreateUserDto, 'body'), this.partyController.createUser);
+    this.router.post('/party/user', systemAuthMiddleware, validationMiddleware(CreateUserDto, 'body'), this.partyController.createUser);
 
     this.router.get('/party/user', authMiddleware, this.partyController.getUsers);
     this.router.get('/party/user/:partyUserId', authMiddleware, this.partyController.getUser);

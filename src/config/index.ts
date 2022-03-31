@@ -50,6 +50,7 @@ export default {
   },
   auth: {
     jwtSecretKey: process.env.NC_LARI_JWT_SECRET_KEY,
+    systemVerifyKey: process.env.NC_LARI_SYSTEM_NAME,
   },
   socialKey: {
     github: {

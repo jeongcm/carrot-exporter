@@ -80,4 +80,9 @@ export interface IDataStoredInToken {
 export interface IRequestWithUser extends Request {
   user: IParty;
   customerAccountKey: number;
+  systemId?: string;
+}
+
+export interface IRequestWithSystem extends Request {
+  systemId: string;
 }

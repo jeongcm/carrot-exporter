@@ -58,15 +58,12 @@ class PartyService {
     return users;
   }
 
-  public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number): Promise<IPartyUserResponse> {
+  public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string): Promise<IPartyUserResponse> {
     const tableIdTableName = 'partyUser';
     const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
     if (!tableId) {
       return;
     }
-
-    const IA_KEY: number = await this.party.min('partyKey');
-    const IA: IParty = await this.party.findByPk(IA_KEY, { raw: true });
 
     try {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
@@ -82,7 +79,7 @@ class PartyService {
             parentPartyId: createPartyUserData?.parentPartyId,
             partyType: 'US',
             customerAccountKey,
-            createdBy: IA ? IA.partyId : 'SYSTEM',
+            createdBy: systemId,
           },
           { transaction: t },
         );
@@ -91,7 +88,7 @@ class PartyService {
           {
             partyUserId: responseTableIdData.tableIdFinalIssued,
             partyKey: createdParty.partyKey,
-            createdBy: IA ? IA.partyId : 'SYSTEM',
+            createdBy: systemId,
             firstName: createPartyUserData.firstName,
             lastName: createPartyUserData.lastName,
             userId: createPartyUserData.userId,
@@ -109,7 +106,7 @@ class PartyService {
           partyDescription: createPartyUserData?.partyDescription,
           parentPartyId: createPartyUserData?.parentPartyId,
           partyType: 'US',
-          createdBy: IA ? IA.partyId : 'SYSTEM',
+          createdBy: systemId,
           partyUserId: responseTableIdData.tableIdFinalIssued,
           firstName: createPartyUserData.firstName,
           lastName: createPartyUserData.lastName,

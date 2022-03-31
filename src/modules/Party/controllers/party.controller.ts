@@ -5,7 +5,7 @@ import { NextFunction, Response } from 'express';
 import PartyService from '@/modules/Party/services/party.service';
 
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
-import { IParty, IPartyRelation, IPartyUser, IPartyUserResponse, IRequestWithUser } from '@/common/interfaces/party.interface';
+import { IParty, IPartyRelation, IPartyUser, IPartyUserResponse, IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
 import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
@@ -39,7 +39,7 @@ class PartyController {
     }
   };
 
-  public createUser = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public createUser = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
     const createUserData: CreateUserDto = req.body;
 
     const customerAccountKey: ICustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(createUserData.customerAccountId);
@@ -49,7 +49,7 @@ class PartyController {
     }
 
     try {
-      const createdUser: IPartyUserResponse = await this.partyService.createUser(createUserData, customerAccountKey.customerAccountKey);
+      const createdUser: IPartyUserResponse = await this.partyService.createUser(createUserData, customerAccountKey.customerAccountKey, req.systemId);
 
       if (createdUser) {
         res.status(201).json({ data: createdUser, message: 'created' });

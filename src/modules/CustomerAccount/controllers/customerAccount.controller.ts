@@ -11,17 +11,17 @@ import { CreateAddressDto } from '@/modules/Address/dtos/address.dto';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { IAddress } from '@/common/interfaces/address.interface';
-import { IRequestWithUser } from '@/common/interfaces/party.interface';
+import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
 
 class CustomerAccountController {
   public customerAccountService = new CustomerAccountService();
   public addressService = new AddressService();
 
-  public createCustomerAccount = async (req: Request, res: Response, next: NextFunction) => {
+  public createCustomerAccount = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
     try {
       const customerAccountData: CreateCustomerAccountDto = req.body;
 
-      const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData);
+      const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, req.systemId);
 
       const {
         customerAccountId,

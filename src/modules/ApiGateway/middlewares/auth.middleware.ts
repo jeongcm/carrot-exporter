@@ -27,8 +27,6 @@ const authMiddleware = async (req, res: Response, next: NextFunction) => {
       const partyUserKey = verificationResponse.partyUserKey;
       const findPartyUser = await DB.PartyUser.findByPk(partyUserKey);
 
-      // const findParty = await DB.Party.findOne({ where: { partyId: findPartyUser.partyUserId } });
-
       const findPartyIncludePartyUser = await DB.Party.findOne({
         where: { partyId: findPartyUser.partyUserId },
         include: [
