@@ -10,6 +10,7 @@ How to add config:
 // 2. For value control (default, computed)
 // 3. For security
 import validateEnv from './validateEnv';
+import tableIds from '../database/tableIdData.json';
 
 validateEnv();
 
@@ -63,5 +64,23 @@ export default {
       clientSecret: process.env.NC_LARI_SOCIALKEY_GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.NC_LARI_SOCIALKEY_GOOGLE_CALLBACK_URL,
     },
+  },
+  initialRecord: {
+    customerAccount: {
+      customerAccountName: process.env.NC_LARI_SYSTEM_CUSTOMERACCOUNT_NAME.replace(/_/gi, ' '),
+      customerAccountDescription: process.env.NC_LARI_SYSTEM_CUSTOMERACCOUNT_DESCRIPTION.replace(/_/gi, ' '),
+    },
+    party: {
+      partyName: process.env.NC_LARI_SYSTEM_PARTY_NAME,
+      partyDescription: process.env.NC_LARI_SYSTEM_PARTY_DESCRIPTION.replace(/_/gi, ' '),
+    },
+    partyUser: {
+      firstName: process.env.NC_LARI_SYSTEM_PARTYUSER_FIRSTNAME,
+      lastName: process.env.NC_LARI_SYSTEM_PARTYUSER_LASTNAME,
+      userId: process.env.NC_LARI_SYSTEM_PARTYUSER_USERID,
+      password: process.env.NC_LARI_SYSTEM_PARTYUSER_PASSWORD,
+      email: process.env.NC_LARI_SYSTEM_PARTYUSER_EMAIL,
+    },
+    tableIds,
   },
 };

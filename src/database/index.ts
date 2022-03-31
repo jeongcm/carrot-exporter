@@ -21,7 +21,7 @@ import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.mo
 import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
-import CommonCodeModel  from '@/modules/CommonCode/models/commonCode.model';
+import CommonCodeModel from '@/modules/CommonCode/models/commonCode.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import AddressModel from '@/modules/Address/models/address.model';
@@ -31,6 +31,7 @@ import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import config from 'config';
+import InitialRecordService from './initialRecord';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -175,9 +176,16 @@ DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKe
 // below script is used to create table again with new model structure and data
 //[[force: true]] is used when changes made in database.
 
-DB.sequelize.sync({ force: false }).then(() => {
-  console.log('Yes resync done');
-});
+DB.sequelize
+  .sync({ force: false })
+  .then(async () => {
+    const initialRecordService = new InitialRecordService();
+
+    await initialRecordService.insertInitialRecords().then(() => {
+      console.log('Yes resync done');
+    });
+  })
+  .catch(console.log);
 
 //-----------------------------------------------------------------------------
 
