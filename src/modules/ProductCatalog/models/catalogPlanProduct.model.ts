@@ -75,7 +75,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
                 type: DataTypes.STRING(2),
             },
             createdBy: {
-                allowNull: true,
+                allowNull: false,
                 type: DataTypes.STRING(16),
                 defaultValue:'system'
             },
