@@ -1,0 +1,96 @@
+import { IsString, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
+
+/**
+ * DTO with information to create a new catalog plan
+ * @typedef {Object} CreateCatalogPlanDto
+ * @property {string} catalogPlanName - Name of the new product plan to be created
+ * @property {string} catalogPlanDescription - Description
+ */
+export class CreateCatalogPlanDto {
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanName : string;
+
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanDescription : string;
+
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanId : string;
+
+}
+
+
+/**
+ * DTO with information to create a new catalog  plan product
+ * @typedef {Object} CreateCatalogPlanProductDto
+ * @property {string} catalogPlanProductName - Name of the new product plan to be created
+ * @property {string} catalogPlanProductDescription - Description
+ * @property {number} catalogPlanProductMonthlyPrice - monthly price
+ * @property {string} catalogPlanProductUOM - ProductUOM
+ * @property {string} catalogPlanProductCurrency - currency
+ * @property {string} catalogPlanKey - catalogPlan id 
+ */
+export class CreateCatalogPlanProductDto {
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanProductName: string;
+  
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanProductDescription: string;
+
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanProductMonthlyPrice: number;
+
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanProductUOM: string;
+
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanProductCurrency: string;
+
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanKey: string;
+
+    @IsString()
+    @IsOptional()
+    public catalogPlanProductId: string;
+  
+  }
+
+/**
+ * DTO with information to create a new catalog  plan product pricing
+ * @typedef {Object} CreateProductPricingDto
+ * @property {string} catalogPlanProductPriceFrom - Name of the new product plan to be created
+ * @property {string} catalogPlanProductPriceTo - Description
+ * @property {number} catalogPlanProductMonthlyPrice - monthly price
+ * @property {string} catalogPlanProductKey - catalog Plan product key
+ */
+  export class CreateProductPricingDto {
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanProductMonthlyPriceFrom: Date;
+  
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanProductMonthlyPriceTo: Date;
+
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanProductMonthlyPrice: number;
+
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanProductKey: number;
+    
+  
+
+    @IsString()
+    @IsOptional()
+    public catalogPlanProductPricingId: string;
+  }

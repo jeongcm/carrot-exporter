@@ -31,7 +31,7 @@ class CustomerAccountController {
         customerAccountDescription,
         parentCustomerAccountId,
         customerAccountType,
-      } = createdCustomerAccount;
+      } = createdCustomerAccount ||{};
 
       const response = {
         customerAccountId,
