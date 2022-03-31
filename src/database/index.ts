@@ -84,8 +84,8 @@ const DB = {
   Invitations: InvitationModel(sequelize),
   Tokens: TokenModel(sequelize),
   CatalogPlan: CatalogPlanModel(sequelize),
-  CatalogPlanProduct:CatalogPlanProductModel(sequelize),
-  CatalogPlanProductPrice:CatalogPlanProductPriceModel(sequelize),
+  CatalogPlanProduct: CatalogPlanProductModel(sequelize),
+  CatalogPlanProductPrice: CatalogPlanProductPriceModel(sequelize),
   CommonCode: CommonCodeModel(sequelize),
   CustomerAccount: CustomerAccountModel(sequelize),
   Address: AddressModel(sequelize),
@@ -147,7 +147,6 @@ DB.Address.belongsToMany(DB.CustomerAccount, {
   foreignKey: 'addressKey',
   otherKey: 'customerAccountKey',
 });
-
 
 DB.CatalogPlan.belongsToMany(DB.CatalogPlanProduct, {
   through: 'catalogPlanProducts',

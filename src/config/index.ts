@@ -10,7 +10,7 @@ How to add config:
 // 2. For value control (default, computed)
 // 3. For security
 import validateEnv from './validateEnv';
-import tableIds from '../database/tableIdData.json';
+import tableIds from '../../init/tableId.seeding.json';
 
 validateEnv();
 

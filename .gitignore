@@ -129,4 +129,4 @@ dist
 jsdocs
 
 # initial records
-src/database/tableIdData.json
+init

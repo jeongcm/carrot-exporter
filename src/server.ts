@@ -15,7 +15,6 @@ import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
 import ProductCatalogRoute from '@/modules/ProductCatalog/routes/productCatalog.route';
 import MessageRoute from '@/modules/Messaging/routes/message.route';
 
-
 import CommonCodeRoute from '@/modules/CommonCode/routes/commonCode.route';
 
 import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccount.route';
@@ -38,13 +37,12 @@ const app = new App([
   new ProductCatalogRoute(),
   new CustomerAccountRoute(),
   new tableIdRoute(),
-  new MessageRoute()
+  new MessageRoute(),
 
   new CommonCodeRoute(),
   new CustomerAccountRoute(),
   new tableIdRoute(),
   new PartyRoute(),
-
 ]);
 
 app.listen();
