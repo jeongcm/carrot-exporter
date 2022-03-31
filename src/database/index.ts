@@ -21,11 +21,14 @@ import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.mo
 import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
+import CommonCodeModel  from '@/modules/CommonCode/models/commonCode.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import AddressModel from '@/modules/Address/models/address.model';
 import MessageModel from '@/modules/Messaging/models/message.model';
-
+import PartyModel from '@/modules/Party/models/party.model';
+import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
+import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import config from 'config';
 
@@ -82,11 +85,15 @@ const DB = {
   CatalogPlan: CatalogPlanModel(sequelize),
   CatalogPlanProduct:CatalogPlanProductModel(sequelize),
   CatalogPlanProductPrice:CatalogPlanProductPriceModel(sequelize),
+  CommonCode: CommonCodeModel(sequelize),
   CustomerAccount: CustomerAccountModel(sequelize),
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
   tableId: tableIdModel(sequelize),
   Messages: MessageModel(sequelize),
+  Party: PartyModel(sequelize),
+  PartyRelation: PartyRelationModel(sequelize),
+  PartyUser: PartyUserModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -140,6 +147,7 @@ DB.Address.belongsToMany(DB.CustomerAccount, {
   otherKey: 'customerAccountKey',
 });
 
+
 DB.CatalogPlan.belongsToMany(DB.CatalogPlanProduct, {
   through: 'catalogPlanProducts',
   foreignKey: 'catalogPlankey',
@@ -152,7 +160,16 @@ DB.CatalogPlanProduct.belongsToMany(DB.CatalogPlan, {
   otherKey: 'catalogPlankey',
 });
 
+DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
+DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
+DB.Party.hasOne(DB.PartyUser, { foreignKey: 'partyKey', sourceKey: 'partyKey' });
+DB.PartyUser.belongsTo(DB.Party, { foreignKey: 'partyKey', targetKey: 'partyKey' });
+
+DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
+DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
+DB.Party.hasMany(DB.PartyRelation, { as: 'partyParent', foreignKey: 'partyParentKey', sourceKey: 'partyKey' });
+DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKey', sourceKey: 'partyKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

@@ -1,47 +1,50 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
-export type CustomerAccountCreationAttributes = Optional<
-  ICustomerAccount,
-  | 'customerAccountKey'
-  | 'customerAccountId'
+import { IParty } from '@/common/interfaces/party.interface';
+
+export type PartyCreationAttributes = Optional<
+  IParty,
+  | 'partyKey'
+  | 'partyId'
   | 'createdBy'
   | 'updatedBy'
   | 'createdAt'
   | 'updatedAt'
   | 'isDeleted'
-  | 'customerAccountName'
-  | 'customerAccountDescription'
-  | 'parentCustomerAccountId'
-  | 'customerAccountType'
+  | 'partyName'
+  | 'partyDescription'
+  | 'parentPartyId'
+  | 'partyType'
+  | 'customerAccountKey'
 >;
 
-export class CustomerAccountModel extends Model<ICustomerAccount, CustomerAccountCreationAttributes> implements ICustomerAccount {
-  public customerAccountKey: number;
-  public customerAccountId: string;
+export class PartyModel extends Model<IParty, PartyCreationAttributes> implements IParty {
+  public partyKey: number;
+  public partyId: string;
   public createdBy: string;
   public updatedBy: string;
   public isDeleted: boolean;
 
-  public customerAccountName: string;
-  public customerAccountDescription: string;
-  public parentCustomerAccountId: string;
-  public customerAccountType: customerAccountType;
+  public partyName: string;
+  public partyDescription: string;
+  public parentPartyId: string;
+  public partyType: 'US' | 'AG';
+  public customerAccountKey: number;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
 
-export default function (sequelize: Sequelize): typeof CustomerAccountModel {
-  CustomerAccountModel.init(
+export default function (sequelize: Sequelize): typeof PartyModel {
+  PartyModel.init(
     {
-      customerAccountKey: {
+      partyKey: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      customerAccountId: {
+      partyId: {
         type: DataTypes.STRING(16),
         allowNull: false,
         unique: true,
@@ -65,26 +68,30 @@ export default function (sequelize: Sequelize): typeof CustomerAccountModel {
         allowNull: false,
         defaultValue: false,
       },
-      customerAccountName: {
+      partyName: {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
-      customerAccountDescription: {
+      partyDescription: {
         type: DataTypes.STRING(500),
       },
-      parentCustomerAccountId: {
+      parentPartyId: {
         type: DataTypes.STRING(16),
       },
-      customerAccountType: {
+      partyType: {
         type: DataTypes.STRING(2),
+      },
+      customerAccountKey: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
       },
     },
     {
-      tableName: 'CustomerAccount',
-      modelName: 'CustomerAccount',
+      tableName: 'Party',
+      modelName: 'Party',
       sequelize,
     },
   );
 
-  return CustomerAccountModel;
+  return PartyModel;
 }

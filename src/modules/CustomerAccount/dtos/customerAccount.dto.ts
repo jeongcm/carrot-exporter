@@ -1,3 +1,4 @@
+import { customerAccountType } from '@/common/interfaces/customerAccount.interface';
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateCustomerAccountDto {
@@ -11,4 +12,8 @@ export class CreateCustomerAccountDto {
   @IsString()
   @IsOptional()
   public parentCustomerAccountId: string;
+
+  @IsString()
+  @IsOptional()
+  public customerAccountType: customerAccountType;
 }
