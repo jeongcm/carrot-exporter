@@ -3,10 +3,6 @@ import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional, IsJSON, IsObject } 
 export class CreateChannelDto {
   @IsString()
   @IsNotEmpty()
-  public channelId: string;
-
-  @IsString()
-  @IsNotEmpty()
   public channelType: string;
 
   @IsString()

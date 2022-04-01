@@ -35,8 +35,7 @@ class ChannelController {
       const tempChannelId: string = tableId.tableIdFinalIssued;
       const channelData: CreateChannelDto = req.body;
       const currentUserPk = req.user.pk;
-      channelData.channelId = tempChannelId;
-      const createChannelData: Channel = await this.channelService.createChannel(channelData, currentUserPk);
+      const createChannelData: Channel = await this.channelService.createChannel(channelData, currentUserPk, tempChannelId);
       res.status(201).json({ data: createChannelData, message: 'created' });
     } catch (error) {
       next(error);

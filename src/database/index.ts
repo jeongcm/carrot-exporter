@@ -99,8 +99,8 @@ DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
 DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneePk', as: 'incidents' });
 DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneePk', as: 'assignee' });
 
-DB.PartyChannel.hasMany(DB.Channel, { foreignKey: 'channelKey' });
-DB.Channel.belongsTo(DB.PartyChannel, { foreignKey: 'channelKey'});
+DB.Channel.hasMany(DB.PartyChannel, { foreignKey: 'channelKey' });
+DB.PartyChannel.belongsTo(DB.Channel, { foreignKey: 'channelKey'});
 
 DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
 DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
