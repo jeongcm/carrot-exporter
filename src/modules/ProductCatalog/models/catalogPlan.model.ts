@@ -22,7 +22,7 @@ export class CatalogPlanModel extends Model<ICatalogPlan, CatalogPlanCreationAtt
     public catalogPlanDescription: string;
     public createdBy: string;
     public updatedBy: string;
-    public isDeleted: boolean;
+    public isDeleted: Date;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -52,9 +52,8 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
         type: DataTypes.STRING(500),
       },
       isDeleted: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+        allowNull: true,
+        type: DataTypes.DATE()
       },
       createdBy: {
         allowNull: false,

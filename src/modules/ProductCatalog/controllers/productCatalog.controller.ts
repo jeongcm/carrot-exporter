@@ -68,8 +68,14 @@ class ProductCatalogController {
 
   public createCatalogPlansProduct = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const productData: CreateCatalogPlanProductDto = req.body;
-      const newCatalogPlan: ICatalogPlanProduct = await this.productCatalogService.createCatalogPlanProduct(productData);
+      let productData: CreateCatalogPlanProductDto = req.body;
+      const catalogPlanDetails: ICatalogPlan = await this.productCatalogService.findCatalogPlan(productData.catalogPlanId);
+
+    if (!catalogPlanDetails) {
+      res.status(409).json({ message: "Catalog Plan  doesn't exist" });
+    
+    }
+      const newCatalogPlan: ICatalogPlanProduct = await this.productCatalogService.createCatalogPlanProduct(productData, catalogPlanDetails.catalogPlanKey);
       res.status(201).json({ data: newCatalogPlan, message: 'success' });
     } catch (error) {
       next(error);
@@ -79,7 +85,7 @@ class ProductCatalogController {
   public getCatalogProductPlanById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const catalogPlanProductId = req.params.catalogPlanProductId;
-      const planProduct: ICatalogPlanProduct = await this.productCatalogService.getCalogPlanProductById(catalogPlanProductId);
+      const planProduct: ICatalogPlanProduct = await this.productCatalogService.getCatalogPlanProductById(catalogPlanProductId);
       res.status(200).json({ data: planProduct, message: 'success' });
     } catch (error) {
       next(error);
@@ -107,7 +113,13 @@ class ProductCatalogController {
   public createPlanProductPricing = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const pricingData: CreateProductPricingDto = req.body;
-      const newPricingData: ICatalogPlanProductPrice = await this.productCatalogService.createProductPricing(pricingData);
+        const planProductDetails: ICatalogPlanProduct = await this.productCatalogService.getCatalogPlanProductById(pricingData.catalogPlanProductId);
+  
+      if (!planProductDetails) {
+        res.status(409).json({ message: "Catalog Plan Product  doesn't exist" });
+      
+      }
+      const newPricingData: ICatalogPlanProductPrice = await this.productCatalogService.createProductPricing(pricingData, planProductDetails.catalogPlanProductKey);
       res.status(201).json({ data: newPricingData, message: 'success' });
     } catch (error) {
       next(error);

@@ -26,7 +26,7 @@ export class MessageModel extends Model<IMessage, CreateMessageAttributes> imple
     public customerAccountKey: number;
     public messageVerbiage: string;
 
-    public isDeleted: boolean;
+    public isDeleted: Date;
     public createdBy: string;
     public updatedBy: string;
 
@@ -69,9 +69,8 @@ export default function (sequelize: Sequelize): typeof MessageModel {
                 type: DataTypes.STRING(5000),
             },
             isDeleted: {
-                allowNull: false,
-                type: DataTypes.BOOLEAN,
-                defaultValue: false
+                allowNull: true,
+                type: DataTypes.DATE
             },
             createdBy: {
                 allowNull: false,

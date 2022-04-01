@@ -17,7 +17,7 @@ class MessageServices {
    * @author shrishti
    */
   public async findMessages(): Promise<IMessage[]> {
-    const catalogPlans: IMessage[] = await this.messages.findAll({ where: { isDeleted: false } });
+    const catalogPlans: IMessage[] = await this.messages.findAll({ where: { isDeleted: null } });
     return catalogPlans;
   }
 
@@ -46,7 +46,7 @@ class MessageServices {
     const findMessageData: IMessage = await this.messages.findOne({
       where: {
         messageId: id,
-        isDeleted: 0,
+        isDeleted: null,
       }
     });
     if (!findMessageData) throw new HttpException(409, 'Message Not found');
