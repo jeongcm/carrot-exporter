@@ -26,7 +26,7 @@ export class PartyRelationModel extends Model<IPartyRelation, PartyRelationCreat
 
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public isDeleted: Date;
 
   public partyRelationType: 'AU' | 'AA';
   public partyRelationFrom: Date;
@@ -73,9 +73,7 @@ export default function (sequelize: Sequelize): typeof PartyRelationModel {
         type: DataTypes.DATE,
       },
       isDeleted: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+        type: DataTypes.DATE,
       },
       partyRelationType: {
         type: DataTypes.STRING(2),

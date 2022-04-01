@@ -26,7 +26,7 @@ export class CustomerAccountAddressModel
   public customerAccountAddressId: string;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public isDeleted: Date;
 
   public customerAccountKey: number;
   public addressKey: number;
@@ -66,9 +66,7 @@ export default function (sequelize: Sequelize): typeof CustomerAccountAddressMod
         type: DataTypes.DATE,
       },
       isDeleted: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+        type: DataTypes.DATE,
       },
       customerAccountKey: {
         type: DataTypes.INTEGER,

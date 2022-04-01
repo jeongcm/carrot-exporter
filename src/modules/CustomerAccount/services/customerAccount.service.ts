@@ -49,7 +49,7 @@ class CustomerAccountService {
 
   public async getCustomerAccounts(): Promise<ICustomerAccount[]> {
     const customerAccountsAll: ICustomerAccount[] = await this.customerAccount.findAll({
-      where: { isDeleted: false },
+      where: { isDeleted: null },
       attributes: { exclude: ['customerAccountKey', 'isDeleted'] },
     });
 
@@ -65,7 +65,7 @@ class CustomerAccountService {
           model: AddressModel,
           as: 'address',
           attributes: { exclude: ['addressKey', 'isDeleted'] },
-          through: { attributes: [], where: { isDeleted: false } },
+          through: { attributes: [], where: { isDeleted: null } },
         },
       ],
     });
@@ -116,7 +116,7 @@ class CustomerAccountService {
         });
 
         await this.customerAccountAdress.update(
-          { isDeleted: true, updatedBy: logginedUserId, customerAccountAddressTo: new Date() },
+          { isDeleted: new Date(), updatedBy: logginedUserId, customerAccountAddressTo: new Date() },
           { where: { customerAccountKey: customerAccount.customerAccountKey }, transaction: t },
         );
 
@@ -143,8 +143,8 @@ class CustomerAccountService {
     });
 
     const droppedCustomerAddress: [number, CustomerAccountAddressModel[]] = await this.customerAccountAdress.update(
-      { isDeleted: true, updatedBy: logginedUserId, customerAccountAddressTo: new Date() },
-      { where: { customerAccountKey: customerAccount.customerAccountKey, isDeleted: false } },
+      { isDeleted: new Date(), updatedBy: logginedUserId, customerAccountAddressTo: new Date() },
+      { where: { customerAccountKey: customerAccount.customerAccountKey, isDeleted: null } },
     );
 
     return droppedCustomerAddress;

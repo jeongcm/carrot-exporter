@@ -29,7 +29,7 @@ export class TableIdModel extends Model<ITableId, TableIdUpdateAttributes> imple
   public tableIdIssuedSequence: number;
   public tableIdFinalIssued: string;
 
-  public isDeleted: boolean;
+  public isDeleted: Date;
   public createdBy: string;
   public updatedBy: string;
 

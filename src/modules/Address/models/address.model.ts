@@ -24,7 +24,7 @@ export class AddressModel extends Model<IAddress, AddressCreationAttributes> imp
   public addressId: string;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public isDeleted: Date;
 
   public addr1: string;
   public addr2: string;
@@ -67,9 +67,7 @@ export default function (sequelize: Sequelize): typeof AddressModel {
         type: DataTypes.DATE,
       },
       isDeleted: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+        type: DataTypes.DATE,
       },
       addr1: {
         type: DataTypes.STRING(500),

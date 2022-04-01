@@ -31,7 +31,7 @@ export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttribute
 
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public isDeleted: Date;
 
   public firstName: string;
   public lastName: string;
@@ -81,9 +81,7 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
         type: DataTypes.DATE,
       },
       isDeleted: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+        type: DataTypes.DATE,
       },
       firstName: {
         type: DataTypes.STRING(50),

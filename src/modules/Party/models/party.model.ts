@@ -23,7 +23,7 @@ export class PartyModel extends Model<IParty, PartyCreationAttributes> implement
   public partyId: string;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public isDeleted: Date;
 
   public partyName: string;
   public partyDescription: string;
@@ -64,9 +64,7 @@ export default function (sequelize: Sequelize): typeof PartyModel {
         type: DataTypes.DATE,
       },
       isDeleted: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+        type: DataTypes.DATE,
       },
       partyName: {
         type: DataTypes.STRING(100),

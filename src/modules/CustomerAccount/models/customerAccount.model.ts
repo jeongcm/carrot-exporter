@@ -21,7 +21,7 @@ export class CustomerAccountModel extends Model<ICustomerAccount, CustomerAccoun
   public customerAccountId: string;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public isDeleted: Date;
 
   public customerAccountName: string;
   public customerAccountDescription: string;
@@ -61,9 +61,7 @@ export default function (sequelize: Sequelize): typeof CustomerAccountModel {
         type: DataTypes.DATE,
       },
       isDeleted: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+        type: DataTypes.DATE,
       },
       customerAccountName: {
         type: DataTypes.STRING(100),
