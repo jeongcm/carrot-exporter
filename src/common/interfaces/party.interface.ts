@@ -68,6 +68,18 @@ export interface IPartyUserResponse {
   isEmailValidated: boolean;
 }
 
+export interface IPartyResponse {
+  partyId: string;
+  partyName: string;
+  partyDescription: string;
+  partyType: 'AG' | 'US';
+  createdBy: string;
+  updatedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  parentPartyId: string;
+}
+
 export interface ITokenData {
   token: string;
   expiresIn: number;

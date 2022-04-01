@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsEmail } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEmail, IsArray } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -75,6 +75,27 @@ export class UpdateUserDto {
   @IsEmail()
   @IsNotEmpty()
   public email: string;
+}
+
+export class CreateAccessGroupDto {
+  @IsString()
+  @IsNotEmpty()
+  public partyName: string;
+
+  @IsString()
+  @IsOptional()
+  public partyDescription: string;
+
+  @IsString()
+  @IsOptional()
+  public parentPartyId: string;
+}
+
+export class AddUserAccessGroupDto {
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
+  public partyIds: string[];
 }
 
 export class LoginDto {
