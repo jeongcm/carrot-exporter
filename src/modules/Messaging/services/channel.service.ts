@@ -40,7 +40,7 @@ class ChannelService {
 
     const findChannel: Channel = await this.channels.findOne({
       where: { channelId, isDeleted: false },
-      attributes: { exclude: ['pk', 'isDeleted', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['channelId', 'isDeleted', 'updatedBy', 'createdBy'] },
     });
     if (!findChannel) throw new HttpException(409, 'Channel Not found');
 
@@ -61,7 +61,7 @@ class ChannelService {
     const newChannel = {
       channelId: channelData.channelId,
       channelName: channelData.channelName,
-      customerAccountId: currentUserPk.toLocaleString(),
+      customerAccountId: currentUserPk,
       channelType: <ChannelType>channelData.channelType,
       channelDescription:channelData.channelDescription,
       channelAdaptor: channelData.channelAdaptor,

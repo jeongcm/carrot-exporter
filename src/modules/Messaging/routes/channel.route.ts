@@ -18,6 +18,7 @@ class ChannelsRoute implements Routes {
     // this.router.get('/channels', this.channelController.getUserChannels);
     this.router.post('/channels', authMiddleware, validationMiddleware(CreateChannelDto, 'body'), this.channelController.createChannel);
     this.router.get('/channels', authMiddleware, this.channelController.getAllChannels);
+    this.router.get('/channels/:channelId',authMiddleware, this.channelController.getChannelById)
     this.router.put('/channels/:channelId', authMiddleware, validationMiddleware(UpdateChannelDto, 'body'), this.channelController.updateChannel);
   }
 }

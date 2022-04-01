@@ -97,16 +97,11 @@ definitions:
   createChannel:
     type: object
     required:
-      - channelId
       - channelName
       - channelDescription
       - channelType
       - channelAdaptor
     properties:
-      channelId:
-        type: string
-        description: channel channelId
-        example: '1234'
       channelDescription:
         type: string
         description: channel channelDescription

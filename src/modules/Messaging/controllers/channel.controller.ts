@@ -4,9 +4,10 @@ import { Channel } from '@/common/interfaces/channel.interface';
 import ChannelService from '@/modules/Messaging/services/channel.service';
 import { AccessGroupChannel } from '@/common/interfaces/accessGroupChannel.interface';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
-
+import tableIdService from '@/modules/CommonService/services/tableId.service';
 class ChannelController {
   public channelService = new ChannelService();
+  public tableIdService = new tableIdService();
 
   public getAllChannels = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
@@ -19,7 +20,7 @@ class ChannelController {
 
   public getChannelById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const channelId = req.params.id;
+      const channelId = req.params.channelId;
       const findOneUserData: Channel = await this.channelService.findChannelById(channelId);
       res.status(200).json({ data: findOneUserData, message: 'findOne' });
     } catch (error) {
@@ -29,9 +30,12 @@ class ChannelController {
 
   public createChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
+      const tableIdName: string = "channel";
+      const tableId = await this.tableIdService.getTableIdByTableName(tableIdName);
+      const tempChannelId: string = tableId.tableIdFinalIssued;
       const channelData: CreateChannelDto = req.body;
       const currentUserPk = req.user.pk;
-      channelData.channelAdaptor = JSON.stringify(channelData.channelAdaptor)
+      channelData.channelId = tempChannelId;
       const createChannelData: Channel = await this.channelService.createChannel(channelData, currentUserPk);
       res.status(201).json({ data: createChannelData, message: 'created' });
     } catch (error) {
@@ -44,7 +48,6 @@ class ChannelController {
       const channelId = req.params.channelId;
       const channelData = req.body;
       const currentUserPk = req.user.pk;
-      channelData.channelAdaptor = JSON.stringify(channelData.channelAdaptor)
       const updateChannelData: Channel = await this.channelService.updateChannel(channelId, channelData, currentUserPk);
       res.status(200).json({ data: updateChannelData, message: 'updated' });
     } catch (error) {

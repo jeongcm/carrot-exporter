@@ -41,7 +41,7 @@ export interface ISlackChannel {
 
 export interface Channel {
   channelKey: number;
-  customerAccountId: string;
+  customerAccountId: number;
   channelId: string;
   createdBy: string;
   updatedBy: string;
@@ -52,4 +52,19 @@ export interface Channel {
   channelDescription: string;
   channelType: string;
   channelAdaptor: string;
+}
+
+export interface PartyChannel {
+  partyChannelKey: number;
+  partyKey: number;
+  channelKey: number;
+  PartychannelId: string;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isDeleted: boolean;
+  partyChannelFrom: Date;
+  partyChannelTo: Date;
+  partyChannelDefault: boolean;
 }

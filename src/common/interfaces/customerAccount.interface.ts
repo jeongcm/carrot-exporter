@@ -2,7 +2,7 @@ import { IAddress } from './address.interface';
 
 export interface ICustomerAccount {
   customerAccountKey: number;
-  customerAccountId: string;
+  customerAccountId: number;
   createdBy: string;
   updatedBy: string;
   createdAt: Date;

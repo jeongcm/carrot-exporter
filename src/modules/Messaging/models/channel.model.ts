@@ -9,7 +9,7 @@ export type ChannelCreationAttributes = Optional<
 
 export class ChannelModel extends Model<Channel, ChannelCreationAttributes> implements Channel {
   public channelKey: number;
-  public customerAccountId: string;
+  public customerAccountId: number;
   public channelId: string;
   public createdBy: string;
   public updatedBy: string;
@@ -34,7 +34,7 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
       },
       customerAccountId: {
         allowNull: false,
-        type: DataTypes.STRING(16),
+        type: DataTypes.BIGINT,
       },
       channelId: {
         allowNull: false,
@@ -45,7 +45,7 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
         type: DataTypes.STRING(16),
       },
       updatedBy: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING(16),
       },
       isDeleted: {
@@ -66,10 +66,10 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
       },
       channelAdaptor: {
         allowNull: false,
-        type: DataTypes.STRING(),
+        type: DataTypes.JSON,
       },
       createdAt: {
-        allowNull: true,
+        allowNull: false,
         type: DataTypes.DATE,
       },
       updatedAt: {
