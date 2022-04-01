@@ -28,7 +28,7 @@ class CustomerAccountService {
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
 
     try {
-      const tableIdTableName = 'customerAccount';
+      const tableIdTableName = 'CustomerAccount';
       const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
 
       if (!tableId) {
@@ -99,7 +99,7 @@ class CustomerAccountService {
 
   public async addCustomerAddress(customerAccountId: string, newAddressKey: number, logginedUserId: string): Promise<ICustomerAccount> {
     try {
-      const tableIdTableName = 'customerAccountAddress';
+      const tableIdTableName = 'CustomerAccountAddress';
       const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
 
       if (!tableId) {

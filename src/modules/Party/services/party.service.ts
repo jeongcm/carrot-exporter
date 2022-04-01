@@ -67,7 +67,7 @@ class PartyService {
   }
 
   public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string): Promise<IPartyUserResponse> {
-    const tableIdTableName = 'partyUser';
+    const tableIdTableName = 'PartyUser';
     const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
     if (!tableId) {
       return;
@@ -150,7 +150,7 @@ class PartyService {
   public async createAccessGroup(customerAccountKey: number, logginedUserId: string, createData: CreateAccessGroupDto): Promise<IPartyResponse> {
     const { partyName, partyDescription, parentPartyId } = createData;
 
-    const tableIdTableName = 'party';
+    const tableIdTableName = 'Party';
     const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
     if (!tableId) {
       return;

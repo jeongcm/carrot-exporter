@@ -81,9 +81,8 @@ export default function (sequelize: Sequelize): typeof TableIdModel {
         type: DataTypes.STRING(16),
       },
       isDeleted: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+        allowNull: true,
+        type: DataTypes.DATE(),
       },
       createdBy: {
         allowNull: false,

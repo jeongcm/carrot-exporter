@@ -900,7 +900,7 @@
 <polygon fill="none" stroke="#000000" points=".5,-964.1438 .5,-986.1438 149.5,-986.1438 149.5,-964.1438 .5,-964.1438"/>
 <text text-anchor="start" x="5.5" y="-972.1438" font-family="Times,serif" font-size="10.00" fill="#000000">tableIdFinalIssued: STRING</text>
 <polygon fill="none" stroke="#000000" points=".5,-942.1438 .5,-964.1438 149.5,-964.1438 149.5,-942.1438 .5,-942.1438"/>
-<text text-anchor="start" x="5.5" y="-950.1438" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: BOOLEAN</text>
+<text text-anchor="start" x="5.5" y="-950.1438" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: DATE</text>
 <polygon fill="none" stroke="#000000" points=".5,-920.1438 .5,-942.1438 149.5,-942.1438 149.5,-920.1438 .5,-920.1438"/>
 <text text-anchor="start" x="5.5" y="-928.1438" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
 <polygon fill="none" stroke="#000000" points=".5,-898.1438 .5,-920.1438 149.5,-920.1438 149.5,-898.1438 .5,-898.1438"/>

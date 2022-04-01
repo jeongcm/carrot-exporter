@@ -34,15 +34,15 @@ class InitialRecordService {
           await this.tableId.bulkCreate(tableIds);
         }
 
-        const customerAccountTableId = await this.tableIdService.getTableIdByTableName('customerAccount');
-        const partyUserTableId = await this.tableIdService.getTableIdByTableName('partyUser');
+        const customerAccountTableId = await this.tableIdService.getTableIdByTableName('CustomerAccount');
+        const partyUserTableId = await this.tableIdService.getTableIdByTableName('PartyUser');
 
         if (!customerAccountTableId || !partyUserTableId) {
           return;
         }
 
-        const responseCustomerccountIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('customerAccount');
-        const responsePartyUserIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('partyUser');
+        const responseCustomerccountIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('CustomerAccount');
+        const responsePartyUserIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyUser');
 
         await this.customerAccount.findOrCreate({
           where: {
