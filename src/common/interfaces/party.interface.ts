@@ -7,7 +7,7 @@ export interface IParty {
   updatedBy: string;
   createdAt: Date;
   updatedAt: Date;
-  isDeleted: boolean;
+  deletedAt: Date;
   partyName: string;
   partyDescription: string;
   parentPartyId: string;
@@ -25,7 +25,7 @@ export interface IPartyRelation {
   updatedBy: string;
   createdAt: Date;
   updatedAt: Date;
-  isDeleted: boolean;
+  deletedAt: Date;
   partyRelationType: 'AU' | 'AA'; // "AU": AccessGroup-User,  "AA": AccessGroup-AccessGroup
   partyRelationFrom: Date;
   partyRelationTo: Date;
@@ -39,7 +39,7 @@ export interface IPartyUser {
   updatedBy: string;
   createdAt: Date;
   updatedAt: Date;
-  isDeleted: boolean;
+  deletedAt: Date;
   firstName: string;
   lastName: string;
   userId: string;

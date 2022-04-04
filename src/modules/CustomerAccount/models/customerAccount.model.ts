@@ -9,7 +9,7 @@ export type CustomerAccountCreationAttributes = Optional<
   | 'updatedBy'
   | 'createdAt'
   | 'updatedAt'
-  | 'isDeleted'
+  | 'deletedAt'
   | 'customerAccountName'
   | 'customerAccountDescription'
   | 'parentCustomerAccountId'
@@ -21,7 +21,7 @@ export class CustomerAccountModel extends Model<ICustomerAccount, CustomerAccoun
   public customerAccountId: string;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public deletedAt: Date;
 
   public customerAccountName: string;
   public customerAccountDescription: string;
@@ -60,10 +60,8 @@ export default function (sequelize: Sequelize): typeof CustomerAccountModel {
       updatedAt: {
         type: DataTypes.DATE,
       },
-      isDeleted: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+      deletedAt: {
+        type: DataTypes.DATE,
       },
       customerAccountName: {
         type: DataTypes.STRING(100),

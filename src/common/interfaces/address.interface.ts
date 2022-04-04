@@ -5,7 +5,7 @@ export interface IAddress {
   updatedBy: string;
   createdAt: Date;
   updatedAt: Date;
-  isDeleted: boolean;
+  deletedAt: Date;
   addr1: string;
   addr2: string;
   city: string;
