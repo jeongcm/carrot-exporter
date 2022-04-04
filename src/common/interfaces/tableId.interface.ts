@@ -4,7 +4,7 @@ export interface ITableId {
   updatedBy: string;
   createdAt: Date;
   updatedAt: Date;
-  isDeleted: Date;
+  deletedAt: Date;
   tableIdTableName: string;
   tableIdHeader: string;
   tableYear: number;

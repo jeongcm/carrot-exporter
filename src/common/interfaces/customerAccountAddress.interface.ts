@@ -5,7 +5,7 @@ export interface ICustomerAccountAddress {
   updatedBy: string;
   createdAt: Date;
   updatedAt: Date;
-  isDeleted: Date;
+  deletedAt: Date;
   customerAccountKey: number;
   addressKey: number;
   customerAccountAddressFrom: Date;

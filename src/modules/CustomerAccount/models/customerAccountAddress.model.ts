@@ -11,7 +11,7 @@ export type CustomerAccountAddressCreationAttributes = Optional<
   | 'updatedBy'
   | 'createdAt'
   | 'updatedAt'
-  | 'isDeleted'
+  | 'deletedAt'
   | 'customerAccountKey'
   | 'addressKey'
   | 'customerAccountAddressFrom'
@@ -26,7 +26,7 @@ export class CustomerAccountAddressModel
   public customerAccountAddressId: string;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: Date;
+  public deletedAt: Date;
 
   public customerAccountKey: number;
   public addressKey: number;
@@ -65,7 +65,7 @@ export default function (sequelize: Sequelize): typeof CustomerAccountAddressMod
       updatedAt: {
         type: DataTypes.DATE,
       },
-      isDeleted: {
+      deletedAt: {
         type: DataTypes.DATE,
       },
       customerAccountKey: {

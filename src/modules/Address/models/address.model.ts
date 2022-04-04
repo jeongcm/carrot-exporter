@@ -9,7 +9,7 @@ export type AddressCreationAttributes = Optional<
   | 'updatedBy'
   | 'createdAt'
   | 'updatedAt'
-  | 'isDeleted'
+  | 'deletedAt'
   | 'addr1'
   | 'addr2'
   | 'city'
@@ -24,7 +24,7 @@ export class AddressModel extends Model<IAddress, AddressCreationAttributes> imp
   public addressId: string;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: Date;
+  public deletedAt: Date;
 
   public addr1: string;
   public addr2: string;
@@ -66,7 +66,7 @@ export default function (sequelize: Sequelize): typeof AddressModel {
       updatedAt: {
         type: DataTypes.DATE,
       },
-      isDeleted: {
+      deletedAt: {
         type: DataTypes.DATE,
       },
       addr1: {

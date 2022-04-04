@@ -12,7 +12,7 @@ export type PartyRelationCreationAttributes = Optional<
   | 'updatedBy'
   | 'createdAt'
   | 'updatedAt'
-  | 'isDeleted'
+  | 'deletedAt'
   | 'partyRelationType'
   | 'partyRelationFrom'
   | 'partyRelationTo'
@@ -26,7 +26,7 @@ export class PartyRelationModel extends Model<IPartyRelation, PartyRelationCreat
 
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: Date;
+  public deletedAt: Date;
 
   public partyRelationType: 'AU' | 'AA';
   public partyRelationFrom: Date;
@@ -72,7 +72,7 @@ export default function (sequelize: Sequelize): typeof PartyRelationModel {
       updatedAt: {
         type: DataTypes.DATE,
       },
-      isDeleted: {
+      deletedAt: {
         type: DataTypes.DATE,
       },
       partyRelationType: {

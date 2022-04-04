@@ -782,7 +782,7 @@
 <polygon fill="none" stroke="#000000" points="1452.6455,-1951.4247 1452.6455,-1973.4247 1620.6455,-1973.4247 1620.6455,-1951.4247 1452.6455,-1951.4247"/>
 <text text-anchor="start" x="1457.6455" y="-1959.4247" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1452.6455,-1929.4247 1452.6455,-1951.4247 1620.6455,-1951.4247 1620.6455,-1929.4247 1452.6455,-1929.4247"/>
-<text text-anchor="start" x="1457.6455" y="-1937.4247" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: DATE</text>
+<text text-anchor="start" x="1457.6455" y="-1937.4247" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1452.6455,-1907.4247 1452.6455,-1929.4247 1620.6455,-1929.4247 1620.6455,-1907.4247 1452.6455,-1907.4247"/>
 <text text-anchor="start" x="1457.6455" y="-1915.4247" font-family="Times,serif" font-size="10.00" fill="#000000">customerAccountName: STRING</text>
 <polygon fill="none" stroke="#000000" points="1452.6455,-1885.4247 1452.6455,-1907.4247 1620.6455,-1907.4247 1620.6455,-1885.4247 1452.6455,-1885.4247"/>
@@ -812,7 +812,7 @@
 <polygon fill="none" stroke="#000000" points="1566.4006,-2223.4697 1566.4006,-2245.4697 1744.4006,-2245.4697 1744.4006,-2223.4697 1566.4006,-2223.4697"/>
 <text text-anchor="start" x="1571.4006" y="-2231.4697" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1566.4006,-2201.4697 1566.4006,-2223.4697 1744.4006,-2223.4697 1744.4006,-2201.4697 1566.4006,-2201.4697"/>
-<text text-anchor="start" x="1571.4006" y="-2209.4697" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: DATE</text>
+<text text-anchor="start" x="1571.4006" y="-2209.4697" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1566.4006,-2179.4697 1566.4006,-2201.4697 1744.4006,-2201.4697 1744.4006,-2179.4697 1566.4006,-2179.4697"/>
 <text text-anchor="start" x="1571.4006" y="-2188.4697" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">customerAccountKey</text>
 <text text-anchor="start" x="1658.5886" y="-2188.4697" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
@@ -851,7 +851,7 @@
 <polygon fill="none" stroke="#000000" points="1454.9137,-2544.5797 1454.9137,-2566.5797 1559.9137,-2566.5797 1559.9137,-2544.5797 1454.9137,-2544.5797"/>
 <text text-anchor="start" x="1459.9137" y="-2552.5797" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1454.9137,-2522.5797 1454.9137,-2544.5797 1559.9137,-2544.5797 1559.9137,-2522.5797 1454.9137,-2522.5797"/>
-<text text-anchor="start" x="1459.9137" y="-2530.5797" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: DATE</text>
+<text text-anchor="start" x="1459.9137" y="-2530.5797" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1454.9137,-2500.5797 1454.9137,-2522.5797 1559.9137,-2522.5797 1559.9137,-2500.5797 1454.9137,-2500.5797"/>
 <text text-anchor="start" x="1459.9137" y="-2508.5797" font-family="Times,serif" font-size="10.00" fill="#000000">addr1: STRING</text>
 <polygon fill="none" stroke="#000000" points="1454.9137,-2478.5797 1454.9137,-2500.5797 1559.9137,-2500.5797 1559.9137,-2478.5797 1454.9137,-2478.5797"/>
@@ -900,7 +900,7 @@
 <polygon fill="none" stroke="#000000" points=".5,-964.1438 .5,-986.1438 149.5,-986.1438 149.5,-964.1438 .5,-964.1438"/>
 <text text-anchor="start" x="5.5" y="-972.1438" font-family="Times,serif" font-size="10.00" fill="#000000">tableIdFinalIssued: STRING</text>
 <polygon fill="none" stroke="#000000" points=".5,-942.1438 .5,-964.1438 149.5,-964.1438 149.5,-942.1438 .5,-942.1438"/>
-<text text-anchor="start" x="5.5" y="-950.1438" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: DATE</text>
+<text text-anchor="start" x="5.5" y="-950.1438" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points=".5,-920.1438 .5,-942.1438 149.5,-942.1438 149.5,-920.1438 .5,-920.1438"/>
 <text text-anchor="start" x="5.5" y="-928.1438" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
 <polygon fill="none" stroke="#000000" points=".5,-898.1438 .5,-920.1438 149.5,-920.1438 149.5,-898.1438 .5,-898.1438"/>
@@ -958,7 +958,7 @@
 <polygon fill="none" stroke="#000000" points="1121.8855,-1672.3298 1121.8855,-1694.3298 1266.8855,-1694.3298 1266.8855,-1672.3298 1121.8855,-1672.3298"/>
 <text text-anchor="start" x="1126.8855" y="-1680.3298" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1121.8855,-1650.3298 1121.8855,-1672.3298 1266.8855,-1672.3298 1266.8855,-1650.3298 1121.8855,-1650.3298"/>
-<text text-anchor="start" x="1126.8855" y="-1658.3298" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: DATE</text>
+<text text-anchor="start" x="1126.8855" y="-1658.3298" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1121.8855,-1628.3298 1121.8855,-1650.3298 1266.8855,-1650.3298 1266.8855,-1628.3298 1121.8855,-1628.3298"/>
 <text text-anchor="start" x="1126.8855" y="-1636.3298" font-family="Times,serif" font-size="10.00" fill="#000000">partyName: STRING</text>
 <polygon fill="none" stroke="#000000" points="1121.8855,-1606.3298 1121.8855,-1628.3298 1266.8855,-1628.3298 1266.8855,-1606.3298 1121.8855,-1606.3298"/>
@@ -1004,7 +1004,7 @@
 <polygon fill="none" stroke="#000000" points="1098.9163,-2243.8723 1098.9163,-2265.8723 1227.9163,-2265.8723 1227.9163,-2243.8723 1098.9163,-2243.8723"/>
 <text text-anchor="start" x="1103.9163" y="-2251.8723" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1098.9163,-2221.8723 1098.9163,-2243.8723 1227.9163,-2243.8723 1227.9163,-2221.8723 1098.9163,-2221.8723"/>
-<text text-anchor="start" x="1103.9163" y="-2229.8723" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: DATE</text>
+<text text-anchor="start" x="1103.9163" y="-2229.8723" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1098.9163,-2199.8723 1098.9163,-2221.8723 1227.9163,-2221.8723 1227.9163,-2199.8723 1098.9163,-2199.8723"/>
 <text text-anchor="start" x="1103.9163" y="-2207.8723" font-family="Times,serif" font-size="10.00" fill="#000000">partyRelationType: STRING</text>
 <polygon fill="none" stroke="#000000" points="1098.9163,-2177.8723 1098.9163,-2199.8723 1227.9163,-2199.8723 1227.9163,-2177.8723 1098.9163,-2177.8723"/>
@@ -1042,7 +1042,7 @@
 <polygon fill="none" stroke="#000000" points="1553.9729,-1645.1212 1553.9729,-1667.1212 1685.9729,-1667.1212 1685.9729,-1645.1212 1553.9729,-1645.1212"/>
 <text text-anchor="start" x="1558.9729" y="-1653.1212" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1553.9729,-1623.1212 1553.9729,-1645.1212 1685.9729,-1645.1212 1685.9729,-1623.1212 1553.9729,-1623.1212"/>
-<text text-anchor="start" x="1558.9729" y="-1631.1212" font-family="Times,serif" font-size="10.00" fill="#000000">isDeleted: DATE</text>
+<text text-anchor="start" x="1558.9729" y="-1631.1212" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
 <polygon fill="none" stroke="#000000" points="1553.9729,-1601.1212 1553.9729,-1623.1212 1685.9729,-1623.1212 1685.9729,-1601.1212 1553.9729,-1601.1212"/>
 <text text-anchor="start" x="1558.9729" y="-1609.1212" font-family="Times,serif" font-size="10.00" fill="#000000">firstName: STRING</text>
 <polygon fill="none" stroke="#000000" points="1553.9729,-1579.1212 1553.9729,-1601.1212 1685.9729,-1601.1212 1685.9729,-1579.1212 1553.9729,-1579.1212"/>

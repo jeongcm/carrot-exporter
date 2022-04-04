@@ -10,7 +10,7 @@ export type PartyCreationAttributes = Optional<
   | 'updatedBy'
   | 'createdAt'
   | 'updatedAt'
-  | 'isDeleted'
+  | 'deletedAt'
   | 'partyName'
   | 'partyDescription'
   | 'parentPartyId'
@@ -23,7 +23,7 @@ export class PartyModel extends Model<IParty, PartyCreationAttributes> implement
   public partyId: string;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: Date;
+  public deletedAt: Date;
 
   public partyName: string;
   public partyDescription: string;
@@ -63,7 +63,7 @@ export default function (sequelize: Sequelize): typeof PartyModel {
       updatedAt: {
         type: DataTypes.DATE,
       },
-      isDeleted: {
+      deletedAt: {
         type: DataTypes.DATE,
       },
       partyName: {

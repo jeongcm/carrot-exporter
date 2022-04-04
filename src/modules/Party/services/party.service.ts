@@ -38,12 +38,12 @@ class PartyService {
 
   public async getUsers(customerAccountKey: number): Promise<IParty[]> {
     const users: any = await this.party.findAll({
-      where: { customerAccountKey, partyType: 'US', isDeleted: null },
-      attributes: { exclude: ['partyKey', 'isDeleted', 'isDeleted', 'customerAccountKey'] },
+      where: { customerAccountKey, partyType: 'US', deletedAt: null },
+      attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey'] },
       include: [
         {
           model: PartyUserModel,
-          attributes: { exclude: ['partyUserKey', 'partyKey', 'isDeleted', 'password'] },
+          attributes: { exclude: ['partyUserKey', 'partyKey', 'deletedAt', 'password'] },
         },
       ],
     });
@@ -53,12 +53,12 @@ class PartyService {
 
   public async getUser(customerAccountKey: number, partyUserId: string): Promise<IParty> {
     const users: any = await this.party.findOne({
-      where: { customerAccountKey, partyId: partyUserId, isDeleted: null },
-      attributes: { exclude: ['partyKey', 'isDeleted', 'isDeleted', 'customerAccountKey'] },
+      where: { customerAccountKey, partyId: partyUserId, deletedAt: null },
+      attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey'] },
       include: [
         {
           model: PartyUserModel,
-          attributes: { exclude: ['partyUserKey', 'partyKey', 'isDeleted', 'password'] },
+          attributes: { exclude: ['partyUserKey', 'partyKey', 'deletedAt', 'password'] },
         },
       ],
     });
@@ -187,8 +187,8 @@ class PartyService {
 
   public async getAccessGroups(customerAccountKey: number): Promise<IParty[]> {
     const accessGroups: IParty[] = await this.party.findAll({
-      where: { customerAccountKey, partyType: 'AG', isDeleted: null },
-      attributes: { exclude: ['partyKey', 'isDeleted', 'isDeleted', 'customerAccountKey'] },
+      where: { customerAccountKey, partyType: 'AG', deletedAt: null },
+      attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey'] },
     });
 
     return accessGroups;
@@ -196,8 +196,8 @@ class PartyService {
 
   public async getAccessGroup(customerAccountKey: number, partyId: string): Promise<IParty> {
     const accessGroup: IParty = await this.party.findOne({
-      where: { customerAccountKey, partyId, isDeleted: null },
-      attributes: { exclude: ['partyKey', 'isDeleted', 'isDeleted', 'customerAccountKey'] },
+      where: { customerAccountKey, partyId, deletedAt: null },
+      attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey'] },
     });
 
     return accessGroup;
@@ -275,8 +275,8 @@ class PartyService {
     });
 
     const partyRelations = await this.partyRelation.findAll({
-      where: { partyParentKey: partyParent.partyKey, isDeleted: null },
-      attributes: { exclude: ['partyRelationKey', 'isDeleted', 'partyParentKey', 'partyChildKey'] },
+      where: { partyParentKey: partyParent.partyKey, deletedAt: null },
+      attributes: { exclude: ['partyRelationKey', 'deletedAt', 'partyParentKey', 'partyChildKey'] },
       include: {
         model: PartyModel,
         attributes: ['partyId', 'partyName', 'partyDescription', 'partyType'],
@@ -314,7 +314,7 @@ class PartyService {
     const partyChildKeyList = partyChildAll.map(party => party.partyKey);
 
     await this.partyRelation.update(
-      { isDeleted: new Date() },
+      { deletedAt: new Date() },
       {
         where: {
           partyParentKey,
