@@ -88,8 +88,6 @@ export class CreateCatalogPlanProductDto {
     @IsNotEmpty()
     public catalogPlanProductId: string;
     
-  
-
     @IsString()
     @IsOptional()
     public catalogPlanProductPricingId: string;

@@ -10,7 +10,7 @@ export type CatalogPlanProductCreationAttributes = Optional<
     |'updatedAt'
     |'createdBy'
     |'updatedBy'
-    |'isDeleted'
+    |'deletedAt'
     |'catalogPlanProductName'
     |'catalogPlanProductDescription'
     |'catalogPlanProductMonthlyPrice'
@@ -27,7 +27,7 @@ export class CatalogPlanProductModel extends Model<ICatalogPlanProduct, CatalogP
     public catalogPlanProductMonthlyPrice:number
     public catalogPlanProductUOM:string
     public catalogPlanProductCurrency:string
-    public isDeleted: Date;
+    public deletedAt: Date;
     public createdBy: string;
     public updatedBy: string;
 
@@ -92,7 +92,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
                 allowNull: true,
                 type: DataTypes.DATE(),
             },
-            isDeleted: {
+            deletedAt: {
                 allowNull: true,
                 type: DataTypes.DATE()
             },

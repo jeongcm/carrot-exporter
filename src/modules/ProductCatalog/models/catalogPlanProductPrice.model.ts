@@ -21,7 +21,7 @@ export class CatalogPlanProductPriceModel extends Model<ICatalogPlanProductPrice
     public catalogPlanProductMonthlyPriceTo:Date;
     public catalogPlanProductMonthlyPrice:number
     public catalogPlanProductPriceKey :number
-    public isDeleted: Date;
+    public deletedAt: Date;
     public createdBy: string;
     public updatedBy: string;
 
@@ -80,7 +80,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
         type: DataTypes.DATE(),
         defaultValue:new Date()
       },
-      isDeleted: {
+      deletedAt: {
         allowNull: true,
         type: DataTypes.DATE()
       },

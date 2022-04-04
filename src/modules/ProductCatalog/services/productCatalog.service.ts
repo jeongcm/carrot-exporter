@@ -21,7 +21,7 @@ class ProductCatlogService {
    * @returns 
    */
   public async findAllCatalogPlans(): Promise<ICatalogPlan[]> {
-    const catalogPlans: ICatalogPlan[] = await this.catalogPlan.findAll({ where: { isDeleted: null } });
+    const catalogPlans: ICatalogPlan[] = await this.catalogPlan.findAll({ where: { deletedAt: null } });
     return catalogPlans;
   }
 
@@ -49,7 +49,7 @@ class ProductCatlogService {
     const findCatalogPlan: ICatalogPlan = await this.catalogPlan.findOne({
       where: {
         catalogPlanId: id,
-        isDeleted: null,
+        deletedAt: null,
       }
     });
     if (!findCatalogPlan) throw new HttpException(409, 'Catalog Plan Not found');
@@ -94,7 +94,7 @@ class ProductCatlogService {
         {
           catalogPlanKey
         }
-        , attributes: { exclude: ['catalogPlanProductKey', 'isDeleted'] }
+        , attributes: { exclude: ['catalogPlanProductKey', 'deletedAt'] }
       });
     return catalogPlanProducts;
   }
@@ -154,7 +154,7 @@ class ProductCatlogService {
   public async updateCatalagPlanProduct(productId: string, productData: ICatalogPlanProduct): Promise<ICatalogPlanProduct> {
     if (isEmpty(productData)) throw new HttpException(400, 'Access Group Data cannot be blank');
 
-    const planProductData: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({ where: { catalogPlanProductId: productId, isDeleted: false } });
+    const planProductData: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({ where: { catalogPlanProductId: productId, deletedAt: false } });
 
     if (!planProductData) throw new HttpException(409, "Access Group doesn't exist");
     const updatedPlanProduct = {
