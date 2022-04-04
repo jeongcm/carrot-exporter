@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional, IsJSON, IsObject } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional, IsJSON, IsObject, IsDate } from 'class-validator';
 
 export class CreateChannelDto {
   @IsString()
@@ -16,11 +16,9 @@ export class CreateChannelDto {
   @IsObject()
   public channelAdaptor: JSON;
 
-  @IsString()
-  @IsOptional()
   public createdAt: Date;
 
-  @IsString()
+  @IsDate()
   @IsOptional()
   public updatedAt: Date;
 
