@@ -14,7 +14,7 @@ export class CreateChannelDto {
   public channelDescription: string;
 
   @IsObject()
-  public channelAdaptor: any;
+  public channelAdaptor: JSON;
 
   @IsString()
   @IsOptional()
