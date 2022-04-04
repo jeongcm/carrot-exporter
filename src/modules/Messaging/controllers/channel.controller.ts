@@ -30,7 +30,7 @@ class ChannelController {
 
   public createChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const tableIdName: string = "channel";
+      const tableIdName: string = "Channel";
       const tableId = await this.tableIdService.getTableIdByTableName(tableIdName);
       const tempChannelId: string = tableId.tableIdFinalIssued;
       const channelData: CreateChannelDto = req.body;
