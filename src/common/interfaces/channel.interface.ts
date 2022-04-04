@@ -51,6 +51,6 @@ export interface Channel {
   channelName: string;
   channelDescription: string;
   channelType: string;
-  channelAdaptor: string;
+  channelAdaptor: JSON;
 }
 

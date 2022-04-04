@@ -1,10 +1,10 @@
-import { NextFunction, Response } from 'express';
-import { CreateChannelDto } from '@/modules/Messaging/dtos/channel.dto';
-import { Channel } from '@/common/interfaces/channel.interface';
-import ChannelService from '@/modules/Messaging/services/channel.service';
-import { AccessGroupChannel } from '@/common/interfaces/accessGroupChannel.interface';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
+import { Channel } from '@/common/interfaces/channel.interface';
+import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
+import { CreateChannelDto } from '@/modules/Messaging/dtos/channel.dto';
+import ChannelService from '@/modules/Messaging/services/channel.service';
+import { NextFunction, Response } from 'express';
 class ChannelController {
   public channelService = new ChannelService();
   public tableIdService = new tableIdService();
@@ -31,8 +31,8 @@ class ChannelController {
   public createChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const tableIdName: string = "Channel";
-      const tableId = await this.tableIdService.getTableIdByTableName(tableIdName);
-      const tempChannelId: string = tableId.tableIdFinalIssued;
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
+      const tempChannelId: string = responseTableIdData.tableIdFinalIssued;
       const channelData: CreateChannelDto = req.body;
       const currentUserPk = req.user.pk;
       const createChannelData: Channel = await this.channelService.createChannel(channelData, currentUserPk, tempChannelId);

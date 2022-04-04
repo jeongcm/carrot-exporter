@@ -85,6 +85,7 @@ class ChannelService {
       channelType: <ChannelType>channelData.channelType,
       updatedBy: currentUserPk.toLocaleString(),
       updatedAt: new Date(),
+      createdBy: currentUserPk.toLocaleString()
     };
     await this.channels.update(updatedChannelData, { where: { channelId: Id } });
 

@@ -17,7 +17,7 @@ export class ChannelModel extends Model<Channel, ChannelCreationAttributes> impl
   public channelName: string;
   public channelDescription: string;
   public channelType: ChannelType;
-  public channelAdaptor: string;
+  public channelAdaptor: JSON;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -78,10 +78,17 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
       },
     },
     {
+      indexes: [
+        {
+            name: 'channel_id_index',
+            unique: true,
+            fields: ['channel_id']
+        }
+              ],
       tableName: 'Channel',
       modelName: 'Channel',
       sequelize,
-    },
+    }
   );
 
   return ChannelModel;
