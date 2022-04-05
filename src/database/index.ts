@@ -25,6 +25,8 @@ import CommonCodeModel from '@/modules/CommonCode/models/commonCode.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import AddressModel from '@/modules/Address/models/address.model';
+import ApiModel from '@/modules/Api/models/api.models';
+
 import MessageModel from '@/modules/Messaging/models/message.model';
 import PartyModel from '@/modules/Party/models/party.model';
 import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
@@ -91,6 +93,7 @@ const DB = {
   CustomerAccount: CustomerAccountModel(sequelize),
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
+  Api: ApiModel(sequelize),
   PartyChannel : PartyChannelModel(sequelize),
   tableId: tableIdModel(sequelize),
   Messages: MessageModel(sequelize),
