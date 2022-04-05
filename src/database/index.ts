@@ -27,6 +27,7 @@ import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/custom
 import AddressModel from '@/modules/Address/models/address.model';
 import MessageModel from '@/modules/Messaging/models/message.model';
 import PartyModel from '@/modules/Party/models/party.model';
+import ResourceModel from '@/modules/Resources/models/resource.model';
 import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
@@ -93,6 +94,7 @@ const DB = {
   tableId: tableIdModel(sequelize),
   Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
+  Resource: ResourceModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
   sequelize, // connection instance (RAW queries)
