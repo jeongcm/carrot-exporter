@@ -90,91 +90,55 @@ paths:
           description: 'Conflict'
         500:
           description: 'Server Error'
-    # [DELETE] channels/id
-    delete:
-      tags:
-        - channel
-      summary: Delete Channel By Id
-      parameters:
-        - name: id
-          in: path
-          description: Channel Id
-          required: true
-          type: string
-      responses:
-        200:
-          description: 'deleted'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'
-  # [GET] /channels/id/accessgroup
-  /channels/{id}/accessgroup:
-    get:
-      tags:
-        - channel
-      summary: List AccessGroup Through Channel
-      parameters:
-        - name: id
-          in: path
-          description: Channel Id
-          required: true
-          type: string
-      responses:
-        200:
-          description: 'OK'
-        409:
-          description: 'Conflict'
-        500:
-          description: 'Server Error'     
+       
 
 # definitions
 definitions:
   createChannel:
     type: object
     required:
+      - channelName
+      - channelDescription
       - channelType
-      - name
-      - description
-      - configJSON
+      - channelAdaptor
     properties:
+      channelDescription:
+        type: string
+        description: channel channelDescription
+        example: example
       channelType:
         type: string
         description: channel channelType
-        example: example
-      name:
+        example: EMAIL
+      channelName:
         type: string
-        description: channel name
+        description: channel channelName
         example: example
-      description:
-        type: string
-        description: channel description
-        example: example
-      configJSON:
-        type: string
-        description: channel configJSON
-        example: example
+      channelAdaptor:
+        type: json
+        description: channel descrichannelAdaptorption
+        example: {"key":"value"}
   updateChannel:
     type: object
     required:
+      - channelName
+      - channelDescription
       - channelType
-      - name
-      - description
-      - configJSON
+      - channelAdaptor
     properties:
+      channelDescription:
+        type: string
+        description: channel channelDescription
+        example: example edit
       channelType:
         type: string
         description: channel channelType
-        example: example edit
-      name:
+        example: EMAIL
+      channelName:
         type: string
-        description: channel name
+        description: channel channelName
         example: example edit
-      description:
-        type: string
-        description: channel description
-        example: example edit
-      configJSON:
-        type: string
-        description: channel configJSON
-        example: example edit
+      channelAdaptor:
+        type: json
+        description: channel descrichannelAdaptorption
+        example: {"key":"value"}

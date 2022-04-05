@@ -1,6 +1,6 @@
 export type Platform = 'AWS' | 'baremetal' | 'kubernetes';
 
-export type ChannelType = 'EMAIL' | 'SLACK' | 'WEBHOOK';
+export type ChannelType = 'EMAIL' | 'SLACK' | 'WEBHOOK' | 'PAGEDUTY' | 'SMPT';
 
 export type LogType = 'INDEPENDENT' | 'CHAINED';
 
