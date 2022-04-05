@@ -13,7 +13,7 @@ export class CreateCatalogPlanDto {
 
   @IsString()
   @IsNotEmpty()
-  public catalogPlanDescription : string;S
+  public catalogPlanDescription : string;
 
 }
 
