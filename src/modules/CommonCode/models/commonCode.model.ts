@@ -3,7 +3,7 @@ import { ICommonCode } from '@/common/interfaces/commonCode.interface';
 
 export type CommonCodeCreationAttributes = Optional<
   ICommonCode,
-  'commonCodeKey' | 'commonCodeId' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'isDeleted' | 'commonCodeDescription' | 'commonCodeDisplayENG' | 'commonCodeDisplayKOR'
+  'commonCodeKey' | 'commonCodeId' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'commonCodeDescription' | 'commonCodeDisplayENG' | 'commonCodeDisplayKOR'
 >;
 
 export class CommonCodeModel extends Model<ICommonCode, CommonCodeCreationAttributes> implements ICommonCode {
@@ -11,19 +11,20 @@ export class CommonCodeModel extends Model<ICommonCode, CommonCodeCreationAttrib
   public commonCodeId: string;
   public createdBy: string;
   public updatedBy: string;
-  public createdAt: Date;
-  public updatedAt: Date;
-  public isDeleted: boolean;
+  public deletedAt: Date;
   public commonCodeDescription: string;
   public commonCodeDisplayENG: string;
   public commonCodeDisplayKOR: string;
+
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof CommonCodeModel {
   CommonCodeModel.init(
     {
       commonCodeKey: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
@@ -47,18 +48,19 @@ export default function (sequelize: Sequelize): typeof CommonCodeModel {
       updatedAt: {
         type: DataTypes.DATE,
       },
-      isDeleted: {
-        allowNull: false,
-        defaultValue: false,
-        type: DataTypes.BOOLEAN,
+      deletedAt: {
+        type: DataTypes.DATE,
       },
       commonCodeDescription: {
+        allowNull: false,
         type: DataTypes.STRING(500),
       },
       commonCodeDisplayENG: {
+        allowNull: false,
         type: DataTypes.STRING(100),
       },
       commonCodeDisplayKOR: {
+        allowNull: false,
         type: DataTypes.STRING(100),
       },
     },

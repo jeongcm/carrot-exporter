@@ -28,7 +28,7 @@ class CustomerAccountService {
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
 
     try {
-      const tableIdTableName = 'customerAccount';
+      const tableIdTableName = 'CustomerAccount';
       const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
 
       if (!tableId) {
@@ -49,8 +49,8 @@ class CustomerAccountService {
 
   public async getCustomerAccounts(): Promise<ICustomerAccount[]> {
     const customerAccountsAll: ICustomerAccount[] = await this.customerAccount.findAll({
-      where: { isDeleted: false },
-      attributes: { exclude: ['customerAccountKey', 'isDeleted'] },
+      where: { deletedAt: null },
+      attributes: { exclude: ['customerAccountKey', 'deletedAt'] },
     });
 
     return customerAccountsAll;
@@ -59,13 +59,13 @@ class CustomerAccountService {
   public async getCustomerAccountById(customerAccountId: string): Promise<ICustomerAccount> {
     const customerAccount: ICustomerAccount = await this.customerAccount.findOne({
       where: { customerAccountId },
-      attributes: { exclude: ['customerAccountKey', 'isDeleted'] },
+      attributes: { exclude: ['customerAccountKey', 'deletedAt'] },
       include: [
         {
           model: AddressModel,
           as: 'address',
-          attributes: { exclude: ['addressKey', 'isDeleted'] },
-          through: { attributes: [], where: { isDeleted: false } },
+          attributes: { exclude: ['addressKey', 'deletedAt'] },
+          through: { attributes: [], where: { deletedAt: null } },
         },
       ],
     });
@@ -99,7 +99,7 @@ class CustomerAccountService {
 
   public async addCustomerAddress(customerAccountId: string, newAddressKey: number, logginedUserId: string): Promise<ICustomerAccount> {
     try {
-      const tableIdTableName = 'customerAccountAddress';
+      const tableIdTableName = 'CustomerAccountAddress';
       const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
 
       if (!tableId) {
@@ -116,7 +116,7 @@ class CustomerAccountService {
         });
 
         await this.customerAccountAdress.update(
-          { isDeleted: true, updatedBy: logginedUserId, customerAccountAddressTo: new Date() },
+          { deletedAt: new Date(), updatedBy: logginedUserId, customerAccountAddressTo: new Date() },
           { where: { customerAccountKey: customerAccount.customerAccountKey }, transaction: t },
         );
 
@@ -143,8 +143,8 @@ class CustomerAccountService {
     });
 
     const droppedCustomerAddress: [number, CustomerAccountAddressModel[]] = await this.customerAccountAdress.update(
-      { isDeleted: true, updatedBy: logginedUserId, customerAccountAddressTo: new Date() },
-      { where: { customerAccountKey: customerAccount.customerAccountKey, isDeleted: false } },
+      { deletedAt: new Date(), updatedBy: logginedUserId, customerAccountAddressTo: new Date() },
+      { where: { customerAccountKey: customerAccount.customerAccountKey, deletedAt: null } },
     );
 
     return droppedCustomerAddress;

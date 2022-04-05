@@ -5,8 +5,15 @@ import { NextFunction, Response } from 'express';
 import PartyService from '@/modules/Party/services/party.service';
 
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
-import { IParty, IPartyRelation, IPartyUser, IPartyUserResponse, IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
-import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
+import {
+  IParty,
+  IPartyRelation,
+  IPartyResponse,
+  IPartyUserResponse,
+  IRequestWithSystem,
+  IRequestWithUser,
+} from '@/common/interfaces/party.interface';
+import { CreateUserDto, UpdateUserDto, CreateAccessGroupDto, AddUserAccessGroupDto, LoginDto } from '@/modules/Party/dtos/party.dto';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 
@@ -61,7 +68,7 @@ class PartyController {
 
   public updateUser = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
-    const logginedUser = req.user;
+    const logginedUserId = req.user.partyId;
 
     const updateUserData: UpdateUserDto = req.body;
     const updateUserId: string = req.params.partyUserId;
@@ -73,9 +80,140 @@ class PartyController {
     }
 
     try {
-      const updatedUser: IParty = await this.partyService.updateUser(updateUserData, updateUserId, customerAccountKey, logginedUser);
+      const updatedUser: IParty = await this.partyService.updateUser(customerAccountKey, logginedUserId, updateUserId, updateUserData);
 
       res.status(201).json({ data: updatedUser, message: 'updated' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public createAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const logginedUserId = req.user.partyId;
+
+    const createData: CreateAccessGroupDto = req.body;
+
+    try {
+      const createdAccessGroup: IPartyResponse = await this.partyService.createAccessGroup(customerAccountKey, logginedUserId, createData);
+
+      res.status(201).json({ data: createdAccessGroup, message: 'created' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAccessGroups = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+
+    try {
+      const accessGroups: IParty[] = await this.partyService.getAccessGroups(customerAccountKey);
+
+      res.status(200).json({ data: accessGroups, message: 'success' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const partyId = req.params.partyId;
+
+    try {
+      const accessGroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyId);
+
+      res.status(200).json({ data: accessGroup, message: 'success' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public updateAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const logginedUserId = req.user.partyId;
+
+    const updateData: UpdateUserDto = req.body;
+    const updatePartyId: string = req.params.partyId;
+
+    const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, updatePartyId);
+
+    if (!accessgroup) {
+      res.status(409).json({ message: `AccessGroup (id: ${updatePartyId})  doesn't exist` });
+    }
+
+    try {
+      const updatedAccessgroup: IParty = await this.partyService.updateAccessGroup(customerAccountKey, logginedUserId, updatePartyId, updateData);
+
+      res.status(200).json({ data: updatedAccessgroup, message: 'updated' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public addUserToAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const logginedUserId = req.user.partyId;
+
+    const partyParentId: string = req.params.partyId;
+    const addingPartyChildData: AddUserAccessGroupDto = req.body;
+
+    const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyParentId);
+
+    if (!accessgroup) {
+      res.status(409).json({ message: `AccessGroup (id: ${partyParentId})  doesn't exist` });
+    }
+
+    try {
+      const addUserToAccessGroup: IParty = await this.partyService.addUserToAccessGroup(
+        customerAccountKey,
+        logginedUserId,
+        partyParentId,
+        addingPartyChildData,
+      );
+
+      res.status(200).json({ data: addUserToAccessGroup, message: 'success' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getUserOfAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+
+    const partyParentId: string = req.params.partyId;
+
+    const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyParentId);
+
+    if (!accessgroup) {
+      res.status(409).json({ message: `AccessGroup (id: ${partyParentId})  doesn't exist` });
+    }
+
+    try {
+      const UserOfAccessGroup: IPartyRelation[] = await this.partyService.getUserOfAccessGroup(partyParentId);
+
+      res.status(200).json({ data: UserOfAccessGroup, message: 'success' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public removeUserFromAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const logginedUserId = req.user.partyId;
+
+    const partyParentId: string = req.params.partyId;
+    const removingPartyChildData: AddUserAccessGroupDto = req.body;
+
+    const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyParentId);
+
+    if (!accessgroup) {
+      res.status(409).json({ message: `AccessGroup (id: ${partyParentId})  doesn't exist` });
+    }
+
+    try {
+      await this.partyService.removeUserFromAccessGroup(customerAccountKey, logginedUserId, partyParentId, removingPartyChildData);
+
+      res.status(204).json({ message: 'deleted' });
     } catch (error) {
       next(error);
     }
