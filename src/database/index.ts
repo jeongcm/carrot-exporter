@@ -150,11 +150,11 @@ DB.Address.belongsToMany(DB.CustomerAccount, {
 
 
 
-DB.CatalogPlanProduct.hasMany(DB.CatalogPlan, { foreignKey: 'catalogPlanKey' });
-DB.CatalogPlan.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalogPlanKey' });
+DB.CatalogPlan.hasMany(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_key' });
+DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});
 
-DB.CatalogPlanProductPrice.hasMany(DB.CatalogPlanProduct, { foreignKey: 'catalogPlanProductKey' });
-DB.CatalogPlanProduct.belongsTo(DB.CatalogPlanProductPrice, { foreignKey: 'catalogPlanProductKey' });
+DB.CatalogPlanProduct.hasMany(DB.CatalogPlanProductPrice, { foreignKey: 'catalog_plan_product_key' });
+DB.CatalogPlanProductPrice.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
 
 DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
 DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });

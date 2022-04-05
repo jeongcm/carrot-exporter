@@ -27,10 +27,16 @@ class MessageServices {
    * @returns {object} new message created
    * @author shrishti
    */
-  public async createMessage(data:CreateMessageDto): Promise<IMessage> {
+  public async createMessage(data:CreateMessageDto, customerAccountKey:number,  partyId:string, systemId:string): Promise<IMessage> {
     const messageId = await  this.getTableId('message');
-    data = {...data, messageId}
-    const newCatalogPlan: IMessage = await this.messages.create(data);
+    let createData =  {
+      ...data, 
+      messageId, 
+      customerAccountKey, 
+      createdBy: partyId || systemId,
+      updatedBy:  partyId, systemId
+    };
+    const newCatalogPlan: IMessage = await this.messages.create(createData);
     return newCatalogPlan;
   }
 
@@ -60,15 +66,14 @@ class MessageServices {
    * @param  {number} currentUserPk
    * @returns Promise<messages>
    */
-  public async updateMessageById(messageId: string, messageData: CreateMessageDto, currentUserPk: number): Promise<IMessage> {
+  public async updateMessageById(messageId: string, messageData: CreateMessageDto, systemId:string, userId:string): Promise<IMessage> {
     if (isEmpty(messageData)) throw new HttpException(400, 'Access Group Data cannot be blank');
 
     const findMessageData: IMessage = await this.messages.findOne({ where: { messageId } });
-
     if (!findMessageData) throw new HttpException(409, "Access Group doesn't exist");
     const updatedMessageData = {
       ...messageData,
-      updatedBy: 'SYSTEM',
+      updatedBy: userId || systemId,
       updatedAt: new Date(),
     };
 

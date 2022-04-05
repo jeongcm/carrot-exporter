@@ -62,13 +62,11 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
       },
       createdBy: {
         allowNull: false,
-        type: DataTypes.STRING(16),
-        defaultValue:'system'
+        type: DataTypes.STRING(16)
       },
       updatedBy: {
         allowNull: true,
-        type: DataTypes.STRING(16),
-        defaultValue:'system'
+        type: DataTypes.STRING(16)
       },
       createdAt: {
         allowNull: false,

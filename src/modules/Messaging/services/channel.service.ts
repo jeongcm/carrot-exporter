@@ -22,7 +22,7 @@ class ChannelService {
    */
   public async findAllChannel(): Promise<Channel[]> {
     const allUser: Channel[] = await this.channels.findAll({
-      where: { isDeleted: null },
+      where: { isDeleted: false },
       attributes: { exclude: ['pk', 'isDeleted', 'updatedBy', 'createdBy'] },
     });
     return allUser;
@@ -39,7 +39,7 @@ class ChannelService {
     if (isEmpty(id)) throw new HttpException(400, 'Not a valid channel');
 
     const findChannel: Channel = await this.channels.findOne({
-      where: { id, isDeleted: null },
+      where: { id, isDeleted: false },
       attributes: { exclude: ['pk', 'isDeleted', 'updatedBy', 'createdBy'] },
     });
     if (!findChannel) throw new HttpException(409, 'Channel Not found');

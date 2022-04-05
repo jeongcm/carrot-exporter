@@ -57,13 +57,11 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
       },
       createdBy: {
         allowNull: false,
-        type: DataTypes.STRING(16),
-        defaultValue: 'SYSTEM'
+        type: DataTypes.STRING(16)
       },
       updatedBy: {
         allowNull: true,
-        type: DataTypes.STRING(45),
-        defaultValue: 'SYSTEM'
+        type: DataTypes.STRING(45)
       },
       createdAt: {
         allowNull: false,

@@ -13,11 +13,7 @@ export class CreateCatalogPlanDto {
 
   @IsString()
   @IsNotEmpty()
-  public catalogPlanDescription : string;
-
-  @IsString()
-  @IsOptional()
-  public catalogPlanId : string;
+  public catalogPlanDescription : string;S
 
 }
 
@@ -57,10 +53,6 @@ export class CreateCatalogPlanProductDto {
     @IsNotEmpty()
     public catalogPlanId: string;
 
-    @IsString()
-    @IsOptional()
-    public catalogPlanProductId: string;
-  
   }
 
 /**
@@ -87,8 +79,5 @@ export class CreateCatalogPlanProductDto {
     @IsString()
     @IsNotEmpty()
     public catalogPlanProductId: string;
-    
-    @IsString()
-    @IsOptional()
-    public catalogPlanProductPricingId: string;
+
   }
