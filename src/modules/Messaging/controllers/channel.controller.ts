@@ -54,16 +54,6 @@ class ChannelController {
       next(error);
     }
   };
-
-  public deleteChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    try {
-      const channelId = req.params.id;
-      const deleteChannelData: Channel = await this.channelService.deleteChannel(channelId);
-      res.status(200).json({ data: deleteChannelData, message: 'deleted' });
-    } catch (error) {
-      next(error);
-    }
-  };
 }
 
 export default ChannelController;
