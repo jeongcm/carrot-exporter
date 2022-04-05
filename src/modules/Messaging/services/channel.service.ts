@@ -56,7 +56,6 @@ class ChannelService {
    * @author Jaswant
    */
   public async createChannel(channelData: CreateChannelDto, customerAccountKey: number, tempChannelId: string): Promise<Channel> {
-    console.log("abc:",tempChannelId);
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const currentDate = new Date();
     const newChannel = {
