@@ -4,7 +4,7 @@ import { ChannelType } from '@/common/types';
 
 export type ChannelCreationAttributes = Optional<
   Channel,
-  'channelKey' | 'customerAccountKey' | 'channelId' | 'createdBy' | 'updatedBy' | 'isDeleted' | 'channelName' | 'channelDescription' | 'channelType' | 'channelAdaptor'
+  'channelKey' | 'customerAccountKey' | 'channelId' | 'createdBy' | 'updatedBy' | 'deletedAt' | 'channelName' | 'channelDescription' | 'channelType' | 'channelAdaptor'
 >;
 
 export class ChannelModel extends Model<Channel, ChannelCreationAttributes> implements Channel {
@@ -13,7 +13,7 @@ export class ChannelModel extends Model<Channel, ChannelCreationAttributes> impl
   public channelId: string;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public deletedAt: Date;
   public channelName: string;
   public channelDescription: string;
   public channelType: ChannelType;
@@ -48,9 +48,8 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
         allowNull: true,
         type: DataTypes.STRING(16),
       },
-      isDeleted: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
+      deletedAt: {
+        type: DataTypes.DATE,
       },
       channelName: {
         allowNull: false,

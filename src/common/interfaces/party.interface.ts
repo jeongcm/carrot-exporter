@@ -7,7 +7,7 @@ export interface PartyChannel {
     updatedBy: string;
     createdAt: Date;
     updatedAt: Date;
-    isDeleted: boolean;
+    deletedAt: Date;
     partyChannelFrom: Date;
     partyChannelTo: Date;
     partyChannelDefault: boolean;

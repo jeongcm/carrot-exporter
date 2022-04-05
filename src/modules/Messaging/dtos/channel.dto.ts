@@ -24,9 +24,6 @@ export class CreateChannelDto {
   @IsOptional()
   public updatedBy: string;
 
-  @IsString()
-  @IsOptional()
-  public isDeleted: boolean;
 }
 
 export class UpdateChannelDto {
@@ -58,7 +55,4 @@ export class UpdateChannelDto {
   @IsOptional()
   public updatedBy: string;
 
-  @IsString()
-  @IsOptional()
-  public isDeleted: boolean;
 }

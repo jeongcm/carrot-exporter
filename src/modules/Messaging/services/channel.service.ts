@@ -22,7 +22,7 @@ class ChannelService {
    */
   public async findAllChannel(): Promise<Channel[]> {
     const allUser: Channel[] = await this.channels.findAll({
-      where: { isDeleted: false },
+      where: { deletedAt: null },
       attributes: { exclude: ['channelKey', 'isDeleted', 'updatedBy', 'createdBy'] },
     });
     return allUser;
@@ -39,7 +39,7 @@ class ChannelService {
     if (isEmpty(channelId)) throw new HttpException(400, 'Not a valid channel');
 
     const findChannel: Channel = await this.channels.findOne({
-      where: { channelId, isDeleted: false },
+      where: { channelId, deletedAt: null },
       attributes: { exclude: ['channelId', 'isDeleted', 'updatedBy', 'createdBy'] },
     });
     if (!findChannel) throw new HttpException(409, 'Channel Not found');
@@ -70,7 +70,6 @@ class ChannelService {
       createdAt: currentDate,
       createdBy: customerAccountKey.toLocaleString(),
       updatedBy: customerAccountKey.toLocaleString(),
-      isDeleted: false,
     };
     const createChannelData: Channel = await this.channels.create(newChannel);
     return createChannelData;

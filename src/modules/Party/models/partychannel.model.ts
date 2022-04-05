@@ -3,7 +3,7 @@ import { PartyChannel } from '@/common/interfaces/party.interface';
 
 export type PartyChannelAttributes = Optional<
   PartyChannel,
-  'partyChannelKey' | 'partyKey' | 'channelKey' | 'PartychannelId' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'isDeleted' | 'partyChannelFrom' | 'partyChannelTo' | 'partyChannelDefault'
+  'partyChannelKey' | 'partyKey' | 'channelKey' | 'PartychannelId' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'partyChannelFrom' | 'partyChannelTo' | 'partyChannelDefault'
 >;
 
 export class PartyChannelModel extends Model<PartyChannel, PartyChannelAttributes> implements PartyChannel {
@@ -13,7 +13,7 @@ export class PartyChannelModel extends Model<PartyChannel, PartyChannelAttribute
   public PartychannelId: string;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public deletedAt: Date;
   public partyChannelFrom: Date;
   public partyChannelTo: Date;
   public partyChannelDefault: boolean;
@@ -59,9 +59,9 @@ export default function (sequelize: Sequelize): typeof PartyChannelModel {
         allowNull: true,
         type: DataTypes.DATE,
       },
-      isDeleted: {
+      deletedAt: {
         allowNull: false,
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.DATE,
       },
       partyChannelFrom: {
         allowNull: false,

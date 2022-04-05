@@ -10,7 +10,7 @@ class ChannelController {
   public channelService = new ChannelService();
   public tableIdService = new tableIdService();
 
-  public getAllChannels = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getAllChannels = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const findAllChannelsData: Channel[] = await this.channelService.findAllChannel();
       res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
@@ -19,7 +19,7 @@ class ChannelController {
     }
   };
 
-  public getChannelById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getChannelById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const channelId = req.params.channelId;
       const findOneUserData: Channel = await this.channelService.findChannelById(channelId);
