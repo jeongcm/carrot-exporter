@@ -23,7 +23,7 @@ class ChannelService {
   public async findAllChannel(): Promise<Channel[]> {
     const allUser: Channel[] = await this.channels.findAll({
       where: { deletedAt: null },
-      attributes: { exclude: ['channelKey', 'isDeleted', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['channelKey', 'deletedAt', 'updatedBy', 'createdBy'] },
     });
     return allUser;
   }
@@ -40,7 +40,7 @@ class ChannelService {
 
     const findChannel: Channel = await this.channels.findOne({
       where: { channelId, deletedAt: null },
-      attributes: { exclude: ['channelId', 'isDeleted', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['channelId', 'deletedAt', 'updatedBy', 'createdBy'] },
     });
     if (!findChannel) throw new HttpException(409, 'Channel Not found');
 
@@ -91,13 +91,6 @@ class ChannelService {
     return this.findChannelById(Id);
   }
 
-  public async deleteChannel(channelId: string): Promise<Channel> {
-    if (isEmpty(channelId)) throw new HttpException(400, 'Channelid is required');
-    const findChannel: Channel = await this.channels.findOne({ where: { channelId: channelId } });
-    if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
-    await this.channels.update({ isDeleted: true }, { where: { channelKey: findChannel.channelKey } });
-    return findChannel;
-  }
 }
 
 export default ChannelService;
