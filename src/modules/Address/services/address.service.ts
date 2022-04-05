@@ -25,7 +25,7 @@ class AddressService {
     if (isEmpty(addressData)) throw new HttpException(400, 'Address must not be empty');
 
     try {
-      const tableIdTableName = 'address';
+      const tableIdTableName = 'Address';
       const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
 
       if (!tableId) {

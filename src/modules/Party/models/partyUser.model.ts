@@ -11,7 +11,7 @@ export type PartyUserCreationAttributes = Optional<
   | 'updatedBy'
   | 'createdAt'
   | 'updatedAt'
-  | 'isDeleted'
+  | 'deletedAt'
   | 'firstName'
   | 'lastName'
   | 'userId'
@@ -31,7 +31,7 @@ export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttribute
 
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public deletedAt: Date;
 
   public firstName: string;
   public lastName: string;
@@ -80,10 +80,8 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       updatedAt: {
         type: DataTypes.DATE,
       },
-      isDeleted: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+      deletedAt: {
+        type: DataTypes.DATE,
       },
       firstName: {
         type: DataTypes.STRING(50),
