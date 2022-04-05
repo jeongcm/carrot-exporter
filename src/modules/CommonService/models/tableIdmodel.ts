@@ -11,7 +11,7 @@ export type TableIdUpdateAttributes = Optional<
   | 'tableDay'
   | 'tableIdSequenceDigit'
   | 'tableIdFinalIssued'
-  | 'isDeleted'
+  | 'deletedAt'
   | 'createdAt'
   | 'updatedAt'
   | 'createdBy'
@@ -29,7 +29,7 @@ export class TableIdModel extends Model<ITableId, TableIdUpdateAttributes> imple
   public tableIdIssuedSequence: number;
   public tableIdFinalIssued: string;
 
-  public isDeleted: boolean;
+  public deletedAt: Date;
   public createdBy: string;
   public updatedBy: string;
 
@@ -80,10 +80,9 @@ export default function (sequelize: Sequelize): typeof TableIdModel {
         allowNull: true,
         type: DataTypes.STRING(16),
       },
-      isDeleted: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
-        defaultValue: false,
+      deletedAt: {
+        allowNull: true,
+        type: DataTypes.DATE(),
       },
       createdBy: {
         allowNull: false,

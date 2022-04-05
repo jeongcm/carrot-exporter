@@ -1,23 +1,31 @@
-import { UpdateUserDto } from './../dtos/party.dto';
-import { PartyModel } from '@/modules/Party/models/party.model';
 import DB from '@/database';
 
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { Op } from 'sequelize';
 
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 
-import { CreateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
-
-import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { PartyModel } from '@/modules/Party/models/party.model';
+import { PartyUserModel } from '../models/partyUser.model';
 
 import tableIdService from '@/modules/CommonService/services/tableId.service';
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
-import { IDataStoredInToken, IParty, IPartyUser, IPartyUserResponse, ITokenData } from '@/common/interfaces/party.interface';
+
+import {
+  IDataStoredInToken,
+  IParty,
+  IPartyRelation,
+  IPartyResponse,
+  IPartyUser,
+  IPartyUserResponse,
+  ITokenData,
+} from '@/common/interfaces/party.interface';
+
+import { CreateUserDto, UpdateUserDto, CreateAccessGroupDto, AddUserAccessGroupDto, LoginDto } from '@/modules/Party/dtos/party.dto';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+
 import config from 'config';
-import { PartyUserModel } from '../models/partyUser.model';
 
 /**
  * @memberof Party
@@ -30,12 +38,12 @@ class PartyService {
 
   public async getUsers(customerAccountKey: number): Promise<IParty[]> {
     const users: any = await this.party.findAll({
-      where: { customerAccountKey, partyType: 'US', isDeleted: false },
-      attributes: { exclude: ['partyKey', 'isDeleted', 'isDeleted', 'customerAccountKey'] },
+      where: { customerAccountKey, partyType: 'US', deletedAt: null },
+      attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey'] },
       include: [
         {
           model: PartyUserModel,
-          attributes: { exclude: ['partyUserKey', 'partyKey', 'isDeleted', 'password'] },
+          attributes: { exclude: ['partyUserKey', 'partyKey', 'deletedAt', 'password'] },
         },
       ],
     });
@@ -45,12 +53,12 @@ class PartyService {
 
   public async getUser(customerAccountKey: number, partyUserId: string): Promise<IParty> {
     const users: any = await this.party.findOne({
-      where: { customerAccountKey, partyId: partyUserId, isDeleted: false },
-      attributes: { exclude: ['partyKey', 'isDeleted', 'isDeleted', 'customerAccountKey'] },
+      where: { customerAccountKey, partyId: partyUserId, deletedAt: null },
+      attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey'] },
       include: [
         {
           model: PartyUserModel,
-          attributes: { exclude: ['partyUserKey', 'partyKey', 'isDeleted', 'password'] },
+          attributes: { exclude: ['partyUserKey', 'partyKey', 'deletedAt', 'password'] },
         },
       ],
     });
@@ -59,7 +67,7 @@ class PartyService {
   }
 
   public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string): Promise<IPartyUserResponse> {
-    const tableIdTableName = 'partyUser';
+    const tableIdTableName = 'PartyUser';
     const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
     if (!tableId) {
       return;
@@ -119,24 +127,201 @@ class PartyService {
     } catch (error) {}
   }
 
-  public async updateUser(updateUserData: UpdateUserDto, updateUserId: string, customerAccountKey: number, logginedUser: IParty): Promise<IParty> {
+  public async updateUser(customerAccountKey: number, logginedUserId: string, updateUserId: string, updateUserData: UpdateUserDto): Promise<IParty> {
     const { partyName, partyDescription, parentPartyId, firstName, lastName, mobile, email } = updateUserData;
 
     try {
       await DB.sequelize.transaction(async t => {
         await this.party.update(
-          { partyName, partyDescription, parentPartyId, updatedBy: logginedUser.partyId },
+          { partyName, partyDescription, parentPartyId, updatedBy: logginedUserId },
           { where: { customerAccountKey, partyId: updateUserId, partyType: 'US' }, transaction: t },
         );
 
         await this.partyUser.update(
-          { firstName, lastName, mobile, email, updatedBy: logginedUser.partyId },
+          { firstName, lastName, mobile, email, updatedBy: logginedUserId },
           { where: { partyUserId: updateUserId }, transaction: t },
         );
       });
     } catch (error) {}
 
     return await this.getUser(customerAccountKey, updateUserId);
+  }
+
+  public async createAccessGroup(customerAccountKey: number, logginedUserId: string, createData: CreateAccessGroupDto): Promise<IPartyResponse> {
+    const { partyName, partyDescription, parentPartyId } = createData;
+
+    const tableIdTableName = 'Party';
+    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
+    if (!tableId) {
+      return;
+    }
+
+    try {
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+
+      const createdAccessGroup: IParty = await this.party.create({
+        partyId: responseTableIdData.tableIdFinalIssued,
+        partyName,
+        partyDescription,
+        parentPartyId,
+        partyType: 'AG',
+        customerAccountKey,
+        createdBy: logginedUserId,
+      });
+
+      const responseData: IPartyResponse = {
+        partyId: createdAccessGroup.partyId,
+        partyName: createdAccessGroup.partyName,
+        partyDescription: createdAccessGroup.partyDescription,
+        partyType: createdAccessGroup.partyType,
+        createdBy: createdAccessGroup.createdBy,
+        updatedBy: createdAccessGroup?.updatedBy,
+        createdAt: createdAccessGroup.createdAt,
+        updatedAt: createdAccessGroup?.updatedAt,
+        parentPartyId: createdAccessGroup?.parentPartyId,
+      };
+
+      return responseData;
+    } catch (error) {}
+  }
+
+  public async getAccessGroups(customerAccountKey: number): Promise<IParty[]> {
+    const accessGroups: IParty[] = await this.party.findAll({
+      where: { customerAccountKey, partyType: 'AG', deletedAt: null },
+      attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey'] },
+    });
+
+    return accessGroups;
+  }
+
+  public async getAccessGroup(customerAccountKey: number, partyId: string): Promise<IParty> {
+    const accessGroup: IParty = await this.party.findOne({
+      where: { customerAccountKey, partyId, deletedAt: null },
+      attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey'] },
+    });
+
+    return accessGroup;
+  }
+
+  public async updateAccessGroup(
+    customerAccountKey: number,
+    logginedUserId: string,
+    updatePartyId: string,
+    updateData: CreateAccessGroupDto,
+  ): Promise<IParty> {
+    try {
+      await this.party.update(
+        {
+          partyName: updateData?.partyName,
+          partyDescription: updateData?.partyDescription,
+          parentPartyId: updateData?.parentPartyId,
+          updatedBy: logginedUserId,
+        },
+        { where: { customerAccountKey, partyId: updatePartyId, partyType: 'AG' } },
+      );
+    } catch (error) {}
+
+    return await this.getAccessGroup(customerAccountKey, updatePartyId);
+  }
+
+  public async addUserToAccessGroup(
+    customerAccountKey: number,
+    logginedUserId: string,
+    partyParentId: string,
+    addingPartyChildData: AddUserAccessGroupDto,
+  ): Promise<any> {
+    return await DB.sequelize.transaction(async t => {
+      const partyParent: IParty = await this.party.findOne({ where: { customerAccountKey, partyId: partyParentId }, transaction: t });
+
+      if (!partyParent) {
+        return [];
+      }
+
+      const partyParentKey = partyParent.partyKey;
+
+      const partyChildAll = await this.party.findAll({
+        where: { partyId: { [Op.in]: addingPartyChildData.partyIds } },
+        attributes: ['partyKey'],
+        transaction: t,
+      });
+
+      const partyChildKeys = partyChildAll.map(party => party.partyKey);
+
+      let insertDataList = [];
+
+      for (const partyChildKey of partyChildKeys) {
+        const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('partyRelation');
+        const currentTime = new Date();
+
+        insertDataList.push({
+          partyRelationId: responseTableIdData.tableIdFinalIssued,
+          partyParentKey,
+          partyChildKey,
+          createdBy: logginedUserId,
+          partyRelationType: 'AU',
+          partyRelationFrom: currentTime,
+          partyRelationTo: currentTime,
+        });
+      }
+
+      return await this.partyRelation.bulkCreate(insertDataList, { returning: true });
+    });
+  }
+
+  public async getUserOfAccessGroup(partyParentId: string): Promise<IPartyRelation[]> {
+    const partyParent: IParty = await this.party.findOne({
+      where: { partyId: partyParentId },
+      attributes: ['partyKey'],
+    });
+
+    const partyRelations = await this.partyRelation.findAll({
+      where: { partyParentKey: partyParent.partyKey, deletedAt: null },
+      attributes: { exclude: ['partyRelationKey', 'deletedAt', 'partyParentKey', 'partyChildKey'] },
+      include: {
+        model: PartyModel,
+        attributes: ['partyId', 'partyName', 'partyDescription', 'partyType'],
+        as: 'partyChild',
+        include: [
+          {
+            model: PartyUserModel,
+            attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
+          },
+        ],
+      },
+    });
+
+    return partyRelations;
+  }
+
+  public async removeUserFromAccessGroup(
+    customerAccountKey: number,
+    logginedUserId: string,
+    partyParentId: string,
+    removingPartyChildData: AddUserAccessGroupDto,
+  ): Promise<void> {
+    const partyParent: IParty = await this.party.findOne({
+      where: { partyId: partyParentId },
+      attributes: ['partyKey'],
+    });
+
+    const partyParentKey = partyParent.partyKey;
+
+    const partyChildAll = await this.party.findAll({
+      where: { partyId: { [Op.in]: removingPartyChildData.partyIds } },
+      attributes: ['partyKey'],
+    });
+
+    const partyChildKeyList = partyChildAll.map(party => party.partyKey);
+
+    await this.partyRelation.update(
+      { deletedAt: new Date() },
+      {
+        where: {
+          partyParentKey,
+          partyChildKey: { [Op.in]: partyChildKeyList },
+        },
+      },
+    );
   }
 
   public async login(loginData: LoginDto): Promise<{ cookie: string; findUser: IPartyUser; token: string }> {

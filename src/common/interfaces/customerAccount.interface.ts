@@ -15,7 +15,7 @@ export interface ICustomerAccount {
   updatedBy: string;
   createdAt: Date;
   updatedAt: Date;
-  isDeleted: boolean;
+  deletedAt: Date;
   customerAccountName: string;
   customerAccountDescription: string;
   parentCustomerAccountId: string;
