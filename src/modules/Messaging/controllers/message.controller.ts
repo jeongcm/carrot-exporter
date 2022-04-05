@@ -3,6 +3,7 @@ import { IMessage } from '@/common/interfaces/message.interface';
 import MessageServices from '@/modules/Messaging/services/message.service';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
 import { CreateMessageDto } from '../dtos/message.dto';
+import { IRequestWithUser } from '@/common/interfaces/party.interface';
 class MessageController {
   public messageService = new MessageServices();
 
@@ -17,10 +18,13 @@ class MessageController {
   };
 
 
-  public createMessage = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public createMessage = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const catalogData: CreateMessageDto = req.body;
-      const newCatalogPlan: CreateMessageDto = await this.messageService.createMessage(catalogData);
+      const customerAccountKey = req.customerAccountKey;
+      const {partyId} = req.user;
+      const {systemId} = req
+      const newCatalogPlan: CreateMessageDto = await this.messageService.createMessage(catalogData, customerAccountKey, partyId, systemId);
       res.status(201).json({ data: newCatalogPlan, message: 'created' });
     } catch (error) {
       next(error);
@@ -38,10 +42,10 @@ class MessageController {
   };
 
 
-  public updateMessage = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public updateMessage = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const { params: { messageId }, body } = req
-      const updated: IMessage = await this.messageService.updateMessageById(messageId, body, req.user.pk);
+      const { params: { messageId }, body, systemId} = req
+      const updated: IMessage = await this.messageService.updateMessageById(messageId, body, req.user.partyId, systemId);
       res.status(200).json({ updated });
     } catch (error) {
       next(error);

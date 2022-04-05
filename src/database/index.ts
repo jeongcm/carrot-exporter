@@ -150,20 +150,17 @@ DB.Address.belongsToMany(DB.CustomerAccount, {
   otherKey: 'customerAccountKey',
 });
 
-DB.CatalogPlan.belongsToMany(DB.CatalogPlanProduct, {
-  through: 'catalogPlanProducts',
-  foreignKey: 'catalogPlankey',
-  otherKey: 'catalogPlankey',
-  as: 'catalogPlanProduct',
-});
-DB.CatalogPlanProduct.belongsToMany(DB.CatalogPlan, {
-  through: 'catalogPlanProducts',
-  foreignKey: 'catalogPlankey',
-  otherKey: 'catalogPlankey',
-});
+
+
+DB.CatalogPlan.hasMany(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_key' });
+DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});
+
+DB.CatalogPlanProduct.hasMany(DB.CatalogPlanProductPrice, { foreignKey: 'catalog_plan_product_key' });
+DB.CatalogPlanProductPrice.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
 
 DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
 DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
 
 DB.Party.hasOne(DB.PartyUser, { foreignKey: 'partyKey', sourceKey: 'partyKey' });
 DB.PartyUser.belongsTo(DB.Party, { foreignKey: 'partyKey', targetKey: 'partyKey' });

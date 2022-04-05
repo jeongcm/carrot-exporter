@@ -7,7 +7,7 @@ export type CatalogPlanCreationAttributes = Optional<
     'catalogPlanId'
     |'catalogPlanKey'
     |'catalogPlanName'
-    |'isDeleted'
+    |'deletedAt'
     |'catalogPlanDescription'
     |'createdAt'
     |'updatedAt'
@@ -22,7 +22,7 @@ export class CatalogPlanModel extends Model<ICatalogPlan, CatalogPlanCreationAtt
     public catalogPlanDescription: string;
     public createdBy: string;
     public updatedBy: string;
-    public isDeleted: boolean;
+    public deletedAt: Date;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -51,20 +51,17 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
         allowNull: false,
         type: DataTypes.STRING(500),
       },
-      isDeleted: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+      deletedAt: {
+        allowNull: true,
+        type: DataTypes.DATE()
       },
       createdBy: {
         allowNull: false,
-        type: DataTypes.STRING(16),
-        defaultValue: 'SYSTEM'
+        type: DataTypes.STRING(16)
       },
       updatedBy: {
         allowNull: true,
-        type: DataTypes.STRING(45),
-        defaultValue: 'SYSTEM'
+        type: DataTypes.STRING(45)
       },
       createdAt: {
         allowNull: false,

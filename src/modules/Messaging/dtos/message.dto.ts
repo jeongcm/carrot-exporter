@@ -13,7 +13,4 @@ export class CreateMessageDto {
   @IsNotEmpty()
   public messageVerbiage: string;
 
-  @IsString()
-  @IsNotEmpty()
-  public customerAccountKey: number;
 }

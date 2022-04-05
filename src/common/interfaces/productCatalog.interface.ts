@@ -4,7 +4,7 @@ export interface ICatalogPlan {
     catalogPlanKey:number;
     catalogPlanName: string;
     catalogPlanDescription: string;
-    isDeleted:boolean;
+    deletedAt:Date;
     createdAt: Date;
     updatedAt: Date;
     createdBy: string;
@@ -20,7 +20,7 @@ export interface ICatalogPlanProduct{
     updatedAt: Date;
     createdBy: string;
     updatedBy: string;
-    isDeleted:boolean;
+    deletedAt:Date;
     catalogPlanProductName:string
     catalogPlanProductDescription:string
     catalogPlanProductMonthlyPrice:number
@@ -37,7 +37,7 @@ export interface ICatalogPlanProductPrice{
     updatedAt: Date;
     createdBy: string;
     updatedBy: string;
-    isDeleted:boolean;
+    deletedAt:Date;
     catalogPlanProductMonthlyPriceFrom:Date;
     catalogPlanProductMonthlyPriceTo:Date;
     catalogPlanProductMonthlyPrice:number
