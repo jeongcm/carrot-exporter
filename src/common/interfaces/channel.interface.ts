@@ -41,7 +41,7 @@ export interface ISlackChannel {
 
 export interface Channel {
   channelKey: number;
-  customerAccountId: number;
+  customerAccountKey: number;
   channelId: string;
   createdBy: string;
   updatedBy: string;

@@ -62,7 +62,7 @@ class ChannelService {
     const newChannel = {
       channelId: tempChannelId,
       channelName: channelData.channelName,
-      customerAccountId: currentUserPk,
+      customerAccountKey: currentUserPk,
       channelType: <ChannelType>channelData.channelType,
       channelDescription:channelData.channelDescription,
       channelAdaptor: channelData.channelAdaptor,

@@ -16,8 +16,6 @@ export class CreateChannelDto {
   @IsObject()
   public channelAdaptor: JSON;
 
-  public createdAt: Date;
-
   @IsDate()
   @IsOptional()
   public updatedAt: Date;
@@ -54,8 +52,6 @@ export class UpdateChannelDto {
   // @IsNotEmpty()
   @IsObject()
   public channelAdaptor: JSON;
-
-  public createdAt: Date;
 
   @IsString()
   @IsOptional()
