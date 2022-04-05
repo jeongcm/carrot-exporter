@@ -11,22 +11,17 @@ import { CreateAddressDto } from '@/modules/Address/dtos/address.dto';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { IAddress } from '@/common/interfaces/address.interface';
+import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
 
 class CustomerAccountController {
   public customerAccountService = new CustomerAccountService();
   public addressService = new AddressService();
 
-  //   public users = DB.Users;
-
-  public createCustomerAccount = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public createCustomerAccount = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
     try {
       const customerAccountData: CreateCustomerAccountDto = req.body;
-      //   const currentUserPk = req.user.pk;
-      const currentUserPk = 1;
 
-      //   const partyDetail = await this.users.findOne({ where: { id: req.body.assigneeId } });
-
-      const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, currentUserPk);
+      const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, req.systemId);
 
       const {
         customerAccountId,
@@ -36,7 +31,7 @@ class CustomerAccountController {
         customerAccountDescription,
         parentCustomerAccountId,
         customerAccountType,
-      } = createdCustomerAccount;
+      } = createdCustomerAccount ||{};
 
       const response = {
         customerAccountId,
@@ -82,8 +77,9 @@ class CustomerAccountController {
     }
   };
 
-  public updateCustomerAccountById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public updateCustomerAccountById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
+    const logginedUserId = req.user.partyId;
 
     const customerAccount: ICustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
 
@@ -93,12 +89,11 @@ class CustomerAccountController {
 
     try {
       const coustomerAccountData: CreateCustomerAccountDto = req.body;
-      const currentUserPk = 1;
 
       const updateCustomerAccount: ICustomerAccount = await this.customerAccountService.updateCustomerAccount(
         customerAccountId,
         coustomerAccountData,
-        currentUserPk,
+        logginedUserId,
       );
 
       if (updateCustomerAccount) {
@@ -110,8 +105,9 @@ class CustomerAccountController {
     }
   };
 
-  public addCustomerAddress = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public addCustomerAddress = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
+    const logginedUserId = req.user.partyId;
 
     const customerAccount: ICustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
 
@@ -123,12 +119,12 @@ class CustomerAccountController {
       const addressData: CreateAddressDto = req.body;
       const currentUserPk = 1;
 
-      const createdAddress: IAddress = await this.addressService.createAddress(addressData, currentUserPk);
+      const createdAddress: IAddress = await this.addressService.createAddress(addressData, logginedUserId);
 
       const addedCustomerAddress: ICustomerAccount = await this.customerAccountService.addCustomerAddress(
         customerAccountId,
         createdAddress.addressKey,
-        currentUserPk,
+        logginedUserId,
       );
 
       res.status(200).json({ data: addedCustomerAddress, message: 'created' });
@@ -137,8 +133,9 @@ class CustomerAccountController {
     }
   };
 
-  public dropCustomerAddress = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public dropCustomerAddress = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
+    const logginedUserId = req.user.partyId;
 
     const customerAccount: ICustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
 
@@ -147,9 +144,7 @@ class CustomerAccountController {
     }
 
     try {
-      const currentUserPk = 1;
-
-      await this.customerAccountService.dropCustomerAddress(customerAccountId, currentUserPk);
+      await this.customerAccountService.dropCustomerAddress(customerAccountId, logginedUserId);
 
       res.status(204).json({ message: 'deleted' });
     } catch (error) {

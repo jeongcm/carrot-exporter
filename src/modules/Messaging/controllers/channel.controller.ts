@@ -5,6 +5,7 @@ import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { CreateChannelDto } from '@/modules/Messaging/dtos/channel.dto';
 import ChannelService from '@/modules/Messaging/services/channel.service';
 import { NextFunction, Response } from 'express';
+import { IRequestWithUser } from '@/common/interfaces/party.interface';
 class ChannelController {
   public channelService = new ChannelService();
   public tableIdService = new tableIdService();
@@ -28,25 +29,25 @@ class ChannelController {
     }
   };
 
-  public createChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public createChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
+      const customerAccountKey = req.customerAccountKey;
       const tableIdName: string = "Channel";
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
       const tempChannelId: string = responseTableIdData.tableIdFinalIssued;
       const channelData: CreateChannelDto = req.body;
-      const currentUserPk = req.user.pk;
-      const createChannelData: Channel = await this.channelService.createChannel(channelData, currentUserPk, tempChannelId);
+      const createChannelData: Channel = await this.channelService.createChannel(channelData, customerAccountKey, tempChannelId);
       res.status(201).json({ data: createChannelData, message: 'created' });
     } catch (error) {
       next(error);
     }
   };
 
-  public updateChannel = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public updateChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const channelId = req.params.channelId;
       const channelData = req.body;
-      const currentUserPk = req.user.pk;
+      const currentUserPk = req.customerAccountKey;
       const updateChannelData: Channel = await this.channelService.updateChannel(channelId, channelData, currentUserPk);
       res.status(200).json({ data: updateChannelData, message: 'updated' });
     } catch (error) {

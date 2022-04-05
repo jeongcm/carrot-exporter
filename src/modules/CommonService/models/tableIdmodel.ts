@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { ITableId } from '@/common/interfaces/tableId.interface';
 
-export type tableIdUpdateAttributes = Optional<
+export type TableIdUpdateAttributes = Optional<
   ITableId,
   | 'tableIdKey'
   | 'tableIdTableName'
@@ -11,16 +11,14 @@ export type tableIdUpdateAttributes = Optional<
   | 'tableDay'
   | 'tableIdSequenceDigit'
   | 'tableIdFinalIssued'
-  | 'isDeleted'
+  | 'deletedAt'
   | 'createdAt'
   | 'updatedAt'
   | 'createdBy'
   | 'updatedBy'
 >;
 
-
-
-export class tableIdModel extends Model<ITableId, tableIdUpdateAttributes> implements ITableId {
+export class TableIdModel extends Model<ITableId, TableIdUpdateAttributes> implements ITableId {
   public tableIdKey: number;
   public tableIdTableName: string;
   public tableIdHeader: string;
@@ -31,18 +29,16 @@ export class tableIdModel extends Model<ITableId, tableIdUpdateAttributes> imple
   public tableIdIssuedSequence: number;
   public tableIdFinalIssued: string;
 
-  public isDeleted: boolean;
+  public deletedAt: Date;
   public createdBy: string;
   public updatedBy: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-
-
 }
 
-export default function (sequelize: Sequelize): typeof tableIdModel {
-  tableIdModel.init(
+export default function (sequelize: Sequelize): typeof TableIdModel {
+  TableIdModel.init(
     {
       tableIdKey: {
         type: DataTypes.BIGINT,
@@ -84,9 +80,9 @@ export default function (sequelize: Sequelize): typeof tableIdModel {
         allowNull: true,
         type: DataTypes.STRING(16),
       },
-      isDeleted: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
+      deletedAt: {
+        allowNull: true,
+        type: DataTypes.DATE(),
       },
       createdBy: {
         allowNull: false,
@@ -104,13 +100,13 @@ export default function (sequelize: Sequelize): typeof tableIdModel {
         allowNull: true,
         type: DataTypes.DATE(),
       },
-    },      
+    },
     {
-      tableName: 'tableId',
-      modelName: 'tableId',
+      tableName: 'TableId',
+      modelName: 'TableId',
       sequelize,
     },
   );
 
-  return tableIdModel;
+  return TableIdModel;
 }

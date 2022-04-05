@@ -13,18 +13,26 @@ import AccessGroupClusterModel from '@/modules/UserTenancy/models/accessGroupClu
 import AccessGroupMemberModel from '@/modules/UserTenancy/models/accessGroupMember.model';
 import ChannelModel from '@/modules/Messaging/models/channel.model';
 import TenancyModel from '@/modules/UserTenancy/models/tenancy.model';
+import CatalogPlanModel from '@/modules/ProductCatalog/models/catalogPlan.model';
+import CatalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
+import CatalogPlanProductPriceModel from '@/modules/ProductCatalog/models/catalogPlanProductPrice.model';
 import IncidentModel from '@/modules/Incident/models/incident.model';
 import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.model';
 import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
+import CommonCodeModel from '@/modules/CommonCode/models/commonCode.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import AddressModel from '@/modules/Address/models/address.model';
-
+import MessageModel from '@/modules/Messaging/models/message.model';
+import PartyModel from '@/modules/Party/models/party.model';
+import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
+import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import PartyChannelModel from '@/modules/Party/models/partychannel.model';
 import config from 'config';
+import InitialRecordService from './initialRecord';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -76,12 +84,19 @@ const DB = {
   IncidentAction: IncidentActionModel(sequelize),
   Invitations: InvitationModel(sequelize),
   Tokens: TokenModel(sequelize),
+  CatalogPlan: CatalogPlanModel(sequelize),
+  CatalogPlanProduct: CatalogPlanProductModel(sequelize),
+  CatalogPlanProductPrice: CatalogPlanProductPriceModel(sequelize),
+  CommonCode: CommonCodeModel(sequelize),
   CustomerAccount: CustomerAccountModel(sequelize),
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
   PartyChannel : PartyChannelModel(sequelize),
   tableId: tableIdModel(sequelize),
-  
+  Messages: MessageModel(sequelize),
+  Party: PartyModel(sequelize),
+  PartyRelation: PartyRelationModel(sequelize),
+  PartyUser: PartyUserModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -135,13 +150,43 @@ DB.Address.belongsToMany(DB.CustomerAccount, {
   otherKey: 'customerAccountKey',
 });
 
+DB.CatalogPlan.belongsToMany(DB.CatalogPlanProduct, {
+  through: 'catalogPlanProducts',
+  foreignKey: 'catalogPlankey',
+  otherKey: 'catalogPlankey',
+  as: 'catalogPlanProduct',
+});
+DB.CatalogPlanProduct.belongsToMany(DB.CatalogPlan, {
+  through: 'catalogPlanProducts',
+  foreignKey: 'catalogPlankey',
+  otherKey: 'catalogPlankey',
+});
+
+DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
+DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.Party.hasOne(DB.PartyUser, { foreignKey: 'partyKey', sourceKey: 'partyKey' });
+DB.PartyUser.belongsTo(DB.Party, { foreignKey: 'partyKey', targetKey: 'partyKey' });
+
+DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
+DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
+DB.Party.hasMany(DB.PartyRelation, { as: 'partyParent', foreignKey: 'partyParentKey', sourceKey: 'partyKey' });
+DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKey', sourceKey: 'partyKey' });
+
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
 //[[force: true]] is used when changes made in database.
 
-DB.sequelize.sync({ force: false }).then(() => {
-  console.log('Yes resync done');
-});
+DB.sequelize
+  .sync({ force: false })
+  .then(async () => {
+    const initialRecordService = new InitialRecordService();
+
+    await initialRecordService.insertInitialRecords().then(() => {
+      console.log('Yes resync done');
+    });
+  })
+  .catch(console.log);
 
 //-----------------------------------------------------------------------------
 

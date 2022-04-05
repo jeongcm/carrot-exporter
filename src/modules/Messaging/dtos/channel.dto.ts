@@ -22,10 +22,6 @@ export class CreateChannelDto {
 
   @IsString()
   @IsOptional()
-  public createdBy: string;
-
-  @IsString()
-  @IsOptional()
   public updatedBy: string;
 
   @IsString()
@@ -57,8 +53,6 @@ export class UpdateChannelDto {
   @IsOptional()
   public updatedAt: Date;
 
-  @IsString()
-  public createdBy: string;
 
   @IsString()
   @IsOptional()

@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
+import systemAuthMiddleware from '@/modules/ApiGateway/middlewares/systemAuth.middleware';
+
 import CustomerAccountController from '@modules/CustomerAccount/controllers/customerAccount.controller';
 import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/customerAccount.dto';
 import { CreateAddressDto } from '@/modules/Address/dtos/address.dto';
@@ -17,6 +19,7 @@ class CustomerAccountRoute implements Routes {
   private initializeRoutes() {
     this.router.post(
       '/customerAccount',
+      systemAuthMiddleware,
       validationMiddleware(CreateCustomerAccountDto, 'body'),
       this.customerAccountController.createCustomerAccount,
     );
@@ -25,17 +28,19 @@ class CustomerAccountRoute implements Routes {
     this.router.get('/customerAccount/:customerAccountId', this.customerAccountController.getCustomerAccountById);
     this.router.put(
       '/customerAccount/:customerAccountId',
+      authMiddleware,
       validationMiddleware(CreateCustomerAccountDto, 'body'),
       this.customerAccountController.updateCustomerAccountById,
     );
 
     this.router.post(
       '/customerAccount/:customerAccountId/address',
+      authMiddleware,
       validationMiddleware(CreateAddressDto, 'body'),
       this.customerAccountController.addCustomerAddress,
     );
 
-    this.router.delete('/customerAccount/:customerAccountId/address', this.customerAccountController.dropCustomerAddress);
+    this.router.delete('/customerAccount/:customerAccountId/address', authMiddleware, this.customerAccountController.dropCustomerAddress);
   }
 }
 

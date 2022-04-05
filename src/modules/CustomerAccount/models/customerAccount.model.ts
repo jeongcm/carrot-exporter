@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
 export type CustomerAccountCreationAttributes = Optional<
   ICustomerAccount,
@@ -9,7 +9,7 @@ export type CustomerAccountCreationAttributes = Optional<
   | 'updatedBy'
   | 'createdAt'
   | 'updatedAt'
-  | 'isDeleted'
+  | 'deletedAt'
   | 'customerAccountName'
   | 'customerAccountDescription'
   | 'parentCustomerAccountId'
@@ -21,12 +21,12 @@ export class CustomerAccountModel extends Model<ICustomerAccount, CustomerAccoun
   public customerAccountId: string;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public deletedAt: Date;
 
   public customerAccountName: string;
   public customerAccountDescription: string;
   public parentCustomerAccountId: string;
-  public customerAccountType: string;
+  public customerAccountType: customerAccountType;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -60,10 +60,8 @@ export default function (sequelize: Sequelize): typeof CustomerAccountModel {
       updatedAt: {
         type: DataTypes.DATE,
       },
-      isDeleted: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+      deletedAt: {
+        type: DataTypes.DATE,
       },
       customerAccountName: {
         type: DataTypes.STRING(100),

@@ -77,13 +77,6 @@ export default function (sequelize: Sequelize): typeof PartyChannelModel {
       },
     },
     {
-      indexes: [
-        {
-            name: 'channel_channel_id_index',
-            unique: true,
-            fields: ['partychannel_id']
-        }
-              ],
       tableName: 'PartyChannel',
       modelName: 'PartyChannel',
       sequelize,

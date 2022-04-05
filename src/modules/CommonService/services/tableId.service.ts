@@ -4,11 +4,10 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { ITableId as tableId } from '@/common/interfaces/tableId.interface';
 import { isEmpty } from '@/common/utils/util';
 
-
 /**
  * @memberof tableId
  */
-class tableIdService {
+class TableIdService {
   public tableId = DB.tableId;
 
   /**
@@ -36,7 +35,7 @@ class tableIdService {
     let currentSequenceText = currentSequence.toString();
 
     while (currentSequenceText.length < getTableId.tableIdSequenceDigit) {
-      currentSequenceText = "0" + currentSequenceText; 
+      currentSequenceText = '0' + currentSequenceText;
     }
 
     const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonth + currentDay + currentSequenceText;
@@ -66,4 +65,4 @@ class tableIdService {
   }
 }
 
-export default tableIdService;
+export default TableIdService;

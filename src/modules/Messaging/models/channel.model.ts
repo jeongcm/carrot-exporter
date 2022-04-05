@@ -78,13 +78,6 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
       },
     },
     {
-      indexes: [
-        {
-            name: 'channel_id_index',
-            unique: true,
-            fields: ['channel_id']
-        }
-              ],
       tableName: 'Channel',
       modelName: 'Channel',
       sequelize,

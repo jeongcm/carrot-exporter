@@ -55,21 +55,21 @@ class ChannelService {
    * @returns Promise<Channel>
    * @author Jaswant
    */
-  public async createChannel(channelData: CreateChannelDto, currentUserPk: number, tempChannelId: string): Promise<Channel> {
+  public async createChannel(channelData: CreateChannelDto, customerAccountKey: number, tempChannelId: string): Promise<Channel> {
     console.log("abc:",tempChannelId);
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const currentDate = new Date();
     const newChannel = {
       channelId: tempChannelId,
       channelName: channelData.channelName,
-      customerAccountKey: currentUserPk,
+      customerAccountKey: customerAccountKey,
       channelType: <ChannelType>channelData.channelType,
       channelDescription:channelData.channelDescription,
       channelAdaptor: channelData.channelAdaptor,
       updatedAt: currentDate,
       createdAt: currentDate,
-      createdBy: currentUserPk.toLocaleString(),
-      updatedBy: currentUserPk.toLocaleString(),
+      createdBy: customerAccountKey.toLocaleString(),
+      updatedBy: customerAccountKey.toLocaleString(),
       isDeleted: false,
     };
     const createChannelData: Channel = await this.channels.create(newChannel);
@@ -98,21 +98,6 @@ class ChannelService {
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
     await this.channels.update({ isDeleted: true }, { where: { channelKey: findChannel.channelKey } });
     return findChannel;
-  }
-
-  public async getAccessGroupByChannels(channelPk: number): Promise<AccessGroupChannel[]> {
-    const findAccessGroupChannels: AccessGroupChannel[] = await this.accessGroupChannel.findAll({
-      where: { channelPk: channelPk, isDeleted: false },
-      attributes: ['id'],
-      include: [
-        {
-          model: AccessGroupModel,
-          attributes: ['groupName', 'icon', 'description', 'id'],
-        },
-      ],
-    });
-
-    return findAccessGroupChannels;
   }
 }
 
