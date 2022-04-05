@@ -5,7 +5,7 @@ export interface ICommonCode {
   updatedBy: string;
   createdAt: Date;
   updatedAt: Date;
-  isDeleted: boolean;
+  deletedAt: Date;
   commonCodeDescription: string;
   commonCodeDisplayENG: string;
   commonCodeDisplayKOR: string;
