@@ -5,7 +5,7 @@ export interface IApi {
     updatedBy: string;
     createdAt: Date;
     updatedAt: Date;
-    isDeleted: boolean;
+    deletedAt: Date;
     apiName: string;
     apiDescription: string;
     apiEndPoint1: string;

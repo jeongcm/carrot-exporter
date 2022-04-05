@@ -15,11 +15,11 @@ class ApiService {
      * @param  {string} currentUserId
      * @returns IApi[]
      */
-    public async createApi(apiData: ApiDto, currentUserId: string): Promise<IApi> {
+    public async createApi(apiData: ApiDto, systemId: string): Promise<IApi> {
       if (isEmpty(apiData)) throw new HttpException(400, 'Api  must not be empty');
   
       try {
-        const tableIdTableName = 'api';
+        const tableIdTableName = 'Api';
         const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
   
         if (!tableId) {
@@ -30,7 +30,7 @@ class ApiService {
   
         const createApi: IApi = await this.api.create({
           apiId: responseTableIdData.tableIdFinalIssued,
-          createdBy: 'system',
+          createdBy: systemId,
           ...apiData,
         });
   
@@ -43,8 +43,8 @@ class ApiService {
      */
     public async getAllApi(): Promise<IApi[]> {
       const allApi: IApi[] = await this.api.findAll({
-        where: { isDeleted: false },
-        attributes: { exclude: ['apiKey', 'isDeleted'] },
+        where: { deletedAt: null },
+        attributes: { exclude: ['apiKey', 'deletedAt'] },
       });
       return allApi;
     }
@@ -56,7 +56,7 @@ class ApiService {
     public async getApiById(apiId: string): Promise<IApi> {
       const api: IApi = await this.api.findOne({
         where: { apiId },
-        attributes: { exclude: ['apiKey', 'isDeleted'] },
+        attributes: { exclude: ['apiKey', 'deletedAt'] },
       });
       return api;
     }

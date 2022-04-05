@@ -3,7 +3,7 @@ import { IApi } from '@common/interfaces/api.interface';
 
 export type ApiCreationAttributes = Optional<
   IApi,
-  'apiKey' | 'apiId' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'isDeleted' | 'apiName' | 'apiDescription' | 'apiEndPoint1' | 'apiEndPoint2' | 'apiVisibleTF'
+  'apiKey' | 'apiId' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'apiName' | 'apiDescription' | 'apiEndPoint1' | 'apiEndPoint2' | 'apiVisibleTF'
 >;
 
 export class ApiModel extends Model<IApi, ApiCreationAttributes> implements IApi {
@@ -13,7 +13,7 @@ export class ApiModel extends Model<IApi, ApiCreationAttributes> implements IApi
     public updatedBy: string;
     public createdAt: Date;
     public updatedAt: Date;
-    public isDeleted: boolean;
+    public deletedAt: Date;
     public apiName: string;
     public apiDescription: string;
     public apiEndPoint1: string;
@@ -49,10 +49,8 @@ export default function (sequelize: Sequelize): typeof ApiModel {
         updatedAt: {
           type: DataTypes.DATE,
         },
-        isDeleted: {
-          allowNull: false,
-          defaultValue: false,
-          type: DataTypes.BOOLEAN,
+        deletedAt: {
+          type: DataTypes.DATE,
         },
         apiName: {
           type: DataTypes.STRING(500),

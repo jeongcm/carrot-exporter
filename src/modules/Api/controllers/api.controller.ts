@@ -3,6 +3,7 @@ import { IApi } from '@/common/interfaces/api.interface';
 import ApiService from '../services/api.service';
 import { ApiDto } from '../dtos/api.dto';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
+import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
 
 class ApiController {
     public apiService = new ApiService();
@@ -13,7 +14,7 @@ class ApiController {
         const currentUserId = req.user.id;
         const createApiData: IApi= await this.apiService.createApi(apiData, currentUserId);
   
-        const { apiId, createdBy, createdAt, apiName, apiDescription, apiEndPoint1, apiEndPoint2, apiVisibleTF } = createApiData;
+        const { apiId, createdBy, createdAt, apiName, apiDescription, apiEndPoint1, apiEndPoint2, apiVisibleTF } = createApiData ||{};
   
         const response = {
           apiId,
@@ -33,7 +34,7 @@ class ApiController {
   
     public getAllApi = async (req: RequestWithUser, res: Response, next: NextFunction) => {
       try {
-        const findAllApiData: ApiDto[] = await this.apiService.getAllApi();
+        const findAllApiData: IApi[] = await this.apiService.getAllApi();
         res.status(200).json({ data: findAllApiData, message: 'findAll' });
       } catch (error) {
         next(error);
