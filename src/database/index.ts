@@ -30,6 +30,7 @@ import PartyModel from '@/modules/Party/models/party.model';
 import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
+import PartyChannelModel from '@/modules/Party/models/partychannel.model';
 import config from 'config';
 import InitialRecordService from './initialRecord';
 
@@ -90,6 +91,7 @@ const DB = {
   CustomerAccount: CustomerAccountModel(sequelize),
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
+  PartyChannel : PartyChannelModel(sequelize),
   tableId: tableIdModel(sequelize),
   Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
@@ -112,8 +114,8 @@ DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
 DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneePk', as: 'incidents' });
 DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneePk', as: 'assignee' });
 
-DB.AccessGroup.belongsToMany(DB.Channel, { through: 'AccessGroupChannel', sourceKey: 'pk', targetKey: 'pk', as: 'channels' });
-DB.Channel.belongsToMany(DB.AccessGroup, { through: 'AccessGroupChannel', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
+DB.Channel.hasMany(DB.PartyChannel, { foreignKey: 'channelKey' });
+DB.PartyChannel.belongsTo(DB.Channel, { foreignKey: 'channelKey'});
 
 DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
 DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
