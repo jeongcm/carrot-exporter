@@ -3,18 +3,32 @@ import { IIncidentAction } from '../../../common/interfaces/incidentAction.inter
 
 export type IIncidentActionCreationAttributes = Optional<
   IIncidentAction,
-  'id' | 'pk' | 'incidentPk' | 'title' | 'description' | 'createdBy' | 'updatedBy' | 'isDeleted'
+  | 'incidentActionKey'
+  | 'incidentActionId'
+  | 'incidentKey'
+  | 'createdBy'
+  | 'updatedBy'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'deletedAt'
+  | 'incidentActionName'
+  | 'incidentActionDescription'
+  | 'incidentActionStatus'
+  | 'incidentActionExecutedAt'
 >;
 
 export class IncidentActionModel extends Model<IIncidentAction, IIncidentActionCreationAttributes> implements IIncidentAction {
-  public pk: number;
-  public id: string;
-  public incidentPk: number;
-  public title: string;
-  public description: string;
-  public createdBy: number;
-  public updatedBy: number;
-  public isDeleted: number;
+  public incidentActionKey: number;
+  public incidentActionId: string;
+  public incidentKey: number;
+  public createdBy: string;
+  public updatedBy: string;
+  public deletedAt: Date;
+
+  public incidentActionName: string;
+  public incidentActionDescription: string;
+  public incidentActionStatus: 'EX' | 'RC';
+  public incidentActionExecutedAt: Date;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -23,42 +37,52 @@ export class IncidentActionModel extends Model<IIncidentAction, IIncidentActionC
 export default function (sequelize: Sequelize): typeof IncidentActionModel {
   IncidentActionModel.init(
     {
-      pk: {
-        type: DataTypes.BIGINT,
+      incidentActionKey: {
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      id: {
-        primaryKey: false,
+      incidentActionId: {
+        type: DataTypes.STRING(16),
         allowNull: false,
-        defaultValue: DataTypes.UUIDV4,
-        type: DataTypes.UUID,
+        unique: true,
       },
-      incidentPk: {
-        type: DataTypes.BIGINT,
+      incidentKey: {
+        type: DataTypes.INTEGER,
         allowNull: false,
-      },
-      title: {
-        type: DataTypes.STRING(300),
-        allowNull: false,
-      },
-      description: {
-        type: DataTypes.TEXT,
-        defaultValue: null,
       },
       createdBy: {
-        type: DataTypes.BIGINT,
-        defaultValue: null,
+        type: DataTypes.STRING(16),
+        allowNull: false,
       },
       updatedBy: {
-        type: DataTypes.BIGINT,
-        defaultValue: null,
+        type: DataTypes.STRING(16),
       },
-      isDeleted: {
-        type: DataTypes.TINYINT,
+      createdAt: {
+        type: DataTypes.DATE,
         allowNull: false,
-        defaultValue: 0,
+      },
+      updatedAt: {
+        type: DataTypes.DATE,
+      },
+      deletedAt: {
+        type: DataTypes.DATE,
+      },
+      incidentActionName: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+      },
+      incidentActionDescription: {
+        type: DataTypes.STRING(500),
+        allowNull: false,
+      },
+      incidentActionStatus: {
+        type: DataTypes.STRING(2),
+        allowNull: false,
+      },
+      incidentActionExecutedAt: {
+        type: DataTypes.DATE,
       },
     },
     {

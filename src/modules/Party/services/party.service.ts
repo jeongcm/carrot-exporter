@@ -66,6 +66,15 @@ class PartyService {
     return users;
   }
 
+  public async getUserKey(customerAccountKey: number, partyUserId: string): Promise<IParty> {
+    const user: any = await this.party.findOne({
+      where: { customerAccountKey, partyId: partyUserId, deletedAt: null },
+      attributes: ['partyKey'],
+    });
+
+    return user;
+  }
+
   public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string): Promise<IPartyUserResponse> {
     const tableIdTableName = 'PartyUser';
     const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
