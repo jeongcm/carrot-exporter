@@ -100,41 +100,41 @@ const DB = {
 
 //Different Relations among different tables
 
-DB.Tenancies.hasOne(DB.Users, { as: 'users', foreignKey: 'currentTenancyPk' });
-DB.Users.belongsTo(DB.Tenancies, { as: 'currentTenancy', foreignKey: 'currentTenancyPk' });
+// DB.Tenancies.hasOne(DB.Users, { as: 'users', foreignKey: 'currentTenancyPk' });
+// DB.Users.belongsTo(DB.Tenancies, { as: 'currentTenancy', foreignKey: 'currentTenancyPk' });
 
-DB.Users.hasMany(DB.TenancyMembers, { foreignKey: 'userPk' });
-DB.TenancyMembers.belongsTo(DB.Users, { foreignKey: 'userPk' });
+// DB.Users.hasMany(DB.TenancyMembers, { foreignKey: 'userPk' });
+// DB.TenancyMembers.belongsTo(DB.Users, { foreignKey: 'userPk' });
 
-DB.Tenancies.hasMany(DB.TenancyMembers, { foreignKey: 'tenancyPk' });
-DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
+// DB.Tenancies.hasMany(DB.TenancyMembers, { foreignKey: 'tenancyPk' });
+// DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
 
-DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneePk', as: 'incidents' });
-DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneePk', as: 'assignee' });
+// DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneePk', as: 'incidents' });
+// DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneePk', as: 'assignee' });
 
-DB.AccessGroup.belongsToMany(DB.Channel, { through: 'AccessGroupChannel', sourceKey: 'pk', targetKey: 'pk', as: 'channels' });
-DB.Channel.belongsToMany(DB.AccessGroup, { through: 'AccessGroupChannel', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
+// DB.AccessGroup.belongsToMany(DB.Channel, { through: 'AccessGroupChannel', sourceKey: 'pk', targetKey: 'pk', as: 'channels' });
+// DB.Channel.belongsToMany(DB.AccessGroup, { through: 'AccessGroupChannel', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
 
-DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
-DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
+// DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
+// DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
-DB.AccessGroup.belongsToMany(DB.Users, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'members' });
-DB.Users.belongsToMany(DB.AccessGroup, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
+// DB.AccessGroup.belongsToMany(DB.Users, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'members' });
+// DB.Users.belongsToMany(DB.AccessGroup, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
 
-DB.AccessGroupMember.belongsTo(DB.Users, { foreignKey: 'userPk' });
-DB.AccessGroupMember.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
+// DB.AccessGroupMember.belongsTo(DB.Users, { foreignKey: 'userPk' });
+// DB.AccessGroupMember.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
-DB.AccessGroup.belongsToMany(DB.Clusters, { through: 'AccessGroupCluster', sourceKey: 'pk', targetKey: 'pk', as: 'clusters' });
-DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroupClusters' });
+// DB.AccessGroup.belongsToMany(DB.Clusters, { through: 'AccessGroupCluster', sourceKey: 'pk', targetKey: 'pk', as: 'clusters' });
+// DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroupClusters' });
 
-DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterPk' });
-DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
+// DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterPk' });
+// DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
-DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
-DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
+// DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
+// DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
 
-DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
-DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
+// DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
+// DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
 
 DB.CustomerAccount.belongsToMany(DB.Address, {
   through: 'CustomerAccountAddress',
@@ -148,28 +148,28 @@ DB.Address.belongsToMany(DB.CustomerAccount, {
   otherKey: 'customerAccountKey',
 });
 
-DB.CatalogPlan.belongsToMany(DB.CatalogPlanProduct, {
-  through: 'catalogPlanProducts',
-  foreignKey: 'catalogPlankey',
-  otherKey: 'catalogPlankey',
-  as: 'catalogPlanProduct',
-});
-DB.CatalogPlanProduct.belongsToMany(DB.CatalogPlan, {
-  through: 'catalogPlanProducts',
-  foreignKey: 'catalogPlankey',
-  otherKey: 'catalogPlankey',
-});
+// DB.CatalogPlan.belongsToMany(DB.CatalogPlanProduct, {
+//   through: 'catalogPlanProducts',
+//   foreignKey: 'catalogPlankey',
+//   otherKey: 'catalogPlankey',
+//   as: 'catalogPlanProduct',
+// });
+// DB.CatalogPlanProduct.belongsToMany(DB.CatalogPlan, {
+//   through: 'catalogPlanProducts',
+//   foreignKey: 'catalogPlankey',
+//   otherKey: 'catalogPlankey',
+// });
 
-DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
-DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+// DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
+// DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
-DB.Party.hasOne(DB.PartyUser, { foreignKey: 'partyKey', sourceKey: 'partyKey' });
-DB.PartyUser.belongsTo(DB.Party, { foreignKey: 'partyKey', targetKey: 'partyKey' });
+// DB.Party.hasOne(DB.PartyUser, { foreignKey: 'partyKey', sourceKey: 'partyKey' });
+// DB.PartyUser.belongsTo(DB.Party, { foreignKey: 'partyKey', targetKey: 'partyKey' });
 
-DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
-DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
-DB.Party.hasMany(DB.PartyRelation, { as: 'partyParent', foreignKey: 'partyParentKey', sourceKey: 'partyKey' });
-DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKey', sourceKey: 'partyKey' });
+// DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
+// DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
+// DB.Party.hasMany(DB.PartyRelation, { as: 'partyParent', foreignKey: 'partyParentKey', sourceKey: 'partyKey' });
+// DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKey', sourceKey: 'partyKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
