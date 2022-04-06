@@ -18,7 +18,7 @@ import MessageRoute from '@/modules/Messaging/routes/message.route';
 import CommonCodeRoute from '@/modules/CommonCode/routes/commonCode.route';
 
 import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccount.route';
-import tableIdRoute from '@/modules/CommonService/routes/tableId.route';
+import TableIdRoute from '@/modules/CommonService/routes/tableId.route';
 import ApiRoute from '@/modules/Api/routes/api.route';
 import PartyRoute from '@modules/Party/routes/party.route';
 
@@ -37,13 +37,12 @@ const app = new App([
 
   new ProductCatalogRoute(),
   new CustomerAccountRoute(),
-  new tableIdRoute(),
   new ApiRoute(),
   new MessageRoute(),
 
   new CommonCodeRoute(),
   new CustomerAccountRoute(),
-  new tableIdRoute(),
+  new TableIdRoute(),
   new PartyRoute(),
 ]);
 
