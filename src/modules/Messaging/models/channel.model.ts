@@ -27,14 +27,14 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
   ChannelModel.init(
     {
       channelKey: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
       customerAccountKey: {
         allowNull: false,
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
       },
       channelId: {
         allowNull: false,

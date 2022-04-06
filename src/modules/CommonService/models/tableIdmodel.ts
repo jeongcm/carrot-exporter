@@ -41,7 +41,7 @@ export default function (sequelize: Sequelize): typeof TableIdModel {
   TableIdModel.init(
     {
       tableIdKey: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
@@ -58,15 +58,15 @@ export default function (sequelize: Sequelize): typeof TableIdModel {
       },
       tableMonth: {
         allowNull: false,
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
       },
       tableYear: {
         allowNull: false,
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
       },
       tableDay: {
         allowNull: false,
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
       },
       tableIdSequenceDigit: {
         allowNull: false,

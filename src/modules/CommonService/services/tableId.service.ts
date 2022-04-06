@@ -8,7 +8,7 @@ import { isEmpty } from '@/common/utils/util';
  * @memberof tableId
  */
 class TableIdService {
-  public tableId = DB.tableId;
+  public tableId = DB.TableId;
 
   /**
    * Issue a new tableId information and update tableId table's matched row to save the issued tableId
