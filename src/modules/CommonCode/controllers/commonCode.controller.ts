@@ -2,15 +2,15 @@ import { NextFunction, Request, Response } from 'express';
 import { ICommonCode } from '@/common/interfaces/commonCode.interface';
 import CommonCodeService from '../services/commonCode.service';
 import { CommonCodeDto } from '../dtos/commonCode.dto';
-import { RequestWithUser } from '@/common/interfaces/auth.interface';
+import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
 
 class CommonCodeController {
   public commonCodeService = new CommonCodeService();
 
-  public createCommonCode = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public createCommonCode = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const commonCodeData: CommonCodeDto = req.body;
-      const currentUserId = req.user.id;
+      const currentUserId = req.user.partyId;
       const createCommonCodeData: ICommonCode = await this.commonCodeService.createCommonCode(commonCodeData, currentUserId);
 
       const { commonCodeId, createdBy, createdAt, commonCodeDescription, commonCodeDisplayENG, commonCodeDisplayKOR } = createCommonCodeData;
@@ -29,7 +29,7 @@ class CommonCodeController {
     }
   };
 
-  public getAllCommonCode = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getAllCommonCode = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const findAllCommonCodeData: CommonCodeDto[] = await this.commonCodeService.getAllCommonCode();
       res.status(200).json({ data: findAllCommonCodeData, message: 'findAll' });
@@ -38,7 +38,7 @@ class CommonCodeController {
     }
   };
 
-  public getCommonCodeById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getCommonCodeById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const commonCodeId = req.params.commonCodeId;
 
     try {
@@ -49,11 +49,11 @@ class CommonCodeController {
     }
   };
 
-  public updateCommonCodeById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public updateCommonCodeById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const commonCodeId = req.params.commonCodeId;
       const commonCodeData = req.body;
-      const currentUserId = req.user.id;
+      const currentUserId = req.user.partyId;
       const updateCommonCodeData: ICommonCode = await this.commonCodeService.updateCommonCodeById(commonCodeId, commonCodeData, currentUserId);
       res.status(200).json({ data: updateCommonCodeData, message: 'updated' });
     } catch (error) {

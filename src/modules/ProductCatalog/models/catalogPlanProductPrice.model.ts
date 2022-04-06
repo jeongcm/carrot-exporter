@@ -21,7 +21,7 @@ export class CatalogPlanProductPriceModel extends Model<ICatalogPlanProductPrice
     public catalogPlanProductMonthlyPriceTo:Date;
     public catalogPlanProductMonthlyPrice:number
     public catalogPlanProductPriceKey :number
-    public isDeleted: boolean;
+    public deletedAt: Date;
     public createdBy: string;
     public updatedBy: string;
 
@@ -62,13 +62,11 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
       },
       createdBy: {
         allowNull: false,
-        type: DataTypes.STRING(16),
-        defaultValue:'system'
+        type: DataTypes.STRING(16)
       },
       updatedBy: {
         allowNull: true,
-        type: DataTypes.STRING(16),
-        defaultValue:'system'
+        type: DataTypes.STRING(16)
       },
       createdAt: {
         allowNull: false,
@@ -80,10 +78,9 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
         type: DataTypes.DATE(),
         defaultValue:new Date()
       },
-      isDeleted: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
-        defaultValue:false
+      deletedAt: {
+        allowNull: true,
+        type: DataTypes.DATE()
       },
     },
     {

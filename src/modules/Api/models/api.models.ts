@@ -1,38 +1,51 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { ICommonCode } from '@/common/interfaces/commonCode.interface';
+import { IApi } from '@common/interfaces/api.interface';
 
-export type CommonCodeCreationAttributes = Optional<
-  ICommonCode,
-  'commonCodeKey' | 'commonCodeId' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'commonCodeDescription' | 'commonCodeDisplayENG' | 'commonCodeDisplayKOR'
+export type ApiCreationAttributes = Optional<
+  IApi,
+  | 'apiKey'
+  | 'apiId'
+  | 'createdBy'
+  | 'updatedBy'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'deletedAt'
+  | 'apiName'
+  | 'apiDescription'
+  | 'apiEndPoint1'
+  | 'apiEndPoint2'
+  | 'apiVisibleTF'
 >;
 
-export class CommonCodeModel extends Model<ICommonCode, CommonCodeCreationAttributes> implements ICommonCode {
-  public commonCodeKey: number;
-  public commonCodeId: string;
+export class ApiModel extends Model<IApi, ApiCreationAttributes> implements IApi {
+  public apiKey: number;
+  public apiId: string;
   public createdBy: string;
   public updatedBy: string;
   public deletedAt: Date;
-  public commonCodeDescription: string;
-  public commonCodeDisplayENG: string;
-  public commonCodeDisplayKOR: string;
+  public apiName: string;
+  public apiDescription: string;
+  public apiEndPoint1: string;
+  public apiEndPoint2: string;
+  public apiVisibleTF: Boolean;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
 
-export default function (sequelize: Sequelize): typeof CommonCodeModel {
-  CommonCodeModel.init(
+export default function (sequelize: Sequelize): typeof ApiModel {
+  ApiModel.init(
     {
-      commonCodeKey: {
+      apiKey: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      commonCodeId: {
+      apiId: {
         allowNull: false,
         type: DataTypes.STRING(16),
-        unique: true
+        unique: true,
       },
       createdBy: {
         allowNull: false,
@@ -51,25 +64,33 @@ export default function (sequelize: Sequelize): typeof CommonCodeModel {
       deletedAt: {
         type: DataTypes.DATE,
       },
-      commonCodeDescription: {
+      apiName: {
         allowNull: false,
         type: DataTypes.STRING(500),
       },
-      commonCodeDisplayENG: {
+      apiDescription: {
+        allowNull: false,
+        type: DataTypes.STRING(500),
+      },
+      apiEndPoint1: {
         allowNull: false,
         type: DataTypes.STRING(100),
       },
-      commonCodeDisplayKOR: {
+      apiEndPoint2: {
         allowNull: false,
         type: DataTypes.STRING(100),
+      },
+      apiVisibleTF: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
       },
     },
     {
-      tableName: 'CommonCode',
-      modelName: 'CommonCode',
+      tableName: 'Api',
+      modelName: 'Api',
       sequelize,
     },
   );
 
-  return CommonCodeModel;
+  return ApiModel;
 }

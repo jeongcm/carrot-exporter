@@ -1,0 +1,124 @@
+swagger: '2.0'
+info:
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: api
+    description: api API
+
+paths:
+  # [POST] api
+  /api:
+    post:
+      tags:
+        - api
+      summary: Create Api
+      parameters:
+        - name: body
+          in: body
+          description: Api data
+          required: true
+          schema:
+            $ref: '#/definitions/api'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [GET] api
+    get:
+      tags:
+        - api
+      summary: Find All Api
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+   # [GET] api/apiId
+  /api/{apiId}:
+    get:
+      tags:
+        - api
+      summary: Get Api By Id
+      parameters:
+        - name: apiId
+          in: path
+          description: Api Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [PUT] api/apiId
+    put:
+      tags:
+        - api
+      summary: Update Api By Id
+      parameters:
+        - name: apiId
+          in: path
+          description: Api Id
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: Api Data
+          required: true
+          schema:
+            $ref: '#/definitions/api'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+# definitions
+definitions:
+  api:
+    type: object
+    required:
+      - apiName
+      - apiDescription
+      - apiEndPoint1
+      - apiEndPoint2
+      - apiVisibleTF
+    properties:
+      apiName:
+        type: string
+        description: api Name
+        example: example
+      apiDescription:
+        type: string
+        description: api description
+        example: example
+      apiEndPoint1:
+        type: string
+        description: api EndPoint1
+        example: example
+      apiEndPoint2:
+        type: string
+        description: api EndPoint1
+        example: example
+      apiVisibleTF:
+        type: string
+        description: api VisibleTF
+        example: example

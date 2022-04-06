@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { ICatalogPlanProduct } from '@/common/interfaces/productCatalog.interface';
 
-export type CatalogPlanProductPriceCreationAttributes = Optional<
+export type CatalogPlanProductCreationAttributes = Optional<
     ICatalogPlanProduct,
     'catalogPlanProductKey'
     |'catalogPlanProductId'
@@ -10,7 +10,7 @@ export type CatalogPlanProductPriceCreationAttributes = Optional<
     |'updatedAt'
     |'createdBy'
     |'updatedBy'
-    |'isDeleted'
+    |'deletedAt'
     |'catalogPlanProductName'
     |'catalogPlanProductDescription'
     |'catalogPlanProductMonthlyPrice'
@@ -18,7 +18,7 @@ export type CatalogPlanProductPriceCreationAttributes = Optional<
     |'catalogPlanProductCurrency'
 >;
 
-export class CatalogPlanProductModel extends Model<ICatalogPlanProduct, CatalogPlanProductPriceCreationAttributes> implements ICatalogPlanProduct {
+export class CatalogPlanProductModel extends Model<ICatalogPlanProduct, CatalogPlanProductCreationAttributes> implements ICatalogPlanProduct {
     public catalogPlanProductKey:number;
     public catalogPlanProductId:string
     public catalogPlanKey:number;
@@ -27,7 +27,7 @@ export class CatalogPlanProductModel extends Model<ICatalogPlanProduct, CatalogP
     public catalogPlanProductMonthlyPrice:number
     public catalogPlanProductUOM:string
     public catalogPlanProductCurrency:string
-    public isDeleted: boolean;
+    public deletedAt: Date;
     public createdBy: string;
     public updatedBy: string;
 
@@ -75,13 +75,11 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
             },
             createdBy: {
                 allowNull: false,
-                type: DataTypes.STRING(16),
-                defaultValue:'system'
+                type: DataTypes.STRING(16)
             },
             updatedBy: {
                 allowNull: true,
-                type: DataTypes.STRING(16),
-                defaultValue:'system'
+                type: DataTypes.STRING(16)
             },
             createdAt: {
                 allowNull: false,
@@ -91,10 +89,9 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
                 allowNull: true,
                 type: DataTypes.DATE(),
             },
-            isDeleted: {
-                allowNull: false,
-                type: DataTypes.BOOLEAN,
-                defaultValue:false
+            deletedAt: {
+                allowNull: true,
+                type: DataTypes.DATE()
             },
         },
         { 
