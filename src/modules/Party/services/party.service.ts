@@ -52,7 +52,7 @@ class PartyService {
   }
 
   public async getUser(customerAccountKey: number, partyUserId: string): Promise<IParty> {
-    const users: any = await this.party.findOne({
+    const users: IParty = await this.party.findOne({
       where: { customerAccountKey, partyId: partyUserId, deletedAt: null },
       attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey'] },
       include: [
@@ -67,7 +67,7 @@ class PartyService {
   }
 
   public async getUserKey(customerAccountKey: number, partyUserId: string): Promise<IParty> {
-    const user: any = await this.party.findOne({
+    const user: IParty = await this.party.findOne({
       where: { customerAccountKey, partyId: partyUserId, deletedAt: null },
       attributes: ['partyKey'],
     });

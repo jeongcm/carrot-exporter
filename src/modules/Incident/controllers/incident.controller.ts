@@ -16,16 +16,26 @@ import { IIncidentCounts } from '@/common/interfaces/incidentCounts.interface';
 import DB from '@/database';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachment.dto';
+import PartyService from '@/modules/Party/services/party.service';
 
 class IncidentController {
   public incidentService = new IncidentService();
+  public partyService = new PartyService();
+
   public users = DB.Users;
 
   public createIncident = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const incidentData: CreateIncidentDto = req.body;
+
+    const assignee = await this.partyService.getUser(customerAccountKey, incidentData.assigneeId);
+
+    if (!assignee) {
+      res.status(404).json({ message: `assignee user id(${incidentData.assigneeId}) not found` });
+    }
+
     try {
-      const incidentData: CreateIncidentDto = req.body;
       const logginedUserId = req.user.partyId;
-      const customerAccountKey = req.customerAccountKey;
 
       const createdIncident: IIncident = await this.incidentService.createIncident(customerAccountKey, logginedUserId, incidentData);
 
