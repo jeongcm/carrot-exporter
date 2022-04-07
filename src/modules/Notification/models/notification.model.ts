@@ -15,7 +15,7 @@ export class NotificationModel extends Model<Notification, NotificationCreationA
   public messageKey: number;
   public createdBy: string;
   public updatedBy: string;
-  public isDeleted: boolean;
+  public deletedAt: Date;
   public notificationStatus: string;
   public notificationStatutsUpdatedAt: Date;
   public customerAccountKey: number;
@@ -64,9 +64,9 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
         allowNull: false,
         type: DataTypes.DATE,
       },
-      isDeleted: {
-        allowNull: false,
-        type: DataTypes.BOOLEAN,
+      deletedAt: {
+        allowNull: true,
+        type: DataTypes.DATE,
       },
       notificationStatus: {
         allowNull: true,

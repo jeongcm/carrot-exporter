@@ -15,7 +15,7 @@ class NotificationService{
    */
   public async findAllNotification(): Promise<Notification[]> {
     const allNotification: Notification[] = await this.notificaion.findAll({
-      where: { isDeleted: false },
+      where: { deletedAt: null },
       attributes: { exclude: ['messageKey', 'createdBy', 'updatedBy', 'isDeleted'] },
     });
     return allNotification;
@@ -39,7 +39,7 @@ class NotificationService{
       updatedBy: customerAccountKey.toLocaleString(),
       createdAt: currentDate,
       updatedAt: currentDate,
-      isDeleted: false,
+      deletedAt: null,
       notificationStatus: null,
       notificationStatutsUpdatedAt: currentDate,
       customerAccountKey: customerAccountKey,

@@ -8,7 +8,7 @@ export interface Notification {
     updatedBy: string;
     createdAt: Date;
     updatedAt: Date;
-    isDeleted: boolean;
+    deletedAt: Date;
     notificationStatus: string;
     notificationStatutsUpdatedAt: Date;
     customerAccountKey: number;
