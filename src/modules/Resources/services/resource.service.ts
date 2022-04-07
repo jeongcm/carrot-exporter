@@ -13,9 +13,9 @@ class ResourceService {
   /**
    * @param  {ResourceDto} resourceData
    * @param  {string} currentUserId
-   * @returns IResource[]
+   * @param  {number} customerAccountKey
    */
-  public async createResource(resourceData: ResourceDto, currentUserId: string): Promise<IResource> {
+  public async createResource(resourceData: ResourceDto, currentUserId: string, customerAccountKey: number): Promise<IResource> {
     if (isEmpty(resourceData)) throw new HttpException(400, 'Resource  must not be empty');
 
     try {
@@ -31,15 +31,18 @@ class ResourceService {
       const createResource: IResource = await this.resource.create({
         resourceId: responseTableIdData.tableIdFinalIssued,
         createdBy: currentUserId,
+        customerAccountKey,
+        resourceStatusUpdatedAt: new Date(),
         ...resourceData,
       });
-
       return createResource;
-    } catch (error) {}
+    } catch (error) {
+      throw new HttpException(500, error);
+    }
   }
 
   /**
-   * @returns IResource[]
+   * @returns Promise
    */
   public async getAllResource(): Promise<IResource[]> {
     const allResource: IResource[] = await this.resource.findAll({
@@ -52,7 +55,6 @@ class ResourceService {
 
   /**
    * @param  {string} resourceId
-   * @returns Promise
    */
   public async getResourceById(resourceId: string): Promise<IResource> {
     const resource: IResource = await this.resource.findOne({
@@ -67,7 +69,6 @@ class ResourceService {
    * @param  {string} resourceId
    * @param  {ResourceDto} resourceData
    * @param  {string} currentUserId
-   * @returns Promise
    */
   public async updateResourceById(resourceId: string, resourceData: ResourceDto, currentUserId: string): Promise<IResource> {
     if (isEmpty(resourceData)) throw new HttpException(400, 'Resource  must not be empty');

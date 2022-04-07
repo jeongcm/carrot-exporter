@@ -5,14 +5,19 @@ import { ResourceDto } from '../dtos/resource.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 
 class ResourceController {
-  public apiService = new ResourceService();
+  public resourceService = new ResourceService();
 
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
   public createResource = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const apiData: ResourceDto = req.body;
-      const currentUserId = req.user.partyId;
-      const createResourceData: IResource = await this.apiService.createResource(apiData, currentUserId);
-
+      const customerAccountKey = req.customerAccountKey;
+      const resourceData: ResourceDto = req.body;
+      const currentUserId = req.systemId;
+      const createResourceData: IResource = await this.resourceService.createResource(resourceData, currentUserId, customerAccountKey);
       const {
         resourceId,
         resourceGroupKey,
@@ -35,7 +40,6 @@ class ResourceController {
         resourceActive,
         resourceStatus,
         resourceStatusUpdatedAt,
-        customerAccountKey,
         parentResourceId,
         resourceNamespace,
       } = createResourceData;
@@ -62,20 +66,23 @@ class ResourceController {
         resourceActive,
         resourceStatus,
         resourceStatusUpdatedAt,
-        customerAccountKey,
         parentResourceId,
         resourceNamespace,
       };
 
-      res.status(201).json({ data: response, message: 'created' });
+      res.status(201).json({ data: createResourceData, message: 'created' });
     } catch (error) {
       next(error);
     }
   };
-
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
   public getAllResource = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const findAllResourceData: IResource[] = await this.apiService.getAllResource();
+      const findAllResourceData: IResource[] = await this.resourceService.getAllResource();
 
       res.status(200).json({ data: findAllResourceData, message: 'findAll' });
     } catch (error) {
@@ -83,24 +90,34 @@ class ResourceController {
     }
   };
 
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
   public getResourceById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const apiId = req.params.apiId;
+    const resourceId = req.params.resourceId;
 
     try {
-      const resource: IResource = await this.apiService.getResourceById(apiId);
-      res.status(200).json({ data: resource, message: `find resource id(${apiId}) ` });
+      const resource: IResource = await this.resourceService.getResourceById(resourceId);
+      res.status(200).json({ data: resource, message: `find resource id(${resourceId}) ` });
     } catch (error) {
       next(error);
     }
   };
 
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
   public updateResourceById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const apiId = req.params.apiId;
-      const apiData = req.body;
-      const currentUserId = req.user.partyId;
+      const resourceId = req.params.resourceId;
+      const resourceData = req.body;
+      const currentUserId = req.systemId;
 
-      const updateResourceData: IResource = await this.apiService.updateResourceById(apiId, apiData, currentUserId);
+      const updateResourceData: IResource = await this.resourceService.updateResourceById(resourceId, resourceData, currentUserId);
 
       res.status(200).json({ data: updateResourceData, message: 'updated' });
     } catch (error) {

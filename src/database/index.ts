@@ -30,6 +30,7 @@ import ApiModel from '@/modules/Api/models/api.models';
 import MessageModel from '@/modules/Messaging/models/message.model';
 import PartyModel from '@/modules/Party/models/party.model';
 import ResourceModel from '@/modules/Resources/models/resource.model';
+import ResourceGroupModel from '@/modules/Resources/models/resourceGroup.model';
 import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import TableIdModel from '@/modules/CommonService/models/tableIdmodel';
@@ -101,6 +102,7 @@ const DB = {
   Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
   Resource: ResourceModel(sequelize),
+  ResourceGroup: ResourceGroupModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
   sequelize, // connection instance (RAW queries)

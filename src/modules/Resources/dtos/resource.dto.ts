@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsDate, IsJSON, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsDate, IsObject, IsNumber, IsByteLength } from 'class-validator';
 
 export class ResourceDto {
   @IsNumber()
@@ -19,27 +19,27 @@ export class ResourceDto {
 
   @IsString()
   @IsNotEmpty()
-  public resourceType: string;
+  public resourceType: 'KN' |'KS' | 'OP';
 
   @IsString()
   @IsNotEmpty()
-  public resourceLevel1: string;
+  public resourceLevel1: 'KN' |'KS' | 'OP';
 
   @IsString()
   @IsOptional()
-  public resourceLevel2: string;
+  public resourceLevel2: 'KN' |'KS' | 'OP';
 
   @IsString()
   @IsOptional()
-  public resourceLevel3: string;
+  public resourceLevel3: 'KN' |'KS' | 'OP';
 
   @IsString()
   @IsOptional()
-  public resourceLevel4: string;
+  public resourceLevel4: 'KN' |'KS' | 'OP';
 
   @IsString()
   @IsNotEmpty()
-  public resourceLevelType: string;
+  public resourceLevelType: 'KN' |'KS' | 'OP';;
 
   @IsBoolean()
   @IsNotEmpty()
@@ -57,13 +57,9 @@ export class ResourceDto {
   @IsOptional()
   public resourceStatusUpdatedAt: Date;
 
-  @IsJSON()
+  @IsObject()
   @IsOptional()
   public resourceStatus: JSON;
-
-  @IsNumber()
-  @IsNotEmpty()
-  public customerAccountKey: number;
 
   @IsString()
   @IsNotEmpty()
