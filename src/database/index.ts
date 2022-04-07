@@ -17,9 +17,10 @@ import CatalogPlanModel from '@/modules/ProductCatalog/models/catalogPlan.model'
 import CatalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
 import CatalogPlanProductPriceModel from '@/modules/ProductCatalog/models/catalogPlanProductPrice.model';
 import IncidentModel from '@/modules/Incident/models/incident.model';
-import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.model';
-import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
+import IncidentActionAttachmentModel from '@/modules/Incident/models/incidentActionAttachment.model';
+import IncidentAlertReceivedModel from '@/modules/Incident/models/incidentAlertReceived.model';
+import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
 import CommonCodeModel from '@/modules/CommonCode/models/commonCode.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
@@ -81,8 +82,9 @@ const DB = {
   Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
   Incident: IncidentModel(sequelize),
-  IncidentRelAlert: IncidentRelAlertModel(sequelize),
   IncidentAction: IncidentActionModel(sequelize),
+  IncidentActionAttachment: IncidentActionAttachmentModel(sequelize),
+  IncidentAlertReceived: IncidentAlertReceivedModel(sequelize),
   Invitations: InvitationModel(sequelize),
   Tokens: TokenModel(sequelize),
   CatalogPlan: CatalogPlanModel(sequelize),
@@ -113,8 +115,17 @@ DB.TenancyMembers.belongsTo(DB.Users, { foreignKey: 'userPk' });
 DB.Tenancies.hasMany(DB.TenancyMembers, { foreignKey: 'tenancyPk' });
 DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
 
-DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneePk', as: 'incidents' });
-DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneePk', as: 'assignee' });
+DB.CustomerAccount.hasMany(DB.Incident, { foreignKey: 'customerAccountKey' });
+DB.Incident.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.Party.hasMany(DB.Incident, { foreignKey: 'assigneeKey', as: 'incidents' });
+DB.Incident.belongsTo(DB.Party, { foreignKey: 'assigneeKey', as: 'assignee' });
+
+DB.Incident.hasMany(DB.IncidentAction, { foreignKey: 'incidentKey' });
+DB.IncidentAction.belongsTo(DB.Incident, { foreignKey: 'incidentKey' });
+
+DB.IncidentAction.hasMany(DB.IncidentActionAttachment, { foreignKey: 'incidentActionKey' });
+DB.IncidentActionAttachment.belongsTo(DB.IncidentAction, { foreignKey: 'incidentActionKey' });
 
 DB.Channel.hasMany(DB.PartyChannel, { foreignKey: 'channelKey' });
 DB.Party.hasMany(DB.PartyChannel, { foreignKey: 'partyKey' });
@@ -137,11 +148,11 @@ DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourc
 DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterPk' });
 DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
-DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
-DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
+// DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
+// DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
 
-DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
-DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
+// DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
+// DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
 
 DB.CustomerAccount.belongsToMany(DB.Address, {
   through: 'CustomerAccountAddress',
