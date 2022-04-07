@@ -4,7 +4,7 @@ import tableIdController from '@/modules/CommonService/controllers/tableId.contr
 import AuthService from '@/modules/UserTenancy/services/auth.service';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 
-class tableIdRoute implements Routes {
+class TableIdRoute implements Routes {
   public router = Router();
   public tableIdController = new tableIdController();
   public authservice = new AuthService();
@@ -18,4 +18,4 @@ class tableIdRoute implements Routes {
   }
 }
 
-export default tableIdRoute;
+export default TableIdRoute;

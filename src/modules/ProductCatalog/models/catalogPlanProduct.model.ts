@@ -39,7 +39,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
     CatalogPlanProductModel.init(
         {
             catalogPlanProductKey: {
-                type: DataTypes.BIGINT,
+                type: DataTypes.INTEGER,
                 autoIncrement: true,
                 allowNull: false,
                 primaryKey: true

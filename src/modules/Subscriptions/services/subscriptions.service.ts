@@ -33,10 +33,13 @@ class SubscriptionService {
       ...data,
       subscriptionId,
       catalogPlanKey: catalogPlan.catalogPlanKey,
-      customerAccountKey
+      customerAccountKey,
+      createdBy:userId||systemId,
+      updatedBy:userId||systemId,
     }
-    const newCatalogPlan: ISubscriptions = await this.subscription.create(createObj);
-    return newCatalogPlan;
+    const newSubscription: ISubscriptions = await this.subscription.create(createObj);
+    delete newSubscription.subscriptionKey;
+    return newSubscription;
   }
 
 
@@ -53,8 +56,12 @@ class SubscriptionService {
         subscriptionId: id,
         deletedAt: null,
       },
+      attributes:{exclude:['subscriptionKey', 'deleteAt']},
       include: [
-        { model: CatalogPlanModel }
+        { 
+          model: CatalogPlanModel ,
+          attributes:{exclude:["catalogPlanKey", "deletedAt"]}
+      }
       ]
     });
     if (!subscriptionDetail) throw new HttpException(409, 'No Subscription is found');
@@ -73,7 +80,10 @@ class SubscriptionService {
 
     await this.subscription.update(updateObj, { where: { subscriptionId } });
 
-    const updateData: ISubscriptions = await this.subscription.findOne({ where: { subscriptionId } });
+    const updateData: ISubscriptions = await this.subscription.findOne({ 
+      where: { subscriptionId },
+      attributes:{exclude:["subscriptionKey", "deletedAt"]}
+      });
 
     return updateData;
   }

@@ -26,18 +26,18 @@ export default function (sequelize: Sequelize): typeof PartyChannelModel {
   PartyChannelModel.init(
     {
       partyChannelKey: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
       partyKey: {
         allowNull: false,
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
       },
       channelKey: {
         allowNull: false,
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
       },
       PartychannelId: {
         allowNull: false,

@@ -53,7 +53,7 @@ export default function (sequelize: Sequelize): typeof SubscriptionModel {
         type: DataTypes.STRING(16)
       },
       catalogPlanKey: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
       customerAccountKey: {
@@ -74,7 +74,7 @@ export default function (sequelize: Sequelize): typeof SubscriptionModel {
         validate: {
           isIn: {
               args: [['AC' ,'SP' , 'TM']],
-              msg: " message must be of type  ['AC' |'SP' | 'TM'] AC: Active| 계약중, SP: Suspended| 일시정지, TM: Terminated, 해지"
+              msg: " subscriptionStatus must be of type  ['AC' |'SP' | 'TM'] AC: Active| 계약중, SP: Suspended| 일시정지, TM: Terminated, 해지"
           }
         }
       },
@@ -88,13 +88,13 @@ export default function (sequelize: Sequelize): typeof SubscriptionModel {
         validate: {
           isIn: {
               args: [['AC' ,'MM']],
-              msg: " message must be of type  ['AC' ,'MM'] AC: Annual Contract | 연간계약, MM : Month to Month|월간계약"
+              msg: " subscriptionCommitmentType must be of type  ['AC' ,'MM'] AC: Annual Contract | 연간계약, MM : Month to Month|월간계약"
           }
         }
       },
       deletedAt: {
-        allowNull: false,
-        type: DataTypes.DATE
+        allowNull: true,
+        type: DataTypes.DATE()
       },
       createdBy: {
         allowNull: false,
@@ -111,7 +111,7 @@ export default function (sequelize: Sequelize): typeof SubscriptionModel {
       },
       updatedAt: {
         allowNull: true,
-        type: DataTypes.DATE,
+        type: DataTypes.DATE(),
         defaultValue: new Date()
       },
     },

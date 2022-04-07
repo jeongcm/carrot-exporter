@@ -17,21 +17,21 @@ import CatalogPlanModel from '@/modules/ProductCatalog/models/catalogPlan.model'
 import CatalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
 import CatalogPlanProductPriceModel from '@/modules/ProductCatalog/models/catalogPlanProductPrice.model';
 import IncidentModel from '@/modules/Incident/models/incident.model';
-import IncidentRelAlertModel from '@/modules/Incident/models/incidentRelAlert.model';
-import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
+import IncidentActionAttachmentModel from '@/modules/Incident/models/incidentActionAttachment.model';
+import IncidentAlertReceivedModel from '@/modules/Incident/models/incidentAlertReceived.model';
+import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
 import CommonCodeModel from '@/modules/CommonCode/models/commonCode.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import AddressModel from '@/modules/Address/models/address.model';
 import ApiModel from '@/modules/Api/models/api.models';
-
 import MessageModel from '@/modules/Messaging/models/message.model';
 import PartyModel from '@/modules/Party/models/party.model';
 import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
-import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
+import TableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import PartyChannelModel from '@/modules/Party/models/partychannel.model';
 import config from 'config';
 import InitialRecordService from './initialRecord';
@@ -83,8 +83,9 @@ const DB = {
   Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
   Incident: IncidentModel(sequelize),
-  IncidentRelAlert: IncidentRelAlertModel(sequelize),
   IncidentAction: IncidentActionModel(sequelize),
+  IncidentActionAttachment: IncidentActionAttachmentModel(sequelize),
+  IncidentAlertReceived: IncidentAlertReceivedModel(sequelize),
   Invitations: InvitationModel(sequelize),
   Tokens: TokenModel(sequelize),
   CatalogPlan: CatalogPlanModel(sequelize),
@@ -96,7 +97,7 @@ const DB = {
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
   Api: ApiModel(sequelize),
   PartyChannel : PartyChannelModel(sequelize),
-  tableId: tableIdModel(sequelize),
+  TableId: TableIdModel(sequelize),
   Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
@@ -116,14 +117,26 @@ DB.TenancyMembers.belongsTo(DB.Users, { foreignKey: 'userPk' });
 DB.Tenancies.hasMany(DB.TenancyMembers, { foreignKey: 'tenancyPk' });
 DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
 
-DB.Users.hasMany(DB.Incident, { foreignKey: 'assigneePk', as: 'incidents' });
-DB.Incident.belongsTo(DB.Users, { foreignKey: 'assigneePk', as: 'assignee' });
+DB.CustomerAccount.hasMany(DB.Incident, { foreignKey: 'customerAccountKey' });
+DB.Incident.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.Party.hasMany(DB.Incident, { foreignKey: 'assigneeKey', as: 'incidents' });
+DB.Incident.belongsTo(DB.Party, { foreignKey: 'assigneeKey', as: 'assignee' });
+
+DB.Incident.hasMany(DB.IncidentAction, { foreignKey: 'incidentKey' });
+DB.IncidentAction.belongsTo(DB.Incident, { foreignKey: 'incidentKey' });
+
+DB.IncidentAction.hasMany(DB.IncidentActionAttachment, { foreignKey: 'incidentActionKey' });
+DB.IncidentActionAttachment.belongsTo(DB.IncidentAction, { foreignKey: 'incidentActionKey' });
 
 DB.Channel.hasMany(DB.PartyChannel, { foreignKey: 'channelKey' });
+DB.Party.hasMany(DB.PartyChannel, { foreignKey: 'partyKey' });
 DB.PartyChannel.belongsTo(DB.Channel, { foreignKey: 'channelKey'});
+DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey'});
 
-DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
-DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
+
+//DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
+//DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
 DB.AccessGroup.belongsToMany(DB.Users, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'members' });
 DB.Users.belongsToMany(DB.AccessGroup, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
@@ -137,11 +150,11 @@ DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourc
 DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterPk' });
 DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
-DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
-DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
+// DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
+// DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
 
-DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
-DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
+// DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
+// DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
 
 DB.CustomerAccount.belongsToMany(DB.Address, {
   through: 'CustomerAccountAddress',
@@ -156,7 +169,6 @@ DB.Address.belongsToMany(DB.CustomerAccount, {
 });
 
 
-
 DB.CatalogPlan.hasMany(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_key' });
 DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});
 
@@ -164,20 +176,19 @@ DB.CatalogPlanProduct.hasMany(DB.CatalogPlanProductPrice, { foreignKey: 'catalog
 DB.CatalogPlanProductPrice.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
 
 
-DB.CatalogPlan.hasMany(DB.Subscription, { foreignKey: 'catalog_plan_key' });
+DB.CatalogPlan.hasOne(DB.Subscription, { foreignKey: 'catalog_plan_key' });
 DB.Subscription.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});
 
 DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
 DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
-
 DB.Party.hasOne(DB.PartyUser, { foreignKey: 'partyKey', sourceKey: 'partyKey' });
 DB.PartyUser.belongsTo(DB.Party, { foreignKey: 'partyKey', targetKey: 'partyKey' });
 
-DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
-DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
 DB.Party.hasMany(DB.PartyRelation, { as: 'partyParent', foreignKey: 'partyParentKey', sourceKey: 'partyKey' });
 DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKey', sourceKey: 'partyKey' });
+DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
+DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

@@ -40,7 +40,7 @@ export default function (sequelize: Sequelize): typeof MessageModel {
     MessageModel.init(
         {
             messageKey: {
-                type: DataTypes.BIGINT,
+                type: DataTypes.INTEGER,
                 autoIncrement: true,
                 allowNull: false,
                 primaryKey: true,
@@ -62,7 +62,7 @@ export default function (sequelize: Sequelize): typeof MessageModel {
             },
             customerAccountKey: {
                 allowNull: false,
-                type: DataTypes.BIGINT,
+                type: DataTypes.INTEGER,
             },
             messageVerbiage: {
                 allowNull: false,
@@ -74,13 +74,11 @@ export default function (sequelize: Sequelize): typeof MessageModel {
             },
             createdBy: {
                 allowNull: false,
-                type: DataTypes.STRING(16),
-                defaultValue: "SYSTEM"
+                type: DataTypes.STRING(16)
             },
             updatedBy: {
                 allowNull: true,
-                type: DataTypes.STRING(16),
-                defaultValue: "SYSTEM"
+                type: DataTypes.STRING(16)
             },
             createdAt: {
                 allowNull: false,

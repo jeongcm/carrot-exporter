@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsAlpha, IsOptional, IsBoolean, IsDate } from 'class-validator';
+import { IsString, IsNotEmpty, IsAlpha, IsOptional, IsBoolean, IsDate, IsDateString } from 'class-validator';
 
 /**
  * DTO with information to add new subscription
@@ -20,11 +20,11 @@ export class CreateSubscriptionDto {
   @IsNotEmpty()
   public subscriptionConsent : boolean;
 
-  @IsDate()
+  @IsDateString()
   @IsNotEmpty()
   public subscriptionActivatedAt : Date;
 
-  @IsDate()
+  @IsDateString()
   @IsNotEmpty()
   public subscriptionTerminatedAt : Date;
 
