@@ -14,7 +14,7 @@ export type CreateMessageAttributes = Optional<
     | "updatedAt"
     | "createdBy"
     | "updatedBy"
-    | "isDeleted"
+    | "deletedAt"
 >;
 
 
@@ -26,7 +26,7 @@ export class MessageModel extends Model<IMessage, CreateMessageAttributes> imple
     public customerAccountKey: number;
     public messageVerbiage: string;
 
-    public isDeleted: boolean;
+    public deletedAt: Date;
     public createdBy: string;
     public updatedBy: string;
 
@@ -40,7 +40,7 @@ export default function (sequelize: Sequelize): typeof MessageModel {
     MessageModel.init(
         {
             messageKey: {
-                type: DataTypes.BIGINT,
+                type: DataTypes.INTEGER,
                 autoIncrement: true,
                 allowNull: false,
                 primaryKey: true,
@@ -62,16 +62,15 @@ export default function (sequelize: Sequelize): typeof MessageModel {
             },
             customerAccountKey: {
                 allowNull: false,
-                type: DataTypes.BIGINT,
+                type: DataTypes.INTEGER,
             },
             messageVerbiage: {
                 allowNull: false,
                 type: DataTypes.STRING(5000),
             },
-            isDeleted: {
-                allowNull: false,
-                type: DataTypes.BOOLEAN,
-                defaultValue: false
+            deletedAt: {
+                allowNull: true,
+                type: DataTypes.DATE
             },
             createdBy: {
                 allowNull: false,

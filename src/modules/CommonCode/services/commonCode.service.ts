@@ -20,7 +20,7 @@ class CommonCodeService {
     if (isEmpty(commonCodeData)) throw new IsEmptyError('CommonCode must not be empty');
 
     try {
-      const tableIdTableName = 'commonCode';
+      const tableIdTableName = 'CommonCode';
       const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
 
       if (!tableId) {
@@ -31,7 +31,7 @@ class CommonCodeService {
 
       const createCommonCode: ICommonCode = await this.commonCode.create({
         commonCodeId: responseTableIdData.tableIdFinalIssued,
-        createdBy: 'system',
+        createdBy: currentUserId,
         ...commonCodeData,
       });
 
@@ -44,8 +44,8 @@ class CommonCodeService {
    */
   public async getAllCommonCode(): Promise<ICommonCode[]> {
     const allCommonCode: ICommonCode[] = await this.commonCode.findAll({
-      where: { isDeleted: false },
-      attributes: { exclude: ['commonCodeKey', 'isDeleted'] },
+      where: { deletedAt: null },
+      attributes: { exclude: ['commonCodeKey', 'deletedAt'] },
     });
     return allCommonCode;
   }
@@ -57,7 +57,7 @@ class CommonCodeService {
   public async getCommonCodeById(commonCodeId: string): Promise<ICommonCode> {
     const commonCode: ICommonCode = await this.commonCode.findOne({
       where: { commonCodeId },
-      attributes: { exclude: ['commonCodeKey', 'isDeleted'] },
+      attributes: { exclude: ['commonCodeKey', 'deletedAt'] },
     });
     return commonCode;
   }
@@ -69,14 +69,18 @@ class CommonCodeService {
    * @returns Promise
    */
   public async updateCommonCodeById(commonCodeId: string, commonCodeData: CommonCodeDto, currentUserId: string): Promise<ICommonCode> {
+
     if (isEmpty(commonCodeData)) throw new IsEmptyError('CommonCode Data cannot be blank');
+
     const findCommonCode: ICommonCode = await this.commonCode.findOne({ where: { commonCodeId: commonCodeId } });
+
     if (!findCommonCode) throw new IsEmptyError("CommonCode doesn't exist");
+
     const updatedCommonCodeData = {
       ...commonCodeData,
-      updatedBy: 'system',
-      updatedAt: new Date(),
+      updatedBy: currentUserId,
     };
+
     await this.commonCode.update(updatedCommonCodeData, { where: { commonCodeId: commonCodeId } });
 
     return this.getCommonCodeById(commonCodeId);

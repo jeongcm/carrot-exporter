@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
+import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional, IsJSON, IsObject, IsDate } from 'class-validator';
 
 export class CreateChannelDto {
   @IsString()
@@ -7,33 +7,35 @@ export class CreateChannelDto {
 
   @IsString()
   @IsNotEmpty()
-  public name: string;
+  public channelName: string;
 
   @IsString()
   @IsNotEmpty()
-  public description: string;
+  public channelDescription: string;
+
+  @IsObject()
+  public channelAdaptor: JSON;
+
+}
+
+export class UpdateChannelDto {
+
+  @IsString()
+  @IsNotEmpty()
+  public channelType: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public channelName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public channelDescription: string;
 
   // @IsAlpha()
-  @IsNotEmpty()
-  public configJSON: string;
+  // @IsString()
+  // @IsNotEmpty()
+  @IsObject()
+  public channelAdaptor: JSON;
 
-  @IsString()
-  @IsOptional()
-  public createdAt: Date;
-
-  @IsString()
-  @IsOptional()
-  public updatedAt: Date;
-
-  @IsString()
-  @IsOptional()
-  public createdBy: number;
-
-  @IsString()
-  @IsOptional()
-  public updatedBy: number;
-
-  @IsString()
-  @IsOptional()
-  public isDeleted: boolean;
 }

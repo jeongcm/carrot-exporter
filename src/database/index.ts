@@ -26,11 +26,13 @@ import CommonCodeModel from '@/modules/CommonCode/models/commonCode.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import AddressModel from '@/modules/Address/models/address.model';
+import ApiModel from '@/modules/Api/models/api.models';
 import MessageModel from '@/modules/Messaging/models/message.model';
 import PartyModel from '@/modules/Party/models/party.model';
 import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
-import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
+import TableIdModel from '@/modules/CommonService/models/tableIdmodel';
+import PartyChannelModel from '@/modules/Party/models/partychannel.model';
 import config from 'config';
 import InitialRecordService from './initialRecord';
 
@@ -92,7 +94,9 @@ const DB = {
   CustomerAccount: CustomerAccountModel(sequelize),
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
-  tableId: tableIdModel(sequelize),
+  Api: ApiModel(sequelize),
+  PartyChannel : PartyChannelModel(sequelize),
+  TableId: TableIdModel(sequelize),
   Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
@@ -123,11 +127,14 @@ DB.IncidentAction.belongsTo(DB.Incident, { foreignKey: 'incidentKey' });
 DB.IncidentAction.hasMany(DB.IncidentActionAttachment, { foreignKey: 'incidentActionKey' });
 DB.IncidentActionAttachment.belongsTo(DB.IncidentAction, { foreignKey: 'incidentActionKey' });
 
-DB.AccessGroup.belongsToMany(DB.Channel, { through: 'AccessGroupChannel', sourceKey: 'pk', targetKey: 'pk', as: 'channels' });
-DB.Channel.belongsToMany(DB.AccessGroup, { through: 'AccessGroupChannel', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
+DB.Channel.hasMany(DB.PartyChannel, { foreignKey: 'channelKey' });
+DB.Party.hasMany(DB.PartyChannel, { foreignKey: 'partyKey' });
+DB.PartyChannel.belongsTo(DB.Channel, { foreignKey: 'channelKey'});
+DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey'});
 
-DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
-DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
+
+//DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
+//DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
 DB.AccessGroup.belongsToMany(DB.Users, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'members' });
 DB.Users.belongsToMany(DB.AccessGroup, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
@@ -159,17 +166,12 @@ DB.Address.belongsToMany(DB.CustomerAccount, {
   otherKey: 'customerAccountKey',
 });
 
-DB.CatalogPlan.belongsToMany(DB.CatalogPlanProduct, {
-  through: 'catalogPlanProducts',
-  foreignKey: 'catalogPlankey',
-  otherKey: 'catalogPlankey',
-  as: 'catalogPlanProduct',
-});
-DB.CatalogPlanProduct.belongsToMany(DB.CatalogPlan, {
-  through: 'catalogPlanProducts',
-  foreignKey: 'catalogPlankey',
-  otherKey: 'catalogPlankey',
-});
+
+DB.CatalogPlan.hasMany(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_key' });
+DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});
+
+DB.CatalogPlanProduct.hasMany(DB.CatalogPlanProductPrice, { foreignKey: 'catalog_plan_product_key' });
+DB.CatalogPlanProductPrice.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
 
 DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
 DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
@@ -177,10 +179,10 @@ DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 DB.Party.hasOne(DB.PartyUser, { foreignKey: 'partyKey', sourceKey: 'partyKey' });
 DB.PartyUser.belongsTo(DB.Party, { foreignKey: 'partyKey', targetKey: 'partyKey' });
 
-DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
-DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
 DB.Party.hasMany(DB.PartyRelation, { as: 'partyParent', foreignKey: 'partyParentKey', sourceKey: 'partyKey' });
 DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKey', sourceKey: 'partyKey' });
+DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
+DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
