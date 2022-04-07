@@ -16,7 +16,7 @@ class NotificationService{
   public async findAllNotification(): Promise<Notification[]> {
     const allNotification: Notification[] = await this.notificaion.findAll({
       where: { deletedAt: null },
-      attributes: { exclude: ['messageKey', 'createdBy', 'updatedBy', 'isDeleted'] },
+      attributes: { exclude: ['messageKey', 'createdBy', 'updatedBy', 'deletedAt'] },
     });
     return allNotification;
   }
