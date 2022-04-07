@@ -36,7 +36,6 @@ const app = new App([
 
   new ProductCatalogRoute(),
   new CustomerAccountRoute(),
-  new tableIdRoute(),
   new MessageRoute(),
 
   new CommonCodeRoute(),

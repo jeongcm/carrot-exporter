@@ -9,7 +9,7 @@ import validationMiddleware from '@/common/middlewares/validation.middleware';
 import PartyController from '../controllers/party.controller';
 import systemAuthMiddleware from '@/modules/ApiGateway/middlewares/systemAuth.middleware';
 
-class tableIdRoute implements Routes {
+class partyRoute implements Routes {
   public router = Router();
   public partyController = new PartyController();
   public authservice = new AuthService();
@@ -57,4 +57,4 @@ class tableIdRoute implements Routes {
   }
 }
 
-export default tableIdRoute;
+export default partyRoute;
