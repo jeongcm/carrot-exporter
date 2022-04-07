@@ -1,96 +1,40 @@
-import { IsString, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsAlpha, IsOptional, IsBoolean, IsDate } from 'class-validator';
 
 /**
- * DTO with information to create a new catalog plan
- * @typedef {Object} CreateCatalogPlanDto
- * @property {string} catalogPlanName - Name of the new product plan to be created
- * @property {string} catalogPlanDescription - Description
+ * DTO with information to add new subscription
+ * @typedef {Object} CreateSubscriptionDto
+ * @property {string} subscriptionStatus - Name of the new product plan to be created
+ * @property {boolean} subscriptionConsent - 
+ * @property {Date} subscriptionActivatedAt - Date to activate the subscription
+ * @property {Date} subscriptionTerminatedAt - Date to terminate the subscription
+ * @property {string} subscriptionCommitmentType - MM (Month-to-Month), YR (Yearly contract)
+ * @property {string} catalogPlanId - Plan id for which we need to add subscription
  */
-export class CreateCatalogPlanDto {
-  @IsString()
-  @IsNotEmpty()
-  public catalogPlanName : string;
+export class CreateSubscriptionDto {
 
   @IsString()
   @IsNotEmpty()
-  public catalogPlanDescription : string;
+  public subscriptionStatus : 'AC' |'SP' | 'TM'; // ## 'AC', 'Active', '계약중' ## 'SP', 'Suspended', '일시정지' ## 'TM', 'Terminated', '해지'
+
+  @IsBoolean()
+  @IsNotEmpty()
+  public subscriptionConsent : boolean;
+
+  @IsDate()
+  @IsNotEmpty()
+  public subscriptionActivatedAt : Date;
+
+  @IsDate()
+  @IsNotEmpty()
+  public subscriptionTerminatedAt : Date;
 
   @IsString()
   @IsNotEmpty()
-  public catalogPlanId : string;
+  public subscriptionCommitmentType : 'AC' | 'MM'; // ##'AC', 'Annual Contract', '연간계약' ## 'MM', 'Month to Month', '월간계약'
+
+
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanId : string; 
 
 }
-
-
-/**
- * DTO with information to create a new catalog  plan product
- * @typedef {Object} CreateCatalogPlanProductDto
- * @property {string} catalogPlanProductName - Name of the new product plan to be created
- * @property {string} catalogPlanProductDescription - Description
- * @property {number} catalogPlanProductMonthlyPrice - monthly price
- * @property {string} catalogPlanProductUOM - ProductUOM
- * @property {string} catalogPlanProductCurrency - currency
- * @property {string} catalogPlanKey - catalogPlan id 
- */
-export class CreateCatalogPlanProductDto {
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductName: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductDescription: string;
-
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductMonthlyPrice: number;
-
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductUOM: string;
-
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductCurrency: string;
-
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanKey: string;
-
-    @IsString()
-    @IsOptional()
-    public catalogPlanProductId: string;
-  
-  }
-
-/**
- * DTO with information to create a new catalog  plan product pricing
- * @typedef {Object} CreateProductPricingDto
- * @property {string} catalogPlanProductPriceFrom - Name of the new product plan to be created
- * @property {string} catalogPlanProductPriceTo - Description
- * @property {number} catalogPlanProductMonthlyPrice - monthly price
- * @property {string} catalogPlanProductKey - catalog Plan product key
- */
-  export class CreateProductPricingDto {
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductMonthlyPriceFrom: Date;
-  
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductMonthlyPriceTo: Date;
-
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductMonthlyPrice: number;
-
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductKey: number;
-    
-  
-
-    @IsString()
-    @IsOptional()
-    public catalogPlanProductPricingId: string;
-  }

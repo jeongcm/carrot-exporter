@@ -615,112 +615,112 @@
 <!-- CatalogPlan -->
 <g id="node17" class="node">
 <title>CatalogPlan</title>
-<polygon fill="#add8e6" stroke="transparent" points="439.6716,-2510.7437 439.6716,-2532.7437 583.6716,-2532.7437 583.6716,-2510.7437 439.6716,-2510.7437"/>
-<polygon fill="none" stroke="#000000" points="439.6716,-2510.7437 439.6716,-2532.7437 583.6716,-2532.7437 583.6716,-2510.7437 439.6716,-2510.7437"/>
-<text text-anchor="start" x="487.2306" y="-2519.7437" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">CatalogPlan</text>
-<polygon fill="none" stroke="#000000" points="439.6716,-2488.7437 439.6716,-2510.7437 583.6716,-2510.7437 583.6716,-2488.7437 439.6716,-2488.7437"/>
-<text text-anchor="start" x="444.6716" y="-2497.7437" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">catalogPlanKey</text>
-<text text-anchor="start" x="507.9816" y="-2497.7437" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="439.6716,-2466.7437 439.6716,-2488.7437 583.6716,-2488.7437 583.6716,-2466.7437 439.6716,-2466.7437"/>
-<text text-anchor="start" x="444.6716" y="-2474.7437" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanId: STRING</text>
-<polygon fill="none" stroke="#000000" points="439.6716,-2444.7437 439.6716,-2466.7437 583.6716,-2466.7437 583.6716,-2444.7437 439.6716,-2444.7437"/>
-<text text-anchor="start" x="444.6716" y="-2452.7437" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanName: STRING</text>
-<polygon fill="none" stroke="#000000" points="439.6716,-2422.7437 439.6716,-2444.7437 583.6716,-2444.7437 583.6716,-2422.7437 439.6716,-2422.7437"/>
-<text text-anchor="start" x="444.3281" y="-2430.7437" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanDescription: STRING</text>
-<polygon fill="none" stroke="#000000" points="439.6716,-2400.7437 439.6716,-2422.7437 583.6716,-2422.7437 583.6716,-2400.7437 439.6716,-2400.7437"/>
-<text text-anchor="start" x="444.6716" y="-2408.7437" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="439.6716,-2378.7437 439.6716,-2400.7437 583.6716,-2400.7437 583.6716,-2378.7437 439.6716,-2378.7437"/>
-<text text-anchor="start" x="444.6716" y="-2386.7437" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="439.6716,-2356.7437 439.6716,-2378.7437 583.6716,-2378.7437 583.6716,-2356.7437 439.6716,-2356.7437"/>
-<text text-anchor="start" x="444.6716" y="-2364.7437" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="439.6716,-2334.7437 439.6716,-2356.7437 583.6716,-2356.7437 583.6716,-2334.7437 439.6716,-2334.7437"/>
-<text text-anchor="start" x="444.6716" y="-2342.7437" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="439.6716,-2312.7437 439.6716,-2334.7437 583.6716,-2334.7437 583.6716,-2312.7437 439.6716,-2312.7437"/>
-<text text-anchor="start" x="444.6716" y="-2320.7437" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
+<polygon fill="#add8e6" stroke="transparent" points="439.6716,-2255.2671 439.6716,-2277.2671 583.6716,-2277.2671 583.6716,-2255.2671 439.6716,-2255.2671"/>
+<polygon fill="none" stroke="#000000" points="439.6716,-2255.2671 439.6716,-2277.2671 583.6716,-2277.2671 583.6716,-2255.2671 439.6716,-2255.2671"/>
+<text text-anchor="start" x="487.2306" y="-2264.2671" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">CatalogPlan</text>
+<polygon fill="none" stroke="#000000" points="439.6716,-2233.2671 439.6716,-2255.2671 583.6716,-2255.2671 583.6716,-2233.2671 439.6716,-2233.2671"/>
+<text text-anchor="start" x="444.6716" y="-2242.2671" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">catalogPlanKey</text>
+<text text-anchor="start" x="507.9816" y="-2242.2671" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="439.6716,-2211.2671 439.6716,-2233.2671 583.6716,-2233.2671 583.6716,-2211.2671 439.6716,-2211.2671"/>
+<text text-anchor="start" x="444.6716" y="-2219.2671" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanId: STRING</text>
+<polygon fill="none" stroke="#000000" points="439.6716,-2189.2671 439.6716,-2211.2671 583.6716,-2211.2671 583.6716,-2189.2671 439.6716,-2189.2671"/>
+<text text-anchor="start" x="444.6716" y="-2197.2671" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanName: STRING</text>
+<polygon fill="none" stroke="#000000" points="439.6716,-2167.2671 439.6716,-2189.2671 583.6716,-2189.2671 583.6716,-2167.2671 439.6716,-2167.2671"/>
+<text text-anchor="start" x="444.3281" y="-2175.2671" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanDescription: STRING</text>
+<polygon fill="none" stroke="#000000" points="439.6716,-2145.2671 439.6716,-2167.2671 583.6716,-2167.2671 583.6716,-2145.2671 439.6716,-2145.2671"/>
+<text text-anchor="start" x="444.6716" y="-2153.2671" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="439.6716,-2123.2671 439.6716,-2145.2671 583.6716,-2145.2671 583.6716,-2123.2671 439.6716,-2123.2671"/>
+<text text-anchor="start" x="444.6716" y="-2131.2671" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="439.6716,-2101.2671 439.6716,-2123.2671 583.6716,-2123.2671 583.6716,-2101.2671 439.6716,-2101.2671"/>
+<text text-anchor="start" x="444.6716" y="-2109.2671" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="439.6716,-2079.2671 439.6716,-2101.2671 583.6716,-2101.2671 583.6716,-2079.2671 439.6716,-2079.2671"/>
+<text text-anchor="start" x="444.6716" y="-2087.2671" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="439.6716,-2057.2671 439.6716,-2079.2671 583.6716,-2079.2671 583.6716,-2057.2671 439.6716,-2057.2671"/>
+<text text-anchor="start" x="444.6716" y="-2065.2671" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
 </g>
 <!-- CatalogPlanProduct -->
 <g id="node18" class="node">
 <title>CatalogPlanProduct</title>
-<polygon fill="#add8e6" stroke="transparent" points="416.6716,-2255.4838 416.6716,-2277.4838 606.6716,-2277.4838 606.6716,-2255.4838 416.6716,-2255.4838"/>
-<polygon fill="none" stroke="#000000" points="416.6716,-2255.4838 416.6716,-2277.4838 606.6716,-2277.4838 606.6716,-2255.4838 416.6716,-2255.4838"/>
-<text text-anchor="start" x="471.6776" y="-2264.4838" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">CatalogPlanProduct</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-2233.4838 416.6716,-2255.4838 606.6716,-2255.4838 606.6716,-2233.4838 416.6716,-2233.4838"/>
-<text text-anchor="start" x="421.6716" y="-2242.4838" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">catalogPlanProductKey</text>
-<text text-anchor="start" x="516.0876" y="-2242.4838" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-2211.4838 416.6716,-2233.4838 606.6716,-2233.4838 606.6716,-2211.4838 416.6716,-2211.4838"/>
-<text text-anchor="start" x="421.6716" y="-2219.4838" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductId: STRING</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-2189.4838 416.6716,-2211.4838 606.6716,-2211.4838 606.6716,-2189.4838 416.6716,-2189.4838"/>
-<text text-anchor="start" x="421.6716" y="-2197.4838" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanKey: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-2167.4838 416.6716,-2189.4838 606.6716,-2189.4838 606.6716,-2167.4838 416.6716,-2167.4838"/>
-<text text-anchor="start" x="421.6716" y="-2175.4838" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductName: STRING</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-2145.4838 416.6716,-2167.4838 606.6716,-2167.4838 606.6716,-2145.4838 416.6716,-2145.4838"/>
-<text text-anchor="start" x="421.6716" y="-2153.4838" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductDescription: STRING</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-2123.4838 416.6716,-2145.4838 606.6716,-2145.4838 606.6716,-2123.4838 416.6716,-2123.4838"/>
-<text text-anchor="start" x="421.2701" y="-2131.4838" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductMonthlyPrice: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-2101.4838 416.6716,-2123.4838 606.6716,-2123.4838 606.6716,-2101.4838 416.6716,-2101.4838"/>
-<text text-anchor="start" x="421.6716" y="-2109.4838" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductUOM: STRING</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-2079.4838 416.6716,-2101.4838 606.6716,-2101.4838 606.6716,-2079.4838 416.6716,-2079.4838"/>
-<text text-anchor="start" x="421.6716" y="-2087.4838" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductCurrency: STRING</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-2057.4838 416.6716,-2079.4838 606.6716,-2079.4838 606.6716,-2057.4838 416.6716,-2057.4838"/>
-<text text-anchor="start" x="421.6716" y="-2065.4838" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-2035.4838 416.6716,-2057.4838 606.6716,-2057.4838 606.6716,-2035.4838 416.6716,-2035.4838"/>
-<text text-anchor="start" x="421.6716" y="-2043.4838" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-2013.4838 416.6716,-2035.4838 606.6716,-2035.4838 606.6716,-2013.4838 416.6716,-2013.4838"/>
-<text text-anchor="start" x="421.6716" y="-2021.4838" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-1991.4838 416.6716,-2013.4838 606.6716,-2013.4838 606.6716,-1991.4838 416.6716,-1991.4838"/>
-<text text-anchor="start" x="421.6716" y="-1999.4838" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-1969.4838 416.6716,-1991.4838 606.6716,-1991.4838 606.6716,-1969.4838 416.6716,-1969.4838"/>
-<text text-anchor="start" x="421.6716" y="-1977.4838" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="416.6716,-1947.4838 416.6716,-1969.4838 606.6716,-1969.4838 606.6716,-1947.4838 416.6716,-1947.4838"/>
-<text text-anchor="start" x="421.6716" y="-1956.4838" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">catalog_plan_key</text>
-<text text-anchor="start" x="492.2036" y="-1956.4838" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="#add8e6" stroke="transparent" points="416.6716,-2606.4032 416.6716,-2628.4032 606.6716,-2628.4032 606.6716,-2606.4032 416.6716,-2606.4032"/>
+<polygon fill="none" stroke="#000000" points="416.6716,-2606.4032 416.6716,-2628.4032 606.6716,-2628.4032 606.6716,-2606.4032 416.6716,-2606.4032"/>
+<text text-anchor="start" x="471.6776" y="-2615.4032" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">CatalogPlanProduct</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2584.4032 416.6716,-2606.4032 606.6716,-2606.4032 606.6716,-2584.4032 416.6716,-2584.4032"/>
+<text text-anchor="start" x="421.6716" y="-2593.4032" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">catalogPlanProductKey</text>
+<text text-anchor="start" x="516.0876" y="-2593.4032" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2562.4032 416.6716,-2584.4032 606.6716,-2584.4032 606.6716,-2562.4032 416.6716,-2562.4032"/>
+<text text-anchor="start" x="421.6716" y="-2570.4032" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductId: STRING</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2540.4032 416.6716,-2562.4032 606.6716,-2562.4032 606.6716,-2540.4032 416.6716,-2540.4032"/>
+<text text-anchor="start" x="421.6716" y="-2548.4032" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanKey: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2518.4032 416.6716,-2540.4032 606.6716,-2540.4032 606.6716,-2518.4032 416.6716,-2518.4032"/>
+<text text-anchor="start" x="421.6716" y="-2526.4032" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductName: STRING</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2496.4032 416.6716,-2518.4032 606.6716,-2518.4032 606.6716,-2496.4032 416.6716,-2496.4032"/>
+<text text-anchor="start" x="421.6716" y="-2504.4032" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductDescription: STRING</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2474.4032 416.6716,-2496.4032 606.6716,-2496.4032 606.6716,-2474.4032 416.6716,-2474.4032"/>
+<text text-anchor="start" x="421.2701" y="-2482.4032" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductMonthlyPrice: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2452.4032 416.6716,-2474.4032 606.6716,-2474.4032 606.6716,-2452.4032 416.6716,-2452.4032"/>
+<text text-anchor="start" x="421.6716" y="-2460.4032" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductUOM: STRING</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2430.4032 416.6716,-2452.4032 606.6716,-2452.4032 606.6716,-2430.4032 416.6716,-2430.4032"/>
+<text text-anchor="start" x="421.6716" y="-2438.4032" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductCurrency: STRING</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2408.4032 416.6716,-2430.4032 606.6716,-2430.4032 606.6716,-2408.4032 416.6716,-2408.4032"/>
+<text text-anchor="start" x="421.6716" y="-2416.4032" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2386.4032 416.6716,-2408.4032 606.6716,-2408.4032 606.6716,-2386.4032 416.6716,-2386.4032"/>
+<text text-anchor="start" x="421.6716" y="-2394.4032" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2364.4032 416.6716,-2386.4032 606.6716,-2386.4032 606.6716,-2364.4032 416.6716,-2364.4032"/>
+<text text-anchor="start" x="421.6716" y="-2372.4032" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2342.4032 416.6716,-2364.4032 606.6716,-2364.4032 606.6716,-2342.4032 416.6716,-2342.4032"/>
+<text text-anchor="start" x="421.6716" y="-2350.4032" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2320.4032 416.6716,-2342.4032 606.6716,-2342.4032 606.6716,-2320.4032 416.6716,-2320.4032"/>
+<text text-anchor="start" x="421.6716" y="-2328.4032" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="416.6716,-2298.4032 416.6716,-2320.4032 606.6716,-2320.4032 606.6716,-2298.4032 416.6716,-2298.4032"/>
+<text text-anchor="start" x="421.6716" y="-2307.4032" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">catalog_plan_key</text>
+<text text-anchor="start" x="492.2036" y="-2307.4032" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
 </g>
 <!-- CatalogPlanProduct&#45;&gt;CatalogPlan -->
 <g id="edge15" class="edge">
 <title>CatalogPlanProduct&#45;&gt;CatalogPlan</title>
-<path fill="none" stroke="#00cd00" d="M511.6716,-2289.8047C511.6716,-2293.4284 511.6716,-2297.0357 511.6716,-2300.6183"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="515.8716,-2277.6062 511.6717,-2289.6062 507.4716,-2277.6062 515.8716,-2277.6062"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="511.6717,-2300.6924 506.2716,-2312.6923 511.6716,-2306.6924 511.6716,-2312.6924 511.6716,-2312.6924 511.6716,-2312.6924 511.6716,-2306.6924 517.0716,-2312.6924 511.6717,-2300.6924 511.6717,-2300.6924"/>
+<path fill="none" stroke="#00cd00" d="M511.6716,-2285.8134C511.6716,-2285.727 511.6716,-2285.6406 511.6716,-2285.5542"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="507.4716,-2298.0187 511.6717,-2286.0187 515.8716,-2298.0187 507.4716,-2298.0187"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="511.6717,-2289.5635 517.0716,-2277.5635 511.6717,-2283.5635 511.6716,-2277.5635 511.6716,-2277.5635 511.6716,-2277.5635 511.6717,-2283.5635 506.2716,-2277.5636 511.6717,-2289.5635 511.6717,-2289.5635"/>
 </g>
 <!-- CatalogPlanProductPrice -->
 <g id="node19" class="node">
 <title>CatalogPlanProductPrice</title>
-<polygon fill="#add8e6" stroke="transparent" points="413.6716,-1920.2873 413.6716,-1942.2873 609.6716,-1942.2873 609.6716,-1920.2873 413.6716,-1920.2873"/>
-<polygon fill="none" stroke="#000000" points="413.6716,-1920.2873 413.6716,-1942.2873 609.6716,-1942.2873 609.6716,-1920.2873 413.6716,-1920.2873"/>
-<text text-anchor="start" x="461.4051" y="-1929.2873" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">CatalogPlanProductPrice</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1898.2873 413.6716,-1920.2873 609.6716,-1920.2873 609.6716,-1898.2873 413.6716,-1898.2873"/>
-<text text-anchor="start" x="418.6716" y="-1907.2873" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">catalogPlanProductPriceKey</text>
-<text text-anchor="start" x="533.6326" y="-1907.2873" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1876.2873 413.6716,-1898.2873 609.6716,-1898.2873 609.6716,-1876.2873 413.6716,-1876.2873"/>
-<text text-anchor="start" x="418.6716" y="-1884.2873" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductPricingId: STRING</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1854.2873 413.6716,-1876.2873 609.6716,-1876.2873 609.6716,-1854.2873 413.6716,-1854.2873"/>
-<text text-anchor="start" x="418.6716" y="-1862.2873" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductKey: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1832.2873 413.6716,-1854.2873 609.6716,-1854.2873 609.6716,-1832.2873 413.6716,-1832.2873"/>
-<text text-anchor="start" x="418.4956" y="-1840.2873" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductMonthlyPriceFrom: DATE</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1810.2873 413.6716,-1832.2873 609.6716,-1832.2873 609.6716,-1810.2873 413.6716,-1810.2873"/>
-<text text-anchor="start" x="418.6716" y="-1818.2873" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductMonthlyPriceTo: DATE</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1788.2873 413.6716,-1810.2873 609.6716,-1810.2873 609.6716,-1788.2873 413.6716,-1788.2873"/>
-<text text-anchor="start" x="418.6716" y="-1796.2873" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductMonthlyPrice: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1766.2873 413.6716,-1788.2873 609.6716,-1788.2873 609.6716,-1766.2873 413.6716,-1766.2873"/>
-<text text-anchor="start" x="418.6716" y="-1774.2873" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1744.2873 413.6716,-1766.2873 609.6716,-1766.2873 609.6716,-1744.2873 413.6716,-1744.2873"/>
-<text text-anchor="start" x="418.6716" y="-1752.2873" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1722.2873 413.6716,-1744.2873 609.6716,-1744.2873 609.6716,-1722.2873 413.6716,-1722.2873"/>
-<text text-anchor="start" x="418.6716" y="-1730.2873" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1700.2873 413.6716,-1722.2873 609.6716,-1722.2873 609.6716,-1700.2873 413.6716,-1700.2873"/>
-<text text-anchor="start" x="418.6716" y="-1708.2873" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1678.2873 413.6716,-1700.2873 609.6716,-1700.2873 609.6716,-1678.2873 413.6716,-1678.2873"/>
-<text text-anchor="start" x="418.6716" y="-1686.2873" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="413.6716,-1656.2873 413.6716,-1678.2873 609.6716,-1678.2873 609.6716,-1656.2873 413.6716,-1656.2873"/>
-<text text-anchor="start" x="418.6716" y="-1665.2873" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">catalog_plan_product_key</text>
-<text text-anchor="start" x="524.7506" y="-1665.2873" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="#add8e6" stroke="transparent" points="413.6716,-2914.2501 413.6716,-2936.2501 609.6716,-2936.2501 609.6716,-2914.2501 413.6716,-2914.2501"/>
+<polygon fill="none" stroke="#000000" points="413.6716,-2914.2501 413.6716,-2936.2501 609.6716,-2936.2501 609.6716,-2914.2501 413.6716,-2914.2501"/>
+<text text-anchor="start" x="461.4051" y="-2923.2501" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">CatalogPlanProductPrice</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2892.2501 413.6716,-2914.2501 609.6716,-2914.2501 609.6716,-2892.2501 413.6716,-2892.2501"/>
+<text text-anchor="start" x="418.6716" y="-2901.2501" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">catalogPlanProductPriceKey</text>
+<text text-anchor="start" x="533.6326" y="-2901.2501" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2870.2501 413.6716,-2892.2501 609.6716,-2892.2501 609.6716,-2870.2501 413.6716,-2870.2501"/>
+<text text-anchor="start" x="418.6716" y="-2878.2501" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductPricingId: STRING</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2848.2501 413.6716,-2870.2501 609.6716,-2870.2501 609.6716,-2848.2501 413.6716,-2848.2501"/>
+<text text-anchor="start" x="418.6716" y="-2856.2501" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductKey: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2826.2501 413.6716,-2848.2501 609.6716,-2848.2501 609.6716,-2826.2501 413.6716,-2826.2501"/>
+<text text-anchor="start" x="418.4956" y="-2834.2501" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductMonthlyPriceFrom: DATE</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2804.2501 413.6716,-2826.2501 609.6716,-2826.2501 609.6716,-2804.2501 413.6716,-2804.2501"/>
+<text text-anchor="start" x="418.6716" y="-2812.2501" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductMonthlyPriceTo: DATE</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2782.2501 413.6716,-2804.2501 609.6716,-2804.2501 609.6716,-2782.2501 413.6716,-2782.2501"/>
+<text text-anchor="start" x="418.6716" y="-2790.2501" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanProductMonthlyPrice: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2760.2501 413.6716,-2782.2501 609.6716,-2782.2501 609.6716,-2760.2501 413.6716,-2760.2501"/>
+<text text-anchor="start" x="418.6716" y="-2768.2501" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2738.2501 413.6716,-2760.2501 609.6716,-2760.2501 609.6716,-2738.2501 413.6716,-2738.2501"/>
+<text text-anchor="start" x="418.6716" y="-2746.2501" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2716.2501 413.6716,-2738.2501 609.6716,-2738.2501 609.6716,-2716.2501 413.6716,-2716.2501"/>
+<text text-anchor="start" x="418.6716" y="-2724.2501" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2694.2501 413.6716,-2716.2501 609.6716,-2716.2501 609.6716,-2694.2501 413.6716,-2694.2501"/>
+<text text-anchor="start" x="418.6716" y="-2702.2501" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2672.2501 413.6716,-2694.2501 609.6716,-2694.2501 609.6716,-2672.2501 413.6716,-2672.2501"/>
+<text text-anchor="start" x="418.6716" y="-2680.2501" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="413.6716,-2650.2501 413.6716,-2672.2501 609.6716,-2672.2501 609.6716,-2650.2501 413.6716,-2650.2501"/>
+<text text-anchor="start" x="418.6716" y="-2659.2501" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">catalog_plan_product_key</text>
+<text text-anchor="start" x="524.7506" y="-2659.2501" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
 </g>
 <!-- CatalogPlanProductPrice&#45;&gt;CatalogPlanProduct -->
 <g id="edge16" class="edge">
 <title>CatalogPlanProductPrice&#45;&gt;CatalogPlanProduct</title>
-<path fill="none" stroke="#00cd00" d="M511.6716,-1947.1296C511.6716,-1947.18 511.6716,-1947.2305 511.6716,-1947.2809"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="515.8716,-1942.595 511.6718,-1954.5951 507.4716,-1942.5951 515.8716,-1942.595"/>
-<polygon fill="#00cd00" stroke="#00cd00" points="511.6795,-1935.4322 506.2716,-1947.4286 511.6755,-1941.4322 511.6716,-1947.4322 511.6716,-1947.4322 511.6716,-1947.4322 511.6755,-1941.4322 517.0716,-1947.4357 511.6795,-1935.4322 511.6795,-1935.4322"/>
+<path fill="none" stroke="#00cd00" d="M511.6716,-2637.942C511.6716,-2637.844 511.6716,-2637.7459 511.6716,-2637.6478"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="507.4716,-2650.0135 511.6717,-2638.0135 515.8716,-2650.0135 507.4716,-2650.0135"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="511.6717,-2640.5182 517.0716,-2628.5182 511.6716,-2634.5182 511.6716,-2628.5182 511.6716,-2628.5182 511.6716,-2628.5182 511.6716,-2634.5182 506.2716,-2628.5183 511.6717,-2640.5182 511.6717,-2640.5182"/>
 </g>
 <!-- CommonCode -->
 <g id="node20" class="node">
@@ -1130,6 +1130,52 @@
 <path fill="none" stroke="#00cd00" d="M1618.2073,-1877.715C1542.9273,-1890.296 1427.939,-1909.5131 1350.4747,-1922.459"/>
 <ellipse fill="#00cd00" stroke="#00cd00" cx="1623.3015" cy="-1876.8637" rx="4.8" ry="4.8"/>
 <ellipse fill="#00cd00" stroke="#00cd00" cx="1345.4816" cy="-1923.2935" rx="4.8" ry="4.8"/>
+</g>
+<!-- Subscription -->
+<g id="node31" class="node">
+<title>Subscription</title>
+<polygon fill="#add8e6" stroke="transparent" points="425.6716,-1985.808 425.6716,-2007.808 598.6716,-2007.808 598.6716,-1985.808 425.6716,-1985.808"/>
+<polygon fill="none" stroke="#000000" points="425.6716,-1985.808 425.6716,-2007.808 598.6716,-2007.808 598.6716,-1985.808 425.6716,-1985.808"/>
+<text text-anchor="start" x="486.8951" y="-1994.808" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">Subscription</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1963.808 425.6716,-1985.808 598.6716,-1985.808 598.6716,-1963.808 425.6716,-1963.808"/>
+<text text-anchor="start" x="430.6716" y="-1972.808" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">subscriptionKey</text>
+<text text-anchor="start" x="496.2126" y="-1972.808" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1941.808 425.6716,-1963.808 598.6716,-1963.808 598.6716,-1941.808 425.6716,-1941.808"/>
+<text text-anchor="start" x="430.6716" y="-1949.808" font-family="Times,serif" font-size="10.00" fill="#000000">subscriptionId: STRING</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1919.808 425.6716,-1941.808 598.6716,-1941.808 598.6716,-1919.808 425.6716,-1919.808"/>
+<text text-anchor="start" x="430.6716" y="-1927.808" font-family="Times,serif" font-size="10.00" fill="#000000">catalogPlanKey: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1897.808 425.6716,-1919.808 598.6716,-1919.808 598.6716,-1897.808 425.6716,-1897.808"/>
+<text text-anchor="start" x="430.6716" y="-1905.808" font-family="Times,serif" font-size="10.00" fill="#000000">customerAccountKey: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1875.808 425.6716,-1897.808 598.6716,-1897.808 598.6716,-1875.808 425.6716,-1875.808"/>
+<text text-anchor="start" x="430.6716" y="-1883.808" font-family="Times,serif" font-size="10.00" fill="#000000">subscriptionActivatedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1853.808 425.6716,-1875.808 598.6716,-1875.808 598.6716,-1853.808 425.6716,-1853.808"/>
+<text text-anchor="start" x="430.6716" y="-1861.808" font-family="Times,serif" font-size="10.00" fill="#000000">subscriptionTerminatedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1831.808 425.6716,-1853.808 598.6716,-1853.808 598.6716,-1831.808 425.6716,-1831.808"/>
+<text text-anchor="start" x="430.6716" y="-1839.808" font-family="Times,serif" font-size="10.00" fill="#000000">subscriptionStatus: STRING</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1809.808 425.6716,-1831.808 598.6716,-1831.808 598.6716,-1809.808 425.6716,-1809.808"/>
+<text text-anchor="start" x="430.6716" y="-1817.808" font-family="Times,serif" font-size="10.00" fill="#000000">subscriptionConsent: BOOLEAN</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1787.808 425.6716,-1809.808 598.6716,-1809.808 598.6716,-1787.808 425.6716,-1787.808"/>
+<text text-anchor="start" x="430.3736" y="-1795.808" font-family="Times,serif" font-size="10.00" fill="#000000">subscriptionCommitmentType: STRING</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1765.808 425.6716,-1787.808 598.6716,-1787.808 598.6716,-1765.808 425.6716,-1765.808"/>
+<text text-anchor="start" x="430.6716" y="-1773.808" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1743.808 425.6716,-1765.808 598.6716,-1765.808 598.6716,-1743.808 425.6716,-1743.808"/>
+<text text-anchor="start" x="430.6716" y="-1751.808" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1721.808 425.6716,-1743.808 598.6716,-1743.808 598.6716,-1721.808 425.6716,-1721.808"/>
+<text text-anchor="start" x="430.6716" y="-1729.808" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1699.808 425.6716,-1721.808 598.6716,-1721.808 598.6716,-1699.808 425.6716,-1699.808"/>
+<text text-anchor="start" x="430.6716" y="-1707.808" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1677.808 425.6716,-1699.808 598.6716,-1699.808 598.6716,-1677.808 425.6716,-1677.808"/>
+<text text-anchor="start" x="430.6716" y="-1685.808" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="425.6716,-1655.808 425.6716,-1677.808 598.6716,-1677.808 598.6716,-1655.808 425.6716,-1655.808"/>
+<text text-anchor="start" x="430.6716" y="-1664.808" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">catalog_plan_key</text>
+<text text-anchor="start" x="501.2036" y="-1664.808" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+</g>
+<!-- Subscription&#45;&gt;CatalogPlan -->
+<g id="edge21" class="edge">
+<title>Subscription&#45;&gt;CatalogPlan</title>
+<path fill="none" stroke="#00cd00" d="M511.6716,-2020.0417C511.6716,-2028.4328 511.6716,-2036.7543 511.6716,-2044.9206"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="515.8716,-2007.8882 511.6717,-2019.8882 507.4716,-2007.8882 515.8716,-2007.8882"/>
+<polygon fill="#00cd00" stroke="#00cd00" points="511.6717,-2045.1839 506.2716,-2057.1839 511.6716,-2051.1839 511.6716,-2057.1839 511.6716,-2057.1839 511.6716,-2057.1839 511.6716,-2051.1839 517.0716,-2057.1839 511.6717,-2045.1839 511.6717,-2045.1839"/>
 </g>
 </g>
 </svg>

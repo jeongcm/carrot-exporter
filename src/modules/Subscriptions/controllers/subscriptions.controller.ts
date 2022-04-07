@@ -1,120 +1,58 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateCatalogPlanProductDto, CreateCatalogPlanDto, CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
 import { ICatalogPlan, ICatalogPlanProduct, ICatalogPlanProductPrice } from '@/common/interfaces/productCatalog.interface';
-import ProductCatalogService from '@/modules/ProductCatalog/services/productCatalog.service';
+import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
-class ProductCatalogController {
-  public productCatalogService = new ProductCatalogService();
+import { ISubscriptions } from '@/common/interfaces/subscription.interface';
+import { IRequestWithUser } from '@/common/interfaces/party.interface';
+import { CreateSubscriptionDto } from '../dtos/subscriptions.dto';
+class SubscriptionController {
+  public subscriptionService = new SubscriptionService();
 
 
-  public getCatalogPlans = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getAllSubscriptions = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const allCatalogPlans: ICatalogPlan[] = await this.productCatalogService.findAllCatalogPlans();
-      res.status(200).json({ data: allCatalogPlans, message: 'findAll' });
+      const allSubscriptions: ISubscriptions[] = await this.subscriptionService.findSubscriptions();
+      res.status(200).json({ data: allSubscriptions, message: 'success' });
     } catch (error) {
       next(error);
     }
   };
 
-
-  public createCatalogPlans = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public createSubscriptions = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const catalogData: CreateCatalogPlanDto = req.body;
-      const newCatalogPlan: CreateCatalogPlanDto = await this.productCatalogService.createCatalogPlan(catalogData);
-      res.status(201).json({ data: newCatalogPlan, message: 'created' });
+      const subscriptionData: CreateSubscriptionDto = req.body;
+      const { user:{partyId}, systemId , customerAccountKey} = req;
+      const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, systemId, customerAccountKey);
+      res.status(201).json({ data: newSubscription, message: 'success' });
     } catch (error) {
       next(error);
     }
   };
 
-  public getCatalogPlanById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public findSubscription = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const catalogPlanId = req.params.catalogPlanId;
-      const catalogPlan: ICatalogPlan = await this.productCatalogService.findCatalogPlan(catalogPlanId);
-      res.status(200).json({ data: catalogPlan, message: 'finOne' });
+      const subscriptionId = req.params.subscriptionId;
+      const subscriptionDetail: ISubscriptions = await this.subscriptionService.findSubscription(subscriptionId);
+      res.status(200).json({ data: subscriptionDetail, message: 'success' });
     } catch (error) {
       next(error);
     }
   };
 
-
- /**
-  * {updateCatlogPlan} update the catalog Plan
-  * @param req 
-  * @param res 
-  * @param next 
-  */
-  public updateCatlogPlan = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public updateSubscription = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const { params: { catalogPlanId }, body } = req
-      const updated: ICatalogPlan = await this.productCatalogService.updateCatalogPlanById(catalogPlanId, body, req.user.pk);
+      const { params: { subscriptionId }, body , user:{partyId}, systemId} = req
+      const updated: ISubscriptions = await this.subscriptionService.updateSubscription(subscriptionId, body, partyId, systemId);
       res.status(200).json({ updated });
     } catch (error) {
       next(error);
     }
-  }
-
-
-  public getCatalogPlanProducts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    try {
-      const {catalogPlanId} = req.params;
-      const allCatalogPlanProducts: ICatalogPlanProduct[] = await this.productCatalogService.getCatalogPlanProducts(catalogPlanId);
-      res.status(200).json({ data: allCatalogPlanProducts, message: 'success' });
-    } catch (error) {
-      next(error);
-    }
   };
 
 
-  public createCatalogPlansProduct = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    try {
-      const productData: CreateCatalogPlanProductDto = req.body;
-      const newCatalogPlan: ICatalogPlanProduct = await this.productCatalogService.createCatalogPlanProduct(productData);
-      res.status(201).json({ data: newCatalogPlan, message: 'success' });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public getCatalogProductPlanById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    try {
-      const catalogPlanProductId = req.params.catalogPlanProductId;
-      const planProduct: ICatalogPlanProduct = await this.productCatalogService.getCalogPlanProductById(catalogPlanProductId);
-      res.status(200).json({ data: planProduct, message: 'success' });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-
- /**
-  * {updateCatlogPlan} update the catalog Plan product
-  * @param req 
-  * @param res 
-  * @param next 
-  */
-  public updateCatlogPlanProduct = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    try {
-      const { params: { catalogPlanProductId }, body } = req
-      const updated: ICatalogPlanProduct = await this.productCatalogService.updateCatalagPlanProduct(catalogPlanProductId, body);
-      res.status(200).json({ updated });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-
-  public createPlanProductPricing = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    try {
-      const pricingData: CreateProductPricingDto = req.body;
-      const newPricingData: ICatalogPlanProductPrice = await this.productCatalogService.createProductPricing(pricingData);
-      res.status(201).json({ data: newPricingData, message: 'success' });
-    } catch (error) {
-      next(error);
-    }
-  };
 
 
 }
 
-export default ProductCatalogController;
+export default SubscriptionController;
