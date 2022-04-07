@@ -36,6 +36,8 @@ import PartyChannelModel from '@/modules/Party/models/partychannel.model';
 import config from 'config';
 import InitialRecordService from './initialRecord';
 import  SubscriptionModel  from '@/modules/Subscriptions/models/subscriptions.model';
+import SubscribedProductModel  from '@/modules/Subscriptions/models/subscribedProduct.model';
+import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -103,6 +105,8 @@ const DB = {
   PartyRelation: PartyRelationModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
   Subscription: SubscriptionModel(sequelize),
+  SubscribedProduct: SubscribedProductModel(sequelize),
+  SubscriptionHistory:SubscriptionHistoryModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -178,6 +182,9 @@ DB.CatalogPlanProductPrice.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catal
 
 DB.CatalogPlan.hasOne(DB.Subscription, { foreignKey: 'catalog_plan_key' });
 DB.Subscription.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});
+
+DB.Subscription.hasMany(DB.SubscriptionHistory, { foreignKey: 'subscription_key' });
+DB.SubscriptionHistory.belongsTo(DB.Subscription, { foreignKey: 'subscription_key'});
 
 DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
 DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
