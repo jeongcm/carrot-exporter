@@ -20,6 +20,7 @@ class SubscriptionRoute implements Routes {
     this.router.get('/subscriptions', authMiddleware, this.subscriptionController.getAllSubscriptions);
     this.router.get('/subscription/:subscriptionId', authMiddleware, this.subscriptionController.findSubscription);
     this.router.put('/subscription/:subscriptionId', authMiddleware, validationMiddleware(CreateSubscriptionDto, 'body'), this.subscriptionController.updateSubscription);
+    // this.router.post('/subscribeProduct')
   }
 }
 

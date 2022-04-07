@@ -2,7 +2,7 @@ import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import {ISubscriptions } from '@/common/interfaces/subscription.interface';
 import { DATE } from 'sequelize';
 
-export type CatalogPlanCreationAttributes = Optional<
+export type SubscriptionCreationAttributes = Optional<
 ISubscriptions,
 |"subscriptionKey"
 |"catalogPlanKey"
@@ -20,7 +20,7 @@ ISubscriptions,
 |"subscriptionCommitmentType"
 >;
 
-export class SubscriptionModel extends Model<ISubscriptions, CatalogPlanCreationAttributes> implements ISubscriptions {
+export class SubscriptionModel extends Model<ISubscriptions, SubscriptionCreationAttributes> implements ISubscriptions {
     public subscriptionKey: number;
     public subscriptionId: string;
     public catalogPlanKey:number;
