@@ -122,6 +122,15 @@ DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
 DB.CustomerAccount.hasMany(DB.Incident, { foreignKey: 'customerAccountKey' });
 DB.Incident.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
+DB.CustomerAccount.hasMany(DB.Resource, { foreignKey: 'customerAccountKey' });
+DB.Resource.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.CustomerAccount.hasMany(DB.ResourceGroup, { foreignKey: 'customerAccountKey' });
+DB.ResourceGroup.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resourceGroupKey' });
+DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
+
 DB.Party.hasMany(DB.Incident, { foreignKey: 'assigneeKey', as: 'incidents' });
 DB.Incident.belongsTo(DB.Party, { foreignKey: 'assigneeKey', as: 'assignee' });
 
@@ -193,7 +202,7 @@ DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChild
 //[[force: true]] is used when changes made in database.
 
 DB.sequelize
-  .sync({ force: false })
+  .sync({ force: true })
   .then(async () => {
     const initialRecordService = new InitialRecordService();
 

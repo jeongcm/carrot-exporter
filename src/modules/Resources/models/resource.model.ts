@@ -101,6 +101,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       resourceInstance: {
         allowNull: false,
         type: DataTypes.STRING(100),
+        unique: true,
       },
       resourceType: {
         allowNull: false,
