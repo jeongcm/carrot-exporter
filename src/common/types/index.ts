@@ -11,3 +11,5 @@ export type LogStatus = 'CLOSED' | 'HIDDEN' | 'OPEN' | 'REFERENCED';
 export type EventStatus = 'CLOSED' | 'HIDDEN' | 'OPEN' | 'REFERENCED';
 
 export type EventFrom = 'LARI' | 'PROMETHEUS';
+
+export type NotificationStatus = "CR" | "SM";

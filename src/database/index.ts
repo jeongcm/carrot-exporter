@@ -33,6 +33,7 @@ import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import tableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import PartyChannelModel from '@/modules/Party/models/partychannel.model';
+import NotificationModel from '@/modules/Notification/models/notification.model';
 import config from 'config';
 import InitialRecordService from './initialRecord';
 
@@ -100,6 +101,7 @@ const DB = {
   Party: PartyModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
+  Notification:NotificationModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -172,6 +174,23 @@ DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyPare
 DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
 DB.Party.hasMany(DB.PartyRelation, { as: 'partyParent', foreignKey: 'partyParentKey', sourceKey: 'partyKey' });
 DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKey', sourceKey: 'partyKey' });
+
+DB.Party.hasMany(DB.PartyChannel,{foreignKey: 'partyKey'})
+DB.PartyChannel.belongsTo(DB.Party,{foreignKey: 'partyKey'})
+
+DB.PartyChannel.hasMany(DB.Notification, {foreignKey: 'partyChannelKey'})
+DB.Notification.belongsTo(DB.PartyChannel,{foreignKey: 'partyChannelKey'})
+
+
+DB.Party.hasMany(DB.Notification,{foreignKey: 'partyKey'})
+DB.Notification.belongsTo(DB.Party,{foreignKey: 'partyKey'})
+
+DB.Messages.hasOne(DB.Notification,{foreignKey: 'messageKey'})
+DB.Notification.belongsTo(DB.Messages,{foreignKey: 'messageKey'})
+
+DB.CustomerAccount.hasMany(DB.Notification,{foreignKey: 'customerAccountKey'})
+DB.Notification.belongsTo(DB.CustomerAccount,{foreignKey: 'customerAccountKey'})
+
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

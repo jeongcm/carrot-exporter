@@ -21,6 +21,8 @@ import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccoun
 import tableIdRoute from '@/modules/CommonService/routes/tableId.route';
 import ApiRoute from '@/modules/Api/routes/api.route';
 import PartyRoute from '@modules/Party/routes/party.route';
+import NotificationRoute from './modules/Notification/routes/notification.route';
+import PartyChannelRoute from './modules/Party/routes/partychannel.route';
 
 const app = new App([
   new IndexRoute(),
@@ -45,6 +47,8 @@ const app = new App([
   new CustomerAccountRoute(),
   new tableIdRoute(),
   new PartyRoute(),
+  new NotificationRoute(),
+  new PartyChannelRoute(),
 ]);
 
 app.listen();

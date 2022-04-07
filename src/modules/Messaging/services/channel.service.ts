@@ -18,7 +18,7 @@ class ChannelService {
    * Find all channels
    *
    * @returns Promise<Channel[]>
-   * @author Jaswant
+   * @author Akshay
    */
   public async findAllChannel(): Promise<Channel[]> {
     const allUser: Channel[] = await this.channels.findAll({
@@ -33,7 +33,27 @@ class ChannelService {
    *
    * @param  {string} id
    * @returns Promise<Channel>
-   * @author Jaswant
+   * @author Akshay
+   */
+   public async isValidChannelKey(channelKey: number): Promise<boolean> {
+    if (isEmpty(channelKey)) throw new HttpException(400, 'Not a valid channelKey');
+
+    const findChannel: Channel = await this.channels.findOne({
+      where: { channelKey, deletedAt: null },
+    });
+    if (!findChannel) {
+      return false
+    }
+
+    return true;
+  }
+
+  /**
+   * find channel by Id
+   *
+   * @param  {string} id
+   * @returns Promise<Channel>
+   * @author Akshay
    */
   public async findChannelById(channelId: string): Promise<Channel> {
     if (isEmpty(channelId)) throw new HttpException(400, 'Not a valid channel');
@@ -53,7 +73,7 @@ class ChannelService {
    * @param  {CreateChannelDto} channelData
    * @param  {number} currentUserId
    * @returns Promise<Channel>
-   * @author Jaswant
+   * @author Akshay
    */
   public async createChannel(channelData: CreateChannelDto, customerAccountKey: number, tempChannelId: string): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
