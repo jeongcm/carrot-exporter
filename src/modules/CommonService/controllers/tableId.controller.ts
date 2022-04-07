@@ -4,7 +4,7 @@ import { ITableId as TableId } from '@/common/interfaces/tableId.interface';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
 
-class tableIdController {
+class TableIdController {
   public tableIdService = new tableIdService();
 
   public issueTableId = async (req: RequestWithUser, res: Response, next: NextFunction) => {
@@ -25,4 +25,4 @@ class tableIdController {
   };
 }
 
-export default tableIdController;
+export default TableIdController;

@@ -3,6 +3,8 @@ import { CreateCatalogPlanProductDto, CreateCatalogPlanDto, CreateProductPricing
 import { ICatalogPlan, ICatalogPlanProduct, ICatalogPlanProductPrice } from '@/common/interfaces/productCatalog.interface';
 import ProductCatalogService from '@/modules/ProductCatalog/services/productCatalog.service';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
+import { sys } from 'typescript';
+import { IRequestWithUser } from '@/common/interfaces/party.interface';
 class ProductCatalogController {
   public productCatalogService = new ProductCatalogService();
 
@@ -17,10 +19,12 @@ class ProductCatalogController {
   };
 
 
-  public createCatalogPlans = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public createCatalogPlans = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const catalogData: CreateCatalogPlanDto = req.body;
-      const newCatalogPlan: CreateCatalogPlanDto = await this.productCatalogService.createCatalogPlan(catalogData);
+      const { partyId } = req.user;
+      const { systemId } = req
+      const newCatalogPlan: CreateCatalogPlanDto = await this.productCatalogService.createCatalogPlan(catalogData, partyId, systemId);
       res.status(201).json({ data: newCatalogPlan, message: 'created' });
     } catch (error) {
       next(error);
@@ -38,16 +42,16 @@ class ProductCatalogController {
   };
 
 
- /**
-  * {updateCatlogPlan} update the catalog Plan
-  * @param req 
-  * @param res 
-  * @param next 
-  */
-  public updateCatlogPlan = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  /**
+   * {updateCatlogPlan} update the catalog Plan
+   * @param req 
+   * @param res 
+   * @param next 
+   */
+  public updateCatlogPlan = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const { params: { catalogPlanId }, body } = req
-      const updated: ICatalogPlan = await this.productCatalogService.updateCatalogPlanById(catalogPlanId, body, req.user.pk);
+      const { params: { catalogPlanId }, body, systemId, user: { partyId } } = req
+      const updated: ICatalogPlan = await this.productCatalogService.updateCatalogPlanById(catalogPlanId, body, systemId, partyId);
       res.status(200).json({ updated });
     } catch (error) {
       next(error);
@@ -57,7 +61,7 @@ class ProductCatalogController {
 
   public getCatalogPlanProducts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {catalogPlanId} = req.params;
+      const { catalogPlanId } = req.params;
       const allCatalogPlanProducts: ICatalogPlanProduct[] = await this.productCatalogService.getCatalogPlanProducts(catalogPlanId);
       res.status(200).json({ data: allCatalogPlanProducts, message: 'success' });
     } catch (error) {
@@ -66,10 +70,17 @@ class ProductCatalogController {
   };
 
 
-  public createCatalogPlansProduct = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public createCatalogPlansProduct = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const productData: CreateCatalogPlanProductDto = req.body;
-      const newCatalogPlan: ICatalogPlanProduct = await this.productCatalogService.createCatalogPlanProduct(productData);
+      let productData: CreateCatalogPlanProductDto = req.body;
+      const { user:{partyId}, systemId } = req;
+      const catalogPlanDetails: ICatalogPlan = await this.productCatalogService.findCatalogPlan(productData.catalogPlanId);
+console.log("catalogPlanDetails", catalogPlanDetails)
+      if (!catalogPlanDetails) {
+        res.status(409).json({ message: "Catalog Plan  doesn't exist" });
+
+      }
+      const newCatalogPlan: ICatalogPlanProduct = await this.productCatalogService.createCatalogPlanProduct(productData, catalogPlanDetails.catalogPlanKey, partyId, systemId);
       res.status(201).json({ data: newCatalogPlan, message: 'success' });
     } catch (error) {
       next(error);
@@ -79,7 +90,7 @@ class ProductCatalogController {
   public getCatalogProductPlanById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const catalogPlanProductId = req.params.catalogPlanProductId;
-      const planProduct: ICatalogPlanProduct = await this.productCatalogService.getCalogPlanProductById(catalogPlanProductId);
+      const planProduct: ICatalogPlanProduct = await this.productCatalogService.getCatalogPlanProductById(catalogPlanProductId);
       res.status(200).json({ data: planProduct, message: 'success' });
     } catch (error) {
       next(error);
@@ -87,16 +98,16 @@ class ProductCatalogController {
   };
 
 
- /**
-  * {updateCatlogPlan} update the catalog Plan product
-  * @param req 
-  * @param res 
-  * @param next 
-  */
-  public updateCatlogPlanProduct = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  /**
+   * {updateCatlogPlan} update the catalog Plan product
+   * @param req 
+   * @param res 
+   * @param next 
+   */
+  public updateCatlogPlanProduct = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const { params: { catalogPlanProductId }, body } = req
-      const updated: ICatalogPlanProduct = await this.productCatalogService.updateCatalagPlanProduct(catalogPlanProductId, body);
+      const { params: { catalogPlanProductId }, body , user:{partyId}, systemId} = req
+      const updated: ICatalogPlanProduct = await this.productCatalogService.updateCatalagPlanProduct(catalogPlanProductId, body, partyId, systemId);
       res.status(200).json({ updated });
     } catch (error) {
       next(error);
@@ -104,10 +115,17 @@ class ProductCatalogController {
   }
 
 
-  public createPlanProductPricing = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public createPlanProductPricing = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const pricingData: CreateProductPricingDto = req.body;
-      const newPricingData: ICatalogPlanProductPrice = await this.productCatalogService.createProductPricing(pricingData);
+      const {systemId, user:{partyId}} = req;
+      const planProductDetails: ICatalogPlanProduct = await this.productCatalogService.getCatalogPlanProductById(pricingData.catalogPlanProductId);
+
+      if (!planProductDetails) {
+        res.status(409).json({ message: "Catalog Plan Product  doesn't exist" });
+
+      }
+      const newPricingData: ICatalogPlanProductPrice = await this.productCatalogService.createProductPricing(pricingData, planProductDetails.catalogPlanProductKey, partyId, systemId);
       res.status(201).json({ data: newPricingData, message: 'success' });
     } catch (error) {
       next(error);

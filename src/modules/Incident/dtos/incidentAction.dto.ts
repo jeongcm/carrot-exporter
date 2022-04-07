@@ -1,11 +1,15 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 
-export class CreateActionDto {
+export class CreateIncidentActionDto {
   @IsString()
   @IsNotEmpty()
-  public title: string;
+  public incidentActionName: string;
 
   @IsString()
   @IsNotEmpty()
-  public description: string;
+  public incidentActionDescription: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public incidentActionStatus: 'EX' | 'RC';
 }

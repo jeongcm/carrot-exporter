@@ -1,0 +1,252 @@
+[
+  {
+    "tableIdTableName": "customerAccount",
+    "tableIdHeader": "CA",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "address",
+    "tableIdHeader": "AD",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "alertReceived",
+    "tableIdHeader": "AR",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "alertRule",
+    "tableIdHeader": "AL",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "api",
+    "tableIdHeader": "AP",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "catalogPlan",
+    "tableIdHeader": "CT",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "catalogPlanProduct",
+    "tableIdHeader": "CP",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "catalogPlanProductPrice",
+    "tableIdHeader": "CE",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "channel",
+    "tableIdHeader": "CH",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "commonCode",
+    "tableIdHeader": "CC",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "customerAccountAddress",
+    "tableIdHeader": "CR",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "incident",
+    "tableIdHeader": "IN",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "incidentAction",
+    "tableIdHeader": "IA",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "metricMeta",
+    "tableIdHeader": "MM",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "metricReceived",
+    "tableIdHeader": "MR",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "party",
+    "tableIdHeader": "PT",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "partyChannel",
+    "tableIdHeader": "PC",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "partyRelation",
+    "tableIdHeader": "PR",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "partyUser",
+    "tableIdHeader": "PU",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "partyUserLogs",
+    "tableIdHeader": "PL",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "resource",
+    "tableIdHeader": "RE",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "resourceGroup",
+    "tableIdHeader": "RG",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "subscribedProduct",
+    "tableIdHeader": "SP",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "subscription",
+    "tableIdHeader": "SU",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "subscriptionHistory",
+    "tableIdHeader": "SH",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  }
+]

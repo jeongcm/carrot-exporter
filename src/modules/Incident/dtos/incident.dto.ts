@@ -2,73 +2,73 @@ import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateIncidentDto {
   @IsString()
-  @IsOptional()
   public assigneeId: string;
 
   @IsString()
   @IsNotEmpty()
-  public dueDate: Date;
+  public incidentName: string;
 
   @IsString()
   @IsNotEmpty()
-  public note: string;
-
-  @IsNotEmpty()
-  public priority: 'HIGH' | 'LOW' | 'MEDIUM' | 'URGENT';
+  public incidentDescription: string;
 
   @IsString()
   @IsNotEmpty()
-  public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
+  public incidentStatus: 'OP' | 'IP' | 'RS' | 'CL';
+
+  @IsString()
+  @IsNotEmpty()
+  public incidentSeverity: 'UR' | 'HI' | 'ME' | 'LO';
 
   @IsOptional()
-  public relatedAlertIds: [string];
-
-  @IsOptional()
-  public actions: { description: string; title: string }[];
-
   @IsString()
   @IsNotEmpty()
-  public title: string;
+  public incidentDueDate: Date;
+}
+
+export class UpdateIncidentDto {
+  @IsOptional()
+  @IsString()
+  public assigneeId: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  public incidentName: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  public incidentDescription: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  public incidentStatus: 'OP' | 'IP' | 'RS' | 'CL';
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  public incidentSeverity: 'UR' | 'HI' | 'ME' | 'LO';
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  public incidentDueDate: Date;
 }
 
 export class UpdateIncidentStatusDto {
   @IsString()
   @IsNotEmpty()
-  public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
+  public incidentStatus: 'OP' | 'IP' | 'RS' | 'CL';
 }
 
-export class UpdateIncidentDto {
-  @IsString()
-  @IsOptional()
-  public assigneeId: string;
-
-  @IsString()
+export class AddAlertReceivedToIncidentDto {
   @IsNotEmpty()
-  public dueDate: Date;
-
-  @IsString()
-  @IsNotEmpty()
-  public note: string;
-
-  @IsNotEmpty()
-  public priority: 'HIGH' | 'LOW' | 'MEDIUM' | 'URGENT';
-
-  @IsString()
-  @IsOptional()
-  public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
-
-  @IsOptional()
-  public relatedAlertIds: [string];
-
-  @IsOptional()
-  public actions: { description: string; title: string }[];
-
-  @IsString()
-  @IsNotEmpty()
-  public title: string;
+  public alertReceivedIds: [string];
 }
 
-export class CreateRelatedAlertDto {
+export class DropAlertReceivedFromIncidentDto {
   @IsNotEmpty()
-  public relatedAlertIds: [string];
+  public alertReceivedIds: [string];
 }

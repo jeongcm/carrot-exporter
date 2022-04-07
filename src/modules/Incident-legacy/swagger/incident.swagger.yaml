@@ -1,0 +1,391 @@
+swagger: '2.0'
+info:
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: incident
+    description: incident API
+
+paths:
+  # [POST] incidents
+  /incidents:
+    post:
+      tags:
+        - incident
+      summary: Create Incident
+      parameters:
+        - name: body
+          in: body
+          description: Incident data
+          required: true
+          schema:
+            $ref: '#/definitions/createIncident'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [GET] incident
+    get:
+      tags:
+        - incident
+      summary: Find All Incident
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+  # [GET] incidents/id
+  /incidents/{id}:
+    get:
+      tags:
+        - incident
+      summary: Find Incident By Id
+      parameters:
+        - name: id
+          in: path
+          description: Incident Id
+          required: true
+          type: number
+      responses:
+        200:
+          description: 'OK'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
+    # [PUT] incidents/id
+    put:
+      tags:
+        - incident
+      summary: Update Incident By Id
+      parameters:
+        - name: id
+          in: path
+          description: Incident Id
+          required: true
+          type: number
+        - name: body
+          in: body
+          description: Incident Data
+          required: true
+          schema:
+            $ref: '#/definitions/createIncident'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [DELETE] incidents/id
+    delete:
+      tags:
+        - incident
+      summary: Delete Incident By Id
+      parameters:
+        - name: id
+          in: path
+          description: Incident Id
+          required: true
+          type: number
+      responses:
+        204:
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [GET] incidents/id/actions
+  /incidents/{id}/actions:
+    get:
+      tags:
+        - incident
+      summary: Get Incident Action By incId
+      parameters:
+        - name: id
+          in: path
+          description: Incident Id
+          required: true
+          type: number
+      responses:
+        200:
+          description: 'OK'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
+    # [POST] incidents
+    post:
+      tags:
+        - incident
+      summary: Create Incidnet Action By incId
+      parameters:
+        - name: id
+          in: path
+          description: Incident Id
+          required: true
+          type: number
+        - name: body
+          in: body
+          description: Incident Action Data
+          required: true
+          schema:
+            $ref: '#/definitions/createAction'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [PUT] incidents/incidentPk/actions/actionId
+  /incidents/{incidentPk}/actions/{actionId}:
+    put:
+      tags:
+        - incident
+      summary: Update Incident Action
+      parameters:
+        - name: incidentPk
+          in: path
+          description: Incident Id
+          required: true
+          type: number
+        - name: actionId
+          in: path
+          description: Action Id
+          required: true
+          type: number
+        - name: body
+          in: body
+          description: Incident Action Data
+          required: true
+          schema:
+            $ref: '#/definitions/createAction'
+      responses:
+        200:
+          description: 'OK'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
+    # [DELETE] incidents/incidentPk/actions/actionId
+    delete:
+      tags:
+        - incident
+      summary: Delete Incident Action (soft)
+      parameters:
+        - name: incidentPk
+          in: path
+          description: Incident Id
+          required: true
+          type: number
+        - name: actionId
+          in: path
+          description: Action Id
+          required: true
+          type: number
+      responses:
+        204:
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [GET] incidents/incidentPk/relates/alerts
+  /incidents/{incidentPk}/relates/alerts:
+    get:
+      tags:
+        - incident
+      summary: Get Incident's Alert By incId
+      parameters:
+        - name: id
+          in: path
+          description: Incident Id
+          required: true
+          type: number
+      responses:
+        200:
+          description: 'OK'
+        404:
+          description: 'Not Found'
+        500:
+          description: 'Server Error'
+    # [POST] incidents/incidentPk/relates/alerts
+    post:
+      tags:
+        - incident
+      summary: Add Relates Alert To Incident
+      parameters:
+        - name: id
+          in: path
+          description: Incident Id
+          required: true
+          type: number
+        - name: body
+          in: body
+          description: Relates Alert Data
+          required: true
+          schema:
+            $ref: '#/definitions/relatesAlert'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [DELETE] incidents/incidentPk/relates/alerts
+    delete:
+      tags:
+        - incident
+      summary: Delete Relates Alert To Incident
+      parameters:
+        - name: id
+          in: path
+          description: Incident Id
+          required: true
+          type: number
+      responses:
+        204:
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [GET] incidents/counts
+  /incidents/counts:
+    get:
+      tags:
+        - incident
+      summary: Get Incident Counts
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+  # [PUT] incidents/id/status
+  /incidents/{id}/status:
+    put:
+      tags:
+        - incident
+      summary: Update Incident Status
+      parameters:
+        - name: id
+          in: path
+          description: Incident Id
+          required: true
+          type: number
+        - name: body
+          in: body
+          description: Status Data
+          required: true
+          schema:
+            $ref: '#/definitions/updateStatus'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+
+# definitions
+definitions:
+  createIncident:
+    type: object
+    required:
+      - actions
+      - assigneePk
+      - dueDate
+      - note
+      - priority
+      - relatedAlertIds
+      - title
+      - status
+    properties:
+      actions:
+        type: array
+        items:
+          type: object
+          properties:
+            description:
+              type: string
+              description: Incident Description
+              example: first action desc
+            title:
+              type: string
+              description: Incident Title
+              example: first action title
+      assigneePk:
+        type: string
+        description: Incident AssigneeId
+        example: example
+      dueDate:
+        type: string
+        description: Incident Due Date
+        example: example
+      note:
+        type: string
+        description: Incident Note
+        example: example
+      priority:
+        type: string
+        description: Incident Priority
+        example: example
+      relatedAlertIds:
+        type: array
+        description: Incident Related AlertIds
+        example: [0, 1]
+      title:
+        type: string
+        description: Incident Title
+        example: example
+      status:
+        type: string
+        description: Incident Status
+        example: example
+  createAction:
+    type: object
+    properties:
+      title:
+        type: string
+        description: title of action
+        example: example
+      description:
+        type: string
+        description: description of action
+        example: example
+  relatesAlert:
+    type: object
+    properties:
+      relatedAlertIds:
+        type: array
+        description: Incident Relates Alert
+        example: [0, 1]
+  updateStatus:
+    type: object
+    properties:
+      status:
+        type: string
+        description: Incident Status
+        example: example

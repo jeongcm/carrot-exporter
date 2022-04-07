@@ -2,14 +2,14 @@ import DB from '@/database';
 
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
-import { ITableId as tableId } from '@/common/interfaces/tableId.interface';
+import { ITableId } from '@/common/interfaces/tableId.interface';
 import config from 'config';
 
 /**
  * @memberof InitialRecordService
  */
 class InitialRecordService {
-  public tableId = DB.tableId;
+  public tableId = DB.TableId
   public customerAccount = DB.CustomerAccount;
   public party = DB.Party;
   public partyUser = DB.PartyUser;
@@ -24,7 +24,7 @@ class InitialRecordService {
 
     try {
       await DB.sequelize.transaction(async t => {
-        const getTableId: tableId = await this.tableId.findOne({ where: { tableIdTableName: 'customerAccount' }, transaction: t });
+        const getTableId: ITableId = await this.tableId.findOne({ where: { tableIdTableName: 'customerAccount' }, transaction: t });
 
         if (getTableId) {
           return;
