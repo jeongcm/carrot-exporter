@@ -186,6 +186,9 @@ DB.Subscription.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});
 DB.Subscription.hasMany(DB.SubscriptionHistory, { foreignKey: 'subscription_key' });
 DB.SubscriptionHistory.belongsTo(DB.Subscription, { foreignKey: 'subscription_key'});
 
+DB.Subscription.hasMany(DB.SubscribedProduct, { foreignKey: 'subscription_key' });
+DB.SubscribedProduct.belongsTo(DB.Subscription, { foreignKey: 'subscription_key'});
+
 DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
 DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 

@@ -3,16 +3,18 @@ import { CreateCatalogPlanProductDto, CreateCatalogPlanDto, CreateProductPricing
 import { ICatalogPlan, ICatalogPlanProduct, ICatalogPlanProductPrice } from '@/common/interfaces/productCatalog.interface';
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
-import { ISubscriptions } from '@/common/interfaces/subscription.interface';
+import { ISubscribedProduct, ISubscriptions } from '@/common/interfaces/subscription.interface';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
-import { CreateSubscriptionDto } from '../dtos/subscriptions.dto';
+import { CreateSubscribedProductDto, CreateSubscriptionDto } from '../dtos/subscriptions.dto';
+import { body } from 'express-validator';
+import { sys } from 'typescript';
 class SubscriptionController {
   public subscriptionService = new SubscriptionService();
 
 
-  public getAllSubscriptions = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getAllSubscriptions = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const allSubscriptions: ISubscriptions[] = await this.subscriptionService.findSubscriptions();
+      const allSubscriptions: ISubscriptions[] = await this.subscriptionService.findSubscriptions(req.customerAccountKey);
       res.status(200).json({ data: allSubscriptions, message: 'success' });
     } catch (error) {
       next(error);
@@ -22,7 +24,7 @@ class SubscriptionController {
   public createSubscriptions = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const subscriptionData: CreateSubscriptionDto = req.body;
-      const { user:{partyId}, systemId , customerAccountKey} = req;
+      const { user: { partyId }, systemId, customerAccountKey } = req;
       const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, systemId, customerAccountKey);
       res.status(201).json({ data: newSubscription, message: 'success' });
     } catch (error) {
@@ -42,13 +44,50 @@ class SubscriptionController {
 
   public updateSubscription = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const { params: { subscriptionId }, body , user:{partyId}, systemId} = req
+      const { params: { subscriptionId }, body, user: { partyId }, systemId } = req
       const updated: ISubscriptions = await this.subscriptionService.updateSubscription(subscriptionId, body, partyId, systemId);
+      if (body.subscriptionCommitmentType || body.subscriptionStatus) {
+        this.subscriptionService.createSubscriptionHistory(body, subscriptionId, partyId, systemId)
+      }
       res.status(200).json({ updated });
+    } catch (error) {
+      res.status(400).json({ error, message: 'failure' });
+    }
+  };
+
+  public createSubscribeProduct = async (req: IRequestWithUser, res: Response, next: NextFunction)=>{
+    try{
+      const productData: CreateSubscribedProductDto = req.body;
+      const { user: { partyId }, systemId, customerAccountKey } = req;
+      const newSubscribedProduct: ISubscribedProduct = await this.subscriptionService.createSubscribedProduct(productData, partyId, systemId, customerAccountKey);
+      res.status(201).json({ data: newSubscribedProduct, message: 'success' });
+    }catch(error){
+      res.status(400).json({ error, message: 'failure' });
+    }
+  }
+
+
+  public getSubscribeProduct = async (req: IRequestWithUser, res: Response, next: NextFunction)=>{
+    try {
+      const subscribedProductId = req.params.subscribedProductId;
+      const subscribedProduct: ISubscribedProduct = await this.subscriptionService.findSubscribedProduct(subscribedProductId);
+      res.status(200).json({ data: subscribedProduct, message: 'success' });
     } catch (error) {
       next(error);
     }
-  };
+  }
+
+  
+  public updateSubscribedProduct = async (req: IRequestWithUser, res: Response, next: NextFunction)=>{
+    try {
+     const {body, user:{partyId}, systemId, params:{subscribedProductId}} = req
+      const updatedData: ISubscribedProduct = await this.subscriptionService.updateSubscribedProduct(subscribedProductId,body, partyId, systemId);
+      res.status(200).json({ data: updatedData, message: 'success' });
+    } catch (error) {
+      next(error);
+    }
+  }
+
 
 
 

@@ -3,6 +3,7 @@ export interface ICatalogPlan {
     catalogPlanId: string;
     catalogPlanKey:number;
     catalogPlanName: string;
+    catalogPlanType:string;
     catalogPlanDescription: string;
     deletedAt:Date;
     createdAt: Date;
@@ -26,6 +27,7 @@ export interface ICatalogPlanProduct{
     catalogPlanProductMonthlyPrice:number
     catalogPlanProductUOM:string
     catalogPlanProductCurrency:string
+    catalogPlanProductType:string
 
 }
 

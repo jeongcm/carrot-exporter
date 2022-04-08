@@ -9,22 +9,16 @@ info:
 host: 'nexclipper.com'
 basePath: '/'
 tags:
-  - name: tableId
-    description: tableId API
+  - name: Subscription
+    description: Subscription API
 
 paths:
-  # [GET] tableId/tableName
-  /tableId/{tableName}:
+  /subscription:
     get:
       tags:
-        - tableId
-      summary: issue TableId by tableName
-      parameters:
-        - name: tableName
-          in: path
-          description: tableName
-          required: true
-          type: string
+        - Subscription
+      summary: get all subscription
+     
       responses:
         200:
           description: 'OK'

@@ -30,7 +30,7 @@ export class SubscribedProductModel extends Model<ISubscribedProduct, subscribed
     public deletedAt: Date;
     public subscribedProductFrom: Date;
     public subscribedProductTo: Date;
-    public subscribedProductStatus: number
+    public subscribedProductStatus: string
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;

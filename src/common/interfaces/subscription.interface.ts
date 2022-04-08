@@ -49,5 +49,5 @@ export interface ISubscribedProduct{
     deletedAt:Date;
     subscribedProductFrom :Date;
     subscribedProductTo :Date;
-    subscribedProductStatus :number
+    subscribedProductStatus :string
 }

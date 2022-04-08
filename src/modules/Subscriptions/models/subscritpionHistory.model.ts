@@ -55,72 +55,73 @@ export default function (sequelize: Sequelize): typeof SubscriptionHistoryModel 
                 type: DataTypes.STRING(16)
             },
             subscriptionKey: {
-                allowNull: true,
+                allowNull: false,
                 type: DataTypes.INTEGER,
             },
 
             subscriptionOldStatus: {
-                allowNull: false,
+                allowNull: true,
                 type: DataTypes.STRING(2),
                 validate: {
                     isIn: {
-                        args: [['AC', 'SP', 'TM']],
+                        args: [['AC', 'SP', 'TM', null]],
                         msg: " subscriptionStatus must be of type  ['AC' |'SP' | 'TM'] AC: Active| 계약중, SP: Suspended| 일시정지, TM: Terminated, 해지"
                     }
                 }
             },
             subscriptionNewStatus: {
-                allowNull: false,
+                allowNull: true,
                 type: DataTypes.STRING(2),
                 validate: {
                     isIn: {
-                        args: [['AC', 'SP', 'TM']],
+                        args: [['AC', 'SP', 'TM', null]],
                         msg: " subscriptionStatus must be of type  ['AC' |'SP' | 'TM'] AC: Active| 계약중, SP: Suspended| 일시정지, TM: Terminated, 해지"
                     }
                 }
             },
             subscriptionStatusChangeReason: {
-                allowNull: false,
+                allowNull: true,
                 type: DataTypes.STRING(2),
                 validate: {
                     isIn: {
-                        args: [['BD']],
+                        args: [['BD', null]],
                         msg: " subscriptionStatusChangeReason must be of type  ['BD'] BD: Suspended by billing delinquency | 연체 일시정지"
                     }
                 }
+                
             },
             subscriptionOldCommitment: {
-                allowNull: false,
+                allowNull: true,
                 type: DataTypes.STRING(2),
                 validate: {
                     isIn: {
-                        args: [['AC', 'MM']],
+                        args: [['AC', 'MM', null]],
                         msg: " subscriptionCommitmentType must be of type  ['AC' ,'MM'] AC: Annual Contract | 연간계약, MM : Month to Month|월간계약"
                     }
                 }
             },
             subscriptionNewCommitment: {
-                allowNull: false,
+                allowNull: true,
                 type: DataTypes.STRING(2),
                 validate: {
                     isIn: {
-                        args: [['AC', 'MM']],
+                        args: [['AC', 'MM', null]],
                         msg: " subscriptionCommitmentType must be of type  ['AC' ,'MM'] AC: Annual Contract | 연간계약, MM : Month to Month|월간계약"
                     }
                 }
             },
             subscriptionCommitmentChangeReason: {
-                allowNull: false,
+                allowNull: true,
                 type: DataTypes.STRING(2),
                 validate: {
                     isIn: {
-                        args: [["EA"]],
+                        args: [["EA", null]],
                         msg: " subscriptionCommitmentChangeReason  must be of type  ['EA'] EA : End of annual contract| 연간계약종료 "
                     }
                 }
             },
             subscriptionChangedAt: {
-                allowNull: false,
+                allowNull: true,
                 type: DataTypes.DATE,
             },
             deletedAt: {

@@ -4,9 +4,10 @@ import { DATE } from 'sequelize';
 
 export type CatalogPlanCreationAttributes = Optional<
     ICatalogPlan,
-    'catalogPlanId'
+     'catalogPlanId'
     |'catalogPlanKey'
     |'catalogPlanName'
+    |'catalogPlanType'
     |'deletedAt'
     |'catalogPlanDescription'
     |'createdAt'
@@ -19,6 +20,7 @@ export class CatalogPlanModel extends Model<ICatalogPlan, CatalogPlanCreationAtt
     public catalogPlanId: string;
     public catalogPlanKey: number;
     public catalogPlanName: string;
+    public catalogPlanType  :  'OB'|'MO'
     public catalogPlanDescription: string;
     public createdBy: string;
     public updatedBy: string;
@@ -51,6 +53,16 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
         allowNull: false,
         type: DataTypes.STRING(500),
       },
+      catalogPlanType: {
+        allowNull: false,
+        type: DataTypes.STRING(2),
+        validate: {
+            isIn: {
+                args: [[ 'OB','MO']],
+                msg: " subscriptionStatus must be of type  [ 'OB'|'MO']  Where  - OB (Observability)  - MO (MetricOps)"
+            }
+        }
+    },
       deletedAt: {
         allowNull: true,
         type: DataTypes.DATE()
