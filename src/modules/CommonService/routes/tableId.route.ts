@@ -15,6 +15,7 @@ class TableIdRoute implements Routes {
   private initializeRoutes() {
     // this.router.post('/tableId', authMiddleware, this.tableIdController.issueTableId);
     this.router.post('/tableId', this.tableIdController.issueTableId);
+    this.router.post('/tableId/Bulk', this.tableIdController.issueTableIdBulk);
   }
 }
 

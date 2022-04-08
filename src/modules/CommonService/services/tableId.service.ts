@@ -1,8 +1,9 @@
 import DB from '@/database';
-import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import { IResponseIssueTableIdDto, IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { ITableId as tableId } from '@/common/interfaces/tableId.interface';
 import { isEmpty } from '@/common/utils/util';
+import { IParty } from '@/common/interfaces/party.interface';
 
 /**
  * @memberof tableId
@@ -13,16 +14,19 @@ class TableIdService {
   /**
    * Issue a new tableId information and update tableId table's matched row to save the issued tableId
    *
-   * @param  {UpdateTableIdDto} tableIdData
+   * @param  tableIdData
    * @returns IResponseIssueTableIdDto
    * @author Jerry Lee jerry.lee@nexclipper.io
    */
-  public async issueTableId(tableIdTableName: string): Promise<IResponseIssueTableIdDto> {
+  public async issueTableId(tableIdTableName: string ): Promise<IResponseIssueTableIdDto> {
+
     if (isEmpty(tableIdTableName)) throw new HttpException(400, 'TableName Data cannot be blank');
 
     const getTableId: tableId = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
-
     if (!getTableId) throw new HttpException(409, "Can't find a matched tableId record");
+  
+    const internalAccountParty: IParty = await DB.Party.findOne({ where: { partyName: process.env.NC_LARI_SYSTEM_PARTY_NAME } });
+    if (!internalAccountParty) throw new HttpException(409, "Can't find a matched SYSTEM user");
 
     const currentDate = new Date();
     const currentDay = currentDate.getDate() + getTableId.tableDay;
@@ -41,12 +45,57 @@ class TableIdService {
     const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonth + currentDay + currentSequenceText;
     const idIssuedSequence = getTableId.tableIdIssuedSequence + 1;
 
-    const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date() };
+    const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: internalAccountParty.partyId };
     await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
 
     const updateResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
     return updateResult;
   }
+
+  /**
+   * Issue a new table id after the range provided. it's for issuing bulk table id range for alerts or metrics where it requires massive amount of id issurance. 
+   *
+   * @param  tableIdData, tableIdRange
+   * @returns IResponseIssueTableIdDtoBulk
+   * @author Jerry Lee jerry.lee@nexclipper.io
+   */
+   public async issueTableIdBulk(tableIdTableName: string, tableIdRange: number): Promise<IResponseIssueTableIdBulkDto> {
+
+    //console.log(`tableIdRange:::${tableIdRange}`);
+
+    if (isEmpty(tableIdTableName)) throw new HttpException(400, 'TableName Data cannot be blank');
+
+    const getTableId: tableId = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
+    if (!getTableId) throw new HttpException(409, "Can't find a matched tableId record");
+
+    const internalAccountParty: IParty = await DB.Party.findOne({ where: { partyName: process.env.NC_LARI_SYSTEM_PARTY_NAME } });
+    if (!internalAccountParty) throw new HttpException(409, "Can't find a matched SYSTEM user");
+
+    const currentDate = new Date();
+    const currentDay = currentDate.getDate() + getTableId.tableDay;
+    const currentMonth = currentDate.getMonth() + 1 + getTableId.tableMonth;
+    const currentFullYear = currentDate.getFullYear() + getTableId.tableYear;
+    const currentYearText = currentFullYear.toString();
+    const currentYear = currentYearText.substring(2, 4);
+
+    const currentSequence = getTableId.tableIdIssuedSequence + tableIdRange;
+    let currentSequenceText = currentSequence.toString();
+
+    while (currentSequenceText.length < getTableId.tableIdSequenceDigit) {
+      currentSequenceText = '0' + currentSequenceText;
+    }
+
+    const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonth + currentDay + currentSequenceText;
+    const idIssuedSequence = currentSequence;
+
+    const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: internalAccountParty.partyId};
+    await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
+
+    const updateDBResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
+    const updateResult: IResponseIssueTableIdBulkDto = {tableIdTableName:updateDBResult.tableIdTableName, tableIdFinalIssued:updateDBResult.tableIdFinalIssued, tableIdRange};
+    return updateResult;
+  }
+
 
   /**
    * getTableId information using TableName
