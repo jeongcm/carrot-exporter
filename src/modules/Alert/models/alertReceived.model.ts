@@ -6,6 +6,7 @@ export type AlertReceivedCreationAttributes = Optional<
   | 'alertReceivedKey'
   | 'customerAccountKey'
   | 'alertRuleKey'
+  | 'alertReceivedId'
   | 'createdBy'
   | 'updatedBy'
   | 'createdAt'
@@ -31,6 +32,7 @@ export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreat
   public alertReceivedKey: number;
   public customerAccountKey: number;
   public alertRuleKey: number;
+  public alertReceivedId: string;
   public createdBy: string;
   public updatedBy: string;
   public deletedAt: Date;
@@ -70,6 +72,11 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
       alertRuleKey: {
         allowNull: false,
         type: DataTypes.INTEGER,
+      },
+      alertReceivedId: {
+        allowNull: false,
+        unique: true,
+        type: DataTypes.STRING(16),
       },
       createdBy: {
         type: DataTypes.STRING(16),

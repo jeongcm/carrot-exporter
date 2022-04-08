@@ -2,6 +2,7 @@ export interface IAlertReceived {
     alertReceivedKey: number;
     customerAccountKey: number;
     alertRuleKey: number;
+    alertReceivedId: string;
     createdBy: string;
     updatedBy: string;
     createdAt: Date;
