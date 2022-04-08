@@ -46,7 +46,7 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
         type: DataTypes.INTEGER,
       },
       messageKey: {
-        allowNull: true,
+        allowNull: false,
         type: DataTypes.BIGINT,
       },
       createdBy: {
@@ -61,7 +61,7 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
         type: DataTypes.DATE,
       },
       updatedAt: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE,
       },
       deletedAt: {
@@ -73,7 +73,7 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-              args: [['CR', 'SM',null]],
+              args: [['CR', 'SM', null]],
               msg: " notificationStatus must be of type  ['CR', 'SM'] SM: Sent, CR: Created"
           }
       }
