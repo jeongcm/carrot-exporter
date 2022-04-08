@@ -3,7 +3,18 @@ import { PartyChannel } from '@/common/interfaces/party.interface';
 
 export type PartyChannelAttributes = Optional<
   PartyChannel,
-  'partyChannelKey' | 'partyKey' | 'channelKey' | 'PartychannelId' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'partyChannelFrom' | 'partyChannelTo' | 'partyChannelDefault'
+  | 'partyChannelKey'
+  | 'partyKey'
+  | 'channelKey'
+  | 'PartychannelId'
+  | 'createdBy'
+  | 'updatedBy'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'deletedAt'
+  | 'partyChannelFrom'
+  | 'partyChannelTo'
+  | 'partyChannelDefault'
 >;
 
 export class PartyChannelModel extends Model<PartyChannel, PartyChannelAttributes> implements PartyChannel {
@@ -78,12 +89,12 @@ export default function (sequelize: Sequelize): typeof PartyChannelModel {
       },
     },
     {
-      indexes:[
+      indexes: [
         {
           unique: true,
-          fields:['partychannel_id']
-        }
-       ],
+          fields: ['partychannel_id'],
+        },
+      ],
       tableName: 'PartyChannel',
       modelName: 'PartyChannel',
       sequelize,

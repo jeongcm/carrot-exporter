@@ -27,50 +27,60 @@ class NotificationController {
     try {
       const notificationId: string = req.params.notificationId;
       const findNotification: Notification = await this.notificationService.findNotificationById(notificationId);
-      if(findNotification!=null){
+      if (findNotification != null) {
         res.status(200).json({ data: findNotification, message: 'findOne' });
-      }else{
+      } else {
         res.status(404).json({ data: 'Not Found', message: 'findOne' });
       }
-      
     } catch (error) {
       next(error);
     }
   };
 
-  public createNotification = async (req: IRequestWithUser,res: Response, next: NextFunction) => {
-    try{
+  public createNotification = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
       const customerAccountKey = req.customerAccountKey;
-      const tableIdName: string = "Notification";
+      const tableIdName: string = 'Notification';
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
       const tempNotificationId: string = responseTableIdData.tableIdFinalIssued;
-      const tempPartyKey:number = req.user.partyKey;
+      const tempPartyKey: number = req.user.partyKey;
       const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(tempPartyKey);
       const notificationData: CreateNotificationDto = req.body;
       const indMessageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
       const tempMessageKey: number = indMessageData.messageKey;
-      const createNotificationData: Notification = await this.notificationService.createNotification(notificationData,tempNotificationId,partyChannelKey,tempPartyKey,tempMessageKey,customerAccountKey);
+      const createNotificationData: Notification = await this.notificationService.createNotification(
+        notificationData,
+        tempNotificationId,
+        partyChannelKey,
+        tempPartyKey,
+        tempMessageKey,
+        customerAccountKey,
+      );
       res.status(201).json({ data: createNotificationData, message: 'created' });
-    }catch(error){
+    } catch (error) {
       next(error);
     }
   };
 
   public updateNotification = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    try{
+    try {
       const notificationId: string = req.params.notificationId;
       const customerAccountKey = req.customerAccountKey;
-      const tempPartyKey:number = req.user.partyKey;
+      const tempPartyKey: number = req.user.partyKey;
       const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(tempPartyKey);
       const notificationData: UpdateNotificationDto = req.body;
-      const updateNotificationData: Notification = await this.notificationService.updateNotification(notificationId,partyChannelKey,tempPartyKey,customerAccountKey,notificationData);
+      const updateNotificationData: Notification = await this.notificationService.updateNotification(
+        notificationId,
+        partyChannelKey,
+        tempPartyKey,
+        customerAccountKey,
+        notificationData,
+      );
       res.status(200).json({ data: updateNotificationData, message: 'updated' });
-    }catch(error){
+    } catch (error) {
       next(error);
-      
     }
   };
-
 }
 
 export default NotificationController;

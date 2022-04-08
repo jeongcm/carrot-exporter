@@ -4,13 +4,10 @@ export class CreateNotificationDto {
   @IsString()
   @IsNotEmpty()
   public messageId: string;
-
 }
 
 export class UpdateNotificationDto {
-
   @IsString()
   @IsNotEmpty()
   public notificationStatus: string;
-
 }

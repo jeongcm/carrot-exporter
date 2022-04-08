@@ -13,10 +13,20 @@ class NotificationRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/notification', authMiddleware, validationMiddleware(CreateNotificationDto, 'body'), this.notificationController.createNotification);
+    this.router.post(
+      '/notification',
+      authMiddleware,
+      validationMiddleware(CreateNotificationDto, 'body'),
+      this.notificationController.createNotification,
+    );
     this.router.get('/notification', authMiddleware, this.notificationController.getAllNotification);
     this.router.get('/notification/:notificationId', authMiddleware, this.notificationController.getNotificationById);
-    this.router.put('/notification/:notificationId', authMiddleware, validationMiddleware(UpdateNotificationDto, 'body'), this.notificationController.updateNotification);
+    this.router.put(
+      '/notification/:notificationId',
+      authMiddleware,
+      validationMiddleware(UpdateNotificationDto, 'body'),
+      this.notificationController.updateNotification,
+    );
   }
 }
 
