@@ -69,18 +69,20 @@ class IncidentRoute implements Routes {
     );
 
     // this.router.get('/incidents/:incidentId/relates/alerts', authMiddleware, this.incidentController.getAlertByIncident);
-    // this.router.post(
-    //   '/incidents/:incidentId/relates/alerts',
-    //   authMiddleware,
-    //   validationMiddleware(AddAlertReceivedToIncidentDto, 'body'),
-    //   this.incidentController.createRelatedAlertsByIncident,
-    // );
-    // this.router.delete(
-    //   '/incidents/:incidentId/relates/alerts',
-    //   authMiddleware,
-    //   validationMiddleware(DropAlertReceivedFromIncidentDto, 'body'),
-    //   this.incidentController.deleteRelatedAlertsByIncident,
-    // );
+
+    this.router.post(
+      '/incidents/:incidentId/relates/alerts',
+      authMiddleware,
+      validationMiddleware(AddAlertReceivedToIncidentDto, 'body'),
+      this.incidentController.addAlertReceivedtoIncident,
+    );
+
+    this.router.delete(
+      '/incidents/:incidentId/relates/alerts',
+      authMiddleware,
+      validationMiddleware(DropAlertReceivedFromIncidentDto, 'body'),
+      this.incidentController.dropAlertReceivedfromIncident,
+    );
 
     this.router.put(
       '/incidents/:incidentId/status',

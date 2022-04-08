@@ -97,7 +97,7 @@ const DB = {
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
   Api: ApiModel(sequelize),
-  PartyChannel : PartyChannelModel(sequelize),
+  PartyChannel: PartyChannelModel(sequelize),
   TableId: TableIdModel(sequelize),
   Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
@@ -133,9 +133,8 @@ DB.IncidentActionAttachment.belongsTo(DB.IncidentAction, { foreignKey: 'incident
 
 DB.Channel.hasMany(DB.PartyChannel, { foreignKey: 'channelKey' });
 DB.Party.hasMany(DB.PartyChannel, { foreignKey: 'partyKey' });
-DB.PartyChannel.belongsTo(DB.Channel, { foreignKey: 'channelKey'});
-DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey'});
-
+DB.PartyChannel.belongsTo(DB.Channel, { foreignKey: 'channelKey' });
+DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 
 //DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
 //DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
@@ -158,6 +157,18 @@ DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' })
 // DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
 // DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
 
+DB.Incident.belongsToMany(DB.AlertReceived, {
+  through: 'IncidentAlertReceived',
+  foreignKey: 'incidentKey',
+  otherKey: 'alertReceivedKey',
+  as: 'alertReceived',
+});
+DB.AlertReceived.belongsToMany(DB.Incident, {
+  through: 'IncidentAlertReceived',
+  foreignKey: 'alertReceivedKey',
+  otherKey: 'incidentKey',
+});
+
 DB.CustomerAccount.belongsToMany(DB.Address, {
   through: 'CustomerAccountAddress',
   foreignKey: 'customerAccountKey',
@@ -170,7 +181,6 @@ DB.Address.belongsToMany(DB.CustomerAccount, {
   otherKey: 'customerAccountKey',
 });
 
-
 DB.CustomerAccount.hasMany(DB.AlertRule, { foreignKey: 'customerAccountKey' });
 DB.AlertRule.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
@@ -181,7 +191,7 @@ DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' 
 DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
 DB.CatalogPlan.hasMany(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_key' });
-DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});
+DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key' });
 
 DB.CatalogPlanProduct.hasMany(DB.CatalogPlanProductPrice, { foreignKey: 'catalog_plan_product_key' });
 DB.CatalogPlanProductPrice.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
