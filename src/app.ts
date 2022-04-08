@@ -28,7 +28,7 @@ class App {
     this.port = Number(config.appPort);
     this.env = config.nodeEnv;
 
-    // this.connectToDatabase();
+    this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
@@ -66,7 +66,7 @@ class App {
     this.app.use(helmet());
     this.app.use(compression());
     this.app.use(express.json());
-    // this.intializeMiddlewareLogging();
+    this.intializeMiddlewareLogging();
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
     this.app.use(
