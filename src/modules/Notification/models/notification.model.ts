@@ -3,7 +3,7 @@ import { Notification } from '@/common/interfaces/notification.interface';
 
 export type NotificationCreationAttributes = Optional<
 Notification,
-  'notificationKey' | 'notificationId' | 'partyChannelKey' | 'partyKey' | 'messageKey' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'isDeleted' | 
+  'notificationKey' | 'notificationId' | 'partyChannelKey' | 'partyKey' | 'messageKey' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'deletedAt' | 
   'notificationStatus'|'notificationStatutsUpdatedAt'|'customerAccountKey'
 >;
 
