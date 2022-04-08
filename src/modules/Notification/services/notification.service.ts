@@ -59,7 +59,7 @@ class NotificationService{
       if (isEmpty(notificationId)) throw new HttpException(400, 'Not a valid notificationId');
   
       const findNotification: Notification = await this.notificaion.findOne({
-        where: { notificationId, isDeleted: false },
+        where: { notificationId, deletedAt: null },
       });
       if (!notificationId) throw new HttpException(409, 'Notification Id Not found');
   
