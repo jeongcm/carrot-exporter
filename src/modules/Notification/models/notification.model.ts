@@ -2,9 +2,20 @@ import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { Notification } from '@/common/interfaces/notification.interface';
 
 export type NotificationCreationAttributes = Optional<
-Notification,
-  'notificationKey' | 'notificationId' | 'partyChannelKey' | 'partyKey' | 'messageKey' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'deletedAt' | 
-  'notificationStatus'|'notificationStatutsUpdatedAt'|'customerAccountKey'
+  Notification,
+  | 'notificationKey'
+  | 'notificationId'
+  | 'partyChannelKey'
+  | 'partyKey'
+  | 'messageKey'
+  | 'createdBy'
+  | 'updatedBy'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'deletedAt'
+  | 'notificationStatus'
+  | 'notificationStatutsUpdatedAt'
+  | 'customerAccountKey'
 >;
 
 export class NotificationModel extends Model<Notification, NotificationCreationAttributes> implements Notification {
@@ -73,10 +84,10 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-              args: [['CR', 'SM', null]],
-              msg: " notificationStatus must be of type  ['CR', 'SM'] SM: Sent, CR: Created"
-          }
-      }
+            args: [['CR', 'SM', null]],
+            msg: " notificationStatus must be of type  ['CR', 'SM'] SM: Sent, CR: Created",
+          },
+        },
       },
       notificationStatutsUpdatedAt: {
         allowNull: true,
@@ -85,13 +96,13 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
       customerAccountKey: {
         allowNull: true,
         type: DataTypes.INTEGER,
-      }
+      },
     },
     {
       tableName: 'Notification',
       modelName: 'Notification',
       sequelize,
-    }
+    },
   );
 
   return NotificationModel;
