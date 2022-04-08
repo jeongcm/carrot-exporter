@@ -82,7 +82,8 @@ class ResourceController {
    */
   public getAllResource = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const findAllResourceData: IResource[] = await this.resourceService.getAllResource();
+      const customerAccountKey = req.customerAccountKey;
+      const findAllResourceData: IResource[] = await this.resourceService.getAllResource(customerAccountKey);
 
       res.status(200).json({ data: findAllResourceData, message: 'findAll' });
     } catch (error) {

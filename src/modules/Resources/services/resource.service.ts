@@ -44,9 +44,9 @@ class ResourceService {
   /**
    * @returns Promise
    */
-  public async getAllResource(): Promise<IResource[]> {
+  public async getAllResource(customerAccountKey: number): Promise<IResource[]> {
     const allResource: IResource[] = await this.resource.findAll({
-      where: { deletedAt: null },
+      where: { deletedAt: null, customerAccountKey },
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
 

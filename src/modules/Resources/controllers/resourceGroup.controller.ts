@@ -65,7 +65,8 @@ class ResourceGroupController {
    */
   public getAllResourceGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const findAllResourceGroupData: IResourceGroup[] = await this.resourceGroupService.getAllResourceGroup();
+      const customerAccountKey = req.customerAccountKey;
+      const findAllResourceGroupData: IResourceGroup[] = await this.resourceGroupService.getAllResourceGroup(customerAccountKey);
 
       res.status(200).json({ data: findAllResourceGroupData, message: 'findAll' });
     } catch (error) {

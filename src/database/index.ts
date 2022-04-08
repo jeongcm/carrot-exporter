@@ -202,7 +202,7 @@ DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChild
 //[[force: true]] is used when changes made in database.
 
 DB.sequelize
-  .sync({ force: true })
+  .sync({ force: false })
   .then(async () => {
     const initialRecordService = new InitialRecordService();
 
