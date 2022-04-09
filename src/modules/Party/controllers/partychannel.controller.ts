@@ -9,6 +9,20 @@ class PartyChannelController {
   public partyChannelService = new PartyChannelService();
   public channelService = new ChannelService();
   public tableIdService = new TableIdService();
+
+  public getPartyChannel = async (req:IRequestWithUser,res:Response, next: NextFunction) => {
+    try {
+        const findAllChannelsData: PartyChannel[] = await this.partyChannelService.findAllChannel();
+        res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
+      } catch (error) {
+        next(error);
+      }
+  }
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
   public createPartyChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey: number = req.customerAccountKey;

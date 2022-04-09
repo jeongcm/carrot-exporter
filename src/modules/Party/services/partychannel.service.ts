@@ -15,6 +15,15 @@ class PartyChannelService {
     } catch (error) {}
   }
   /**
+   * @returns Promise<PartyChannel[]>
+   */
+  public async findAllChannel(): Promise<PartyChannel[]> {
+    const allPartyChannel: PartyChannel[] = await this.partyChannel.findAll({
+      where: { deletedAt: null },
+    });
+    return allPartyChannel;
+  }
+  /**
    * Create a new PartyChannel
    *
    * @param  {CreatePartyChannel} partyChannelData
