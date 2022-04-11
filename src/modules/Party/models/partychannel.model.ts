@@ -48,7 +48,7 @@ export default function (sequelize: Sequelize): typeof PartyChannelModel {
       },
       channelKey: {
         allowNull: false,
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
       },
       PartychannelId: {
         allowNull: false,

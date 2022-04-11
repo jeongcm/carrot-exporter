@@ -1,6 +1,6 @@
 export interface IIncidentCounts {
   closedCount: number;
-  inprogressCount: number;
+  inProgressCount: number;
   openCount: number;
   resolvedCount: number;
 }

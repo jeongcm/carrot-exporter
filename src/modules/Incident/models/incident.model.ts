@@ -3,23 +3,38 @@ import { IIncident } from '../../../common/interfaces/incident.interface';
 
 export type IncidentCreationAttributes = Optional<
   IIncident,
-  'pk' | 'id' | 'tenancyPk' | 'assigneePk' | 'title' | 'note' | 'status' | 'priority' | 'dueDate' | 'createdBy' | 'updatedBy' | 'isDeleted' | 'pinned'
+  | 'incidentKey'
+  | 'incidentId'
+  | 'assigneeKey'
+  | 'customerAccountKey'
+  | 'createdBy'
+  | 'updatedBy'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'deletedAt'
+  | 'incidentName'
+  | 'incidentDescription'
+  | 'incidentStatus'
+  | 'incidentSeverity'
+  | 'incidentDueDate'
+  | 'incidentPinned'
 >;
 
 export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> implements IIncident {
-  public pk: number;
-  public id: string;
-  public tenancyPk: number;
-  public assigneePk: number;
-  public title: string;
-  public note: string;
-  public status: 'CLOSED' | 'IN_PROGRESS' | 'OPEN' | 'RESOLVED';
-  public priority: 'HIGH' | 'LOW' | 'MEDIUM' | 'URGENT';
-  public dueDate: Date;
-  public createdBy: number;
-  public updatedBy: number;
-  public isDeleted: number;
-  public pinned: string;
+  public incidentKey: number;
+  public incidentId: string;
+  public assigneeKey: number;
+  public customerAccountKey: number;
+  public createdBy: string;
+  public updatedBy: string;
+  public deletedAt: Date;
+
+  public incidentName: string;
+  public incidentDescription: string;
+  public incidentStatus: 'OP' | 'IP' | 'RS' | 'CL';
+  public incidentSeverity: 'UR' | 'HI' | 'ME' | 'LO';
+  public incidentDueDate: Date;
+  public incidentPinned: boolean;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -28,58 +43,64 @@ export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> 
 export default function (sequelize: Sequelize): typeof IncidentModel {
   IncidentModel.init(
     {
-      pk: {
-        type: DataTypes.BIGINT,
+      incidentKey: {
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,
       },
-      id: {
-        primaryKey: true,
+      incidentId: {
+        type: DataTypes.STRING(16),
         allowNull: false,
-        defaultValue: DataTypes.UUIDV4,
-        type: DataTypes.UUID,
+        unique: true,
       },
-      tenancyPk: {
-        type: DataTypes.BIGINT,
-        allowNull: false,
-      },
-      assigneePk: {
-        type: DataTypes.BIGINT,
-      },
-      title: {
-        type: DataTypes.STRING(300),
+      assigneeKey: {
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
-      note: {
-        type: DataTypes.TEXT,
+      customerAccountKey: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
       },
-      status: {
+      createdBy: {
         type: DataTypes.STRING(16),
         allowNull: false,
       },
-      priority: {
-        type: DataTypes.STRING(10),
+      updatedBy: {
+        type: DataTypes.STRING(16),
+      },
+      createdAt: {
+        type: DataTypes.DATE,
         allowNull: false,
       },
-      dueDate: {
+      updatedAt: {
         type: DataTypes.DATE,
       },
-      createdBy: {
-        type: DataTypes.BIGINT,
+      deletedAt: {
+        type: DataTypes.DATE,
       },
-      updatedBy: {
-        type: DataTypes.BIGINT,
+      incidentName: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
       },
-      isDeleted: {
-        type: DataTypes.TINYINT,
-        allowNull: true,
-        defaultValue: 0,
+      incidentDescription: {
+        type: DataTypes.STRING(500),
+        allowNull: false,
       },
-      pinned: {
-        type: DataTypes.TINYINT,
-        allowNull: true,
-        defaultValue: 0,
+      incidentStatus: {
+        type: DataTypes.STRING(2),
+        allowNull: false,
+      },
+      incidentSeverity: {
+        type: DataTypes.STRING(2),
+        allowNull: false,
+      },
+      incidentDueDate: {
+        type: DataTypes.DATE,
+      },
+      incidentPinned: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
     },
     {
