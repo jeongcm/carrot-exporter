@@ -32,7 +32,7 @@ export class SubscriptionModel extends Model<ISubscriptions, SubscriptionCreatio
     public subscriptionTerminatedAt:Date;
     public subscriptionStatus :'AC' |'SP' | 'TM';
     public subscriptionConsent :boolean;
-    public subscriptionCommitmentType:string
+    public subscriptionCommitmentType: 'AC' | 'MM' 
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;

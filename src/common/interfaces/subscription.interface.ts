@@ -11,9 +11,9 @@ export interface ISubscriptions {
     updatedBy: string;
     subscriptionActivatedAt :Date;
     subscriptionTerminatedAt:Date;
-    subscriptionStatus :string;
+    subscriptionStatus  : 'AC' | 'SP' | 'TM';
     subscriptionConsent :boolean;
-    subscriptionCommitmentType:string
+    subscriptionCommitmentType:'AC' | 'MM'
 }
 
 
@@ -26,13 +26,13 @@ export interface ISubscriptionHistory{
     updatedAt: Date;
     createdBy: string;
     updatedBy: string;
-    subscriptionOldStatus  :string;
-    subscriptionNewStatus  :string;
-    subscriptionStatusChangeReason  :string;
-    subscriptionOldCommitment:string;
-    subscriptionNewCommitment:string
-    subscriptionCommitmentChangeReason:string
-    subscriptionChangedAt :Date
+    subscriptionOldStatus  :'AC' | 'SP' | 'TM';
+    subscriptionNewStatus  :'AC' | 'SP' | 'TM';
+    subscriptionStatusChangeReason  :'BD';
+    subscriptionOldCommitment:'AC' | 'MM';
+    subscriptionNewCommitment:'AC' | 'MM';
+    subscriptionCommitmentChangeReason:'EA';
+    subscriptionChangedAt :Date;
 
 }
 

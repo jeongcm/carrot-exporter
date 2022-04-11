@@ -28,12 +28,12 @@ export class SubscriptionHistoryModel extends Model<ISubscriptionHistory, Subscr
     public deletedAt: Date;
     public createdBy: string;
     public updatedBy: string;
-    public subscriptionOldStatus: string;
-    public subscriptionNewStatus: string;
-    public subscriptionStatusChangeReason: string;
-    public subscriptionOldCommitment: string;
-    public subscriptionNewCommitment: string
-    public subscriptionCommitmentChangeReason: string
+    public subscriptionOldStatus: 'AC' | 'SP' | 'TM';
+    public subscriptionNewStatus: 'AC' | 'SP' | 'TM';
+    public subscriptionStatusChangeReason: 'BD';
+    public subscriptionOldCommitment: 'AC' | 'MM' | 'EA';
+    public subscriptionNewCommitment: 'AC' | 'MM' | 'EA'
+    public subscriptionCommitmentChangeReason: "EA"
     public subscriptionChangedAt: Date
 
     public readonly createdAt!: Date;
