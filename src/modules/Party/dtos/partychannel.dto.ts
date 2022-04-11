@@ -1,7 +1,7 @@
 import { IsString, IsNotEmpty, IsOptional, IsEmail, IsArray, IsNumber } from 'class-validator';
 
 export class CreatePartyChannel {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  public channelKey: number;
+  public channelId: string;
 }

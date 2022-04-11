@@ -1,3 +1,4 @@
+import { Channel } from '@/common/interfaces/channel.interface';
 import { IRequestWithUser, PartyChannel } from '@/common/interfaces/party.interface';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
@@ -28,15 +29,15 @@ class PartyChannelController {
       const customerAccountKey: number = req.customerAccountKey;
       const tempPartyKey: number = req.user.partyKey;
       const partyChannelData = req.body;
-      if (!(await this.channelService.isValidChannelKey(partyChannelData.channelKey))) {
-        res.status(404).json({ data: 'Not able to create party Channel', message: 'not created' });
-      }
+      // based on channelId fetch channelKey
+      const channelData: Channel= await this.channelService.findChannelById(partyChannelData.channelId);
+      const channelKey:number = channelData.channelKey;
       const tableIdName: string = 'PartyChannel';
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
       const tempPartyChannelId: string = responseTableIdData.tableIdFinalIssued;
       const createPartyChannelData: PartyChannel = await this.partyChannelService.createPartyChannel(
         tempPartyKey,
-        partyChannelData,
+        channelKey,
         tempPartyChannelId,
         customerAccountKey,
       );

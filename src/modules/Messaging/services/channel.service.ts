@@ -35,26 +35,6 @@ class ChannelService {
    * @returns Promise<Channel>
    * @author Akshay
    */
-   public async isValidChannelKey(channelKey: number): Promise<boolean> {
-    if (isEmpty(channelKey)) throw new HttpException(400, 'Not a valid channelKey');
-
-    const findChannel: Channel = await this.channels.findOne({
-      where: { channelKey, deletedAt: null },
-    });
-    if (!findChannel) {
-      return false
-    }
-
-    return true;
-  }
-
-  /**
-   * find channel by Id
-   *
-   * @param  {string} id
-   * @returns Promise<Channel>
-   * @author Akshay
-   */
   public async findChannelById(channelId: string): Promise<Channel> {
     if (isEmpty(channelId)) throw new HttpException(400, 'Not a valid channel');
 

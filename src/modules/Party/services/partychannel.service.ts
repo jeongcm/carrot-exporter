@@ -1,5 +1,6 @@
 import { PartyChannel } from '@/common/interfaces/party.interface';
 import DB from '@/database';
+import { Channel } from 'diagnostics_channel';
 import { CreatePartyChannel } from '../dtos/partychannel.dto';
 
 class PartyChannelService {
@@ -32,14 +33,14 @@ class PartyChannelService {
    */
   public async createPartyChannel(
     tempPartyKey: number,
-    partyChannelData: CreatePartyChannel,
+    channelKey: number,
     tempPartyChannelId: string,
     customerAccountKey: number,
   ): Promise<PartyChannel> {
     const currentDate = new Date();
     const newPartyChannel = {
       partyKey: tempPartyKey,
-      channelKey: partyChannelData.channelKey,
+      channelKey:channelKey,
       PartychannelId: tempPartyChannelId,
       createdBy: customerAccountKey.toLocaleString(),
       updatedBy: customerAccountKey.toLocaleString(),
