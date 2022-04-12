@@ -55,10 +55,6 @@ class IncidentService {
     if (isEmpty(incidentData)) throw new HttpException(400, 'Incident must not be empty');
 
     const tableIdTableName = 'Incident';
-    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-    if (!tableId) {
-      return;
-    }
 
     try {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
@@ -285,10 +281,6 @@ class IncidentService {
     if (isEmpty(actionData)) throw new HttpException(400, 'Incident must not be empty');
 
     const tableIdTableName = 'IncidentAction';
-    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-    if (!tableId) {
-      return;
-    }
 
     const { incidentKey } = await this.getIncidentKey(customerAccountKey, incidentId);
 
@@ -557,10 +549,6 @@ class IncidentService {
     if (isEmpty(addAlertReceivedData)) throw new HttpException(400, 'AlertReceivedIds not be empty');
 
     const tableIdTableName = 'IncidentAlertReceived';
-    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-    if (!tableId) {
-      return;
-    }
 
     try {
       const { incidentKey = undefined } = await this.getIncidentKey(customerAccountKey, incidentId);
