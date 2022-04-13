@@ -11,6 +11,6 @@ export interface IResourceGroup {
   resourceGroupDescription: string;
   resourceGroupProvider: string;
   resourceGroupPlatform: string;
-  resourceGroupUUID: string;
+  resourceGroupUuid: string;
   resourceGroupPrometheus: string;
 }

@@ -16,7 +16,7 @@ export interface IResource {
   resourceLevel3: string;
   resourceLevel4: string;
   resourceLevelType: string;
-  resourceRBAC: Boolean;
+  resourceRbac: Boolean;
   resourceAnomalyMonitor: Boolean;
   resourceActive: Boolean;
   resourceStatus: JSON;

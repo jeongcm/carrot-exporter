@@ -16,7 +16,7 @@ export type ResourceGroupCreationAttributes = Optional<
   | 'resourceGroupPlatform'
   | 'resourceGroupPrometheus'
   | 'resourceGroupProvider'
-  | 'resourceGroupUUID'
+  | 'resourceGroupUuid'
 >;
 
 export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreationAttributes> implements IResourceGroup {
@@ -31,8 +31,8 @@ export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreat
   public customerAccountKey: number;
   public resourceGroupPlatform: 'OS' | 'K8';
   public resourceGroupPrometheus: string;
-  public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR';
-  public resourceGroupUUID: string;
+  public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR' | 'OR' | 'OT';
+  public resourceGroupUuid: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -87,7 +87,7 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
         validate: {
           isIn: {
             args: [['OS', 'K8']],
-            msg: 'ResourceGroup must be of type OS or K8',
+            msg: 'resourceGroupPlatform must be of type OS or K8',
           },
         },
       },
@@ -95,12 +95,12 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-            args: [['AW', 'GC', 'DO', 'AZ', 'PR']],
-            msg: 'ResourceGroup must be of type AW, GC, DO, AZ, PR.',
+            args: [['AW', 'GC', 'DO', 'AZ', 'PR', 'OR', 'OT']],
+            msg: 'resourceGroupProvider must be of type AW, GC, DO, AZ, PR, OR or OT',
           },
         },
       },
-      resourceGroupUUID: {
+      resourceGroupUuid: {
         allowNull: false,
         type: DataTypes.STRING(100),
       },
@@ -108,7 +108,6 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
         allowNull: false,
         type: DataTypes.STRING(200),
       },
-
     },
     {
       tableName: 'ResourceGroup',

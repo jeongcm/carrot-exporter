@@ -5,9 +5,11 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 
 class ResourceService {
   public resource = DB.Resource;
+  public resourceGroup = DB.ResourceGroup;
   public tableIdService = new tableIdService();
 
   /**
@@ -18,13 +20,14 @@ class ResourceService {
   public async createResource(resourceData: ResourceDto, currentUserId: string, customerAccountKey: number): Promise<IResource> {
     if (isEmpty(resourceData)) throw new HttpException(400, 'Resource  must not be empty');
 
+    const currentResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: resourceData.resourceGroupId } });
+
+    if (!currentResourceGroup) {
+      throw new HttpException(400, 'resourceGroupId not found');
+    }
+
     try {
       const tableIdTableName = 'Resource';
-      const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-
-      if (!tableId) {
-        return;
-      }
 
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
@@ -33,6 +36,7 @@ class ResourceService {
         createdBy: currentUserId,
         customerAccountKey,
         resourceStatusUpdatedAt: new Date(),
+        resourceGroupKey: currentResourceGroup.resourceGroupKey,
         ...resourceData,
       });
       return createResource;
@@ -44,7 +48,7 @@ class ResourceService {
   /**
    * @returns Promise
    */
-  public async getAllResource(customerAccountKey: number): Promise<IResource[]> {
+  public async getAllResources(customerAccountKey: number): Promise<IResource[]> {
     const allResource: IResource[] = await this.resource.findAll({
       where: { deletedAt: null, customerAccountKey },
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
@@ -82,7 +86,11 @@ class ResourceService {
       updatedBy: currentUserId,
     };
 
-    await this.resource.update(updatedResource, { where: { resourceId: resourceId } });
+    try{
+      await this.resource.update(updatedResource, { where: { resourceId: resourceId } });
+    }catch(error){
+      throw new HttpException(400, error);
+    }
 
     return this.getResourceById(resourceId);
   }

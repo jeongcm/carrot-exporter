@@ -22,7 +22,7 @@ class ResourceRoute implements Routes {
       validationMiddleware(ResourceDto, 'body'),
       this.resourceController.createResource,
     );
-    this.router.get('/resource', systemAuthMiddleware, authMiddleware, this.resourceController.getAllResource);
+    this.router.get('/resource', systemAuthMiddleware, authMiddleware, this.resourceController.getAllResources);
     this.router.get('/resource/:resourceId', systemAuthMiddleware, authMiddleware, this.resourceController.getResourceById);
     this.router.put(
       '/resource/:resourceId',

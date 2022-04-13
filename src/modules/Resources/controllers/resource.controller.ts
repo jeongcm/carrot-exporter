@@ -35,7 +35,7 @@ class ResourceController {
         resourceLevel3,
         resourceLevel4,
         resourceLevelType,
-        resourceRBAC,
+        resourceRbac,
         resourceAnomalyMonitor,
         resourceActive,
         resourceStatus,
@@ -61,7 +61,7 @@ class ResourceController {
         resourceLevel3,
         resourceLevel4,
         resourceLevelType,
-        resourceRBAC,
+        resourceRbac,
         resourceAnomalyMonitor,
         resourceActive,
         resourceStatus,
@@ -70,7 +70,7 @@ class ResourceController {
         resourceNamespace,
       };
 
-      res.status(201).json({ data: createResourceData, message: 'created' });
+      res.status(201).json({ data: response, message: 'created' });
     } catch (error) {
       next(error);
     }
@@ -80,10 +80,10 @@ class ResourceController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-  public getAllResource = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public getAllResources = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const findAllResourceData: IResource[] = await this.resourceService.getAllResource(customerAccountKey);
+      const findAllResourceData: IResource[] = await this.resourceService.getAllResources(customerAccountKey);
 
       res.status(200).json({ data: findAllResourceData, message: 'findAll' });
     } catch (error) {

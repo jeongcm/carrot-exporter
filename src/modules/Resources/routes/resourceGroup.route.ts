@@ -20,7 +20,7 @@ class ResourceGroupRoute implements Routes {
       validationMiddleware(ResourceGroupDto, 'body'),
       this.resourceGroupController.createResourceGroup,
     );
-    this.router.get('/resourceGroup', authMiddleware, this.resourceGroupController.getAllResourceGroup);
+    this.router.get('/resourceGroup', authMiddleware, this.resourceGroupController.getAllResourceGroups);
     this.router.get('/resourceGroup/:resourceGroupId', authMiddleware, this.resourceGroupController.getResourceGroupById);
     this.router.put(
       '/resourceGroup/:resourceGroupId',

@@ -1,9 +1,9 @@
 import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsDate, IsObject, IsNumber, IsByteLength } from 'class-validator';
 
 export class ResourceDto {
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  public resourceGroupKey: number;
+  public resourceGroupId: string;
 
   @IsString()
   @IsNotEmpty()
@@ -19,31 +19,31 @@ export class ResourceDto {
 
   @IsString()
   @IsNotEmpty()
-  public resourceType: 'KN' |'KS' | 'OP';
+  public resourceType: 'K8' | 'ND' | 'PD' | 'NS' | 'SV' | 'OP' | 'PD' | 'PM' | 'PJ' | 'VM' | 'CT';
 
   @IsString()
   @IsNotEmpty()
-  public resourceLevel1: 'KN' |'KS' | 'OP';
+  public resourceLevel1: 'K8' | 'OP';
 
   @IsString()
   @IsOptional()
-  public resourceLevel2: 'KN' |'KS' | 'OP';
+  public resourceLevel2: 'ND' | 'NS' | 'PJ';
 
   @IsString()
   @IsOptional()
-  public resourceLevel3: 'KN' |'KS' | 'OP';
+  public resourceLevel3: 'PD' | 'SV' | 'PM';
 
   @IsString()
   @IsOptional()
-  public resourceLevel4: 'KN' |'KS' | 'OP';
+  public resourceLevel4: 'CT' | 'VM';
 
   @IsString()
   @IsNotEmpty()
-  public resourceLevelType: 'KN' |'KS' | 'OP';;
+  public resourceLevelType: 'KN' | 'KS' | 'OP';
 
   @IsBoolean()
   @IsNotEmpty()
-  public resourceRBAC: Boolean;
+  public resourceRbac: Boolean;
 
   @IsBoolean()
   @IsNotEmpty()
@@ -62,7 +62,7 @@ export class ResourceDto {
   public resourceStatus: JSON;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public parentResourceId: string;
 
   @IsString()

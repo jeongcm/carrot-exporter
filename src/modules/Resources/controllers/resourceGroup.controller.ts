@@ -33,7 +33,7 @@ class ResourceGroupController {
         resourceGroupDescription,
         resourceGroupProvider,
         resourceGroupPlatform,
-        resourceGroupUUID,
+        resourceGroupUuid,
         resourceGroupPrometheus,
       } = createResourceGroupData;
 
@@ -48,7 +48,7 @@ class ResourceGroupController {
         resourceGroupDescription,
         resourceGroupProvider,
         resourceGroupPlatform,
-        resourceGroupUUID,
+        resourceGroupUuid,
         resourceGroupPrometheus,
       };
 
@@ -63,10 +63,10 @@ class ResourceGroupController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-  public getAllResourceGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public getAllResourceGroups = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const findAllResourceGroupData: IResourceGroup[] = await this.resourceGroupService.getAllResourceGroup(customerAccountKey);
+      const findAllResourceGroupData: IResourceGroup[] = await this.resourceGroupService.getAllResourceGroups(customerAccountKey);
 
       res.status(200).json({ data: findAllResourceGroupData, message: 'findAll' });
     } catch (error) {

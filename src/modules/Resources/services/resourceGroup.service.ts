@@ -21,12 +21,7 @@ class ResourceGroupService {
 
     try {
       const tableIdTableName = 'ResourceGroup';
-      const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-
-      if (!tableId) {
-        return;
-      }
-
+      
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
       const createResourceGroup: IResourceGroup = await this.resourceGroup.create({
@@ -45,7 +40,7 @@ class ResourceGroupService {
   /**
    * @returns Promise
    */
-  public async getAllResourceGroup(customerAccountKey: number): Promise<IResourceGroup[]> {
+  public async getAllResourceGroups(customerAccountKey: number): Promise<IResourceGroup[]> {
     const allResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
       where: { deletedAt: null, customerAccountKey },
       attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },

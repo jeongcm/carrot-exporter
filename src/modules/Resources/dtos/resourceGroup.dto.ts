@@ -11,7 +11,7 @@ export class ResourceGroupDto {
 
   @IsString()
   @IsNotEmpty()
-  public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR';
+  public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR' | 'OR' | 'OT';
 
   @IsString()
   @IsNotEmpty()
@@ -19,7 +19,7 @@ export class ResourceGroupDto {
 
   @IsString()
   @IsNotEmpty()
-  public resourceGroupUUID: string;
+  public resourceGroupUuid: string;
 
   @IsString()
   @IsNotEmpty()
