@@ -5,6 +5,8 @@ import { logger } from '@/common/utils/logger';
 import UserModel from '@/modules/UserTenancy/models/users.model';
 import AccessGroupModel from '@/modules/UserTenancy/models/accessGroup.model';
 import AlertModel from '@/modules/Alert/models/alert.model';
+import AlertRuleModel from '@/modules/Alert/models/alertRule.model';
+import AlertReceivedModel from '@/modules/Alert/models/alertReceived.model';
 import LogModel from '@/modules/Log/models/log.model';
 import TokenModel from '@/modules/UserTenancy/models/token.model';
 import ClusterModel from '@/modules/K8s/models/cluster.model';
@@ -105,6 +107,8 @@ const DB = {
   ResourceGroup: ResourceGroupModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
+  AlertReceived: AlertReceivedModel(sequelize),
+  AlertRule: AlertRuleModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -179,6 +183,15 @@ DB.Address.belongsToMany(DB.CustomerAccount, {
   otherKey: 'customerAccountKey',
 });
 
+
+DB.CustomerAccount.hasMany(DB.AlertRule, { foreignKey: 'customerAccountKey' });
+DB.AlertRule.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.AlertRule.hasMany(DB.AlertReceived, { foreignKey: 'alertRuleKey' });
+DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey' });
+
+DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' });
+DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
 DB.CatalogPlan.hasMany(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_key' });
 DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});

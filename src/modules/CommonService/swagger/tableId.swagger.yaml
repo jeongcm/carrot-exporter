@@ -6,7 +6,7 @@ info:
   termsOfService: 'http://swagger.io/terms/'
   contact:
     email: 'apiteam@swagger.io'
-host: 'nexclipper.com'
+host: 'nexclipper.io'
 basePath: '/'
 tags:
   - name: tableId

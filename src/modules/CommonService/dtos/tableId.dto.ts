@@ -9,5 +9,10 @@ export class IssueTableIdDto {
 export interface IResponseIssueTableIdDto {
   tableIdTableName: string;
   tableIdFinalIssued: string;
+}
 
+export interface IResponseIssueTableIdBulkDto {
+  tableIdTableName: string;
+  tableIdFinalIssued: string;
+  tableIdRange: number;
 }
