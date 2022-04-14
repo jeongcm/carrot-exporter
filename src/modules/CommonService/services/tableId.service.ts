@@ -24,10 +24,7 @@ class TableIdService {
 
     const getTableId: tableId = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
     if (!getTableId) throw new HttpException(409, "Can't find a matched tableId record");
-  
-    const internalAccountParty: IParty = await DB.Party.findOne({ where: { partyName: process.env.NC_LARI_SYSTEM_PARTY_NAME } });
-    if (!internalAccountParty) throw new HttpException(409, "Can't find a matched SYSTEM user");
-
+   
     const currentDate = new Date();
     const currentDay = currentDate.getDate() + getTableId.tableDay;
     const currentMonth = currentDate.getMonth() + 1 + getTableId.tableMonth;
@@ -45,7 +42,12 @@ class TableIdService {
     const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonth + currentDay + currentSequenceText;
     const idIssuedSequence = getTableId.tableIdIssuedSequence + 1;
 
-    const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: internalAccountParty.partyId };
+    const internalAccountParty: IParty = await DB.Party.findOne({ where: { partyName: process.env.NC_LARI_SYSTEM_PARTY_NAME } });
+  
+    let systemPartyId = "SYSTEM";
+    if (internalAccountParty) systemPartyId = internalAccountParty.partyId;
+   
+    const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: systemPartyId };       
     await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
 
     const updateResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });

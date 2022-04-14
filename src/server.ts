@@ -14,6 +14,7 @@ import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
 
 import ProductCatalogRoute from '@/modules/ProductCatalog/routes/productCatalog.route';
 import MessageRoute from '@/modules/Messaging/routes/message.route';
+import SubscriptionRoute from '@/modules/Subscriptions/routes/subscriptions.route';
 
 import CommonCodeRoute from '@/modules/CommonCode/routes/commonCode.route';
 
@@ -23,6 +24,8 @@ import ApiRoute from '@/modules/Api/routes/api.route';
 import PartyRoute from '@modules/Party/routes/party.route';
 import NotificationRoute from './modules/Notification/routes/notification.route';
 import PartyChannelRoute from './modules/Party/routes/partychannel.route';
+import ResourceRoute from '@modules/Resources/routes/resource.route';
+import ResourceGroupRoute from '@modules/Resources/routes/resourceGroup.route';
 
 const app = new App([
   new IndexRoute(),
@@ -41,13 +44,20 @@ const app = new App([
   new CustomerAccountRoute(),
   new ApiRoute(),
   new MessageRoute(),
+  new SubscriptionRoute(),
 
   new CommonCodeRoute(),
   new CustomerAccountRoute(),
   new TableIdRoute(),
   new PartyRoute(),
+<<<<<<< HEAD
   new NotificationRoute(),
   new PartyChannelRoute(),
+=======
+  
+  new ResourceRoute(),
+  new ResourceGroupRoute(),
+>>>>>>> 3eba69a5c2a6b1477a46d33a981f7d4a8099d1f1
 ]);
 
 app.listen();

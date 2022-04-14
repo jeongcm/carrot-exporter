@@ -24,7 +24,7 @@ class ProductCatalogController {
       const catalogData: CreateCatalogPlanDto = req.body;
       const { partyId } = req.user;
       const { systemId } = req
-      const newCatalogPlan: CreateCatalogPlanDto = await this.productCatalogService.createCatalogPlan(catalogData, partyId, systemId);
+      const newCatalogPlan: ICatalogPlan = await this.productCatalogService.createCatalogPlan(catalogData, partyId, systemId);
       res.status(201).json({ data: newCatalogPlan, message: 'created' });
     } catch (error) {
       next(error);

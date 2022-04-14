@@ -31,6 +31,8 @@ import AddressModel from '@/modules/Address/models/address.model';
 import ApiModel from '@/modules/Api/models/api.models';
 import MessageModel from '@/modules/Messaging/models/message.model';
 import PartyModel from '@/modules/Party/models/party.model';
+import ResourceModel from '@/modules/Resources/models/resource.model';
+import ResourceGroupModel from '@/modules/Resources/models/resourceGroup.model';
 import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import TableIdModel from '@/modules/CommonService/models/tableIdmodel';
@@ -38,6 +40,9 @@ import PartyChannelModel from '@/modules/Party/models/partychannel.model';
 import NotificationModel from '@/modules/Notification/models/notification.model';
 import config from 'config';
 import InitialRecordService from './initialRecord';
+import  SubscriptionModel  from '@/modules/Subscriptions/models/subscriptions.model';
+import SubscribedProductModel  from '@/modules/Subscriptions/models/subscribedProduct.model';
+import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -102,9 +107,14 @@ const DB = {
   TableId: TableIdModel(sequelize),
   Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
+  Resource: ResourceModel(sequelize),
+  ResourceGroup: ResourceGroupModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
   Notification:NotificationModel(sequelize),
+  Subscription: SubscriptionModel(sequelize),
+  SubscribedProduct: SubscribedProductModel(sequelize),
+  SubscriptionHistory:SubscriptionHistoryModel(sequelize),
   AlertReceived: AlertReceivedModel(sequelize),
   AlertRule: AlertRuleModel(sequelize),
   sequelize, // connection instance (RAW queries)
@@ -123,6 +133,15 @@ DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
 
 DB.CustomerAccount.hasMany(DB.Incident, { foreignKey: 'customerAccountKey' });
 DB.Incident.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.CustomerAccount.hasMany(DB.Resource, { foreignKey: 'customerAccountKey' });
+DB.Resource.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.CustomerAccount.hasMany(DB.ResourceGroup, { foreignKey: 'customerAccountKey' });
+DB.ResourceGroup.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resourceGroupKey' });
+DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
 
 DB.Party.hasMany(DB.Incident, { foreignKey: 'assigneeKey', as: 'incidents' });
 DB.Incident.belongsTo(DB.Party, { foreignKey: 'assigneeKey', as: 'assignee' });
@@ -187,6 +206,16 @@ DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'
 
 DB.CatalogPlanProduct.hasMany(DB.CatalogPlanProductPrice, { foreignKey: 'catalog_plan_product_key' });
 DB.CatalogPlanProductPrice.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
+
+
+DB.CatalogPlan.hasOne(DB.Subscription, { foreignKey: 'catalog_plan_key' });
+DB.Subscription.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});
+
+DB.Subscription.hasMany(DB.SubscriptionHistory, { foreignKey: 'subscription_key' });
+DB.SubscriptionHistory.belongsTo(DB.Subscription, { foreignKey: 'subscription_key'});
+
+DB.Subscription.hasMany(DB.SubscribedProduct, { foreignKey: 'subscription_key' });
+DB.SubscribedProduct.belongsTo(DB.Subscription, { foreignKey: 'subscription_key'});
 
 DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
 DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
