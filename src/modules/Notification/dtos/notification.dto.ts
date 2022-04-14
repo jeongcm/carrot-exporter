@@ -7,6 +7,11 @@ export class CreateNotificationDto {
 }
 
 export class UpdateNotificationDto {
+
+  @IsString()
+  @IsNotEmpty()
+  public messageId: string;
+  
   @IsString()
   @IsNotEmpty()
   public notificationStatus: string;

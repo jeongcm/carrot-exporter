@@ -11,8 +11,6 @@ import { CreateNotificationDto, UpdateNotificationDto } from '../dtos/notificati
 class NotificationController {
   public notificationService = new NotificationService();
   public tableIdService = new tableIdService();
-  public partyChannelService = new PartyChannelService();
-  public messageServices = new MessageServices();
 
   public getAllNotification = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
@@ -40,20 +38,11 @@ class NotificationController {
   public createNotification = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const tableIdName: string = 'Notification';
-      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
-      const tempNotificationId: string = responseTableIdData.tableIdFinalIssued;
       const tempPartyKey: number = req.user.partyKey;
-      const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(tempPartyKey);
       const notificationData: CreateNotificationDto = req.body;
-      const indMessageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
-      const tempMessageKey: number = indMessageData.messageKey;
       const createNotificationData: Notification = await this.notificationService.createNotification(
         notificationData,
-        tempNotificationId,
-        partyChannelKey,
         tempPartyKey,
-        tempMessageKey,
         customerAccountKey,
       );
       res.status(201).json({ data: createNotificationData, message: 'created' });
@@ -67,11 +56,9 @@ class NotificationController {
       const notificationId: string = req.params.notificationId;
       const customerAccountKey = req.customerAccountKey;
       const tempPartyKey: number = req.user.partyKey;
-      const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(tempPartyKey);
       const notificationData: UpdateNotificationDto = req.body;
       const updateNotificationData: Notification = await this.notificationService.updateNotification(
         notificationId,
-        partyChannelKey,
         tempPartyKey,
         customerAccountKey,
         notificationData,

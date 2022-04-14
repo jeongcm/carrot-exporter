@@ -4,9 +4,18 @@ import { CreateNotificationDto, UpdateNotificationDto } from '../dtos/notificati
 import { isEmpty } from '@/common/utils/util';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { NotificationStatus } from '@/common/types';
+import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+import TableIdService from '@/modules/CommonService/services/tableId.service';
+import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import PartyChannelService from '@/modules/Party/services/partychannel.service';
+import MessageServices from '@/modules/Messaging/services/message.service';
+import { IMessage } from '@/common/interfaces/message.interface';
 class NotificationService {
   public notificaion = DB.Notification;
-
+  public customerAccountService = new CustomerAccountService();
+  public tableIdService = new TableIdService();
+  public partyChannelService = new PartyChannelService();
+  public messageServices = new MessageServices();
   /**
    * Find all Notifications
    *
@@ -27,23 +36,26 @@ class NotificationService {
    * @returns Promise<Notification>
    * @author Akshay
    */
-  public async createNotification(
-    notificationData: CreateNotificationDto,
-    tempNotificationId: string,
-    partyChannelKey: number,
-    tempPartyKey: number,
-    tempMessageKey: number,
-    customerAccountKey: number,
-  ): Promise<Notification> {
+  public async createNotification(notificationData: CreateNotificationDto, tempPartyKey: number, customerAccountKey: number): Promise<Notification> {
     if (isEmpty(notificationData)) throw new HttpException(400, 'Notification Data cannot be blank');
+
+    const messageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
+    const tempMessageKey: number = messageData.messageKey;
+
+    const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(tempPartyKey);
+
+    const tableIdName: string = 'Notification';
+    const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
+    const tempNotificationId: string = responseTableIdData.tableIdFinalIssued;
+
+    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
     const currentDate = new Date();
     const newNotification = {
       notificationId: tempNotificationId,
       partyChannelKey: partyChannelKey,
       partyKey: tempPartyKey,
       messageKey: tempMessageKey,
-      createdBy: customerAccountKey.toLocaleString(),
-      updatedBy: customerAccountKey.toLocaleString(),
+      createdBy: customerAccountId,
       createdAt: currentDate,
       updatedAt: currentDate,
       deletedAt: null,
@@ -75,7 +87,6 @@ class NotificationService {
 
   public async updateNotification(
     notificationId: string,
-    partyChannelKey: number,
     tempPartyKey: number,
     customerAccountKey: number,
     notificationData: UpdateNotificationDto,
@@ -83,6 +94,13 @@ class NotificationService {
     if (isEmpty(UpdateNotificationDto)) throw new HttpException(400, 'Notification Data cannot be blank');
     const findNotification: Notification = await this.notificaion.findOne({ where: { notificationId: notificationId } });
     if (!findNotification) throw new HttpException(409, "Notification doesn't exist");
+
+    const messageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
+    const tempMessageKey: number = messageData.messageKey;
+    if (!tempMessageKey){
+      throw new HttpException(409, 'MessageKey Not Found');
+    }
+    const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(tempPartyKey);
     const currentDate = new Date();
     const updatedChannelData = {
       ...notificationData,
