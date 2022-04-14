@@ -32,11 +32,9 @@ class ChannelController {
   public createChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const tableIdName: string = "Channel";
-      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
-      const tempChannelId: string = responseTableIdData.tableIdFinalIssued;
       const channelData: CreateChannelDto = req.body;
-      const createChannelData: Channel = await this.channelService.createChannel(channelData, customerAccountKey, tempChannelId);
+      const createChannelData: Channel = await this.channelService.createChannel(channelData, 
+        customerAccountKey);
       res.status(201).json({ data: createChannelData, message: 'created' });
     } catch (error) {
       next(error);
@@ -47,8 +45,8 @@ class ChannelController {
     try {
       const channelId = req.params.channelId;
       const channelData = req.body;
-      const currentUserPk = req.customerAccountKey;
-      const updateChannelData: Channel = await this.channelService.updateChannel(channelId, channelData, currentUserPk);
+      const customerAccountKey = req.customerAccountKey;
+      const updateChannelData: Channel = await this.channelService.updateChannel(channelId, channelData, customerAccountKey);
       res.status(200).json({ data: updateChannelData, message: 'updated' });
     } catch (error) {
       next(error);

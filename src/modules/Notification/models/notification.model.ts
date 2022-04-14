@@ -58,13 +58,13 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
       },
       messageKey: {
         allowNull: false,
-        type: DataTypes.BIGINT,
+        type: DataTypes.INTEGER,
       },
       createdBy: {
         type: DataTypes.STRING(16),
       },
       updatedBy: {
-        allowNull: false,
+        defaultValue:null,
         type: DataTypes.STRING(16),
       },
       createdAt: {

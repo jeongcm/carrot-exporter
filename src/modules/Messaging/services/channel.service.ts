@@ -4,8 +4,9 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { Channel } from '@/common/interfaces/channel.interface';
 import { isEmpty } from '@/common/utils/util';
 import { ChannelType, Platform } from '../../../common/types';
-import { AccessGroupChannel } from '@/common/interfaces/accessGroupChannel.interface';
-import { AccessGroupModel } from '@/modules/UserTenancy/models/accessGroup.model';
+import TableIdService from '@/modules/CommonService/services/tableId.service';
+import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 
 /**
  * @memberof Messaging
@@ -13,6 +14,8 @@ import { AccessGroupModel } from '@/modules/UserTenancy/models/accessGroup.model
 class ChannelService {
   public channels = DB.Channel;
   public accessGroupChannel = DB.AccessGroupChannel;
+  public tableIdService = new TableIdService();
+  public customerAccountService = new CustomerAccountService();
 
   /**
    * Find all channels
@@ -55,41 +58,46 @@ class ChannelService {
    * @returns Promise<Channel>
    * @author Akshay
    */
-  public async createChannel(channelData: CreateChannelDto, customerAccountKey: number, tempChannelId: string): Promise<Channel> {
+  public async createChannel(channelData: CreateChannelDto, customerAccountKey: number): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
+    const tableIdName: string = 'Channel';
+    const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
+    const tempChannelId: string = responseTableIdData.tableIdFinalIssued;
+
+    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
+
+
     const currentDate = new Date();
     const newChannel = {
       channelId: tempChannelId,
       channelName: channelData.channelName,
       customerAccountKey: customerAccountKey,
       channelType: <ChannelType>channelData.channelType,
-      channelDescription:channelData.channelDescription,
+      channelDescription: channelData.channelDescription,
       channelAdaptor: channelData.channelAdaptor,
       updatedAt: currentDate,
       createdAt: currentDate,
-      createdBy: customerAccountKey.toLocaleString(),
-      updatedBy: customerAccountKey.toLocaleString(),
+      createdBy: customerAccountId,
     };
     const createChannelData: Channel = await this.channels.create(newChannel);
     return createChannelData;
   }
 
-  public async updateChannel(Id: string, channelData: CreateChannelDto, currentUserPk: number): Promise<Channel> {
+  public async updateChannel(Id: string, channelData: CreateChannelDto, customerAccountKey: number): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const findChannel: Channel = await this.channels.findOne({ where: { channelId: Id } });
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
+    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
     const updatedChannelData = {
       ...channelData,
       channelType: <ChannelType>channelData.channelType,
-      updatedBy: currentUserPk.toLocaleString(),
+      updatedBy: customerAccountId,
       updatedAt: new Date(),
-      createdBy: currentUserPk.toLocaleString()
     };
     await this.channels.update(updatedChannelData, { where: { channelId: Id } });
 
     return this.findChannelById(Id);
   }
-
 }
 
 export default ChannelService;
