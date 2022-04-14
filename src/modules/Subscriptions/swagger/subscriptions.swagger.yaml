@@ -1,0 +1,29 @@
+swagger: '2.0'
+info:
+  description: 'This is nodejs portal nexclipper api.'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: Subscription
+    description: Subscription API
+
+paths:
+  /subscription:
+    get:
+      tags:
+        - Subscription
+      summary: get all subscription
+     
+      responses:
+        200:
+          description: 'OK'
+        404:
+          description: 'Missing Table Metadata'
+        500:
+          description: 'Server Error'
+

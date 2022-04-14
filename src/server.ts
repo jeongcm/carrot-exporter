@@ -14,6 +14,7 @@ import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
 
 import ProductCatalogRoute from '@/modules/ProductCatalog/routes/productCatalog.route';
 import MessageRoute from '@/modules/Messaging/routes/message.route';
+import SubscriptionRoute from '@/modules/Subscriptions/routes/subscriptions.route';
 
 import CommonCodeRoute from '@/modules/CommonCode/routes/commonCode.route';
 
@@ -41,6 +42,7 @@ const app = new App([
   new CustomerAccountRoute(),
   new ApiRoute(),
   new MessageRoute(),
+  new SubscriptionRoute(),
 
   new CommonCodeRoute(),
   new CustomerAccountRoute(),

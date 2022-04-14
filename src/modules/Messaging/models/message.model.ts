@@ -74,13 +74,11 @@ export default function (sequelize: Sequelize): typeof MessageModel {
             },
             createdBy: {
                 allowNull: false,
-                type: DataTypes.STRING(16),
-                defaultValue: "SYSTEM"
+                type: DataTypes.STRING(16)
             },
             updatedBy: {
                 allowNull: true,
-                type: DataTypes.STRING(16),
-                defaultValue: "SYSTEM"
+                type: DataTypes.STRING(16)
             },
             createdAt: {
                 allowNull: false,

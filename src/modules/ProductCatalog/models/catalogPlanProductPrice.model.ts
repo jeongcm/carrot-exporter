@@ -84,6 +84,12 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
       },
     },
     {
+      indexes: [
+        {
+          unique: true,
+          fields: ['catalog_plan_product_pricing_id'],
+        }
+      ],
       tableName: 'CatalogPlanProductPrice',
       modelName: 'CatalogPlanProductPrice',
       sequelize,
