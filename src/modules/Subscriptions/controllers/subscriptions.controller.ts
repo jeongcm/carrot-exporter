@@ -59,8 +59,11 @@ class SubscriptionController {
     try{
       const productData: CreateSubscribedProductDto = req.body;
       const { user: { partyId }, systemId, customerAccountKey } = req;
-      const newSubscribedProduct: ISubscribedProduct = await this.subscriptionService.createSubscribedProduct(productData, partyId, systemId, customerAccountKey);
-      res.status(201).json({ data: newSubscribedProduct, message: 'success' });
+      const newSubscribedProduct = await this.subscriptionService.createSubscribedProduct(productData, partyId, systemId, customerAccountKey);
+      if(newSubscribedProduct.error){
+        return res.status(400).json(newSubscribedProduct);
+      }
+      res.status(201).json(newSubscribedProduct);
     }catch(error){
       res.status(400).json({ error, message: 'failure' });
     }
@@ -81,8 +84,11 @@ class SubscriptionController {
   public updateSubscribedProduct = async (req: IRequestWithUser, res: Response, next: NextFunction)=>{
     try {
      const {body, user:{partyId}, systemId, params:{subscribedProductId}} = req
-      const updatedData: ISubscribedProduct = await this.subscriptionService.updateSubscribedProduct(subscribedProductId,body, partyId, systemId);
-      res.status(200).json({ data: updatedData, message: 'success' });
+      const updatedData = await this.subscriptionService.updateSubscribedProduct(subscribedProductId,body, partyId, systemId);
+      if(updatedData.error){
+        return res.status(400).json(updatedData)
+      }
+      res.status(200).json(updatedData);
     } catch (error) {
       next(error);
     }
