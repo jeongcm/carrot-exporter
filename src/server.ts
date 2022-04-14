@@ -50,14 +50,10 @@ const app = new App([
   new CustomerAccountRoute(),
   new TableIdRoute(),
   new PartyRoute(),
-<<<<<<< HEAD
   new NotificationRoute(),
-  new PartyChannelRoute(),
-=======
-  
+  new PartyChannelRoute(),  
   new ResourceRoute(),
   new ResourceGroupRoute(),
->>>>>>> 3eba69a5c2a6b1477a46d33a981f7d4a8099d1f1
 ]);
 
 app.listen();
