@@ -1,11 +1,7 @@
-import { IMessage } from '@/common/interfaces/message.interface';
 import { Notification } from '@/common/interfaces/notification.interface';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
-import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
-import MessageServices from '@/modules/Messaging/services/message.service';
 import NotificationService from '@/modules/Notification/services/notification.service';
-import PartyChannelService from '@/modules/Party/services/partychannel.service';
 import { NextFunction, Response } from 'express';
 import { CreateNotificationDto, UpdateNotificationDto } from '../dtos/notification.dto';
 class NotificationController {
@@ -38,12 +34,14 @@ class NotificationController {
   public createNotification = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
+      const { user:{partyId}} = req
       const tempPartyKey: number = req.user.partyKey;
       const notificationData: CreateNotificationDto = req.body;
       const createNotificationData: Notification = await this.notificationService.createNotification(
         notificationData,
         tempPartyKey,
         customerAccountKey,
+        partyId
       );
       res.status(201).json({ data: createNotificationData, message: 'created' });
     } catch (error) {
@@ -55,6 +53,7 @@ class NotificationController {
     try {
       const notificationId: string = req.params.notificationId;
       const customerAccountKey = req.customerAccountKey;
+      const { user:{partyId}} = req
       const tempPartyKey: number = req.user.partyKey;
       const notificationData: UpdateNotificationDto = req.body;
       const updateNotificationData: Notification = await this.notificationService.updateNotification(
@@ -62,6 +61,7 @@ class NotificationController {
         tempPartyKey,
         customerAccountKey,
         notificationData,
+        partyId
       );
       res.status(200).json({ data: updateNotificationData, message: 'updated' });
     } catch (error) {

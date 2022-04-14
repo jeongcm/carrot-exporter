@@ -58,14 +58,11 @@ class ChannelService {
    * @returns Promise<Channel>
    * @author Akshay
    */
-  public async createChannel(channelData: CreateChannelDto, customerAccountKey: number): Promise<Channel> {
+  public async createChannel(channelData: CreateChannelDto, customerAccountKey: number, partyId: string): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const tableIdName: string = 'Channel';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const tempChannelId: string = responseTableIdData.tableIdFinalIssued;
-
-    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
-
 
     const currentDate = new Date();
     const newChannel = {
@@ -75,23 +72,21 @@ class ChannelService {
       channelType: <ChannelType>channelData.channelType,
       channelDescription: channelData.channelDescription,
       channelAdaptor: channelData.channelAdaptor,
-      updatedAt: currentDate,
       createdAt: currentDate,
-      createdBy: customerAccountId,
+      createdBy: partyId,
     };
     const createChannelData: Channel = await this.channels.create(newChannel);
     return createChannelData;
   }
 
-  public async updateChannel(Id: string, channelData: CreateChannelDto, customerAccountKey: number): Promise<Channel> {
+  public async updateChannel(Id: string, channelData: CreateChannelDto, customerAccountKey: number, partyId: string): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const findChannel: Channel = await this.channels.findOne({ where: { channelId: Id } });
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
-    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
     const updatedChannelData = {
       ...channelData,
       channelType: <ChannelType>channelData.channelType,
-      updatedBy: customerAccountId,
+      updatedBy: partyId,
       updatedAt: new Date(),
     };
     await this.channels.update(updatedChannelData, { where: { channelId: Id } });

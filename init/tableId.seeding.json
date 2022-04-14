@@ -251,7 +251,7 @@
   },
   {
     "tableIdTableName": "Notification",
-    "tableIdHeader": "NT",
+    "tableIdHeader": "NO",
     "tableMonth": 1,
     "tableYear": 2,
     "tableDay": 1,

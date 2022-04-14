@@ -36,7 +36,7 @@ class NotificationService {
    * @returns Promise<Notification>
    * @author Akshay
    */
-  public async createNotification(notificationData: CreateNotificationDto, tempPartyKey: number, customerAccountKey: number): Promise<Notification> {
+  public async createNotification(notificationData: CreateNotificationDto, tempPartyKey: number, customerAccountKey: number,partyId: string): Promise<Notification> {
     if (isEmpty(notificationData)) throw new HttpException(400, 'Notification Data cannot be blank');
 
     const messageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
@@ -55,13 +55,11 @@ class NotificationService {
       partyChannelKey: partyChannelKey,
       partyKey: tempPartyKey,
       messageKey: tempMessageKey,
-      createdBy: customerAccountId,
+      createdBy: partyId,
       createdAt: currentDate,
       updatedAt: currentDate,
-      deletedAt: null,
-      notificationStatus: null,
       notificationStatutsUpdatedAt: currentDate,
-      customerAccountKey: customerAccountKey,
+      customerAccountKey,
     };
     const createNotificationData: Notification = await this.notificaion.create(newNotification);
     return createNotificationData;
@@ -90,6 +88,7 @@ class NotificationService {
     tempPartyKey: number,
     customerAccountKey: number,
     notificationData: UpdateNotificationDto,
+    partyId: string
   ): Promise<Notification> {
     if (isEmpty(UpdateNotificationDto)) throw new HttpException(400, 'Notification Data cannot be blank');
     const findNotification: Notification = await this.notificaion.findOne({ where: { notificationId: notificationId } });
@@ -107,11 +106,11 @@ class NotificationService {
       notificationId: notificationId,
       partyChannelKey: partyChannelKey,
       partyKey: tempPartyKey,
-      updatedBy: customerAccountKey.toLocaleString(),
+      updatedBy: partyId,
       updatedAt: currentDate,
       isDeleted: false,
       notificationStatutsUpdatedAt: currentDate,
-      customerAccountKey: customerAccountKey,
+      customerAccountKey,
     };
     await this.notificaion.update(updatedChannelData, { where: { notificationId: notificationId } });
 
