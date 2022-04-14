@@ -31,6 +31,8 @@ import AddressModel from '@/modules/Address/models/address.model';
 import ApiModel from '@/modules/Api/models/api.models';
 import MessageModel from '@/modules/Messaging/models/message.model';
 import PartyModel from '@/modules/Party/models/party.model';
+import ResourceModel from '@/modules/Resources/models/resource.model';
+import ResourceGroupModel from '@/modules/Resources/models/resourceGroup.model';
 import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import TableIdModel from '@/modules/CommonService/models/tableIdmodel';
@@ -104,6 +106,8 @@ const DB = {
   TableId: TableIdModel(sequelize),
   Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
+  Resource: ResourceModel(sequelize),
+  ResourceGroup: ResourceGroupModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
   Subscription: SubscriptionModel(sequelize),
@@ -127,6 +131,15 @@ DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
 
 DB.CustomerAccount.hasMany(DB.Incident, { foreignKey: 'customerAccountKey' });
 DB.Incident.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.CustomerAccount.hasMany(DB.Resource, { foreignKey: 'customerAccountKey' });
+DB.Resource.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.CustomerAccount.hasMany(DB.ResourceGroup, { foreignKey: 'customerAccountKey' });
+DB.ResourceGroup.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resourceGroupKey' });
+DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
 
 DB.Party.hasMany(DB.Incident, { foreignKey: 'assigneeKey', as: 'incidents' });
 DB.Incident.belongsTo(DB.Party, { foreignKey: 'assigneeKey', as: 'assignee' });
