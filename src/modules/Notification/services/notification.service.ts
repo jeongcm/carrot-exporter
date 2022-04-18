@@ -36,26 +36,25 @@ class NotificationService {
    * @returns Promise<Notification>
    * @author Akshay
    */
-  public async createNotification(notificationData: CreateNotificationDto, tempPartyKey: number, customerAccountKey: number,partyId: string): Promise<Notification> {
+  public async createNotification(notificationData: CreateNotificationDto, partyKey: number, customerAccountKey: number,systemId: string): Promise<Notification> {
     if (isEmpty(notificationData)) throw new HttpException(400, 'Notification Data cannot be blank');
 
     const messageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
     const tempMessageKey: number = messageData.messageKey;
 
-    const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(tempPartyKey);
+    const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(partyKey);
 
     const tableIdName: string = 'Notification';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const tempNotificationId: string = responseTableIdData.tableIdFinalIssued;
 
-    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
     const currentDate = new Date();
     const newNotification = {
       notificationId: tempNotificationId,
       partyChannelKey: partyChannelKey,
-      partyKey: tempPartyKey,
+      partyKey: partyKey,
       messageKey: tempMessageKey,
-      createdBy: partyId,
+      createdBy: systemId,
       createdAt: currentDate,
       updatedAt: currentDate,
       notificationStatutsUpdatedAt: currentDate,
@@ -85,10 +84,10 @@ class NotificationService {
 
   public async updateNotification(
     notificationId: string,
-    tempPartyKey: number,
+    partyKey: number,
     customerAccountKey: number,
     notificationData: UpdateNotificationDto,
-    partyId: string
+    systemId: string
   ): Promise<Notification> {
     if (isEmpty(UpdateNotificationDto)) throw new HttpException(400, 'Notification Data cannot be blank');
     const findNotification: Notification = await this.notificaion.findOne({ where: { notificationId: notificationId } });
@@ -99,14 +98,14 @@ class NotificationService {
     if (!tempMessageKey){
       throw new HttpException(409, 'MessageKey Not Found');
     }
-    const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(tempPartyKey);
+    const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(partyKey);
     const currentDate = new Date();
     const updatedChannelData = {
       ...notificationData,
       notificationId: notificationId,
       partyChannelKey: partyChannelKey,
-      partyKey: tempPartyKey,
-      updatedBy: partyId,
+      partyKey: partyKey,
+      updatedBy: systemId,
       updatedAt: currentDate,
       isDeleted: false,
       notificationStatutsUpdatedAt: currentDate,
