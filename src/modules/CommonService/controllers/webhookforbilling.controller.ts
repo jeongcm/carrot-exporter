@@ -22,6 +22,7 @@ class webhookForBillingController {
                 Company: req.body.Customer.companyName,
                };
                //call party/party user creation services
+               //also, customerAccount should be created. 
                console.log (CustomerAccount);
 
                break;
