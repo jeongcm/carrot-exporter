@@ -20,6 +20,7 @@ import CommonCodeRoute from '@/modules/CommonCode/routes/commonCode.route';
 
 import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccount.route';
 import TableIdRoute from '@/modules/CommonService/routes/tableId.route';
+import webhookForBillingRoute from '@/modules/CommonService/routes/webhooforbilling.route';
 import ApiRoute from '@/modules/Api/routes/api.route';
 import PartyRoute from '@modules/Party/routes/party.route';
 import ResourceRoute from '@modules/Resources/routes/resource.route';
@@ -51,6 +52,9 @@ const app = new App([
   
   new ResourceRoute(),
   new ResourceGroupRoute(),
+
+  new webhookForBillingRoute(),
+
 ]);
 
 app.listen();
