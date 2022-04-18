@@ -16,6 +16,7 @@ class SubscriptionService {
   public catalogPlanProduct = DB.CatalogPlanProduct;
   public subscriptionHistory = DB.SubscriptionHistory;
   public subscribedProduct = DB.SubscribedProduct;
+  public resource = DB.Resource;
   public tableIdService = new tableIdService();
 
 
@@ -156,10 +157,16 @@ class SubscriptionService {
   }
 
   public createSubscribedProduct =async (productData:CreateSubscribedProductDto, partyId:string, systemId:string, customerAccountKey:number) => {
-    const {subscribedProductStatus, subscribedProductFrom, subscribedProductTo} = productData
+    const {subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId} = productData
     const subscribedProductId = await this.getTableId('SubscribedProduct')
     const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { customerAccountKey } });
-    // const resourceKey = await this.resource.findOne({where:{resourceId}})
+    if(!subscriptionDetail){
+      return {error:true , message:"Subscription not found"};
+    }
+    const resourceDetail= await this.resource.findOne({where:{resourceId}});
+    if(!resourceDetail){
+      return {error:true , message:"Resource not found"};
+    }
     const catalogPlanProductDetails : ICatalogPlanProduct =  await  this.catalogPlanProduct.findOne(
       {where:
         {
@@ -169,7 +176,7 @@ class SubscriptionService {
       });
     const createObj = {
       subscribedProductId,
-      resourceKey : 123,
+      resourceKey:resourceDetail.resourceKey,
       customerAccountKey,
       subscriptionKey:subscriptionDetail.subscriptionKey,
       catalogPlanProductKey:catalogPlanProductDetails.catalogPlanProductKey,
@@ -180,7 +187,7 @@ class SubscriptionService {
       updatedBy:partyId || systemId
     }
     const newObj = await this.subscribedProduct.create(createObj)
-    return newObj;
+    return {data:newObj, message:"success"};
   }
 
   public findSubscribedProduct =async (subscribedProductId:string) => {
@@ -192,7 +199,7 @@ class SubscriptionService {
     if (isEmpty(productData)) throw new HttpException(400, 'Subscribe product Data cannot be blank');
     const productDetail: ISubscribedProduct = await this.subscribedProduct.findOne({where:{subscribedProductId}});
     if (!productDetail) {
-      throw new HttpException(400, 'Subscription not found');
+      return {error:true , message:"Subscription not found"};
     }
     const updateObj = {
       ...productData,
@@ -207,16 +214,12 @@ class SubscriptionService {
       attributes: { exclude: ["subscribedProductKey", "deletedAt"] }
     });
 
-    return updateData;
+    return {data: updateData , message:"success"};
   }
 
 
   public getTableId = async (tableIdTableName: string) => {
     const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-
-    if (!tableId) {
-      return;
-    }
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
     return responseTableIdData.tableIdFinalIssued;
   }
