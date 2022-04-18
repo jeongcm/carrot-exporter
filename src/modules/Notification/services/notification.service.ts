@@ -107,7 +107,6 @@ class NotificationService {
       partyKey: partyKey,
       updatedBy: systemId,
       updatedAt: currentDate,
-      isDeleted: false,
       notificationStatutsUpdatedAt: currentDate,
       customerAccountKey,
     };
