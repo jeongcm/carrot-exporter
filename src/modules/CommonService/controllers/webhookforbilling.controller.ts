@@ -33,6 +33,7 @@ class webhookForBillingController {
                     subscriptionExtSubscriptionId: req.body.Subscription.id,
                     subscriptionPlanName: req.body.Subscription.planName,
                     subscriptionCreatedAt: req.body.Subscription.createdTimestamp,
+                    subscriptionActivatedAt: req.body.Subscription.activatedTimestamp,
                     subscrptionStatus: req.body.Subscription.status,
                    };
                 // call subscription creation    
