@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsAlpha, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsAlpha, IsOptional, IsNumber } from 'class-validator';
 
 /**
  * DTO with information to create a new catalog plan
@@ -14,6 +14,11 @@ export class CreateCatalogPlanDto {
   @IsString()
   @IsNotEmpty()
   public catalogPlanDescription : string;
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanType  :  'OB'|'MO'
+  // - OB (Observability)
+  // - MO (MetricOps;
 
 }
 
@@ -37,9 +42,17 @@ export class CreateCatalogPlanProductDto {
     @IsNotEmpty()
     public catalogPlanProductDescription: string;
 
-    @IsString()
+    @IsNumber()
     @IsNotEmpty()
     public catalogPlanProductMonthlyPrice: number;
+    
+    @IsString()
+    @IsNotEmpty()
+    public catalogPlanProductType: 'ON' | 'MN' | 'MS' | 'MC';
+    //   ON (ObservabilityNode)
+    // - MN (MetricOps Node)
+    // - MS (MetricOps Service)
+    // - MC (MetricOps Cluster);
 
     @IsString()
     @IsNotEmpty()

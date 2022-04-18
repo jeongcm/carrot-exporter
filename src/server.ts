@@ -14,6 +14,7 @@ import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
 
 import ProductCatalogRoute from '@/modules/ProductCatalog/routes/productCatalog.route';
 import MessageRoute from '@/modules/Messaging/routes/message.route';
+import SubscriptionRoute from '@/modules/Subscriptions/routes/subscriptions.route';
 
 import CommonCodeRoute from '@/modules/CommonCode/routes/commonCode.route';
 
@@ -22,6 +23,8 @@ import TableIdRoute from '@/modules/CommonService/routes/tableId.route';
 import webhookForBillingRoute from '@/modules/CommonService/routes/webhooforbilling.route';
 import ApiRoute from '@/modules/Api/routes/api.route';
 import PartyRoute from '@modules/Party/routes/party.route';
+import ResourceRoute from '@modules/Resources/routes/resource.route';
+import ResourceGroupRoute from '@modules/Resources/routes/resourceGroup.route';
 
 const app = new App([
   new IndexRoute(),
@@ -40,12 +43,18 @@ const app = new App([
   new CustomerAccountRoute(),
   new ApiRoute(),
   new MessageRoute(),
+  new SubscriptionRoute(),
 
   new CommonCodeRoute(),
   new CustomerAccountRoute(),
   new TableIdRoute(),
   new PartyRoute(),
+  
+  new ResourceRoute(),
+  new ResourceGroupRoute(),
+
   new webhookForBillingRoute(),
+
 ]);
 
 app.listen();
