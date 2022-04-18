@@ -46,7 +46,6 @@ class PartyChannelService {
       updatedBy: customerAccountKey.toLocaleString(),
       deletedAt: null,
       updatedAt: currentDate,
-      isDeleted: false,
       partyChannelFrom: currentDate,
       partyChannelTo: currentDate,
       partyChannelDefault: false,

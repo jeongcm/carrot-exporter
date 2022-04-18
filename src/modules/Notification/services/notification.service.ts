@@ -38,7 +38,7 @@ class NotificationService {
    */
   public async createNotification(notificationData: CreateNotificationDto, partyKey: number, customerAccountKey: number,systemId: string): Promise<Notification> {
     if (isEmpty(notificationData)) throw new HttpException(400, 'Notification Data cannot be blank');
-
+   
     const messageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
     const tempMessageKey: number = messageData.messageKey;
 
