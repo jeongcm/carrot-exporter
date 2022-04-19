@@ -12,7 +12,8 @@ class ChannelController {
 
   public getAllChannels = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const findAllChannelsData: Channel[] = await this.channelService.findAllChannel();
+      const customerAccountKey = req.customerAccountKey;
+      const findAllChannelsData: Channel[] = await this.channelService.findAllChannel(customerAccountKey);
       res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
     } catch (error) {
       next(error);

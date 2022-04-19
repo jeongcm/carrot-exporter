@@ -21,7 +21,7 @@ class NotificationRoute implements Routes {
       validationMiddleware(CreateNotificationDto, 'body'),
       this.notificationController.createNotification,
     );
-    this.router.get('/notification', systemAuthMiddleware, this.notificationController.getAllNotification);
+    this.router.get('/notification', systemAuthMiddleware, authMiddleware, this.notificationController.getAllNotification);
     this.router.get('/notification/:notificationId', systemAuthMiddleware, this.notificationController.getNotificationById);
     this.router.put(
       '/notification/:notificationId',

@@ -23,9 +23,9 @@ class ChannelService {
    * @returns Promise<Channel[]>
    * @author Akshay
    */
-  public async findAllChannel(): Promise<Channel[]> {
+  public async findAllChannel(customerAccountKey: number): Promise<Channel[]> {
     const allUser: Channel[] = await this.channels.findAll({
-      where: { deletedAt: null },
+      where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['channelKey', 'deletedAt', 'updatedBy', 'createdBy'] },
     });
     return allUser;

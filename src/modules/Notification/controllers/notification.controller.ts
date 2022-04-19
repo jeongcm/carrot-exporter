@@ -10,7 +10,8 @@ class NotificationController {
 
   public getAllNotification = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const findAllNotification: Notification[] = await this.notificationService.findAllNotification();
+      const customerAccountKey = req.customerAccountKey;
+      const findAllNotification: Notification[] = await this.notificationService.findAllNotification(customerAccountKey);
       res.status(200).json({ data: findAllNotification, message: 'findAll' });
     } catch (error) {
       next(error);

@@ -22,9 +22,9 @@ class NotificationService {
    * @returns Promise<Notification[]>
    * @author Akshay
    */
-  public async findAllNotification(): Promise<Notification[]> {
+  public async findAllNotification(customerAccountKey: number): Promise<Notification[]> {
     const allNotification: Notification[] = await this.notificaion.findAll({
-      where: { deletedAt: null },
+      where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['messageKey', 'createdBy', 'updatedBy', 'deletedAt'] },
     });
     return allNotification;
@@ -36,9 +36,14 @@ class NotificationService {
    * @returns Promise<Notification>
    * @author Akshay
    */
-  public async createNotification(notificationData: CreateNotificationDto, partyKey: number, customerAccountKey: number,systemId: string): Promise<Notification> {
+  public async createNotification(
+    notificationData: CreateNotificationDto,
+    partyKey: number,
+    customerAccountKey: number,
+    systemId: string,
+  ): Promise<Notification> {
     if (isEmpty(notificationData)) throw new HttpException(400, 'Notification Data cannot be blank');
-   
+
     const messageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
     const tempMessageKey: number = messageData.messageKey;
 
@@ -87,7 +92,7 @@ class NotificationService {
     partyKey: number,
     customerAccountKey: number,
     notificationData: UpdateNotificationDto,
-    systemId: string
+    systemId: string,
   ): Promise<Notification> {
     if (isEmpty(UpdateNotificationDto)) throw new HttpException(400, 'Notification Data cannot be blank');
     const findNotification: Notification = await this.notificaion.findOne({ where: { notificationId: notificationId } });
@@ -95,7 +100,7 @@ class NotificationService {
 
     const messageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
     const tempMessageKey: number = messageData.messageKey;
-    if (!tempMessageKey){
+    if (!tempMessageKey) {
       throw new HttpException(409, 'MessageKey Not Found');
     }
     const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(partyKey);
