@@ -37,8 +37,8 @@ import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import TableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import PartyChannelModel from '@/modules/Party/models/partychannel.model';
+import NotificationModel from '@/modules/Notification/models/notification.model';
 import PartyResourceModel from '@/modules/Party/models/partyResource.model';
-
 import config from 'config';
 import InitialRecordService from './initialRecord';
 
@@ -113,6 +113,7 @@ const DB = {
   ResourceGroup: ResourceGroupModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
+  Notification:NotificationModel(sequelize),
   Subscription: SubscriptionModel(sequelize),
   SubscribedProduct: SubscribedProductModel(sequelize),
   SubscriptionHistory: SubscriptionHistoryModel(sequelize),
@@ -227,6 +228,24 @@ DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKe
 DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
 DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
 
+
+DB.Party.hasMany(DB.PartyChannel,{foreignKey: 'partyKey'})
+DB.PartyChannel.belongsTo(DB.Party,{foreignKey: 'partyKey'})
+
+DB.PartyChannel.hasMany(DB.Notification, {foreignKey: 'partyChannelKey'})
+DB.Notification.belongsTo(DB.PartyChannel,{foreignKey: 'partyChannelKey'})
+
+
+DB.Party.hasMany(DB.Notification,{foreignKey: 'partyKey'})
+DB.Notification.belongsTo(DB.Party,{foreignKey: 'partyKey'})
+
+DB.Messages.hasOne(DB.Notification,{foreignKey: 'messageKey'})
+DB.Notification.belongsTo(DB.Messages,{foreignKey: 'messageKey'})
+
+DB.CustomerAccount.hasMany(DB.Notification,{foreignKey: 'customerAccountKey'})
+DB.Notification.belongsTo(DB.CustomerAccount,{foreignKey: 'customerAccountKey'})
+
+
 DB.Party.belongsToMany(DB.Resource, {
   through: 'PartyResource',
   foreignKey: 'partyKey',
@@ -244,6 +263,7 @@ DB.Party.hasMany(DB.PartyResource, { foreignKey: 'partyKey' });
 DB.Resource.hasMany(DB.PartyResource, { foreignKey: 'resourceKey' });
 DB.PartyResource.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 DB.PartyResource.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
+
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

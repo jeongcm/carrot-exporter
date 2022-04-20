@@ -82,6 +82,13 @@ class CustomerAccountService {
     return customerAccountKey;
   }
 
+  public async getCustomerAccountIdByKey(customerAccountKey: number): Promise<string>{
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({
+      where: {customerAccountKey}
+    });
+    return customerAccountData.customerAccountId
+  }
+  
   public async updateCustomerAccount(
     customerAccountId: string,
     coustomerAccountData: CreateCustomerAccountDto,
