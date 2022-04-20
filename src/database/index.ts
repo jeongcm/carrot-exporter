@@ -37,10 +37,13 @@ import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import TableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import PartyChannelModel from '@/modules/Party/models/partychannel.model';
+import PartyResourceModel from '@/modules/Party/models/partyResource.model';
+
 import config from 'config';
 import InitialRecordService from './initialRecord';
-import SubscriptionModel  from '@/modules/Subscriptions/models/subscriptions.model';
-import SubscribedProductModel  from '@/modules/Subscriptions/models/subscribedProduct.model';
+
+import SubscriptionModel from '@/modules/Subscriptions/models/subscriptions.model';
+import SubscribedProductModel from '@/modules/Subscriptions/models/subscribedProduct.model';
 import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
 
 const host = config.db.mariadb.host;
@@ -102,7 +105,7 @@ const DB = {
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
   Api: ApiModel(sequelize),
-  PartyChannel : PartyChannelModel(sequelize),
+  PartyChannel: PartyChannelModel(sequelize),
   TableId: TableIdModel(sequelize),
   Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
@@ -112,7 +115,8 @@ const DB = {
   PartyUser: PartyUserModel(sequelize),
   Subscription: SubscriptionModel(sequelize),
   SubscribedProduct: SubscribedProductModel(sequelize),
-  SubscriptionHistory:SubscriptionHistoryModel(sequelize),
+  SubscriptionHistory: SubscriptionHistoryModel(sequelize),
+  PartyResource: PartyResourceModel(sequelize),
   AlertReceived: AlertReceivedModel(sequelize),
   AlertRule: AlertRuleModel(sequelize),
   sequelize, // connection instance (RAW queries)
@@ -152,9 +156,8 @@ DB.IncidentActionAttachment.belongsTo(DB.IncidentAction, { foreignKey: 'incident
 
 DB.Channel.hasMany(DB.PartyChannel, { foreignKey: 'channelKey' });
 DB.Party.hasMany(DB.PartyChannel, { foreignKey: 'partyKey' });
-DB.PartyChannel.belongsTo(DB.Channel, { foreignKey: 'channelKey'});
-DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey'});
-
+DB.PartyChannel.belongsTo(DB.Channel, { foreignKey: 'channelKey' });
+DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 
 //DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
 //DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
@@ -189,7 +192,6 @@ DB.Address.belongsToMany(DB.CustomerAccount, {
   otherKey: 'customerAccountKey',
 });
 
-
 DB.CustomerAccount.hasMany(DB.AlertRule, { foreignKey: 'customerAccountKey' });
 DB.AlertRule.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
@@ -200,20 +202,19 @@ DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' 
 DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
 DB.CatalogPlan.hasMany(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_key' });
-DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});
+DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key' });
 
 DB.CatalogPlanProduct.hasMany(DB.CatalogPlanProductPrice, { foreignKey: 'catalog_plan_product_key' });
 DB.CatalogPlanProductPrice.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
 
-
 DB.CatalogPlan.hasOne(DB.Subscription, { foreignKey: 'catalog_plan_key' });
-DB.Subscription.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'});
+DB.Subscription.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key' });
 
 DB.Subscription.hasMany(DB.SubscriptionHistory, { foreignKey: 'subscription_key' });
-DB.SubscriptionHistory.belongsTo(DB.Subscription, { foreignKey: 'subscription_key'});
+DB.SubscriptionHistory.belongsTo(DB.Subscription, { foreignKey: 'subscription_key' });
 
 DB.Subscription.hasMany(DB.SubscribedProduct, { foreignKey: 'subscription_key' });
-DB.SubscribedProduct.belongsTo(DB.Subscription, { foreignKey: 'subscription_key'});
+DB.SubscribedProduct.belongsTo(DB.Subscription, { foreignKey: 'subscription_key' });
 
 DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
 DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
@@ -225,6 +226,24 @@ DB.Party.hasMany(DB.PartyRelation, { as: 'partyParent', foreignKey: 'partyParent
 DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKey', sourceKey: 'partyKey' });
 DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
 DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
+
+DB.Party.belongsToMany(DB.Resource, {
+  through: 'PartyResource',
+  foreignKey: 'partyKey',
+  otherKey: 'resourceKey',
+  as: 'resource',
+});
+DB.Resource.belongsToMany(DB.Party, {
+  through: 'PartyResource',
+  foreignKey: 'resourceKey',
+  otherKey: 'partyKey',
+  as: 'party',
+});
+
+DB.Party.hasMany(DB.PartyResource, { foreignKey: 'partyKey' });
+DB.Resource.hasMany(DB.PartyResource, { foreignKey: 'resourceKey' });
+DB.PartyResource.belongsTo(DB.Party, { foreignKey: 'partyKey' });
+DB.PartyResource.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

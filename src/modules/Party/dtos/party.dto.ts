@@ -98,6 +98,13 @@ export class AddUserAccessGroupDto {
   public partyIds: string[];
 }
 
+export class AddResourceToAccessGroupDto {
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
+  public resourceIds: string[];
+}
+
 export class LoginDto {
   @IsString()
   @IsNotEmpty()
