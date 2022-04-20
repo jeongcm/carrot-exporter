@@ -90,10 +90,11 @@ class PartyService {
 
   public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string): Promise<IPartyUserResponse> {
     const tableIdTableName = 'PartyUser';
-    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-    if (!tableId) {
-      return;
-    }
+    
+    //const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
+    //if (!tableId) {
+    //  return;
+    //}
 
     try {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);

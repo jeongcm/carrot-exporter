@@ -5,9 +5,11 @@ import { IResponseMassUploader, IRequestMassUploader } from '@/common/interfaces
 import { HttpException } from '@/common/exceptions/HttpException';
 import { arrayBuffer } from 'stream/consumers';
 import resourceModel from '@/modules/Resources/models/resource.model';
-
+import tableIdService from '@/modules/CommonService/services/tableId.service';
+import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/tableId.dto';
 
 class massUploaderService {
+    public tableIdService = new tableIdService();
 
     public async massUploadResource (resourceMassFeed: IRequestMassUploader ): Promise<IResponseMassUploader> {
 
@@ -16,21 +18,6 @@ class massUploaderService {
         var affectedRows = 0;
         var insertId = 0;
         var info = "";
-
-        console.log("**********************************");
-        console.log(" db connect for raw SQL execution");
-        console.log("**********************************");
-
-        const mysql = require('mysql2');
-        const mysqlConnection = mysql.createConnection({
-            host: config.db.mariadb.host,
-            user: config.db.mariadb.user,
-            port: config.db.mariadb.port || 3306,
-            password: config.db.mariadb.password,
-            database: config.db.mariadb.dbName,
-//          minimumpoolsize: config.db.mariadb.poolMin,
-//          maximumpoolsize: config.db.mariadb.poolMin,
-        })
         
         const sizeOfInput = resourceMassFeed.resource.length; 
      //   const query1 = `INSERT INTO Resource (resource_Id, created_By, created_At, resource_Target_Uuid, resource_Target_Created_At, 
@@ -50,12 +37,43 @@ class massUploaderService {
      
         var query2 = new Array;
 
-        for (var i=0; i<sizeOfInput; i++ ) {
-            var resource_id  = "key" + i; 
-            console.log (resource_id); 
 
-            var resource_Target_Created_At = new Date(resourceMassFeed.resource[i].resource_Target_Created_At);
+        // process bulk id for Resource table 
+        const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk(targetTable, sizeOfInput);
+        const resource_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0,8); 
+        var resource_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8,16)) - responseTableIdData.tableIdRange; 
+        var resource_id_postfix = "";
+        const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
 
+        console.log ("Final Issued: ", responseTableIdData.tableIdFinalIssued);
+        console.log ("Range: ", sizeOfInput);
+        console.log("**********************************");
+        console.log(" db connect for raw SQL execution");
+        console.log("**********************************");
+
+        const mysql = require('mysql2');
+        const mysqlConnection = mysql.createConnection({
+            host: config.db.mariadb.host,
+            user: config.db.mariadb.user,
+            port: config.db.mariadb.port || 3306,
+            password: config.db.mariadb.password,
+            database: config.db.mariadb.dbName,
+//          minimumpoolsize: config.db.mariadb.poolMin,
+//          maximumpoolsize: config.db.mariadb.poolMin,
+        })
+
+        for (let i=0; i<sizeOfInput; i++ ) {
+
+            let resource_Target_Created_At = new Date(resourceMassFeed.resource[i].resource_Target_Created_At);
+            resource_id_postfix_number = resource_id_postfix_number + 1;
+
+            resource_id_postfix = resource_id_postfix_number.toString();
+            while (resource_id_postfix.length < tableIdSequenceDigit) {
+                resource_id_postfix = '0' + resource_id_postfix;
+              }
+
+            let resource_id = resource_id_prefix + resource_id_postfix; 
+            console.log ("I= ", i, "ResourceID: ", resource_id); 
             query2[i] =  [
                             resource_id,  //resource_Id
                             "SYSTEM",  // created_By

@@ -111,11 +111,6 @@ class TableIdService {
       currentSequenceText = '0' + currentSequenceText;
     }
 
-    console.log(currentYear);
-    console.log(currentMonthText);
-    console.log(currentDayText);
-    console.log(currentSequenceText);
-
     const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonthText + currentDayText + currentSequenceText;
     const idIssuedSequence = currentSequence;
 
@@ -123,7 +118,7 @@ class TableIdService {
     await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
 
     const updateDBResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
-    const updateResult: IResponseIssueTableIdBulkDto = {tableIdTableName:updateDBResult.tableIdTableName, tableIdFinalIssued:updateDBResult.tableIdFinalIssued, tableIdRange};
+    const updateResult: IResponseIssueTableIdBulkDto = {tableIdTableName:updateDBResult.tableIdTableName, tableIdFinalIssued:updateDBResult.tableIdFinalIssued, tableIdRange, tableIdSequenceDigit:updateDBResult.tableIdSequenceDigit};
     return updateResult;
   }
    
