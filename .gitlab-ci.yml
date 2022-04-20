@@ -1,7 +1,7 @@
 variables:
   DOCKER_DRIVER: overlay
   APP_DOCKERFILE_LOCATION: "Dockerfile"
-  APP_IMAGE_NAME: "nexclipper-node"
+  APP_IMAGE_NAME: "nexclipper-api"
 
 default:
   services:
@@ -21,7 +21,7 @@ stages:
   - package
   - deploy-dev
 
-node-build:
+code-build:
   image: node:lts-alpine
   stage: build
   script:
@@ -39,18 +39,18 @@ docker-build:
     - "apk add --no-cache git"
   script:
     - echo "building docker image for $APP_IMAGE_NAME "
-    - "source kube/build.sh $APP_IMAGE_NAME"
+    - "source /data/scripts/build_v2.sh $APP_IMAGE_NAME"
   rules:
     - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH =~ /\b^(issue|feature|bugfix|improvement).*$\b/
 
-deploy-nexclipper-frontend:
+deploy-nexclipper-api:
   stage: deploy-dev
   image: dtzar/helm-kubectl:latest
   before_script:
     - echo -e "\nLogin to Kubernetes"
     - source /data/scripts/login-cluster.sh dev
   script:
-    - "source kube/deploy.sh node"
+    - "source /data/scripts/deploy_v2.sh dev nc"
   rules:
     - if: '$CI_COMMIT_BRANCH == "develop"'
     - if: $CI_COMMIT_BRANCH =~ /\b^(issue|feature|bugfix|improvement).*$\b/
