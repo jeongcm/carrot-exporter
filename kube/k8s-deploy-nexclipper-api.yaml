@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nexclipper-node-configmap
+  name: ${APP_IMAGE_NAME}-configmap
   labels:
-    app: nexclipper-node
+    app: ${APP_IMAGE_NAME}
 data:
   NC_LARI_PORT: "5001"
   NC_LARI_ENV: development
   NC_LARI_DB_CONFIG_PORT: "3306"
   NC_LARI_DB_CONFIG_HOST: "mysql-primary.mysql.svc.cluster.local"
   NC_LARI_DB_CONFIG_USER: "root"
-  NC_LARI_DB_CONFIG_DB_NAME: nexclipper_node
+  NC_LARI_DB_CONFIG_DB_NAME: nc_api
   NC_LARI_DB_CONFIG_POOL_MIN: "1"
   NC_LARI_DB_CONFIG_POOL_MAX: "5"
   NC_LARI_EMAIL_DEFAULT_FROM: info@nexclipper.io
