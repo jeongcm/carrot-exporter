@@ -23,6 +23,8 @@ import TableIdRoute from '@/modules/CommonService/routes/tableId.route';
 import webhookForBillingRoute from '@/modules/CommonService/routes/webhooforbilling.route';
 import ApiRoute from '@/modules/Api/routes/api.route';
 import PartyRoute from '@modules/Party/routes/party.route';
+import NotificationRoute from './modules/Notification/routes/notification.route';
+import PartyChannelRoute from './modules/Party/routes/partychannel.route';
 import ResourceRoute from '@modules/Resources/routes/resource.route';
 import ResourceGroupRoute from '@modules/Resources/routes/resourceGroup.route';
 import massUploaderRoute from './modules/CommonService/routes/massUploader.route';
@@ -50,7 +52,8 @@ const app = new App([
   new CustomerAccountRoute(),
   new TableIdRoute(),
   new PartyRoute(),
-  
+  new NotificationRoute(),
+  new PartyChannelRoute(),  
   new ResourceRoute(),
   new ResourceGroupRoute(),
 

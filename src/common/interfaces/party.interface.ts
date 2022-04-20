@@ -1,18 +1,18 @@
 export interface PartyChannel {
-    partyChannelKey: number;
-    partyKey: number;
-    channelKey: number;
-    PartychannelId: string;
-    createdBy: string;
-    updatedBy: string;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt: Date;
-    partyChannelFrom: Date;
-    partyChannelTo: Date;
-    partyChannelDefault: boolean;
-  }
-  
+  partyChannelKey: number;
+  partyKey: number;
+  channelKey: number;
+  PartychannelId: string;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
+  partyChannelFrom: Date;
+  partyChannelTo: Date;
+  partyChannelDefault: boolean;
+}
+
 import { Request } from 'express';
 
 export interface IParty {
@@ -65,6 +65,18 @@ export interface IPartyUser {
   emailValidatedAt: Date;
   token: string;
   lastAccessAt: Date;
+}
+
+export interface IPartyResource {
+  partyResourceKey: number;
+  partyResourceId: string;
+  partyKey: number;
+  resourceKey: number;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 }
 
 export interface IPartyUserResponse {

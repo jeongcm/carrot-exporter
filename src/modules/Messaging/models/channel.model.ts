@@ -76,7 +76,12 @@ export default function (sequelize: Sequelize): typeof ChannelModel {
         type: DataTypes.DATE,
       },
     },
-    {
+    {indexes: [
+      { // new index
+        unique: true,
+        fields: ['channel_id'],
+      }
+    ],
       tableName: 'Channel',
       modelName: 'Channel',
       sequelize,

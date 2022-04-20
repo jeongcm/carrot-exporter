@@ -12,7 +12,8 @@ class ChannelController {
 
   public getAllChannels = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const findAllChannelsData: Channel[] = await this.channelService.findAllChannel();
+      const customerAccountKey = req.customerAccountKey;
+      const findAllChannelsData: Channel[] = await this.channelService.findAllChannel(customerAccountKey);
       res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -32,11 +33,10 @@ class ChannelController {
   public createChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const tableIdName: string = "Channel";
-      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
-      const tempChannelId: string = responseTableIdData.tableIdFinalIssued;
+      const { user:{partyId}} = req
       const channelData: CreateChannelDto = req.body;
-      const createChannelData: Channel = await this.channelService.createChannel(channelData, customerAccountKey, tempChannelId);
+      const createChannelData: Channel = await this.channelService.createChannel(channelData, 
+        customerAccountKey, partyId);
       res.status(201).json({ data: createChannelData, message: 'created' });
     } catch (error) {
       next(error);
@@ -46,9 +46,10 @@ class ChannelController {
   public updateChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const channelId = req.params.channelId;
+      const { user:{partyId}} = req
       const channelData = req.body;
-      const currentUserPk = req.customerAccountKey;
-      const updateChannelData: Channel = await this.channelService.updateChannel(channelId, channelData, currentUserPk);
+      const customerAccountKey = req.customerAccountKey;
+      const updateChannelData: Channel = await this.channelService.updateChannel(channelId, channelData, customerAccountKey, partyId);
       res.status(200).json({ data: updateChannelData, message: 'updated' });
     } catch (error) {
       next(error);
