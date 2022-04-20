@@ -3,7 +3,14 @@ import { Routes } from '@/common/interfaces/routes.interface';
 
 import AuthService from '@/modules/UserTenancy/services/auth.service';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
-import { CreateUserDto, UpdateUserDto, CreateAccessGroupDto, AddUserAccessGroupDto, LoginDto } from '@/modules/Party/dtos/party.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  CreateAccessGroupDto,
+  AddUserAccessGroupDto,
+  LoginDto,
+  AddResourceToAccessGroupDto,
+} from '@/modules/Party/dtos/party.dto';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 
 import PartyController from '../controllers/party.controller';
@@ -54,6 +61,20 @@ class partyRoute implements Routes {
       validationMiddleware(AddUserAccessGroupDto, 'body'),
       this.partyController.removeUserFromAccessGroup,
     );
+
+    this.router.post(
+      '/party/accessgroup/:partyId/resource',
+      authMiddleware,
+      validationMiddleware(AddResourceToAccessGroupDto, 'body'),
+      this.partyController.addResourceToAccessGroup,
+    );
+    this.router.delete(
+      '/party/accessgroup/:partyId/resource',
+      authMiddleware,
+      validationMiddleware(AddResourceToAccessGroupDto, 'body'),
+      this.partyController.removeResourceFromAccessGroup,
+    );
+    this.router.get('/party/accessgroup/:partyId/resource', authMiddleware, this.partyController.getResourceOfAccessGroup);
   }
 }
 

@@ -16,16 +16,26 @@ import {
   IDataStoredInToken,
   IParty,
   IPartyRelation,
+  IPartyResource,
   IPartyResponse,
   IPartyUser,
   IPartyUserResponse,
   ITokenData,
 } from '@/common/interfaces/party.interface';
 
-import { CreateUserDto, UpdateUserDto, CreateAccessGroupDto, AddUserAccessGroupDto, LoginDto } from '@/modules/Party/dtos/party.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  CreateAccessGroupDto,
+  AddUserAccessGroupDto,
+  LoginDto,
+  AddResourceToAccessGroupDto,
+} from '@/modules/Party/dtos/party.dto';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
 import config from 'config';
+import { ResourceModel } from '@/modules/Resources/models/resource.model';
+import { PartyResourceModel } from '../models/partyResource.model';
 
 /**
  * @memberof Party
@@ -34,6 +44,9 @@ class PartyService {
   public party = DB.Party;
   public partyUser = DB.PartyUser;
   public partyRelation = DB.PartyRelation;
+  public resource = DB.Resource;
+  public partyResource = DB.PartyResource;
+
   public tableIdService = new tableIdService();
 
   public async getUsers(customerAccountKey: number): Promise<IParty[]> {
@@ -331,6 +344,106 @@ class PartyService {
         },
       },
     );
+  }
+
+  public async addResourceToAccessGroup(
+    customerAccountKey: number,
+    logginedUserId: string,
+    partyId: string,
+    addingResourceData: AddResourceToAccessGroupDto,
+  ): Promise<IPartyResource[]> {
+    const party: IParty = await this.party.findOne({
+      where: { partyId },
+      attributes: ['partyKey'],
+    });
+
+    const resourceAll = await this.resource.findAll({
+      where: { resourceId: { [Op.in]: addingResourceData.resourceIds } },
+      attributes: ['resourceKey'],
+    });
+
+    const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
+
+    let insertDataList = [];
+
+    for (let resourceKey of resourceKeyList) {
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyResource');
+
+      insertDataList.push({
+        partyResourceId: responseTableIdData.tableIdFinalIssued,
+        partyKey: party.partyKey,
+        resourceKey,
+        createdBy: logginedUserId,
+      });
+    }
+
+    // for (let i = 0; i < resourceKeyList.length; i++) {
+    //   const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyResource');
+
+    //   insertDataList.push({
+    //     partyResourceId: responseTableIdData.tableIdFinalIssued,
+    //     partyKey: party.partyKey,
+    //     resourceKey: resourceKeyList[i],
+    //     createdBy: logginedUserId,
+    //   });
+    // }
+
+    return await this.partyResource.bulkCreate(insertDataList, { ignoreDuplicates: true });
+  }
+
+  public async getResourceOfAccessGroup(customerAccountKey: number, partyId: string): Promise<any> {
+    const party: IParty = await this.party.findOne({
+      where: { partyId },
+      attributes: ['partyKey'],
+    });
+
+    const partyResource = await this.partyResource.findAll({
+      where: { partyKey: party.partyKey, deletedAt: null },
+      include: {
+        model: ResourceModel,
+        attributes: { exclude: ['resourceKey', 'customerAccountKey', 'resourceGroupKey'] },
+      },
+    });
+
+    let resourceOfAccessGroup = [];
+
+    partyResource.map(resource => {
+      //@ts-expect-error
+      resourceOfAccessGroup.push(resource.Resource);
+    });
+
+    return resourceOfAccessGroup;
+  }
+
+  public async removeResourceFromAccessGroup(
+    customerAccountKey: number,
+    logginedUserId: string,
+    partyId: string,
+    removingResourceData: AddResourceToAccessGroupDto,
+  ): Promise<[number, PartyResourceModel[]]> {
+    const party: IParty = await this.party.findOne({
+      where: { partyId },
+      attributes: ['partyKey'],
+    });
+
+    const resourceAll = await this.resource.findAll({
+      where: { resourceId: { [Op.in]: removingResourceData.resourceIds } },
+      attributes: ['resourceKey'],
+    });
+
+    const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
+
+    const updated: [number, PartyResourceModel[]] = await this.partyResource.update(
+      { deletedAt: new Date() },
+      {
+        where: {
+          partyKey: party.partyKey,
+          resourceKey: { [Op.in]: resourceKeyList },
+        },
+      },
+    );
+
+    return updated;
   }
 
   public async login(loginData: LoginDto): Promise<{ cookie: string; findUser: IPartyUser; token: string }> {

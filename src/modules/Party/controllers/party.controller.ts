@@ -13,7 +13,14 @@ import {
   IRequestWithSystem,
   IRequestWithUser,
 } from '@/common/interfaces/party.interface';
-import { CreateUserDto, UpdateUserDto, CreateAccessGroupDto, AddUserAccessGroupDto, LoginDto } from '@/modules/Party/dtos/party.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  CreateAccessGroupDto,
+  AddUserAccessGroupDto,
+  LoginDto,
+  AddResourceToAccessGroupDto,
+} from '@/modules/Party/dtos/party.dto';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 
@@ -214,6 +221,77 @@ class PartyController {
       await this.partyService.removeUserFromAccessGroup(customerAccountKey, logginedUserId, partyParentId, removingPartyChildData);
 
       res.status(204).json({ message: 'deleted' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public addResourceToAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const logginedUserId = req.user.partyId;
+
+    const partyId: string = req.params.partyId;
+    const addingResourceData: AddResourceToAccessGroupDto = req.body;
+
+    const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyId);
+
+    if (!accessgroup) {
+      res.status(409).json({ message: `AccessGroup (id: ${partyId})  doesn't exist` });
+    }
+
+    try {
+      const addedResource = await this.partyService.addResourceToAccessGroup(customerAccountKey, logginedUserId, partyId, addingResourceData);
+
+      res.status(201).json({ data: addedResource, message: 'added' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public removeResourceFromAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const logginedUserId = req.user.partyId;
+
+    const partyId: string = req.params.partyId;
+    const removingResourceData: AddResourceToAccessGroupDto = req.body;
+
+    const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyId);
+
+    if (!accessgroup) {
+      res.status(409).json({ message: `AccessGroup (id: ${partyId})  doesn't exist` });
+    }
+
+    try {
+      const removedResource = await this.partyService.removeResourceFromAccessGroup(
+        customerAccountKey,
+        logginedUserId,
+        partyId,
+        removingResourceData,
+      );
+
+      if (removedResource) {
+        res.status(200).json({ message: 'removed' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getResourceOfAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+
+    const partyId: string = req.params.partyId;
+
+    const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyId);
+
+    if (!accessgroup) {
+      res.status(409).json({ message: `AccessGroup (id: ${partyId})  doesn't exist` });
+    }
+
+    try {
+      const resourceOfAccessGroup = await this.partyService.getResourceOfAccessGroup(customerAccountKey, partyId);
+
+      res.status(200).json({ data: resourceOfAccessGroup, message: 'resources of AccessGroup All' });
     } catch (error) {
       next(error);
     }

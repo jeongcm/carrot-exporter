@@ -27,7 +27,19 @@ class TableIdService {
    
     const currentDate = new Date();
     const currentDay = currentDate.getDate() + getTableId.tableDay;
+
+    let currentDayText = currentDay.toString();
+    if (currentDayText.length == 1) { 
+      currentDayText = "0"+ currentDayText;
+    }
+
     const currentMonth = currentDate.getMonth() + 1 + getTableId.tableMonth;
+
+    let currentMonthText = currentMonth.toString();
+    if (currentMonthText.length == 1) { 
+      currentMonthText = "0"+ currentMonthText;
+    }
+
     const currentFullYear = currentDate.getFullYear() + getTableId.tableYear;
     const currentYearText = currentFullYear.toString();
     const currentYear = currentYearText.substring(2, 4);
@@ -39,7 +51,7 @@ class TableIdService {
       currentSequenceText = '0' + currentSequenceText;
     }
 
-    const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonth + currentDay + currentSequenceText;
+    const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonthText + currentDayText + currentSequenceText;
     const idIssuedSequence = getTableId.tableIdIssuedSequence + 1;
 
     const internalAccountParty: IParty = await DB.Party.findOne({ where: { partyName: process.env.NC_LARI_SYSTEM_PARTY_NAME } });
@@ -75,7 +87,19 @@ class TableIdService {
 
     const currentDate = new Date();
     const currentDay = currentDate.getDate() + getTableId.tableDay;
+
+    let currentDayText = currentDay.toString();
+    if (currentDayText.length == 1) { 
+      currentDayText = "0"+ currentDayText;
+    }
+
     const currentMonth = currentDate.getMonth() + 1 + getTableId.tableMonth;
+
+    let currentMonthText = currentMonth.toString();
+    if (currentMonthText.length == 1) { 
+      currentMonthText = "0"+ currentMonthText;
+    }
+
     const currentFullYear = currentDate.getFullYear() + getTableId.tableYear;
     const currentYearText = currentFullYear.toString();
     const currentYear = currentYearText.substring(2, 4);
@@ -87,7 +111,12 @@ class TableIdService {
       currentSequenceText = '0' + currentSequenceText;
     }
 
-    const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonth + currentDay + currentSequenceText;
+    console.log(currentYear);
+    console.log(currentMonthText);
+    console.log(currentDayText);
+    console.log(currentSequenceText);
+
+    const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonthText + currentDayText + currentSequenceText;
     const idIssuedSequence = currentSequence;
 
     const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: internalAccountParty.partyId};
@@ -97,6 +126,7 @@ class TableIdService {
     const updateResult: IResponseIssueTableIdBulkDto = {tableIdTableName:updateDBResult.tableIdTableName, tableIdFinalIssued:updateDBResult.tableIdFinalIssued, tableIdRange};
     return updateResult;
   }
+   
 
 
   /**
@@ -104,7 +134,7 @@ class TableIdService {
    *
    * @param  {IssueTableIdDto} tableIdData
    * @returns tableIdTableName
-   * @author Jerry Lee jerry.lee@nexclipper.io
+   * @author Jerry Lee, jerry.lee@nexclipper.io
    */
 
   public async getTableIdByTableName(tableIdTableName: string): Promise<tableId> {

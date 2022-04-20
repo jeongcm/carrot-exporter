@@ -22,6 +22,7 @@ class webhookForBillingController {
                 Company: req.body.Customer.companyName,
                };
                //call party/party user creation services
+               //also, customerAccount should be created. 
                console.log (CustomerAccount);
 
                break;
@@ -32,6 +33,7 @@ class webhookForBillingController {
                     subscriptionExtSubscriptionId: req.body.Subscription.id,
                     subscriptionPlanName: req.body.Subscription.planName,
                     subscriptionCreatedAt: req.body.Subscription.createdTimestamp,
+                    subscriptionActivatedAt: req.body.Subscription.activatedTimestamp,
                     subscrptionStatus: req.body.Subscription.status,
                    };
                 // call subscription creation    

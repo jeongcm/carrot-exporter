@@ -65,9 +65,9 @@ class App {
     this.app.use(hpp());
     this.app.use(helmet());
     this.app.use(compression());
-    this.app.use(express.json());
+    this.app.use(express.json({limit: config.maxApiBodySize} ));
     this.intializeMiddlewareLogging();
-    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(express.urlencoded({ extended: true, limit: config.maxApiBodySize  }));
     this.app.use(cookieParser());
     this.app.use(
       session({
