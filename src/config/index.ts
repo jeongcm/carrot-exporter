@@ -17,6 +17,7 @@ validateEnv();
 export default {
   appPort: process.env.NC_LARI_PORT || 5000,
   nodeEnv: process.env.NC_LARI_ENV || 'development',
+  maxApiBodySize: process.env.NC_MAX_API_BODY_SIZE || '50mb',
   logFormat: process.env.NC_LARI_LOG_FORMAT,
   cors: {
     allowAnyOrigin: process.env.NC_LARI_CORS_ORIGIN === 'true' ? Boolean(process.env.NC_LARI_CORS_ORIGIN) : process.env.NC_LARI_CORS_ORIGIN,

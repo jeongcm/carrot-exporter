@@ -25,6 +25,7 @@ import ApiRoute from '@/modules/Api/routes/api.route';
 import PartyRoute from '@modules/Party/routes/party.route';
 import ResourceRoute from '@modules/Resources/routes/resource.route';
 import ResourceGroupRoute from '@modules/Resources/routes/resourceGroup.route';
+import massUploaderRoute from './modules/CommonService/routes/massUploader.route';
 
 const app = new App([
   new IndexRoute(),
@@ -54,6 +55,7 @@ const app = new App([
   new ResourceGroupRoute(),
 
   new webhookForBillingRoute(),
+  new massUploaderRoute(),
 
 ]);
 
