@@ -28,11 +28,8 @@ class App {
     this.port = Number(config.appPort);
     this.env = config.nodeEnv;
 
-<<<<<<< HEAD
-    //this.connectToDatabase();
-=======
     // this.connectToDatabase();
->>>>>>> e8c9947718e837b83af284edc2e972d001cdc91f
+
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
