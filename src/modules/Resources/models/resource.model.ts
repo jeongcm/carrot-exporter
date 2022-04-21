@@ -229,10 +229,12 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       customerAccountKey: {
         allowNull: false,
         type: DataTypes.INTEGER,
+        unique: 'unique_index',
       },
       resourceGroupKey: {
         allowNull: false,
         type: DataTypes.INTEGER,
+        unique: 'unique_index',
       },
       parentResourceId: {
         type: DataTypes.STRING(16),
@@ -243,6 +245,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       resourceTargetUuid: {
         type: DataTypes.STRING(100),
         allowNull: false,
+        unique: 'unique_index',
       },
       resourceTargetCreatedAt: {
         allowNull: false,
@@ -319,6 +322,13 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       },
     },
     {
+      indexes: [
+        {
+          name: 'unique_index',
+          unique: true,
+          fields: ['resourceTargetUuid', 'customerAccountKey', 'resourceGroupKey'],
+        },
+      ],
       tableName: 'Resource',
       modelName: 'Resource',
       sequelize,
