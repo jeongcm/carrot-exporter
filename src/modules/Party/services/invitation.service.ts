@@ -76,7 +76,7 @@ class InvitationService {
   ): Promise<IInvitation> {
     if (isEmpty(invitationData)) throw new HttpException(400, 'Invitation Data cannot be blank');
 
-    
+    // get Message key form message table based on messageId
     const messageData: IMessage = await this.messageServices.findMessage(invitationData.messageId);
     const messageKey: number = messageData.messageKey;
     const messageVerbiage: string = messageData.messageVerbiage;
@@ -89,11 +89,11 @@ class InvitationService {
       const newInvitation = {
         invitationId: tempInvitationId,
         customerAccountKey,
-        messageKey,
+        messageKey: messageKey,
         createdBy: partyId,
         updatedBy: null,
         createdAt: currentDate,
-        invitedByPartyKey: invitedByPartyKey,
+        invitedByPartyKey,
         isActive: true,
         isAccepted: false,
         isRejected: false,
@@ -102,11 +102,11 @@ class InvitationService {
       };
       const createInvitation: IInvitation = await this.invitations.create(newInvitation);
 
-      
-      req.body['from'] = config.email.invitation.from;
-      req.body['email'] = req.body.invitedTo;
-      req.body['invitationMessage'] = messageVerbiage + '\n' + invitationData.customMsg;
-      req.body['subject'] = 'Invitation for Party User with Party Key ' + invitedByPartyKey.toLocaleString();
+      // decorate mail Request here 
+      invitationData['from'] = config.email.invitation.from;
+      invitationData['email'] = invitationData.invitedTo;
+      invitationData['invitationMessage'] = messageVerbiage + '\n' + invitationData.customMsg;
+      invitationData['subject'] = 'Invitation for Party User with Party Key ' + invitedByPartyKey.toLocaleString();
 
       return createInvitation;
     } catch (error) {}
