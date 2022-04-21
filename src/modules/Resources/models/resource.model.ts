@@ -28,6 +28,31 @@ export type ResourceCreationAttributes = Optional<
   | 'customerAccountKey'
   | 'parentResourceId'
   | 'resourceNamespace'
+  | 'resourceAnnotations'
+  | 'resourceConfigmapData'
+  | 'resourceEndpoint'
+  | 'resourceIngressClass'
+  | 'resourceIngressRules'
+  | 'resourceLabels'
+  | 'resourceMatchLabels'
+  | 'resourcePodContainer'
+  | 'resourcePodPhase'
+  | 'resourcePvClaimRef'
+  | 'resourcePvStorage'
+  | 'resourcePvStorageClassName'
+  | 'resourcePvVolumeMode'
+  | 'resourcePvcStorage'
+  | 'resourcePvcStorageClassName'
+  | 'resourcePvcVolumeMode'
+  | 'resourcePvcVolumeName'
+  | 'resourceReplicas'
+  | 'resourceScAllowVolumeExpansion'
+  | 'resourceScProvisioner'
+  | 'resourceScReclaimPolicy'
+  | 'resourceScVolumeBindingMode'
+  | 'resourceStsVolumeClaimTemplates'
+  | 'resourceTargetCreatedAt'
+  | 'resourceTargetUuid'
 >;
 
 export class ResourceModel extends Model<IResource, ResourceCreationAttributes> implements IResource {
@@ -54,6 +79,31 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public customerAccountKey: number;
   public parentResourceId: string;
   public resourceNamespace: string;
+  public resourcePodPhase: string;
+  public resourcePodContainer: string;
+  public resourceReplicas: number;
+  public resourceStsVolumeClaimTemplates: JSON;
+  public resourcePvcStorage: JSON;
+  public resourcePvcVolumeName: string;
+  public resourcePvcStorageClassName: string;
+  public resourcePvcVolumeMode: string;
+  public resourceEndpoint: JSON;
+  public resourceConfigmapData: JSON;
+  public resourceIngressClass: string;
+  public resourceIngressRules: string;
+  public resourcePvStorage: string;
+  public resourcePvClaimRef: string;
+  public resourcePvStorageClassName: string;
+  public resourcePvVolumeMode: string;
+  public resourceScProvisioner: string;
+  public resourceScReclaimPolicy: string;
+  public resourceScAllowVolumeExpansion: Boolean;
+  public resourceScVolumeBindingMode: string;
+  public resourceMatchLabels: JSON;
+  public resourceLabels: JSON;
+  public resourceAnnotations: JSON;
+  public resourceTargetUuid: string;
+  public resourceTargetCreatedAt: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -99,9 +149,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         type: DataTypes.STRING(500),
       },
       resourceInstance: {
-        allowNull: false,
         type: DataTypes.STRING(100),
-        unique: true,
       },
       resourceType: {
         allowNull: false,
@@ -181,11 +229,12 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       customerAccountKey: {
         allowNull: false,
         type: DataTypes.INTEGER,
+        unique: 'unique_index',
       },
-
       resourceGroupKey: {
         allowNull: false,
         type: DataTypes.INTEGER,
+        unique: 'unique_index',
       },
       parentResourceId: {
         type: DataTypes.STRING(16),
@@ -193,8 +242,93 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       resourceNamespace: {
         type: DataTypes.STRING(100),
       },
+      resourceTargetUuid: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+        unique: 'unique_index',
+      },
+      resourceTargetCreatedAt: {
+        allowNull: false,
+        type: DataTypes.DATE,
+      },
+      resourcePodPhase: {
+        type: DataTypes.STRING(100),
+      },
+      resourcePodContainer: {
+        type: DataTypes.JSON,
+      },
+      resourceReplicas: {
+        type: DataTypes.INTEGER,
+      },
+      resourceStsVolumeClaimTemplates: {
+        type: DataTypes.JSON,
+      },
+      resourcePvcStorage: {
+        type: DataTypes.JSON,
+      },
+      resourcePvcVolumeName: {
+        type: DataTypes.STRING(100),
+      },
+      resourcePvcStorageClassName: {
+        type: DataTypes.STRING(100),
+      },
+      resourcePvcVolumeMode: {
+        type: DataTypes.STRING(100),
+      },
+      resourceEndpoint: {
+        type: DataTypes.JSON,
+      },
+      resourceConfigmapData: {
+        type: DataTypes.JSON,
+      },
+      resourceIngressClass: {
+        type: DataTypes.STRING(100),
+      },
+      resourceIngressRules: {
+        type: DataTypes.JSON,
+      },
+      resourcePvStorage: {
+        type: DataTypes.STRING(100),
+      },
+      resourcePvClaimRef: {
+        type: DataTypes.JSON,
+      },
+      resourcePvStorageClassName: {
+        type: DataTypes.STRING(100),
+      },
+      resourcePvVolumeMode: {
+        type: DataTypes.STRING(100),
+      },
+      resourceScProvisioner: {
+        type: DataTypes.STRING(100),
+      },
+      resourceScReclaimPolicy: {
+        type: DataTypes.STRING(100),
+      },
+      resourceScAllowVolumeExpansion: {
+        type: DataTypes.BOOLEAN,
+      },
+      resourceScVolumeBindingMode: {
+        type: DataTypes.STRING(100),
+      },
+      resourceMatchLabels: {
+        type: DataTypes.JSON,
+      },
+      resourceLabels: {
+        type: DataTypes.JSON,
+      },
+      resourceAnnotations: {
+        type: DataTypes.JSON,
+      },
     },
     {
+      indexes: [
+        {
+          name: 'unique_index',
+          unique: true,
+          fields: ['resourceTargetUuid', 'customerAccountKey', 'resourceGroupKey'],
+        },
+      ],
       tableName: 'Resource',
       modelName: 'Resource',
       sequelize,
