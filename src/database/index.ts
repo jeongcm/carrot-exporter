@@ -22,7 +22,6 @@ import IncidentModel from '@/modules/Incident/models/incident.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
 import IncidentActionAttachmentModel from '@/modules/Incident/models/incidentActionAttachment.model';
 import IncidentAlertReceivedModel from '@/modules/Incident/models/incidentAlertReceived.model';
-import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
 import CommonCodeModel from '@/modules/CommonCode/models/commonCode.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
@@ -45,6 +44,8 @@ import InitialRecordService from './initialRecord';
 import SubscriptionModel from '@/modules/Subscriptions/models/subscriptions.model';
 import SubscribedProductModel from '@/modules/Subscriptions/models/subscribedProduct.model';
 import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
+import invitationModel from '@/modules/Party/models/invitation.model';
+
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -95,7 +96,6 @@ const DB = {
   IncidentAction: IncidentActionModel(sequelize),
   IncidentActionAttachment: IncidentActionAttachmentModel(sequelize),
   IncidentAlertReceived: IncidentAlertReceivedModel(sequelize),
-  Invitations: InvitationModel(sequelize),
   Tokens: TokenModel(sequelize),
   CatalogPlan: CatalogPlanModel(sequelize),
   CatalogPlanProduct: CatalogPlanProductModel(sequelize),
@@ -120,6 +120,7 @@ const DB = {
   PartyResource: PartyResourceModel(sequelize),
   AlertReceived: AlertReceivedModel(sequelize),
   AlertRule: AlertRuleModel(sequelize),
+  Invitation: invitationModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -229,6 +230,13 @@ DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyPare
 DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
 
 
+DB.CustomerAccount.hasOne(DB.Invitation,{foreignKey:'customerAccountKey'});
+DB.Invitation.belongsTo(DB.CustomerAccount,{foreignKey:'customerAccountKey'});
+
+DB.Messages.hasOne(DB.Invitation,{foreignKey:'messageKey'});
+DB.Invitation.belongsTo(DB.Messages,{foreignKey:'messageKey'});
+
+
 DB.Party.hasMany(DB.PartyChannel,{foreignKey: 'partyKey'})
 DB.PartyChannel.belongsTo(DB.Party,{foreignKey: 'partyKey'})
 
@@ -263,6 +271,7 @@ DB.Party.hasMany(DB.PartyResource, { foreignKey: 'partyKey' });
 DB.Resource.hasMany(DB.PartyResource, { foreignKey: 'resourceKey' });
 DB.PartyResource.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 DB.PartyResource.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
+
 
 
 //-----------------------------BE-CAREFULL------------------------------------

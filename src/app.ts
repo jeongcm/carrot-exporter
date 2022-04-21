@@ -29,7 +29,6 @@ class App {
     this.env = config.nodeEnv;
 
     // this.connectToDatabase();
-
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
