@@ -39,7 +39,7 @@ class InvitationService {
       const mailgunAuth = { auth };
       const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
       const template = handlebars.compile(emailTemplateSource);
-      const { email, subject, from, newUser, invitationMessage } = req.body;
+      const { email, subject, from, invitationMessage } = req.body;
       let token = req.cookies['X-AUTHORIZATION'] || req.header('x-authorization').split('Bearer ')[1];
       const host = req.get('host');
       let acceptLink, rejectLink, htmlToSend;
@@ -76,7 +76,7 @@ class InvitationService {
   ): Promise<IInvitation> {
     if (isEmpty(invitationData)) throw new HttpException(400, 'Invitation Data cannot be blank');
 
-    // get Message key form message table based on messageId
+    
     const messageData: IMessage = await this.messageServices.findMessage(invitationData.messageId);
     const messageKey: number = messageData.messageKey;
     const messageVerbiage: string = messageData.messageVerbiage;
@@ -88,8 +88,8 @@ class InvitationService {
       const currentDate = new Date();
       const newInvitation = {
         invitationId: tempInvitationId,
-        customerAccountKey: customerAccountKey,
-        messageKey: messageKey,
+        customerAccountKey,
+        messageKey,
         createdBy: partyId,
         updatedBy: null,
         createdAt: currentDate,
@@ -97,12 +97,12 @@ class InvitationService {
         isActive: true,
         isAccepted: false,
         isRejected: false,
-        token: token,
+        token,
         ...invitationData,
       };
       const createInvitation: IInvitation = await this.invitations.create(newInvitation);
 
-      // decorate mail Request here 
+      
       req.body['from'] = config.email.invitation.from;
       req.body['email'] = req.body.invitedTo;
       req.body['invitationMessage'] = messageVerbiage + '\n' + invitationData.customMsg;

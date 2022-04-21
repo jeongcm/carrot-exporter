@@ -17,17 +17,17 @@ class InvitationController {
 
   public createInvitation = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const invitationData: InvitationDto = req.body;
-      const customerAccountKey = req.customerAccountKey;
-      const {
-        user: { partyId },
-      } = req;
+      const{
+        user: { partyId, partyKey }, customerAccountKey, body
+      } = req
+      const invitationData: InvitationDto = body;
+
       const invitationDetail: IInvitation = await this.invitationService.getInvitationByEmail(invitationData.invitedTo);
       if (invitationDetail !== null && invitationDetail.isAccepted) {
         return res.status(200).json({ data: 'ok', message: 'PartyUser already invited' });
       }
-      const invitedByPartyKey: number = req.user.partyKey;
-      // get email from partyUser table based on partyKey column
+      const invitedByPartyKey: number = partyKey;
+      
       const email: string = await this.partyService.getEmailFromPartyUser(invitedByPartyKey);
       if (!email) {
         return res.status(200).json({ data: 'ok', message: 'Party user Not Exists' });
@@ -92,7 +92,7 @@ class InvitationController {
         };
         const partyId = req.params.partyId
         await this.invitationService.updateInvitation(invitationData.invitationId, rejectInvitation, partyId );
-        return res.status(200).json({ message: 'REJECT_IS_REJECTED_SUCCESSFULLY' });
+        return res.status(200).json({ message: 'REQUEST_IS_REJECTED_SUCCESSFULLY' });
       }
     } catch (error) {
       return res.status(400).json({ message: 'Error while rejecting invitation', error });

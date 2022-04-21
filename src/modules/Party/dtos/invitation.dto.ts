@@ -1,12 +1,9 @@
-
   
 import { IsString, IsOptional, IsNotEmpty, IsNumber } from 'class-validator';
-import { isString } from 'lodash';
-
 export class InvitationDto {
   @IsNumber()
   @IsNotEmpty()
-  public messageId: number;
+  public messageId: string;
 
   @IsString()
   @IsNotEmpty()
