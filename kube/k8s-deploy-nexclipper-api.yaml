@@ -8,7 +8,7 @@ data:
   NC_LARI_PORT: "5001"
   NC_LARI_ENV: development
   NC_LARI_DB_CONFIG_PORT: "3306"
-  NC_LARI_DB_CONFIG_HOST: "mysql-primary.mysql.svc.cluster.local"
+  NC_LARI_DB_CONFIG_HOST: "ncdb-mariadb-primary.mariadb.svc.cluster.local"
   NC_LARI_DB_CONFIG_USER: "root"
   NC_LARI_DB_CONFIG_DB_NAME: nc_api
   NC_LARI_DB_CONFIG_POOL_MIN: "1"
@@ -56,6 +56,12 @@ spec:
       containers:
       - name: ${APP_IMAGE_NAME}
         image: ${IMG_TAG_TO_DEPLOY}
+        resources: {}
+        livenessProbe:
+          tcpSocket:
+            port: 5001
+          initialDelaySeconds: 15
+          timeoutSeconds: 15
         envFrom:
           - configMapRef:
               name: ${APP_IMAGE_NAME}-configmap
@@ -63,8 +69,8 @@ spec:
           - name: NC_LARI_DB_CONFIG_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: mysql
-                key: mysql-root-password
+                name: ncdb-mariadb
+                key: mariadb-root-password
         ports:
         - containerPort: 5001
 ---
