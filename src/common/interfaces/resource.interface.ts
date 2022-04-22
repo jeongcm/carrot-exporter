@@ -8,7 +8,7 @@ export interface IResource {
   updatedAt: Date;
   deletedAt: Date;
   resourceTargetUuid: string;
-  resourceTargetCreatedAt: string;
+  resourceTargetCreatedAt: Date;
   resourceName: string;
   resourceDescription: string;
   resourceLabels: JSON;

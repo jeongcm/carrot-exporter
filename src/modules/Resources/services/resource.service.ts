@@ -37,7 +37,9 @@ class ResourceService {
         customerAccountKey,
         resourceStatusUpdatedAt: new Date(),
         resourceGroupKey: currentResourceGroup.resourceGroupKey,
+        resourceTargetCreatedAt: new Date(),
         ...resourceData,
+
       });
       return createResource;
     } catch (error) {

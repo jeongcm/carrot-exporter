@@ -7,6 +7,10 @@ export class ResourceDto {
 
   @IsString()
   @IsNotEmpty()
+  public resourceTargetUuid: string;
+
+  @IsString()
+  @IsNotEmpty()
   public resourceName: string;
 
   @IsString()
