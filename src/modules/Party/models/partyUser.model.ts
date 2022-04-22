@@ -22,6 +22,7 @@ export type PartyUserCreationAttributes = Optional<
   | 'emailValidatedAt'
   | 'token'
   | 'lastAccessAt'
+  | 'partyUserStatus'
 >;
 
 export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttributes> implements IPartyUser {
@@ -39,6 +40,7 @@ export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttribute
   public mobile: string;
   public password: string;
   public email: string;
+  public partyUserStatus: "DRAFT" | "ACTIVE" | "INACTIVE";
   public isEmailValidated: boolean;
   public emailValidatedAt: Date;
   public token: string;
@@ -100,11 +102,22 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       },
       password: {
         type: DataTypes.STRING(255),
-        allowNull: false,
+        allowNull: true,
       },
       email: {
         type: DataTypes.STRING(50),
         allowNull: false,
+      },
+      partyUserStatus: {
+        type: DataTypes.STRING(10),
+        allowNull: true,
+        defaultValue: "ACTIVE",
+        validate: {
+          isIn: {
+              args: [['DRAFT' , 'ACTIVE' , 'INACTIVE']],
+              msg: " subscriptionStatus must be of type  ['DRAFT' | 'ACTIVE' | 'INACTIVE']"
+          }
+      }
       },
       isEmailValidated: {
         type: DataTypes.BOOLEAN,

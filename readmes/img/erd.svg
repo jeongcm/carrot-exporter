@@ -1346,47 +1346,49 @@
 <!-- PartyUser -->
 <g id="node33" class="node">
 <title>PartyUser</title>
-<polygon fill="#add8e6" stroke="transparent" points="0,-2609.0746 0,-2631.0746 132,-2631.0746 132,-2609.0746 0,-2609.0746"/>
-<polygon fill="none" stroke="#000000" points="0,-2609.0746 0,-2631.0746 132,-2631.0746 132,-2609.0746 0,-2609.0746"/>
-<text text-anchor="start" x="46.009" y="-2618.0746" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">PartyUser</text>
-<polygon fill="none" stroke="#000000" points="0,-2587.0746 0,-2609.0746 132,-2609.0746 132,-2587.0746 0,-2587.0746"/>
-<text text-anchor="start" x="5" y="-2596.0746" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">partyUserKey</text>
-<text text-anchor="start" x="61.081" y="-2596.0746" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="0,-2565.0746 0,-2587.0746 132,-2587.0746 132,-2565.0746 0,-2565.0746"/>
-<text text-anchor="start" x="5" y="-2573.0746" font-family="Times,serif" font-size="10.00" fill="#000000">partyUserId: STRING</text>
-<polygon fill="none" stroke="#000000" points="0,-2543.0746 0,-2565.0746 132,-2565.0746 132,-2543.0746 0,-2543.0746"/>
-<text text-anchor="start" x="5" y="-2552.0746" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">partyKey</text>
-<text text-anchor="start" x="42.205" y="-2552.0746" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="0,-2521.0746 0,-2543.0746 132,-2543.0746 132,-2521.0746 0,-2521.0746"/>
-<text text-anchor="start" x="5" y="-2529.0746" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="0,-2499.0746 0,-2521.0746 132,-2521.0746 132,-2499.0746 0,-2499.0746"/>
-<text text-anchor="start" x="5" y="-2507.0746" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="0,-2477.0746 0,-2499.0746 132,-2499.0746 132,-2477.0746 0,-2477.0746"/>
-<text text-anchor="start" x="5" y="-2485.0746" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="0,-2455.0746 0,-2477.0746 132,-2477.0746 132,-2455.0746 0,-2455.0746"/>
-<text text-anchor="start" x="5" y="-2463.0746" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="0,-2433.0746 0,-2455.0746 132,-2455.0746 132,-2433.0746 0,-2433.0746"/>
-<text text-anchor="start" x="5" y="-2441.0746" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="0,-2411.0746 0,-2433.0746 132,-2433.0746 132,-2411.0746 0,-2411.0746"/>
-<text text-anchor="start" x="5" y="-2419.0746" font-family="Times,serif" font-size="10.00" fill="#000000">firstName: STRING</text>
-<polygon fill="none" stroke="#000000" points="0,-2389.0746 0,-2411.0746 132,-2411.0746 132,-2389.0746 0,-2389.0746"/>
-<text text-anchor="start" x="5" y="-2397.0746" font-family="Times,serif" font-size="10.00" fill="#000000">lastName: STRING</text>
-<polygon fill="none" stroke="#000000" points="0,-2367.0746 0,-2389.0746 132,-2389.0746 132,-2367.0746 0,-2367.0746"/>
-<text text-anchor="start" x="5" y="-2375.0746" font-family="Times,serif" font-size="10.00" fill="#000000">userId: STRING</text>
-<polygon fill="none" stroke="#000000" points="0,-2345.0746 0,-2367.0746 132,-2367.0746 132,-2345.0746 0,-2345.0746"/>
-<text text-anchor="start" x="5" y="-2353.0746" font-family="Times,serif" font-size="10.00" fill="#000000">mobile: STRING</text>
-<polygon fill="none" stroke="#000000" points="0,-2323.0746 0,-2345.0746 132,-2345.0746 132,-2323.0746 0,-2323.0746"/>
-<text text-anchor="start" x="5" y="-2331.0746" font-family="Times,serif" font-size="10.00" fill="#000000">password: STRING</text>
-<polygon fill="none" stroke="#000000" points="0,-2301.0746 0,-2323.0746 132,-2323.0746 132,-2301.0746 0,-2301.0746"/>
-<text text-anchor="start" x="5" y="-2309.0746" font-family="Times,serif" font-size="10.00" fill="#000000">email: STRING</text>
-<polygon fill="none" stroke="#000000" points="0,-2279.0746 0,-2301.0746 132,-2301.0746 132,-2279.0746 0,-2279.0746"/>
-<text text-anchor="start" x="4.766" y="-2287.0746" font-family="Times,serif" font-size="10.00" fill="#000000">isEmailValidated: BOOLEAN</text>
-<polygon fill="none" stroke="#000000" points="0,-2257.0746 0,-2279.0746 132,-2279.0746 132,-2257.0746 0,-2257.0746"/>
-<text text-anchor="start" x="5" y="-2265.0746" font-family="Times,serif" font-size="10.00" fill="#000000">emailValidatedAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="0,-2235.0746 0,-2257.0746 132,-2257.0746 132,-2235.0746 0,-2235.0746"/>
-<text text-anchor="start" x="5" y="-2243.0746" font-family="Times,serif" font-size="10.00" fill="#000000">token: STRING</text>
-<polygon fill="none" stroke="#000000" points="0,-2213.0746 0,-2235.0746 132,-2235.0746 132,-2213.0746 0,-2213.0746"/>
-<text text-anchor="start" x="5" y="-2221.0746" font-family="Times,serif" font-size="10.00" fill="#000000">lastAccessAt: DATE</text>
+<polygon fill="#add8e6" stroke="transparent" points="0,-2620.0746 0,-2642.0746 132,-2642.0746 132,-2620.0746 0,-2620.0746"/>
+<polygon fill="none" stroke="#000000" points="0,-2620.0746 0,-2642.0746 132,-2642.0746 132,-2620.0746 0,-2620.0746"/>
+<text text-anchor="start" x="46.009" y="-2629.0746" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">PartyUser</text>
+<polygon fill="none" stroke="#000000" points="0,-2598.0746 0,-2620.0746 132,-2620.0746 132,-2598.0746 0,-2598.0746"/>
+<text text-anchor="start" x="5" y="-2607.0746" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">partyUserKey</text>
+<text text-anchor="start" x="61.081" y="-2607.0746" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="0,-2576.0746 0,-2598.0746 132,-2598.0746 132,-2576.0746 0,-2576.0746"/>
+<text text-anchor="start" x="5" y="-2584.0746" font-family="Times,serif" font-size="10.00" fill="#000000">partyUserId: STRING</text>
+<polygon fill="none" stroke="#000000" points="0,-2554.0746 0,-2576.0746 132,-2576.0746 132,-2554.0746 0,-2554.0746"/>
+<text text-anchor="start" x="5" y="-2563.0746" font-family="Times,serif" font-style="italic" text-decoration="underline" font-size="10.00" fill="#000000">partyKey</text>
+<text text-anchor="start" x="42.205" y="-2563.0746" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="0,-2532.0746 0,-2554.0746 132,-2554.0746 132,-2532.0746 0,-2532.0746"/>
+<text text-anchor="start" x="5" y="-2540.0746" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="0,-2510.0746 0,-2532.0746 132,-2532.0746 132,-2510.0746 0,-2510.0746"/>
+<text text-anchor="start" x="5" y="-2518.0746" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="0,-2488.0746 0,-2510.0746 132,-2510.0746 132,-2488.0746 0,-2488.0746"/>
+<text text-anchor="start" x="5" y="-2496.0746" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="0,-2466.0746 0,-2488.0746 132,-2488.0746 132,-2466.0746 0,-2466.0746"/>
+<text text-anchor="start" x="5" y="-2474.0746" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="0,-2444.0746 0,-2466.0746 132,-2466.0746 132,-2444.0746 0,-2444.0746"/>
+<text text-anchor="start" x="5" y="-2452.0746" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="0,-2422.0746 0,-2444.0746 132,-2444.0746 132,-2422.0746 0,-2422.0746"/>
+<text text-anchor="start" x="5" y="-2430.0746" font-family="Times,serif" font-size="10.00" fill="#000000">firstName: STRING</text>
+<polygon fill="none" stroke="#000000" points="0,-2400.0746 0,-2422.0746 132,-2422.0746 132,-2400.0746 0,-2400.0746"/>
+<text text-anchor="start" x="5" y="-2408.0746" font-family="Times,serif" font-size="10.00" fill="#000000">lastName: STRING</text>
+<polygon fill="none" stroke="#000000" points="0,-2378.0746 0,-2400.0746 132,-2400.0746 132,-2378.0746 0,-2378.0746"/>
+<text text-anchor="start" x="5" y="-2386.0746" font-family="Times,serif" font-size="10.00" fill="#000000">userId: STRING</text>
+<polygon fill="none" stroke="#000000" points="0,-2356.0746 0,-2378.0746 132,-2378.0746 132,-2356.0746 0,-2356.0746"/>
+<text text-anchor="start" x="5" y="-2364.0746" font-family="Times,serif" font-size="10.00" fill="#000000">mobile: STRING</text>
+<polygon fill="none" stroke="#000000" points="0,-2334.0746 0,-2356.0746 132,-2356.0746 132,-2334.0746 0,-2334.0746"/>
+<text text-anchor="start" x="5" y="-2342.0746" font-family="Times,serif" font-size="10.00" fill="#000000">password: STRING</text>
+<polygon fill="none" stroke="#000000" points="0,-2312.0746 0,-2334.0746 132,-2334.0746 132,-2312.0746 0,-2312.0746"/>
+<text text-anchor="start" x="5" y="-2320.0746" font-family="Times,serif" font-size="10.00" fill="#000000">email: STRING</text>
+<polygon fill="none" stroke="#000000" points="0,-2290.0746 0,-2312.0746 132,-2312.0746 132,-2290.0746 0,-2290.0746"/>
+<text text-anchor="start" x="5" y="-2298.0746" font-family="Times,serif" font-size="10.00" fill="#000000">partyUserStatus: STRING</text>
+<polygon fill="none" stroke="#000000" points="0,-2268.0746 0,-2290.0746 132,-2290.0746 132,-2268.0746 0,-2268.0746"/>
+<text text-anchor="start" x="4.766" y="-2276.0746" font-family="Times,serif" font-size="10.00" fill="#000000">isEmailValidated: BOOLEAN</text>
+<polygon fill="none" stroke="#000000" points="0,-2246.0746 0,-2268.0746 132,-2268.0746 132,-2246.0746 0,-2246.0746"/>
+<text text-anchor="start" x="5" y="-2254.0746" font-family="Times,serif" font-size="10.00" fill="#000000">emailValidatedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="0,-2224.0746 0,-2246.0746 132,-2246.0746 132,-2224.0746 0,-2224.0746"/>
+<text text-anchor="start" x="5" y="-2232.0746" font-family="Times,serif" font-size="10.00" fill="#000000">token: STRING</text>
+<polygon fill="none" stroke="#000000" points="0,-2202.0746 0,-2224.0746 132,-2224.0746 132,-2202.0746 0,-2202.0746"/>
+<text text-anchor="start" x="5" y="-2210.0746" font-family="Times,serif" font-size="10.00" fill="#000000">lastAccessAt: DATE</text>
 </g>
 <!-- PartyUser&#45;&gt;Party -->
 <g id="edge25" class="edge">

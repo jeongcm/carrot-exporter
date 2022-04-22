@@ -44,7 +44,9 @@ class CustomerAccountService {
       });
 
       return createdCustomerAccount;
-    } catch (error) {}
+    } catch (error) {
+      console.log("error", error)
+    }
   }
 
   public async getCustomerAccounts(): Promise<ICustomerAccount[]> {

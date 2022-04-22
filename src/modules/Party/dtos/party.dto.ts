@@ -30,7 +30,7 @@ export class CreateUserDto {
   public mobile: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public password: string;
 
   @IsEmail()
@@ -40,6 +40,10 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   public customerAccountId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public partyUserStatus: string;
 }
 
 export class UpdateUserDto {
@@ -75,6 +79,10 @@ export class UpdateUserDto {
   @IsEmail()
   @IsNotEmpty()
   public email: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public partyUserStatus: string;
 }
 
 export class CreateAccessGroupDto {
