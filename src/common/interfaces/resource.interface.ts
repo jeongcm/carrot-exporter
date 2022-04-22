@@ -50,3 +50,8 @@ export interface IResource {
   parentResourceId: string;
   resourceNamespace: string;
 }
+
+
+export interface IResourceTargetUuid {
+  resourceTargetUuid: string;
+}

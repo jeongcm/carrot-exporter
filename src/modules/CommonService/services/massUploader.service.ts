@@ -4,14 +4,17 @@ import { IParty } from '@/common/interfaces/party.interface';
 import { IResponseMassUploader, IRequestMassUploader } from '@/common/interfaces/massUploader.interface';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { arrayBuffer } from 'stream/consumers';
+import resourceService from '@/modules/Resources/services/resource.service';
 import resourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 
 class massUploaderService {
   public tableIdService = new tableIdService();
   public resourceGroupService = new resourceGroupService(); 
+  public resourceService = new resourceService(); 
 
   public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<IResponseMassUploader> {
     const targetTable = 'Resource';
@@ -19,11 +22,52 @@ class massUploaderService {
     var affectedRows = 0;
     var insertId = 0;
     var info = '';
+    const sizeOfInput = resourceMassFeed.resource.length;
 
-    // mass upload 1 
+    // process bulk id for Resource table
+    const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk(targetTable, sizeOfInput);
+    const resource_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
+    var resource_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
+    var resource_id_postfix = '';
+    const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
+
+    // search for customerAccount & resourceGroup key
+
+    const resourceGroupUuid = resourceMassFeed.resource_Group_Uuid;
+    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid); 
+    const customerAccountKey = responseResourceGroup.customerAccountKey;
+    const resourceGroupKey = responseResourceGroup.resourceGroupKey;
+    const resourceType = resourceMassFeed.resource_Type; 
+
+    // mass upload #1
+    // update resource deactivated if there is no matched resoure in NC database. 
+    
+    const currentResourceFiltered: IResourceTargetUuid[] = await this.resourceService.getResourceForMass(resourceType, resourceGroupKey, customerAccountKey); 
+    const sizeOfCurrentResource =  currentResourceFiltered.length;
+    //console.log (sizeOfCurrentResource); 
+
+    var currentResource = new Array();
+    for (let i = 0; i < sizeOfCurrentResource; i++) {
+        currentResource[i] =  currentResourceFiltered[i].resourceTargetUuid;
+    } 
+
+    var newResourceReceived = new Array();
+    for (let i = 0; i < sizeOfInput; i++) {
+        newResourceReceived [i]=  resourceMassFeed.resource[i].resource_Target_Uuid;
+    } 
+
+    // filter only for the resource that is needed to be deleted. 
+    const difference = currentResource.filter(o1 => !newResourceReceived.includes(o1));
+
+    //console.log(currentResource); 
+    //console.log(newResourceReceived); 
+    //console.log(difference); 
+
+
+    // mass upload #2
     // query below will cover "insert" of new resources or "update" of existing resources. 
 
-    const sizeOfInput = resourceMassFeed.resource.length;
+
     const query1 = `INSERT INTO Resource (resource_id, created_by, created_at, resource_target_uuid, resource_target_created_at, 
                       resource_name, resource_type, resource_labels, resource_annotations, resource_description, resource_status,
                       resource_level1, resource_level2, resource_level3, resource_level4, resource_level_type, resource_instance,
@@ -80,20 +124,7 @@ class massUploaderService {
 
     var query2 = new Array();
 
-    // process bulk id for Resource table
-    const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk(targetTable, sizeOfInput);
-    const resource_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
-    var resource_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
-    var resource_id_postfix = '';
-    const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
 
-    // search for customerAccount & resourceGroup key
-
-    const resourceGroupUuid = resourceMassFeed.resource_Group_Uuid;
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid); 
-    const customerAccountKey = responseResourceGroup.customerAccountKey;
-    const resourceGroupKey = responseResourceGroup.resourceGroupKey;
-    console.log('Key*****************: ', responseResourceGroup.resourceGroupKey); 
 
     console.log('**********************************');
     console.log(' db connect for raw SQL execution');
@@ -106,6 +137,7 @@ class massUploaderService {
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
       database: config.db.mariadb.dbName,
+      multipleStatements: true,
       //          minimumpoolsize: config.db.mariadb.poolMin,
       //          maximumpoolsize: config.db.mariadb.poolMin,
     });
@@ -179,9 +211,35 @@ class massUploaderService {
     }
 
     mysqlConnection.connect(err => {
-      if (err) throw err;
-      console.log('DB connected for raw SQL run');
-    });
+        if (err) throw err;
+        console.log('DB connected for raw SQL run');
+      });
+
+    //create sql to delete the retired resources   
+    if (difference.length > 0) {
+      
+        let query_delete = ""; 
+        query_delete += "UPDATE Resource SET deleted_at = NOW(), updated_at = NOW(), updated_by = 'SYSTEM'  WHERE resource_target_uuid IN (";
+        difference.forEach (element => { 
+            query_delete += "'" + element + "'" + ")";
+            console.log(element);
+        });
+        console.log(query_delete);
+        mysqlConnection.query(query_delete, function (sqlError, sqlResult) {
+            if (sqlError) {
+              mysqlConnection.rollback();
+              //console.log(sqlError);
+            } else {
+              mysqlConnection.commit();
+              fieldCount = sqlResult.fieldCount;
+              affectedRows = sqlResult.affectedRows;
+              insertId = sqlResult.insertId;
+              info = sqlResult.info;
+              console.log(sqlResult);
+            }
+          });
+        //mysqlConnection.end();  
+    } 
 
     mysqlConnection.query(query1, [query2], function (sqlError, sqlResult) {
       if (sqlError) {
@@ -197,7 +255,7 @@ class massUploaderService {
       }
     });
 
-    mysqlConnection.end();
+//    mysqlConnection.end();
 
     const updateResult: IResponseMassUploader = {
       fieldCount,

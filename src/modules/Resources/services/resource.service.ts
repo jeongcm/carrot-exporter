@@ -1,5 +1,5 @@
 import DB from '@/database';
-import { IResource } from '@/common/interfaces/resource.interface';
+import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import { ResourceDto } from '../dtos/resource.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
@@ -58,9 +58,22 @@ class ResourceService {
   }
 
   /**
+   * @param  {string} resourceType
+   * @param  {number} resourceGroupKey
+   * @param  {number} customerAccountKey
+   */
+  public async getResourceForMass(resourceType: string, resourceGroupKey: number, customerAccountKey: number): Promise<IResourceTargetUuid[]> {
+    const allResource: IResourceTargetUuid[] = await this.resource.findAll({
+      where: { resourceType, resourceGroupKey, customerAccountKey, deletedAt: null },
+    });
+
+    return allResource;
+  }
+
+  /**
    * @param  {string} resourceId
    */
-  public async getResourceById(resourceId: string): Promise<IResource> {
+   public async getResourceById(resourceId: string): Promise<IResource> {
     const resource: IResource = await this.resource.findOne({
       where: { resourceId },
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
@@ -68,6 +81,7 @@ class ResourceService {
 
     return resource;
   }
+ 
 
   /**
    * @param  {string} resourceId
