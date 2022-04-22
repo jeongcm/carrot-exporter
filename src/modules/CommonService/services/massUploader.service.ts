@@ -58,15 +58,13 @@ class massUploaderService {
 
     // filter only for the resource that is needed to be deleted. 
     const difference = currentResource.filter(o1 => !newResourceReceived.includes(o1));
-
+    const lengthOfDifference = difference.length;
     //console.log(currentResource); 
     //console.log(newResourceReceived); 
     //console.log(difference); 
 
-
     // mass upload #2
     // query below will cover "insert" of new resources or "update" of existing resources. 
-
 
     const query1 = `INSERT INTO Resource (resource_id, created_by, created_at, resource_target_uuid, resource_target_created_at, 
                       resource_name, resource_type, resource_labels, resource_annotations, resource_description, resource_status,
@@ -123,7 +121,6 @@ class massUploaderService {
                       `;
 
     var query2 = new Array();
-
 
 
     console.log('**********************************');
@@ -212,50 +209,61 @@ class massUploaderService {
 
     mysqlConnection.connect(err => {
         if (err) throw err;
-        console.log('DB connected for raw SQL run');
+            console.log('DB connected for raw SQL run');
+            return;
       });
 
-    //create sql to delete the retired resources   
-    if (difference.length > 0) {
-      
-        let query_delete = ""; 
-        query_delete += "UPDATE Resource SET deleted_at = NOW(), updated_at = NOW(), updated_by = 'SYSTEM'  WHERE resource_target_uuid IN (";
-        difference.forEach (element => { 
-            query_delete += "'" + element + "'" + ")";
-            console.log(element);
+    mysqlConnection.beginTransaction (function(err) {
+        if (err) { throw err; }  
+        //create sql to delete the retired resources if exist.   
+        if (lengthOfDifference > 0) {
+            var query_delete = ""; 
+            query_delete += "UPDATE Resource SET deleted_at = NOW(), updated_at = NOW(), updated_by = 'SYSTEM'  WHERE resource_target_uuid IN (";
+            for (let i = 0; i < lengthOfDifference; i++) {
+                if (lengthOfDifference == 1) {
+                    query_delete += "'" + difference[i] + "')"; 
+                }
+                else if (i==(lengthOfDifference-1)) {
+                    query_delete += "'" + difference[i] + "')"; 
+                }
+                else {
+                    query_delete += "'" + difference[i] + "',";
+                }
+            }    
+            console.log(query_delete);
+            // run update query to process delete resource data softly
+            mysqlConnection.query(query_delete, function (sqlError, sqlResult) {
+                if (sqlError) {
+                    mysqlConnection.rollback();
+                    console.log(sqlError);
+                    throw err;
+                } else {
+                    //mysqlConnection.commit();
+                    fieldCount = sqlResult.fieldCount;
+                    affectedRows = sqlResult.affectedRows;
+                    insertId = sqlResult.insertId;
+                    info = sqlResult.info;
+                    console.log(sqlResult);
+                }
+            });
+        } 
+        // run insert/status update query
+        mysqlConnection.query(query1, [query2], function (sqlError, sqlResult) {
+        if (sqlError) {
+            mysqlConnection.rollback();
+            console.log(sqlError);
+            throw err;
+        } else {
+            fieldCount = sqlResult.fieldCount;
+            affectedRows = sqlResult.affectedRows;
+            insertId = sqlResult.insertId;
+            info = sqlResult.info;
+            console.log(sqlResult);
+        }
         });
-        console.log(query_delete);
-        mysqlConnection.query(query_delete, function (sqlError, sqlResult) {
-            if (sqlError) {
-              mysqlConnection.rollback();
-              //console.log(sqlError);
-            } else {
-              mysqlConnection.commit();
-              fieldCount = sqlResult.fieldCount;
-              affectedRows = sqlResult.affectedRows;
-              insertId = sqlResult.insertId;
-              info = sqlResult.info;
-              console.log(sqlResult);
-            }
-          });
-        //mysqlConnection.end();  
-    } 
-
-    mysqlConnection.query(query1, [query2], function (sqlError, sqlResult) {
-      if (sqlError) {
-        mysqlConnection.rollback();
-        console.log(sqlError);
-      } else {
         mysqlConnection.commit();
-        fieldCount = sqlResult.fieldCount;
-        affectedRows = sqlResult.affectedRows;
-        insertId = sqlResult.insertId;
-        info = sqlResult.info;
-        console.log(sqlResult);
-      }
-    });
-
-//    mysqlConnection.end();
+        mysqlConnection.end();
+    }); //end of begin transaction
 
     const updateResult: IResponseMassUploader = {
       fieldCount,
@@ -265,6 +273,7 @@ class massUploaderService {
       targetTable,
     };
     return updateResult;
+    
   }
 }
 
