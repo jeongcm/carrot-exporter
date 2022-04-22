@@ -63,6 +63,21 @@ class ResourceGroupService {
     return resourceGroup;
   }
 
+    /**
+   * @param  {string} resourceGroupUuid
+   * @returns Promise
+   */
+     public async getResourceGroupByUuid(resourceGroupUuid: string): Promise<IResourceGroup> {
+      const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+        where: { resourceGroupUuid },
+        //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
+      });
+  
+      return resourceGroup;
+    }
+  
+
+
   
   /**
    * @param  {string} resourceGroupId

@@ -90,6 +90,25 @@ class ResourceGroupController {
     }
   };
 
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+   public getResourceGroupByUuid = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceGroupUuid = req.params.resourceGroupUuid;
+
+    try {
+      const resourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
+      res.status(200).json({ data: resourceGroup, message: `find resourceGroup id(${resourceGroupUuid}) ` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res

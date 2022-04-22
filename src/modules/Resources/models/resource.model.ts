@@ -65,12 +65,12 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceName: string;
   public resourceDescription: string;
   public resourceInstance: string;
-  public resourceType: 'K8' | 'ND' | 'PD' | 'NS' | 'SV' | 'OP' | 'PD' | 'PM' | 'PJ' | 'VM' | 'CT';
+  public resourceType: 'K8' | 'ND' | 'PD' | 'NS' | 'SV' | 'OP' | 'PD' | 'PM' | 'PJ' | 'VM' | 'CT' | 'DP' | 'SS' | 'DS' | 'RS' | 'PV' | 'PC' | 'SE' | 'EP' | 'CM' | 'IG' | 'SC' | 'JO' | 'CJ'  ;
   public resourceLevel1: 'K8' | 'OP';
-  public resourceLevel2: 'ND' | 'NS' | 'PJ';
-  public resourceLevel3: 'PD' | 'SV' | 'PM';
+  public resourceLevel2: 'ND' | 'NS' | 'PJ' | 'PV' | 'SC' ;
+  public resourceLevel3: 'PD' | 'SV' | 'PM' | 'DP' | 'SS' | 'DS' | 'RS' | 'PC' | 'SE' | 'EP' | 'CM' | 'IG' | 'JO' | 'CJ' ;
   public resourceLevel4: 'CT' | 'VM';
-  public resourceLevelType: 'KN' | 'KS' | 'OP';
+  public resourceLevelType: 'KN' | 'KS' | 'OP' | 'KC';
   public resourceRbac: Boolean;
   public resourceAnomalyMonitor: Boolean;
   public resourceActive: Boolean;
@@ -142,7 +142,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       },
       resourceName: {
         allowNull: false,
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(500),
       },
       resourceDescription: {
         allowNull: false,
@@ -156,7 +156,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-            args: [['K8', 'ND', 'PD', 'NS', 'SV', 'OP', 'PD', 'PM', 'PJ', 'VM', 'CT']],
+            args: [['K8', 'ND', 'PD', 'NS', 'SV', 'OP', 'PD', 'PM', 'PJ', 'VM', 'CT', 'DP', 'SS', 'DS', 'RS', 'PV', 'PC', 'SE','EP','CM','IG','SC', 'JO', 'CJ' ]],
             msg: 'Resource Type must be of type K8, ND, PD, NS, SV, OP, PD, PM, PJ, VM or CT',
           },
         },
@@ -176,7 +176,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         allowNull: true,
         validate: {
           isIn: {
-            args: [['', 'ND', 'NS', 'PJ']],
+            args: [['', 'ND', 'NS', 'PJ', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ']],
             msg: 'Resource level2 must be of type ND, NS, PJ or empty.',
           },
         },
@@ -203,7 +203,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-            args: [['', 'KN', 'KS', 'OP']],
+            args: [['', 'KN', 'KS', 'OP', 'KC']],
             msg: 'Resource must be of type KN, KS or OP.',
           },
         },
