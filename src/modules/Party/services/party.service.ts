@@ -34,6 +34,9 @@ import {
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
 import config from 'config';
+
+import { logger } from '@/common/utils/logger';
+
 import { ResourceModel } from '@/modules/Resources/models/resource.model';
 import { PartyResourceModel } from '../models/partyResource.model';
 
@@ -48,6 +51,12 @@ class PartyService {
   public partyResource = DB.PartyResource;
 
   public tableIdService = new tableIdService();
+
+  public async findPartyByEmail(email: string): Promise<IPartyUser> {
+    if (isEmpty(email)) throw new HttpException(400, "User doen't exist");
+    const findParty: IPartyUser = await this.partyUser.findOne({ where: { email } });
+    return findParty;
+  }
 
   public async getUsers(customerAccountKey: number): Promise<IParty[]> {
     const users: any = await this.party.findAll({
@@ -346,6 +355,16 @@ class PartyService {
       },
     );
   }
+  public async getEmailFromPartyUser(invitedByPartyKey: number): Promise<string> {
+    try {
+      const findUser: IPartyUser = await this.partyUser.findOne({ where: { partyKey: invitedByPartyKey } });
+      return findUser.email;
+    } catch (error) {
+      logger.error(error);
+      return '';
+    }
+  }
+
 
   public async addResourceToAccessGroup(
     customerAccountKey: number,
