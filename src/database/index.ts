@@ -230,10 +230,10 @@ DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyPare
 DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
 
 
-DB.CustomerAccount.hasOne(DB.Invitation,{foreignKey:'customerAccountKey'});
+DB.CustomerAccount.hasMany(DB.Invitation,{foreignKey:'customerAccountKey'});
 DB.Invitation.belongsTo(DB.CustomerAccount,{foreignKey:'customerAccountKey'});
 
-DB.Messages.hasOne(DB.Invitation,{foreignKey:'messageKey'});
+DB.Messages.hasMany(DB.Invitation,{foreignKey:'messageKey'});
 DB.Invitation.belongsTo(DB.Messages,{foreignKey:'messageKey'});
 
 
