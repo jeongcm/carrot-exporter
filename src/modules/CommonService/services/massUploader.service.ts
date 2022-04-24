@@ -44,7 +44,7 @@ class massUploaderService {
     
     const currentResourceFiltered: IResourceTargetUuid[] = await this.resourceService.getResourceForMass(resourceType, resourceGroupKey, customerAccountKey); 
     const sizeOfCurrentResource =  currentResourceFiltered.length;
-    //console.log (sizeOfCurrentResource); 
+
 
     var currentResource = new Array();
     for (let i = 0; i < sizeOfCurrentResource; i++) {
@@ -59,9 +59,6 @@ class massUploaderService {
     // filter only for the resource that is needed to be deleted. 
     const difference = currentResource.filter(o1 => !newResourceReceived.includes(o1));
     const lengthOfDifference = difference.length;
-    //console.log(currentResource); 
-    //console.log(newResourceReceived); 
-    //console.log(difference); 
 
     // mass upload #2
     // query below will cover "insert" of new resources or "update" of existing resources. 
@@ -122,100 +119,102 @@ class massUploaderService {
 
     var query2 = new Array();
 
+    for (let i = 0; i < sizeOfInput; i++) {
+        let resource_Target_Created_At = new Date(resourceMassFeed.resource[i].resource_Target_Created_At);
+        resource_id_postfix_number = resource_id_postfix_number + 1;
+
+        resource_id_postfix = resource_id_postfix_number.toString();
+        while (resource_id_postfix.length < tableIdSequenceDigit) {
+            resource_id_postfix = '0' + resource_id_postfix;
+        }
+
+        let resource_id = resource_id_prefix + resource_id_postfix;
+        let resource_lables = JSON.stringify(resourceMassFeed.resource[i].resource_Labels);
+        let resource_annotations = JSON.stringify(resourceMassFeed.resource[i].resource_Annotations);
+        let resource_status = JSON.stringify(resourceMassFeed.resource[i].resource_Status);
+        let resource_pod_container = JSON.stringify(resourceMassFeed.resource[i].resource_Pod_Container);
+        let resource_sts_volume_claim_templates = JSON.stringify(resourceMassFeed.resource[i].resource_Sts_volume_Claim_Templates);
+        let resource_pvc_storage = JSON.stringify(resourceMassFeed.resource[i].resource_Pvc_Storage); 
+        let resource_endpoint = JSON.stringify(resourceMassFeed.resource[i].resource_Endpoint); 
+        let resource_configmap_data = JSON.stringify(resourceMassFeed.resource[i].resource_Configmap_Data); 
+        let resource_ingress_rules = JSON.stringify(resourceMassFeed.resource[i].resource_Ingress_Rules); 
+        let resource_pv_claim_ref = JSON.stringify(resourceMassFeed.resource[i].resource_Pv_Claim_Ref); 
+
+        query2[i] = [
+            resource_id, //resource_Id
+            'SYSTEM', // created_By
+            new Date(), //created_At
+            resourceMassFeed.resource[i].resource_Target_Uuid, //resource_Target_Uuid,
+            resource_Target_Created_At, // resource_Target_Created_At
+            resourceMassFeed.resource[i].resource_Name, // resource_Name
+            resourceMassFeed.resource[i].resource_Type, // resource_Type
+            resource_lables,
+            resource_annotations,
+            resourceMassFeed.resource[i].resource_Description || 'some description',
+            resource_status,
+            resourceMassFeed.resource[i].resource_Level1,
+            resourceMassFeed.resource[i].resource_Level2,
+            resourceMassFeed.resource[i].resource_Level3,
+            resourceMassFeed.resource[i].resource_Level4,
+            resourceMassFeed.resource[i].resource_Level_Type,
+            resourceMassFeed.resource[i].resource_Instance,
+            resourceMassFeed.resource[i].resource_Pod_Phase,
+            resource_pod_container,
+            resourceMassFeed.resource[i].resource_Replicas,
+            resource_sts_volume_claim_templates,
+            resource_pvc_storage,
+            resourceMassFeed.resource[i].resource_Pvc_Volumne_Name,
+            resourceMassFeed.resource[i].resource_Pvc_Storage_Class_Name,
+            resourceMassFeed.resource[i].resource_Pvc_Volume_Mode,
+            resource_endpoint,
+            resource_configmap_data,
+            resourceMassFeed.resource[i].resource_Ingress_Class,
+            resource_ingress_rules,
+            resourceMassFeed.resource[i].resource_Pv_Storage,
+            resource_pv_claim_ref,
+            resourceMassFeed.resource[i].resoruce_Pv_Storage_Class_Name,
+            resourceMassFeed.resource[i].resource_Pv_Volume_Mode,
+            resourceMassFeed.resource[i].resource_Sc_Provisioner, 
+            resourceMassFeed.resource[i].resource_Sc_Reclaim_Policy, 
+            resourceMassFeed.resource[i].resource_Sc_Allow_Volume_Expansion, 
+            resourceMassFeed.resource[i].resource_Sc_Volume_Binding_Mode,
+            resourceMassFeed.resource[i].resource_Rbac,
+            resourceMassFeed.resource[i].resource_Anomaly_Monitor,
+            resourceMassFeed.resource[i].resource_Active,
+            customerAccountKey, //customer_Account_Key
+            resourceGroupKey //resource_Group_Kep 17 total columns
+        ];
+        resource_Target_Created_At = null;
+    }
 
     console.log('**********************************');
     console.log(' db connect for raw SQL execution');
     console.log('**********************************');
 
     const mysql = require('mysql2');
-    const mysqlConnection = mysql.createConnection({
-      host: config.db.mariadb.host,
-      user: config.db.mariadb.user,
-      port: config.db.mariadb.port || 3306,
-      password: config.db.mariadb.password,
-      database: config.db.mariadb.dbName,
-      multipleStatements: true,
-      //          minimumpoolsize: config.db.mariadb.poolMin,
-      //          maximumpoolsize: config.db.mariadb.poolMin,
+
+    const mysqlConnection1 = mysql.createConnection({
+        host: config.db.mariadb.host,
+        user: config.db.mariadb.user,
+        port: config.db.mariadb.port || 3306,
+        password: config.db.mariadb.password,
+        database: config.db.mariadb.dbName,
+        multipleStatements: true,
+        //          minimumpoolsize: config.db.mariadb.poolMin,
+        //          maximumpoolsize: config.db.mariadb.poolMin,
     });
 
-    for (let i = 0; i < sizeOfInput; i++) {
-      let resource_Target_Created_At = new Date(resourceMassFeed.resource[i].resource_Target_Created_At);
-      resource_id_postfix_number = resource_id_postfix_number + 1;
-
-      resource_id_postfix = resource_id_postfix_number.toString();
-      while (resource_id_postfix.length < tableIdSequenceDigit) {
-        resource_id_postfix = '0' + resource_id_postfix;
-      }
-
-      let resource_id = resource_id_prefix + resource_id_postfix;
-      let resource_lables = JSON.stringify(resourceMassFeed.resource[i].resource_Labels);
-      let resource_annotations = JSON.stringify(resourceMassFeed.resource[i].resource_Annotations);
-      let resource_status = JSON.stringify(resourceMassFeed.resource[i].resource_Status);
-      let resource_pod_container = JSON.stringify(resourceMassFeed.resource[i].resource_Pod_Container);
-      let resource_sts_volume_claim_templates = JSON.stringify(resourceMassFeed.resource[i].resource_Sts_volume_Claim_Templates);
-      let resource_pvc_storage = JSON.stringify(resourceMassFeed.resource[i].resource_Pvc_Storage); 
-      let resource_endpoint = JSON.stringify(resourceMassFeed.resource[i].resource_Endpoint); 
-      let resource_configmap_data = JSON.stringify(resourceMassFeed.resource[i].resource_Configmap_Data); 
-      let resource_ingress_rules = JSON.stringify(resourceMassFeed.resource[i].resource_Ingress_Rules); 
-      let resource_pv_claim_ref = JSON.stringify(resourceMassFeed.resource[i].resource_Pv_Claim_Ref); 
-
-      query2[i] = [
-        resource_id, //resource_Id
-        'SYSTEM', // created_By
-        new Date(), //created_At
-        resourceMassFeed.resource[i].resource_Target_Uuid, //resource_Target_Uuid,
-        resource_Target_Created_At, // resource_Target_Created_At
-        resourceMassFeed.resource[i].resource_Name, // resource_Name
-        resourceMassFeed.resource[i].resource_Type, // resource_Type
-        resource_lables,
-        resource_annotations,
-        resourceMassFeed.resource[i].resource_Description || 'some description',
-        resource_status,
-        resourceMassFeed.resource[i].resource_Level1,
-        resourceMassFeed.resource[i].resource_Level2,
-        resourceMassFeed.resource[i].resource_Level3,
-        resourceMassFeed.resource[i].resource_Level4,
-        resourceMassFeed.resource[i].resource_Level_Type,
-        resourceMassFeed.resource[i].resource_Instance,
-        resourceMassFeed.resource[i].resource_Pod_Phase,
-        resource_pod_container,
-        resourceMassFeed.resource[i].resource_Replicas,
-        resource_sts_volume_claim_templates,
-        resource_pvc_storage,
-        resourceMassFeed.resource[i].resource_Pvc_Volumne_Name,
-        resourceMassFeed.resource[i].resource_Pvc_Storage_Class_Name,
-        resourceMassFeed.resource[i].resource_Pvc_Volume_Mode,
-        resource_endpoint,
-        resource_configmap_data,
-        resourceMassFeed.resource[i].resource_Ingress_Class,
-        resource_ingress_rules,
-        resourceMassFeed.resource[i].resource_Pv_Storage,
-        resource_pv_claim_ref,
-        resourceMassFeed.resource[i].resoruce_Pv_Storage_Class_Name,
-        resourceMassFeed.resource[i].resource_Pv_Volume_Mode,
-        resourceMassFeed.resource[i].resource_Sc_Provisioner, 
-        resourceMassFeed.resource[i].resource_Sc_Reclaim_Policy, 
-        resourceMassFeed.resource[i].resource_Sc_Allow_Volume_Expansion, 
-        resourceMassFeed.resource[i].resource_Sc_Volume_Binding_Mode,
-        resourceMassFeed.resource[i].resource_Rbac,
-        resourceMassFeed.resource[i].resource_Anomaly_Monitor,
-        resourceMassFeed.resource[i].resource_Active,
-        customerAccountKey, //customer_Account_Key
-        resourceGroupKey //resource_Group_Kep 17 total columns
-      ];
-      resource_Target_Created_At = null;
-    }
-
-    mysqlConnection.connect(err => {
+    mysqlConnection1.connect(err => {
         if (err) throw err;
             console.log('DB connected for raw SQL run');
             return;
       });
 
-    mysqlConnection.beginTransaction (function(err) {
+      
+    mysqlConnection1.beginTransaction (function(err) {
         if (err) { throw err; }  
-        //create sql to delete the retired resources if exist.   
+
+    //create sql to delete the retired resources if exist.   
         if (lengthOfDifference > 0) {
             var query_delete = ""; 
             query_delete += "UPDATE Resource SET deleted_at = NOW(), updated_at = NOW(), updated_by = 'SYSTEM'  WHERE resource_target_uuid IN (";
@@ -230,40 +229,45 @@ class massUploaderService {
                     query_delete += "'" + difference[i] + "',";
                 }
             }    
-            console.log(query_delete);
+
             // run update query to process delete resource data softly
-            mysqlConnection.query(query_delete, function (sqlError, sqlResult) {
+            mysqlConnection1.query(query_delete, function (sqlError, sqlResult) {
                 if (sqlError) {
-                    mysqlConnection.rollback();
-                    console.log(sqlError);
-                    throw err;
+                    mysqlConnection1.rollback();
+                    console.log(sqlError.code);
+                    throw sqlError;
                 } else {
-                    //mysqlConnection.commit();
                     fieldCount = sqlResult.fieldCount;
                     affectedRows = sqlResult.affectedRows;
                     insertId = sqlResult.insertId;
                     info = sqlResult.info;
-                    console.log(sqlResult);
+                   // console.log(sqlResult);
                 }
             });
-        } 
-        // run insert/status update query
-        mysqlConnection.query(query1, [query2], function (sqlError, sqlResult) {
-        if (sqlError) {
-            mysqlConnection.rollback();
-            console.log(sqlError);
-            throw err;
-        } else {
-            fieldCount = sqlResult.fieldCount;
-            affectedRows = sqlResult.affectedRows;
-            insertId = sqlResult.insertId;
-            info = sqlResult.info;
-            console.log(sqlResult);
         }
-        });
-        mysqlConnection.commit();
-        mysqlConnection.end();
-    }); //end of begin transaction
+   
+        // run insert/status update query
+        mysqlConnection1.query(query1, [query2], function (sqlError, sqlResult) {
+            if (sqlError) {
+                mysqlConnection1.rollback();
+                console.log(sqlError.code);
+                throw sqlError;
+            } else {
+                fieldCount = sqlResult.fieldCount;
+                affectedRows = sqlResult.affectedRows;
+                insertId = sqlResult.insertId;
+                info = sqlResult.info;
+            }
+        }
+        ); 
+   
+        mysqlConnection1.commit(); 
+        mysqlConnection1.end();
+        console.log('**********************************');
+        console.log(' db connection closed');
+        console.log('**********************************');
+    
+    });    
 
     const updateResult: IResponseMassUploader = {
       fieldCount,
@@ -273,7 +277,7 @@ class massUploaderService {
       targetTable,
     };
     return updateResult;
-    
+
   }
 }
 
