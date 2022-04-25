@@ -1,16 +1,17 @@
 import DB from '@/database';
-import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupDto } from '../dtos/resourceGroup.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
-import ResourceService from '@/modules/Resources/services/resource.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
+  public resource = DB.Resource;
   public tableIdService = new TableIdService();
-  public resource = new ResourceService();
+  public customerAccountService = new CustomerAccountService();
   
   /**
    * @param  {ResourceGroupDto} resourceGroupData
@@ -47,9 +48,6 @@ class ResourceGroupService {
       attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
     });
 
-
-
-
     return allResourceGroup;
   }
 
@@ -76,13 +74,58 @@ class ResourceGroupService {
         where: { resourceGroupUuid },
         //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
       });
-  
       return resourceGroup;
     }
-  
 
+    /**
+   * @param  {string} customerAccountId
+   * @returns Promise
+   */
+     public async getResourceGroupByCustomerAccountId(customerAccountId: string): Promise<IResourceGroupUi[]> {
+
+      const resourceType = "ND";
+      const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId); 
+      const customerAccountKey = resultCustomerAccount.customerAccountKey;
+
+      const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
+        where: { customerAccountKey: customerAccountKey, deletedAt: null },
+      });
 
   
+     const numberOfResouceGroup = resultResourceGroup.length;
+     
+
+     var resourceGroupResult = new Array(); 
+
+     for (let i = 0; i < numberOfResouceGroup; i++) {
+      
+        let resourceGroupKey = resultResourceGroup[i].resourceGroupKey; 
+
+        let resultResource = await this.resource.findAll ({where: { deletedAt: null, resourceType: resourceType, resourceGroupKey: resourceGroupKey} }); 
+        let numberOfNode = resultResource.length; 
+
+        resourceGroupResult[i] = {
+          'resourceGroupKey': resultResourceGroup[i].resourceGroupKey, 
+          'resourceGroupId': resultResourceGroup[i].resourceGroupId,
+          'customerAccountKey': resultResourceGroup[i].customerAccountKey,
+          'createdBy': resultResourceGroup[i].createdBy,
+          'updatedBy': resultResourceGroup[i].updatedBy,
+          'createdAt': resultResourceGroup[i].createdAt,
+          'updatedAt': resultResourceGroup[i].updatedAt,
+          'deletedAt': resultResourceGroup[i].deletedAt,
+          'resourceGroupName': resultResourceGroup[i].resourceGroupName,
+          'resourceGroupDescription': resultResourceGroup[i].resourceGroupDescription,
+          'resourceGroupProvider': resultResourceGroup[i].resourceGroupProvider,
+          'resourceGroupPlatform': resultResourceGroup[i].resourceGroupPlatform,
+          'resourceGroupUuid': resultResourceGroup[i].resourceGroupUuid,
+          'resourceGroupPrometheus': resultResourceGroup[i].resourceGroupPrometheus,
+          'numberOfNode': numberOfNode
+        }
+     }; 
+     
+      return resourceGroupResult;
+    }
+
   /**
    * @param  {string} resourceGroupId
    * @param  {ResourceGroupDto} resourceGroupData

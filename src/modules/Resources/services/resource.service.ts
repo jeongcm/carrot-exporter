@@ -6,14 +6,16 @@ import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
-import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+//import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 
 class ResourceService {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
   public TableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
+  public resourceGroupService = new ResourceGroupService();
 
   /**
    * @param  {ResourceDto} resourceData
@@ -124,10 +126,6 @@ class ResourceService {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId); 
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
-    console.log ("*********");
-    console.log (resourceType);
-    console.log (customerAccountKey); 
-
     const allResources: IResource[] = await this.resource.findAll({
       where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey }
     });
@@ -135,6 +133,24 @@ class ResourceService {
     return allResources;
 
   }
+
+    /**
+   * @param  {string} resourceType
+   * @param  {number} resourceGroupId
+   */
+
+     public async getResourceByTypeResourceGroupId (resourceType: string, resourceGroupId: string): Promise<IResource[]>  {
+
+      const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+      const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+  
+      const allResources: IResource[] = await this.resource.findAll({
+        where: { deletedAt: null, resourceType: resourceType, resourceGroupKey: resourceGroupKey }
+      });
+      console.log(allResources); 
+      return allResources;
+  
+    }
 }
 
 export default ResourceService;
