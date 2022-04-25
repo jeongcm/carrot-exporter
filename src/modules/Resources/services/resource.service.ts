@@ -43,6 +43,7 @@ class ResourceService {
         resourceStatusUpdatedAt: new Date(),
         resourceGroupKey: currentResourceGroup.resourceGroupKey,
         ...resourceData,
+
       });
       return createResource;
     } catch (error) {
