@@ -122,7 +122,7 @@ class ResourceGroupService {
           'numberofNode': numberOfNode
         }
      }; 
-     console.log ("*************NumberofNode", resourceGroupResult); 
+     
       return resourceGroupResult;
     }
 
