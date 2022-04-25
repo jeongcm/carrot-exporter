@@ -119,7 +119,7 @@ class ResourceGroupService {
           'resourceGroupPlatform': resultResourceGroup[i].resourceGroupPlatform,
           'resourceGroupUuid': resultResourceGroup[i].resourceGroupUuid,
           'resourceGroupPrometheus': resultResourceGroup[i].resourceGroupPrometheus,
-          'numberofNode': numberOfNode
+          'numberOfNode': numberOfNode
         }
      }; 
      
