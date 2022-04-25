@@ -1,5 +1,5 @@
 import { NextFunction, Response } from 'express';
-import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
 import ResourceGroupService from '../services/resourceGroup.service';
 import { ResourceGroupDto } from '../dtos/resourceGroup.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
@@ -107,6 +107,25 @@ class ResourceGroupController {
     }
   };
 
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+   public getResourceGroupByCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountId = req.params.customerAccountId;
+
+    try {
+      const resourceGroup: IResourceGroupUi[] = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId);
+      res.status(200).json({ data: resourceGroup, message: `find resourceGroup for customerAccountId(${customerAccountId}) ` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+
+  
 
 
   /**

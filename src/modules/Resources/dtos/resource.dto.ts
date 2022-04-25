@@ -73,7 +73,6 @@ export class ResourceDto {
 
 
 export class resourceTypeCustomerAccountIdDto {
-
   @IsString()
   //@IsNotEmpty()
   public resourceType: string;
@@ -81,4 +80,14 @@ export class resourceTypeCustomerAccountIdDto {
   @IsString()
   @IsNotEmpty()
   public customerAccountId: string;
+}
+
+export class resourceTypeResourceGroupIdDto {
+  @IsString()
+  //@IsNotEmpty()
+  public resourceType: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupId: string;
 }
