@@ -3,13 +3,14 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupDto } from '../dtos/resourceGroup.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
-import tableIdService from '@/modules/CommonService/services/tableId.service';
+import TableIdService from '@/modules/CommonService/services/tableId.service';
+import ResourceService from '@/modules/Resources/services/resource.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
-  public tableIdService = new tableIdService();
-  
+  public tableIdService = new TableIdService();
+  public resource = new ResourceService();
   
   /**
    * @param  {ResourceGroupDto} resourceGroupData
@@ -45,6 +46,9 @@ class ResourceGroupService {
       where: { deletedAt: null, customerAccountKey },
       attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
     });
+
+
+
 
     return allResourceGroup;
   }

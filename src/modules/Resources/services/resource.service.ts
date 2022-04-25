@@ -3,14 +3,17 @@ import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.int
 import { ResourceDto } from '../dtos/resource.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
-import tableIdService from '@/modules/CommonService/services/tableId.service';
+import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 
 class ResourceService {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
-  public tableIdService = new tableIdService();
+  public TableIdService = new TableIdService();
+  public customerAccountService = new CustomerAccountService();
 
   /**
    * @param  {ResourceDto} resourceData
@@ -29,7 +32,7 @@ class ResourceService {
     try {
       const tableIdTableName = 'Resource';
 
-      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+      const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
 
       const createResource: IResource = await this.resource.create({
         resourceId: responseTableIdData.tableIdFinalIssued,
@@ -107,6 +110,29 @@ class ResourceService {
     }
 
     return this.getResourceById(resourceId);
+  }
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} customerAccountId
+   */
+
+  public async getResourceByTypeCustomerAccountId (resourceType: string, customerAccountId: string): Promise<IResource[]>  {
+
+
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId); 
+    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+
+    console.log ("*********");
+    console.log (resourceType);
+    console.log (customerAccountKey); 
+
+    const allResources: IResource[] = await this.resource.findAll({
+      where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey }
+    });
+    console.log(allResources); 
+    return allResources;
+
   }
 }
 
