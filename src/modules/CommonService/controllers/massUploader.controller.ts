@@ -23,8 +23,6 @@ class massUploaderController{
       }
     };
 
-
-
 }
 
 export default massUploaderController;

@@ -77,3 +77,16 @@ export class ResourceDto {
   @IsNotEmpty()
   public resourceTargetCreatedAt: Date;
 }
+
+
+
+export class resourceTypeCustomerAccountIdDto {
+
+  @IsString()
+  //@IsNotEmpty()
+  public resourceType: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public customerAccountId: string;
+}
