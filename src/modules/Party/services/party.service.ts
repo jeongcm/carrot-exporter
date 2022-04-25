@@ -99,7 +99,7 @@ class PartyService {
 
   public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string): Promise<IPartyUserResponse> {
     const tableIdTableName = 'PartyUser';
-    
+
     //const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
     //if (!tableId) {
     //  return;
@@ -365,13 +365,12 @@ class PartyService {
     }
   }
 
-
   public async addResourceToAccessGroup(
     customerAccountKey: number,
     logginedUserId: string,
     partyId: string,
     addingResourceData: AddResourceToAccessGroupDto,
-  ): Promise<IPartyResource[]> {
+  ): Promise<IPartyResource[] | string> {
     const party: IParty = await this.party.findOne({
       where: { partyId },
       attributes: ['partyKey'],
@@ -383,6 +382,20 @@ class PartyService {
     });
 
     const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
+
+    const existPartyResource = await this.partyResource.findAll({
+      where: {
+        partyKey: party.partyKey,
+        resourceKey: { [Op.in]: resourceKeyList },
+        deletedAt: null,
+      },
+
+      raw: true,
+    });
+
+    if (existPartyResource.length > 0) {
+      return 'Contains resources that are already added to the accessGorup.';
+    }
 
     let insertDataList = [];
 
@@ -397,18 +410,7 @@ class PartyService {
       });
     }
 
-    // for (let i = 0; i < resourceKeyList.length; i++) {
-    //   const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyResource');
-
-    //   insertDataList.push({
-    //     partyResourceId: responseTableIdData.tableIdFinalIssued,
-    //     partyKey: party.partyKey,
-    //     resourceKey: resourceKeyList[i],
-    //     createdBy: logginedUserId,
-    //   });
-    // }
-
-    return await this.partyResource.bulkCreate(insertDataList, { ignoreDuplicates: true });
+    return await this.partyResource.bulkCreate(insertDataList, { returning: true });
   }
 
   public async getResourceOfAccessGroup(customerAccountKey: number, partyId: string): Promise<any> {
@@ -454,11 +456,12 @@ class PartyService {
     const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
 
     const updated: [number, PartyResourceModel[]] = await this.partyResource.update(
-      { deletedAt: new Date() },
+      { deletedAt: new Date(), updatedBy: logginedUserId },
       {
         where: {
           partyKey: party.partyKey,
           resourceKey: { [Op.in]: resourceKeyList },
+          deletedAt: null,
         },
       },
     );

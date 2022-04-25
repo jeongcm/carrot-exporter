@@ -31,7 +31,6 @@ export default function (sequelize: Sequelize): typeof PartyResourceModel {
       partyResourceId: {
         type: DataTypes.STRING(16),
         allowNull: false,
-        unique: true,
       },
       partyKey: {
         type: DataTypes.INTEGER,
@@ -62,6 +61,12 @@ export default function (sequelize: Sequelize): typeof PartyResourceModel {
     {
       tableName: 'PartyResource',
       modelName: 'PartyResource',
+      indexes: [
+        {
+          unique: true,
+          fields: ['party_resource_id'],
+        },
+      ],
       sequelize,
     },
   );
