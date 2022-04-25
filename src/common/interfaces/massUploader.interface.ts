@@ -1,8 +1,8 @@
 export interface IResponseMassUploader {
-    fieldCount: number;
-    affectedRows: number;
-    insertId: number;
-    info: string;
+//    fieldCount: number;
+//    affectedRows: number;
+//    insertId: number;
+//    info: string;
     targetTable: string;
 }
 

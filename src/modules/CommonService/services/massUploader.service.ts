@@ -7,6 +7,8 @@ import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/table
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import debug from 'debug';
+import { response } from 'express';
+import { callbackify } from 'util';
 
 
 class massUploaderService {
@@ -195,7 +197,7 @@ class massUploaderService {
 
     const mysql = require('mysql2');
 
-    const mysqlConnection1 = mysql.createConnection({
+    const mysqlConnection = mysql.createConnection({
         host: config.db.mariadb.host,
         user: config.db.mariadb.user,
         port: config.db.mariadb.port || 3306,
@@ -206,116 +208,122 @@ class massUploaderService {
         //          maximumpoolsize: config.db.mariadb.poolMin,
     });
 
-    mysqlConnection1.connect(err => {
-        if (err) throw err;
-        console.log('DB connected for raw SQL run');
-        //    return;
+
+    mysqlConnection.connect(function(err) {
+        if (err) {
+            console.log('DB connection error' + err.stack);
+            return;
+        } 
+        console.log('DB connected for raw SQL run, ' + mysqlConnection.threadId);
+
       });
 
       
-    mysqlConnection1.beginTransaction (function(err) {
-        if (err) { throw err; }  
 
     //create sql to delete the retired resources if exist.   
-        if (lengthOfDifference > 0) {
-            var query_delete = ""; 
-            query_delete += "UPDATE Resource SET deleted_at = NOW(), updated_at = NOW(), updated_by = 'SYSTEM'  WHERE resource_target_uuid IN (";
-            for (let i = 0; i < lengthOfDifference; i++) {
-                if (lengthOfDifference == 1) {
-                    query_delete += "'" + difference[i] + "')"; 
-                }
-                else if (i==(lengthOfDifference-1)) {
-                    query_delete += "'" + difference[i] + "')"; 
-                }
-                else {
-                    query_delete += "'" + difference[i] + "',";
-                }
-            }    
+    if (lengthOfDifference > 0) {
+        var query_delete = ""; 
+        query_delete += "UPDATE Resource SET deleted_at = NOW(), updated_at = NOW(), updated_by = 'SYSTEM'  WHERE resource_target_uuid IN (";
+        for (let i = 0; i < lengthOfDifference; i++) {
+            if (lengthOfDifference == 1) {
+                query_delete += "'" + difference[i] + "')"; 
+            }
+            else if (i==(lengthOfDifference-1)) {
+                query_delete += "'" + difference[i] + "')"; 
+            }
+            else {
+                query_delete += "'" + difference[i] + "',";
+            }
+        }    
 
-            // run update query to process delete resource data softly
+        // run update query to process delete resource data softly
 
-            mysqlConnection1.query(query_delete, function callback(err, rows) {
-                var retry_copy = retries || 1; 
-                var handleResponse = function (err, rows) {
-                    if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
-                        if (debug) console.log(`ERROR - ${ err.errno } ${ err.message } ${ err.code }`); 
-                        if (!--retry_copy) {
-                            if (debug) console.log(`Out of retries so just returning the error.`); 
-                                mysqlConnection1.rollback();
-                                console.log(err.code);
-                                throw err;
+        mysqlConnection.query(query_delete, function(err,result) {
+            if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
+                var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis); 
+                if (debug) console.log('Retrying request -  Timeout',sleepMillis); 
+                setTimeout(function() {
+                    mysqlConnection.rollback();
+                    mysqlConnection.query(query_delete, function(err,result){
+                        if (err) {
+                            mysqlConnection.rollback();
+                            console.log(err.code); 
+                            return;
                         }
-                        var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis); 
-                        if (debug) console.log('Retrying request with',retry_copy,'retries left. Timeout',sleepMillis); 
-                        setTimeout(function() {
-                            mysqlConnection1.query(query_delete,  handleResponse);
-                        },sleepMillis); 
-                    } else if (err) {
-                        if (debug) console.log(`Standard error - ${ err.toString() }`);
-                        mysqlConnection1.rollback();
-                        console.log(err.code);
-                        throw err;
-                    };
-                    fieldCount = rows.fieldCount;
-                    affectedRows = rows.affectedRows;
-                    insertId = rows.insertId;
-                    info = rows.info;
-                    console.log(rows);
-                }  // end of handleResponse
-                // mysqlConnection1.query(query1, [query2], handleResponse); 
-            }); // end of query
-        } // end of soft delete 
-
-        //run insert/status update query
-    
-        mysqlConnection1.query(query1, [query2], function callback(err, rows) {
-            var retry_copy = retries || 1; 
-            var handleResponse = function (err, rows) {
-                if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
-                    if (debug) console.log(`ERROR - ${ err.errno } ${ err.message } ${ err.code }`); 
-                    if (!--retry_copy) {
-                        if (debug) console.log(`Out of retries so just returning the error.`); 
-                            mysqlConnection1.rollback();
-                            console.log(err.code);
-                            throw err;
+                        //fieldCount = result.fieldCount;
+                        //affectedRows = result.affectedRows;
+                        //insertId = result.insertId;
+                        //info = result.info;
+                        console.log(result);
                     }
-                    var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis); 
-                    if (debug) console.log('Retrying request with',retry_copy,'retries left. Timeout',sleepMillis); 
-                    setTimeout(function() {
-                        mysqlConnection1.query(query1, [query2], handleResponse);
-                    },sleepMillis); 
-                } else if (err) {
-                    if (debug) console.log(`Standard error - ${ err.toString() }`);
-                    mysqlConnection1.rollback();
-                    console.log(err.code);
-                    throw err;
-                };
-                fieldCount = rows.fieldCount;
-                affectedRows = rows.affectedRows;
-                insertId = rows.insertId;
-                info = rows.info;
-                console.log(rows);
-            }  // end of handleResponse
-            // mysqlConnection1.query(query1, [query2], handleResponse); 
-        }); // end of query
-    }); // end of transaction
-    
-    mysqlConnection1.commit(); 
-    mysqlConnection1.end();
+                    );
+                },sleepMillis);
+            }     
+            else if (err){
+                mysqlConnection.rollback();
+                console.log(err.code); 
+                return;
+            }
+            //fieldCount = result.fieldCount;
+            //affectedRows = result.affectedRows;
+            //insertId = result.insertId;
+            //info = result.info;
+            console.log(result);
+            mysqlConnection.commit();  
+        });     // end of query
+    } // end of soft delete
+
+    //run insert/status update query
+    mysqlConnection.query(query1, [query2], function(err,result) {
+
+        if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
+            var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis); 
+            if (debug) console.log('Retrying request -  Timeout',sleepMillis); 
+            setTimeout(function() {
+                mysqlConnection.rollback();
+                mysqlConnection.query(query1, [query2], function(err,result){
+                    if (err) {
+                        mysqlConnection.rollback();
+                        console.log(err.code); 
+                        return;
+                    }
+//                    fieldCount = result.fieldCount;
+//                    affectedRows = result.affectedRows;
+//                    insertId = result.insertId;
+//                    info = result.info;
+                    console.log(result);
+                }
+                );
+            },sleepMillis);
+        }     
+        else if (err){
+            mysqlConnection.rollback();
+            console.log(err.code); 
+            return;
+        }
+//        fieldCount = result.fieldCount || "";
+//        affectedRows = result.affectedRows || "";
+//        insertId = result.insertId || "";
+//        info = result.info || "";
+        mysqlConnection.commit();    
+        console.log(result);
+    });     // end of query
+
+
+    mysqlConnection.end();
     console.log('**********************************');
     console.log(' db connection closed');
     console.log('**********************************');
 
     const updateResult: IResponseMassUploader = {
-      fieldCount,
-      affectedRows,
-      insertId,
-      info,
+//      fieldCount,
+//      affectedRows,
+//      insertId,
+//      info,
       targetTable,
     };
     return updateResult;
-
-  }
+  } // end of massUploadResource
 }
 
 export default massUploaderService;
