@@ -5,15 +5,18 @@ import CustomerAccountService from '@/modules/CustomerAccount/services/customerA
 import PartyService from '@/modules/Party/services/party.service';
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
+import ResourceService from '@/modules/Resources/services/resource.service';
 import axios from 'axios';
+import { IResource } from '@/common/interfaces/resource.interface';
 class webhookForBillingController {
 
   public customerAccountService = new CustomerAccountService();
   public partyService = new PartyService();
   public subscriptionService = new SubscriptionService();
+  public resourceService = new ResourceService();
   public receiveBillingInterface = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const{body:{eventType}, user:{partyId}, systemId, customerAccountKey} = req;
+      const { body: { eventType }, user: { partyId }, systemId, customerAccountKey } = req;
 
       switch (eventType) {
         case "CustomerCreated":
@@ -46,7 +49,6 @@ class webhookForBillingController {
           break;
         case "SubscriptionCreated":
           const { body: { Subscription: { customerId, planCode, id: subscriptionExtSubscriptionId, planName, createdTimestamp, activatedTimestamp, terminatedTimeStamp, status } } } = req;
-
           const subscriptionData = {
             subscriptionStatus: status,
             subscriptionConsent: true,
@@ -57,58 +59,42 @@ class webhookForBillingController {
 
           }
           const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, systemId, customerAccountKey);
-          // console.log("newSubscription=============", newSubscription)
-          let fusebillProducts ;
+          let fusebillProducts;
           await axios(
             {
-            method:'get',
-            url:`https://secure.fusebill.com/v1/Plans/?query=code:${planCode}`, 
-            headers: {'Authorization': 'Basic MDppU0dtQXk2R1BBQ1dUd2hEOXJ0SWFtcE5wMjNWaFR2Vm1xMWdhZUtDdEMxN0k3NGlZSTVMcDhEbjdaenByTDRa'}
-          }).then(async (res:any)=>{
-            console.log("res----------------------------------", res.data)
-             await axios(
-              {
-              method:'get',
-              url:`https://secure.fusebill.com/v1/plans/${res.data[0].id}/planProducts`,
-              timeout: 60000, 
-              headers: {'Authorization': 'Basic MDppU0dtQXk2R1BBQ1dUd2hEOXJ0SWFtcE5wMjNWaFR2Vm1xMWdhZUtDdEMxN0k3NGlZSTVMcDhEbjdaenByTDRa'}
-            }).then(productRes=>{fusebillProducts = productRes.data}).catch(error=>{
-              console.log("error in 2 ", error)
+              method: 'get',
+              url: `https://secure.fusebill.com/v1/Plans/?query=code:${planCode}`,
+              headers: { 'Authorization': 'Basic MDppU0dtQXk2R1BBQ1dUd2hEOXJ0SWFtcE5wMjNWaFR2Vm1xMWdhZUtDdEMxN0k3NGlZSTVMcDhEbjdaenByTDRa' }
+            }).then(async (res: any) => {
+              await axios(
+                {
+                  method: 'get',
+                  url: `https://secure.fusebill.com/v1/plans/${res.data[0].id}/planProducts`,
+                  timeout: 60000,
+                  headers: { 'Authorization': 'Basic MDppU0dtQXk2R1BBQ1dUd2hEOXJ0SWFtcE5wMjNWaFR2Vm1xMWdhZUtDdEMxN0k3NGlZSTVMcDhEbjdaenByTDRa' }
+                }).then(productRes => { fusebillProducts = productRes.data }).catch(error => {
+                });
+            }).catch(error => {
             });
-          }).catch(error=>{
-            console.log("error11111111111111111111111111111111111111111111111", error)
-          });
 
-
-          console.log("fusebillProducts", fusebillProducts);
-          // res.status(200).json({ message: `${eventType} processed` , data:fusebillProducts});
-          // const Subscription = {
-          //   subscriptionCustomerId: customerId,
-          //   subscriptionPlanCode: planCode,
-          //   subscriptionExtSubscriptionId,
-          //   subscriptionPlanName: planName,
-          //   subscriptionCreatedAt: createdTimestamp,
-          //   subscriptionActivatedAt: activatedTimestamp,
-          //   subscrptionStatus: status,
-          // };
-          // call subscription creation    
-          // need to call subscription api in Fusebill to get plan product information
-
-          console.log(newSubscription);
+            const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
+            const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId("ND", customerAccountId);
+            let st;
+            if(fusebillProducts[0].status == 'Active'){
+              st =  "AC" ;
+            }
+            const subscribeProduct = {
+              "subscribedProductFrom": terminatedTimeStamp,
+              "subscribedProductTo": activatedTimestamp ,
+              "catalogPlanProductType": "ON",
+              "resourceId": resource[0].resourceId,
+              subscribedProductStatus: st
+  
+            }
+          await this.subscriptionService.createSubscribedProduct(subscribeProduct, partyId, systemId, customerAccountKey);   
           break;
         case "SubscriptionUpdated":
-          const SubscriptionUpdate = {
-            subscriptionCustomerId: req.body.Subscription.customerId,
-            subscriptionPlanCode: req.body.Subscription.planCode,
-            subscriptionExtSubscriptionId: req.body.Subscription.id,
-            subscriptionPlanName: req.body.Subscription.planName,
-            subscriptionCreatedAt: req.body.Subscription.createdTimestamp,
-            subscriptionActivatedAt: req.body.Subscription.activatedTimestamp,
-            subscrptionStatus: req.body.Subscription.status,
-          };
-          //call subscription update
-
-          console.log(SubscriptionUpdate);
+           await this.subscriptionService.updateSubscription(subscriptionExtSubscriptionId, subscriptionData, partyId, systemId);
           break;
         default:
           break;
