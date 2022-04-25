@@ -46,7 +46,6 @@ import SubscribedProductModel from '@/modules/Subscriptions/models/subscribedPro
 import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
 import invitationModel from '@/modules/Party/models/invitation.model';
 
-
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
 const user = config.db.mariadb.user;
@@ -113,7 +112,7 @@ const DB = {
   ResourceGroup: ResourceGroupModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
-  Notification:NotificationModel(sequelize),
+  Notification: NotificationModel(sequelize),
   Subscription: SubscriptionModel(sequelize),
   SubscribedProduct: SubscribedProductModel(sequelize),
   SubscriptionHistory: SubscriptionHistoryModel(sequelize),
@@ -229,41 +228,43 @@ DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKe
 DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
 DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
 
+DB.CustomerAccount.hasMany(DB.Invitation, { foreignKey: 'customerAccountKey' });
+DB.Invitation.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
-DB.CustomerAccount.hasMany(DB.Invitation,{foreignKey:'customerAccountKey'});
-DB.Invitation.belongsTo(DB.CustomerAccount,{foreignKey:'customerAccountKey'});
+DB.Messages.hasMany(DB.Invitation, { foreignKey: 'messageKey' });
+DB.Invitation.belongsTo(DB.Messages, { foreignKey: 'messageKey' });
 
-DB.Messages.hasMany(DB.Invitation,{foreignKey:'messageKey'});
-DB.Invitation.belongsTo(DB.Messages,{foreignKey:'messageKey'});
+DB.Party.hasMany(DB.PartyChannel, { foreignKey: 'partyKey' });
+DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 
+DB.PartyChannel.hasMany(DB.Notification, { foreignKey: 'partyChannelKey' });
+DB.Notification.belongsTo(DB.PartyChannel, { foreignKey: 'partyChannelKey' });
 
-DB.Party.hasMany(DB.PartyChannel,{foreignKey: 'partyKey'})
-DB.PartyChannel.belongsTo(DB.Party,{foreignKey: 'partyKey'})
+DB.Party.hasMany(DB.Notification, { foreignKey: 'partyKey' });
+DB.Notification.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 
-DB.PartyChannel.hasMany(DB.Notification, {foreignKey: 'partyChannelKey'})
-DB.Notification.belongsTo(DB.PartyChannel,{foreignKey: 'partyChannelKey'})
+DB.Messages.hasOne(DB.Notification, { foreignKey: 'messageKey' });
+DB.Notification.belongsTo(DB.Messages, { foreignKey: 'messageKey' });
 
-
-DB.Party.hasMany(DB.Notification,{foreignKey: 'partyKey'})
-DB.Notification.belongsTo(DB.Party,{foreignKey: 'partyKey'})
-
-DB.Messages.hasOne(DB.Notification,{foreignKey: 'messageKey'})
-DB.Notification.belongsTo(DB.Messages,{foreignKey: 'messageKey'})
-
-DB.CustomerAccount.hasMany(DB.Notification,{foreignKey: 'customerAccountKey'})
-DB.Notification.belongsTo(DB.CustomerAccount,{foreignKey: 'customerAccountKey'})
-
+DB.CustomerAccount.hasMany(DB.Notification, { foreignKey: 'customerAccountKey' });
+DB.Notification.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
 DB.Party.belongsToMany(DB.Resource, {
-  through: 'PartyResource',
+  through: {
+    model: 'PartyResource',
+    unique: false,
+  },
   foreignKey: 'partyKey',
-  otherKey: 'resourceKey',
+  // otherKey: 'resourceKey',
   as: 'resource',
 });
 DB.Resource.belongsToMany(DB.Party, {
-  through: 'PartyResource',
+  through: {
+    model: 'PartyResource',
+    unique: false,
+  },
   foreignKey: 'resourceKey',
-  otherKey: 'partyKey',
+  // otherKey: 'partyKey',
   as: 'party',
 });
 
@@ -271,8 +272,6 @@ DB.Party.hasMany(DB.PartyResource, { foreignKey: 'partyKey' });
 DB.Resource.hasMany(DB.PartyResource, { foreignKey: 'resourceKey' });
 DB.PartyResource.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 DB.PartyResource.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
-
-
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

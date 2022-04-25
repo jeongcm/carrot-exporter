@@ -1,9 +1,13 @@
-import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsDate, IsObject, IsNumber, IsByteLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsDate, IsObject, IsNumber, IsByteLength, IsDateString } from 'class-validator';
 
 export class ResourceDto {
   @IsString()
   @IsNotEmpty()
   public resourceGroupId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public resourceTargetUuid: string;
 
   @IsString()
   @IsNotEmpty()
@@ -68,12 +72,15 @@ export class ResourceDto {
   @IsString()
   @IsNotEmpty()
   public resourceNamespace: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  public resourceTargetCreatedAt: Date;
 }
 
 
 
 export class resourceTypeCustomerAccountIdDto {
-
   @IsString()
   //@IsNotEmpty()
   public resourceType: string;
@@ -81,4 +88,14 @@ export class resourceTypeCustomerAccountIdDto {
   @IsString()
   @IsNotEmpty()
   public customerAccountId: string;
+}
+
+export class resourceTypeResourceGroupIdDto {
+  @IsString()
+  //@IsNotEmpty()
+  public resourceType: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupId: string;
 }

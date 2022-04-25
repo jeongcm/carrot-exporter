@@ -242,7 +242,11 @@ class PartyController {
     try {
       const addedResource = await this.partyService.addResourceToAccessGroup(customerAccountKey, logginedUserId, partyId, addingResourceData);
 
-      res.status(201).json({ data: addedResource, message: 'added' });
+      if (addedResource === 'Contains resources that are already added to the accessGorup.') {
+        res.status(500).json({ message: addedResource });
+      } else {
+        res.status(201).json({ data: addedResource, message: 'added' });
+      }
     } catch (error) {
       next(error);
     }

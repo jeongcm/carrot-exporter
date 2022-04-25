@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
-import { ResourceGroupDto } from '../dtos/resourceGroup.dto';
+import { ResourceGroupDto} from '../dtos/resourceGroup.dto';
 import ResourceGroupController from '../controllers/resourceGroup.controller';
 
 class ResourceGroupRoute implements Routes {
@@ -23,6 +23,7 @@ class ResourceGroupRoute implements Routes {
     this.router.get('/resourceGroup', authMiddleware, this.resourceGroupController.getAllResourceGroups);
     this.router.get('/resourceGroup/:resourceGroupId', authMiddleware, this.resourceGroupController.getResourceGroupById);
     this.router.get('/resourceGroup/:resourceGroupUuid', authMiddleware, this.resourceGroupController.getResourceGroupByUuid);
+    this.router.get('/resourceGroup/CustomerAccountId/:customerAccountId', authMiddleware,  this.resourceGroupController.getResourceGroupByCustomerAccountId);
     this.router.put(
       '/resourceGroup/:resourceGroupId',
       authMiddleware,
