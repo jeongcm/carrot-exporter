@@ -103,7 +103,7 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceLabels: JSON;
   public resourceAnnotations: JSON;
   public resourceTargetUuid: string;
-  public resourceTargetCreatedAt: string;
+  public resourceTargetCreatedAt: Date;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
