@@ -3,6 +3,7 @@ import { IResource } from '@/common/interfaces/resource.interface';
 import ResourceService from '../services/resource.service';
 import { ResourceDto } from '../dtos/resource.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
+import customerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 
 class ResourceController {
   public resourceService = new ResourceService();
@@ -106,6 +107,28 @@ class ResourceController {
       next(error);
     }
   };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+   public getResourceByTypeCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceType = req.body.resourceType;
+    const customerAccountId = req.body.customerAccountId;
+
+    console.log("**********************")
+    console.log(req);
+
+    try {
+      const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId(resourceType, customerAccountId);
+      res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resoruceType ${resource}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  
 
   /**
    * @param  {IRequestWithUser} req

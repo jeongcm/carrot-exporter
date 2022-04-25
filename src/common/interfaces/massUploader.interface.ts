@@ -1,12 +1,13 @@
 export interface IResponseMassUploader {
-    fieldCount: number;
-    affectedRows: number;
-    insertId: number;
-    info: string;
+//    fieldCount: number;
+//    affectedRows: number;
+//    insertId: number;
+//    info: string;
     targetTable: string;
 }
 
 export interface IRequestMassUploader {
+    resource_Type: string,
     resource_Group_Uuid: string,
     resource: { resource_Group_Uuid: string, 
                 resource_Name: string,

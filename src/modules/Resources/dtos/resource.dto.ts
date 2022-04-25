@@ -69,3 +69,16 @@ export class ResourceDto {
   @IsNotEmpty()
   public resourceNamespace: string;
 }
+
+
+
+export class resourceTypeCustomerAccountIdDto {
+
+  @IsString()
+  //@IsNotEmpty()
+  public resourceType: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public customerAccountId: string;
+}

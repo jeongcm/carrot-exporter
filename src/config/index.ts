@@ -84,4 +84,9 @@ export default {
     },
     tableIds,
   },
+  deadLock: {
+    retries: Number(process.env.NC_LARI_DEADLOCK_RETRIES) || 5,
+    maxMillis: Number(process.env.NC_LARI_DEADLOCK_MAXMILLIS) || 100,
+    minMillis: Number(process.env.NC_LARI_DEADLOCK_MINMILLIS) || 1
+  },
 };
