@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsDate, IsObject, IsNumber, IsByteLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsDate, IsObject, IsNumber, IsByteLength, IsDateString } from 'class-validator';
 
 export class ResourceDto {
   @IsString()
@@ -72,4 +72,8 @@ export class ResourceDto {
   @IsString()
   @IsNotEmpty()
   public resourceNamespace: string;
+
+  @IsDateString()
+  @IsNotEmpty()
+  public resourceTargetCreatedAt: Date;
 }
