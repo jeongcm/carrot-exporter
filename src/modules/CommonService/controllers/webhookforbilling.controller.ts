@@ -79,27 +79,30 @@ class webhookForBillingController {
 
           }
           const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, systemId, customerAccountKey);
-
-          const productDetails = fusebillResponse.subscriptionProductscd.filter((data) => { data.customFields });
-          const { key, value } = productDetails[0].customFields;
+          const productDetails = fusebillResponse.subscriptionProducts.filter((data) => { return data.customFields });
+          const { key, value } = productDetails[0].customFields[0];
           const { productStatus, productCode } = productDetails[0].planProduct;
 
           const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
-          const resource = await this.resourceService.getResourceByTypeCustomerAccountId(value, customerAccountId);
-          const {resourceId, createdAt, deletedAt} = resource[0];
+          const resources = await this.resourceService.getResourceByTypeCustomerAccountId(value, customerAccountId);
           let st;
           if(productStatus == 'Active'){
             st =  "AC" ;
           }
-          const subscribeProduct = {
-            "subscribedProductFrom": createdAt,
-            "subscribedProductTo": deletedAt ,
-            "catalogPlanProductType": "ON",
-            "resourceId": resourceId,
-            subscribedProductStatus: st
+          let subscribedProduct = []
 
-          }
-        await this.subscriptionService.createSubscribedProduct(subscribeProduct, partyId, systemId, customerAccountKey, productCode);   
+          resources.map((resource)=>{
+            subscribedProduct.push({
+              "subscribedProductFrom": resource.createdAt,
+              "subscribedProductTo": resource.deletedAt ,
+              "catalogPlanProductType": "ON",
+              "resourceId": resource.resourceId,
+              subscribedProductStatus: st
+  
+            })
+          })
+          
+        await this.subscriptionService.createBulkSubscribedProduct(subscribedProduct, partyId, systemId, customerAccountKey, productCode);   
         break;
         case "SubscriptionUpdated":
           await this.subscriptionService.updateSubscription(subscriptionExtSubscriptionId, subscriptionData, partyId, systemId);

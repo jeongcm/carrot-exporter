@@ -199,6 +199,54 @@ class SubscriptionService {
     return {data:newObj, message:"success"};
   }
 
+
+  public createBulkSubscribedProduct =async (productData:CreateSubscribedProductDto[], partyId:string, systemId:string, customerAccountKey:number, productCode?:string) => {
+    let createObj = []
+    productData.map(async (data:CreateSubscribedProductDto)=>{
+      const {subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId} = data
+    const subscribedProductId = await this.getTableId('SubscribedProduct')
+    const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { customerAccountKey } });
+    if(!subscriptionDetail){
+      return {error:true , message:"Subscription not found"};
+    }
+    let fuseBillProduct
+    const resourceDetail= await this.resource.findOne({where:{resourceId}});
+    if(!resourceDetail){
+      return {error:true , message:"Resource not found"};
+    }
+    const catalogPlanProductDetails : ICatalogPlanProduct =  await  this.catalogPlanProduct.findOne(
+      {where:
+        {
+          catalogPlanKey:subscriptionDetail.catalogPlanKey,
+          catalogPlanProductType:data.catalogPlanProductType
+        }
+      });
+    if(productCode){
+      fuseBillProduct  =  await  this.catalogPlanProduct.findOne(
+        {where:
+          {
+            catalogPlanProductId:productCode,
+          }
+        });
+    }
+
+    createObj.push({
+      subscribedProductId,
+      resourceKey:resourceDetail.resourceKey,
+      customerAccountKey,
+      subscriptionKey:subscriptionDetail.subscriptionKey,
+      catalogPlanProductKey:catalogPlanProductDetails?.catalogPlanProductKey || fuseBillProduct.catalogPlanProductKey,
+      subscribedProductStatus,
+      subscribedProductFrom, 
+      subscribedProductTo,
+      createdBy:partyId||systemId,
+      updatedBy:partyId || systemId
+    })
+  })
+    const newObj = await this.subscribedProduct.bulkCreate(createObj)
+    return {data:newObj, message:"success"};
+  }
+
   public findSubscribedProduct =async (subscribedProductId:string) => {
     const productDetails = await this.subscribedProduct.findOne({where:{subscribedProductId}, attributes:{exclude:['subscribedProductKey', 'deletedAt', 'subscription_key']}})
     return productDetails;
