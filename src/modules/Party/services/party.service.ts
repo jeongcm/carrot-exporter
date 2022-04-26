@@ -109,7 +109,10 @@ class PartyService {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
       return await DB.sequelize.transaction(async t => {
-        const hashedPassword = await bcrypt.hash(createPartyUserData.password, 10);
+        let hashedPassword;
+        if(createPartyUserData && createPartyUserData.password){
+           hashedPassword = await bcrypt.hash(createPartyUserData.password, 10);
+        }
 
         const createdParty: IParty = await this.party.create(
           {
@@ -136,6 +139,7 @@ class PartyService {
             password: hashedPassword,
             email: createPartyUserData.email,
             isEmailValidated: false,
+            partyUserStatus:createPartyUserData.partyUserStatus
           },
           { transaction: t },
         );
@@ -154,9 +158,11 @@ class PartyService {
           mobile: createPartyUserData?.mobile,
           email: createPartyUserData.email,
           isEmailValidated: false,
+          partyUserStatus:createPartyUserData.partyUserStatus
         };
       });
-    } catch (error) {}
+    } catch (error) {
+    }
   }
 
   public async updateUser(customerAccountKey: number, logginedUserId: string, updateUserId: string, updateUserData: UpdateUserDto): Promise<IParty> {

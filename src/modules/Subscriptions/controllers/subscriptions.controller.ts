@@ -1,13 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
-import { CreateCatalogPlanProductDto, CreateCatalogPlanDto, CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
-import { ICatalogPlan, ICatalogPlanProduct, ICatalogPlanProductPrice } from '@/common/interfaces/productCatalog.interface';
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
 import { ISubscribedProduct, ISubscriptions } from '@/common/interfaces/subscription.interface';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import { CreateSubscribedProductDto, CreateSubscriptionDto } from '../dtos/subscriptions.dto';
-import { body } from 'express-validator';
-import { sys } from 'typescript';
+
 class SubscriptionController {
   public subscriptionService = new SubscriptionService();
 

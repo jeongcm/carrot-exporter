@@ -65,6 +65,7 @@ export interface IPartyUser {
   emailValidatedAt: Date;
   token: string;
   lastAccessAt: Date;
+  partyUserStatus:string;
 }
 
 export interface IPartyResource {
@@ -77,6 +78,7 @@ export interface IPartyResource {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
+  partyUserStatus:string;
 }
 
 export interface IPartyUserResponse {

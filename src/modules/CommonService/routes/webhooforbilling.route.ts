@@ -14,7 +14,7 @@ class webhookForBillingRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/webhookforbilling', this.webhookForBillingController.receiveBillingInterface);
+    this.router.post('/webhookforbilling', authMiddleware, this.webhookForBillingController.receiveBillingInterface);
   }
 }
 
