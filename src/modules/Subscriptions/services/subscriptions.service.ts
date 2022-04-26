@@ -156,13 +156,14 @@ class SubscriptionService {
     }
   }
 
-  public createSubscribedProduct =async (productData:CreateSubscribedProductDto, partyId:string, systemId:string, customerAccountKey:number) => {
+  public createSubscribedProduct =async (productData:CreateSubscribedProductDto, partyId:string, systemId:string, customerAccountKey:number, productCode?:string) => {
     const {subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId} = productData
     const subscribedProductId = await this.getTableId('SubscribedProduct')
     const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { customerAccountKey } });
     if(!subscriptionDetail){
       return {error:true , message:"Subscription not found"};
     }
+    let fuseBillProduct
     const resourceDetail= await this.resource.findOne({where:{resourceId}});
     if(!resourceDetail){
       return {error:true , message:"Resource not found"};
@@ -174,12 +175,20 @@ class SubscriptionService {
           catalogPlanProductType:productData.catalogPlanProductType
         }
       });
+    if(productCode){
+      fuseBillProduct  =  await  this.catalogPlanProduct.findOne(
+        {where:
+          {
+            catalogPlanProductId:productCode,
+          }
+        });
+    }
     const createObj = {
       subscribedProductId,
       resourceKey:resourceDetail.resourceKey,
       customerAccountKey,
       subscriptionKey:subscriptionDetail.subscriptionKey,
-      catalogPlanProductKey:catalogPlanProductDetails.catalogPlanProductKey,
+      catalogPlanProductKey:catalogPlanProductDetails?.catalogPlanProductKey || fuseBillProduct.catalogPlanProductKey,
       subscribedProductStatus,
       subscribedProductFrom, 
       subscribedProductTo,

@@ -89,4 +89,8 @@ export default {
     maxMillis: Number(process.env.NC_LARI_DEADLOCK_MAXMILLIS) || 100,
     minMillis: Number(process.env.NC_LARI_DEADLOCK_MINMILLIS) || 1
   },
+  fuseBillApiDetail:{
+    apiKey:process.env.FUSEBILL_API_KEY,
+    baseURL:process.env.FUSEBILL_BASE_URL
+  }
 };

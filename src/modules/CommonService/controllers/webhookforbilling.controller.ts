@@ -7,7 +7,11 @@ import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import axios from 'axios';
+import * as _ from 'lodash';
 import { IResource } from '@/common/interfaces/resource.interface';
+import config from 'config';
+import { CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
+import catalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
 class webhookForBillingController {
 
   public customerAccountService = new CustomerAccountService();
@@ -48,53 +52,57 @@ class webhookForBillingController {
           await this.partyService.createUser(partyData, createdCustomerAccount.customerAccountKey, systemId || partyId);
           break;
         case "SubscriptionCreated":
-          const { body: { Subscription: { customerId, planCode, id: subscriptionExtSubscriptionId, planName, createdTimestamp, activatedTimestamp, terminatedTimeStamp, status } } } = req;
+          const { body: { Subscription: { customerId, id: subscriptionExtSubscriptionId, planName, createdTimestamp, activatedTimestamp, terminatedTimeStamp } } } = req;
+
+          let fusebillResponse;
+          await axios(
+            {
+              method: 'get',
+              url: `${config.fuseBillApiDetail.baseURL}subscriptions/${subscriptionExtSubscriptionId}`,
+              headers: { 'Authorization': `Basic ${config.fuseBillApiDetail.apiKey}` }
+            }).then(async (res: any) => {
+              fusebillResponse = res.data;
+            }).catch(error => {
+            });
+          const { status, nextPeriodStartDate, lastPeriodStartDate, subscriptionCommitmentType = "AC", planCode } = fusebillResponse ;
+          let subscriptionStatus;
+          if (status === "Active") {
+            subscriptionStatus = 'AC'
+          }
           const subscriptionData = {
-            subscriptionStatus: status,
+            subscriptionStatus: subscriptionStatus,
             subscriptionConsent: true,
-            subscriptionActivatedAt: activatedTimestamp,
-            subscriptionTerminatedAt: terminatedTimeStamp,
-            subscriptionCommitmentType: status,
+            subscriptionActivatedAt: nextPeriodStartDate,
+            subscriptionTerminatedAt: lastPeriodStartDate,
+            subscriptionCommitmentType: subscriptionCommitmentType,
             catalogPlanId: planCode
 
           }
           const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, systemId, customerAccountKey);
-          let fusebillProducts;
-          await axios(
-            {
-              method: 'get',
-              url: `https://secure.fusebill.com/v1/Plans/?query=code:${planCode}`,
-              headers: { 'Authorization': 'Basic MDppU0dtQXk2R1BBQ1dUd2hEOXJ0SWFtcE5wMjNWaFR2Vm1xMWdhZUtDdEMxN0k3NGlZSTVMcDhEbjdaenByTDRa' }
-            }).then(async (res: any) => {
-              await axios(
-                {
-                  method: 'get',
-                  url: `https://secure.fusebill.com/v1/plans/${res.data[0].id}/planProducts`,
-                  timeout: 60000,
-                  headers: { 'Authorization': 'Basic MDppU0dtQXk2R1BBQ1dUd2hEOXJ0SWFtcE5wMjNWaFR2Vm1xMWdhZUtDdEMxN0k3NGlZSTVMcDhEbjdaenByTDRa' }
-                }).then(productRes => { fusebillProducts = productRes.data }).catch(error => {
-                });
-            }).catch(error => {
-            });
 
-            const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
-            const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId("ND", customerAccountId);
-            let st;
-            if(fusebillProducts[0].status == 'Active'){
-              st =  "AC" ;
-            }
-            const subscribeProduct = {
-              "subscribedProductFrom": terminatedTimeStamp,
-              "subscribedProductTo": activatedTimestamp ,
-              "catalogPlanProductType": "ON",
-              "resourceId": resource[0].resourceId,
-              subscribedProductStatus: st
-  
-            }
-          await this.subscriptionService.createSubscribedProduct(subscribeProduct, partyId, systemId, customerAccountKey);   
-          break;
+          const productDetails = fusebillResponse.subscriptionProductscd.filter((data) => { data.customFields });
+          const { key, value } = productDetails[0].customFields;
+          const { productStatus, productCode } = productDetails[0].planProduct;
+
+          const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
+          const resource = await this.resourceService.getResourceByTypeCustomerAccountId(value, customerAccountId);
+          const {resourceId, createdAt, deletedAt} = resource[0];
+          let st;
+          if(productStatus == 'Active'){
+            st =  "AC" ;
+          }
+          const subscribeProduct = {
+            "subscribedProductFrom": createdAt,
+            "subscribedProductTo": deletedAt ,
+            "catalogPlanProductType": "ON",
+            "resourceId": resourceId,
+            subscribedProductStatus: st
+
+          }
+        await this.subscriptionService.createSubscribedProduct(subscribeProduct, partyId, systemId, customerAccountKey, productCode);   
+        break;
         case "SubscriptionUpdated":
-           await this.subscriptionService.updateSubscription(subscriptionExtSubscriptionId, subscriptionData, partyId, systemId);
+          await this.subscriptionService.updateSubscription(subscriptionExtSubscriptionId, subscriptionData, partyId, systemId);
           break;
         default:
           break;

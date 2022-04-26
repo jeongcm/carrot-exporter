@@ -16,7 +16,7 @@
     "deploy:dev": "pm2 start ecosystem.config.js --only dev"
   },
   "dependencies": {
-    "@types/lodash": "^4.14.181",
+    "@types/lodash": "^4.14.182",
     "@types/node-fetch": "^2.6.1",
     "@types/passport": "^1.0.7",
     "axios": "^0.26.1",
