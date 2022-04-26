@@ -68,6 +68,9 @@ class PartyController {
       if (createdUser) {
         res.status(201).json({ data: createdUser, message: 'created' });
       }
+      else {
+        res.status(500).json({ message: "user can't be created" });
+      }
     } catch (error) {
       next(error);
     }
