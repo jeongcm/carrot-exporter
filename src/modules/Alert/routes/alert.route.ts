@@ -8,9 +8,9 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import AlertController from '@/modules/Alert/controllers/alert.controller';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
-import { CreateAlertDto } from '@/modules/Alert/dtos/alert.dto';
 // import AuthService from '@/services/auth.service';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
+import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 class AlertRoute implements Routes {
   public router = Router();
   public alertController = new AlertController();
@@ -21,14 +21,14 @@ class AlertRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.get('/alerts/pinned', authMiddleware, this.alertController.getAllPinnedAlerts);
-    this.router.get('/alerts', authMiddleware, this.alertController.getAlerts);
-    this.router.put('/alerts/pin/:id', authMiddleware, this.alertController.updateAlertPin);
-    this.router.delete('/alerts/pin/:id', authMiddleware, this.alertController.deleteAlertPin);
-
-    this.router.get('/alerts/:id', authMiddleware, this.alertController.getAlert);
-    this.router.post('/alerts', authMiddleware, validationMiddleware(CreateAlertDto, 'body'), this.alertController.createAlert);
-    this.router.delete('/alerts/:id', authMiddleware, this.alertController.deleteAlert);
+    this.router.post('/alert/rule', authMiddleware, validationMiddleware(CreateAlertRuleDto, 'body'), this.alertController.createAlertRule);
+    this.router.get('/alert/rule', authMiddleware, this.alertController.getAllAlertRules);
+    this.router.put(
+      '/alert/rule/:alertRuleId',
+      authMiddleware,
+      validationMiddleware(CreateAlertRuleDto, 'body'),
+      this.alertController.updateAlertRule,
+    );
   }
 }
 

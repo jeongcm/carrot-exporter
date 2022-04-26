@@ -1,104 +1,49 @@
-import { NextFunction, Request, Response } from 'express';
-import { IAlert } from '@/common/interfaces/alert.interface';
-import AlertService from '@/modules/Alert/services/alert.service';
-import { CreateAlertDto, AlertListDto } from '@/modules/Alert/dtos/alert.dto';
-import { RequestWithUser } from '@/common/interfaces/auth.interface';
+import { NextFunction, Response } from 'express';
+import { IRequestWithUser } from '@/common/interfaces/party.interface';
+import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
+import AlertRuleService from '../services/alertRule.service';
+import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 
-class AlertController {
-  public alertService = new AlertService();
+class AlertRuleController {
+  public alertRuleService = new AlertRuleService();
 
-  public getAlerts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const currentTenancyPk = req.user.currentTenancyPk;
-
+  public getAllAlertRules = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const allAlerts: AlertListDto[] = await this.alertService.getAllAlerts(currentTenancyPk);
-      res.status(200).json({ data: allAlerts, message: 'findAll' });
+      const customerAccountKey = req.customerAccountKey;
+      const findAllChannelsData: IAlertRule[] = await this.alertRuleService.getAlertRule(customerAccountKey);
+      res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
     } catch (error) {
       next(error);
     }
   };
 
-  public getAllPinnedAlerts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const currentTenancyPk = req.user.currentTenancyPk;
-
+  public updateAlertRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const allPinnedAlerts: AlertListDto[] = await this.alertService.getAllPinnedAlerts(currentTenancyPk);
-      res.status(200).json({ data: allPinnedAlerts, message: 'findAllPinned' });
+      const alertRuleId: string = req.params.alertRuleId;
+      const {
+        user: { partyId },
+      } = req;
+      const alertRuleData = req.body;
+      const customerAccountKey = req.customerAccountKey;
+      const updateAlertRuleData: IAlertRule = await this.alertRuleService.updateAlertRule(alertRuleId, alertRuleData, customerAccountKey, partyId);
+      res.status(200).json({ data: updateAlertRuleData, message: 'updated' });
     } catch (error) {
       next(error);
     }
   };
-
-  public getAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = req.params.id;
-
+  public createAlertRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const alert: IAlert = await this.alertService.getAlertById(id);
-      res.status(200).json({ data: alert, message: `find alert id(${id}) ` });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public createAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const currentTenancyPk = req.user.currentTenancyPk;
-
-    try {
-      const alertData: CreateAlertDto = req.body;
-      const createAlertData: IAlert = await this.alertService.createAlert(alertData, currentTenancyPk);
-      res.status(201).json({ data: createAlertData, message: 'created' });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public deleteAlert = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = req.params.id;
-    const alert = await this.alertService.getAlertById(id);
-
-    if (!alert) {
-      return res.sendStatus(404);
-    }
-
-    try {
-      await this.alertService.deleteAlertById(id);
-      res.status(204).json({ message: `delete alert id(${id})` });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public updateAlertPin = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = req.params.id;
-    const alert = await this.alertService.getAlertById(id);
-
-    if (!alert) {
-      return res.sendStatus(404);
-    }
-
-    try {
-      await this.alertService.updateAlertPin(id);
-      res.status(200).json({ message: `pin alert id(${id}) success.` });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  public deleteAlertPin = async (req: RequestWithUser, res: Response, next: NextFunction) => {
-    const id = req.params.id;
-    const alert = await this.alertService.getAlertById(id);
-
-    if (!alert) {
-      return res.sendStatus(404);
-    }
-
-    try {
-      await this.alertService.deleteAlertPin(id);
-      res.status(200).json({ message: `unpin alert id(${id}) success.` });
+      const customerAccountKey = req.customerAccountKey;
+      const {
+        user: { partyId },
+      } = req;
+      const alertRuleData: CreateAlertRuleDto = req.body;
+      const createAlertRuleData: IAlertRule = await this.alertRuleService.createAlertRule(alertRuleData, customerAccountKey, partyId);
+      res.status(201).json({ data: createAlertRuleData, message: 'created' });
     } catch (error) {
       next(error);
     }
   };
 }
 
-export default AlertController;
+export default AlertRuleController;
