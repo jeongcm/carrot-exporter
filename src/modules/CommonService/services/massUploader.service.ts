@@ -223,7 +223,7 @@ class massUploaderService {
     //create sql to delete the retired resources if exist.   
     if (lengthOfDifference > 0) {
         var query_delete = ""; 
-        query_delete += "UPDATE Resource SET deleted_at = NOW(), updated_at = NOW(), updated_by = 'SYSTEM'  WHERE resource_target_uuid IN (";
+        query_delete += "UPDATE Resource SET deleted_at = NOW(), updated_at = NOW(), updated_by = 'SYSTEM', resource_active = 0  WHERE resource_target_uuid IN (";
         for (let i = 0; i < lengthOfDifference; i++) {
             if (lengthOfDifference == 1) {
                 query_delete += "'" + difference[i] + "')"; 
