@@ -1,10 +1,11 @@
 import { NextFunction, Response } from 'express';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
-import { AlertReceivedDto, CreateAlertRuleDto } from '../dtos/alertRule.dto';
+import {CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import AlertRuleService from '../services/alertRule.service';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import AlertReceivedService from '../services/alertReceived.service';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
+import { AlertReceivedDto } from '../dtos/alertReceived.dto';
 
 class AlertRuleController {
   public alertRuleService = new AlertRuleService();
@@ -42,6 +43,22 @@ class AlertRuleController {
       next(error);
     }
   };
+
+  public updateAlertReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertReceivedId: string = req.params.alertReceivedId;
+      const {
+        user: { partyId },
+      } = req;
+      const alertReceivedData = req.body;
+      const customerAccountKey = req.customerAccountKey;
+      const updateAlertReceivedData: IAlertReceived = await this.alertReceivedService.updateAlertReceived(alertReceivedId, alertReceivedData, customerAccountKey, partyId);
+      res.status(200).json({ data: updateAlertReceivedData, message: 'updated' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public createAlertRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
@@ -63,6 +80,21 @@ class AlertRuleController {
       const alertReceivedData: AlertReceivedDto = req.body;
       const createAlertReceivedData: IAlertReceived = await this.alertReceivedService.createAlertReceived(alertReceivedData, customerAccountKey, partyId);
       res.status(201).json({ data: createAlertReceivedData, message: 'created' });
+    }catch(error){
+      next(error);
+    }
+  }
+
+  public deleteAlertReceived = async (req:IRequestWithUser, res:Response, next:NextFunction) => {
+    try{
+      const alertReceivedId: string = req.params.alertReceivedId;
+      const customerAccountKey = req.customerAccountKey;
+      const deletedFlag = await this.alertReceivedService.deleteAlertReceived(customerAccountKey, alertReceivedId);
+      if (deletedFlag){
+        res.status(200).json({ data: deletedFlag, message: 'deleted' });
+      }else{
+        res.status(204).json({ data: deletedFlag, message: 'No Content' });
+      }
     }catch(error){
       next(error);
     }

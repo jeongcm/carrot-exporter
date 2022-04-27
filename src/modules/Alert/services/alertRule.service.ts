@@ -1,11 +1,10 @@
 import { HttpException } from '@/common/exceptions/HttpException';
-import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import { isEmpty } from '@/common/utils/util';
 import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
-import { AlertReceivedDto, CreateAlertRuleDto } from '../dtos/alertRule.dto';
+import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 class AlertRuleService {
   public tableIdService = new TableIdService();
   public alertRule = DB.AlertRule;
@@ -37,16 +36,16 @@ class AlertRuleService {
   public async updateAlertRule(alertRuleId: string, alertRuleData: CreateAlertRuleDto, customerAccountKey: number, partyId: string): Promise<IAlertRule> {
     if (isEmpty(alertRuleData)) throw new HttpException(400, 'AlertRule Data cannot be blank');
     const findAlertRule: IAlertRule = await this.alertRule.findOne({ where: { alertRuleId } });
-    if (!findAlertRule) throw new HttpException(409, "Alert Rule doesn't exist");
-    const updatedChannelData = {
+    if (!findAlertRule) throw new HttpException(409, "AlertRule doesn't exist");
+    const updatedAlertRuleData = {
       ...alertRuleData,
       customerAccountKey: customerAccountKey,
       updatedBy: partyId,
       updatedAt: new Date(),
     };
-    await this.alertRule.update(updatedChannelData, { where: { alertRuleId: alertRuleId } });
+    await this.alertRule.update(updatedAlertRuleData, { where: { alertRuleId: alertRuleId } });
 
-    return this.findAlertRuleById(alertRuleId);
+    return await this.findAlertRuleById(alertRuleId);
   }
 
   public async createAlertRule(alertRuleData: CreateAlertRuleDto, customerAccountKey: number, partyId: string): Promise<IAlertRule> {
