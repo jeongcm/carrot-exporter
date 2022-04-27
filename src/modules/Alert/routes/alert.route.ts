@@ -11,6 +11,7 @@ import validationMiddleware from '@/common/middlewares/validation.middleware';
 // import AuthService from '@/services/auth.service';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
+import { AlertReceivedDto } from '../dtos/alertReceived.dto';
 class AlertRoute implements Routes {
   public router = Router();
   public alertController = new AlertController();
@@ -29,6 +30,8 @@ class AlertRoute implements Routes {
       validationMiddleware(CreateAlertRuleDto, 'body'),
       this.alertController.updateAlertRule,
     );
+    this.router.post('/alert/received',authMiddleware,validationMiddleware(AlertReceivedDto,'body'), this.alertController.createAlertReceived);
+    this.router.get('/alert/received',authMiddleware,this.alertController.getAllAlertReceived);
   }
 }
 

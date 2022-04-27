@@ -1,6 +1,6 @@
-import { IsString, IsNotEmpty, IsNumber, IsDate, isNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsDate, isNotEmpty, IsObject } from 'class-validator';
 
-export class CreateAlertRuleDto{
+export class CreateAlertRuleDto {
   @IsString()
   @IsNotEmpty()
   public alertRuleName: string;
@@ -44,5 +44,5 @@ export class CreateAlertRuleDto{
   @IsString()
   @IsNotEmpty()
   public resourceGroupUUID: string;
-
 }
+
