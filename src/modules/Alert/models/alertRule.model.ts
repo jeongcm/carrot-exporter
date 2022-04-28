@@ -20,9 +20,9 @@ export type AlertRuleCreationAttributes = Optional<
   | 'alertRuleDescription'
   | 'alertRuleSummary'
   | 'alertRuleRunbook'
-  | 'alertRuleMlGroup'
-  | 'alertRuleMlSubGroup'
-  | 'resourceGroupUuid'
+  | 'alertRuleMLGroup'
+  | 'alertRuleMLSubGroup'
+  | 'resourceGroupUUID'
 >;
 
 export class AlertRuleModel extends Model<IAlertRule, AlertRuleCreationAttributes> implements IAlertRule {
@@ -42,9 +42,9 @@ export class AlertRuleModel extends Model<IAlertRule, AlertRuleCreationAttribute
   public alertRuleDescription: string;
   public alertRuleSummary: string;
   public alertRuleRunbook: string;
-  public alertRuleMlGroup: string;
-  public alertRuleMlSubGroup: string;
-  public resourceGroupUuid: string;
+  public alertRuleMLGroup: string;
+  public alertRuleMLSubGroup: string;
+  public resourceGroupUUID: string;
   
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -125,15 +125,15 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
-      alertRuleMlGroup: {
+      alertRuleMLGroup: {
         type: DataTypes.STRING(2),
         allowNull: false,
       },
-      alertRuleMlSubGroup: {
+      alertRuleMLSubGroup: {
         type: DataTypes.STRING(2),
         allowNull: false,
       },
-      resourceGroupUuid: {
+      resourceGroupUUID: {
         type: DataTypes.STRING(100),
         allowNull: false,
       },

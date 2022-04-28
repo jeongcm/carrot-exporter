@@ -4,7 +4,6 @@ import sequelizeErd from 'sequelize-erd';
 import { logger } from '@/common/utils/logger';
 import UserModel from '@/modules/UserTenancy/models/users.model';
 import AccessGroupModel from '@/modules/UserTenancy/models/accessGroup.model';
-import AlertModel from '@/modules/Alert/models/alert.model';
 import AlertRuleModel from '@/modules/Alert/models/alertRule.model';
 import AlertReceivedModel from '@/modules/Alert/models/alertReceived.model';
 import LogModel from '@/modules/Log/models/log.model';
@@ -88,7 +87,6 @@ const DB = {
   AccessGroupMember: AccessGroupMemberModel(sequelize),
   Tenancies: TenancyModel(sequelize),
   TenancyMembers: TenancyMemberModel(sequelize),
-  Alerts: AlertModel(sequelize),
   Log: LogModel(sequelize),
   Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
