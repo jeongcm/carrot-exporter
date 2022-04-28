@@ -14,6 +14,7 @@ import { CreateIncidentActionDto } from '@/modules/Incident/dtos/incidentAction.
 import { CreateIncidentActionAttachmentDto } from '@/modules/Incident/dtos/incidentActionAttachment.dto';
 
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
+import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
 
 class IncidentRoute implements Routes {
   public router = Router();
@@ -25,46 +26,67 @@ class IncidentRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/incidents', authMiddleware, validationMiddleware(CreateIncidentDto, 'body'), this.incidentController.createIncident);
-    this.router.get('/incidents', authMiddleware, this.incidentController.getIncidents);
-    this.router.get('/incidents/counts', authMiddleware, this.incidentController.getIncidentCounts);
-    this.router.get('/incidents/:incidentId', authMiddleware, this.incidentController.getIncident);
+    this.router.post(
+      '/incidents',
+      authMiddleware,
+      validationMiddleware(CreateIncidentDto, 'body'),
+      createUserLogMiddleware,
+      this.incidentController.createIncident,
+    );
+    this.router.get('/incidents', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidents);
+    this.router.get('/incidents/counts', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidentCounts);
+    this.router.get('/incidents/:incidentId', authMiddleware, createUserLogMiddleware, this.incidentController.getIncident);
     this.router.put(
       '/incidents/:incidentId',
       authMiddleware,
       validationMiddleware(CreateIncidentDto, 'body'),
+      createUserLogMiddleware,
       this.incidentController.updateIncident,
     );
-    this.router.delete('/incidents/:incidentId', authMiddleware, this.incidentController.deleteIncident);
+    this.router.delete('/incidents/:incidentId', authMiddleware, createUserLogMiddleware, this.incidentController.deleteIncident);
 
     this.router.post(
       '/incidents/:incidentId/actions',
       authMiddleware,
       validationMiddleware(CreateIncidentActionDto, 'body'),
+      createUserLogMiddleware,
       this.incidentController.createIncidentAction,
     );
-    this.router.get('/incidents/:incidentId/actions', authMiddleware, this.incidentController.getIncidentActions);
+    this.router.get('/incidents/:incidentId/actions', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidentActions);
     this.router.put(
       '/incidents/:incidentId/actions/:actionId',
       authMiddleware,
       validationMiddleware(CreateIncidentActionDto, 'body'),
+      createUserLogMiddleware,
       this.incidentController.updateIncidentAction,
     );
-    this.router.delete('/incidents/:incidentId/actions/:actionId', authMiddleware, this.incidentController.deleteIncidentAction);
+    this.router.delete(
+      '/incidents/:incidentId/actions/:actionId',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.incidentController.deleteIncidentAction,
+    );
 
     this.router.post(
       '/incidents/:incidentId/actions/:actionId/attachment',
       authMiddleware,
       validationMiddleware(CreateIncidentActionAttachmentDto, 'body'),
+      createUserLogMiddleware,
       this.incidentController.createIncidentActionAttachment,
     );
 
-    this.router.get('/incidents/:incidentId/actions/:actionId/attachment', authMiddleware, this.incidentController.getIncidentActionAttachment);
+    this.router.get(
+      '/incidents/:incidentId/actions/:actionId/attachment',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.incidentController.getIncidentActionAttachment,
+    );
 
     this.router.put(
       '/incidents/:incidentId/actions/:actionId/attachment/:attachmentId',
       authMiddleware,
       validationMiddleware(CreateIncidentActionAttachmentDto, 'body'),
+      createUserLogMiddleware,
       this.incidentController.updateIncidentActionAttachment,
     );
 
@@ -86,6 +108,7 @@ class IncidentRoute implements Routes {
       '/incidents/:incidentId/status',
       authMiddleware,
       validationMiddleware(UpdateIncidentStatusDto, 'body'),
+      createUserLogMiddleware,
       this.incidentController.updateIncidentStatus,
     );
   }

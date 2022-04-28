@@ -9,6 +9,7 @@ import {
   IParty,
   IPartyRelation,
   IPartyResponse,
+  IPartyUserAPILog,
   IPartyUserResponse,
   IRequestWithSystem,
   IRequestWithUser,
@@ -67,8 +68,7 @@ class PartyController {
 
       if (createdUser) {
         res.status(201).json({ data: createdUser, message: 'created' });
-      }
-      else {
+      } else {
         res.status(500).json({ message: "user can't be created" });
       }
     } catch (error) {
@@ -299,6 +299,25 @@ class PartyController {
       const resourceOfAccessGroup = await this.partyService.getResourceOfAccessGroup(customerAccountKey, partyId);
 
       res.status(200).json({ data: resourceOfAccessGroup, message: 'resources of AccessGroup All' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getUserAPILog = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const partyId: string = req.params.partyId;
+
+    const party: IParty = await this.partyService.getUser(customerAccountKey, partyId);
+
+    if (!party) {
+      res.status(409).json({ message: `PartyUser (id: ${partyId})  doesn't exist` });
+    }
+
+    try {
+      const userAPILog: IPartyUserAPILog[] = await this.partyService.getUserAPILog(partyId);
+
+      res.status(200).json({ data: userAPILog, message: 'All partyUser API logs' });
     } catch (error) {
       next(error);
     }

@@ -19,6 +19,7 @@ import {
   IPartyResource,
   IPartyResponse,
   IPartyUser,
+  IPartyUserAPILog,
   IPartyUserResponse,
   ITokenData,
 } from '@/common/interfaces/party.interface';
@@ -39,6 +40,8 @@ import { logger } from '@/common/utils/logger';
 
 import { ResourceModel } from '@/modules/Resources/models/resource.model';
 import { PartyResourceModel } from '../models/partyResource.model';
+import { IApi } from '@/common/interfaces/api.interface';
+import { ApiModel } from '@/modules/Api/models/api.models';
 
 /**
  * @memberof Party
@@ -49,6 +52,8 @@ class PartyService {
   public partyRelation = DB.PartyRelation;
   public resource = DB.Resource;
   public partyResource = DB.PartyResource;
+  public partyUserLogs = DB.PartyUserLogs;
+  public api = DB.Api;
 
   public tableIdService = new tableIdService();
 
@@ -110,8 +115,8 @@ class PartyService {
 
       return await DB.sequelize.transaction(async t => {
         let hashedPassword;
-        if(createPartyUserData && createPartyUserData.password){
-           hashedPassword = await bcrypt.hash(createPartyUserData.password, 10);
+        if (createPartyUserData && createPartyUserData.password) {
+          hashedPassword = await bcrypt.hash(createPartyUserData.password, 10);
         }
 
         const createdParty: IParty = await this.party.create(
@@ -139,7 +144,7 @@ class PartyService {
             password: hashedPassword,
             email: createPartyUserData.email,
             isEmailValidated: false,
-            partyUserStatus:createPartyUserData.partyUserStatus
+            partyUserStatus: createPartyUserData.partyUserStatus,
           },
           { transaction: t },
         );
@@ -158,11 +163,10 @@ class PartyService {
           mobile: createPartyUserData?.mobile,
           email: createPartyUserData.email,
           isEmailValidated: false,
-          partyUserStatus:createPartyUserData.partyUserStatus
+          partyUserStatus: createPartyUserData.partyUserStatus,
         };
       });
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   public async updateUser(customerAccountKey: number, logginedUserId: string, updateUserId: string, updateUserData: UpdateUserDto): Promise<IParty> {
@@ -473,6 +477,24 @@ class PartyService {
     );
 
     return updated;
+  }
+
+  public async getUserAPILog(partyId: string): Promise<IPartyUserAPILog[]> {
+    const partyUser: IPartyUser = await this.partyUser.findOne({
+      where: { partyUserId: partyId },
+      attributes: ['partyUserKey'],
+    });
+
+    const partyUserAPILog: any = await this.partyUserLogs.findAll({
+      where: { partyUserKey: partyUser.partyUserKey },
+      attributes: { exclude: ['partyUserLogsKey', 'partyUserKey', 'apiKey'] },
+      include: {
+        model: ApiModel,
+        attributes: { exclude: ['apiKey'] },
+      },
+    });
+
+    return partyUserAPILog;
   }
 
   public async login(loginData: LoginDto): Promise<{ cookie: string; findUser: IPartyUser; token: string }> {

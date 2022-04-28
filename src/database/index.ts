@@ -38,6 +38,7 @@ import TableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import PartyChannelModel from '@/modules/Party/models/partychannel.model';
 import NotificationModel from '@/modules/Notification/models/notification.model';
 import PartyResourceModel from '@/modules/Party/models/partyResource.model';
+import PartyUserLogsModel from '@/modules/Party/models/partyUserLogs.model';
 import config from 'config';
 import InitialRecordService from './initialRecord';
 
@@ -112,6 +113,7 @@ const DB = {
   ResourceGroup: ResourceGroupModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
+  PartyUserLogs: PartyUserLogsModel(sequelize),
   Notification: NotificationModel(sequelize),
   Subscription: SubscriptionModel(sequelize),
   SubscribedProduct: SubscribedProductModel(sequelize),
@@ -272,6 +274,26 @@ DB.Party.hasMany(DB.PartyResource, { foreignKey: 'partyKey' });
 DB.Resource.hasMany(DB.PartyResource, { foreignKey: 'resourceKey' });
 DB.PartyResource.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 DB.PartyResource.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
+
+DB.PartyUser.belongsToMany(DB.Api, {
+  through: {
+    model: 'PartyUserLogs',
+    unique: false,
+  },
+  foreignKey: 'partyUserKey',
+  as: 'api',
+});
+DB.Api.belongsToMany(DB.PartyUser, {
+  through: {
+    model: 'PartyUserLogs',
+    unique: false,
+  },
+  foreignKey: 'apiKey',
+  as: 'partyUser',
+});
+
+DB.Api.hasMany(DB.PartyUserLogs, { foreignKey: 'apiKey' });
+DB.PartyUserLogs.belongsTo(DB.Api, { foreignKey: 'apiKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

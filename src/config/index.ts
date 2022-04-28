@@ -11,6 +11,7 @@ How to add config:
 // 3. For security
 import validateEnv from './validateEnv';
 import tableIds from '../../init/tableId.seeding.json';
+import api from '../../init/api.seeding.json';
 
 validateEnv();
 
@@ -83,14 +84,15 @@ export default {
       email: process.env.NC_LARI_SYSTEM_PARTYUSER_EMAIL,
     },
     tableIds,
+    api,
   },
   deadLock: {
     retries: Number(process.env.NC_LARI_DEADLOCK_RETRIES) || 5,
     maxMillis: Number(process.env.NC_LARI_DEADLOCK_MAXMILLIS) || 100,
-    minMillis: Number(process.env.NC_LARI_DEADLOCK_MINMILLIS) || 1
+    minMillis: Number(process.env.NC_LARI_DEADLOCK_MINMILLIS) || 1,
   },
-  fuseBillApiDetail:{
-    apiKey:process.env.FUSEBILL_API_KEY,
-    baseURL:process.env.FUSEBILL_BASE_URL
-  }
+  fuseBillApiDetail: {
+    apiKey: process.env.FUSEBILL_API_KEY,
+    baseURL: process.env.FUSEBILL_BASE_URL,
+  },
 };

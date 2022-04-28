@@ -7,6 +7,7 @@ import systemAuthMiddleware from '@/modules/ApiGateway/middlewares/systemAuth.mi
 import CustomerAccountController from '@modules/CustomerAccount/controllers/customerAccount.controller';
 import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/customerAccount.dto';
 import { CreateAddressDto } from '@/modules/Address/dtos/address.dto';
+import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
 
 class CustomerAccountRoute implements Routes {
   public router = Router();
@@ -21,15 +22,28 @@ class CustomerAccountRoute implements Routes {
       '/customerAccount',
       systemAuthMiddleware,
       validationMiddleware(CreateCustomerAccountDto, 'body'),
+      createUserLogMiddleware,
       this.customerAccountController.createCustomerAccount,
     );
 
-    this.router.get('/customerAccount', this.customerAccountController.getCustomerAccounts);
-    this.router.get('/customerAccount/:customerAccountId', this.customerAccountController.getCustomerAccountById);
+    this.router.get(
+      '/customerAccount',
+      systemAuthMiddleware,
+      authMiddleware,
+      createUserLogMiddleware,
+      this.customerAccountController.getCustomerAccounts,
+    );
+    this.router.get(
+      '/customerAccount/:customerAccountId',
+      systemAuthMiddleware,
+      createUserLogMiddleware,
+      this.customerAccountController.getCustomerAccountById,
+    );
     this.router.put(
       '/customerAccount/:customerAccountId',
       authMiddleware,
       validationMiddleware(CreateCustomerAccountDto, 'body'),
+      createUserLogMiddleware,
       this.customerAccountController.updateCustomerAccountById,
     );
 
@@ -37,10 +51,16 @@ class CustomerAccountRoute implements Routes {
       '/customerAccount/:customerAccountId/address',
       authMiddleware,
       validationMiddleware(CreateAddressDto, 'body'),
+      createUserLogMiddleware,
       this.customerAccountController.addCustomerAddress,
     );
 
-    this.router.delete('/customerAccount/:customerAccountId/address', authMiddleware, this.customerAccountController.dropCustomerAddress);
+    this.router.delete(
+      '/customerAccount/:customerAccountId/address',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.customerAccountController.dropCustomerAddress,
+    );
   }
 }
 

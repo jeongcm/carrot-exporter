@@ -1,0 +1,261 @@
+[
+  {
+    "apiName": "createCustomerAccount",
+    "apiDescription": "create customerAccount.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/customerAccount",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getCustomerAccounts",
+    "apiDescription": "get all customerAccounts.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/customerAccount",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getCustomerAccountById",
+    "apiDescription": "get customerAccount by customerAccount Id.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/customerAccount/:customerAccountId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateCustomerAccountById",
+    "apiDescription": "update customerAccount by customerAccount Id.",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/customerAccount/:customerAccountId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "addCustomerAddress",
+    "apiDescription": "add address to the customerAccount.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/customerAccount/:customerAccountId/address",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "dropCustomerAddress",
+    "apiDescription": "drop address from the customerAccount.",
+    "apiEndPoint1": "DELETE",
+    "apiEndPoint2": "/customerAccount/:customerAccountId/address",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "login",
+    "apiDescription": "login",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/login",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "logout",
+    "apiDescription": "logout",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/logout",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createUser",
+    "apiDescription": "create a partyUser",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/party/user",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getUsers",
+    "apiDescription": "get all partyUser in the same customer account.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/party/user",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getUser",
+    "apiDescription": "get the partyUser by partyId.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/party/user/:partyUserId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateUser",
+    "apiDescription": "update the partyUser.",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/party/user/:partyUserId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createAccessGroup",
+    "apiDescription": "create an accessgroup.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/party/accessgroup",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getAccessGroups",
+    "apiDescription": "get all accessgroups in the same customerAccount.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/party/accessgroup",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getAccessGroup",
+    "apiDescription": "get an accessgroup by partyId.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/party/accessgroup/:partyId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateAccessGroup",
+    "apiDescription": "update the accessgroup.",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/party/accessgroup/:partyId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "addUserToAccessGroup",
+    "apiDescription": "add user(s) to the accessgroup.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/party/accessgroup/:partyId/users",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getUserOfAccessGroup",
+    "apiDescription": "get user of the accessgroup.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/party/accessgroup/:partyId/users",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "removeUserFromAccessGroup",
+    "apiDescription": "remove user(s) from the accessgroup.",
+    "apiEndPoint1": "DELETE",
+    "apiEndPoint2": "/party/accessgroup/:partyId/users",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "addResourceToAccessGroup",
+    "apiDescription": "add resources to the accessgroup.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/party/accessgroup/:partyId/resource",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "removeResourceFromAccessGroup",
+    "apiDescription": "remove resources from the accessgroup.",
+    "apiEndPoint1": "DELETE",
+    "apiEndPoint2": "/party/accessgroup/:partyId/resource",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getResourceOfAccessGroup",
+    "apiDescription": "get resources from the accessgroup.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/party/accessgroup/:partyId/resource",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getUserAPILog",
+    "apiDescription": "get UserAPILogs by partyId.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/party/:partyId/apilog",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createIncident",
+    "apiDescription": "create an incident.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/incidents",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getIncidents",
+    "apiDescription": "get all incidents.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/incidents",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getIncidentCounts",
+    "apiDescription": "get counts of all incidnets.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/incidents/counts",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getIncident",
+    "apiDescription": "get the incident.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/incidents/:incidentId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateIncident",
+    "apiDescription": "update the incident.",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/incidents/:incidentId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "deleteIncident",
+    "apiDescription": "delete the incident.",
+    "apiEndPoint1": "DELETE",
+    "apiEndPoint2": "/incidents/:incidentId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createIncidentAction",
+    "apiDescription": "create an incident action.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/incidents/:incidentId/actions",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getIncidentActions",
+    "apiDescription": "get all actions of the incident.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/incidents/:incidentId/actions",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateIncidentAction",
+    "apiDescription": "update the action of the incident.",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/incidents/:incidentId/actions/:actionId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "deleteIncidentAction",
+    "apiDescription": "delete actions of the incident.",
+    "apiEndPoint1": "DELETE",
+    "apiEndPoint2": "/incidents/:incidentId/actions/:actionId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createIncidentActionAttachment",
+    "apiDescription": "create an action attachment of the incident.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/incidents/:incidentId/actions/:actionId/attachment",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getIncidentActionAttachment",
+    "apiDescription": "get action attachments of the incident.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/incidents/:incidentId/actions/:actionId/attachment",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateIncidentActionAttachment",
+    "apiDescription": "update the action attachment of the incident.",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/incidents/:incidentId/actions/:actionId/attachment/:attachmentId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateIncidentStatus",
+    "apiDescription": "update the status of the incident.",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/incidents/:incidentId/status",
+    "apiVisibleTF": true
+  }
+]
