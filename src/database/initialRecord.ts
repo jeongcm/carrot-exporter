@@ -29,6 +29,7 @@ class InitialRecordService {
         const getTableId: ITableId = await this.tableId.findOne({ where: { tableIdTableName: 'customerAccount' }, transaction: t });
         const getApi: IApi = await this.api.findOne({ where: { apiEndPoint2: '/customerAccount' }, transaction: t });
 
+// error fixed.. 04/29/22 @JerryL         
 //        if (getTableId) {
 //          return;
 //        }
@@ -36,6 +37,8 @@ class InitialRecordService {
         if (!getTableId) {
           await this.tableId.bulkCreate(tableIds);
         }
+        console.log("11111111111");
+        console.log(getApi);
 
         if (!getApi) {
           let insertDataList = [];
@@ -56,6 +59,7 @@ class InitialRecordService {
         const partyUserTableId = await this.tableIdService.getTableIdByTableName('PartyUser');
 
         if (!customerAccountTableId || !partyUserTableId) {
+          console.log("return2222222222222");
           return;
         }
 
