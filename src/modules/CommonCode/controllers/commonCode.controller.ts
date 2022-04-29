@@ -10,7 +10,7 @@ class CommonCodeController {
   public createCommonCode = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const commonCodeData: CommonCodeDto = req.body;
-      const currentUserId = req.user.partyId;
+      const currentUserId = req?.user?.partyId;
       const createCommonCodeData: ICommonCode = await this.commonCodeService.createCommonCode(commonCodeData, currentUserId);
 
       const { commonCodeId, createdBy, createdAt, commonCodeDescription, commonCodeDisplayENG, commonCodeDisplayKOR } = createCommonCodeData;
