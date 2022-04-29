@@ -68,7 +68,7 @@ class massUploaderService {
     // query below will cover "insert" of new resources or "update" of existing resources. 
 
     const query1 = `INSERT INTO Resource (resource_id, created_by, created_at, resource_target_uuid, resource_target_created_at, 
-                      resource_name, resource_type, resource_labels, resource_annotations, resource_description, resource_status,
+                      resource_name, resource_namespace, resource_type, resource_labels, resource_annotations, resource_description, resource_status,
                       resource_level1, resource_level2, resource_level3, resource_level4, resource_level_type, resource_instance,
                       resource_pod_phase, resource_pod_container, resource_replicas, resource_sts_volume_claim_templates,
                       resource_pvc_storage, resource_pvc_volume_name, resource_pvc_storage_class_name, resource_pvc_volume_mode, resource_endpoint,
@@ -79,7 +79,8 @@ class massUploaderService {
                       customer_account_key, resource_group_key ) VALUES ?
                       ON DUPLICATE KEY UPDATE 
                       resource_active=VALUES(resource_active),
-                      resource_name=VALUES(resource_name), 
+                      resource_name=VALUES(resource_name),
+                      resource_namespace=VALUES(resource_namespace),  
                       resource_type=VALUES(resource_type),
                       resource_labels=VALUES(resource_labels),
                       resource_annotations=VALUES(resource_annotations),
@@ -148,10 +149,11 @@ class massUploaderService {
             resource_id, //resource_Id
             'SYSTEM', // created_By
             new Date(), //created_At
-            resourceMassFeed.resource[i].resource_Target_Uuid, //resource_Target_Uuid,
-            resource_Target_Created_At, // resource_Target_Created_At
-            resourceMassFeed.resource[i].resource_Name, // resource_Name
-            resourceMassFeed.resource[i].resource_Type, // resource_Type
+            resourceMassFeed.resource[i].resource_Target_Uuid, 
+            resource_Target_Created_At, 
+            resourceMassFeed.resource[i].resource_Name, 
+            resourceMassFeed.resource[i].resource_Namespace,
+            resourceMassFeed.resource[i].resource_Type, 
             resource_lables,
             resource_annotations,
             resourceMassFeed.resource[i].resource_Description || 'some description',
