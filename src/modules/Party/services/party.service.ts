@@ -34,7 +34,7 @@ import {
 } from '@/modules/Party/dtos/party.dto';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
-import config from 'config';
+import config from '@config/index';
 
 import { logger } from '@/common/utils/logger';
 

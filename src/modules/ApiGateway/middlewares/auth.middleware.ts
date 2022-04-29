@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import DB from '@/database';
 import { HttpException } from '@/common/exceptions/HttpException';
 
-import config from 'config';
+import config from '@config/index';
 import { IDataStoredInToken, IRequestWithUser } from '@/common/interfaces/party.interface';
 import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 
