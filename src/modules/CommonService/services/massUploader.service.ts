@@ -252,10 +252,6 @@ class massUploaderService {
                             console.log(err.code); 
                             return;
                         }
-                        //fieldCount = result.fieldCount;
-                        //affectedRows = result.affectedRows;
-                        //insertId = result.insertId;
-                        //info = result.info;
                         console.log(result);
                     }
                     );

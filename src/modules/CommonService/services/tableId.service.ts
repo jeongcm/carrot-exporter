@@ -127,8 +127,8 @@ class TableIdService {
         setTimeout(function() {
           this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });            
         },sleepMillis);
-      }     
-    }  
+      } // end of second if    
+    } // end of catch 
 
     const updateDBResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
     const updateResult: IResponseIssueTableIdBulkDto = {tableIdTableName:updateDBResult.tableIdTableName, tableIdFinalIssued:updateDBResult.tableIdFinalIssued, tableIdRange, tableIdSequenceDigit:updateDBResult.tableIdSequenceDigit};

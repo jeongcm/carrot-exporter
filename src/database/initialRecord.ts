@@ -1,7 +1,7 @@
 import DB from '@/database';
 
 import tableIdService from '@/modules/CommonService/services/tableId.service';
-import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import { IResponseIssueTableIdBulkDto, IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { ITableId } from '@/common/interfaces/tableId.interface';
 import config from 'config';
 import { IApi } from '@/common/interfaces/api.interface';
@@ -41,14 +41,30 @@ class InitialRecordService {
         if (!getApi) {
           let insertDataList = [];
 
+          // pre-step to be ready to use bulk table id
+          let apiListLength = apiList.length;
+          const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Api',apiListLength);
+          const api_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
+          let api_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
+          let api_id_postfix = '';
+          const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
+          //
+
           for (const apiObj of apiList) {
-            const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('Api');
+            // creating tableid from bulk
+            api_id_postfix_number = api_id_postfix_number + 1;
+            api_id_postfix = api_id_postfix_number.toString();
+            while (api_id_postfix.length < tableIdSequenceDigit) {
+                api_id_postfix = '0' + api_id_postfix;
+            }
+            let api_id = api_id_prefix + api_id_postfix;
+
             insertDataList.push({
               ...apiObj,
               createdBy: 'SYSTEM',
-              apiId: responseTableIdData.tableIdFinalIssued,
+              apiId: api_id,
             });
-            console.log(insertDataList);
+//            console.log(insertDataList);
           }
           await this.api.bulkCreate(insertDataList, { transaction: t });
         }
