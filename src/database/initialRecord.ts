@@ -37,13 +37,10 @@ class InitialRecordService {
         if (!getTableId) {
           await this.tableId.bulkCreate(tableIds);
         }
-        console.log("11111111111");
-        console.log(getApi);
 
         if (!getApi) {
           let insertDataList = [];
-          console.log("2222222222");
-          console.log(apiList);
+
           for (const apiObj of apiList) {
             const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('Api');
             insertDataList.push({
@@ -53,7 +50,6 @@ class InitialRecordService {
             });
             console.log(insertDataList);
           }
-          console.log("********", insertDataList); 
           await this.api.bulkCreate(insertDataList, { transaction: t });
         }
 
@@ -61,7 +57,6 @@ class InitialRecordService {
         const partyUserTableId = await this.tableIdService.getTableIdByTableName('PartyUser');
 
         if (!customerAccountTableId || !partyUserTableId) {
-          console.log("return2222222222222");
           return;
         }
 

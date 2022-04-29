@@ -7,8 +7,8 @@ import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/table
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import debug from 'debug';
-import { response } from 'express';
-import { callbackify } from 'util';
+//import { response } from 'express';
+//import { callbackify } from 'util';
 
 
 class massUploaderService {

@@ -1,3 +1,4 @@
+import config from 'config';
 import DB from '@/database';
 import { IResponseIssueTableIdDto, IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
@@ -76,6 +77,8 @@ class TableIdService {
    public async issueTableIdBulk(tableIdTableName: string, tableIdRange: number): Promise<IResponseIssueTableIdBulkDto> {
 
     //console.log(`tableIdRange:::${tableIdRange}`);
+    const maxMillis = config.deadLock.maxMillis || 100;
+    const minMillis = config.deadLock.minMillis || 1;
 
     if (isEmpty(tableIdTableName)) throw new HttpException(400, 'TableName Data cannot be blank');
 
@@ -115,7 +118,17 @@ class TableIdService {
     const idIssuedSequence = currentSequence;
 
     const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: internalAccountParty.partyId};
-    await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
+    
+    try {
+      await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
+    } catch (err) {
+      if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
+        var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis); 
+        setTimeout(function() {
+          this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });            
+        },sleepMillis);
+      }     
+    }  
 
     const updateDBResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
     const updateResult: IResponseIssueTableIdBulkDto = {tableIdTableName:updateDBResult.tableIdTableName, tableIdFinalIssued:updateDBResult.tableIdFinalIssued, tableIdRange, tableIdSequenceDigit:updateDBResult.tableIdSequenceDigit};
