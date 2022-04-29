@@ -29,9 +29,9 @@ class InitialRecordService {
         const getTableId: ITableId = await this.tableId.findOne({ where: { tableIdTableName: 'customerAccount' }, transaction: t });
         const getApi: IApi = await this.api.findOne({ where: { apiEndPoint2: '/customerAccount' }, transaction: t });
 
-        if (getTableId) {
-          return;
-        }
+//        if (getTableId) {
+//          return;
+//        }
 
         if (!getTableId) {
           await this.tableId.bulkCreate(tableIds);
@@ -42,14 +42,13 @@ class InitialRecordService {
 
           for (const apiObj of apiList) {
             const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('Api');
-
             insertDataList.push({
               ...apiObj,
               createdBy: 'SYSTEM',
               apiId: responseTableIdData.tableIdFinalIssued,
             });
           }
-
+          console.log("********", insertDataList); 
           await this.api.bulkCreate(insertDataList, { transaction: t });
         }
 
