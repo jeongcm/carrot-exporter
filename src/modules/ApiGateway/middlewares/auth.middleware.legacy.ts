@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import DB from '@/database';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { DataStoredInToken } from '@/common/interfaces/auth.interface';
-import config from 'config';
+import config from '@config/index';
 
 /**
  * Middleware to be used to authenticate a particular request.

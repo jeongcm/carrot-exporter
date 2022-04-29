@@ -40,7 +40,7 @@ export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttribute
   public mobile: string;
   public password: string;
   public email: string;
-  public partyUserStatus: "DRAFT" | "ACTIVE" | "INACTIVE";
+  public partyUserStatus: "DR" | "AC" | "IN";
   public isEmailValidated: boolean;
   public emailValidatedAt: Date;
   public token: string;
@@ -109,13 +109,13 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
         allowNull: false,
       },
       partyUserStatus: {
-        type: DataTypes.STRING(10),
+        type: DataTypes.STRING(2),
         allowNull: true,
-        defaultValue: "ACTIVE",
+        defaultValue: "AC",
         validate: {
           isIn: {
-              args: [['DRAFT' , 'ACTIVE' , 'INACTIVE']],
-              msg: " subscriptionStatus must be of type  ['DRAFT' | 'ACTIVE' | 'INACTIVE']"
+              args: [['DR' , 'AC' , 'IN']],   // DRAFT, ACTIVE, INACTIVE
+              msg: " subscriptionStatus must be of type  ['DR' | 'AC' | 'IN']"
           }
       }
       },

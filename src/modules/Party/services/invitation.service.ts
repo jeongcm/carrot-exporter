@@ -6,7 +6,7 @@ import { isEmpty } from '@/common/utils/util';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
-import config from 'config';
+import config from '@config/index';
 const nodemailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
 const handlebars = require('handlebars');

@@ -35,7 +35,7 @@ export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreat
   public alertReceivedId: string;
   public createdBy: string;
   public updatedBy: string;
-  public deletedAt: Date;
+  public deletedAt: Date;  
 
   public alertReceivedName: string;
   public alertReceivedValue: string;
@@ -50,7 +50,7 @@ export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreat
   public alertReceivedPod: string;
   public alertReceivedInstance: string;
   public alertReceivedLabels: JSON;
-  public alertReceivedPinned: number;
+  public alertReceivedPinned: boolean;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -153,8 +153,8 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
         allowNull: false,
       },
       alertReceivedPinned: {
-        type: DataTypes.TINYINT,
-        defaultValue: 0,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       },
     },
 

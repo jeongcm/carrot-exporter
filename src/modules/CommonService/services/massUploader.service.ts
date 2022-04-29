@@ -1,4 +1,4 @@
-import config from 'config';
+import config from '@config/index';
 import { IResponseMassUploader, IRequestMassUploader } from '@/common/interfaces/massUploader.interface';
 import resourceService from '@/modules/Resources/services/resource.service';
 import resourceGroupService from '@/modules/Resources/services/resourceGroup.service';

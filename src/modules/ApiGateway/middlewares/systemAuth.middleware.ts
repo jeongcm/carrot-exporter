@@ -4,7 +4,7 @@ import DB from '@/database';
 import { HttpException } from '@/common/exceptions/HttpException';
 
 import { IParty } from '@/common/interfaces/party.interface';
-import config from 'config';
+import config from '@config/index';
 
 /**
  * Middleware to be used to authenticate a particular request.
