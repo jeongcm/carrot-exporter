@@ -42,7 +42,8 @@ class InitialRecordService {
 
         if (!getApi) {
           let insertDataList = [];
-
+          console.log("2222222222");
+          console.log(apiList);
           for (const apiObj of apiList) {
             const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('Api');
             insertDataList.push({
@@ -50,6 +51,7 @@ class InitialRecordService {
               createdBy: 'SYSTEM',
               apiId: responseTableIdData.tableIdFinalIssued,
             });
+            console.log(insertDataList);
           }
           console.log("********", insertDataList); 
           await this.api.bulkCreate(insertDataList, { transaction: t });
