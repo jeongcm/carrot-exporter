@@ -41,6 +41,8 @@ class InitialRecordService {
         if (!getApi) {
           let insertDataList = [];
 
+          console.log ("start.....")
+          
           // pre-step to be ready to use bulk table id
           let apiListLength = apiList.length;
           const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Api',apiListLength);
@@ -49,7 +51,6 @@ class InitialRecordService {
           let api_id_postfix = '';
           const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
           //
-
           for (const apiObj of apiList) {
             // creating tableid from bulk
             api_id_postfix_number = api_id_postfix_number + 1;
@@ -58,14 +59,16 @@ class InitialRecordService {
                 api_id_postfix = '0' + api_id_postfix;
             }
             let api_id = api_id_prefix + api_id_postfix;
-
+            
             insertDataList.push({
               ...apiObj,
               createdBy: 'SYSTEM',
               apiId: api_id,
             });
-//            console.log(insertDataList);
+            
+            //console.log(insertDataList);
           }
+          console.log (insertDataList);
           await this.api.bulkCreate(insertDataList, { transaction: t });
         }
 
@@ -75,56 +78,58 @@ class InitialRecordService {
         if (!customerAccountTableId || !partyUserTableId) {
           return;
         }
+        else {
+          const responseCustomerccountIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('CustomerAccount');
+          const responsePartyUserIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyUser');
 
-        const responseCustomerccountIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('CustomerAccount');
-        const responsePartyUserIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyUser');
+          await this.customerAccount.findOrCreate({
+            where: {
+              customerAccountType: 'IA',
+            },
+            defaults: {
+              customerAccountId: responseCustomerccountIdData.tableIdFinalIssued,
+              createdBy: responsePartyUserIdData.tableIdFinalIssued,
+              customerAccountName,
+              customerAccountDescription,
+              customerAccountType: 'IA',
+            },
+            transaction: t,
+          });
 
-        await this.customerAccount.findOrCreate({
-          where: {
-            customerAccountType: 'IA',
-          },
-          defaults: {
-            customerAccountId: responseCustomerccountIdData.tableIdFinalIssued,
-            createdBy: responsePartyUserIdData.tableIdFinalIssued,
-            customerAccountName,
-            customerAccountDescription,
-            customerAccountType: 'IA',
-          },
-          transaction: t,
-        });
+          await this.party.findOrCreate({
+            where: {
+              partyName: 'SYSTEM',
+            },
+            defaults: {
+              partyId: responsePartyUserIdData.tableIdFinalIssued,
+              createdBy: responsePartyUserIdData.tableIdFinalIssued,
+              partyName,
+              partyDescription,
+              partyType: 'US',
+              customerAccountKey: 1,
+            },
+            transaction: t,
+          });
 
-        await this.party.findOrCreate({
-          where: {
-            partyName: 'SYSTEM',
-          },
-          defaults: {
-            partyId: responsePartyUserIdData.tableIdFinalIssued,
-            createdBy: responsePartyUserIdData.tableIdFinalIssued,
-            partyName,
-            partyDescription,
-            partyType: 'US',
-            customerAccountKey: 1,
-          },
-          transaction: t,
-        });
-
-        await this.partyUser.findOrCreate({
-          where: {
-            firstName: 'SYSTEM',
-          },
-          defaults: {
-            partyUserId: responsePartyUserIdData.tableIdFinalIssued,
-            partyKey: 1,
-            createdBy: responsePartyUserIdData.tableIdFinalIssued,
-            firstName,
-            lastName,
-            userId,
-            password,
-            email,
-          },
-          transaction: t,
-        });
-      });
+          await this.partyUser.findOrCreate({
+            where: {
+              firstName: 'SYSTEM',
+            },
+            defaults: {
+              partyUserId: responsePartyUserIdData.tableIdFinalIssued,
+              partyKey: 1,
+              createdBy: responsePartyUserIdData.tableIdFinalIssued,
+              firstName,
+              lastName,
+              userId,
+              password,
+              email,
+            },
+            transaction: t,
+          });
+      
+        } // end of elase
+      }); // end of sequelize
     } catch (error) {
       console.log(error);
     }
