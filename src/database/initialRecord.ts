@@ -36,41 +36,7 @@ class InitialRecordService {
 
         if (!getTableId) {
           await this.tableId.bulkCreate(tableIds);
-        }
-
-        if (!getApi) {
-          let insertDataList = [];
-
-          console.log ("start.....")
-          
-          // pre-step to be ready to use bulk table id
-          let apiListLength = apiList.length;
-          const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Api',apiListLength);
-          const api_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
-          let api_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
-          let api_id_postfix = '';
-          const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
-          //
-          for (const apiObj of apiList) {
-            // creating tableid from bulk
-            api_id_postfix_number = api_id_postfix_number + 1;
-            api_id_postfix = api_id_postfix_number.toString();
-            while (api_id_postfix.length < tableIdSequenceDigit) {
-                api_id_postfix = '0' + api_id_postfix;
-            }
-            let api_id = api_id_prefix + api_id_postfix;
-            
-            insertDataList.push({
-              ...apiObj,
-              createdBy: 'SYSTEM',
-              apiId: api_id,
-            });
-            
-            //console.log(insertDataList);
-          }
-          console.log (insertDataList);
-          await this.api.bulkCreate(insertDataList, { transaction: t });
-        }
+        } 
 
         const customerAccountTableId = await this.tableIdService.getTableIdByTableName('CustomerAccount');
         const partyUserTableId = await this.tableIdService.getTableIdByTableName('PartyUser');
@@ -129,7 +95,41 @@ class InitialRecordService {
           });
       
         } // end of elase
-      }); // end of sequelize
+
+        if (!getApi) {
+          let insertDataList = [];
+
+          console.log ("start.....")
+          
+          // pre-step to be ready to use bulk table id
+          let apiListLength = apiList.length;
+          const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Api',apiListLength);
+          const api_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
+          let api_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
+          let api_id_postfix = '';
+          const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
+          //
+          for (const apiObj of apiList) {
+            // creating tableid from bulk
+            api_id_postfix_number = api_id_postfix_number + 1;
+            api_id_postfix = api_id_postfix_number.toString();
+            while (api_id_postfix.length < tableIdSequenceDigit) {
+                api_id_postfix = '0' + api_id_postfix;
+            }
+            let api_id = api_id_prefix + api_id_postfix;
+            
+            insertDataList.push({
+              ...apiObj,
+              createdBy: 'SYSTEM',
+              apiId: api_id,
+            });
+            //console.log(insertDataList);
+          }
+          console.log (insertDataList);
+          await this.api.bulkCreate(insertDataList, { transaction: t });
+        } // end of !getApi
+
+      }); // end of DB.sequelize
     } catch (error) {
       console.log(error);
     }
