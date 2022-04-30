@@ -7,6 +7,7 @@ import config from 'config';
 import { IApi } from '@/common/interfaces/api.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { IParty } from '@/common/interfaces/party.interface';
+import sequelize from 'sequelize';
 
 /**
  * @memberof InitialRecordService
@@ -40,9 +41,8 @@ class InitialRecordService {
   } // end of !getTableId  
 
     //create a system user 
-    
     const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({where: {customerAccountType: 'IA'}});
-   // console.log("############", customerAccountData);
+  
     if (!customerAccountData) {
         const responseCustomerccountIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('CustomerAccount');
         const responsePartyUserIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyUser');
@@ -88,7 +88,6 @@ class InitialRecordService {
     } // end of !findIaCustomer    
 
     const getApi: IApi = await this.api.findOne({ where: { apiEndPoint2: '/customerAccount' }});
-
     if (!getApi) {
       let insertDataList = [];
 
@@ -120,15 +119,18 @@ class InitialRecordService {
       console.log ("###########################SQL API.....")
       console.log(insertDataList);
       console.log ("###########################SQL API.....")
+
+      const t = await DB.sequelize.transaction(); 
       try {
-        await DB.sequelize.transaction(async t => {
           await this.api.bulkCreate(insertDataList, { transaction: t });
-        }); // end of transaction  
-
+          console.log(t);
+          console.log ("###########################SQL API commit.....")
+          await t.commit();
       } catch (error) {
+        console.log ("###########################SQL API rollback.....")
         console.log(error);
+        await t.rollback();
       }// end of try
-
     } // end of !getApi
   } // end of method
 } // end of class
