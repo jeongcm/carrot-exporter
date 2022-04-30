@@ -23,3 +23,7 @@ export interface ICustomerAccount {
   address?: IAddress[];
 }
 
+export interface ICustomerAccoutType {
+
+  customerAccountType: customerAccountType;
+}
