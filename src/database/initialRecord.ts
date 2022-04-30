@@ -42,7 +42,7 @@ class InitialRecordService {
     //create a system user 
     
     const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({where: {customerAccountType: 'IA'}});
-    console.log("############", customerAccountData);
+   // console.log("############", customerAccountData);
     if (!customerAccountData) {
         const responseCustomerccountIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('CustomerAccount');
         const responsePartyUserIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyUser');
@@ -92,7 +92,7 @@ class InitialRecordService {
     if (!getApi) {
       let insertDataList = [];
 
-      console.log ("start.....")
+      console.log ("###########################start.....")
       
       // pre-step to be ready to use bulk table id
       let apiListLength = apiList.length;
@@ -117,11 +117,14 @@ class InitialRecordService {
           apiId: api_id,
         });
       }
-
+      console.log ("###########################SQL API.....")
+      console.log(insertDataList);
+      console.log ("###########################SQL API.....")
       try {
         await DB.sequelize.transaction(async t => {
           await this.api.bulkCreate(insertDataList, { transaction: t });
         }); // end of transaction  
+
       } catch (error) {
         console.log(error);
       }// end of try
