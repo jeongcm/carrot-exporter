@@ -45,6 +45,8 @@ import SubscriptionModel from '@/modules/Subscriptions/models/subscriptions.mode
 import SubscribedProductModel from '@/modules/Subscriptions/models/subscribedProduct.model';
 import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
 import invitationModel from '@/modules/Party/models/invitation.model';
+import MetricMetaModel from '@/modules/Metric/models/metricMeta.model';
+import metricReceivedModel from '@/modules/Metric/models/metricReceived.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -120,6 +122,8 @@ const DB = {
   AlertReceived: AlertReceivedModel(sequelize),
   AlertRule: AlertRuleModel(sequelize),
   Invitation: invitationModel(sequelize),
+  MetricMeta: MetricMetaModel(sequelize),
+  MetricReceived: metricReceivedModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -292,6 +296,18 @@ DB.Api.belongsToMany(DB.PartyUser, {
 
 DB.Api.hasMany(DB.PartyUserLogs, { foreignKey: 'apiKey' });
 DB.PartyUserLogs.belongsTo(DB.Api, { foreignKey: 'apiKey' });
+
+DB.CustomerAccount.hasMany(DB.MetricReceived, { foreignKey: 'customerAccountKey' });
+DB.MetricReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.MetricMeta.hasMany(DB.MetricReceived, { foreignKey: 'metricMetaKey' });
+DB.MetricReceived.belongsTo(DB.MetricMeta, { foreignKey: 'metricMetaKey' });
+
+DB.CustomerAccount.hasMany(DB.MetricMeta, { foreignKey: 'customerAccountKey' });
+DB.MetricMeta.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.Resource.hasMany(DB.MetricMeta, { foreignKey: 'resourceKey' });
+DB.MetricMeta.belongsTo(DB.Resource,{ foreignKey: 'resourceKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

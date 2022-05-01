@@ -87,6 +87,18 @@ class ResourceService {
 
     return resource;
   }
+
+  /**
+   * @param  {string} resourceId
+   */
+   public async getResourceKeyById(resourceId: string): Promise<number> {
+    const resource: IResource = await this.resource.findOne({
+      where: { resourceId },
+      attributes: { exclude: ['deletedAt'] },
+    });
+
+    return resource.resourceKey;
+  }
  
 
   /**
