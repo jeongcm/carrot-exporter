@@ -3,6 +3,14 @@ import { IsString, IsNotEmpty } from 'class-validator';
 export class CommonCodeDto {
   @IsString()
   @IsNotEmpty()
+  public commonCodeName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public commonCodeCode: string;
+  
+  @IsString()
+  @IsNotEmpty()
   public commonCodeDescription: string;
 
   @IsString()

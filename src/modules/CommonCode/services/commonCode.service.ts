@@ -21,22 +21,22 @@ class CommonCodeService {
 
     try {
       const tableIdTableName = 'CommonCode';
-      const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-
-      if (!tableId) {
+      
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+      if (!responseTableIdData) {
+        console.log("error on issuing TableId for commoncode");
         return;
       }
-
-      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
       const createCommonCode: ICommonCode = await this.commonCode.create({
         commonCodeId: responseTableIdData.tableIdFinalIssued,
         createdBy: currentUserId,
+        createdAt: new Date(),
         ...commonCodeData,
       });
 
       return createCommonCode;
-    } catch (error) {}
+    } catch (error) {console.log(error);}
   }
 
   /**
@@ -79,6 +79,7 @@ class CommonCodeService {
     const updatedCommonCodeData = {
       ...commonCodeData,
       updatedBy: currentUserId,
+      updatedAt: new Date(),
     };
 
     await this.commonCode.update(updatedCommonCodeData, { where: { commonCodeId: commonCodeId } });
