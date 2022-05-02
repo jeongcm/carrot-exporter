@@ -112,7 +112,6 @@ class PartyService {
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
     try {
-
       return await DB.sequelize.transaction(async t => {
         let hashedPassword;
         if (createPartyUserData && createPartyUserData.password) {
@@ -167,7 +166,7 @@ class PartyService {
         };
       });
     } catch (error) {
-      console.log(error); 
+      console.log(error);
     }
   }
 
@@ -480,7 +479,7 @@ class PartyService {
 
     return updated;
   }
-  
+
   public async getUserAPILog(partyId: string): Promise<IPartyUserAPILog[]> {
     const partyUser: IPartyUser = await this.partyUser.findOne({
       where: { partyUserId: partyId },

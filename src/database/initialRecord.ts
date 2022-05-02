@@ -8,6 +8,7 @@ import { IApi } from '@/common/interfaces/api.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { IParty } from '@/common/interfaces/party.interface';
 import sequelize from 'sequelize';
+import bcrypt from 'bcrypt';
 
 /**
  * @memberof InitialRecordService
@@ -27,73 +28,78 @@ class InitialRecordService {
     const { partyName, partyDescription } = party;
     const { firstName, lastName, userId, password, email } = partyUser;
 
-   //create TableId
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-   const getTableId: ITableId = await this.tableId.findOne({ where: { tableIdTableName: 'customerAccount' }}); 
-   if (!getTableId) {
+    //create TableId
+
+    const getTableId: ITableId = await this.tableId.findOne({ where: { tableIdTableName: 'customerAccount' } });
+    if (!getTableId) {
       try {
         await DB.sequelize.transaction(async t => {
-          await this.tableId.bulkCreate(tableIds, {transaction: t}); 
-        }); // end of transaction  
+          await this.tableId.bulkCreate(tableIds, { transaction: t });
+        }); // end of transaction
       } catch (error) {
         console.log(error);
       }
-  } // end of !getTableId  
+    } // end of !getTableId
 
-    //create a system user 
-    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({where: {customerAccountType: 'IA'}});
-  
+    //create a system user
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountType: 'IA' } });
+
     if (!customerAccountData) {
-        const responseCustomerccountIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('CustomerAccount');
-        const responsePartyUserIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyUser');
-        try {
-          await DB.sequelize.transaction(async t => {
-            const internalCustomer: ICustomerAccount = await this.customerAccount.create({
-                customerAccountId: responseCustomerccountIdData.tableIdFinalIssued,
-                createdBy: responsePartyUserIdData.tableIdFinalIssued,
-                customerAccountName,
-                customerAccountDescription,
-                customerAccountType: 'IA',
-              },
-              {transaction: t},
-            );
+      const responseCustomerccountIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('CustomerAccount');
+      const responsePartyUserIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyUser');
+      try {
+        await DB.sequelize.transaction(async t => {
+          const internalCustomer: ICustomerAccount = await this.customerAccount.create(
+            {
+              customerAccountId: responseCustomerccountIdData.tableIdFinalIssued,
+              createdBy: responsePartyUserIdData.tableIdFinalIssued,
+              customerAccountName,
+              customerAccountDescription,
+              customerAccountType: 'IA',
+            },
+            { transaction: t },
+          );
 
-            const systemParty: IParty = await this.party.create({
-                partyId: responsePartyUserIdData.tableIdFinalIssued,
-                createdBy: responsePartyUserIdData.tableIdFinalIssued,
-                partyName,
-                partyDescription,
-                partyType: 'US',
-                customerAccountKey: internalCustomer.customerAccountKey,
-              },
-              {transaction: t},
-            );
+          const systemParty: IParty = await this.party.create(
+            {
+              partyId: responsePartyUserIdData.tableIdFinalIssued,
+              createdBy: responsePartyUserIdData.tableIdFinalIssued,
+              partyName,
+              partyDescription,
+              partyType: 'US',
+              customerAccountKey: internalCustomer.customerAccountKey,
+            },
+            { transaction: t },
+          );
 
-            await this.partyUser.create({
-                partyUserId: responsePartyUserIdData.tableIdFinalIssued,
-                partyKey: systemParty.partyKey,
-                createdBy: responsePartyUserIdData.tableIdFinalIssued,
-                firstName,
-                lastName,
-                userId,
-                password,
-                email,
-              },
-              {transaction: t},
-            );
-          }); // end of transaction  
-        } catch (error) {
-          console.log(error);
-        }
-    } // end of !findIaCustomer    
+          await this.partyUser.create(
+            {
+              partyUserId: responsePartyUserIdData.tableIdFinalIssued,
+              partyKey: systemParty.partyKey,
+              createdBy: responsePartyUserIdData.tableIdFinalIssued,
+              firstName,
+              lastName,
+              userId,
+              password: hashedPassword,
+              email,
+            },
+            { transaction: t },
+          );
+        }); // end of transaction
+      } catch (error) {
+        console.log(error);
+      }
+    } // end of !findIaCustomer
 
-    const getApi: IApi = await this.api.findOne({ where: { apiEndPoint2: '/customerAccount' }});
+    const getApi: IApi = await this.api.findOne({ where: { apiEndPoint2: '/customerAccount' } });
     if (!getApi) {
       let insertDataList = [];
 
       // pre-step to be ready to use bulk table id
       let apiListLength = apiList.length;
-      const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Api',apiListLength);
+      const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Api', apiListLength);
       const api_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
       let api_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
       let api_id_postfix = '';
@@ -104,10 +110,10 @@ class InitialRecordService {
         api_id_postfix_number = api_id_postfix_number + 1;
         api_id_postfix = api_id_postfix_number.toString();
         while (api_id_postfix.length < tableIdSequenceDigit) {
-            api_id_postfix = '0' + api_id_postfix;
+          api_id_postfix = '0' + api_id_postfix;
         }
         let api_id = api_id_prefix + api_id_postfix;
-        
+
         insertDataList.push({
           ...apiObj,
           createdBy: 'SYSTEM',
@@ -118,15 +124,15 @@ class InitialRecordService {
       //console.log(insertDataList);
       //console.log ("###########################SQL API.....")
 
-      const t = await DB.sequelize.transaction(); 
+      const t = await DB.sequelize.transaction();
       try {
-          await this.api.bulkCreate(insertDataList, { transaction: t });
-          //console.log(t);
-          await t.commit();
+        await this.api.bulkCreate(insertDataList, { transaction: t });
+        //console.log(t);
+        await t.commit();
       } catch (error) {
         console.log(error);
         await t.rollback();
-      }// end of try
+      } // end of try
     } // end of !getApi
   } // end of method
 } // end of class

@@ -48,7 +48,11 @@ class PartyController {
     try {
       const user: IParty = await this.partyService.getUser(customerAccountKey, partyUserId);
 
-      res.status(200).json({ data: user, message: 'success' });
+      if (user) {
+        res.status(200).json({ data: user, message: 'success' });
+      } else {
+        res.status(404).json({ message: 'user not found' });
+      }
     } catch (error) {
       next(error);
     }
@@ -92,7 +96,7 @@ class PartyController {
     try {
       const updatedUser: IParty = await this.partyService.updateUser(customerAccountKey, logginedUserId, updateUserId, updateUserData);
 
-      res.status(201).json({ data: updatedUser, message: 'updated' });
+      res.status(200).json({ data: updatedUser, message: 'updated' });
     } catch (error) {
       next(error);
     }
@@ -329,6 +333,7 @@ class PartyController {
       const { cookie, findUser, token } = await this.partyService.login(loginData);
 
       const loggedInUser = {
+        partyId: findUser.partyUserId,
         id: findUser.userId,
         email: findUser.email,
         firstName: findUser.firstName,
