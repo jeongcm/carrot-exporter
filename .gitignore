@@ -130,5 +130,4 @@ jsdocs
 
 # Sequelize migration
 migrations/
-models/
 config/
