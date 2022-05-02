@@ -467,11 +467,7 @@ class PartyService {
 
     const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
 
-<<<<<<< HEAD
     const updated: [number] = await this.partyResource.update(
-=======
-    const updated = await this.partyResource.update(
->>>>>>> 71a430663a988e79410063637f8462d21d7f711c
       { deletedAt: new Date(), updatedBy: logginedUserId },
       {
         where: {

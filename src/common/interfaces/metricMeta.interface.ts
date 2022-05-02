@@ -1,4 +1,5 @@
 export interface IMetricMeta{
+
     metricMetaKey: number;
     metricMetaId: string;
     metricMetaHash: string;
@@ -20,5 +21,6 @@ export interface IMetricMeta{
     resourceKey: number;
     resourceGroupUuid: string;
     metricMetaTargetMetricsPath: string;
+
 
 }

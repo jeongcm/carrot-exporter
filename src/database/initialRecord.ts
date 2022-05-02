@@ -91,8 +91,6 @@ class InitialRecordService {
     if (!getApi) {
       let insertDataList = [];
 
-      //console.log ("###########################start.....")
-      
       // pre-step to be ready to use bulk table id
       let apiListLength = apiList.length;
       const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Api',apiListLength);
@@ -124,10 +122,8 @@ class InitialRecordService {
       try {
           await this.api.bulkCreate(insertDataList, { transaction: t });
           //console.log(t);
-          console.log ("###########################SQL API commit.....")
           await t.commit();
       } catch (error) {
-        console.log ("###########################SQL API rollback.....")
         console.log(error);
         await t.rollback();
       }// end of try

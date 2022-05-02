@@ -14,6 +14,7 @@ import tableIds from '../../init/tableId.seeding.json';
 import api from '../../init/api.seeding.json';
 
 validateEnv();
+
 export default {
   appPort: process.env.NC_LARI_PORT || 5000,
   nodeEnv: process.env.NC_LARI_ENV || 'development',

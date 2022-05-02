@@ -1,4 +1,4 @@
-import config from 'config';
+import config from '@/config/index';
 import DB from '@/database';
 import { IResponseIssueTableIdDto, IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
