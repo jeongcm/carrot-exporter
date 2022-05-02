@@ -37,6 +37,7 @@ class IncidentService {
   public incidentAlertReceived = DB.IncidentAlertReceived;
   public incidentAction = DB.IncidentAction;
   public incidentActionAttachment = DB.IncidentActionAttachment;
+  public alertReceived = DB.AlertReceived;
 
   public partyService = new PartyService();
   public tableIdService = new TableIdService();
@@ -54,10 +55,6 @@ class IncidentService {
     if (isEmpty(incidentData)) throw new HttpException(400, 'Incident must not be empty');
 
     const tableIdTableName = 'Incident';
-    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-    if (!tableId) {
-      return;
-    }
 
     try {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
@@ -284,10 +281,6 @@ class IncidentService {
     if (isEmpty(actionData)) throw new HttpException(400, 'Incident must not be empty');
 
     const tableIdTableName = 'IncidentAction';
-    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-    if (!tableId) {
-      return;
-    }
 
     const { incidentKey } = await this.getIncidentKey(customerAccountKey, incidentId);
 
@@ -545,6 +538,81 @@ class IncidentService {
         return null;
       }
     } catch (error) {}
+  }
+
+  public async addAlertReceivedtoIncident(
+    customerAccountKey: number,
+    incidentId: string,
+    addAlertReceivedData: AddAlertReceivedToIncidentDto,
+    logginedUserId: string,
+  ): Promise<any> {
+    if (isEmpty(addAlertReceivedData)) throw new HttpException(400, 'AlertReceivedIds not be empty');
+
+    const tableIdTableName = 'IncidentAlertReceived';
+
+    try {
+      const { incidentKey = undefined } = await this.getIncidentKey(customerAccountKey, incidentId);
+
+      const { alertReceivedIds } = addAlertReceivedData;
+
+      const alertReceivedDetails = await this.alertReceived.findAll({
+        where: { alertReceivedId: { [Op.in]: alertReceivedIds } },
+        attributes: ['alertReceivedKey'],
+      });
+
+      if (!alertReceivedDetails.length) {
+        return 'alertReceivedId error';
+      }
+
+      const alertReceivedKeyList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedKey);
+
+      let insertDataList = [];
+
+      for (const alertReceivedKey of alertReceivedKeyList) {
+        const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+
+        insertDataList.push({
+          incidentAlertReceivedId: responseTableIdData.tableIdFinalIssued,
+          incidentKey,
+          alertReceivedKey,
+          createdBy: logginedUserId,
+        });
+      }
+
+      return await this.incidentAlertReceived.bulkCreate(insertDataList, { returning: true });
+    } catch (error) {}
+  }
+
+  public async dropAlertReceivedfromIncident(
+    customerAccountKey: number,
+    incidentId: string,
+    dropAlertReceivedData: DropAlertReceivedFromIncidentDto,
+    logginedUserId: string,
+  ): Promise<any> {
+    const { incidentKey = undefined } = await this.getIncidentKey(customerAccountKey, incidentId);
+
+    const { alertReceivedIds } = dropAlertReceivedData;
+
+    const alertReceivedDetails = await this.alertReceived.findAll({
+      where: { alertReceivedId: { [Op.in]: alertReceivedIds } },
+      attributes: ['alertReceivedKey'],
+    });
+
+    if (!alertReceivedDetails.length) {
+      return 'alertReceivedId error';
+    }
+
+    const alertReceivedKeyList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedKey);
+
+    await this.incidentAlertReceived.update(
+      { deletedAt: new Date(), updatedBy: logginedUserId },
+      {
+        where: {
+          incidentKey,
+          alertReceivedKey: { [Op.in]: alertReceivedKeyList },
+        },
+      },
+    );
   }
 }
 

@@ -31,6 +31,7 @@ import ResourceGroupRoute from '@modules/Resources/routes/resourceGroup.route';
 import massUploaderRoute from './modules/CommonService/routes/massUploader.route';
 
 import InvitationRoute from './modules/Party/routes/invitation.route';
+import MetricRoute from './modules/Metric/routes/metric.route';
 
 
 const app = new App([
@@ -63,7 +64,8 @@ const app = new App([
   new webhookForBillingRoute(),
   new massUploaderRoute(),
 
-  new InvitationRoute()
+  new InvitationRoute(),
+  new MetricRoute(),
 ]);
 
 app.listen();

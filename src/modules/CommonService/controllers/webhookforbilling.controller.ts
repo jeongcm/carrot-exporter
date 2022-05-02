@@ -9,7 +9,7 @@ import ResourceService from '@/modules/Resources/services/resource.service';
 import axios from 'axios';
 import * as _ from 'lodash';
 import { IResource } from '@/common/interfaces/resource.interface';
-import config from 'config';
+import config from '@config/index';
 import { CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
 import catalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
 class webhookForBillingController {

@@ -3,7 +3,7 @@
 //  */
 
 import DB from '@/database';
-import config from 'config';
+import config from '@config/index';
 import { Strategy } from 'passport-google-oauth20';
 class Google {
   public static init(_passport: any): any {

@@ -4,7 +4,7 @@
 
 import DB from '@/database';
 import {Strategy} from 'passport-github';
-import config from 'config';
+import config from '@config/index';
 
 class Github {
   public static init(_passport: any): any {

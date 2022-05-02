@@ -130,6 +130,16 @@
     "createdBy": "SYSTEM"
   },
   {
+    "tableIdTableName": "IncidentAlertReceived",
+    "tableIdHeader": "IR",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
     "tableIdTableName": "MetricMeta",
     "tableIdHeader": "MM",
     "tableMonth": 1,

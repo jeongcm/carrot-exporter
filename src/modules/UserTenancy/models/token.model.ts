@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IToken } from '@/common/interfaces/token.interface';
 
-export type TenancyCreationAttributes = Optional<IToken, 'id' | 'userPk' | 'token' | 'expiryTime' | 'maximumLimit' | 'createdAt' | 'updatedAt'>;
+export type TenancyCreationAttributes = Optional<IToken, 'userPk' | 'token' | 'expiryTime' | 'maximumLimit' | 'createdAt' | 'updatedAt'>;
 
 export class TokenModel extends Model<IToken> implements IToken {
   public pk: number;

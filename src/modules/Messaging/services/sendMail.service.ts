@@ -1,4 +1,4 @@
-import config from 'config';
+import config from '@config/index';
 import urlJoin from 'url-join';
 
 // RYAN: please keep it our convention by using import

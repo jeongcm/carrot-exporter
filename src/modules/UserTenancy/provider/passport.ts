@@ -21,7 +21,7 @@ class Passport {
     _express = _express.use(passport.session());
 
     passport.serializeUser<any, any>((user, done) => {
-      done(null, user.id);
+      // done(null, user.id);
     });
 
     passport.deserializeUser<any, any>((id, done) => {

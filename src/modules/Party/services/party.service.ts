@@ -34,7 +34,7 @@ import {
 } from '@/modules/Party/dtos/party.dto';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
-import config from 'config';
+import config from '@config/index';
 
 import { logger } from '@/common/utils/logger';
 
@@ -467,7 +467,11 @@ class PartyService {
 
     const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
 
+<<<<<<< HEAD
     const updated: [number] = await this.partyResource.update(
+=======
+    const updated = await this.partyResource.update(
+>>>>>>> 71a430663a988e79410063637f8462d21d7f711c
       { deletedAt: new Date(), updatedBy: logginedUserId },
       {
         where: {
@@ -480,7 +484,7 @@ class PartyService {
 
     return updated;
   }
-
+  
   public async getUserAPILog(partyId: string): Promise<IPartyUserAPILog[]> {
     const partyUser: IPartyUser = await this.partyUser.findOne({
       where: { partyUserId: partyId },
