@@ -71,7 +71,11 @@ class SubscriptionController {
     try {
       const subscribedProductId = req.params.subscribedProductId;
       const subscribedProduct: ISubscribedProduct = await this.subscriptionService.findSubscribedProduct(subscribedProductId);
-      res.status(200).json({ data: subscribedProduct, message: 'success' });
+      if(subscribedProduct == null){
+        return res.status(200).json({message: 'No data Found' });
+      }else{
+        return res.status(200).json({ data: subscribedProduct, message: 'success' });
+      }
     } catch (error) {
       next(error);
     }
@@ -85,7 +89,12 @@ class SubscriptionController {
       if(updatedData.error){
         return res.status(400).json(updatedData)
       }
-      res.status(200).json(updatedData);
+      if(updatedData == null){
+        return res.status(200).json({message: 'No data Found' });
+      }else{
+
+        return   res.status(200).json(updatedData);
+      }
     } catch (error) {
       next(error);
     }

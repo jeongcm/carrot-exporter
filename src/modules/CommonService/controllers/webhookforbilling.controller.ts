@@ -46,7 +46,7 @@ class webhookForBillingController {
             password: null,
             email: primaryEmail,
             mobile: primaryPhone,
-            partyUserStatus: "DRAFT",
+            partyUserStatus: "DR",
             customerAccountId: createdCustomerAccount.customerAccountId
           };
           await this.partyService.createUser(partyData, createdCustomerAccount.customerAccountKey, systemId || partyId);
@@ -115,6 +115,7 @@ class webhookForBillingController {
 
       res.status(200).json({ message: `${eventType} processed` });
     } catch (error) {
+      console.log("errror", error)
       next(error);
     }
   };
