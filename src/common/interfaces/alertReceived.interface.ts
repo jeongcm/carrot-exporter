@@ -21,5 +21,5 @@ export interface IAlertReceived {
     alertReceivedPod: string;
     alertReceivedInstance: string;
     alertReceivedLabels: JSON;
-    alertReceivedPinned: number;
+    alertReceivedPinned: boolean;
   }

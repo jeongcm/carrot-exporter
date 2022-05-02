@@ -2,8 +2,8 @@ import DB from '@/database';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import { CreateInvitationDto } from '@/modules/UserTenancy/dtos/invitation.dto';
-import { Invitation } from '@/common/interfaces/invitation.interface';
-import config from 'config';
+import { IInvitation } from '@/common/interfaces/invitation.interface';
+import config from '@config/index';
 
 // RYAN: please keep it in our convention using import
 const nodemailer = require('nodemailer');
@@ -18,10 +18,10 @@ const auth = {
 };
 
 class InvitationService {
-  public invitations = DB.Invitations;
+  public invitations = DB.Invitation;
 
-  public async getInvitationByEmail(email): Promise<Invitation> {
-    const invitationDetail: Invitation = await this.invitations.findOne({ where: { invitedTo: email } });
+  public async getInvitationByEmail(email): Promise<IInvitation> {
+    const invitationDetail: IInvitation = await this.invitations.findOne({ where: { invitedTo: email } });
     return invitationDetail;
   }
 
@@ -64,23 +64,23 @@ class InvitationService {
     }
   };
 
-  public async createInvitation(invitationData: CreateInvitationDto): Promise<Invitation> {
-    if (isEmpty(invitationData)) throw new HttpException(400, 'Invitation must not be empty');
+  public async createInvitation(invitationData: CreateInvitationDto): Promise<IInvitation> {
+    if (isEmpty(invitationData)) throw new HttpException(400, 'IInvitation must not be empty');
 
-    const newInvitationData: Invitation = await this.invitations.create(invitationData);
+    const newInvitationData: IInvitation = await this.invitations.create(invitationData);
     return newInvitationData;
   }
-  public async updateInvitation(id, updatingData): Promise<Invitation> {
-    const findInvitation: Invitation = await this.invitations.findByPk(id);
-    if (!findInvitation) throw new HttpException(409, "Invitation doesn't exist");
-    await this.invitations.update({ ...updatingData }, { where: { id } });
-    const updatedInvitation: Invitation = await this.invitations.findByPk(id);
+  public async updateInvitation(id, updatingData): Promise<IInvitation> {
+    const findInvitation: IInvitation = await this.invitations.findByPk(id);
+    if (!findInvitation) throw new HttpException(409, "IInvitation doesn't exist");
+    await this.invitations.update({ ...updatingData }, { where: { invitationId } });
+    const updatedInvitation: IInvitation = await this.invitations.findByPk(id);
     return updatedInvitation;
   }
 
-  public async checkForToken(token): Promise<Invitation> {
+  public async checkForToken(token): Promise<IInvitation> {
     try {
-      const findInvitation: Invitation = await this.invitations.findOne({ where: { token } });
+      const findInvitation: IInvitation = await this.invitations.findOne({ where: { token } });
       return findInvitation;
     } catch (err) {
       throw err;

@@ -16,16 +16,32 @@ import {
   IDataStoredInToken,
   IParty,
   IPartyRelation,
+  IPartyResource,
   IPartyResponse,
   IPartyUser,
+  IPartyUserAPILog,
   IPartyUserResponse,
   ITokenData,
 } from '@/common/interfaces/party.interface';
 
-import { CreateUserDto, UpdateUserDto, CreateAccessGroupDto, AddUserAccessGroupDto, LoginDto } from '@/modules/Party/dtos/party.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  CreateAccessGroupDto,
+  AddUserAccessGroupDto,
+  LoginDto,
+  AddResourceToAccessGroupDto,
+} from '@/modules/Party/dtos/party.dto';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
-import config from 'config';
+import config from '@config/index';
+
+import { logger } from '@/common/utils/logger';
+
+import { ResourceModel } from '@/modules/Resources/models/resource.model';
+import { PartyResourceModel } from '../models/partyResource.model';
+import { IApi } from '@/common/interfaces/api.interface';
+import { ApiModel } from '@/modules/Api/models/api.models';
 
 /**
  * @memberof Party
@@ -34,7 +50,18 @@ class PartyService {
   public party = DB.Party;
   public partyUser = DB.PartyUser;
   public partyRelation = DB.PartyRelation;
+  public resource = DB.Resource;
+  public partyResource = DB.PartyResource;
+  public partyUserLogs = DB.PartyUserLogs;
+  public api = DB.Api;
+
   public tableIdService = new tableIdService();
+
+  public async findPartyByEmail(email: string): Promise<IPartyUser> {
+    if (isEmpty(email)) throw new HttpException(400, "User doen't exist");
+    const findParty: IPartyUser = await this.partyUser.findOne({ where: { email } });
+    return findParty;
+  }
 
   public async getUsers(customerAccountKey: number): Promise<IParty[]> {
     const users: any = await this.party.findAll({
@@ -77,16 +104,20 @@ class PartyService {
 
   public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string): Promise<IPartyUserResponse> {
     const tableIdTableName = 'PartyUser';
-    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-    if (!tableId) {
-      return;
-    }
+
+    //const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
+    //if (!tableId) {
+    //  return;
+    //}
 
     try {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
       return await DB.sequelize.transaction(async t => {
-        const hashedPassword = await bcrypt.hash(createPartyUserData.password, 10);
+        let hashedPassword;
+        if (createPartyUserData && createPartyUserData.password) {
+          hashedPassword = await bcrypt.hash(createPartyUserData.password, 10);
+        }
 
         const createdParty: IParty = await this.party.create(
           {
@@ -113,6 +144,7 @@ class PartyService {
             password: hashedPassword,
             email: createPartyUserData.email,
             isEmailValidated: false,
+            partyUserStatus: createPartyUserData.partyUserStatus,
           },
           { transaction: t },
         );
@@ -131,6 +163,7 @@ class PartyService {
           mobile: createPartyUserData?.mobile,
           email: createPartyUserData.email,
           isEmailValidated: false,
+          partyUserStatus: createPartyUserData.partyUserStatus,
         };
       });
     } catch (error) {}
@@ -331,6 +364,137 @@ class PartyService {
         },
       },
     );
+  }
+  public async getEmailFromPartyUser(invitedByPartyKey: number): Promise<string> {
+    try {
+      const findUser: IPartyUser = await this.partyUser.findOne({ where: { partyKey: invitedByPartyKey } });
+      return findUser.email;
+    } catch (error) {
+      logger.error(error);
+      return '';
+    }
+  }
+
+  public async addResourceToAccessGroup(
+    customerAccountKey: number,
+    logginedUserId: string,
+    partyId: string,
+    addingResourceData: AddResourceToAccessGroupDto,
+  ): Promise<IPartyResource[] | string> {
+    const party: IParty = await this.party.findOne({
+      where: { partyId },
+      attributes: ['partyKey'],
+    });
+
+    const resourceAll = await this.resource.findAll({
+      where: { resourceId: { [Op.in]: addingResourceData.resourceIds } },
+      attributes: ['resourceKey'],
+    });
+
+    const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
+
+    const existPartyResource = await this.partyResource.findAll({
+      where: {
+        partyKey: party.partyKey,
+        resourceKey: { [Op.in]: resourceKeyList },
+        deletedAt: null,
+      },
+
+      raw: true,
+    });
+
+    if (existPartyResource.length > 0) {
+      return 'Contains resources that are already added to the accessGorup.';
+    }
+
+    let insertDataList = [];
+
+    for (let resourceKey of resourceKeyList) {
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyResource');
+
+      insertDataList.push({
+        partyResourceId: responseTableIdData.tableIdFinalIssued,
+        partyKey: party.partyKey,
+        resourceKey,
+        createdBy: logginedUserId,
+      });
+    }
+
+    return await this.partyResource.bulkCreate(insertDataList, { returning: true });
+  }
+
+  public async getResourceOfAccessGroup(customerAccountKey: number, partyId: string): Promise<any> {
+    const party: IParty = await this.party.findOne({
+      where: { partyId },
+      attributes: ['partyKey'],
+    });
+
+    const partyResource = await this.partyResource.findAll({
+      where: { partyKey: party.partyKey, deletedAt: null },
+      include: {
+        model: ResourceModel,
+        attributes: { exclude: ['resourceKey', 'customerAccountKey', 'resourceGroupKey'] },
+      },
+    });
+
+    let resourceOfAccessGroup = [];
+
+    partyResource.map(resource => {
+      //@ts-expect-error
+      resourceOfAccessGroup.push(resource.Resource);
+    });
+
+    return resourceOfAccessGroup;
+  }
+
+  public async removeResourceFromAccessGroup(
+    customerAccountKey: number,
+    logginedUserId: string,
+    partyId: string,
+    removingResourceData: AddResourceToAccessGroupDto,
+  ): Promise<[number]> {
+    const party: IParty = await this.party.findOne({
+      where: { partyId },
+      attributes: ['partyKey'],
+    });
+
+    const resourceAll = await this.resource.findAll({
+      where: { resourceId: { [Op.in]: removingResourceData.resourceIds } },
+      attributes: ['resourceKey'],
+    });
+
+    const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
+
+    const updated = await this.partyResource.update(
+      { deletedAt: new Date(), updatedBy: logginedUserId },
+      {
+        where: {
+          partyKey: party.partyKey,
+          resourceKey: { [Op.in]: resourceKeyList },
+          deletedAt: null,
+        },
+      },
+    );
+
+    return updated;
+  }
+  
+  public async getUserAPILog(partyId: string): Promise<IPartyUserAPILog[]> {
+    const partyUser: IPartyUser = await this.partyUser.findOne({
+      where: { partyUserId: partyId },
+      attributes: ['partyUserKey'],
+    });
+
+    const partyUserAPILog: any = await this.partyUserLogs.findAll({
+      where: { partyUserKey: partyUser.partyUserKey },
+      attributes: { exclude: ['partyUserLogsKey', 'partyUserKey', 'apiKey'] },
+      include: {
+        model: ApiModel,
+        attributes: { exclude: ['apiKey'] },
+      },
+    });
+
+    return partyUserAPILog;
   }
 
   public async login(loginData: LoginDto): Promise<{ cookie: string; findUser: IPartyUser; token: string }> {

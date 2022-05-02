@@ -17,7 +17,7 @@ class ProductCatalogRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/catalogPlan', systemAuthMiddleware, authMiddleware, validationMiddleware(CreateCatalogPlanDto, 'body'), this.productCatalogController.createCatalogPlans);
+    this.router.post('/catalogPlan',authMiddleware, validationMiddleware(CreateCatalogPlanDto, 'body'), this.productCatalogController.createCatalogPlans);
     this.router.get('/catalogPlans', authMiddleware, this.productCatalogController.getCatalogPlans);
     this.router.get('/catalogPlan/:catalogPlanId', authMiddleware, this.productCatalogController.getCatalogPlanById);
     this.router.put('/catalogPlan/:catalogPlanId', systemAuthMiddleware, authMiddleware, validationMiddleware(CreateCatalogPlanDto, 'body'), this.productCatalogController.updateCatlogPlan);

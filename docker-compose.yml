@@ -5,19 +5,23 @@ services:
   db:
     image: mariadb
     restart: always
+    container_name: mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: example
-      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: nc_api
       MYSQL_USER: user
       MYSQL_PASSWORD: user
     ports:
       - '3306:3306'
-    
-    volumes: 
+
+    volumes:
         - ./init:/docker-entrypoint-initdb.d
 
-  adminer:
-    image: adminer
+  nexclipper-api:
+    build: .
     restart: always
+    container_name: nexclipper-api
+    env_file:
+      - .env.sample.local
     ports:
-      - 8080:8080
+      - 5001:5001

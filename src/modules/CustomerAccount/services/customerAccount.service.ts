@@ -44,7 +44,9 @@ class CustomerAccountService {
       });
 
       return createdCustomerAccount;
-    } catch (error) {}
+    } catch (error) {
+      console.log("error", error)
+    }
   }
 
   public async getCustomerAccounts(): Promise<ICustomerAccount[]> {
@@ -82,12 +84,19 @@ class CustomerAccountService {
     return customerAccountKey;
   }
 
+  public async getCustomerAccountIdByKey(customerAccountKey: number): Promise<string>{
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({
+      where: {customerAccountKey}
+    });
+    return customerAccountData.customerAccountId
+  }
+  
   public async updateCustomerAccount(
     customerAccountId: string,
     coustomerAccountData: CreateCustomerAccountDto,
     logginedUserId: string,
   ): Promise<ICustomerAccount> {
-    const updatedCustomerAccount: [number, CustomerAccountModel[]] = await this.customerAccount.update(
+    const updatedCustomerAccount: [number] = await this.customerAccount.update(
       { ...coustomerAccountData, updatedBy: logginedUserId },
       { where: { customerAccountId } },
     );
@@ -136,13 +145,13 @@ class CustomerAccountService {
     } catch (error) {}
   }
 
-  public async dropCustomerAddress(customerAccountId: string, logginedUserId: string): Promise<[number, CustomerAccountAddressModel[]]> {
+  public async dropCustomerAddress(customerAccountId: string, logginedUserId: string): Promise<[number]> {
     const customerAccount = await this.customerAccount.findOne({
       where: { customerAccountId },
       attributes: ['customerAccountKey'],
     });
 
-    const droppedCustomerAddress: [number, CustomerAccountAddressModel[]] = await this.customerAccountAdress.update(
+    const droppedCustomerAddress: [number] = await this.customerAccountAdress.update(
       { deletedAt: new Date(), updatedBy: logginedUserId, customerAccountAddressTo: new Date() },
       { where: { customerAccountKey: customerAccount.customerAccountKey, deletedAt: null } },
     );

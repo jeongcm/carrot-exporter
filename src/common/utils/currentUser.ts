@@ -1,6 +1,6 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { CurrentUser } from '@/common/interfaces/users.interface';
-import config from '@/config';
+import config from '@/config/index';
 /**
  * @param  {} req
  * @returns payload

@@ -14,7 +14,7 @@ import errorMiddleware from '@/common/middlewares/error.middleware';
 import { logger, stream } from '@/common/utils/logger';
 import Passport from './modules/UserTenancy/provider/passport';
 import { Request, Response, NextFunction } from 'express';
-import config from 'config';
+import config from '@config/index';
 
 // RYAN: for git commit, please do not just use wip, as it's impossible to track it in logs. Please at least mark the ticket number:
 // eg: wip: NEX-1123
@@ -65,9 +65,9 @@ class App {
     this.app.use(hpp());
     this.app.use(helmet());
     this.app.use(compression());
-    this.app.use(express.json());
+    this.app.use(express.json({limit: config.maxApiBodySize} ));
     this.intializeMiddlewareLogging();
-    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(express.urlencoded({ extended: true, limit: config.maxApiBodySize  }));
     this.app.use(cookieParser());
     this.app.use(
       session({

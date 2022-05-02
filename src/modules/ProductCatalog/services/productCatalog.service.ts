@@ -122,7 +122,8 @@ class ProductCatlogService {
       catalogPlanProductDescription,
       catalogPlanProductMonthlyPrice,
       catalogPlanProductName,
-      catalogPlanProductUOM
+      catalogPlanProductUOM,
+      catalogPlanProductType
     } = newData
     let createData = {
       catalogPlanProductId,
@@ -132,6 +133,7 @@ class ProductCatlogService {
       catalogPlanProductMonthlyPrice,
       catalogPlanProductName,
       catalogPlanProductUOM,
+      catalogPlanProductType,
       createdBy: partyId || systemId,
       updatedBy: partyId || systemId
     }

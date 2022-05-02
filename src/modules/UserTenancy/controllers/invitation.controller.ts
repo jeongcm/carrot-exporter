@@ -5,7 +5,7 @@ import TenancyService from '@/modules/UserTenancy/services/tenancy.service';
 import MailService from '@/modules/Messaging/services/sendMail.service';
 import UsersService from '@/modules/UserTenancy/services/users.service';
 import { User } from '@/common/interfaces/users.interface';
-import config from 'config';
+import config from '@config/index';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
 
 class InvitationController {

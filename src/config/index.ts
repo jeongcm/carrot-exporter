@@ -11,12 +11,13 @@ How to add config:
 // 3. For security
 import validateEnv from './validateEnv';
 import tableIds from '../../init/tableId.seeding.json';
+import api from '../../init/api.seeding.json';
 
 validateEnv();
-
 export default {
   appPort: process.env.NC_LARI_PORT || 5000,
   nodeEnv: process.env.NC_LARI_ENV || 'development',
+  maxApiBodySize: process.env.NC_MAX_API_BODY_SIZE || '50mb',
   logFormat: process.env.NC_LARI_LOG_FORMAT,
   cors: {
     allowAnyOrigin: process.env.NC_LARI_CORS_ORIGIN === 'true' ? Boolean(process.env.NC_LARI_CORS_ORIGIN) : process.env.NC_LARI_CORS_ORIGIN,
@@ -82,5 +83,15 @@ export default {
       email: process.env.NC_LARI_SYSTEM_PARTYUSER_EMAIL,
     },
     tableIds,
+    api,
+  },
+  deadLock: {
+    retries: Number(process.env.NC_LARI_DEADLOCK_RETRIES) || 5,
+    maxMillis: Number(process.env.NC_LARI_DEADLOCK_MAXMILLIS) || 100,
+    minMillis: Number(process.env.NC_LARI_DEADLOCK_MINMILLIS) || 1,
+  },
+  fuseBillApiDetail: {
+    apiKey: process.env.FUSEBILL_API_KEY,
+    baseURL: process.env.FUSEBILL_BASE_URL,
   },
 };

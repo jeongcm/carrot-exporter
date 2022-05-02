@@ -4,8 +4,9 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { Channel } from '@/common/interfaces/channel.interface';
 import { isEmpty } from '@/common/utils/util';
 import { ChannelType, Platform } from '../../../common/types';
-import { AccessGroupChannel } from '@/common/interfaces/accessGroupChannel.interface';
-import { AccessGroupModel } from '@/modules/UserTenancy/models/accessGroup.model';
+import TableIdService from '@/modules/CommonService/services/tableId.service';
+import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 
 /**
  * @memberof Messaging
@@ -13,16 +14,18 @@ import { AccessGroupModel } from '@/modules/UserTenancy/models/accessGroup.model
 class ChannelService {
   public channels = DB.Channel;
   public accessGroupChannel = DB.AccessGroupChannel;
+  public tableIdService = new TableIdService();
+  public customerAccountService = new CustomerAccountService();
 
   /**
    * Find all channels
    *
    * @returns Promise<Channel[]>
-   * @author Jaswant
+   * @author Akshay
    */
-  public async findAllChannel(): Promise<Channel[]> {
+  public async findAllChannel(customerAccountKey: number): Promise<Channel[]> {
     const allUser: Channel[] = await this.channels.findAll({
-      where: { deletedAt: null },
+      where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['channelKey', 'deletedAt', 'updatedBy', 'createdBy'] },
     });
     return allUser;
@@ -33,7 +36,7 @@ class ChannelService {
    *
    * @param  {string} id
    * @returns Promise<Channel>
-   * @author Jaswant
+   * @author Akshay
    */
   public async findChannelById(channelId: string): Promise<Channel> {
     if (isEmpty(channelId)) throw new HttpException(400, 'Not a valid channel');
@@ -53,43 +56,43 @@ class ChannelService {
    * @param  {CreateChannelDto} channelData
    * @param  {number} currentUserId
    * @returns Promise<Channel>
-   * @author Jaswant
+   * @author Akshay
    */
-  public async createChannel(channelData: CreateChannelDto, customerAccountKey: number, tempChannelId: string): Promise<Channel> {
+  public async createChannel(channelData: CreateChannelDto, customerAccountKey: number, partyId: string): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
+    const tableIdName: string = 'Channel';
+    const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
+    const tempChannelId: string = responseTableIdData.tableIdFinalIssued;
+
     const currentDate = new Date();
     const newChannel = {
       channelId: tempChannelId,
       channelName: channelData.channelName,
       customerAccountKey: customerAccountKey,
       channelType: <ChannelType>channelData.channelType,
-      channelDescription:channelData.channelDescription,
+      channelDescription: channelData.channelDescription,
       channelAdaptor: channelData.channelAdaptor,
-      updatedAt: currentDate,
       createdAt: currentDate,
-      createdBy: customerAccountKey.toLocaleString(),
-      updatedBy: customerAccountKey.toLocaleString(),
+      createdBy: partyId,
     };
     const createChannelData: Channel = await this.channels.create(newChannel);
     return createChannelData;
   }
 
-  public async updateChannel(Id: string, channelData: CreateChannelDto, currentUserPk: number): Promise<Channel> {
+  public async updateChannel(Id: string, channelData: CreateChannelDto, customerAccountKey: number, partyId: string): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
     const findChannel: Channel = await this.channels.findOne({ where: { channelId: Id } });
     if (!findChannel) throw new HttpException(409, "Channel doesn't exist");
     const updatedChannelData = {
       ...channelData,
       channelType: <ChannelType>channelData.channelType,
-      updatedBy: currentUserPk.toLocaleString(),
+      updatedBy: partyId,
       updatedAt: new Date(),
-      createdBy: currentUserPk.toLocaleString()
     };
     await this.channels.update(updatedChannelData, { where: { channelId: Id } });
 
     return this.findChannelById(Id);
   }
-
 }
 
 export default ChannelService;

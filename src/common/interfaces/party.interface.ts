@@ -1,18 +1,18 @@
 export interface PartyChannel {
-    partyChannelKey: number;
-    partyKey: number;
-    channelKey: number;
-    PartychannelId: string;
-    createdBy: string;
-    updatedBy: string;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt: Date;
-    partyChannelFrom: Date;
-    partyChannelTo: Date;
-    partyChannelDefault: boolean;
-  }
-  
+  partyChannelKey: number;
+  partyKey: number;
+  channelKey: number;
+  PartychannelId: string;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
+  partyChannelFrom: Date;
+  partyChannelTo: Date;
+  partyChannelDefault: boolean;
+}
+
 import { Request } from 'express';
 
 export interface IParty {
@@ -65,6 +65,31 @@ export interface IPartyUser {
   emailValidatedAt: Date;
   token: string;
   lastAccessAt: Date;
+  partyUserStatus: string;
+}
+
+export interface IPartyResource {
+  partyResourceKey: number;
+  partyResourceId: string;
+  partyKey: number;
+  resourceKey: number;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
+}
+
+export interface IPartyUserLogs {
+  partyUserLogsKey: number;
+  partyUserLogsId: string;
+  partyUserKey: number;
+  apiKey: number;
+  createdBy: string;
+  updatedBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt: Date;
 }
 
 export interface IPartyUserResponse {
@@ -93,6 +118,28 @@ export interface IPartyResponse {
   createdAt: Date;
   updatedAt: Date;
   parentPartyId: string;
+}
+
+export interface IPartyUserAPILog {
+  partyUserLogsId: string;
+  createdBy: string;
+  updatedBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  Api: {
+    apiId: string;
+    createdBy: string;
+    updatedBy: string | null;
+    createdAt: string;
+    updatedAt: string;
+    deletedAt: string | null;
+    apiName: string;
+    apiDescription: string;
+    apiEndPoint1: string;
+    apiEndPoint2: string;
+    apiVisibleTF: boolean;
+  };
 }
 
 export interface ITokenData {

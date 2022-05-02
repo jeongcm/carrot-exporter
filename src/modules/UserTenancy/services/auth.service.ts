@@ -7,7 +7,7 @@ import { DataStoredInToken, TokenData } from '@/common/interfaces/auth.interface
 import { User } from '@/common/interfaces/users.interface';
 import { isEmpty } from '@/common/utils/util';
 import { TenancyModel } from '@/modules/UserTenancy/models/tenancy.model';
-import config from 'config';
+import config from '@config/index';
 
 /**
  *

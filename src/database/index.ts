@@ -4,7 +4,6 @@ import sequelizeErd from 'sequelize-erd';
 import { logger } from '@/common/utils/logger';
 import UserModel from '@/modules/UserTenancy/models/users.model';
 import AccessGroupModel from '@/modules/UserTenancy/models/accessGroup.model';
-import AlertModel from '@/modules/Alert/models/alert.model';
 import AlertRuleModel from '@/modules/Alert/models/alertRule.model';
 import AlertReceivedModel from '@/modules/Alert/models/alertReceived.model';
 import LogModel from '@/modules/Log/models/log.model';
@@ -22,7 +21,6 @@ import IncidentModel from '@/modules/Incident/models/incident.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
 import IncidentActionAttachmentModel from '@/modules/Incident/models/incidentActionAttachment.model';
 import IncidentAlertReceivedModel from '@/modules/Incident/models/incidentAlertReceived.model';
-import InvitationModel from '@/modules/UserTenancy/models/invitation.model';
 import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
 import CommonCodeModel from '@/modules/CommonCode/models/commonCode.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
@@ -31,12 +29,24 @@ import AddressModel from '@/modules/Address/models/address.model';
 import ApiModel from '@/modules/Api/models/api.models';
 import MessageModel from '@/modules/Messaging/models/message.model';
 import PartyModel from '@/modules/Party/models/party.model';
+import ResourceModel from '@/modules/Resources/models/resource.model';
+import ResourceGroupModel from '@/modules/Resources/models/resourceGroup.model';
 import PartyRelationModel from '@/modules/Party/models/partyRelation.model';
 import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import TableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import PartyChannelModel from '@/modules/Party/models/partychannel.model';
-import config from 'config';
+import NotificationModel from '@/modules/Notification/models/notification.model';
+import PartyResourceModel from '@/modules/Party/models/partyResource.model';
+import PartyUserLogsModel from '@/modules/Party/models/partyUserLogs.model';
+import config from '@config/index';
 import InitialRecordService from './initialRecord';
+
+import SubscriptionModel from '@/modules/Subscriptions/models/subscriptions.model';
+import SubscribedProductModel from '@/modules/Subscriptions/models/subscribedProduct.model';
+import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
+import invitationModel from '@/modules/Party/models/invitation.model';
+import MetricMetaModel from '@/modules/Metric/models/metricMeta.model';
+import metricReceivedModel from '@/modules/Metric/models/metricReceived.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -79,7 +89,6 @@ const DB = {
   AccessGroupMember: AccessGroupMemberModel(sequelize),
   Tenancies: TenancyModel(sequelize),
   TenancyMembers: TenancyMemberModel(sequelize),
-  Alerts: AlertModel(sequelize),
   Log: LogModel(sequelize),
   Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
@@ -87,7 +96,6 @@ const DB = {
   IncidentAction: IncidentActionModel(sequelize),
   IncidentActionAttachment: IncidentActionAttachmentModel(sequelize),
   IncidentAlertReceived: IncidentAlertReceivedModel(sequelize),
-  Invitations: InvitationModel(sequelize),
   Tokens: TokenModel(sequelize),
   CatalogPlan: CatalogPlanModel(sequelize),
   CatalogPlanProduct: CatalogPlanProductModel(sequelize),
@@ -101,10 +109,21 @@ const DB = {
   TableId: TableIdModel(sequelize),
   Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
+  Resource: ResourceModel(sequelize),
+  ResourceGroup: ResourceGroupModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
+  PartyUserLogs: PartyUserLogsModel(sequelize),
+  Notification: NotificationModel(sequelize),
+  Subscription: SubscriptionModel(sequelize),
+  SubscribedProduct: SubscribedProductModel(sequelize),
+  SubscriptionHistory: SubscriptionHistoryModel(sequelize),
+  PartyResource: PartyResourceModel(sequelize),
   AlertReceived: AlertReceivedModel(sequelize),
   AlertRule: AlertRuleModel(sequelize),
+  Invitation: invitationModel(sequelize),
+  MetricMeta: MetricMetaModel(sequelize),
+  MetricReceived: metricReceivedModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -121,6 +140,15 @@ DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
 
 DB.CustomerAccount.hasMany(DB.Incident, { foreignKey: 'customerAccountKey' });
 DB.Incident.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.CustomerAccount.hasMany(DB.Resource, { foreignKey: 'customerAccountKey' });
+DB.Resource.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.CustomerAccount.hasMany(DB.ResourceGroup, { foreignKey: 'customerAccountKey' });
+DB.ResourceGroup.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resourceGroupKey' });
+DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
 
 DB.Party.hasMany(DB.Incident, { foreignKey: 'assigneeKey', as: 'incidents' });
 DB.Incident.belongsTo(DB.Party, { foreignKey: 'assigneeKey', as: 'assignee' });
@@ -196,6 +224,15 @@ DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'
 DB.CatalogPlanProduct.hasMany(DB.CatalogPlanProductPrice, { foreignKey: 'catalog_plan_product_key' });
 DB.CatalogPlanProductPrice.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
 
+DB.CatalogPlan.hasOne(DB.Subscription, { foreignKey: 'catalog_plan_key' });
+DB.Subscription.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key' });
+
+DB.Subscription.hasMany(DB.SubscriptionHistory, { foreignKey: 'subscription_key' });
+DB.SubscriptionHistory.belongsTo(DB.Subscription, { foreignKey: 'subscription_key' });
+
+DB.Subscription.hasMany(DB.SubscribedProduct, { foreignKey: 'subscription_key' });
+DB.SubscribedProduct.belongsTo(DB.Subscription, { foreignKey: 'subscription_key' });
+
 DB.CustomerAccount.hasMany(DB.Party, { foreignKey: 'customerAccountKey' });
 DB.Party.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
@@ -206,6 +243,83 @@ DB.Party.hasMany(DB.PartyRelation, { as: 'partyParent', foreignKey: 'partyParent
 DB.Party.hasMany(DB.PartyRelation, { as: 'partyChild', foreignKey: 'partyChildKey', sourceKey: 'partyKey' });
 DB.PartyRelation.belongsTo(DB.Party, { as: 'partyParent', foreignKey: 'partyParentKey', targetKey: 'partyKey' });
 DB.PartyRelation.belongsTo(DB.Party, { as: 'partyChild', foreignKey: 'partyChildKey', targetKey: 'partyKey' });
+
+DB.CustomerAccount.hasMany(DB.Invitation, { foreignKey: 'customerAccountKey' });
+DB.Invitation.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.Messages.hasMany(DB.Invitation, { foreignKey: 'messageKey' });
+DB.Invitation.belongsTo(DB.Messages, { foreignKey: 'messageKey' });
+
+DB.Party.hasMany(DB.PartyChannel, { foreignKey: 'partyKey' });
+DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey' });
+
+DB.PartyChannel.hasMany(DB.Notification, { foreignKey: 'partyChannelKey' });
+DB.Notification.belongsTo(DB.PartyChannel, { foreignKey: 'partyChannelKey' });
+
+DB.Party.hasMany(DB.Notification, { foreignKey: 'partyKey' });
+DB.Notification.belongsTo(DB.Party, { foreignKey: 'partyKey' });
+
+DB.Messages.hasOne(DB.Notification, { foreignKey: 'messageKey' });
+DB.Notification.belongsTo(DB.Messages, { foreignKey: 'messageKey' });
+
+DB.CustomerAccount.hasMany(DB.Notification, { foreignKey: 'customerAccountKey' });
+DB.Notification.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.Party.belongsToMany(DB.Resource, {
+  through: {
+    model: 'PartyResource',
+    unique: false,
+  },
+  foreignKey: 'partyKey',
+  // otherKey: 'resourceKey',
+  as: 'resource',
+});
+DB.Resource.belongsToMany(DB.Party, {
+  through: {
+    model: 'PartyResource',
+    unique: false,
+  },
+  foreignKey: 'resourceKey',
+  // otherKey: 'partyKey',
+  as: 'party',
+});
+
+DB.Party.hasMany(DB.PartyResource, { foreignKey: 'partyKey' });
+DB.Resource.hasMany(DB.PartyResource, { foreignKey: 'resourceKey' });
+DB.PartyResource.belongsTo(DB.Party, { foreignKey: 'partyKey' });
+DB.PartyResource.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
+
+DB.PartyUser.belongsToMany(DB.Api, {
+  through: {
+    model: 'PartyUserLogs',
+    unique: false,
+  },
+  foreignKey: 'partyUserKey',
+  as: 'api',
+});
+DB.Api.belongsToMany(DB.PartyUser, {
+  through: {
+    model: 'PartyUserLogs',
+    unique: false,
+  },
+  foreignKey: 'apiKey',
+  as: 'partyUser',
+});
+
+DB.Api.hasMany(DB.PartyUserLogs, { foreignKey: 'apiKey' });
+DB.PartyUserLogs.belongsTo(DB.Api, { foreignKey: 'apiKey' });
+
+DB.CustomerAccount.hasMany(DB.MetricReceived, { foreignKey: 'customerAccountKey' });
+DB.MetricReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.MetricMeta.hasMany(DB.MetricReceived, { foreignKey: 'metricMetaKey' });
+DB.MetricReceived.belongsTo(DB.MetricMeta, { foreignKey: 'metricMetaKey' });
+
+DB.CustomerAccount.hasMany(DB.MetricMeta, { foreignKey: 'customerAccountKey' });
+DB.MetricMeta.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.Resource.hasMany(DB.MetricMeta, { foreignKey: 'resourceKey' });
+DB.MetricMeta.belongsTo(DB.Resource,{ foreignKey: 'resourceKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

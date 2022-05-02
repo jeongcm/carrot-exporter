@@ -10,17 +10,29 @@ import LogRoute from '@/modules/Log/routes/log.route';
 import ClusterRoute from '@/modules/K8s/routes/cluster.route';
 import ChannelRoute from '@/modules/Messaging/routes/channel.route';
 import IncidentRoute from '@/modules/Incident/routes/incident.route';
-import InvitationRoute from '@/modules/UserTenancy/routes/invitation.route';
 
 import ProductCatalogRoute from '@/modules/ProductCatalog/routes/productCatalog.route';
 import MessageRoute from '@/modules/Messaging/routes/message.route';
+import SubscriptionRoute from '@/modules/Subscriptions/routes/subscriptions.route';
 
 import CommonCodeRoute from '@/modules/CommonCode/routes/commonCode.route';
 
 import CustomerAccountRoute from '@modules/CustomerAccount/routes/customerAccount.route';
 import TableIdRoute from '@/modules/CommonService/routes/tableId.route';
+import webhookForBillingRoute from '@/modules/CommonService/routes/webhooforbilling.route';
 import ApiRoute from '@/modules/Api/routes/api.route';
 import PartyRoute from '@modules/Party/routes/party.route';
+
+import NotificationRoute from './modules/Notification/routes/notification.route';
+import PartyChannelRoute from './modules/Party/routes/partychannel.route';
+
+import ResourceRoute from '@modules/Resources/routes/resource.route';
+import ResourceGroupRoute from '@modules/Resources/routes/resourceGroup.route';
+import massUploaderRoute from './modules/CommonService/routes/massUploader.route';
+
+import InvitationRoute from './modules/Party/routes/invitation.route';
+import MetricRoute from './modules/Metric/routes/metric.route';
+
 
 const app = new App([
   new IndexRoute(),
@@ -33,17 +45,27 @@ const app = new App([
   new ClusterRoute(),
   new ChannelRoute(),
   new IncidentRoute(),
-  new InvitationRoute(),
 
   new ProductCatalogRoute(),
   new CustomerAccountRoute(),
   new ApiRoute(),
   new MessageRoute(),
+  new SubscriptionRoute(),
 
   new CommonCodeRoute(),
   new CustomerAccountRoute(),
   new TableIdRoute(),
   new PartyRoute(),
+  new NotificationRoute(),
+  new PartyChannelRoute(),  
+  new ResourceRoute(),
+  new ResourceGroupRoute(),
+
+  new webhookForBillingRoute(),
+  new massUploaderRoute(),
+
+  new InvitationRoute(),
+  new MetricRoute(),
 ]);
 
 app.listen();

@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import DB from '@/database';
 import { HttpException } from '@/common/exceptions/HttpException';
 
-import config from 'config';
+import config from '@config/index';
 import { IDataStoredInToken, IRequestWithUser } from '@/common/interfaces/party.interface';
 import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 
@@ -13,7 +13,35 @@ import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
  * @param  {Response} res
  * @param  {NextFunction} next
  */
+
+const noAuthList = [
+  'POST/login',
+  'GET/logout',
+  'POST/party/user',
+  'POST/customerAccount',
+  'GET/customerAccount',
+  'GET/customerAccount/:customerAccountId',
+];
+
+const checkNoAuth = (method: string, path: string): boolean => {
+  // if (url.startsWith('/customerAccount/CA') && url.split('/customerAccount/CA')[1].length === 14 && method === 'GET') {
+  //   return true;
+  // }
+
+  const request = method.concat(path);
+
+  if (noAuthList.includes(request)) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
 const authMiddleware = async (req, res: Response, next: NextFunction) => {
+  if (checkNoAuth(req.method, req.route.path)) {
+    return next();
+  }
+
   try {
     if (req.isAuthenticated()) {
       return next();

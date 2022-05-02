@@ -1,0 +1,124 @@
+swagger: '2.0'
+info:
+  description: 'NEED TO UPDATE THIS FILE'
+  version: '1.0.0'
+  title: 'Swagger nexclipper'
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: 'apiteam@swagger.io'
+host: 'nexclipper.com'
+basePath: '/'
+tags:
+  - name: resource
+    description: resource API
+
+paths:
+  # [POST] resource
+  /resource:
+    post:
+      tags:
+        - resource
+      summary: Create Resource
+      parameters:
+        - name: body
+          in: body
+          description: Resource data
+          required: true
+          schema:
+            $ref: '#/definitions/resource'
+      responses:
+        201:
+          description: 'Created'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+  # [GET] resource
+    get:
+      tags:
+        - resource
+      summary: Find All Resource
+      responses:
+        200:
+          description: 'OK'
+        500:
+          description: 'Server Error'
+   # [GET] resource/apiId
+  /resource/{apiId}:
+    get:
+      tags:
+        - resource
+      summary: Get Resource By Id
+      parameters:
+        - name: apiId
+          in: path
+          description: Resource Id
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'OK'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+    # [PUT] resource/apiId
+    put:
+      tags:
+        - resource
+      summary: Update Resource By Id
+      parameters:
+        - name: apiId
+          in: path
+          description: Resource Id
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: Resource Data
+          required: true
+          schema:
+            $ref: '#/definitions/resource'
+      responses:
+        200:
+          description: 'OK'
+        400:
+          description: 'Bad Request'
+        409:
+          description: 'Conflict'
+        500:
+          description: 'Server Error'
+
+# definitions
+definitions:
+  resource:
+    type: object
+    required:
+      - apiName
+      - apiDescription
+      - apiEndPoint1
+      - apiEndPoint2
+      - apiVisibleTF
+    properties:
+      apiName:
+        type: string
+        description: resource Name
+        example: example
+      apiDescription:
+        type: string
+        description: resource description
+        example: example
+      apiEndPoint1:
+        type: string
+        description: resource EndPoint1
+        example: example
+      apiEndPoint2:
+        type: string
+        description: resource EndPoint1
+        example: example
+      apiVisibleTF:
+        type: string
+        description: resource VisibleTF
+        example: example
