@@ -365,6 +365,68 @@ class IncidentController {
       next(error);
     }
   };
+
+  public addAlertReceivedtoIncident = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const incidentId = req.params.incidentId;
+
+    const incident = await this.incidentService.getIncidentById(customerAccountKey, incidentId);
+
+    if (!incident) {
+      return res.status(404).json({ message: `Incident id(${incidentId}) not found` });
+    }
+
+    try {
+      const addAlertReceivedData: AddAlertReceivedToIncidentDto = req.body;
+      const logginedUserId = req.user.partyId;
+
+      const addAlertReceived: any = await this.incidentService.addAlertReceivedtoIncident(
+        customerAccountKey,
+        incidentId,
+        addAlertReceivedData,
+        logginedUserId,
+      );
+
+      if (addAlertReceived === 'alertReceivedId error') {
+        return res.status(404).json({ message: `Check AlertReceivedIds (${addAlertReceivedData?.alertReceivedIds}) again.` });
+      } else if (addAlertReceived) {
+        return res.status(201).json({ message: 'added' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public dropAlertReceivedfromIncident = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const incidentId = req.params.incidentId;
+
+    const incident = await this.incidentService.getIncidentById(customerAccountKey, incidentId);
+
+    if (!incident) {
+      return res.status(404).json({ message: `Incident id(${incidentId}) not found` });
+    }
+
+    try {
+      const dropAlertReceivedData: DropAlertReceivedFromIncidentDto = req.body;
+      const logginedUserId = req.user.partyId;
+
+      const dropAlertReceived: any = await this.incidentService.dropAlertReceivedfromIncident(
+        customerAccountKey,
+        incidentId,
+        dropAlertReceivedData,
+        logginedUserId,
+      );
+
+      if (dropAlertReceived === 'alertReceivedId error') {
+        return res.status(404).json({ message: `Check AlertReceivedIds (${dropAlertReceivedData?.alertReceivedIds}) again.` });
+      } else if (dropAlertReceived === 'deleted') {
+        res.status(204).json({ message: 'deleted' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default IncidentController;

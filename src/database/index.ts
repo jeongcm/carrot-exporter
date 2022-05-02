@@ -185,6 +185,18 @@ DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' })
 // DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
 // DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
 
+DB.Incident.belongsToMany(DB.AlertReceived, {
+  through: 'IncidentAlertReceived',
+  foreignKey: 'incidentKey',
+  otherKey: 'alertReceivedKey',
+  as: 'alertReceived',
+});
+DB.AlertReceived.belongsToMany(DB.Incident, {
+  through: 'IncidentAlertReceived',
+  foreignKey: 'alertReceivedKey',
+  otherKey: 'incidentKey',
+});
+
 DB.CustomerAccount.belongsToMany(DB.Address, {
   through: 'CustomerAccountAddress',
   foreignKey: 'customerAccountKey',
