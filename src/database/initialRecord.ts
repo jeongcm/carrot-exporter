@@ -91,7 +91,7 @@ class InitialRecordService {
     if (!getApi) {
       let insertDataList = [];
 
-      console.log ("###########################start.....")
+      //console.log ("###########################start.....")
       
       // pre-step to be ready to use bulk table id
       let apiListLength = apiList.length;
@@ -116,14 +116,14 @@ class InitialRecordService {
           apiId: api_id,
         });
       }
-      console.log ("###########################SQL API.....")
-      console.log(insertDataList);
-      console.log ("###########################SQL API.....")
+      //console.log ("###########################SQL API.....")
+      //console.log(insertDataList);
+      //console.log ("###########################SQL API.....")
 
       const t = await DB.sequelize.transaction(); 
       try {
           await this.api.bulkCreate(insertDataList, { transaction: t });
-          console.log(t);
+          //console.log(t);
           console.log ("###########################SQL API commit.....")
           await t.commit();
       } catch (error) {

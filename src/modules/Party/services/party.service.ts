@@ -109,9 +109,9 @@ class PartyService {
     //if (!tableId) {
     //  return;
     //}
+    const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
     try {
-      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
       return await DB.sequelize.transaction(async t => {
         let hashedPassword;
@@ -166,7 +166,9 @@ class PartyService {
           partyUserStatus: createPartyUserData.partyUserStatus,
         };
       });
-    } catch (error) {}
+    } catch (error) {
+      console.log(error); 
+    }
   }
 
   public async updateUser(customerAccountKey: number, logginedUserId: string, updateUserId: string, updateUserData: UpdateUserDto): Promise<IParty> {
@@ -452,7 +454,7 @@ class PartyService {
     logginedUserId: string,
     partyId: string,
     removingResourceData: AddResourceToAccessGroupDto,
-  ): Promise<[number, PartyResourceModel[]]> {
+  ): Promise<[number]> {
     const party: IParty = await this.party.findOne({
       where: { partyId },
       attributes: ['partyKey'],
@@ -465,7 +467,7 @@ class PartyService {
 
     const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
 
-    const updated: [number, PartyResourceModel[]] = await this.partyResource.update(
+    const updated: [number] = await this.partyResource.update(
       { deletedAt: new Date(), updatedBy: logginedUserId },
       {
         where: {
