@@ -60,6 +60,7 @@ export default function (sequelize: Sequelize): typeof CommonCodeModel {
       commonCodeCode: {
         allowNull: false,
         type: DataTypes.STRING(2),
+        unique: true
       },            
       commonCodeDescription: {
         allowNull: false,

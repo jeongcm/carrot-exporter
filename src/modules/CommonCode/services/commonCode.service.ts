@@ -36,7 +36,10 @@ class CommonCodeService {
       });
 
       return createCommonCode;
-    } catch (error) {console.log(error);}
+    } catch (error) {
+      console.log(error.code);
+      
+    }
   }
 
   /**

@@ -13,18 +13,24 @@ class CommonCodeController {
       const currentUserId = req?.user?.partyId;
       const createCommonCodeData: ICommonCode = await this.commonCodeService.createCommonCode(commonCodeData, currentUserId);
 
-      const { commonCodeId, createdBy, createdAt, commonCodeDescription, commonCodeDisplayENG, commonCodeDisplayKOR } = createCommonCodeData;
+      const { commonCodeId, createdBy, createdAt, commonCodeName, commonCodeCode, commonCodeDescription, commonCodeDisplayENG, commonCodeDisplayKOR } = createCommonCodeData;
 
       const response = {
         commonCodeId,
         createdBy,
         createdAt,
+        commonCodeName,
+        commonCodeCode,
         commonCodeDescription,
         commonCodeDisplayENG,
         commonCodeDisplayKOR,
       };
       res.status(201).json({ data: response, message: 'created' });
     } catch (error) {
+      if (error.code="ER_DUP_ENTRY") {
+        console.log("database error - duplicated code");
+        //res.status(409).json({ message: `common code duplicated` });
+    }
       next(error);
     }
   };
