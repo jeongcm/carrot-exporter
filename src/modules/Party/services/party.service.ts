@@ -34,7 +34,7 @@ import {
 } from '@/modules/Party/dtos/party.dto';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
-import config from 'config';
+import config from '@config/index';
 
 import { logger } from '@/common/utils/logger';
 
@@ -452,7 +452,7 @@ class PartyService {
     logginedUserId: string,
     partyId: string,
     removingResourceData: AddResourceToAccessGroupDto,
-  ): Promise<[number, PartyResourceModel[]]> {
+  ): Promise<[number]> {
     const party: IParty = await this.party.findOne({
       where: { partyId },
       attributes: ['partyKey'],
@@ -465,7 +465,7 @@ class PartyService {
 
     const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
 
-    const updated: [number, PartyResourceModel[]] = await this.partyResource.update(
+    const updated = await this.partyResource.update(
       { deletedAt: new Date(), updatedBy: logginedUserId },
       {
         where: {
@@ -478,7 +478,7 @@ class PartyService {
 
     return updated;
   }
-
+  
   public async getUserAPILog(partyId: string): Promise<IPartyUserAPILog[]> {
     const partyUser: IPartyUser = await this.partyUser.findOne({
       where: { partyUserId: partyId },

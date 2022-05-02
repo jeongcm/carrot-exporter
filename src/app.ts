@@ -14,7 +14,7 @@ import errorMiddleware from '@/common/middlewares/error.middleware';
 import { logger, stream } from '@/common/utils/logger';
 import Passport from './modules/UserTenancy/provider/passport';
 import { Request, Response, NextFunction } from 'express';
-import config from 'config';
+import config from '@config/index';
 
 // RYAN: for git commit, please do not just use wip, as it's impossible to track it in logs. Please at least mark the ticket number:
 // eg: wip: NEX-1123

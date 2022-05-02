@@ -4,7 +4,7 @@ import { User } from '@/common/interfaces/users.interface';
 import userService from '@/modules/UserTenancy/services/users.service';
 import TokenService from '@/modules/UserTenancy/services/token.service';
 import DB from '@/database';
-import config from 'config';
+import config from '@config/index';
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
 
 const crypto = require('crypto');

@@ -31,8 +31,8 @@ export class SubscriptionHistoryModel extends Model<ISubscriptionHistory, Subscr
     public subscriptionOldStatus: 'AC' | 'SP' | 'TM';
     public subscriptionNewStatus: 'AC' | 'SP' | 'TM';
     public subscriptionStatusChangeReason: 'BD';
-    public subscriptionOldCommitment: 'AC' | 'MM' | 'EA';
-    public subscriptionNewCommitment: 'AC' | 'MM' | 'EA'
+    public subscriptionOldCommitment: 'AC' | 'MM' ;
+    public subscriptionNewCommitment: 'AC' | 'MM' ;
     public subscriptionCommitmentChangeReason: "EA"
     public subscriptionChangedAt: Date
 

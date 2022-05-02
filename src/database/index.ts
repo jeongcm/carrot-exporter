@@ -38,7 +38,7 @@ import PartyChannelModel from '@/modules/Party/models/partychannel.model';
 import NotificationModel from '@/modules/Notification/models/notification.model';
 import PartyResourceModel from '@/modules/Party/models/partyResource.model';
 import PartyUserLogsModel from '@/modules/Party/models/partyUserLogs.model';
-import config from 'config';
+import config from '@config/index';
 import InitialRecordService from './initialRecord';
 
 import SubscriptionModel from '@/modules/Subscriptions/models/subscriptions.model';

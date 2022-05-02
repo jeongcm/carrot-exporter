@@ -3,7 +3,7 @@ import DB from '@/database';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdBulkDto, IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { ITableId } from '@/common/interfaces/tableId.interface';
-import config from 'config';
+import config from '@config/index';
 import { IApi } from '@/common/interfaces/api.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { IParty } from '@/common/interfaces/party.interface';

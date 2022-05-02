@@ -10,7 +10,7 @@ class ApiController {
   public createApi = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const apiData: ApiDto = req.body;
-      const currentUserId = req.user.partyId;
+      const currentUserId = req?.user?.partyId;
       const createApiData: IApi = await this.apiService.createApi(apiData, currentUserId);
 
       const { apiId, createdBy, createdAt, apiName, apiDescription, apiEndPoint1, apiEndPoint2, apiVisibleTF } = createApiData;

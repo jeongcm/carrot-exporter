@@ -4,7 +4,7 @@ import { CreateUserDto } from '@/modules/UserTenancy/dtos/user.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { User } from '@/common/interfaces/users.interface';
 import { isEmpty } from '@/common/utils/util';
-import config from 'config';
+import config from '@config/index';
 import urlJoin from 'url-join';
 
 const nodemailer = require('nodemailer');

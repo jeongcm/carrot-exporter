@@ -3,7 +3,7 @@ import { IAcceptInvitation, IInvitation, IRejectInvitation } from '@/common/inte
 import { InvitationDto } from '../dtos/invitation.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import PartyService from '../services/party.service';
-import config from '@/config';
+import config from '@config/index';
 import InvitationService from '@/modules/Party/services/invitation.service';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import MessageServices from '@/modules/Messaging/services/message.service';
