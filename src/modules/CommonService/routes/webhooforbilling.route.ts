@@ -3,6 +3,8 @@ import { Routes } from '@/common/interfaces/routes.interface';
 import webhookForBillingController from '@/modules/CommonService/controllers/webhookforbilling.controller';
 import AuthService from '@/modules/UserTenancy/services/auth.service';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
+import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
+
 
 
 class webhookForBillingRoute implements Routes {
@@ -14,7 +16,7 @@ class webhookForBillingRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/webhookforbilling', authMiddleware, this.webhookForBillingController.receiveBillingInterface);
+    this.router.post('/webhookforbilling', authMiddleware, createUserLogMiddleware,this.webhookForBillingController.receiveBillingInterface);
   }
 }
 
