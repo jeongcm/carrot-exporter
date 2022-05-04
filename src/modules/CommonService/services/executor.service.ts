@@ -248,7 +248,7 @@ class executorService {
     var template_uuid="";
     var service_name="";
     var service_summary="";
-    var argsData={};
+    var argsData;
     
     const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
   
@@ -282,7 +282,20 @@ class executorService {
             service_name = "k8s service list request" 
             service_summary = "k8s service list request" 
             template_uuid = templateService;
-            argsData = this.buildArgMsg(targetNamespace, labels, "namespace"); 
+
+            if (!targetNamespace){
+                if(!labels){
+                    argsData = {namespace:"", labels:{}};
+                } else {
+                    argsData = {namespace:"", labels:labels};
+                }
+            } else {
+                if(!labels){
+                    argsData = {namespace:targetNamespace, labels:{}};
+                } else {
+                    argsData = {namespace:targetNamespace, labels:labels};
+                }
+            }
              
         break;    
 
@@ -290,7 +303,11 @@ class executorService {
             service_name = "k8s node list request" 
             service_summary = "k8s node list request" 
             template_uuid = templateNode;
-            argsData = this.buildArgMsg(targetNamespace, labels, "cluster"); 
+            if(!labels){
+                argsData = {labels:{}};
+            } else {
+                argsData = {labels:labels};
+            }
 
         break;    
 
@@ -298,7 +315,11 @@ class executorService {
             service_name = "k8s namespace list request" 
             service_summary = "k8s namespace list request" 
             template_uuid = templateNamespace;
-            argsData = this.buildArgMsg(targetNamespace, labels, "cluster");     
+            if(!labels){
+                argsData = {labels:{}};
+            } else {
+                argsData = {labels:labels};
+            }
 
         break;    
         
@@ -306,8 +327,20 @@ class executorService {
             service_name = "k8s pod list request" 
             service_summary = "k8s pod list request" 
             template_uuid = templatePod;
-            argsData = this.buildArgMsg(targetNamespace, labels, "namespace");             
-
+            
+            if (!targetNamespace){
+                if(!labels){
+                    argsData = {namespace:"", labels:{}};
+                } else {
+                    argsData = {namespace:"", labels:labels};
+                }
+            } else {
+                if(!labels){
+                    argsData = {namespace:targetNamespace, labels:{}};
+                } else {
+                    argsData = {namespace:targetNamespace, labels:labels};
+                }
+            }
 
         break;    
 
@@ -315,7 +348,20 @@ class executorService {
             service_name = "k8s deployment list request" 
             service_summary = "k8s deployment list request" 
             template_uuid = templateDeployment;
-            argsData = this.buildArgMsg(targetNamespace, labels, "namespace"); 
+ 
+            if (!targetNamespace){
+                if(!labels){
+                    argsData = {namespace:"", labels:{}};
+                } else {
+                    argsData = {namespace:"", labels:labels};
+                }
+            } else {
+                if(!labels){
+                    argsData = {namespace:targetNamespace, labels:{}};
+                } else {
+                    argsData = {namespace:targetNamespace, labels:labels};
+                }
+            }
  
         break;    
 
@@ -323,7 +369,20 @@ class executorService {
             service_name = "k8s statefulset list request" 
             service_summary = "k8s statefulset list request" 
             template_uuid = templateStatefulset;
-            argsData = this.buildArgMsg(targetNamespace, labels, "namespace"); 
+
+            if (!targetNamespace){
+                if(!labels){
+                    argsData = {namespace:"", labels:{}};
+                } else {
+                    argsData = {namespace:"", labels:labels};
+                }
+            } else {
+                if(!labels){
+                    argsData = {namespace:targetNamespace, labels:{}};
+                } else {
+                    argsData = {namespace:targetNamespace, labels:labels};
+                }
+            }
           
         break;    
 
@@ -331,7 +390,21 @@ class executorService {
             service_name = "k8s daemonset list request" 
             service_summary = "k8s daemonset list request" 
             template_uuid = templateDaemonset;
-            argsData = this.buildArgMsg(targetNamespace, labels, "namespace"); 
+
+            if (!targetNamespace){
+                if(!labels){
+                    argsData = {namespace:"", labels:{}};
+                } else {
+                    argsData = {namespace:"", labels:labels};
+                }
+            } else {
+                if(!labels){
+                    argsData = {namespace:targetNamespace, labels:{}};
+                } else {
+                    argsData = {namespace:targetNamespace, labels:labels};
+                }
+            }
+    
             
         break;    
 
@@ -339,7 +412,21 @@ class executorService {
             service_name = "k8s replicaset list request" 
             service_summary = "k8s replicaset list request" 
             template_uuid = templateReplicaset;
-            argsData = this.buildArgMsg(targetNamespace, labels, "namespace"); 
+
+            if (!targetNamespace){
+                if(!labels){
+                    argsData = {namespace:"", labels:{}};
+                } else {
+                    argsData = {namespace:"", labels:labels};
+                }
+            } else {
+                if(!labels){
+                    argsData = {namespace:targetNamespace, labels:{}};
+                } else {
+                    argsData = {namespace:targetNamespace, labels:labels};
+                }
+            }
+    
  
         break;    
 
@@ -347,7 +434,21 @@ class executorService {
             service_name = "k8s pvc list request" 
             service_summary = "k8s pvc list request" 
             template_uuid = templatePvc;
-            argsData = this.buildArgMsg(targetNamespace, labels, "namespace"); 
+
+            if (!targetNamespace){
+                if(!labels){
+                    argsData = {namespace:"", labels:{}};
+                } else {
+                    argsData = {namespace:"", labels:labels};
+                }
+            } else {
+                if(!labels){
+                    argsData = {namespace:targetNamespace, labels:{}};
+                } else {
+                    argsData = {namespace:targetNamespace, labels:labels};
+                }
+            }
+    
 
         break;    
 
@@ -355,7 +456,21 @@ class executorService {
             service_name = "k8s secret list request" 
             service_summary = "k8s secret list request" 
             template_uuid = templateSecret;
-            argsData = this.buildArgMsg(targetNamespace, labels, "namespace"); 
+
+            if (!targetNamespace){
+                if(!labels){
+                    argsData = {namespace:"", labels:{}};
+                } else {
+                    argsData = {namespace:"", labels:labels};
+                }
+            } else {
+                if(!labels){
+                    argsData = {namespace:targetNamespace, labels:{}};
+                } else {
+                    argsData = {namespace:targetNamespace, labels:labels};
+                }
+            }
+    
            
         break;    
 
@@ -363,7 +478,21 @@ class executorService {
             service_name = "k8s endpoint list request" 
             service_summary = "k8s endpoint list request" 
             template_uuid = templateEndpoint;
-            argsData = this.buildArgMsg(targetNamespace, labels, "namespace"); 
+
+            if (!targetNamespace){
+                if(!labels){
+                    argsData = {namespace:"", labels:{}};
+                } else {
+                    argsData = {namespace:"", labels:labels};
+                }
+            } else {
+                if(!labels){
+                    argsData = {namespace:targetNamespace, labels:{}};
+                } else {
+                    argsData = {namespace:targetNamespace, labels:labels};
+                }
+            }
+    
 
         break;    
 
@@ -371,7 +500,20 @@ class executorService {
             service_name = "k8s configmap list request" 
             service_summary = "k8s configmap list request" 
             template_uuid = templateConfigmap;
-            argsData = this.buildArgMsg(targetNamespace, labels, "namespace"); 
+            if (!targetNamespace){
+                if(!labels){
+                    argsData = {namespace:"", labels:{}};
+                } else {
+                    argsData = {namespace:"", labels:labels};
+                }
+            } else {
+                if(!labels){
+                    argsData = {namespace:targetNamespace, labels:{}};
+                } else {
+                    argsData = {namespace:targetNamespace, labels:labels};
+                }
+            }
+    
 
         break;    
 
@@ -379,7 +521,20 @@ class executorService {
             service_name = "k8s ingress list request" 
             service_summary = "k8s ingress list request" 
             template_uuid = templateIngress;
-            argsData = this.buildArgMsg(targetNamespace, labels, "namespace"); 
+            if (!targetNamespace){
+                if(!labels){
+                    argsData = {namespace:"", labels:{}};
+                } else {
+                    argsData = {namespace:"", labels:labels};
+                }
+            } else {
+                if(!labels){
+                    argsData = {namespace:targetNamespace, labels:{}};
+                } else {
+                    argsData = {namespace:targetNamespace, labels:labels};
+                }
+            }
+    
 
         break;    
 
@@ -387,7 +542,11 @@ class executorService {
             service_name = "k8s pv list request" 
             service_summary = "k8s pv list request" 
             template_uuid = templatePv;
-            argsData = this.buildArgMsg(targetNamespace, labels, "cluster"); 
+            if(!labels){
+                argsData = {labels:{}};
+            } else {
+                argsData = {labels:labels};
+            }
 
         break;    
 
@@ -395,8 +554,12 @@ class executorService {
             service_name = "k8s storage class list request" 
             service_summary = "k8s storage class list request" 
             template_uuid = templateStorageClass;
-            argsData = this.buildArgMsg(targetNamespace, labels, "cluster"); 
-
+            if(!labels){
+                argsData = {labels:{}};
+            } else {
+                argsData = {labels:labels};
+            }
+            
         break;    
 
         default:
@@ -410,11 +573,10 @@ class executorService {
                                steps: [
                                 ] 
                             };
-
-    //console.log(argsData.)                            
+    console.log (argsData);
     argsData = {args: argsData};
     sudoryServiceData.steps.push(argsData);                        
-        
+    console.log((sudoryServiceData));      
     await axios(
       {
         method: 'post',
@@ -422,6 +584,7 @@ class executorService {
         data: sudoryServiceData,
         headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
       }).then(async (res: any) => {
+        console.log(res);                              
         serviceUuid = res.data.uuid
         console.log(`Submit ${service_name} on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
 
@@ -433,36 +596,5 @@ class executorService {
     return serviceUuid;
    }
 
-  /**
-   * @param {string} targetNamespace
-   * @param {string} resourceType
-   * @param {object} labels
-   */
-   public async buildArgMsg(targetNamespace: string, labels: object, resourceType: string ) {
-    var argsData= {};
-
-    if (resourceType = "namespace"){ 
-        if (!targetNamespace){
-            if(!labels){
-                argsData = {namespace:"", labels:{}};
-            } else {
-                argsData = {namespace:"", labels:labels};
-            }
-        } else {
-            if(!labels){
-                argsData = {namespace:targetNamespace, labels:{}};
-            } else {
-                argsData = {namespace:targetNamespace, labels:labels};
-            }
-        }
-    } else {    
-        if(!labels){
-            argsData = {labels:{}};
-        } else {
-            argsData = {labels:labels};
-        }
-    }
-    return argsData
-   } 
 }
 export default executorService;
