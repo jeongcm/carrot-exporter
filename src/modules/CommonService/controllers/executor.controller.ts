@@ -12,11 +12,16 @@ class executorController{
             const serviceUuid = req.params.serviceUuid;
 
             const executorServiceResult = await this.executorService.checkExecutorResourceResponse(serviceUuid);
-
             if (!executorServiceResult) {
-            return res.sendStatus(404);
+                return res.sendStatus(404);
             }
-            res.status(200).json({ data: executorServiceResult, message: `well received the service execution result of service uuid: ${serviceUuid}` });
+            if (executorServiceResult.serviceUuid) {
+                res.status(200).json({ data: executorServiceResult, message: `well received the service execution result of service uuid: ${serviceUuid}` });
+            } else {
+                res.status(200).json({ data: executorServiceResult, message: `waiting for service execution result of service uuid: ${serviceUuid}` });
+            }    
+
+
         } catch (error) {
             next(error);
         }
