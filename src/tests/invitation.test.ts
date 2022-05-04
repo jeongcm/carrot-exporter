@@ -102,7 +102,7 @@ describe('Testing Invitation Module', () => {
       invitation.findOne = jest.fn().mockReturnValue({
         message: 'TOKEN_IS_INVALID',
       });
-      const res = await request(app.getServer()).get('/invitation/accept').send();
+      const res = await request(app.getServer()).get(`/invitation/accept?token=${token}`).send().set(`X-AUTHORIZATION`, `Bearer ${token}`);;
       expect(res.statusCode).toEqual(400);
     });
     it('should return 400  with already rejected', async () => {
@@ -111,7 +111,7 @@ describe('Testing Invitation Module', () => {
       invitation.findOne = jest.fn().mockReturnValue({
         message: 'REQUEST_IS_ALEARDY_REJECTED',
       });
-      const res = await request(app.getServer()).get('/invitation/accept').send();
+      const res = await request(app.getServer()).get(`/invitation/accept?token=${token}`).send();
       expect(res.statusCode).toEqual(400);
     });
     it('should return 200  invitation accepted', async () => {
@@ -120,7 +120,7 @@ describe('Testing Invitation Module', () => {
       invitation = jest.fn().mockReturnValue({
         message: 'VERIFICATION_DONE_SUCCESSFULLY',
       });
-      const res = await request(app.getServer()).get('/invitation/accept').send().set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer()).get(`/invitation/accept`).send().set(`X-AUTHORIZATION`, `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
     });
     it('should return 400 with accepting error', async () => {
@@ -129,7 +129,7 @@ describe('Testing Invitation Module', () => {
       invitation.findOne = jest.fn().mockReturnValue({
         message: 'Error while accepting  invitation',
       });
-      const res = await request(app.getServer()).get('/invitation/accept').send();
+      const res = await request(app.getServer()).get(`/invitation/accept?token=${token}`).send();
       expect(res.statusCode).toEqual(400);
     });
   });
@@ -141,16 +141,15 @@ describe('Testing Invitation Module', () => {
       invitation.findOne = jest.fn().mockReturnValue({
         message: 'TOKEN_IS_INVALID',
       });
-      const res = await request(app.getServer()).get('/invitation/reject').send();
+      const res = await request(app.getServer()).get(`/invitation/reject?token=${token}`).send();
       expect(res.statusCode).toEqual(400);
     });
     it('should return 400 with already accepted', async () => {
       (Sequelize as any).authenticate = jest.fn();
       const app = new App([invitationRoute]);
       invitation.findOne = jest.fn().mockReturnValue({
-        message: 'REQUEST_IS_ALEARDY_ACCEPTED',
       });
-      const res = await request(app.getServer()).get('/invitation/reject').send();
+      const res = await request(app.getServer()).get(`/invitation/reject?token=${token}`).send();
       expect(res.statusCode).toEqual(400);
     });
     it('should return 200  invitation rejected', async () => {
@@ -159,7 +158,7 @@ describe('Testing Invitation Module', () => {
       invitation = jest.fn().mockReturnValue({
         message: 'REQUEST_IS_REJECTED_SUCCESSFULLY',
       });
-      const res = await request(app.getServer()).get('/invitation/reject').send().set(`X-AUTHORIZATION`, `Bearer ${token}`);
+      const res = await request(app.getServer()).get(`/invitation/reject?token=${token}`).send().set(`X-AUTHORIZATION`, `Bearer ${token}`);
       expect(res.statusCode).toEqual(200);
     });
     it('should return 400 with rejection error', async () => {
@@ -168,7 +167,7 @@ describe('Testing Invitation Module', () => {
       invitation.findOne = jest.fn().mockReturnValue({
         message: 'Error while rejecting invitation',
       });
-      const res = await request(app.getServer()).get('/invitation/reject').send();
+      const res = await request(app.getServer()).get(`/invitation/reject?token=${token}`).send();
       expect(res.statusCode).toEqual(400);
     });
   });

@@ -53,7 +53,7 @@ class InvitationController {
 
   public acceptInvitation = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const token = req.cookies['X-AUTHORIZATION'] || req.header('x-authorization').split('Bearer ')[1];
+      const token = req.cookies['X-AUTHORIZATION'] || (req.header('x-authorization')&& req.header('x-authorization').split('Bearer ')[1]);
 
       const invitationData = await this.invitationService.checkForToken(token);
       if (!invitationData) {
@@ -61,17 +61,20 @@ class InvitationController {
       } else if (invitationData.isRejected) {
         return res.status(200).json({ message: 'REQUEST_IS_ALEARDY_REJECTED' });
       } else {
+        console.log('\n\n\n\n\n\n\n++++++++++++++++++++++++++++++++',invitationData)
         const acceptInvitation: IAcceptInvitation = {
           isActive: false,
           isAccepted: true,
           acceptedAt: new Date(),
         };
         const partyId = req.params.partyId
-        await this.invitationService.updateInvitation(invitationData.invitationId, acceptInvitation, partyId);
+        const {invitationId} = invitationData;
+        await this.invitationService.updateInvitation(invitationId, acceptInvitation, partyId);
 
         return res.status(200).json({ message: 'VERIFICATION_DONE_SUCCESSFULLY' });
       }
     } catch (error) {
+      console.log('\n\n\n\n=========================', error)
       return res.status(400).json({ message: 'Error while accepting  invitation', error });
     }
   };
