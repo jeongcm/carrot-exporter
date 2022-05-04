@@ -7,6 +7,12 @@ import executorService from '../services/executor.service';
 class executorController{
 
     public executorService = new executorService();
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */    
     public checkExecutorResourceResponse = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
         try {
             const serviceUuid = req.params.serviceUuid;
@@ -21,6 +27,29 @@ class executorController{
                 res.status(200).json({ data: executorServiceResult, message: `waiting for service execution result of service uuid: ${serviceUuid}` });
             }    
 
+        } catch (error) {
+            next(error);
+        }
+    }; // end of method
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+    public checkExecutorResponse = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
+        try {
+            const serviceUuid = req.params.serviceUuid;
+
+            const executorServiceResult = await this.executorService.checkExecutorResponse(serviceUuid);
+            if (!executorServiceResult) {
+                return res.sendStatus(404);
+            }
+            if (executorServiceResult.serviceUuid) {
+                res.status(200).json({ data: executorServiceResult, message: `well received the service execution result of service uuid: ${serviceUuid}` });
+            } else {
+                res.status(200).json({ data: executorServiceResult, message: `waiting for service execution result of service uuid: ${serviceUuid}` });
+            }    
 
         } catch (error) {
             next(error);
@@ -95,7 +124,7 @@ class executorController{
      * @param  {Response} res
      * @param  {NextFunction} next
      */
-     public requestResourceListByExecutor = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+     public requestResourceToExecutor = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
         try {
             const clusterUuid = req.body.clusterUuid; 
             const targetNamespace = req.body.targetNamespace;
@@ -109,7 +138,7 @@ class executorController{
                                     name: name,
                                     labels: labels}; 
 
-            const serviceUuid: string = await this.executorService.requestResourceListByExecutor(requestDataset);
+            const serviceUuid: string = await this.executorService.requestResourceToExecutor(requestDataset);
             res.status(200).json({ serviceUuid: serviceUuid, message: `Successfullyt submit k8s resource list service request on cluserUuid: ${clusterUuid}` });
     
         } catch (error) {

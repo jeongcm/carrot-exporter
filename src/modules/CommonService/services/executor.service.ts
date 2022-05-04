@@ -67,6 +67,45 @@ class executorService {
    }
 
   /**
+   * @param {string} serviceUuid
+   */
+   public async checkExecutorResponse(serviceUuid: string ): Promise<ExecutorResultDto> {
+
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService + "/" + serviceUuid + "/result" ; 
+    var serviceUuid="";
+    var clusterUuid="";
+    var name="";
+    var result=[];
+    var status="Not_Ready";
+
+    await axios(
+      {
+        method: 'get',
+        url: `${executorServerUrl}`,
+        headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
+      }).then(async (res: any) => {
+        const statusCode = res.data.status;
+        if (statusCode !=4) {
+            console.log("result is not ready");
+            return;
+        }    
+        serviceUuid = res.data.uuid; 
+        clusterUuid = res.data.cluster_uuid;
+        name = res.data.name;
+        result = JSON.parse(res.data.result);
+        status = "Ready";
+        console.log(`patched the result of serviceUuid: ${serviceUuid}`);
+
+      }).catch(error => {
+        console.log(error);
+        throw new HttpException(500, `Unknown error to fetch the result of serviceUuid: ${serviceUuid}`);
+      });
+    
+    const executorResult = {serviceUuid: serviceUuid, clusterUuid: clusterUuid, name: name, result: result, status: status} 
+    return executorResult;
+   }
+
+  /**
    * @param  {ResourceGroupExecutorDto} ResourceGroupExecutorData
    * @param  {string} currentUserId
    */
@@ -242,7 +281,7 @@ class executorService {
   /**
    * @param {ExecutorResourceDto} resourceInputData
    */
- public async requestResourceListByExecutor(resourceInputData: ExecutorResourceDto ): Promise<string> {
+ public async requestResourceToExecutor(resourceInputData: ExecutorResourceDto ): Promise<string> {
 
     var serviceUuid="";
     var template_uuid="";

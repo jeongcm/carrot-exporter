@@ -22,7 +22,7 @@ class ExecutorRoute implements Routes {
       authMiddleware,
       validationMiddleware(ExecutorResourceDto, 'body'),
 //      createUserLogMiddleware,
-      this.executorController.requestResourceListByExecutor,
+      this.executorController.requestResourceToExecutor,
     );
     this.router.post(
         '/executor',
@@ -44,6 +44,13 @@ class ExecutorRoute implements Routes {
   //      createUserLogMiddleware,
         this.executorController.checkExecutorResourceResponse
       );
+    this.router.get(
+        '/executor/service/:serviceUuid',
+        authMiddleware,
+  //      createUserLogMiddleware,
+        this.executorController.checkExecutorResponse
+      );
+
     this.router.get(
         '/executor/:clusterUuid', 
         authMiddleware, 
