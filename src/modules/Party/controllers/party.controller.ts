@@ -69,10 +69,8 @@ class PartyController {
 
       if (user) {
         return res.status(200).json({
-          data: {
-            ...user,
-            customerAccountKey,
-          },
+          data: user,
+          customerAccountKey,
           message: 'success',
         });
       } else {
