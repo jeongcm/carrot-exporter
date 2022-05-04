@@ -319,7 +319,7 @@ DB.CustomerAccount.hasMany(DB.MetricMeta, { foreignKey: 'customerAccountKey' });
 DB.MetricMeta.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
 DB.Resource.hasMany(DB.MetricMeta, { foreignKey: 'resourceKey' });
-DB.MetricMeta.belongsTo(DB.Resource,{ foreignKey: 'resourceKey' });
+DB.MetricMeta.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
@@ -330,7 +330,7 @@ DB.sequelize
   .then(async () => {
     const initialRecordService = new InitialRecordService();
 
-    await initialRecordService.insertInitialRecords().then(() => {
+    initialRecordService.insertInitialRecords().then(() => {
       console.log('Yes resync done');
     });
   })

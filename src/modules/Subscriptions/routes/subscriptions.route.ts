@@ -5,6 +5,7 @@ import AuthService from '@/modules/UserTenancy/services/auth.service';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import { CreateSubscribedProductDto, CreateSubscriptionDto, UpdateSubscriptionDto } from '@/modules/Subscriptions/dtos/subscriptions.dto';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
+import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
 
 class SubscriptionRoute implements Routes {
   public router = Router();
@@ -16,13 +17,13 @@ class SubscriptionRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/subscription', authMiddleware, validationMiddleware(CreateSubscriptionDto, 'body'), this.subscriptionController.createSubscriptions);
-    this.router.get('/subscriptions', authMiddleware, this.subscriptionController.getAllSubscriptions);
-    this.router.get('/subscription/:subscriptionId', authMiddleware, this.subscriptionController.findSubscription);
-    this.router.put('/subscription/:subscriptionId', authMiddleware, validationMiddleware(UpdateSubscriptionDto, 'body'), this.subscriptionController.updateSubscription);
-    this.router.post('/subscribeProduct', authMiddleware, validationMiddleware(CreateSubscribedProductDto, 'body'), this.subscriptionController.createSubscribeProduct)
-    this.router.get('/subscribeProduct/:subscribedProductId', authMiddleware, this.subscriptionController.getSubscribeProduct)
-    this.router.put('/subscribeProduct/:subscribedProductId', authMiddleware, this.subscriptionController.updateSubscribedProduct)
+    this.router.post('/subscription', authMiddleware, validationMiddleware(CreateSubscriptionDto, 'body'), createUserLogMiddleware,  this.subscriptionController.createSubscriptions);
+    this.router.get('/subscriptions', authMiddleware, createUserLogMiddleware, this.subscriptionController.getAllSubscriptions);
+    this.router.get('/subscription/:subscriptionId', authMiddleware, createUserLogMiddleware, this.subscriptionController.findSubscription);
+    this.router.put('/subscription/:subscriptionId', authMiddleware, validationMiddleware(UpdateSubscriptionDto, 'body'), createUserLogMiddleware, this.subscriptionController.updateSubscription);
+    this.router.post('/subscribeProduct', authMiddleware, validationMiddleware(CreateSubscribedProductDto, 'body'), createUserLogMiddleware, this.subscriptionController.createSubscribeProduct)
+    this.router.get('/subscribeProduct/:subscribedProductId', authMiddleware, createUserLogMiddleware, this.subscriptionController.getSubscribeProduct)
+    this.router.put('/subscribeProduct/:subscribedProductId', authMiddleware, createUserLogMiddleware, this.subscriptionController.updateSubscribedProduct)
   }
 }
 

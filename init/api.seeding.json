@@ -257,5 +257,256 @@
     "apiEndPoint1": "PUT",
     "apiEndPoint2": "/incidents/:incidentId/status",
     "apiVisibleTF": true
+  },
+  {
+    "apiName": "createCatalogPlans",
+    "apiDescription": "create new catalog plan.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/catalogPlan",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getCatalogPlans",
+    "apiDescription": "get all catalog plans.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/catalogPlans",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getCatalogPlanById",
+    "apiDescription": "get  catalog plan by id.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/catalogPlan/:catalogPlanId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateCatlogPlan",
+    "apiDescription": "update catalog plan .",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/catalogPlan/:catalogPlanId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createCatalogPlansProduct",
+    "apiDescription": "create catalog plan product.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/catalogPlanProduct",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getCatalogProductPlanById",
+    "apiDescription": "get catalog plan product detail by id.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/catalogPlanProduct/:catalogPlanProductId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateCatlogPlanProduct",
+    "apiDescription": "update catalog plan product detail.",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/catalogPlanProduct/:catalogPlanProductId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createPlanProductPricing",
+    "apiDescription": "create catalog plan product pricing data.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/productPricing",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createSubscriptions",
+    "apiDescription": "create new subscription.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/subscription",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getAllSubscriptions",
+    "apiDescription": "get all subscriptions.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/subscriptions",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "findSubscription",
+    "apiDescription": "get subscription by id.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/subscription/:subscriptionId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateSubscription",
+    "apiDescription": "update subscription .",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/subscription/:subscriptionId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createSubscribeProduct",
+    "apiDescription": "create subscribed product to subscription.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/subscribeProduct",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getSubscribeProduct",
+    "apiDescription": "get  product detail by id.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/subscribeProduct/:subscribedProductId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateSubscribedProduct",
+    "apiDescription": "update subscribed product detail.",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/subscribeProduct/:subscribedProductId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "receiveBillingInterface",
+    "apiDescription": "calling webhook for different use cases",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/webhookforbilling",
+=======
+    "apiName": "createCommonCode",
+    "apiDescription": "create commonCode",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/commonCode",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getCommonCodeAll",
+    "apiDescription": "get all commonCode",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/commonCode",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getCommonCodeById",
+    "apiDescription": "get data from commonCode by id",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/commonCode/:commonCodeId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateCommonCodeById",
+    "apiDescription": "update data from commonCode",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/commonCode/:commonCodeId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createApi",
+    "apiDescription": "create api",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/api",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getApiAll",
+    "apiDescription": "get all api",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/api",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getApiById",
+    "apiDescription": "get data from api by id",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/api/:apiId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateApiById",
+    "apiDescription": "update data from api",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/api/:apiId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createResource",
+    "apiDescription": "create a new resource",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/resource",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getAllResource",
+    "apiDescription": "get data of all resources present",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/resource",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getResourceById",
+    "apiDescription": "get data of resource by id",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/resource/:resourceId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getTypeCustomerAccount",
+    "apiDescription": "get type-customeraccount",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/resource/type-customeraccount",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getTypeResourcegroup",
+    "apiDescription": "get type-resourcegroup",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/resource/type-resourcegroup",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateResourceById",
+    "apiDescription": "update resource by id",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/resource/:resourceId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createResourceGroup",
+    "apiDescription": "create a new resource group",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/resourceGroup",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getAllResourceGroup",
+    "apiDescription": "get data of all resource groups present",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/resourceGroup",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getResourceGroupById",
+    "apiDescription": "get data of resource group by id",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/resourceGroup/:resourceGroupId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getResourceGroupByUuid",
+    "apiDescription": "get data of resource group by uuid",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/resourceGroup/:resourceGroupUuid",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getResourceGroupByCustomerAccountId",
+    "apiDescription": "get resourcegroup by customerAccountId",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/resourceGroup/CustomerAccountId/:customerAccountId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateResourceGroupById",
+    "apiDescription": "update resource group by id",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/resourceGroup/:resourceGroupId",
+    "apiVisibleTF": true
   }
+
 ]
