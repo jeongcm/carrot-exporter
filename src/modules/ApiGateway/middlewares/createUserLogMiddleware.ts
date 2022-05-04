@@ -27,7 +27,7 @@ const createUserLogMiddleware = async (req, res: Response, next: NextFunction) =
     },
   });
 
-  const findApi: IApi = await DB.Api.findOne({
+  const apiFound: IApi = await DB.Api.findOne({
     where: {
       apiEndPoint1,
       apiEndPoint2,
@@ -35,14 +35,18 @@ const createUserLogMiddleware = async (req, res: Response, next: NextFunction) =
   });
 
   try {
-    const responseTableIdData: IResponseIssueTableIdDto = await tableIdService.issueTableId('PartyUserLogs');
+    // TODO: handle better if an API is not in the API table
+    if (apiFound) {
+      const responseTableIdData: IResponseIssueTableIdDto = await tableIdService.issueTableId('PartyUserLogs');
 
-    await DB.PartyUserLogs.create({
-      partyUserLogsId: responseTableIdData.tableIdFinalIssued,
-      partyUserKey: findPartyUser.partyUserKey,
-      apiKey: findApi.apiKey,
-      createdBy: partyUserId,
-    });
+      await DB.PartyUserLogs.create({
+        partyUserLogsId: responseTableIdData.tableIdFinalIssued,
+        partyUserKey: findPartyUser.partyUserKey,
+        apiKey: apiFound.apiKey,
+        createdBy: partyUserId,
+      });
+    }
+
     return next();
   } catch (error) {
     return next(error);
