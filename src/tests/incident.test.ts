@@ -13,13 +13,13 @@ describe('Testing Incident Module', () => {
 
   beforeAll(async () => {
     incidentRoute = new IncidentRoute();
-    let partRoute = new PartyRoute();
+    let partyRoute = new PartyRoute();
     incidentDB = incidentRoute.incidentController.incidentService.incident;
     incidentActionDB = incidentRoute.incidentController.incidentService.incidentAction;
     incidentActionAttachmentDB = incidentRoute.incidentController.incidentService.incidentActionAttachment;
     incidentService = incidentRoute.incidentController.incidentService;
 
-    app = new App([partRoute, incidentRoute]);
+    app = new App([partyRoute, incidentRoute]);
 
     const res = await request(app.getServer()).post('/login').send({
       userId: 'john.doe@nexclipper.io',
