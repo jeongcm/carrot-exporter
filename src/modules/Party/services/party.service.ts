@@ -502,11 +502,11 @@ class PartyService {
     if (isEmpty(loginData)) throw new Error('LoginData must not be empty');
 
     const findUser: IPartyUser = await this.partyUser.findOne({ where: { userId: loginData.userId } });
-    if (!findUser) throw new HttpException(409, `You're userId ${loginData.userId} not found`);
+    if (!findUser) throw new HttpException(401, `LOGIN_FAILED`);
 
     const isPasswordMatching: boolean = await bcrypt.compare(loginData.password, findUser.password);
 
-    if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
+    if (!isPasswordMatching) throw new HttpException(401, `LOGIN_FAILED`);
 
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);
