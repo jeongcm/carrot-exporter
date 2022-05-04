@@ -66,16 +66,21 @@ class PartyController {
     try {
       const partyUserId = req.user.partyId;
       const user: IParty = await this.partyService.getUser(customerAccountKey, partyUserId);
+      const account: ICustomerAccount = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
 
-      if (user) {
-        return res.status(200).json({
-          data: user,
-          customerAccountKey,
-          message: 'success',
-        });
-      } else {
-        return res.status(404).json({ message: 'user not found' });
+      if (!user) {
+        return res.status(500).json({ ok: false, message: 'NO_USER' });
       }
+
+      if (!account) {
+        return res.status(500).json({ ok: false, message: 'NO_ACCOUNT' });
+      }
+
+      return res.status(200).json({
+        user,
+        account,
+        message: 'success',
+      });
     } catch (error) {
       next(error);
     }
