@@ -45,7 +45,9 @@ const createUserLogMiddleware = async (req, res: Response, next: NextFunction) =
     });
 
     return next();
-  } catch (error) {}
+  } catch (error) {
+    return next(error);
+  }
 };
 
 export default createUserLogMiddleware;
