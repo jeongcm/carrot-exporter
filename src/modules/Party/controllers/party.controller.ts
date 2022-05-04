@@ -63,13 +63,18 @@ class PartyController {
   public getCurrentUser = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
 
-
     try {
       const partyUserId = req.user.partyId;
       const user: IParty = await this.partyService.getUser(customerAccountKey, partyUserId);
 
       if (user) {
-        return res.status(200).json({ data: user, message: 'success' });
+        return res.status(200).json({
+          data: {
+            ...user,
+            customerAccountKey,
+          },
+          message: 'success',
+        });
       } else {
         return res.status(404).json({ message: 'user not found' });
       }
