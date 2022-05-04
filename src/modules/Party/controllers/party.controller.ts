@@ -60,6 +60,24 @@ class PartyController {
     }
   };
 
+  public getCurrentUser = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+
+
+    try {
+      const partyUserId = req.user.partyId;
+      const user: IParty = await this.partyService.getUser(customerAccountKey, partyUserId);
+
+      if (user) {
+        return res.status(200).json({ data: user, message: 'success' });
+      } else {
+        return res.status(404).json({ message: 'user not found' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public createUser = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
     const createUserData: CreateUserDto = req.body;
 
