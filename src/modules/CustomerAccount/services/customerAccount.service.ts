@@ -45,7 +45,7 @@ class CustomerAccountService {
 
       return createdCustomerAccount;
     } catch (error) {
-      console.log("error", error)
+      console.log('error', error);
     }
   }
 
@@ -56,6 +56,23 @@ class CustomerAccountService {
     });
 
     return customerAccountsAll;
+  }
+
+  public async getCustomerAccountByKey(customerAccountKey: number): Promise<ICustomerAccount> {
+    const customerAccount: ICustomerAccount = await this.customerAccount.findOne({
+      where: { customerAccountKey },
+      attributes: { exclude: ['customerAccountKey', 'deletedAt'] },
+      include: [
+        {
+          model: AddressModel,
+          as: 'address',
+          attributes: { exclude: ['addressKey', 'deletedAt'] },
+          through: { attributes: [], where: { deletedAt: null } },
+        },
+      ],
+    });
+
+    return customerAccount;
   }
 
   public async getCustomerAccountById(customerAccountId: string): Promise<ICustomerAccount> {
@@ -84,14 +101,13 @@ class CustomerAccountService {
     return customerAccountKey;
   }
 
-
-  public async getCustomerAccountIdByKey(customerAccountKey: number): Promise<string>{
+  public async getCustomerAccountIdByKey(customerAccountKey: number): Promise<string> {
     const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({
-      where: {customerAccountKey}
+      where: { customerAccountKey },
     });
-    return customerAccountData.customerAccountId
+    return customerAccountData.customerAccountId;
   }
-  
+
   public async updateCustomerAccount(
     customerAccountId: string,
     coustomerAccountData: CreateCustomerAccountDto,

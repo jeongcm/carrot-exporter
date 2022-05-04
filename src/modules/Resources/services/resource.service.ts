@@ -99,7 +99,7 @@ class ResourceService {
 
     return resource.resourceKey;
   }
- 
+
 
   /**
    * @param  {string} resourceId
@@ -131,19 +131,15 @@ class ResourceService {
    * @param  {string} resourceType
    * @param  {number} customerAccountId
    */
-
   public async getResourceByTypeCustomerAccountId (resourceType: string, customerAccountId: string): Promise<IResource[]>  {
-
-
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId); 
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
     const allResources: IResource[] = await this.resource.findAll({
       where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey }
     });
-    console.log(allResources); 
+    console.log(allResources);
     return allResources;
-
   }
 
     /**
@@ -155,13 +151,13 @@ class ResourceService {
 
       const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
       const resourceGroupKey = resultResourceGroup.resourceGroupKey;
-  
+
       const allResources: IResource[] = await this.resource.findAll({
         where: { deletedAt: null, resourceType: resourceType, resourceGroupKey: resourceGroupKey }
       });
-      console.log(allResources); 
+      console.log(allResources);
       return allResources;
-  
+
     }
 }
 
