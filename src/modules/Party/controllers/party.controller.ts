@@ -274,7 +274,7 @@ class PartyController {
     const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyId);
 
     if (!accessgroup) {
-      res.status(409).json({ message: `AccessGroup (id: ${partyId})  doesn't exist` });
+      res.status(404).json({ message: `AccessGroup (id: ${partyId})  doesn't exist` });
     }
 
     try {
@@ -327,7 +327,7 @@ class PartyController {
     const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyId);
 
     if (!accessgroup) {
-      res.status(409).json({ message: `AccessGroup (id: ${partyId})  doesn't exist` });
+      return res.status(409).json({ message: `AccessGroup (id: ${partyId})  doesn't exist` });
     }
 
     try {
@@ -346,7 +346,7 @@ class PartyController {
     const party: IParty = await this.partyService.getUser(customerAccountKey, partyId);
 
     if (!party) {
-      res.status(409).json({ message: `PartyUser (id: ${partyId})  doesn't exist` });
+      return res.status(409).json({ message: `PartyUser (id: ${partyId})  doesn't exist` });
     }
 
     try {

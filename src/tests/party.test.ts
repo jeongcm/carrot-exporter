@@ -17,6 +17,7 @@ describe('Testing Party Module', () => {
     customerAccountDB,
     resourceDB,
     partyResourceDB,
+    partyUserLogsDB,
     partyService,
     customerAccountService,
     token,
@@ -33,6 +34,7 @@ describe('Testing Party Module', () => {
     customerAccountDB = customerAccountRoute.customerAccountController.customerAccountService.customerAccount;
     resourceDB = partyRoute.partyController.partyService.resource;
     partyResourceDB = partyRoute.partyController.partyService.partyResource;
+    partyUserLogsDB = partyRoute.partyController.partyService.partyUserLogs;
 
     partyService = partyRoute.partyController.partyService;
     customerAccountService = customerAccountRoute.customerAccountController.customerAccountService;
@@ -119,7 +121,7 @@ describe('Testing Party Module', () => {
         createdAt: '2022-05-03T00:51:27.425Z',
       });
 
-      const res = await request(app.getServer()).post('/party/user').send(requestPayload).set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer()).post('/party/user').send(requestPayload).set('x-authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toBe(201);
     });
@@ -137,80 +139,82 @@ describe('Testing Party Module', () => {
 
       (Sequelize as any).authenticate = jest.fn();
 
-      const res = await request(app.getServer()).post('/party/user').send(requestPayload).set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer()).post('/party/user').send(requestPayload).set('x-authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toBe(400);
     });
   });
 
-  //   describe('[GET] /party/user - get all user list', () => {
-  //     it('return 200 with all user list', async () => {
-  //       partyDB.findAll = jest.fn().mockReturnValue([
-  //         {
-  //           partyId: 'PU24060500000002',
-  //           createdBy: 'PU24060500000001',
-  //           updatedBy: null,
-  //           createdAt: '2022-05-04T01:09:54.000Z',
-  //           updatedAt: '2022-05-04T01:09:54.000Z',
-  //           partyName: 'John Doe',
-  //           partyDescription: 'Head of DBA',
-  //           parentPartyId: null,
-  //           partyType: 'US',
-  //           PartyUser: {
-  //             partyUserId: 'PU24060500000002',
-  //             createdBy: 'PU24060500000001',
-  //             updatedBy: null,
-  //             createdAt: '2022-05-04T01:09:54.000Z',
-  //             updatedAt: '2022-05-04T01:35:14.000Z',
-  //             firstName: 'John',
-  //             lastName: 'Doe',
-  //             userId: 'john.doe@nexclipper.io',
-  //             mobile: '+1-310-777-8888',
-  //             email: 'john.doe@nexclipper.io',
-  //             partyUserStatus: 'AC',
-  //             isEmailValidated: false,
-  //             emailValidatedAt: null,
-  //             token: null,
-  //             lastAccessAt: '2022-05-04T01:35:14.000Z',
-  //           },
-  //         },
-  //         {
-  //           partyId: 'PU24060500000006',
-  //           createdBy: 'PU24060500000001',
-  //           updatedBy: null,
-  //           createdAt: '2022-05-04T01:37:46.000Z',
-  //           updatedAt: '2022-05-04T01:37:46.000Z',
-  //           partyName: 'Test',
-  //           partyDescription: 'Head of DBA',
-  //           parentPartyId: null,
-  //           partyType: 'US',
-  //           PartyUser: {
-  //             partyUserId: 'PU24060500000006',
-  //             createdBy: 'PU24060500000001',
-  //             updatedBy: null,
-  //             createdAt: '2022-05-04T01:37:46.000Z',
-  //             updatedAt: '2022-05-04T01:37:46.000Z',
-  //             firstName: 'Test',
-  //             lastName: 'test',
-  //             userId: 'test@nexclipper.io',
-  //             mobile: '+1-310-777-8888',
-  //             email: 'test@nexclipper.io',
-  //             partyUserStatus: 'AC',
-  //             isEmailValidated: false,
-  //             emailValidatedAt: null,
-  //             token: null,
-  //             lastAccessAt: null,
-  //           },
-  //         },
-  //       ]);
+  // fail -- start
+  describe('[GET] /party/user - get all user list', () => {
+    it('return 200 with all user list', async () => {
+      partyDB.findAll = jest.fn().mockReturnValue([
+        {
+          partyId: 'PU24060500000002',
+          createdBy: 'PU24060500000001',
+          updatedBy: null,
+          createdAt: '2022-05-04T01:09:54.000Z',
+          updatedAt: '2022-05-04T01:09:54.000Z',
+          partyName: 'John Doe',
+          partyDescription: 'Head of DBA',
+          parentPartyId: null,
+          partyType: 'US',
+          PartyUser: {
+            partyUserId: 'PU24060500000002',
+            createdBy: 'PU24060500000001',
+            updatedBy: null,
+            createdAt: '2022-05-04T01:09:54.000Z',
+            updatedAt: '2022-05-04T01:35:14.000Z',
+            firstName: 'John',
+            lastName: 'Doe',
+            userId: 'john.doe@nexclipper.io',
+            mobile: '+1-310-777-8888',
+            email: 'john.doe@nexclipper.io',
+            partyUserStatus: 'AC',
+            isEmailValidated: false,
+            emailValidatedAt: null,
+            token: null,
+            lastAccessAt: '2022-05-04T01:35:14.000Z',
+          },
+        },
+        {
+          partyId: 'PU24060500000006',
+          createdBy: 'PU24060500000001',
+          updatedBy: null,
+          createdAt: '2022-05-04T01:37:46.000Z',
+          updatedAt: '2022-05-04T01:37:46.000Z',
+          partyName: 'Test',
+          partyDescription: 'Head of DBA',
+          parentPartyId: null,
+          partyType: 'US',
+          PartyUser: {
+            partyUserId: 'PU24060500000006',
+            createdBy: 'PU24060500000001',
+            updatedBy: null,
+            createdAt: '2022-05-04T01:37:46.000Z',
+            updatedAt: '2022-05-04T01:37:46.000Z',
+            firstName: 'Test',
+            lastName: 'test',
+            userId: 'test@nexclipper.io',
+            mobile: '+1-310-777-8888',
+            email: 'test@nexclipper.io',
+            partyUserStatus: 'AC',
+            isEmailValidated: false,
+            emailValidatedAt: null,
+            token: null,
+            lastAccessAt: null,
+          },
+        },
+      ]);
 
-  //       (Sequelize as any).authenticate = jest.fn();
+      (Sequelize as any).authenticate = jest.fn();
 
-  //       const res = await request(app.getServer()).get('/party/user').send().set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer()).get('/party/user').send().set('x-authorization', `Bearer ${token}`);
 
-  //       expect(res.statusCode).toBe(200);
-  //     });
-  //   });
+      expect(res.statusCode).toBe(200);
+    });
+  });
+  // fail -- end
 
   describe('[GET] /party/user/:partyId - get partyUser by Id', () => {
     it('return 200 with incident detail', async () => {
@@ -245,7 +249,7 @@ describe('Testing Party Module', () => {
         },
       });
 
-      const res = await request(app.getServer()).get('/party/user/PU24060500000002').send().set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer()).get('/party/user/PU24060500000002').send().set('x-authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toBe(200);
     });
@@ -305,7 +309,7 @@ describe('Testing Party Module', () => {
       partyDB.update = jest.fn().mockReturnValue([1]);
       partyUserDB.update = jest.fn().mockReturnValue([1]);
 
-      const res = await request(app.getServer()).put(`/party/user/PU24060500000006`).send(updatePayload).set(`X-AUTHORIZATION`, `Bearer ${token}`);
+      const res = await request(app.getServer()).put(`/party/user/PU24060500000006`).send(updatePayload).set(`x-authorization`, `Bearer ${token}`);
       expect(res.statusCode).toBe(200);
       expect(res.body.message).toBe('updated');
     });
@@ -321,7 +325,7 @@ describe('Testing Party Module', () => {
 
       (Sequelize as any).authenticate = jest.fn();
 
-      const res = await request(app.getServer()).put(`/party/user/PU24060500000006`).send(updatePayload).set(`X-AUTHORIZATION`, `Bearer ${token}`);
+      const res = await request(app.getServer()).put(`/party/user/PU24060500000006`).send(updatePayload).set(`x-authorization`, `Bearer ${token}`);
       expect(res.statusCode).toBe(400);
     });
   });
@@ -345,7 +349,7 @@ describe('Testing Party Module', () => {
         updatedAt: '2022-05-04T02:06:23.872Z',
       });
 
-      const res = await request(app.getServer()).post('/party/accessgroup').send(requestPayload).set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer()).post('/party/accessgroup').send(requestPayload).set('x-authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toBe(201);
     });
@@ -381,7 +385,7 @@ describe('Testing Party Module', () => {
 
       (Sequelize as any).authenticate = jest.fn();
 
-      const res = await request(app.getServer()).post('/party/accessgroup').send(requestPayload).set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer()).post('/party/accessgroup').send(requestPayload).set('x-authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toBe(400);
     });
@@ -416,7 +420,7 @@ describe('Testing Party Module', () => {
         },
       ]);
 
-      const res = await request(app.getServer()).get('/party/accessgroup').send().set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer()).get('/party/accessgroup').send().set('x-authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toBe(200);
     });
@@ -431,35 +435,37 @@ describe('Testing Party Module', () => {
   });
 
   describe('[GET] /party/accessgroup/:partyId - get an accessgroup detail', () => {
-    // it('return 200 with an accessgroup detail', async () => {
-    //   (Sequelize as any).authenticate = jest.fn();
+    // fail -- start
+    it('return 200 with an accessgroup detail', async () => {
+      (Sequelize as any).authenticate = jest.fn();
 
-    //   partyDB.findOne = jest.fn().mockReturnValue({
-    //     partyId: 'PT24060500000001',
-    //     createdBy: 'PU24060500000002',
-    //     updatedBy: null,
-    //     createdAt: ' 2022-05-04T02:06:23.000Z',
-    //     updatedAt: '2022-05-04T02:06:23.000Z',
-    //     partyName: 'FrontEnd',
-    //     partyDescription: 'Team of Frontend',
-    //     parentPartyId: null,
-    //     partyType: 'AG',
-    //   });
+      partyDB.findOne = jest.fn().mockReturnValue({
+        partyId: 'PT24060500000001',
+        createdBy: 'PU24060500000002',
+        updatedBy: null,
+        createdAt: ' 2022-05-04T02:06:23.000Z',
+        updatedAt: '2022-05-04T02:06:23.000Z',
+        partyName: 'FrontEnd',
+        partyDescription: 'Team of Frontend',
+        parentPartyId: null,
+        partyType: 'AG',
+      });
 
-    //   const res = await request(app.getServer()).get('/party/accessgroup/PT24060500000001').send().set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer()).get('/party/accessgroup/PT24060500000001').send().set('x-authorization', `Bearer ${token}`);
 
-    //   expect(res.statusCode).toBe(200);
-    // });
+      expect(res.statusCode).toBe(200);
+    });
 
-    // it('return 404 when party id does not exist', async () => {
-    //   (Sequelize as any).authenticate = jest.fn();
+    it('return 404 when party id does not exist', async () => {
+      (Sequelize as any).authenticate = jest.fn();
 
-    //   partyDB.findOne = jest.fn().mockReturnValue(null);
+      partyDB.findOne = jest.fn().mockReturnValue(null);
 
-    //   const res = await request(app.getServer()).get('/party/accessgroup/PT24060500000001').send().set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer()).get('/party/accessgroup/PT24060500000001').send().set('x-authorization', `Bearer ${token}`);
 
-    //   expect(res.statusCode).toBe(404);
-    // });
+      expect(res.statusCode).toBe(404);
+    });
+    // fail -- end
 
     it('return 401 with unathuorized', async () => {
       (Sequelize as any).authenticate = jest.fn();
@@ -471,37 +477,39 @@ describe('Testing Party Module', () => {
   });
 
   describe('[PUT] /party/accessgroup/:partyId - update an accessgroup', () => {
-    // it('return 200 with an accessgroup', async () => {
-    //   const requestPayload = {
-    //     partyName: 'FE',
-    //     partyDescription: 'Team of FrontEnd',
-    //   };
+    // fail -- start
+    it('return 200 with an accessgroup', async () => {
+      const requestPayload = {
+        partyName: 'FE',
+        partyDescription: 'Team of FrontEnd',
+      };
 
-    //   (Sequelize as any).authenticate = jest.fn();
+      (Sequelize as any).authenticate = jest.fn();
 
-    //   jest.setTimeout(50000);
+      jest.setTimeout(50000);
 
-    //   partyDB.findOne = jest.fn().mockReturnValue({
-    //     partyId: 'PT24060500000001',
-    //     createdBy: 'PU24060500000002',
-    //     updatedBy: null,
-    //     createdAt: '2022-05-04T02:06:23.000Z',
-    //     updatedAt: '2022-05-04T02:06:23.000Z',
-    //     partyName: 'FrontEnd',
-    //     partyDescription: 'Team of Frontend',
-    //     parentPartyId: null,
-    //     partyType: 'AG',
-    //   });
+      partyDB.findOne = jest.fn().mockReturnValue({
+        partyId: 'PT24060500000001',
+        createdBy: 'PU24060500000002',
+        updatedBy: null,
+        createdAt: '2022-05-04T02:06:23.000Z',
+        updatedAt: '2022-05-04T02:06:23.000Z',
+        partyName: 'FrontEnd',
+        partyDescription: 'Team of Frontend',
+        parentPartyId: null,
+        partyType: 'AG',
+      });
 
-    //   partyDB.update = jest.fn().mockReturnValue([1]);
+      partyDB.update = jest.fn().mockReturnValue([1]);
 
-    //   const res = await request(app.getServer())
-    //     .put('/party/accessgroup/PT24060500000001')
-    //     .send(requestPayload)
-    //     .set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer())
+        .put('/party/accessgroup/PT24060500000001')
+        .send(requestPayload)
+        .set('x-authorization', `Bearer ${token}`);
 
-    //   expect(res.statusCode).toBe(200);
-    // });
+      expect(res.statusCode).toBe(200);
+    });
+    // fail -- end
 
     it('return 401 with unathuorized', async () => {
       const requestPayload = {
@@ -527,28 +535,30 @@ describe('Testing Party Module', () => {
       const res = await request(app.getServer())
         .put('/party/accessgroup/PT24060500000001')
         .send(requestPayload)
-        .set('X-AUTHORIZATION', `Bearer ${token}`);
+        .set('x-authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toBe(400);
     });
 
-    // it('return 404 when accessgroup does not exist', async () => {
-    //   const requestPayload = {
-    //     partyName: '',
-    //     partyDescription: '',
-    //   };
+    // fail -- start
+    it('return 404 when accessgroup does not exist', async () => {
+      const requestPayload = {
+        partyName: '',
+        partyDescription: '',
+      };
 
-    //   (Sequelize as any).authenticate = jest.fn();
+      (Sequelize as any).authenticate = jest.fn();
 
-    //   partyDB.findOne = jest.fn().mockReturnValue(null);
+      partyDB.findOne = jest.fn().mockReturnValue(null);
 
-    //   const res = await request(app.getServer())
-    //     .put('/party/accessgroup/PT24060500000001')
-    //     .send(requestPayload)
-    //     .set('x-authorization', `Bearer ${token}`);
+      const res = await request(app.getServer())
+        .put('/party/accessgroup/PT24060500000001')
+        .send(requestPayload)
+        .set('x-authorization', `Bearer ${token}`);
 
-    //   expect(res.statusCode).toBe(404);
-    // });
+      expect(res.statusCode).toBe(404);
+    });
+    // fail -- end
   });
 
   describe('[POST] /party/accessgroup/:partyId/users - add user to the accessgroup', () => {
@@ -616,7 +626,7 @@ describe('Testing Party Module', () => {
       const res = await request(app.getServer())
         .post('/party/accessgroup/PT24060500000001/users')
         .send(requestPayload)
-        .set('X-AUTHORIZATION', `Bearer ${token}`);
+        .set('x-authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toBe(200);
     });
@@ -626,15 +636,15 @@ describe('Testing Party Module', () => {
         partyIds: ['PU24060500000002', 'PU24060500000006'],
       };
 
-      partyDB.findOne = jest.fn().mockReturnValue(null);
+      partyService.getAccessGroup = jest.fn().mockReturnValue(null);
 
       const res = await request(app.getServer())
         .post('/party/accessgroup/PT24060500000001/users')
-        .set('X-AUTHORIZATION', `Bearer ${token}`)
-        .send(requestPayload);
+        .send(requestPayload)
+        .set('x-authorization', `Bearer ${token}`);
 
-      //   expect(res.statusCode).toBe(404);
       expect(res.body.message).toBe("AccessGroup (id: PT24060500000001)  doesn't exist");
+      expect(res.statusCode).toBe(404);
     });
   });
 
@@ -682,7 +692,7 @@ describe('Testing Party Module', () => {
         },
       ]);
 
-      const res = await request(app.getServer()).get('/party/accessgroup/PT24060500000001/users').send().set('X-AUTHORIZATION', `Bearer ${token}`);
+      const res = await request(app.getServer()).get('/party/accessgroup/PT24060500000001/users').send().set('x-authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toBe(200);
     });
@@ -737,7 +747,7 @@ describe('Testing Party Module', () => {
       const res = await request(app.getServer())
         .delete('/party/accessgroup/PT24060500000001/users')
         .send(deletePayload)
-        .set('X-AUTHORIZATION', `Bearer ${token}`);
+        .set('x-authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toBe(204);
     });
@@ -773,9 +783,121 @@ describe('Testing Party Module', () => {
       const res = await request(app.getServer())
         .post('/party/accessgroup/PT24060500000001/resource')
         .send(requestPayload)
-        .set('X-AUTHORIZATION', `Bearer ${token}`);
+        .set('x-authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toBe(201);
+    });
+  });
+
+  describe('[GET] /party/:partyId/apilog', () => {
+    it('return 200 with user api logs', async () => {
+      partyService.getUser = jest.fn().mockReturnValue({
+        partyId: 'PU24060500000002',
+        createdBy: 'PU24060500000001',
+        updatedBy: null,
+        createdAt: '2022-05-04T01:09:54.000Z',
+        updatedAt: '2022-05-04T01:09:54.000Z',
+        partyName: 'John Doe',
+        partyDescription: 'Head of DBA',
+        parentPartyId: null,
+        partyType: 'US',
+        PartyUser: {
+          partyUserId: 'PU24060500000002',
+          createdBy: 'PU24060500000001',
+          updatedBy: null,
+          createdAt: '2022-05-04T01:09:54.000Z',
+          updatedAt: '2022-05-04T06:07:33.000Z',
+          firstName: 'John',
+          lastName: 'Doe',
+          userId: 'john.doe@nexclipper.io',
+          mobile: '+1-310-777-8888',
+          email: 'john.doe@nexclipper.io',
+          partyUserStatus: 'AC',
+          isEmailValidated: false,
+          emailValidatedAt: null,
+          token: null,
+          lastAccessAt: '2022-05-04T06:07:33.000Z',
+        },
+      });
+
+      partyUserDB.findOne = jest.fn().mockReturnValue({ partyUserKey: 2 });
+
+      partyUserLogsDB.findAll = jest.fn().mockReturnValue([
+        {
+          partyUserLogsId: 'PL24060500000041',
+          createdBy: 'PU24060500000002',
+          updatedBy: null,
+          createdAt: '2022-05-04T01:37:57.000Z',
+          updatedAt: '2022-05-04T01:37:57.000Z',
+          deletedAt: null,
+          Api: {
+            apiId: 'AP24060500000011',
+            createdBy: 'SYSTEM',
+            updatedBy: null,
+            createdAt: '2022-05-04T01:09:05.000Z',
+            updatedAt: '2022-05-04T01:09:05.000Z',
+            deletedAt: null,
+            apiName: 'getUsers',
+            apiDescription: 'get all partyUser in the same customer account.',
+            apiEndPoint1: 'GET',
+            apiEndPoint2: '/party/user',
+            apiVisibleTF: true,
+          },
+        },
+        {
+          partyUserLogsId: 'PL24060500000046',
+          createdBy: 'PU24060500000002',
+          updatedBy: null,
+          createdAt: '2022-05-04T01:39:34.000Z',
+          updatedAt: '2022-05-04T01:39:34.000Z',
+          deletedAt: null,
+          Api: {
+            apiId: 'AP24060500000011',
+            createdBy: 'SYSTEM',
+            updatedBy: null,
+            createdAt: '2022-05-04T01:09:05.000Z',
+            updatedAt: '2022-05-04T01:09:05.000Z',
+            deletedAt: null,
+            apiName: 'getUsers',
+            apiDescription: 'get all partyUser in the same customer account.',
+            apiEndPoint1: 'GET',
+            apiEndPoint2: '/party/user',
+            apiVisibleTF: true,
+          },
+        },
+      ]);
+
+      const res = await request(app.getServer()).get(`/party/${userData.partyId}/apilog`).send().set('x-authorization', `Bearer ${token}`);
+
+      expect(res.statusCode).toBe(200);
+    });
+  });
+
+  describe('[GET] /party/accessgroup/:partyId/resource', () => {
+    it('return 200 with resources of Accessgroup', async () => {
+      (Sequelize as any).authenticate = jest.fn();
+
+      partyService.getAccessGroup = jest.fn().mockReturnValue({
+        partyId: 'PT24060500000001',
+        createdBy: 'PU24060500000002',
+        updatedBy: null,
+        createdAt: '2022-05-04T02:06:23.000Z',
+        updatedAt: '2022-05-04T02:06:23.000Z',
+        partyName: 'FrontEnd',
+        partyDescription: 'Team of Frontend',
+        parentPartyId: null,
+        partyType: 'AG',
+      });
+
+      partyDB.findOne = jest.fn().mockReturnValue({ partyKey: 4 });
+
+      partyResourceDB.findAll = jest
+        .fn()
+        .mockReturnValue([{ Resource: { resourceId: 'RE24052600000001' } }, { Resource: { resourceId: 'RE24052600000002' } }]);
+
+      const res = await request(app.getServer()).get('/party/accessgroup/PT24060500000001/resource').send().set('x-authorization', `Bearer ${token}`);
+
+      expect(res.statusCode).toBe(200);
     });
   });
 });

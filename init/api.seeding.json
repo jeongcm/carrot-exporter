@@ -518,5 +518,4 @@
     "apiEndPoint2": "/resourceGroup/:resourceGroupId",
     "apiVisibleTF": true
   }
-
 ]
