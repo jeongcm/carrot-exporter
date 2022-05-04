@@ -229,7 +229,7 @@ class IncidentController {
       );
 
       if (updatedActionData) {
-        res.status(201).json({ data: updatedActionData, message: 'updated' });
+        res.status(200).json({ data: updatedActionData, message: 'updated' });
       } else {
         res.status(404).json({ message: `Incident id(${incidentId})'s action not found` });
       }
@@ -273,6 +273,12 @@ class IncidentController {
 
     if (!incident) {
       return res.status(404).json({ message: `Incident id(${incidentId}) not found` });
+    }
+
+    const action = await this.incidentService.getIncidentActionKey(customerAccountKey, incidentId, actionId);
+
+    if (!action) {
+      return res.status(404).json({ message: `Incident action id(${actionId}) not found` });
     }
 
     try {
