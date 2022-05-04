@@ -1,6 +1,8 @@
 import DB from '@/database';
+import axios from 'axios';
+import config from '@config/index';
 import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
-import { ResourceGroupDto } from '../dtos/resourceGroup.dto';
+import { ResourceGroupDto, ResourceGroupExecutorDto } from '../dtos/resourceGroup.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
@@ -154,6 +156,6 @@ class ResourceGroupService {
     });
     return resourceGroup.resourceGroupUuid;
   }
-}
 
+}
 export default ResourceGroupService;

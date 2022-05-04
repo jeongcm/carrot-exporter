@@ -42,6 +42,9 @@ class App {
       logger.info(`🚀 NexClipper listening on the port ${this.port}`);
       logger.info(`=================================`);
     });
+    require( 'console-stamp' )( console, {
+      format: '(console).yellow :date().green.underline :label(7)'
+    } );
   }
 
   public getServer() {

@@ -95,4 +95,12 @@ export default {
     apiKey: process.env.FUSEBILL_API_KEY,
     baseURL: process.env.FUSEBILL_BASE_URL,
   },
+  sudoryApiDetail: {
+    authToken: process.env.SUDORY_X_AUTH_TOKEN || "SUDORY",
+    baseURL: process.env.SUDORY_BASE_URL || "http://localhost:8099",
+    pathCreateCluster: process.env.SUDORY_PATH_CREATECLUSTER || "/server/cluster",
+    pathCreateToken: process.env.SUDORY_PATH_CREATETOKEN || "/server/cluster_token",
+    pathSession: process.env.SUDORY_PATH_SESSION || "/server/session",
+    pathService: process.env.SUDORY_PATH_SERVICE || "/server/service",
+  },
 };

@@ -266,6 +266,7 @@
     "apiVisibleTF": true
   },
   {
+
     "apiName": "createCatalogPlans",
     "apiDescription": "create new catalog plan.",
     "apiEndPoint1": "POST",
@@ -375,6 +376,9 @@
     "apiDescription": "calling webhook for different use cases",
     "apiEndPoint1": "POST",
     "apiEndPoint2": "/webhookforbilling",
+    "apiVisibleTF": true
+  },
+  {
     "apiName": "createCommonCode",
     "apiDescription": "create commonCode",
     "apiEndPoint1": "POST",

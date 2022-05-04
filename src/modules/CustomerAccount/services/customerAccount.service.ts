@@ -60,8 +60,8 @@ class CustomerAccountService {
 
   public async getCustomerAccountById(customerAccountId: string): Promise<ICustomerAccount> {
     const customerAccount: ICustomerAccount = await this.customerAccount.findOne({
-      where: { customerAccountId },
-      attributes: { exclude: ['customerAccountKey', 'deletedAt'] },
+      where: { customerAccountId, deletedAt: null },
+      attributes: { exclude: ['deletedAt'] },
       include: [
         {
           model: AddressModel,
@@ -83,6 +83,7 @@ class CustomerAccountService {
 
     return customerAccountKey;
   }
+
 
   public async getCustomerAccountIdByKey(customerAccountKey: number): Promise<string>{
     const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({

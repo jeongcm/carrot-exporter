@@ -45,9 +45,13 @@ const createUserLogMiddleware = async (req, res: Response, next: NextFunction) =
     });
 
     return next();
+<<<<<<< HEAD
   } catch (error) {
     return next(error);
   }
+=======
+  } catch (error) {next(error)}
+>>>>>>> dfcee82 (add new apis for creating cluster)
 };
 
 export default createUserLogMiddleware;

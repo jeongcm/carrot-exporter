@@ -12,6 +12,7 @@ describe('Testing CommonCode Module', () => {
   let commonCode, commonCodeId, token;
   let commonCodeRoute = new CommonCodeRoute();
 
+
   beforeAll(async () => {
     let partRoute = new PartyRoute();
     commonCode = commonCodeRoute.commonCodeController.commonCodeService.commonCode;

@@ -18,10 +18,36 @@ export class ResourceGroupDto {
   public resourceGroupPlatform: 'OS' | 'K8';
 
   @IsString()
-  @IsNotEmpty()
   public resourceGroupUuid: string;
 
   @IsString()
-  @IsNotEmpty()
   public resourceGroupPrometheus: string;
+}
+
+export class ResourceGroupExecutorDto {
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public customerAccountId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR' | 'OR' | 'OT';
+
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupPlatform: 'OS' | 'K8';
+}
+
+export class ResourceGroupKpsDto {
+  @IsString()
+  @IsNotEmpty()
+  public clusterUuid: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public targetNamespace: string;
 }

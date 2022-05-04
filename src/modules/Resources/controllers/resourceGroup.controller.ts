@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
 import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
 import ResourceGroupService from '../services/resourceGroup.service';
-import { ResourceGroupDto } from '../dtos/resourceGroup.dto';
+import { ResourceGroupDto, ResourceGroupExecutorDto } from '../dtos/resourceGroup.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 
 class ResourceGroupController {
@@ -124,10 +124,6 @@ class ResourceGroupController {
   };
 
 
-
-  
-
-
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
@@ -150,6 +146,8 @@ class ResourceGroupController {
       next(error);
     }
   };
+  
+
 }
 
 export default ResourceGroupController;
