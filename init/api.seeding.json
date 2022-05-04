@@ -259,6 +259,116 @@
     "apiVisibleTF": true
   },
   {
+    "apiName": "createCatalogPlans",
+    "apiDescription": "create new catalog plan.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/catalogPlan",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getCatalogPlans",
+    "apiDescription": "get all catalog plans.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/catalogPlans",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getCatalogPlanById",
+    "apiDescription": "get  catalog plan by id.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/catalogPlan/:catalogPlanId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateCatlogPlan",
+    "apiDescription": "update catalog plan .",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/catalogPlan/:catalogPlanId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createCatalogPlansProduct",
+    "apiDescription": "create catalog plan product.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/catalogPlanProduct",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getCatalogProductPlanById",
+    "apiDescription": "get catalog plan product detail by id.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/catalogPlanProduct/:catalogPlanProductId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateCatlogPlanProduct",
+    "apiDescription": "update catalog plan product detail.",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/catalogPlanProduct/:catalogPlanProductId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createPlanProductPricing",
+    "apiDescription": "create catalog plan product pricing data.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/productPricing",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createSubscriptions",
+    "apiDescription": "create new subscription.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/subscription",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getAllSubscriptions",
+    "apiDescription": "get all subscriptions.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/subscriptions",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "findSubscription",
+    "apiDescription": "get subscription by id.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/subscription/:subscriptionId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateSubscription",
+    "apiDescription": "update subscription .",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/subscription/:subscriptionId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createSubscribeProduct",
+    "apiDescription": "create subscribed product to subscription.",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/subscribeProduct",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getSubscribeProduct",
+    "apiDescription": "get  product detail by id.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/subscribeProduct/:subscribedProductId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateSubscribedProduct",
+    "apiDescription": "update subscribed product detail.",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/subscribeProduct/:subscribedProductId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "receiveBillingInterface",
+    "apiDescription": "calling webhook for different use cases",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/webhookforbilling",
+=======
     "apiName": "createCommonCode",
     "apiDescription": "create commonCode",
     "apiEndPoint1": "POST",
@@ -398,4 +508,5 @@
     "apiEndPoint2": "/resourceGroup/:resourceGroupId",
     "apiVisibleTF": true
   }
+
 ]
