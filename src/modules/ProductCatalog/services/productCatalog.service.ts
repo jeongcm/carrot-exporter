@@ -20,7 +20,11 @@ class ProductCatlogService {
    * @returns 
    */
   public async findAllCatalogPlans(): Promise<ICatalogPlan[]> {
-    const catalogPlans: ICatalogPlan[] = await this.catalogPlan.findAll({ where: { deletedAt: null } });
+    const catalogPlans: ICatalogPlan[] = await this.catalogPlan.findAll(
+      { where: { deletedAt: null },
+      include:[
+        {model: CatalogPlanProductModel}
+      ] });
     return catalogPlans;
   }
 
@@ -138,6 +142,9 @@ class ProductCatlogService {
       updatedBy: partyId || systemId
     }
     const newCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.create(createData);
+    console.log(
+      "newCatalogPlanProduct", newCatalogPlanProduct
+    )
     return newCatalogPlanProduct;
   }
 
@@ -168,7 +175,7 @@ class ProductCatlogService {
   public async updateCatalagPlanProduct(productId: string, productData: ICatalogPlanProduct, partyId: string, systemId: string): Promise<ICatalogPlanProduct> {
     if (isEmpty(productData)) throw new HttpException(400, 'Access Group Data cannot be blank');
 
-    const planProductData: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({ where: { catalogPlanProductId: productId, deletedAt: false } });
+    const planProductData: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({ where: { catalogPlanProductId: productId, deletedAt: null } });
 
     if (!planProductData) throw new HttpException(409, "Catalog Plan product doesn't exist");
     const updatedPlanProduct = {
