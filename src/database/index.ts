@@ -330,7 +330,7 @@ DB.sequelize
   .then(async () => {
     const initialRecordService = new InitialRecordService();
 
-    await initialRecordService.insertInitialRecords().then(() => {
+    initialRecordService.insertInitialRecords().then(() => {
       console.log('Yes resync done');
     });
   })
