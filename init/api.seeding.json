@@ -77,6 +77,13 @@
     "apiVisibleTF": true
   },
   {
+    "apiName": "getCurrentUser",
+    "apiDescription": "get the user through JWT.",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/party/me",
+    "apiVisibleTF": true
+  },
+  {
     "apiName": "updateUser",
     "apiDescription": "update the partyUser.",
     "apiEndPoint1": "PUT",
