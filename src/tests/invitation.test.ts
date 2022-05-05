@@ -26,27 +26,6 @@ describe('Testing Invitation Module', () => {
     token = res.body.token; // save the token!
   });
 
-  describe('[GET] /invitation/accept -  accept invitation', () => {
-    it('should return 200  invitation accepted', async () => {
-      (Sequelize as any).authenticate = jest.fn();
-      const app = new App([invitationRoute]);
-      invitation.findInvitationData = jest.fn().mockReturnValue({
-        message: 'VERIFICATION_DONE_SUCCESSFULLY',
-      });
-      const res = await request(app.getServer()).get(`/invitation/accept?token=${token}`).send();
-      expect(res.statusCode).toEqual(200);
-    });
-    it('should return 400 with accepting error', async () => {
-      (Sequelize as any).authenticate = jest.fn();
-      const app = new App([invitationRoute]);
-      invitation.findOne = jest.fn().mockReturnValue({
-        message: 'Error while accepting  invitation',
-      });
-      const res = await request(app.getServer()).get(`/invitation/accept?token=${token}`).send();
-      expect(res.statusCode).toEqual(400);
-    });
-  });
-
   describe('[POST] /invitation/email- create new invitation', () => {
     it('return 200 with new invitation', async () => {
       const requestPayload = {
@@ -83,6 +62,27 @@ describe('Testing Invitation Module', () => {
       const app = new App([invitationRoute]);
       invitation.create = jest.fn().mockReturnValue({ message: 'Successfully Invitation Sent' });
       const res = await request(app.getServer()).post('/invitation/email').send(requestPayload).set('x-authorization', `Bearer ${token}`);
+      expect(res.statusCode).toEqual(400);
+    });
+  });
+
+  describe('[GET] /invitation/accept -  accept invitation', () => {
+    it('should return 200  invitation accepted', async () => {
+      (Sequelize as any).authenticate = jest.fn();
+      const app = new App([invitationRoute]);
+      invitation.findInvitationData = jest.fn().mockReturnValue({
+        message: 'VERIFICATION_DONE_SUCCESSFULLY',
+      });
+      const res = await request(app.getServer()).get(`/invitation/accept?token=${token}`).send();
+      expect(res.statusCode).toEqual(200);
+    });
+    it('should return 400 with accepting error', async () => {
+      (Sequelize as any).authenticate = jest.fn();
+      const app = new App([invitationRoute]);
+      invitation.findOne = jest.fn().mockReturnValue({
+        message: 'Error while accepting  invitation',
+      });
+      const res = await request(app.getServer()).get(`/invitation/accept?token=${token}`).send();
       expect(res.statusCode).toEqual(400);
     });
   });
