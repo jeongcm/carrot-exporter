@@ -53,7 +53,7 @@ class InvitationController {
 
   public acceptInvitation = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const token = req.cookies['X-AUTHORIZATION'] || req.header('x-authorization').split('Bearer ')[1];
+      const {token} = req.query;
 
       const invitationData = await this.invitationService.checkForToken(token);
       if (!invitationData) {
@@ -66,8 +66,9 @@ class InvitationController {
           isAccepted: true,
           acceptedAt: new Date(),
         };
-        const partyId = req.params.partyId
-        await this.invitationService.updateInvitation(invitationData.invitationId, acceptInvitation, partyId);
+        const partyId = req.params.partyId;
+        const {invitationId} = invitationData;
+        await this.invitationService.updateInvitation(invitationId, acceptInvitation, partyId);
 
         return res.status(200).json({ message: 'VERIFICATION_DONE_SUCCESSFULLY' });
       }
@@ -78,7 +79,7 @@ class InvitationController {
 
   public rejectInvitation = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const token = req.cookies['X-AUTHORIZATION'] || req.header('x-authorization').split('Bearer ')[1];
+      const {token} = req.query;
       const invitationData = await this.invitationService.checkForToken(token);
       if (!invitationData) {
         return res.status(200).json({ message: 'TOKEN_IS_INVALID' });
