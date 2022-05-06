@@ -21,11 +21,12 @@ export type AlertRuleCreationAttributes = Optional<
   | 'alertRuleSummary'
   | 'alertRuleRunbook'
   | 'alertRuleMlGroup'
-  | 'alertRuleMLSubGroup'
+  | 'alertRuleMlSubGroup'
   | 'resourceGroupUuid'
 >;
 
 export class AlertRuleModel extends Model<IAlertRule, AlertRuleCreationAttributes> implements IAlertRule {
+  alertRuleMlSubGroup: string;
   public alertRuleKey: number;
   public customerAccountKey: number;
   public alertRuleId: string;
