@@ -1,13 +1,14 @@
 import { NextFunction, Response } from 'express';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
-import {CreateAlertRuleDto } from '../dtos/alertRule.dto';
+import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import AlertRuleService from '../services/alertRule.service';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import AlertReceivedService from '../services/alertReceived.service';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 import { AlertReceivedDto } from '../dtos/alertReceived.dto';
+import ControllerExtension from '@/common/extentions/controller.extension';
 
-class AlertRuleController {
+class AlertRuleController extends ControllerExtension {
   public alertRuleService = new AlertRuleService();
   public alertReceivedService = new AlertReceivedService();
 
@@ -20,12 +21,35 @@ class AlertRuleController {
       next(error);
     }
   };
-  public getAllAlertReceived = async (req:IRequestWithUser, res:Response, next:NextFunction) => {
-    try{
+  public getAllAlertReceivedMostRecent = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
       const customerAccountKey = req.customerAccountKey;
-      const findAllAlertReceived: IAlertReceived[] = await this.alertReceivedService.getAlertReceived(customerAccountKey);
-      res.status(200).json({data:findAllAlertReceived, message: 'findAll'});
-    } catch(error){
+      const findAllAlertReceived: IAlertReceived[] = await this.alertReceivedService.getAllAlertReceivedMostRecent(customerAccountKey);
+      res.status(200).json({ data: findAllAlertReceived, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+  public getAlertReceivedHistory = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.customerAccountKey;
+      const alertReceivedId: string = req.params.alertReceivedId;
+      const alertsFound: IAlertReceived[] = await this.alertReceivedService.getAlertReceivedHistory(customerAccountKey, alertReceivedId);
+      this.resultJson(res, 'HISTORY_FOUND', alertsFound);
+    } catch (error) {
+      next(error);
+    }
+  };
+  public getAllAlertReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.customerAccountKey;
+      const findAllAlertReceived: IAlertReceived[] = await this.alertReceivedService.getAllAlertReceived(customerAccountKey, {
+        query: {
+          alertReceivedName: `${req.query?.name}`,
+        },
+      });
+      res.status(200).json({ data: findAllAlertReceived, message: 'findAll' });
+    } catch (error) {
       next(error);
     }
   };
@@ -52,7 +76,12 @@ class AlertRuleController {
       } = req;
       const alertReceivedData = req.body;
       const customerAccountKey = req.customerAccountKey;
-      const updateAlertReceivedData: IAlertReceived = await this.alertReceivedService.updateAlertReceived(alertReceivedId, alertReceivedData, customerAccountKey, partyId);
+      const updateAlertReceivedData: IAlertReceived = await this.alertReceivedService.updateAlertReceived(
+        alertReceivedId,
+        alertReceivedData,
+        customerAccountKey,
+        partyId,
+      );
       res.status(200).json({ data: updateAlertReceivedData, message: 'updated' });
     } catch (error) {
       next(error);
@@ -73,32 +102,59 @@ class AlertRuleController {
     }
   };
 
-  public createAlertReceived = async (req:IRequestWithUser,res:Response,next:NextFunction) => {
-    try{
+  public createAlertReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
       const customerAccountKey = req.customerAccountKey;
-      const{user: { partyId },} = req;
+      const {
+        user: { partyId },
+      } = req;
       const alertReceivedData: AlertReceivedDto = req.body;
-      const createAlertReceivedData: IAlertReceived = await this.alertReceivedService.createAlertReceived(alertReceivedData, customerAccountKey, partyId);
+      const createAlertReceivedData: IAlertReceived = await this.alertReceivedService.createAlertReceived(
+        alertReceivedData,
+        customerAccountKey,
+        partyId,
+      );
       res.status(201).json({ data: createAlertReceivedData, message: 'created' });
-    }catch(error){
+    } catch (error) {
       next(error);
     }
-  }
+  };
 
-  public deleteAlertReceived = async (req:IRequestWithUser, res:Response, next:NextFunction) => {
-    try{
+  public getAlertReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertReceivedId: string = req.params.alertReceivedId;
+      const alertFound = await this.alertReceivedService.findAlertReceivedById(alertReceivedId);
+      if (alertFound) {
+
+        const alertRuleFound = await this.alertRuleService.getAlertRuleByKey(alertFound.alertRuleKey);
+
+        const alertObjectToReturn: any = { ...alertFound };
+        delete alertObjectToReturn.dataValues.alertRuleKey;
+        delete alertObjectToReturn.dataValues.alertReceivedKey;
+
+        this.resultJson(res, 'FOUND', { ...alertObjectToReturn.dataValues, alertRule: alertRuleFound });
+      } else {
+        res.status(404).json({ message: 'NOT_FOUND' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteAlertReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
       const alertReceivedId: string = req.params.alertReceivedId;
       const customerAccountKey = req.customerAccountKey;
       const deletedFlag = await this.alertReceivedService.deleteAlertReceived(customerAccountKey, alertReceivedId);
-      if (deletedFlag){
+      if (deletedFlag) {
         res.status(200).json({ data: deletedFlag, message: 'deleted' });
-      }else{
+      } else {
         res.status(204).json({ data: deletedFlag, message: 'No Content' });
       }
-    }catch(error){
+    } catch (error) {
       next(error);
     }
-  }
+  };
 }
 
 export default AlertRuleController;

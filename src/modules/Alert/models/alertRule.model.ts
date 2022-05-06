@@ -20,9 +20,9 @@ export type AlertRuleCreationAttributes = Optional<
   | 'alertRuleDescription'
   | 'alertRuleSummary'
   | 'alertRuleRunbook'
-  | 'alertRuleMLGroup'
+  | 'alertRuleMlGroup'
   | 'alertRuleMLSubGroup'
-  | 'resourceGroupUUID'
+  | 'resourceGroupUuid'
 >;
 
 export class AlertRuleModel extends Model<IAlertRule, AlertRuleCreationAttributes> implements IAlertRule {
@@ -42,10 +42,10 @@ export class AlertRuleModel extends Model<IAlertRule, AlertRuleCreationAttribute
   public alertRuleDescription: string;
   public alertRuleSummary: string;
   public alertRuleRunbook: string;
-  public alertRuleMLGroup: string;
+  public alertRuleMlGroup: string;
   public alertRuleMLSubGroup: string;
-  public resourceGroupUUID: string;
-  
+  public resourceGroupUuid: string;
+
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -74,7 +74,7 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
       updatedBy: {
         type: DataTypes.STRING(16),
         allowNull: true,
-      },            
+      },
       createdAt: {
         type: DataTypes.DATE(),
         allowNull: false,
@@ -82,12 +82,12 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
       updatedAt: {
         type: DataTypes.DATE(),
         allowNull: true,
-      },      
+      },
       deletedAt: {
         type: DataTypes.DATE(),
         allowNull: true,
-      },      
-  
+      },
+
 
       alertRuleName: {
         type: DataTypes.STRING(100),
@@ -125,20 +125,19 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
-      alertRuleMLGroup: {
+      alertRuleMlGroup: {
         type: DataTypes.STRING(2),
         allowNull: false,
       },
-      alertRuleMLSubGroup: {
+      alertRuleMlSubGroup: {
         type: DataTypes.STRING(2),
         allowNull: false,
       },
-      resourceGroupUUID: {
+      resourceGroupUuid: {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
-          },
-
+    },
     {
       tableName: 'AlertRule',
       modelName: 'AlertRule',
