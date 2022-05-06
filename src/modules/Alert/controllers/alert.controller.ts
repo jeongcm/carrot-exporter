@@ -7,10 +7,12 @@ import AlertReceivedService from '../services/alertReceived.service';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 import { AlertReceivedDto } from '../dtos/alertReceived.dto';
 import ControllerExtension from '@/common/extentions/controller.extension';
+import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 
 class AlertRuleController extends ControllerExtension {
   public alertRuleService = new AlertRuleService();
   public alertReceivedService = new AlertReceivedService();
+  public resourceGroupService = new ResourceGroupService();
 
   public getAllAlertRules = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
@@ -126,13 +128,19 @@ class AlertRuleController extends ControllerExtension {
       const alertFound = await this.alertReceivedService.findAlertReceivedById(alertReceivedId);
       if (alertFound) {
 
-        const alertRuleFound = await this.alertRuleService.getAlertRuleByKey(alertFound.alertRuleKey);
+        // TODO: we need to associate resourceGroup with alertRule through resourceGroupUuid later
+        let resourceGroup = {};
+        if (alertFound.alertRule?.resourceGroupUuid) {
+          resourceGroup = await this.resourceGroupService.getResourceGroupByUuid(alertFound.alertRule?.resourceGroupUuid);
+        }
 
-        const alertObjectToReturn: any = { ...alertFound };
-        delete alertObjectToReturn.dataValues.alertRuleKey;
-        delete alertObjectToReturn.dataValues.alertReceivedKey;
+        const alertToReturn: any = { ...alertFound };
+        const resourceGroupToReturn: any = { ...resourceGroup };
 
-        this.resultJson(res, 'FOUND', { ...alertObjectToReturn.dataValues, alertRule: alertRuleFound });
+        delete resourceGroupToReturn.dataValues?.resourceGroupKey;
+        delete resourceGroupToReturn.dataValues?.customerAccountKey;
+
+        this.resultJson(res, 'FOUND', { ...alertToReturn.dataValues, resourceGroup: { ...resourceGroupToReturn.dataValues } });
       } else {
         res.status(404).json({ message: 'NOT_FOUND' });
       }
