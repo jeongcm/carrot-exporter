@@ -95,6 +95,11 @@ export default {
     apiKey: process.env.FUSEBILL_API_KEY,
     baseURL: process.env.FUSEBILL_BASE_URL,
   },
+  ncCronApiDetail: {
+    baseURL: process.env.NC_CRON_URL || "http://localhost:5010/scheduler",
+    authToken: process.env.NC_CRON_X_AUTH_TOKEN || "CRON",
+    
+  },
   sudoryApiDetail: {
     authToken: process.env.SUDORY_X_AUTH_TOKEN || "SUDORY",
     baseURL: process.env.SUDORY_BASE_URL || "http://localhost:8099",

@@ -146,6 +146,29 @@ class executorController{
         }
         };
 
+    /**
+     * @param  {IRequestWithUser} req
+     * @param  {Response} res
+     * @param  {NextFunction} next
+     */
+     public scheduleMetricMeta = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+        try {
+            const clusterUuid = req.body.clusterUuid; 
+            const targetNamespace = req.body.targetNamespace;
+            
+            const cronJobResult: object = await this.executorService.scheduleMetricMeta(clusterUuid, targetNamespace);
+            res.status(200).json({ cronJobResult: cronJobResult, message: `Successfullyt schedule metric meta job` });
+    
+        } catch (error) {
+            next(error);
+        }
+        };
+
+
+
+
+        
+
 
 } // end of class
 
