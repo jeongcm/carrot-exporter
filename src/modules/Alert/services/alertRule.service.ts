@@ -21,12 +21,25 @@ class AlertRuleService {
 
     const findAlertRule: IAlertRule = await this.alertRule.findOne({
       where: { alertRuleId, deletedAt: null },
-      attributes: { exclude: ['alertRuleId', 'deletedAt', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['alertRuleKey', 'deletedAt', 'updatedBy', 'createdBy'] },
     });
-    if (!findAlertRule) throw new HttpException(409, 'Alert Rule Not found');
+    if (!findAlertRule) throw new HttpException(404, 'NOT_FOUND');
 
     return findAlertRule;
   }
+
+  public async getAlertRuleByKey(alertRuleKey: number): Promise<IAlertRule> {
+    if (isEmpty(alertRuleKey)) throw new HttpException(400, 'MISSING_KEY');
+
+    const findAlertRule: IAlertRule = await this.alertRule.findOne({
+      where: { alertRuleKey, deletedAt: null },
+      attributes: { exclude: ['alertRuleKey', 'customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+    });
+    if (!findAlertRule) throw new HttpException(404, 'NOT_FOUND');
+
+    return findAlertRule;
+  }
+
   public async getAlertRuleKey(customerAccountKey: number):Promise<number>{
     if (isEmpty(customerAccountKey)) throw new HttpException(400, 'customerAccountKey cannot be blank');
     const alertRuleData: IAlertRule = await this.alertRule.findOne({where:{customerAccountKey}});

@@ -8,13 +8,14 @@ import { AlertReceivedDto } from '../dtos/alertReceived.dto';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import AlertRuleService from './alertRule.service';
 const { Op } = require('sequelize');
+
 class AlertReceivedService {
   public tableIdService = new TableIdService();
   public alertRule = DB.AlertRule;
   public alertReceived = DB.AlertReceived;
   public alertRuleService = new AlertRuleService();
 
-  public async getAlertReceived(customerAccountKey: number): Promise<IAlertReceived[]> {
+  public async getAllAlertReceived(customerAccountKey: number): Promise<IAlertReceived[]> {
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
@@ -22,17 +23,48 @@ class AlertReceivedService {
     return allAlertReceived;
   }
 
+  public async getAllAlertReceivedMostRecent(customerAccountKey: number): Promise<IAlertReceived[]> {
+    const [results] = await DB.sequelize.query(`WITH recent_alerts AS (
+        SELECT m.*, ROW_NUMBER() OVER (PARTITION BY alert_received_name ORDER BY created_at ASC) AS rn
+        FROM AlertReceived AS m
+        WHERE customer_account_key = "${customerAccountKey}"
+      )
+      SELECT
+        alert_received_id as alertReceivedId,
+        created_at as createdAt,
+        updated_at as updatedAt,
+        alert_received_name as alertReceivedName,
+        alert_received_value as alertReceivedValue,
+        alert_received_state as alertReceivedState,
+        alert_received_namespace as alertReceivedNamespace,
+        alert_received_severity as alertReceivedSeverity,
+        alert_received_description as alertReceivedDescription,
+        alert_received_summary as alertReceivedSummary,
+        alert_received_active_at as alertReceivedActive,
+        alert_received_node as alertReceivedNode,
+        alert_received_service as alertReceivedService,
+        alert_received_pod as alertReceivedPod,
+        alert_received_instance as alertReceivedInstance,
+        alert_received_labels as alertReceivedLabels,
+        alert_received_pinned as alertReceivedPinned
+      FROM recent_alerts WHERE rn = 1;
+    `);
+
+    return results;
+  }
+
   public async findAlertReceivedById(alertReceivedId: string): Promise<IAlertReceived> {
     if (isEmpty(alertReceivedId)) throw new HttpException(400, 'Not a valid Alert Received Id');
 
     const findAlertReceived: IAlertReceived = await this.alertReceived.findOne({
       where: { alertReceivedId, deletedAt: null },
-      attributes: { exclude: ['alertReceivedId', 'deletedAt', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy'] },
     });
-    if (!findAlertReceived) throw new HttpException(409, 'Alert Received Id Not found');
+    if (!findAlertReceived) throw new HttpException(404, 'Alert Received Id Not found');
 
     return findAlertReceived;
   }
+
   public async deleteAlertReceived(customerAccountKey: number, alertReceivedId: string) {
     try {
       const deleteAlertReceivedData = {
@@ -57,6 +89,26 @@ class AlertReceivedService {
       return false;
     }
   }
+
+  public async getAlertReceivedHistory(customerAccountKey: number, alertReceivedId: string): Promise<IAlertReceived[]> {
+    const alertFound: IAlertReceived = await this.alertReceived.findOne({
+      where: { customerAccountKey: customerAccountKey, alertReceivedId: alertReceivedId, deletedAt: null },
+    });
+
+    if (!alertFound) {
+      throw new HttpException(404, 'ALERT_NOT_FOUND');
+    };
+
+    // TODO: to add more criteria to identify a group of alerts
+    const query = { alertReceivedName: alertFound.alertReceivedName };
+
+    const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
+      where: { customerAccountKey: customerAccountKey, deletedAt: null, ...query },
+      attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+    });
+    return allAlertReceived;
+  }
+
   public async updateAlertReceived(
     alertReceivedId: string,
     alertReceivedData: CreateAlertRuleDto,
