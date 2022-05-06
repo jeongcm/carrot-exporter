@@ -213,7 +213,7 @@ DB.CustomerAccount.hasMany(DB.AlertRule, { foreignKey: 'customerAccountKey' });
 DB.AlertRule.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
 DB.AlertRule.hasMany(DB.AlertReceived, { foreignKey: 'alertRuleKey' });
-DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey' });
+DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey', as: 'alertRule' });
 
 DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' });
 DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
