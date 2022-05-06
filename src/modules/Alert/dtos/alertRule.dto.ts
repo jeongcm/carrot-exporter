@@ -35,7 +35,7 @@ export class CreateAlertRuleDto {
 
   @IsString()
   @IsNotEmpty()
-  public alertRuleMLGroup: string;
+  public alertRuleMlGroup: string;
 
   @IsString()
   @IsNotEmpty()
@@ -43,6 +43,6 @@ export class CreateAlertRuleDto {
 
   @IsString()
   @IsNotEmpty()
-  public resourceGroupUUID: string;
+  public resourceGroupUuid: string;
 }
 
