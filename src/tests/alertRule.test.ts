@@ -37,9 +37,9 @@ describe('Testing Channel Module', () => {
         alertRuleRunbook: 'Alert Run book',
         alertRuleSummary: 'Alert Rule Summary',
         alertRuleState: 'inactive',
-        alertRuleMLGroup: 'ab',
-        alertRuleMLSubGroup: 'xy',
-        resourceGroupUUID: 'ABC123',
+        alertRuleMlGroup: 'ab',
+        alertRuleMlSubGroup: 'xy',
+        resourceGroupUuid: 'ABC123',
       };
       (Sequelize as any).authenticate = jest.fn();
       const app = new App([alertRoute]);
@@ -60,9 +60,8 @@ describe('Testing Channel Module', () => {
         alertRuleRunbook: 'Alert Run book',
         alertRuleSummary: 'Alert Rule Summary',
         alertRuleState: 'inactive',
-        alertRuleMLGroup: 'ab',
-        alertRuleMLSubGroup: 'xy',
-        resourceGroupUUID: 'ABC123',
+        alertRuleMlGroup: 'ab',
+        alertRuleMlSubGroup: 'xy',
       };
       (Sequelize as any).authenticate = jest.fn();
       const app = new App([alertRoute]);
@@ -89,9 +88,9 @@ describe('Testing Channel Module', () => {
             alertRuleDescription: 'Alert Rule Description',
             alertRuleSummary: 'Alert Rule Summary',
             alertRuleRunbook: ' Alert Run book',
-            alertRuleMLGroup: 'ab',
-            alertRuleMLSubGroup: 'xy',
-            resourceGroupUUID: 'ABC123',
+            alertRuleMlGroup: 'ab',
+            alertRuleMlSubGroup: 'xy',
+            resourceGroupUuid: 'ABC123',
           },
         ]);
         (Sequelize as any).authenticate = jest.fn();
@@ -116,9 +115,9 @@ describe('Testing Channel Module', () => {
           alertRuleRunbook: 'modify Alert Run book',
           alertRuleSummary: 'modify Alert Rule Summary',
           alertRuleState: 'inactive',
-          alertRuleMLGroup: 'ab',
-          alertRuleMLSubGroup: 'xy',
-          resourceGroupUUID: 'ABC123',
+          alertRuleMlGroup: 'ab',
+          alertRuleMlSubGroup: 'xy',
+          resourceGroupUuid: 'ABC123',
         };
         alertRule.update = jest.fn().mockReturnValue({});
         alertRule.findByPk = jest.fn().mockReturnValue({
@@ -135,9 +134,9 @@ describe('Testing Channel Module', () => {
           alertRuleDescription: 'Alert Rule Description',
           alertRuleSummary: 'modify Alert Rule Summary',
           alertRuleRunbook: 'modify Alert Run book',
-          alertRuleMLGroup: 'ab',
-          alertRuleMLSubGroup: 'xy',
-          resourceGroupUUID: 'ABC123',
+          alertRuleMlGroup: 'ab',
+          alertRuleMlSubGroup: 'xy',
+          resourceGroupUuid: 'ABC123',
         });
         const res = await request(app.getServer()).put(`/alert/rule/${alertRuleId}`).send(requestPayload).set(`X-AUTHORIZATION`, `Bearer ${token}`);
         expect(res.statusCode).toEqual(200);
