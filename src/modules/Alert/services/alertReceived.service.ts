@@ -1,5 +1,5 @@
 import { HttpException } from '@/common/exceptions/HttpException';
-import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
+import { IAlertReceived, IAlertReceivedDetailed } from '@/common/interfaces/alertReceived.interface';
 import { isEmpty } from '@/common/utils/util';
 import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
@@ -7,6 +7,8 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { AlertReceivedDto } from '../dtos/alertReceived.dto';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import AlertRuleService from './alertRule.service';
+import { AlertRuleModel } from '@/modules/Alert/models/alertRule.model';
+
 const { Op } = require('sequelize');
 
 class AlertReceivedService {
@@ -23,42 +25,60 @@ class AlertReceivedService {
     return allAlertReceived;
   }
 
-  public async getAllAlertReceivedMostRecent(customerAccountKey: number): Promise<IAlertReceived[]> {
+  public async getAllAlertReceivedMostRecent(customerAccountKey: number): Promise<IAlertReceivedWithRule[]> {
     const [results] = await DB.sequelize.query(`WITH recent_alerts AS (
         SELECT m.*, ROW_NUMBER() OVER (PARTITION BY alert_received_name ORDER BY created_at ASC) AS rn
         FROM AlertReceived AS m
         WHERE customer_account_key = "${customerAccountKey}"
       )
       SELECT
-        alert_received_id as alertReceivedId,
-        created_at as createdAt,
-        updated_at as updatedAt,
-        alert_received_name as alertReceivedName,
-        alert_received_value as alertReceivedValue,
-        alert_received_state as alertReceivedState,
-        alert_received_namespace as alertReceivedNamespace,
-        alert_received_severity as alertReceivedSeverity,
-        alert_received_description as alertReceivedDescription,
-        alert_received_summary as alertReceivedSummary,
-        alert_received_active_at as alertReceivedActive,
-        alert_received_node as alertReceivedNode,
-        alert_received_service as alertReceivedService,
-        alert_received_pod as alertReceivedPod,
-        alert_received_instance as alertReceivedInstance,
-        alert_received_labels as alertReceivedLabels,
-        alert_received_pinned as alertReceivedPinned
-      FROM recent_alerts WHERE rn = 1;
+        recent_alerts.alert_received_id as alertReceivedId,
+        recent_alerts.created_at as createdAt,
+        recent_alerts.updated_at as updatedAt,
+        recent_alerts.alert_received_name as alertReceivedName,
+        recent_alerts.alert_received_value as alertReceivedValue,
+        recent_alerts.alert_received_state as alertReceivedState,
+        recent_alerts.alert_received_namespace as alertReceivedNamespace,
+        recent_alerts.alert_received_severity as alertReceivedSeverity,
+        recent_alerts.alert_received_description as alertReceivedDescription,
+        recent_alerts.alert_received_summary as alertReceivedSummary,
+        recent_alerts.alert_received_active_at as alertReceivedActive,
+        recent_alerts.alert_received_node as alertReceivedNode,
+        recent_alerts.alert_received_service as alertReceivedService,
+        recent_alerts.alert_received_pod as alertReceivedPod,
+        recent_alerts.alert_received_instance as alertReceivedInstance,
+        recent_alerts.alert_received_labels as alertReceivedLabels,
+        recent_alerts.alert_received_pinned as alertReceivedPinned,
+        JSON_OBJECT(
+          'alertRuleId', AlertRule.alert_rule_id
+        ) AS alertRule,
+        JSON_OBJECT(
+          'resourceGroupUuid', ResourceGroup.resource_group_uuid,
+          'resourceGroupId', ResourceGroup.resource_group_id,
+          'resourceGroupName', ResourceGroup.resource_group_name
+        ) AS resourceGroup
+      FROM recent_alerts
+      INNER JOIN AlertRule ON recent_alerts.alert_rule_key = AlertRule.alert_rule_key
+      INNER JOIN ResourceGroup ON AlertRule.resource_group_uuid = ResourceGroup.resource_group_uuid
+      WHERE rn = 1;
     `);
 
     return results;
   }
 
-  public async findAlertReceivedById(alertReceivedId: string): Promise<IAlertReceived> {
+  public async findAlertReceivedById(alertReceivedId: string): Promise<IAlertReceivedDetailed> {
     if (isEmpty(alertReceivedId)) throw new HttpException(400, 'Not a valid Alert Received Id');
 
-    const findAlertReceived: IAlertReceived = await this.alertReceived.findOne({
+    const findAlertReceived: IAlertReceivedDetailed = await this.alertReceived.findOne({
       where: { alertReceivedId, deletedAt: null },
-      attributes: { exclude: ['customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['customerAccountKey', 'alertRuleKey', 'alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+      include: [
+        {
+          model: AlertRuleModel,
+          as: 'alertRule',
+          attributes: { exclude: ['alertRuleKey', 'customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+        },
+      ],
     });
     if (!findAlertReceived) throw new HttpException(404, 'Alert Received Id Not found');
 
@@ -104,7 +124,7 @@ class AlertReceivedService {
 
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null, ...query },
-      attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['alertReceivedKey', 'alertRuleKey', 'customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy'] },
     });
     return allAlertReceived;
   }
@@ -154,3 +174,26 @@ class AlertReceivedService {
 }
 
 export default AlertReceivedService;
+
+/*
+      SELECT
+        recent_alerts.alert_received_id as alertReceivedId,
+        recent_alerts.created_at as createdAt,
+        recent_alerts.updated_at as updatedAt,
+        recent_alerts.alert_received_name as alertReceivedName,
+        recent_alerts.alert_received_value as alertReceivedValue,
+        recent_alerts.alert_received_state as alertReceivedState,
+        recent_alerts.alert_received_namespace as alertReceivedNamespace,
+        recent_alerts.alert_received_severity as alertReceivedSeverity,
+        recent_alerts.alert_received_description as alertReceivedDescription,
+        recent_alerts.alert_received_summary as alertReceivedSummary,
+        recent_alerts.alert_received_active_at as alertReceivedActive,
+        recent_alerts.alert_received_node as alertReceivedNode,
+        recent_alerts.alert_received_service as alertReceivedService,
+        recent_alerts.alert_received_pod as alertReceivedPod,
+        recent_alerts.alert_received_instance as alertReceivedInstance,
+        recent_alerts.alert_received_labels as alertReceivedLabels,
+        recent_alerts.alert_received_pinned as alertReceivedPinned,
+        AlertRule.resource_group_uuid as 'alertRule.resourceGroupUuid',
+        AlertRule.alert_rule_id as 'alertRule.alertRuleId'
+*/
