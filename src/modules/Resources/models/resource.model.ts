@@ -53,6 +53,7 @@ export type ResourceCreationAttributes = Optional<
   | 'resourceStsVolumeClaimTemplates'
   | 'resourceTargetCreatedAt'
   | 'resourceTargetUuid'
+  | 'resourceOwnerReferences'
 >;
 
 export class ResourceModel extends Model<IResource, ResourceCreationAttributes> implements IResource {
@@ -104,6 +105,7 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceAnnotations: JSON;
   public resourceTargetUuid: string;
   public resourceTargetCreatedAt: Date;
+  public resourceOwnerReferences: JSON;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -320,6 +322,10 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       resourceAnnotations: {
         type: DataTypes.JSON,
       },
+      resourceOwnerReferences: {
+        type: DataTypes.JSON,
+      },
+
     },
     {
       indexes: [

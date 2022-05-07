@@ -1689,11 +1689,11 @@
 <polygon fill="none" stroke="#000000" points="2962.9617,-1975.5785 2962.9617,-1997.5785 3107.9617,-1997.5785 3107.9617,-1975.5785 2962.9617,-1975.5785"/>
 <text text-anchor="start" x="2967.9617" y="-1983.5785" font-family="Times,serif" font-size="10.00" fill="#000000">alertRuleRunbook: STRING</text>
 <polygon fill="none" stroke="#000000" points="2962.9617,-1953.5785 2962.9617,-1975.5785 3107.9617,-1975.5785 3107.9617,-1953.5785 2962.9617,-1953.5785"/>
-<text text-anchor="start" x="2967.9617" y="-1961.5785" font-family="Times,serif" font-size="10.00" fill="#000000">alertRuleMLGroup: STRING</text>
+<text text-anchor="start" x="2967.9617" y="-1961.5785" font-family="Times,serif" font-size="10.00" fill="#000000">alertRuleMlGroup: STRING</text>
 <polygon fill="none" stroke="#000000" points="2962.9617,-1931.5785 2962.9617,-1953.5785 3107.9617,-1953.5785 3107.9617,-1931.5785 2962.9617,-1931.5785"/>
-<text text-anchor="start" x="2967.9617" y="-1939.5785" font-family="Times,serif" font-size="10.00" fill="#000000">alertRuleMLSubGroup: STRING</text>
+<text text-anchor="start" x="2967.9617" y="-1939.5785" font-family="Times,serif" font-size="10.00" fill="#000000">alertRuleMlSubGroup: STRING</text>
 <polygon fill="none" stroke="#000000" points="2962.9617,-1909.5785 2962.9617,-1931.5785 3107.9617,-1931.5785 3107.9617,-1909.5785 2962.9617,-1909.5785"/>
-<text text-anchor="start" x="2967.9617" y="-1917.5785" font-family="Times,serif" font-size="10.00" fill="#000000">resourceGroupUUID: STRING</text>
+<text text-anchor="start" x="2967.9617" y="-1917.5785" font-family="Times,serif" font-size="10.00" fill="#000000">resourceGroupUuid: STRING</text>
 </g>
 <!-- AlertReceived&#45;&gt;AlertRule -->
 <g id="edge37" class="edge">

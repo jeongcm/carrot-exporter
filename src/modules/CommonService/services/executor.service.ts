@@ -222,9 +222,16 @@ class executorService {
         });
 
     // scheduleResource(clusterUuid string); 
-
+      await this.scheduleResource(clusterUuid
+        ).then(async (res: any) =>{
+          console.log(`Submitted resource collection schedule reqeust on ${clusterUuid} cluster successfully`);
+        }).catch(error => {
+          console.log(error);
+          console.log(`confirmed the executor/sudory client installed but fail to submit resource collection schedule request for clsuter:${clusterUuid}`);
+        }); //end of catch
       return clientUuid;
      }  
+
   /**
    * @param {string} clusterUuid
    * @param {string} targetNamespace 
@@ -265,6 +272,7 @@ class executorService {
           throw new HttpException(500, "Unknown error to install kps chart");
         });
      
+      //schedule metricMeta  
       await this.scheduleMetricMeta(clusterUuid, targetNamespace
       ).then(async (res: any) =>{
         console.log(`Submitted metricmeta schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -273,6 +281,7 @@ class executorService {
         throw new HttpException(500, "Submitted kps chart installation request but fail to schedule MetricMeta; ");
       }); //end of catch
  
+      //schedule alert rules & received
       await this.scheduleAlert(clusterUuid, targetNamespace
         ).then(async (res: any) =>{
           console.log(`Submitted alert feeds schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -750,6 +759,61 @@ class executorService {
        
         return cronJobNo; 
     }
+
+    public async scheduleResource(clusterUuid: string): Promise<object> {
+
+        const cronUrl = config.ncCronApiDetail.baseURL; 
+        const authToken = config.ncCronApiDetail.authToken;
+        const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+        //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
+        var cronData;
+        var cronJobNo;
+
+
+        
+
+        cronData = { name: "K8s Ndoe interface",
+                    summary: "K8s Ndoe interface",
+                    cronTab: "0 * * * *",
+                    apiUrl: executorServerUrl,
+                    apiBody:
+                        {
+                            cluster_uuid: clusterUuid,
+                            name: "K8s Ndoe interface",
+                            template_uuid: "00000000000000000000000000000010",
+                            summary: "K8s Ndoe interface",
+                            subscribed_channel: "nc_resource",
+                            steps: [
+                                    {
+                                        args: {
+                                                labels: {}
+                                              }
+                                    }
+                            ]
+                        }
+                    };
+        
+        await axios(
+            {
+            method: 'post',
+            url: `${cronUrl}`,
+            data: cronData,
+            headers: { 'X_AUTH_TOKEN': `${authToken}` }
+            }).then(async (res: any) => {
+            //    console.log(res);                              
+                cronJobNo = res.data.data
+                console.log(`Submit Alert feeds scheduling on ${clusterUuid} cluster successfully, cronJobNo is ${cronJobNo}`);    
+            }).catch(error => {
+                console.log(error);
+                throw new HttpException(500, "Unknown error to request Alert feeds scheduling");
+            });
+       
+        return cronJobNo; 
+    }
+
+
+
+
 
     public sleep (ms) {
         return new Promise((resolve)=> {

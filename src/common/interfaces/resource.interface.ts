@@ -49,6 +49,7 @@ export interface IResource {
   customerAccountKey: number;
   parentResourceId: string;
   resourceNamespace: string;
+  resourceOwnerReferences: JSON;
 }
 
 

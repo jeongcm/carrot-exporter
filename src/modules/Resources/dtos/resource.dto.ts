@@ -76,6 +76,10 @@ export class ResourceDto {
   @IsDateString()
   @IsNotEmpty()
   public resourceTargetCreatedAt: Date;
+
+  @IsObject()
+  @IsOptional()
+  public resourceOwnerReferences: JSON;
 }
 
 

@@ -49,6 +49,7 @@ export interface IRequestMassUploader {
                 resource_Active: boolean,
                 resoruce_Status_Updated_At: Date,
                 resource_Description: string,
+                resource_Owner_References: string,
             
             }[],
 }
