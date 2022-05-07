@@ -26,6 +26,7 @@ export interface IRequestMassUploader {
                 resource_Level_Type: string,
                 resource_Pod_Phase: string,
                 resource_Pod_Container: object,
+                resource_Pod_Volume: object,
                 resource_Replicas: string,
                 resource_Sts_volume_Claim_Templates: object,
                 resource_Pvc_Storage: object,

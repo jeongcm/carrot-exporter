@@ -70,7 +70,7 @@ class massUploaderService {
     const query1 = `INSERT INTO Resource (resource_id, created_by, created_at, resource_target_uuid, resource_target_created_at, 
                       resource_name, resource_namespace, resource_type, resource_labels, resource_annotations, resource_owner_references, resource_description, resource_status,
                       resource_level1, resource_level2, resource_level3, resource_level4, resource_level_type, resource_instance,
-                      resource_pod_phase, resource_pod_container, resource_replicas, resource_sts_volume_claim_templates,
+                      resource_pod_phase, resource_pod_container, resource_pod_volume, resource_replicas, resource_sts_volume_claim_templates,
                       resource_pvc_storage, resource_pvc_volume_name, resource_pvc_storage_class_name, resource_pvc_volume_mode, resource_endpoint,
                       resource_configmap_data, resource_ingress_class, resource_ingress_rules,
                       resource_pv_storage, resource_pv_claim_ref, resource_pv_storage_class_name, resource_pv_volume_mode,
@@ -95,6 +95,7 @@ class massUploaderService {
                       resource_instance=VALUES(resource_instance),
                       resource_pod_phase=VALUES(resource_pod_phase),
                       resource_pod_container=VALUES(resource_pod_container),
+                      resource_pod_volume=VALUES(resource_pod_volume),
                       resource_replicas=VALUES(resource_replicas),
                       resource_sts_volume_claim_templates=VALUES(resource_sts_volume_claim_templates),
                       resource_pvc_storage=VALUES(resource_pvc_storage),
@@ -140,6 +141,7 @@ class massUploaderService {
         let resource_owner_references = JSON.stringify(resourceMassFeed.resource[i].resource_Owner_References);
         let resource_status = JSON.stringify(resourceMassFeed.resource[i].resource_Status);
         let resource_pod_container = JSON.stringify(resourceMassFeed.resource[i].resource_Pod_Container);
+        let resource_pod_volume = JSON.stringify(resourceMassFeed.resource[i].resource_Pod_Volume);
         let resource_sts_volume_claim_templates = JSON.stringify(resourceMassFeed.resource[i].resource_Sts_volume_Claim_Templates);
         let resource_pvc_storage = JSON.stringify(resourceMassFeed.resource[i].resource_Pvc_Storage); 
         let resource_endpoint = JSON.stringify(resourceMassFeed.resource[i].resource_Endpoint); 
@@ -169,6 +171,7 @@ class massUploaderService {
             resourceMassFeed.resource[i].resource_Instance,
             resourceMassFeed.resource[i].resource_Pod_Phase,
             resource_pod_container,
+            resource_pod_volume,
             resourceMassFeed.resource[i].resource_Replicas,
             resource_sts_volume_claim_templates,
             resource_pvc_storage,

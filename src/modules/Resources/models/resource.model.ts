@@ -81,7 +81,8 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public parentResourceId: string;
   public resourceNamespace: string;
   public resourcePodPhase: string;
-  public resourcePodContainer: string;
+  public resourcePodContainer: JSON;
+  public resourcePodVolume: JSON;
   public resourceReplicas: number;
   public resourceStsVolumeClaimTemplates: JSON;
   public resourcePvcStorage: JSON;
@@ -257,6 +258,9 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         type: DataTypes.STRING(100),
       },
       resourcePodContainer: {
+        type: DataTypes.JSON,
+      },
+      resourcePodVolume: {
         type: DataTypes.JSON,
       },
       resourceReplicas: {

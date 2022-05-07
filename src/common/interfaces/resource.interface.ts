@@ -21,7 +21,8 @@ export interface IResource {
   resourceLevel4: string;
   resourceLevelType: string;
   resourcePodPhase: string;
-  resourcePodContainer: string;
+  resourcePodContainer: JSON;
+  resourcePodVolume: JSON;
   resourceReplicas: number;
   resourceStsVolumeClaimTemplates: JSON;
   resourcePvcStorage: JSON;
