@@ -107,5 +107,9 @@ export default {
     pathCreateToken: process.env.SUDORY_PATH_CREATETOKEN || "/server/cluster_token",
     pathSession: process.env.SUDORY_PATH_SESSION || "/server/session",
     pathService: process.env.SUDORY_PATH_SERVICE || "/server/service",
+    channel_resource: process.env.SUDORY_SUBSCRIBED_CHANNEL_RESOURCE || "nc_resource",
+    channel_alert: process.env.SUDORY_SUBSCRIBED_CHANNEL_ALERT || "nc_alert",
+    channel_metric: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC || "nc_metric",
+    channel_metric_received: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED || "nc_metric_received"
   },
 };

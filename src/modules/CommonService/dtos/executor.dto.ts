@@ -28,6 +28,13 @@ export class ExecutorDto {
     public targetNamespace: string;
   }
 
+  export class ExecutorUuidDto {
+    @IsString()
+    @IsNotEmpty()
+    public clusterUuid: string;
+  
+  }
+
 
   export interface IExecutorClient {
     exectuorServerUrl: string;
@@ -35,7 +42,7 @@ export class ExecutorDto {
     token: string;
   }
 
-  export class ExecutorResourceDto {
+  export class ExecutorResourceListDto {
     @IsString()
     @IsNotEmpty()
     public resourceType: string;
@@ -70,5 +77,16 @@ export class ExecutorResultDto {
 
     @IsString()
     public status: string;
+
+}
+
+export class ExecutorResourceDto {
+    @IsString()
+    @IsNotEmpty()
+    public resourceType: string;
+
+    @IsString()
+    @IsNotEmpty()
+    public clusterUuid: string;
 
 }

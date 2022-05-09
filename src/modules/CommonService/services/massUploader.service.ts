@@ -7,9 +7,6 @@ import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/table
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import debug from 'debug';
-//import { response } from 'express';
-//import { callbackify } from 'util';
-
 
 class massUploaderService {
   public tableIdService = new tableIdService();
@@ -36,7 +33,6 @@ class massUploaderService {
     const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
 
     // search for customerAccount & resourceGroup key
-
     const resourceGroupUuid = resourceMassFeed.resource_Group_Uuid;
     const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid); 
     const customerAccountKey = responseResourceGroup.customerAccountKey;
@@ -45,10 +41,8 @@ class massUploaderService {
 
     // mass upload #1
     // update resource deactivated if there is no matched resoure in NC database. 
-    
     const currentResourceFiltered: IResourceTargetUuid[] = await this.resourceService.getResourceForMass(resourceType, resourceGroupKey, customerAccountKey); 
     const sizeOfCurrentResource =  currentResourceFiltered.length;
-
 
     var currentResource = new Array();
     for (let i = 0; i < sizeOfCurrentResource; i++) {
@@ -127,14 +121,13 @@ class massUploaderService {
     var query2 = new Array();
 
     for (let i = 0; i < sizeOfInput; i++) {
-        let resource_Target_Created_At = new Date(resourceMassFeed.resource[i].resource_Target_Created_At);
+        // create resource_id 
         resource_id_postfix_number = resource_id_postfix_number + 1;
-
         resource_id_postfix = resource_id_postfix_number.toString();
         while (resource_id_postfix.length < tableIdSequenceDigit) {
             resource_id_postfix = '0' + resource_id_postfix;
         }
-
+        let resource_Target_Created_At = new Date(resourceMassFeed.resource[i].resource_Target_Created_At);
         let resource_id = resource_id_prefix + resource_id_postfix;
         let resource_lables = JSON.stringify(resourceMassFeed.resource[i].resource_Labels);
         let resource_annotations = JSON.stringify(resourceMassFeed.resource[i].resource_Annotations);
@@ -196,7 +189,7 @@ class massUploaderService {
             customerAccountKey, //customer_Account_Key
             resourceGroupKey //resource_Group_Kep 17 total columns
         ];
-        resource_Target_Created_At = null;
+        //resource_Target_Created_At = null;
     }
 
     console.log('**********************************');
@@ -216,7 +209,6 @@ class massUploaderService {
         //          maximumpoolsize: config.db.mariadb.poolMin,
     });
 
-
     mysqlConnection.connect(function(err) {
         if (err) {
             console.log('DB connection error' + err.stack);
@@ -225,8 +217,6 @@ class massUploaderService {
         console.log('DB connected for raw SQL run, ' + mysqlConnection.threadId);
 
       });
-
-      
 
     //create sql to delete the retired resources if exist.   
     if (lengthOfDifference > 0) {
@@ -245,7 +235,6 @@ class massUploaderService {
         }    
 
         // run update query to process delete resource data softly
-
         mysqlConnection.query(query_delete, function(err,result) {
             if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
                 var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis); 
@@ -258,7 +247,7 @@ class massUploaderService {
                             console.log(err.code); 
                             return;
                         }
-                        console.log(result);
+                        console.log("success on soft-delete query");
                     }
                     );
                 },sleepMillis);
@@ -272,7 +261,7 @@ class massUploaderService {
             //affectedRows = result.affectedRows;
             //insertId = result.insertId;
             //info = result.info;
-            console.log(result);
+            console.log("success on soft-delete query");
             mysqlConnection.commit();  
         });     // end of query
     } // end of soft delete
@@ -295,7 +284,7 @@ class massUploaderService {
 //                    affectedRows = result.affectedRows;
 //                    insertId = result.insertId;
 //                    info = result.info;
-                    console.log(result);
+                    console.log("success on update query");
                 }
                 );
             },sleepMillis);
@@ -310,9 +299,8 @@ class massUploaderService {
 //        insertId = result.insertId || "";
 //        info = result.info || "";
         mysqlConnection.commit();    
-        console.log(result);
+        console.log("success on update query");
     });     // end of query
-
 
     mysqlConnection.end();
     console.log('**********************************');

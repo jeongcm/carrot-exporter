@@ -13,7 +13,7 @@ class executorController{
    * @param  {Response} res
    * @param  {NextFunction} next
    */    
-    public checkExecutorResourceResponse = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
+    public checkExecutorResourceResponse = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
         try {
             const serviceUuid = req.params.serviceUuid;
 
@@ -37,7 +37,7 @@ class executorController{
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-    public checkExecutorResponse = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
+    public checkExecutorResponse = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
         try {
             const serviceUuid = req.params.serviceUuid;
 
@@ -108,9 +108,10 @@ class executorController{
     try {
         const clusterUuid = req.body.clusterUuid;
         const targetNamespace = req.body.targetNamespace;
+        const systemId = req.systemId; 
         
         const serviceUuid: string = await this.executorService.installKpsOnResourceGroup(
-        clusterUuid, targetNamespace
+        clusterUuid, targetNamespace, systemId
         );
         res.status(200).json({ serviceUuid: serviceUuid, message: `Successfullyt submit kps stack installation service request on cluserUuid: ${clusterUuid}` });
 
@@ -154,9 +155,9 @@ class executorController{
      public scheduleMetricMeta = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
         try {
             const clusterUuid = req.body.clusterUuid; 
-            const targetNamespace = req.body.targetNamespace;
+            //const targetNamespace = req.body.targetNamespace;
             
-            const cronJobResult: object = await this.executorService.scheduleMetricMeta(clusterUuid, targetNamespace);
+            const cronJobResult: object = await this.executorService.scheduleMetricMeta(clusterUuid);
             res.status(200).json({ cronJobResult: cronJobResult, message: `Successfullyt schedule metric meta job` });
     
         } catch (error) {
@@ -164,6 +165,23 @@ class executorController{
         }
         };
 
+    /**
+     * @param  {IRequestWithUser} req
+     * @param  {Response} res
+     * @param  {NextFunction} next
+     */
+     public scheduleResource = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+        try {
+            const clusterUuid = req.body.clusterUuid; 
+            const resourceType = req.body.resourceType;
+            
+            const cronJobResult: object = await this.executorService.scheduleResource(clusterUuid, resourceType);
+            res.status(200).json({ cronJobResult: cronJobResult, message: `Successfullyt schedule resource interfaces` });
+    
+        } catch (error) {
+            next(error);
+        }
+        };
 
 
 

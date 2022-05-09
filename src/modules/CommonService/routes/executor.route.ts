@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
-import { ExecutorResourceDto,  ExecutorDto, ExecutorKpsDto} from '@modules/CommonService/dtos/executor.dto';
+import { ExecutorResourceDto,  ExecutorDto, ExecutorKpsDto, ExecutorResourceListDto, ExecutorUuidDto} from '@modules/CommonService/dtos/executor.dto';
 import ResourceGroupController from '@modules/Resources/controllers/resourceGroup.controller';
 import executorController from '@modules/CommonService/controllers/executor.controller';
 import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
@@ -20,10 +20,18 @@ class ExecutorRoute implements Routes {
     this.router.post(
       '/executor/resourcelist',
       authMiddleware,
-      validationMiddleware(ExecutorResourceDto, 'body'),
+      validationMiddleware(ExecutorResourceListDto, 'body'),
 //      createUserLogMiddleware,
       this.executorController.requestResourceToExecutor,
     );
+    this.router.post(
+        '/executor/resource',
+        authMiddleware,
+        validationMiddleware(ExecutorResourceDto, 'body'),
+  //      createUserLogMiddleware,
+        this.executorController.scheduleResource,
+      );
+  
     this.router.post(
         '/executor',
         authMiddleware,
@@ -39,9 +47,9 @@ class ExecutorRoute implements Routes {
       this.executorController.installKpsOnResourceGroup,
     );
     this.router.post(
-        '/executor/scheduleMetricMeta',
+        '/executor/metric',
         authMiddleware,
-        validationMiddleware(ExecutorKpsDto, 'body'),
+        validationMiddleware(ExecutorUuidDto, 'body'),
   //      createUserLogMiddleware,
         this.executorController.scheduleMetricMeta,
       );

@@ -139,11 +139,35 @@ class ResourceGroupService {
     const updatedResourceGroup = {
       ...resourceGroupData,
       updatedBy: currentUserId,
+      updatedAt: new Date(),
     };
 
     await this.resourceGroup.update(updatedResourceGroup, { where: { resourceGroupId: resourceGroupId } });
 
     return this.getResourceGroupById(resourceGroupId);
+  }
+
+  /**
+   * @param  {string} resourceGroupUuId
+   * @param  {ResourceGroupDto} resourceGroupData
+   * @param  {string} currentUserId
+   */
+   public async updateResourceGroupByUuid(resourceGroupUuid: string, resourceGroupData: object, currentUserId: string): Promise<IResourceGroup> {
+    if (isEmpty(resourceGroupData)) throw new HttpException(400, 'ResourceGroup  must not be empty');
+
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid } });
+
+    if (!findResourceGroup) throw new HttpException(400, "ResourceGroup  doesn't exist");
+
+    const updatedResourceGroup = {
+      ...resourceGroupData,
+      updatedBy: currentUserId,
+      updatedAt: new Date(),
+    };
+
+    await this.resourceGroup.update(updatedResourceGroup, { where: { resourceGroupUuid: resourceGroupUuid } });
+
+    return this.getResourceGroupById(findResourceGroup.resourceGroupId);
   }
 
   /**
