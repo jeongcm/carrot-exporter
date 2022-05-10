@@ -4,13 +4,13 @@ import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
-import { IExecutorClient, ExecutorResourceDto, ExecutorResultDto, ExecutorResourceListDto } from '@/modules/CommonService/dtos/executor.dto';
+import { IExecutorClient, ExecutorResultDto, ExecutorResourceListDto } from '@/modules/CommonService/dtos/executor.dto';
 
 //import TableIdService from '@/modules/CommonService/services/tableId.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import { isBreakOrContinueStatement } from 'typescript';
-import { template } from 'lodash';
+//import { isBreakOrContinueStatement } from 'typescript';
+//import { template } from 'lodash';
 import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
 
 class executorService {
@@ -139,7 +139,7 @@ class executorService {
     const apiDataSummary = `${resourceGroupName} for ${customerAccountName}`; 
     const apiDataOption = {addtionalProp1: {}}; 
 
-    const sudoryCreateCluster = {name: apiDataName, summary: apiDataSummary, polling_option: apiDataOption }; 
+    const sudoryCreateCluster = {name: apiDataName, summary: apiDataSummary, polling_option: apiDataOption, polling_limit: 0 }; 
     let sudoryCreateClusterResponse;
 
     await axios(
