@@ -43,7 +43,7 @@ data:
   SUDORY_PATH_CREATECLUSTER: "/server/cluster"
   SUDORY_PATH_CREATETOKEN: "/server/cluster_token"
   SUDORY_PATH_SESSION: "/server/session"
-  SUDORY_PATH_SERVICE: "="/server/service"
+  SUDORY_PATH_SERVICE: "/server/service"
   SUDORY_SUBSCRIBED_CHANNEL_RESOURCE: "nc_resource"
   SUDORY_SUBSCRIBED_CHANNEL_ALERT: "nc_alert"
   SUDORY_SUBSCRIBED_CHANNEL_METRIC: "nc_metric"
