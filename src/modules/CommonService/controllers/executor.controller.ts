@@ -170,6 +170,24 @@ class executorController{
      * @param  {Response} res
      * @param  {NextFunction} next
      */
+     public scheduleMetricReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+        try {
+            const clusterUuid = req.body.clusterUuid; 
+            //const targetNamespace = req.body.targetNamespace;
+            
+            const cronJobResult: object = await this.executorService.scheduleMetricReceived(clusterUuid);
+            res.status(200).json({ cronJobResult: cronJobResult, message: `Successfullyt schedule metric received jobs` });
+    
+        } catch (error) {
+            next(error);
+        }
+        };
+
+    /**
+     * @param  {IRequestWithUser} req
+     * @param  {Response} res
+     * @param  {NextFunction} next
+     */
      public scheduleResource = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
         try {
             const clusterUuid = req.body.clusterUuid; 

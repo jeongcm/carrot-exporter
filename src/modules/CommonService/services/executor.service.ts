@@ -11,11 +11,13 @@ import CustomerAccountService from '@/modules/CustomerAccount/services/customerA
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import { isBreakOrContinueStatement } from 'typescript';
 import { template } from 'lodash';
+import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
 
 class executorService {
 //    public tableIdService = new TableIdService();
     public customerAccountService = new CustomerAccountService();
     public resourceGroupService = new ResourceGroupService();
+    public MetricMetaService = new MetricMetaService();
 
   /**
    * @param {string} serviceUuid
@@ -1015,9 +1017,11 @@ class executorService {
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+        const subscribed_channel = config.sudoryApiDetail.channel_metric_received;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
         var cronJobNo;
+        var DistinctJobList;
 
         const responseResourceGroup: IResourceGroup =  await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
         if (!responseResourceGroup) {
@@ -1025,39 +1029,55 @@ class executorService {
         }
         const prometheus = responseResourceGroup.resourceGroupPrometheus;
 
-        
         // get distinct data of job... 
-
-
-
+        DistinctJobList = await this.MetricMetaService.getDistinctJobOfMetricMetabyUuid(clusterUuid); 
+        if (!DistinctJobList) {
+            throw new HttpException(404, `No metric information with the clusterUuid: ${clusterUuid}`);   
+        }
         // loop to schedule MetricReceived by 
-        cronData = { name: "Get Metric Received",
-                    summary: "Get Metric Received",
-                    cronTab: "* * * * *",
-                    apiUrl: executorServerUrl,
-                    apiBody:
+        for (let i=0; i<DistinctJobList.length; i++){
+            let targetJob = DistinctJobList[i].metricMetaTargetJob
+            let matricQuery = "{job=" + targetJob + "}";
+            let matricName = "MetricReceived" + targetJob; 
+            let matricSummary = "MetricReceived" + targetJob; 
+            
+            cronData = { name: matricName,
+                        summary: matricSummary,
+                        cronTab: "* * * * *",
+                        apiUrl: executorServerUrl,
+                        apiBody:
                         {
                             cluster_uuid: clusterUuid,
-                            name: "Get Metric Received",
-                            template_uuid: "10000000000000000000000000000004",
-                            summary: "Get Metric Received",
-                            subscribed_channel: "nc_metric_received",
+                            name: matricName,
+                            template_uuid: "10000000000000000000000000000001",
+                            summary: matricSummary,
+                            subscribed_channel: subscribed_channel,
                             steps: [
                                     {
                                         args: {
-                                                url: prometheus
-                                              }
+                                                url: prometheus,
+                                                query: matricQuery
+                                            }
                                     }
                             ]
                         }
-                    };
-
+            };
         //interface with Cron
-        
-        
-        //response process
-
-        console.log(cronData);            
+            console.log(cronData);            
+            await axios(
+                {
+                method: 'post',
+                url: `${cronUrl}`,
+                data: cronData,
+                headers: { 'X_AUTH_TOKEN': `${authToken}` }
+                }).then(async (res: any) => {                            
+                    cronJobNo[i] = res.data.scheduleKey;
+                    console.log(`Submit metric-received feeds - job ${targetJob} scheduling on ${clusterUuid} cluster successfully, cronJobNo is ${cronJobNo}`);    
+                }).catch(error => {
+                    console.log(error);
+                    throw new HttpException(500, "Unknown error to request metric-received feeds scheduling");
+                });
+        } // end of for loop
         return cronJobNo;            
     }
 

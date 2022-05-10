@@ -47,12 +47,20 @@ class ExecutorRoute implements Routes {
       this.executorController.installKpsOnResourceGroup,
     );
     this.router.post(
+        '/executor/metricreceived',
+        authMiddleware,
+        validationMiddleware(ExecutorUuidDto, 'body'),
+  //      createUserLogMiddleware,
+        this.executorController.scheduleMetricReceived,
+      );
+    this.router.post(
         '/executor/metric',
         authMiddleware,
         validationMiddleware(ExecutorUuidDto, 'body'),
   //      createUserLogMiddleware,
         this.executorController.scheduleMetricMeta,
       );
+
     this.router.get(
         '/executor/resource/:serviceUuid',
         authMiddleware,
