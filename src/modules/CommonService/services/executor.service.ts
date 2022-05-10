@@ -986,10 +986,21 @@ class executorService {
         const template_uuid = selectedTemplate.template_uuid; 
         const scheduleName = "K8s interface for " + selectedTemplate.resourceName;
         const scheduleSummary = "K8s interface for " + selectedTemplate.resourceName;
+        const d = new Date();
+        var newCrontab;
+        let seconds = d.getSeconds();
+        let minutes = d.getMinutes();
+        if (seconds>45) {
+            newCrontab = minutes+2 + " * * * *";
+        } 
+        else {
+            newCrontab = minutes+1 + " * * * *";
+        }
+        console.log("new crontab", newCrontab);
 
         cronData = { name: scheduleName,
                     summary: scheduleSummary,
-                    cronTab: "0 * * * *",
+                    cronTab: newCrontab,
                     apiUrl: executorServerUrl,
                     apiBody:
                         {
@@ -1022,7 +1033,8 @@ class executorService {
                 console.log(error);
                 throw new HttpException(500, "Unknown error to request resource-node feeds scheduling");
             });
-        console.log("CRONJOBKEY in Function: ", cronJobKey);    
+        console.log("CRONJOBKEY in Function: ", cronJobKey); 
+
         return cronJobKey; 
     }
 
