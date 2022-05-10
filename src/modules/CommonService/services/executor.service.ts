@@ -4,7 +4,7 @@ import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
-import { IExecutorClient, ExecutorResultDto, ExecutorResourceListDto } from '@/modules/CommonService/dtos/executor.dto';
+import { IExecutorClient, ExecutorResultDto, ExecutorResourceListDto, IExecutorClientCheck } from '@/modules/CommonService/dtos/executor.dto';
 
 //import TableIdService from '@/modules/CommonService/services/tableId.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
@@ -208,12 +208,12 @@ class executorService {
   /**
    * @param  {string} clusterUuid
    */
-     public async checkExecutorClient(clusterUuid: string): Promise<string> {
+     public async checkExecutorClient(clusterUuid: string): Promise<IExecutorClientCheck> {
       var clientUuid = "";
+      var resourceJobKey = [];
       var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
       const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
       executorServerUrl = executorServerUrl + sessionQueryParameter;
-      console.log("#############",executorServerUrl);
       await axios(
         {
           method: 'get',
@@ -233,141 +233,158 @@ class executorService {
         });
 
     // scheduleResource - node
-      this.scheduleResource(clusterUuid, "ND"
+      await this.scheduleResource(clusterUuid, "ND"
         ).then(async (res: any) =>{
-          console.log(`Submitted resource ND schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "ND", cronKey: res});
+            console.log(`Submitted resource ND schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-          console.log(error);
-          console.log(`confirmed the executor/sudory client installed but fail to submit resource ND schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource ND schedule request for clsuter:${clusterUuid}`);
         }); //end of catch
 
     // scheduleResource - pod
-      this.scheduleResource(clusterUuid, "PD"
+      await this.scheduleResource(clusterUuid, "PD"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource PD schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "PD", cronKey: res});       
+            console.log(`Submitted resource PD schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource PD schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource PD schedule request for clsuter:${clusterUuid}`);
         }); //end of catch
 
     // scheduleResource - namespace
-      this.scheduleResource(clusterUuid, "NS"
+      await this.scheduleResource(clusterUuid, "NS"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource NS schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "NS", cronKey: res});           
+            console.log(`Submitted resource NS schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource NS schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource NS schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - service
-      this.scheduleResource(clusterUuid, "SV"
+      await this.scheduleResource(clusterUuid, "SV"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource SV schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "SV", cronKey: res});    
+            console.log(`Submitted resource SV schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource SV schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource SV schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - deployment
-      this.scheduleResource(clusterUuid, "DP"
+      await this.scheduleResource(clusterUuid, "DP"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource DP schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "DP", cronKey: res});        
+            console.log(`Submitted resource DP schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource DP schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource DP schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - statefulset
-      this.scheduleResource(clusterUuid, "SS"
+      await this.scheduleResource(clusterUuid, "SS"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource SS schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "SS", cronKey: res});            
+            console.log(`Submitted resource SS schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource SS schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource SS schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - daemonset
-      this.scheduleResource(clusterUuid, "DS"
+      await this.scheduleResource(clusterUuid, "DS"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource DS schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "DS", cronKey: res});            
+            console.log(`Submitted resource DS schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
         console.log(error);
         console.log(`confirmed the executor/sudory client installed but fail to submit resource DS schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - replicaset
-      this.scheduleResource(clusterUuid, "RS"
+      await this.scheduleResource(clusterUuid, "RS"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource RS schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "RS", cronKey: res});            
+            console.log(`Submitted resource RS schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource RS schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource RS schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - pvc
-      this.scheduleResource(clusterUuid, "PC"
+      await this.scheduleResource(clusterUuid, "PC"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource PC schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "PC", cronKey: res});            
+            console.log(`Submitted resource PC schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource PC schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource PC schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - Secret
-      this.scheduleResource(clusterUuid, "SE"
+      await this.scheduleResource(clusterUuid, "SE"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource SE schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "SE", cronKey: res});            
+            console.log(`Submitted resource SE schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource SE schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource SE schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - Endpoint
-      this.scheduleResource(clusterUuid, "EP"
+      await this.scheduleResource(clusterUuid, "EP"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource EP schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "EP", cronKey: res});            
+            console.log(`Submitted resource EP schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
         console.log(error);
         console.log(`confirmed the executor/sudory client installed but fail to submit resource EP schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - Configmap
-      this.scheduleResource(clusterUuid, "CM"
+      await this.scheduleResource(clusterUuid, "CM"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource CM schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "CM", cronKey: res});            
+            console.log(`Submitted resource CM schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource CM schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource CM schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - Ingress
-      this.scheduleResource(clusterUuid, "IG"
+      await this.scheduleResource(clusterUuid, "IG"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource IG schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "IG", cronKey: res});            
+            console.log(`Submitted resource IG schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource IG schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource IG schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - PV
-      this.scheduleResource(clusterUuid, "PV"
+      await this.scheduleResource(clusterUuid, "PV"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource PV schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "PV", cronKey: res});            
+            console.log(`Submitted resource PV schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource PV schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource PV schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - Storage Class
-      this.scheduleResource(clusterUuid, "SC"
+      await this.scheduleResource(clusterUuid, "SC"
         ).then(async (res: any) =>{
-        console.log(`Submitted resource SC schedule reqeust on ${clusterUuid} cluster successfully`);
+            resourceJobKey.push({resourceType: "SC", cronKey: res});            
+            console.log(`Submitted resource SC schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource SC schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource SC schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
-    return clientUuid;
+        const responseExecutorClientCheck = {resourceJobKey, clientUuid}; 
+
+    return responseExecutorClientCheck;
      }  
 
   /**
@@ -808,14 +825,14 @@ class executorService {
    * @param {string} targetNamespace
    */
 
-   public async scheduleMetricMeta(clusterUuid: string): Promise<object> {
+   public async scheduleMetricMeta(clusterUuid: string): Promise<string> {
 
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
-        var cronJobNo;
+        var cronJobKey;
 
         const responseResourceGroup: IResourceGroup =  await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
         if (!responseResourceGroup) {
@@ -855,14 +872,14 @@ class executorService {
             headers: { 'X_AUTH_TOKEN': `${authToken}` }
             }).then(async (res: any) => {
             //    console.log(res);                              
-                cronJobNo = res.data.scheduleKey
-                console.log(`Submit MetricMeta scheduling on ${clusterUuid} cluster successfully, cronJobNo is ${cronJobNo}`);    
+                cronJobKey = res.data.data.scheduleKey
+                console.log(`Submit MetricMeta scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
             }).catch(error => {
                 console.log(error);
                 throw new HttpException(500, "Unknown error to request MetricMeta scheduling");
             });
        
-        return cronJobNo; 
+        return cronJobKey; 
     }
 
    /**
@@ -877,7 +894,7 @@ class executorService {
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
-        var cronJobNo;
+        var cronJobKey;
 
         const responseResourceGroup: IResourceGroup =  await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
         if (!responseResourceGroup) {
@@ -915,28 +932,28 @@ class executorService {
             headers: { 'X_AUTH_TOKEN': `${authToken}` }
             }).then(async (res: any) => {
             //    console.log(res);                              
-                cronJobNo = res.data.scheduleKey
-                console.log(`Submit alert feeds scheduling on ${clusterUuid} cluster successfully, cronJobNo is ${cronJobNo}`);    
+                cronJobKey = res.data.data.scheduleKey
+                console.log(`Submit alert feeds scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
             }).catch(error => {
                 console.log(error);
                 throw new HttpException(500, "Unknown error to request Alert feeds scheduling");
             });
        
-        return cronJobNo; 
+        return cronJobKey; 
     }
 
    /**
    * @param {string} clusterUuid
    * @param {string} resourceType
    */
-    public async scheduleResource(clusterUuid: string, resourceType: string): Promise<object> {
+    public async scheduleResource(clusterUuid: string, resourceType: string): Promise<string> {
 
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         const subscribed_channel = config.sudoryApiDetail.channel_resource;
         var cronData;
-        var cronJobNo;
+        var cronJobKey;
         //sudory template uuid
         const resource_template = [
          {resourceName: "Service", resourceType: "SV", template_uuid:  "00000000000000000000000000000020"},  //service
@@ -998,14 +1015,15 @@ class executorService {
             data: cronData,
             headers: { 'X_AUTH_TOKEN': `${authToken}` }
             }).then(async (res: any) => {                            
-                cronJobNo = res.data.scheduleKey;
-                console.log(`Submit Resource-Node feeds scheduling on ${clusterUuid} cluster successfully, cronJobNo is ${cronJobNo}`);    
+                cronJobKey = res.data.data.scheduleKey;
+                console.log("###########cronJobKey", cronJobKey); 
+                console.log(`Submit Resource-Node feeds scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
             }).catch(error => {
                 console.log(error);
                 throw new HttpException(500, "Unknown error to request resource-node feeds scheduling");
             });
-
-        return cronJobNo; 
+        console.log("CRONJOBKEY in Function: ", cronJobKey);    
+        return cronJobKey; 
     }
 
 
@@ -1020,7 +1038,7 @@ class executorService {
         const subscribed_channel = config.sudoryApiDetail.channel_metric_received;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
-        var cronJobNo;
+        var cronJobKey;
         var DistinctJobList;
 
         const responseResourceGroup: IResourceGroup =  await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
@@ -1071,14 +1089,14 @@ class executorService {
                 data: cronData,
                 headers: { 'X_AUTH_TOKEN': `${authToken}` }
                 }).then(async (res: any) => {                            
-                    cronJobNo[i] = res.data.scheduleKey;
-                    console.log(`Submit metric-received feeds - job ${targetJob} scheduling on ${clusterUuid} cluster successfully, cronJobNo is ${cronJobNo}`);    
+                    cronJobKey[i] = res.data.data.scheduleKey;
+                    console.log(`Submit metric-received feeds - job ${targetJob} scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
                 }).catch(error => {
                     console.log(error);
                     throw new HttpException(500, "Unknown error to request metric-received feeds scheduling");
                 });
         } // end of for loop
-        return cronJobNo;            
+        return cronJobKey;            
     }
 
     public sleep (ms) {

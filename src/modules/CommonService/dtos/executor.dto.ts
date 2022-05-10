@@ -90,3 +90,8 @@ export class ExecutorResourceDto {
     public clusterUuid: string;
 
 }
+
+export interface IExecutorClientCheck {
+  resourceJobKey: object;
+  clientUuid: string;
+}
