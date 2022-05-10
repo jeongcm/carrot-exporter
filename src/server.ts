@@ -32,7 +32,8 @@ import massUploaderRoute from './modules/CommonService/routes/massUploader.route
 
 import InvitationRoute from './modules/Party/routes/invitation.route';
 import MetricRoute from './modules/Metric/routes/metric.route';
-
+import DiscountRoute from './modules/Billing/routes/discount.route';
+import CouponRoute from './modules/Billing/routes/coupon.route';
 
 const app = new App([
   new IndexRoute(),
@@ -66,6 +67,8 @@ const app = new App([
 
   new InvitationRoute(),
   new MetricRoute(),
+  new DiscountRoute(),
+  new CouponRoute(),
 ]);
 
 app.listen();

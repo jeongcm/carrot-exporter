@@ -47,6 +47,8 @@ import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpio
 import invitationModel from '@/modules/Party/models/invitation.model';
 import MetricMetaModel from '@/modules/Metric/models/metricMeta.model';
 import metricReceivedModel from '@/modules/Metric/models/metricReceived.model';
+import discountModel from '@/modules/Billing/models/discount.model';
+import couponModel from '@/modules/Billing/models/coupon.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -124,6 +126,8 @@ const DB = {
   Invitation: invitationModel(sequelize),
   MetricMeta: MetricMetaModel(sequelize),
   MetricReceived: metricReceivedModel(sequelize),
+  Discount: discountModel(sequelize),
+  Coupon: couponModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -149,6 +153,9 @@ DB.ResourceGroup.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey
 
 DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resourceGroupKey' });
 DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
+
+DB.Discount.hasMany(DB.Coupon, { foreignKey: 'discountKey' });
+DB.Coupon.belongsTo(DB.Discount, { foreignKey: 'discountKey' });
 
 DB.Party.hasMany(DB.Incident, { foreignKey: 'assigneeKey', as: 'incidents' });
 DB.Incident.belongsTo(DB.Party, { foreignKey: 'assigneeKey', as: 'assignee' });

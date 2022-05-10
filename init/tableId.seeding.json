@@ -288,5 +288,25 @@
     "tableIdSequenceDigit": 8,
     "tableIdIssuedSequence": 1,
     "createdBy": "SYSTEM"
+  },
+  {    
+    "tableIdTableName": "Discount",
+    "tableIdHeader": "DT",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {    
+    "tableIdTableName": "Coupon",
+    "tableIdHeader": "CO",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
   }
 ]
