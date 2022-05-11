@@ -291,7 +291,7 @@
   },
   {    
     "tableIdTableName": "PaymentTender",
-    "tableIdHeader": "PT",
+    "tableIdHeader": "PA",
     "tableMonth": 1,
     "tableYear": 2,
     "tableDay": 1,
