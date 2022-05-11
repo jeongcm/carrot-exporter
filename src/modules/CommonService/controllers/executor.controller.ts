@@ -163,6 +163,22 @@ class executorController{
             next(error);
         }
         };
+    /**
+         * @param  {IRequestWithUser} req
+         * @param  {Response} res
+         * @param  {NextFunction} next
+         */
+    public scheduleAlert = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+        try {
+            const clusterUuid = req.body.clusterUuid; 
+            const cronJobKey: string = await this.executorService.scheduleAlert(clusterUuid);
+            res.status(200).json({ cronJobResult: cronJobKey, message: `Successfullyt schedule alert job` });
+
+        } catch (error) {
+            next(error);
+        }
+        };
+
 
     /**
      * @param  {IRequestWithUser} req

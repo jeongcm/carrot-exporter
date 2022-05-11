@@ -104,7 +104,6 @@ class executorService {
         throw new HttpException(500, `Unknown error to fetch the result of serviceUuid: ${serviceUuid}`);
       });
     
-    console.log("######");  
     const executorResult = {serviceUuid: serviceUuid, clusterUuid: clusterUuid, name: name, result: result, status: status} 
     return executorResult;
    }
@@ -298,8 +297,8 @@ class executorService {
             resourceJobKey.push({resourceType: "DS", cronKey: res});            
             console.log(`Submitted resource DS schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource DS schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource DS schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - replicaset
@@ -338,8 +337,8 @@ class executorService {
             resourceJobKey.push({resourceType: "EP", cronKey: res});            
             console.log(`Submitted resource EP schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource EP schedule request for clsuter:${clusterUuid}`);
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource EP schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
     // scheduleResource - Configmap
@@ -887,7 +886,7 @@ class executorService {
    * @param {string} targetNamespace
    */
 
-     public async scheduleAlert(clusterUuid: string): Promise<object> {
+     public async scheduleAlert(clusterUuid: string): Promise<string> {
 
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
@@ -996,7 +995,6 @@ class executorService {
         else {
             newCrontab = minutes+1 + " * * * *";
         }
-        console.log("new crontab", newCrontab);
 
         cronData = { name: scheduleName,
                     summary: scheduleSummary,
@@ -1027,13 +1025,11 @@ class executorService {
             headers: { 'X_AUTH_TOKEN': `${authToken}` }
             }).then(async (res: any) => {                            
                 cronJobKey = res.data.data.scheduleKey;
-                console.log("###########cronJobKey", cronJobKey); 
                 console.log(`Submit Resource-Node feeds scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
             }).catch(error => {
                 console.log(error);
                 throw new HttpException(500, "Unknown error to request resource-node feeds scheduling");
             });
-        console.log("CRONJOBKEY in Function: ", cronJobKey); 
 
         return cronJobKey; 
     }
@@ -1093,7 +1089,7 @@ class executorService {
                         }
             };
         //interface with Cron
-            console.log(cronData);            
+       
             await axios(
                 {
                 method: 'post',

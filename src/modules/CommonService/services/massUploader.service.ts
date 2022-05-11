@@ -236,70 +236,31 @@ class massUploaderService {
 
         // run update query to process delete resource data softly
         mysqlConnection.query(query_delete, function(err,result) {
-            if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
-                var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis); 
-                if (debug) console.log('Retrying request -  Timeout',sleepMillis); 
-                setTimeout(function() {
-                    mysqlConnection.rollback();
-                    mysqlConnection.query(query_delete, function(err,result){
-                        if (err) {
-                            mysqlConnection.rollback();
-                            console.log(err.code); 
-                            return;
-                        }
-                        console.log("success on soft-delete query");
-                    }
-                    );
-                },sleepMillis);
-            }     
-            else if (err){
-                mysqlConnection.rollback();
-                console.log(err.code); 
-                return;
-            }
-            //fieldCount = result.fieldCount;
-            //affectedRows = result.affectedRows;
-            //insertId = result.insertId;
-            //info = result.info;
-            console.log("success on soft-delete query");
-            mysqlConnection.commit();  
+            if (err) {
+                mysqlConnection.rollback(function(){
+                    mysqlConnection.end();
+                    console.log(err.code);
+                    throw err;
+                });
+            }    
+            mysqlConnection.commit(function(){
+                    console.log("success on soft-delete query");
+            });  
         });     // end of query
     } // end of soft delete
 
     //run insert/status update query
     mysqlConnection.query(query1, [query2], function(err,result) {
-
-        if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
-            var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis); 
-            if (debug) console.log('Retrying request -  Timeout',sleepMillis); 
-            setTimeout(function() {
-                mysqlConnection.rollback();
-                mysqlConnection.query(query1, [query2], function(err,result){
-                    if (err) {
-                        mysqlConnection.rollback();
-                        console.log(err.code); 
-                        return;
-                    }
-//                    fieldCount = result.fieldCount;
-//                    affectedRows = result.affectedRows;
-//                    insertId = result.insertId;
-//                    info = result.info;
-                    console.log("success on update query");
-                }
-                );
-            },sleepMillis);
-        }     
-        else if (err){
-            mysqlConnection.rollback();
-            console.log(err.code); 
-            return;
-        }
-//        fieldCount = result.fieldCount || "";
-//        affectedRows = result.affectedRows || "";
-//        insertId = result.insertId || "";
-//        info = result.info || "";
-        mysqlConnection.commit();    
-        console.log("success on update query");
+        if (err) {
+            mysqlConnection.rollback(function(){
+                mysqlConnection.end();
+                console.log(err.code);
+                throw err;
+            });
+        }    
+        mysqlConnection.commit(function(){
+                console.log("success on insert/update query");
+        });  
     });     // end of query
 
     mysqlConnection.end();

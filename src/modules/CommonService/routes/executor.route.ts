@@ -60,6 +60,13 @@ class ExecutorRoute implements Routes {
   //      createUserLogMiddleware,
         this.executorController.scheduleMetricMeta,
       );
+    this.router.post(
+        '/executor/alert',
+        authMiddleware,
+        validationMiddleware(ExecutorUuidDto, 'body'),
+    //      createUserLogMiddleware,
+        this.executorController.scheduleAlert,
+    );
 
     this.router.get(
         '/executor/resource/:serviceUuid',
