@@ -49,6 +49,9 @@ import MetricMetaModel from '@/modules/Metric/models/metricMeta.model';
 import metricReceivedModel from '@/modules/Metric/models/metricReceived.model';
 import discountModel from '@/modules/Billing/models/discount.model';
 import couponModel from '@/modules/Billing/models/coupon.model';
+import billingAccountDiscountModel from '@/modules/Billing/models/billingAccountDiscount.model';
+import billingAccountModel from '@/modules/Billing/models/billingAccount.model';
+import paymentTenderModel from '@/modules/Billing/models/paymentTender.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -128,6 +131,9 @@ const DB = {
   MetricReceived: metricReceivedModel(sequelize),
   Discount: discountModel(sequelize),
   Coupon: couponModel(sequelize),
+  BillingAccountDiscount: billingAccountDiscountModel(sequelize),
+  BillingAccount: billingAccountModel(sequelize),
+  PaymentTender: paymentTenderModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -326,7 +332,22 @@ DB.CustomerAccount.hasMany(DB.MetricMeta, { foreignKey: 'customerAccountKey' });
 DB.MetricMeta.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
 DB.Resource.hasMany(DB.MetricMeta, { foreignKey: 'resourceKey' });
-DB.MetricMeta.belongsTo(DB.Resource,{ foreignKey: 'resourceKey' });
+DB.MetricMeta.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
+
+DB.BillingAccount.hasMany(DB.PaymentTender, { foreignKey: 'billingAccountKey' });
+DB.PaymentTender.belongsTo(DB.BillingAccount, { foreignKey: 'billingAccountKey' });
+
+DB.CustomerAccount.hasMany(DB.BillingAccount, { foreignKey: 'customerAccountKey' });
+DB.BillingAccount.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.Address.hasMany(DB.BillingAccount, { foreignKey: 'addressKey' });
+DB.BillingAccount.belongsTo(DB.Address, { foreignKey: 'addressKey' });
+
+DB.BillingAccount.hasOne(DB.BillingAccountDiscount, { foreignKey: 'billingAccountKey' });
+DB.BillingAccountDiscount.belongsTo(DB.BillingAccount, { foreignKey: 'billingAccountKey' });
+
+DB.Discount.hasOne(DB.BillingAccountDiscount, { foreignKey: 'discountKey' });
+DB.BillingAccountDiscount.belongsTo(DB.Discount, { foreignKey: 'discountKey' })
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

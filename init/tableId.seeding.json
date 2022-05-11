@@ -290,8 +290,38 @@
     "createdBy": "SYSTEM"
   },
   {    
+    "tableIdTableName": "PaymentTender",
+    "tableIdHeader": "PT",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {    
+    "tableIdTableName": "BillingAccount",
+    "tableIdHeader": "BA",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {    
+    "tableIdTableName": "BillingAccountDiscount",
+    "tableIdHeader": "BD",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {    
     "tableIdTableName": "Discount",
-    "tableIdHeader": "DT",
+    "tableIdHeader": "DI",
     "tableMonth": 1,
     "tableYear": 2,
     "tableDay": 1,
