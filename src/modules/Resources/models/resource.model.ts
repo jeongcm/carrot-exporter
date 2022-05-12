@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IResource } from '@common/interfaces/resource.interface';
+import { ResourceType, ResourceTypeLevel1, ResourceTypeLevel2, ResourceTypeLevel3, ResourceTypeLevel4 } from 'common/types'
 
 export type ResourceCreationAttributes = Optional<
   IResource,
@@ -66,11 +67,11 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceName: string;
   public resourceDescription: string;
   public resourceInstance: string;
-  public resourceType: 'K8' | 'ND' | 'PD' | 'NS' | 'SV' | 'OP' | 'PD' | 'PM' | 'PJ' | 'VM' | 'CT' | 'DP' | 'SS' | 'DS' | 'RS' | 'PV' | 'PC' | 'SE' | 'EP' | 'CM' | 'IG' | 'SC' | 'JO' | 'CJ'  ;
-  public resourceLevel1: 'K8' | 'OP';
-  public resourceLevel2: 'ND' | 'NS' | 'PJ' | 'PV' | 'SC' ;
-  public resourceLevel3: 'PD' | 'SV' | 'PM' | 'DP' | 'SS' | 'DS' | 'RS' | 'PC' | 'SE' | 'EP' | 'CM' | 'IG' | 'JO' | 'CJ' ;
-  public resourceLevel4: 'CT' | 'VM';
+  public resourceType: ResourceType;
+  public resourceLevel1: ResourceTypeLevel1;
+  public resourceLevel2: ResourceTypeLevel2;
+  public resourceLevel3: ResourceTypeLevel3;
+  public resourceLevel4: ResourceTypeLevel4;
   public resourceLevelType: 'KN' | 'KS' | 'OP' | 'KC';
   public resourceRbac: Boolean;
   public resourceAnomalyMonitor: Boolean;

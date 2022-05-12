@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsDate, IsObject, IsNumber, IsByteLength, IsDateString } from 'class-validator';
+import { ResourceType, ResourceTypeLevel1, ResourceTypeLevel2, ResourceTypeLevel3, ResourceTypeLevel4 } from 'common/types'
 
 export class ResourceDto {
   @IsString()
@@ -23,23 +24,24 @@ export class ResourceDto {
 
   @IsString()
   @IsNotEmpty()
-  public resourceType: 'K8' | 'ND' | 'PD' | 'NS' | 'SV' | 'OP' | 'PD' | 'PM' | 'PJ' | 'VM' | 'CT';
+  public resourceType: ResourceType;
 
   @IsString()
   @IsNotEmpty()
-  public resourceLevel1: 'K8' | 'OP';
+  public resourceLevel1: ResourceTypeLevel1;
 
   @IsString()
   @IsOptional()
-  public resourceLevel2: 'ND' | 'NS' | 'PJ';
+  public resourceLevel2: ResourceTypeLevel2;
 
   @IsString()
   @IsOptional()
-  public resourceLevel3: 'PD' | 'SV' | 'PM';
+  public resourceLevel3: ResourceTypeLevel3;
 
   @IsString()
   @IsOptional()
-  public resourceLevel4: 'CT' | 'VM';
+
+  public resourceLevel4: ResourceTypeLevel4;
 
   @IsString()
   @IsNotEmpty()
@@ -81,25 +83,12 @@ export class ResourceDto {
   @IsOptional()
   public resourceOwnerReferences: JSON;
 }
-
-
-
 export class resourceTypeCustomerAccountIdDto {
   @IsString()
-  //@IsNotEmpty()
-  public resourceType: string;
-
-  @IsString()
-  @IsNotEmpty()
-  public customerAccountId: string;
+  public resourceType: ResourceType[];
 }
 
 export class resourceTypeResourceGroupIdDto {
   @IsString()
-  //@IsNotEmpty()
-  public resourceType: string;
-
-  @IsString()
-  @IsNotEmpty()
-  public resourceGroupId: string;
+  public resourceType: ResourceType[];
 }
