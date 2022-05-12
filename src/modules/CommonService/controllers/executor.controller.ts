@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
-import { ExecutorDto, IExecutorClient } from '@/modules/CommonService/dtos/executor.dto';
+import { ExecutorDto, IExecutorClient, IExecutorClientCheck } from '@/modules/CommonService/dtos/executor.dto';
 import executorService from '../services/executor.service';
 
 
@@ -85,14 +85,13 @@ class executorController{
     try {
         const clusterUuid = req.params.clusterUuid;
 
-        const clientUuid: string = await this.executorService.checkExecutorClient(
-        clusterUuid
-        );
-        if (clientUuid){    
-        res.status(200).json({ clientUuid: clientUuid, message: `Success to confirm Executor/Sudory client: clientUuid: ${clientUuid}` });
+        const clientResponse: IExecutorClientCheck = await this.executorService.checkExecutorClient(clusterUuid);
+
+        if (clientResponse){    
+        res.status(200).json({ data: clientResponse, message: `Success to confirm Executor/Sudory client: clientUuid: ${clientResponse.clientUuid}` });
         }
         else {
-        res.status(404).json({ clientUuid: clientUuid, message: `Executor/Sudory client not found` }); 
+        res.status(404).json({ data: clientResponse, message: `Executor/Sudory client not found` }); 
         }  
     } catch (error) {
         next(error);
@@ -157,8 +156,42 @@ class executorController{
             const clusterUuid = req.body.clusterUuid; 
             //const targetNamespace = req.body.targetNamespace;
             
-            const cronJobResult: object = await this.executorService.scheduleMetricMeta(clusterUuid);
-            res.status(200).json({ cronJobResult: cronJobResult, message: `Successfullyt schedule metric meta job` });
+            const cronJobKey: string = await this.executorService.scheduleMetricMeta(clusterUuid);
+            res.status(200).json({ cronJobResult: cronJobKey, message: `Successfullyt schedule metric meta job` });
+    
+        } catch (error) {
+            next(error);
+        }
+        };
+    /**
+         * @param  {IRequestWithUser} req
+         * @param  {Response} res
+         * @param  {NextFunction} next
+         */
+    public scheduleAlert = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+        try {
+            const clusterUuid = req.body.clusterUuid; 
+            const cronJobKey: string = await this.executorService.scheduleAlert(clusterUuid);
+            res.status(200).json({ cronJobResult: cronJobKey, message: `Successfullyt schedule alert job` });
+
+        } catch (error) {
+            next(error);
+        }
+        };
+
+
+    /**
+     * @param  {IRequestWithUser} req
+     * @param  {Response} res
+     * @param  {NextFunction} next
+     */
+     public scheduleMetricReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+        try {
+            const clusterUuid = req.body.clusterUuid; 
+            //const targetNamespace = req.body.targetNamespace;
+            
+            const cronJobKey: object = await this.executorService.scheduleMetricReceived(clusterUuid);
+            res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule metric received jobs` });
     
         } catch (error) {
             next(error);
@@ -175,8 +208,8 @@ class executorController{
             const clusterUuid = req.body.clusterUuid; 
             const resourceType = req.body.resourceType;
             
-            const cronJobResult: object = await this.executorService.scheduleResource(clusterUuid, resourceType);
-            res.status(200).json({ cronJobResult: cronJobResult, message: `Successfullyt schedule resource interfaces` });
+            const cronJobKey: string = await this.executorService.scheduleResource(clusterUuid, resourceType);
+            res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule resource interfaces` });
     
         } catch (error) {
             next(error);
