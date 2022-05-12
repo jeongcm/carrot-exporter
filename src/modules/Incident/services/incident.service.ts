@@ -16,7 +16,7 @@ import { isEmpty } from '@/common/utils/util';
 import { IncidentModel } from '@/modules/Incident/models/incident.model';
 import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
 import { IncidentActionModel } from '@/modules/Incident/models/incidentAction.model';
-import { AlertModel } from '@/modules/Alert/models/alert.model';
+
 import { IIncidentAlertReceived } from '@/common/interfaces/incidentAlertReceived.interface';
 import { IIncidentCounts } from '@/common/interfaces/incidentCounts.interface';
 import sequelize from 'sequelize';
@@ -33,7 +33,6 @@ import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachm
  */
 class IncidentService {
   public incident = DB.Incident;
-  public alert = DB.Alerts;
   public incidentAlertReceived = DB.IncidentAlertReceived;
   public incidentAction = DB.IncidentAction;
   public incidentActionAttachment = DB.IncidentActionAttachment;
@@ -184,10 +183,10 @@ class IncidentService {
    * @returns Promise<[number, IncidentModel[]]>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async deleteIncidentById(customerAccountKey: number, incidentId: string, logginedUserId: string): Promise<[number, IncidentModel[]]> {
+  public async deleteIncidentById(customerAccountKey: number, incidentId: string, logginedUserId: string): Promise<[number]> {
     try {
       return await DB.sequelize.transaction(async t => {
-        const deletedIncident: [number, IncidentModel[]] = await this.incident.update(
+        const deletedIncident: [number] = await this.incident.update(
           { deletedAt: new Date(), updatedBy: logginedUserId },
           { where: { customerAccountKey, incidentId }, transaction: t },
         );
@@ -408,12 +407,7 @@ class IncidentService {
    * @returns Promise<[number, IncidentActionModel[]]>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async deleteIncidentActionById(
-    customerAccountKey: number,
-    incidentId: string,
-    actionId: string,
-    logginedUserId: string,
-  ): Promise<[number, IncidentActionModel[]]> {
+  public async deleteIncidentActionById(customerAccountKey: number, incidentId: string, actionId: string, logginedUserId: string): Promise<[number]> {
     const incidentAction: IIncidentAction = await this.incidentAction.findOne({ where: { incidentActionId: actionId } });
 
     if (!incidentAction) {
@@ -423,7 +417,7 @@ class IncidentService {
     try {
       const { incidentKey } = await this.getIncidentKey(customerAccountKey, incidentId);
 
-      const deletedIncidentAction: [number, IncidentActionModel[]] = await this.incidentAction.update(
+      const deletedIncidentAction: [number] = await this.incidentAction.update(
         { deletedAt: new Date(), updatedBy: logginedUserId },
         { where: { incidentActionId: actionId, incidentKey } },
       );
@@ -442,16 +436,8 @@ class IncidentService {
     if (isEmpty(actionAttachmentData)) throw new HttpException(400, 'Incident must not be empty');
 
     const tableIdTableName = 'IncidentActionAttachment';
-    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-    if (!tableId) {
-      return;
-    }
 
-    const { incidentActionKey = undefined } = await this.getIncidentActionKey(customerAccountKey, incidentId, actionId);
-
-    if (!incidentActionKey) {
-      return null;
-    }
+    const { incidentActionKey } = await this.getIncidentActionKey(customerAccountKey, incidentId, actionId);
 
     try {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
@@ -508,14 +494,8 @@ class IncidentService {
   ): Promise<IIncidentActionAttachmentResponse> {
     if (isEmpty(actionAttachmentData)) throw new HttpException(400, 'Incident must not be empty');
 
-    const { incidentActionKey = undefined } = await this.getIncidentActionKey(customerAccountKey, incidentId, actionId);
-
-    if (!incidentActionKey) {
-      return null;
-    }
-
     try {
-      const updatedActionAttachment: [number, IncidentActionAttachmentModel[]] = await this.incidentActionAttachment.update(
+      const updatedActionAttachment: [number] = await this.incidentActionAttachment.update(
         {
           ...actionAttachmentData,
           updatedBy: logginedUserId,

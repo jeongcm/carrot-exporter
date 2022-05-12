@@ -6,6 +6,7 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
+import { Sequelize } from 'sequelize/types';
 import { MetricMetaDto } from '../dtos/metricMeta.dto';
 const { Op } = require('sequelize');
 class MetricMetaService {
@@ -20,6 +21,15 @@ class MetricMetaService {
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
     return allMetricMeta;
+  }
+
+  public async getDistinctJobOfMetricMetabyUuid(resource_group_uuid: string): Promise<object> {
+    const distinctJobMetricMeta = await this.metricMeta.findAll(
+//      {attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('metricMetaTargetJob')), 'metricMetaTargetJob']],
+      {attributes: ['metricMetaTargetJob'], group:['metricMetaTargetJob'],
+       where: { resourceGroupUuid: resource_group_uuid, deletedAt: null },
+    });
+    return distinctJobMetricMeta;
   }
 
   public async getMetricKeybyCustomerAccountKey(customerAccountKey: number): Promise<number> {

@@ -105,7 +105,7 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
         type: DataTypes.STRING(100),
       },
       resourceGroupPrometheus: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING(200),
       },
     },

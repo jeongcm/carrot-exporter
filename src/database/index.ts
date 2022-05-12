@@ -226,7 +226,7 @@ DB.CustomerAccount.hasMany(DB.AlertRule, { foreignKey: 'customerAccountKey' });
 DB.AlertRule.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
 DB.AlertRule.hasMany(DB.AlertReceived, { foreignKey: 'alertRuleKey' });
-DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey' });
+DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey', as: 'alertRule' });
 
 DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' });
 DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
@@ -349,6 +349,7 @@ DB.BillingAccountDiscount.belongsTo(DB.BillingAccount, { foreignKey: 'billingAcc
 DB.Discount.hasOne(DB.BillingAccountDiscount, { foreignKey: 'discountKey' });
 DB.BillingAccountDiscount.belongsTo(DB.Discount, { foreignKey: 'discountKey' })
 
+
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
 //[[force: true]] is used when changes made in database.
@@ -358,7 +359,7 @@ DB.sequelize
   .then(async () => {
     const initialRecordService = new InitialRecordService();
 
-    await initialRecordService.insertInitialRecords().then(() => {
+    initialRecordService.insertInitialRecords().then(() => {
       console.log('Yes resync done');
     });
   })

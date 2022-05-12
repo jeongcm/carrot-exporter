@@ -7,9 +7,6 @@ import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/table
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import debug from 'debug';
-//import { response } from 'express';
-//import { callbackify } from 'util';
-
 
 class massUploaderService {
   public tableIdService = new tableIdService();
@@ -36,7 +33,6 @@ class massUploaderService {
     const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
 
     // search for customerAccount & resourceGroup key
-
     const resourceGroupUuid = resourceMassFeed.resource_Group_Uuid;
     const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid); 
     const customerAccountKey = responseResourceGroup.customerAccountKey;
@@ -45,10 +41,8 @@ class massUploaderService {
 
     // mass upload #1
     // update resource deactivated if there is no matched resoure in NC database. 
-    
     const currentResourceFiltered: IResourceTargetUuid[] = await this.resourceService.getResourceForMass(resourceType, resourceGroupKey, customerAccountKey); 
     const sizeOfCurrentResource =  currentResourceFiltered.length;
-
 
     var currentResource = new Array();
     for (let i = 0; i < sizeOfCurrentResource; i++) {
@@ -68,9 +62,9 @@ class massUploaderService {
     // query below will cover "insert" of new resources or "update" of existing resources. 
 
     const query1 = `INSERT INTO Resource (resource_id, created_by, created_at, resource_target_uuid, resource_target_created_at, 
-                      resource_name, resource_namespace, resource_type, resource_labels, resource_annotations, resource_description, resource_status,
+                      resource_name, resource_namespace, resource_type, resource_labels, resource_annotations, resource_owner_references, resource_description, resource_status,
                       resource_level1, resource_level2, resource_level3, resource_level4, resource_level_type, resource_instance,
-                      resource_pod_phase, resource_pod_container, resource_replicas, resource_sts_volume_claim_templates,
+                      resource_pod_phase, resource_pod_container, resource_pod_volume, resource_replicas, resource_sts_volume_claim_templates,
                       resource_pvc_storage, resource_pvc_volume_name, resource_pvc_storage_class_name, resource_pvc_volume_mode, resource_endpoint,
                       resource_configmap_data, resource_ingress_class, resource_ingress_rules,
                       resource_pv_storage, resource_pv_claim_ref, resource_pv_storage_class_name, resource_pv_volume_mode,
@@ -84,6 +78,7 @@ class massUploaderService {
                       resource_type=VALUES(resource_type),
                       resource_labels=VALUES(resource_labels),
                       resource_annotations=VALUES(resource_annotations),
+                      resource_owner_references=VALUES(resource_owner_references),
                       resource_description=VALUES(resource_description),
                       resource_status=VALUES(resource_status),                      
                       resource_level1=VALUES(resource_level1),                      
@@ -94,6 +89,7 @@ class massUploaderService {
                       resource_instance=VALUES(resource_instance),
                       resource_pod_phase=VALUES(resource_pod_phase),
                       resource_pod_container=VALUES(resource_pod_container),
+                      resource_pod_volume=VALUES(resource_pod_volume),
                       resource_replicas=VALUES(resource_replicas),
                       resource_sts_volume_claim_templates=VALUES(resource_sts_volume_claim_templates),
                       resource_pvc_storage=VALUES(resource_pvc_storage),
@@ -125,19 +121,20 @@ class massUploaderService {
     var query2 = new Array();
 
     for (let i = 0; i < sizeOfInput; i++) {
-        let resource_Target_Created_At = new Date(resourceMassFeed.resource[i].resource_Target_Created_At);
+        // create resource_id 
         resource_id_postfix_number = resource_id_postfix_number + 1;
-
         resource_id_postfix = resource_id_postfix_number.toString();
         while (resource_id_postfix.length < tableIdSequenceDigit) {
             resource_id_postfix = '0' + resource_id_postfix;
         }
-
+        let resource_Target_Created_At = new Date(resourceMassFeed.resource[i].resource_Target_Created_At);
         let resource_id = resource_id_prefix + resource_id_postfix;
         let resource_lables = JSON.stringify(resourceMassFeed.resource[i].resource_Labels);
         let resource_annotations = JSON.stringify(resourceMassFeed.resource[i].resource_Annotations);
+        let resource_owner_references = JSON.stringify(resourceMassFeed.resource[i].resource_Owner_References);
         let resource_status = JSON.stringify(resourceMassFeed.resource[i].resource_Status);
         let resource_pod_container = JSON.stringify(resourceMassFeed.resource[i].resource_Pod_Container);
+        let resource_pod_volume = JSON.stringify(resourceMassFeed.resource[i].resource_Pod_Volume);
         let resource_sts_volume_claim_templates = JSON.stringify(resourceMassFeed.resource[i].resource_Sts_volume_Claim_Templates);
         let resource_pvc_storage = JSON.stringify(resourceMassFeed.resource[i].resource_Pvc_Storage); 
         let resource_endpoint = JSON.stringify(resourceMassFeed.resource[i].resource_Endpoint); 
@@ -156,6 +153,7 @@ class massUploaderService {
             resourceMassFeed.resource[i].resource_Type, 
             resource_lables,
             resource_annotations,
+            resource_owner_references,
             resourceMassFeed.resource[i].resource_Description || 'some description',
             resource_status,
             resourceMassFeed.resource[i].resource_Level1,
@@ -166,6 +164,7 @@ class massUploaderService {
             resourceMassFeed.resource[i].resource_Instance,
             resourceMassFeed.resource[i].resource_Pod_Phase,
             resource_pod_container,
+            resource_pod_volume,
             resourceMassFeed.resource[i].resource_Replicas,
             resource_sts_volume_claim_templates,
             resource_pvc_storage,
@@ -190,7 +189,7 @@ class massUploaderService {
             customerAccountKey, //customer_Account_Key
             resourceGroupKey //resource_Group_Kep 17 total columns
         ];
-        resource_Target_Created_At = null;
+        //resource_Target_Created_At = null;
     }
 
     console.log('**********************************');
@@ -210,7 +209,6 @@ class massUploaderService {
         //          maximumpoolsize: config.db.mariadb.poolMin,
     });
 
-
     mysqlConnection.connect(function(err) {
         if (err) {
             console.log('DB connection error' + err.stack);
@@ -219,8 +217,6 @@ class massUploaderService {
         console.log('DB connected for raw SQL run, ' + mysqlConnection.threadId);
 
       });
-
-      
 
     //create sql to delete the retired resources if exist.   
     if (lengthOfDifference > 0) {
@@ -239,74 +235,33 @@ class massUploaderService {
         }    
 
         // run update query to process delete resource data softly
-
         mysqlConnection.query(query_delete, function(err,result) {
-            if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
-                var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis); 
-                if (debug) console.log('Retrying request -  Timeout',sleepMillis); 
-                setTimeout(function() {
-                    mysqlConnection.rollback();
-                    mysqlConnection.query(query_delete, function(err,result){
-                        if (err) {
-                            mysqlConnection.rollback();
-                            console.log(err.code); 
-                            return;
-                        }
-                        console.log(result);
-                    }
-                    );
-                },sleepMillis);
-            }     
-            else if (err){
-                mysqlConnection.rollback();
-                console.log(err.code); 
-                return;
-            }
-            //fieldCount = result.fieldCount;
-            //affectedRows = result.affectedRows;
-            //insertId = result.insertId;
-            //info = result.info;
-            console.log(result);
-            mysqlConnection.commit();  
+            if (err) {
+                mysqlConnection.rollback(function(){
+                    mysqlConnection.end();
+                    console.log(err.code);
+                    throw err;
+                });
+            }    
+            mysqlConnection.commit(function(){
+                    console.log("success on soft-delete query");
+            });  
         });     // end of query
     } // end of soft delete
 
     //run insert/status update query
     mysqlConnection.query(query1, [query2], function(err,result) {
-
-        if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
-            var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis); 
-            if (debug) console.log('Retrying request -  Timeout',sleepMillis); 
-            setTimeout(function() {
-                mysqlConnection.rollback();
-                mysqlConnection.query(query1, [query2], function(err,result){
-                    if (err) {
-                        mysqlConnection.rollback();
-                        console.log(err.code); 
-                        return;
-                    }
-//                    fieldCount = result.fieldCount;
-//                    affectedRows = result.affectedRows;
-//                    insertId = result.insertId;
-//                    info = result.info;
-                    console.log(result);
-                }
-                );
-            },sleepMillis);
-        }     
-        else if (err){
-            mysqlConnection.rollback();
-            console.log(err.code); 
-            return;
-        }
-//        fieldCount = result.fieldCount || "";
-//        affectedRows = result.affectedRows || "";
-//        insertId = result.insertId || "";
-//        info = result.info || "";
-        mysqlConnection.commit();    
-        console.log(result);
+        if (err) {
+            mysqlConnection.rollback(function(){
+                mysqlConnection.end();
+                console.log(err.code);
+                throw err;
+            });
+        }    
+        mysqlConnection.commit(function(){
+                console.log("success on insert/update query");
+        });  
     });     // end of query
-
 
     mysqlConnection.end();
     console.log('**********************************');

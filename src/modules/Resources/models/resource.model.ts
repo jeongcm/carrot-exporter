@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IResource } from '@common/interfaces/resource.interface';
+import { ResourceType, ResourceTypeLevel1, ResourceTypeLevel2, ResourceTypeLevel3, ResourceTypeLevel4 } from 'common/types'
 
 export type ResourceCreationAttributes = Optional<
   IResource,
@@ -53,6 +54,7 @@ export type ResourceCreationAttributes = Optional<
   | 'resourceStsVolumeClaimTemplates'
   | 'resourceTargetCreatedAt'
   | 'resourceTargetUuid'
+  | 'resourceOwnerReferences'
 >;
 
 export class ResourceModel extends Model<IResource, ResourceCreationAttributes> implements IResource {
@@ -65,11 +67,11 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceName: string;
   public resourceDescription: string;
   public resourceInstance: string;
-  public resourceType: 'K8' | 'ND' | 'PD' | 'NS' | 'SV' | 'OP' | 'PD' | 'PM' | 'PJ' | 'VM' | 'CT' | 'DP' | 'SS' | 'DS' | 'RS' | 'PV' | 'PC' | 'SE' | 'EP' | 'CM' | 'IG' | 'SC' | 'JO' | 'CJ'  ;
-  public resourceLevel1: 'K8' | 'OP';
-  public resourceLevel2: 'ND' | 'NS' | 'PJ' | 'PV' | 'SC' ;
-  public resourceLevel3: 'PD' | 'SV' | 'PM' | 'DP' | 'SS' | 'DS' | 'RS' | 'PC' | 'SE' | 'EP' | 'CM' | 'IG' | 'JO' | 'CJ' ;
-  public resourceLevel4: 'CT' | 'VM';
+  public resourceType: ResourceType;
+  public resourceLevel1: ResourceTypeLevel1;
+  public resourceLevel2: ResourceTypeLevel2;
+  public resourceLevel3: ResourceTypeLevel3;
+  public resourceLevel4: ResourceTypeLevel4;
   public resourceLevelType: 'KN' | 'KS' | 'OP' | 'KC';
   public resourceRbac: Boolean;
   public resourceAnomalyMonitor: Boolean;
@@ -80,7 +82,8 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public parentResourceId: string;
   public resourceNamespace: string;
   public resourcePodPhase: string;
-  public resourcePodContainer: string;
+  public resourcePodContainer: JSON;
+  public resourcePodVolume: JSON;
   public resourceReplicas: number;
   public resourceStsVolumeClaimTemplates: JSON;
   public resourcePvcStorage: JSON;
@@ -104,6 +107,7 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceAnnotations: JSON;
   public resourceTargetUuid: string;
   public resourceTargetCreatedAt: Date;
+  public resourceOwnerReferences: JSON;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -257,6 +261,9 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       resourcePodContainer: {
         type: DataTypes.JSON,
       },
+      resourcePodVolume: {
+        type: DataTypes.JSON,
+      },
       resourceReplicas: {
         type: DataTypes.INTEGER,
       },
@@ -320,6 +327,10 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       resourceAnnotations: {
         type: DataTypes.JSON,
       },
+      resourceOwnerReferences: {
+        type: DataTypes.JSON,
+      },
+
     },
     {
       indexes: [

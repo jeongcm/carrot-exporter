@@ -35,7 +35,9 @@ class PartyController {
     try {
       const userAll: IParty[] = await this.partyService.getUsers(customerAccountKey);
 
-      res.status(200).json({ data: userAll, message: 'success' });
+      if (userAll) {
+        return res.status(200).json({ data: userAll, message: 'success' });
+      }
     } catch (error) {
       next(error);
     }
@@ -48,7 +50,37 @@ class PartyController {
     try {
       const user: IParty = await this.partyService.getUser(customerAccountKey, partyUserId);
 
-      res.status(200).json({ data: user, message: 'success' });
+      if (user) {
+        return res.status(200).json({ data: user, message: 'success' });
+      } else {
+        return res.status(404).json({ message: 'user not found' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getCurrentUser = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+
+    try {
+      const partyUserId = req.user.partyId;
+      const user: IParty = await this.partyService.getUser(customerAccountKey, partyUserId);
+      const account: ICustomerAccount = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
+
+      if (!user) {
+        return res.status(500).json({ ok: false, message: 'NO_USER' });
+      }
+
+      if (!account) {
+        return res.status(500).json({ ok: false, message: 'NO_ACCOUNT' });
+      }
+
+      return res.status(200).json({
+        user,
+        account,
+        message: 'success',
+      });
     } catch (error) {
       next(error);
     }
@@ -60,16 +92,16 @@ class PartyController {
     const customerAccountKey: ICustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(createUserData.customerAccountId);
 
     if (!customerAccountKey) {
-      res.status(409).json({ message: "customerAccount doesn't exist" });
+      return res.status(409).json({ message: "customerAccount doesn't exist" });
     }
 
     try {
       const createdUser: IPartyUserResponse = await this.partyService.createUser(createUserData, customerAccountKey.customerAccountKey, req.systemId);
 
       if (createdUser) {
-        res.status(201).json({ data: createdUser, message: 'created' });
+        return res.status(201).json({ data: createdUser, message: 'created' });
       } else {
-        res.status(500).json({ message: "user can't be created" });
+        return res.status(500).json({ message: "user can't be created" });
       }
     } catch (error) {
       next(error);
@@ -86,13 +118,13 @@ class PartyController {
     const user: IParty = await this.partyService.getUser(customerAccountKey, updateUserId);
 
     if (!user) {
-      res.status(409).json({ message: `user (id: ${updateUserId})  doesn't exist` });
+      return res.status(404).json({ message: `user (id: ${updateUserId})  doesn't exist` });
     }
 
     try {
       const updatedUser: IParty = await this.partyService.updateUser(customerAccountKey, logginedUserId, updateUserId, updateUserData);
 
-      res.status(201).json({ data: updatedUser, message: 'updated' });
+      res.status(200).json({ data: updatedUser, message: 'updated' });
     } catch (error) {
       next(error);
     }
@@ -132,7 +164,11 @@ class PartyController {
     try {
       const accessGroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyId);
 
-      res.status(200).json({ data: accessGroup, message: 'success' });
+      if (accessGroup) {
+        return res.status(200).json({ data: accessGroup, message: 'success' });
+      } else {
+        return res.status(404).json({ message: `accessgroup (id: ${partyId})  doesn't exist` });
+      }
     } catch (error) {
       next(error);
     }
@@ -148,13 +184,15 @@ class PartyController {
     const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, updatePartyId);
 
     if (!accessgroup) {
-      res.status(409).json({ message: `AccessGroup (id: ${updatePartyId})  doesn't exist` });
+      return res.status(404).json({ message: `AccessGroup (id: ${updatePartyId})  doesn't exist` });
     }
 
     try {
       const updatedAccessgroup: IParty = await this.partyService.updateAccessGroup(customerAccountKey, logginedUserId, updatePartyId, updateData);
 
-      res.status(200).json({ data: updatedAccessgroup, message: 'updated' });
+      if (updatedAccessgroup) {
+        res.status(200).json({ data: updatedAccessgroup, message: 'updated' });
+      }
     } catch (error) {
       next(error);
     }
@@ -170,7 +208,7 @@ class PartyController {
     const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyParentId);
 
     if (!accessgroup) {
-      res.status(409).json({ message: `AccessGroup (id: ${partyParentId})  doesn't exist` });
+      return res.status(404).json({ message: `AccessGroup (id: ${partyParentId})  doesn't exist` });
     }
 
     try {
@@ -195,7 +233,7 @@ class PartyController {
     const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyParentId);
 
     if (!accessgroup) {
-      res.status(409).json({ message: `AccessGroup (id: ${partyParentId})  doesn't exist` });
+      return res.status(409).json({ message: `AccessGroup (id: ${partyParentId})  doesn't exist` });
     }
 
     try {
@@ -221,9 +259,11 @@ class PartyController {
     }
 
     try {
-      await this.partyService.removeUserFromAccessGroup(customerAccountKey, logginedUserId, partyParentId, removingPartyChildData);
+      const deleted = await this.partyService.removeUserFromAccessGroup(customerAccountKey, logginedUserId, partyParentId, removingPartyChildData);
 
-      res.status(204).json({ message: 'deleted' });
+      if (deleted) {
+        res.status(204).json({ message: 'deleted' });
+      }
     } catch (error) {
       next(error);
     }
@@ -239,7 +279,7 @@ class PartyController {
     const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyId);
 
     if (!accessgroup) {
-      res.status(409).json({ message: `AccessGroup (id: ${partyId})  doesn't exist` });
+      res.status(404).json({ message: `AccessGroup (id: ${partyId})  doesn't exist` });
     }
 
     try {
@@ -292,7 +332,7 @@ class PartyController {
     const accessgroup: IParty = await this.partyService.getAccessGroup(customerAccountKey, partyId);
 
     if (!accessgroup) {
-      res.status(409).json({ message: `AccessGroup (id: ${partyId})  doesn't exist` });
+      return res.status(409).json({ message: `AccessGroup (id: ${partyId})  doesn't exist` });
     }
 
     try {
@@ -311,7 +351,7 @@ class PartyController {
     const party: IParty = await this.partyService.getUser(customerAccountKey, partyId);
 
     if (!party) {
-      res.status(409).json({ message: `PartyUser (id: ${partyId})  doesn't exist` });
+      return res.status(409).json({ message: `PartyUser (id: ${partyId})  doesn't exist` });
     }
 
     try {
@@ -329,6 +369,7 @@ class PartyController {
       const { cookie, findUser, token } = await this.partyService.login(loginData);
 
       const loggedInUser = {
+        partyId: findUser.partyUserId,
         id: findUser.userId,
         email: findUser.email,
         firstName: findUser.firstName,

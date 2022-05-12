@@ -33,12 +33,14 @@ class CustomerAccountRoute implements Routes {
       createUserLogMiddleware,
       this.customerAccountController.getCustomerAccounts,
     );
+
     this.router.get(
       '/customerAccount/:customerAccountId',
       systemAuthMiddleware,
       createUserLogMiddleware,
       this.customerAccountController.getCustomerAccountById,
     );
+    
     this.router.put(
       '/customerAccount/:customerAccountId',
       authMiddleware,

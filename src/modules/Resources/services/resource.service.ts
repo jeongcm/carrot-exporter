@@ -43,7 +43,6 @@ class ResourceService {
         resourceStatusUpdatedAt: new Date(),
         resourceGroupKey: currentResourceGroup.resourceGroupKey,
         ...resourceData,
-
       });
       return createResource;
     } catch (error) {
@@ -79,7 +78,7 @@ class ResourceService {
   /**
    * @param  {string} resourceId
    */
-   public async getResourceById(resourceId: string): Promise<IResource> {
+  public async getResourceById(resourceId: string): Promise<IResource> {
     const resource: IResource = await this.resource.findOne({
       where: { resourceId },
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
@@ -91,7 +90,7 @@ class ResourceService {
   /**
    * @param  {string} resourceId
    */
-   public async getResourceKeyById(resourceId: string): Promise<number> {
+  public async getResourceKeyById(resourceId: string): Promise<number> {
     const resource: IResource = await this.resource.findOne({
       where: { resourceId },
       attributes: { exclude: ['deletedAt'] },
@@ -99,7 +98,6 @@ class ResourceService {
 
     return resource.resourceKey;
   }
- 
 
   /**
    * @param  {string} resourceId
@@ -118,9 +116,9 @@ class ResourceService {
       updatedBy: currentUserId,
     };
 
-    try{
+    try {
       await this.resource.update(updatedResource, { where: { resourceId: resourceId } });
-    }catch(error){
+    } catch (error) {
       throw new HttpException(400, error);
     }
 
@@ -131,38 +129,36 @@ class ResourceService {
    * @param  {string} resourceType
    * @param  {number} customerAccountId
    */
-
-  public async getResourceByTypeCustomerAccountId (resourceType: string, customerAccountId: string): Promise<IResource[]>  {
-
-
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId); 
+  public async getResourceByTypeCustomerAccountId(resourceType: string[], customerAccountId: string): Promise<IResource[]> {
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
     const allResources: IResource[] = await this.resource.findAll({
-      where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey }
+      where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey },
     });
-    console.log(allResources); 
+    
     return allResources;
-
   }
 
-    /**
+  /**
    * @param  {string} resourceType
    * @param  {number} resourceGroupId
    */
+  public async getResourceByTypeResourceGroupId(resourceType: string[], resourceGroupId: string): Promise<IResource[]> {
+    const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+    const resourceGroupKey = resultResourceGroup.resourceGroupKey;
 
-     public async getResourceByTypeResourceGroupId (resourceType: string, resourceGroupId: string): Promise<IResource[]>  {
 
-      const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
-      const resourceGroupKey = resultResourceGroup.resourceGroupKey;
-  
-      const allResources: IResource[] = await this.resource.findAll({
-        where: { deletedAt: null, resourceType: resourceType, resourceGroupKey: resourceGroupKey }
-      });
-      console.log(allResources); 
-      return allResources;
-  
-    }
+    console.log('--------------')
+    console.log(resultResourceGroup)
+    console.log('--------------')
+
+    const allResources: IResource[] = await this.resource.findAll({
+      where: { deletedAt: null, resourceType: resourceType, resourceGroupKey: resourceGroupKey },
+    });
+    console.log(allResources);
+    return allResources;
+  }
 }
 
 export default ResourceService;
