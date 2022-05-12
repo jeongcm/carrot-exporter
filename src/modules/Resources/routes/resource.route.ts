@@ -27,15 +27,15 @@ class ResourceRoute implements Routes {
     this.router.get('/resource', systemAuthMiddleware, authMiddleware, createUserLogMiddleware, this.resourceController.getAllResources);
     this.router.get('/resource/:resourceId', systemAuthMiddleware, authMiddleware, createUserLogMiddleware, this.resourceController.getResourceById);
     this.router.get(
-      '/resource/type-customeraccount',
-      validationMiddleware(resourceTypeCustomerAccountIdDto, 'body'),
+      '/resource/customerAccount/:customerAccountId',
+      validationMiddleware(resourceTypeCustomerAccountIdDto, 'query'),
       authMiddleware,
       createUserLogMiddleware,
       this.resourceController.getResourceByTypeCustomerAccountId,
     );
     this.router.get(
-      '/resource/type-resourcegroup',
-      validationMiddleware(resourceTypeResourceGroupIdDto, 'body'),
+      '/resource/resourceGroup/:resourceGroupId',
+      validationMiddleware(resourceTypeResourceGroupIdDto, 'query'),
       authMiddleware,
       createUserLogMiddleware,
       this.resourceController.getResourceByTypeResourceGroupId,
