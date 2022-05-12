@@ -13,8 +13,8 @@ class GrafanaRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post('/grafana/sso/login', authMiddleware, this.grafanaController.getGrafanaLoginCode);
-    this.router.post('/grafana/sso/token', authMiddleware, this.grafanaController.issueGrafanaToken);
-    this.router.get('/grafana/sso/auth', authMiddleware, this.grafanaController.verifyGrafanaToken);
+    this.router.post('/grafana/sso/token', this.grafanaController.issueGrafanaToken);
+    this.router.get('/grafana/sso/auth', this.grafanaController.verifyGrafanaToken);
   }
 }
 
