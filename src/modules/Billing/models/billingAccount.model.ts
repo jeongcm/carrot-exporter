@@ -6,7 +6,6 @@ export type BillingAccountAttributes = Optional<
   | 'billingAccountKey'
   | 'customerAccountKey'
   | 'addressKey'
-  | 'PaymentTenderKey'
   | 'billingAccountId'
   | 'createdBy'
   | 'updatedBy'
@@ -27,7 +26,6 @@ export class BillingAccountModel extends Model<IBillingAccount, BillingAccountAt
   public billingAccountKey: number;
   public customerAccountKey: number;
   public addressKey: number;
-  public PaymentTenderKey: number;
   public billingAccountId: string;
   public createdBy: string;
   public updatedBy: string;
@@ -60,12 +58,8 @@ export default function (sequelize: Sequelize): typeof BillingAccountModel {
       },
       addressKey: {
         allowNull: false,
-        type: DataTypes.STRING(16),
-        unique: true,
-      },
-      PaymentTenderKey: {
-        allowNull: false,
         type: DataTypes.INTEGER,
+        unique: true,
       },
       billingAccountId: {
         allowNull: false,

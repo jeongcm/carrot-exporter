@@ -2,12 +2,10 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
-import BillingAccountController from '../controllers/billingAccount.controller';
-import { BillingAccountDto } from '../dtos/billingAccount.dto';
 import PaymentTenderController from '../controllers/paymentTender.controller';
 import { PaymentTenderDto } from '../dtos/paymentTender.dto';
 
-class MetricRoute implements Routes {
+class PaymentTenderRoute implements Routes {
   public router = Router();
   public paymentTenderController = new PaymentTenderController();
 
@@ -26,4 +24,4 @@ class MetricRoute implements Routes {
   }
 }
 
-export default MetricRoute;
+export default PaymentTenderRoute;

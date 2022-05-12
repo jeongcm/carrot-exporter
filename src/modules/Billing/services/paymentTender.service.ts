@@ -26,6 +26,7 @@ class PaymentTenderService {
       ...paymentTenderData,
       billingAccountKey,
       paymentTenderId,
+      validatedAt: currentDate,
       createdAt: currentDate,
       createdBy: partyId,
     };

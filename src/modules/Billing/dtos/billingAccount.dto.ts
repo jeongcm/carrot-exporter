@@ -11,7 +11,7 @@ export class BillingAccountDto {
   @IsBoolean()
   public billingAccountAutoCollect: boolean;
 
-  @IsDate()
+  @IsDateString()
   public billingAccountNextBillDay: Date;
 
   @IsNumber()
@@ -29,8 +29,4 @@ export class BillingAccountDto {
   @IsString()
   @IsNotEmpty()
   public addressId: string;
-
-  @IsString()
-  @IsNotEmpty()
-  public paymentTenderId: string;
 }

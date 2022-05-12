@@ -2,7 +2,6 @@ export interface IBillingAccount {
     billingAccountKey: number;
     customerAccountKey: number;
     addressKey: number;
-    PaymentTenderKey: number;
     billingAccountId: string;
     createdBy: string;
     updatedBy: string;

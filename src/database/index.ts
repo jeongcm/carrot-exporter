@@ -340,8 +340,8 @@ DB.PaymentTender.belongsTo(DB.BillingAccount, { foreignKey: 'billingAccountKey' 
 DB.CustomerAccount.hasMany(DB.BillingAccount, { foreignKey: 'customerAccountKey' });
 DB.BillingAccount.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
-DB.BillingAccount.hasOne(DB.Address, { foreignKey: 'addressKey' });
-DB.Address.belongsTo(DB.BillingAccount, { foreignKey: 'addressKey' });
+DB.Address.hasOne(DB.BillingAccount, { foreignKey: 'addressKey' });
+DB.BillingAccount.belongsTo(DB.Address, { foreignKey: 'addressKey' });
 
 DB.BillingAccount.hasOne(DB.BillingAccountDiscount, { foreignKey: 'billingAccountKey' });
 DB.BillingAccountDiscount.belongsTo(DB.BillingAccount, { foreignKey: 'billingAccountKey' });

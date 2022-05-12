@@ -5,7 +5,7 @@ import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import BillingAccountController from '../controllers/billingAccount.controller';
 import { BillingAccountDto } from '../dtos/billingAccount.dto';
 
-class MetricRoute implements Routes {
+class BillingAccountRoute implements Routes {
   public router = Router();
   public billingAccountController = new BillingAccountController();
   // public authservice = new AuthService();
@@ -32,4 +32,4 @@ class MetricRoute implements Routes {
   }
 }
 
-export default MetricRoute;
+export default BillingAccountRoute;

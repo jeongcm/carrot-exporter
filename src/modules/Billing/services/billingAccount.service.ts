@@ -18,14 +18,11 @@ class BillingAccountService {
   public billingAccount = DB.BillingAccount;
   public tableIdService = new tableIdService();
   public addressService = new AddressService();
-  public paymentTenderService = new PaymentTenderService();
 
   public async createBillingAccount(billingAccountData: BillingAccountDto, customerAccountKey: number, partyId: string): Promise<IBillingAccount> {
     if (isEmpty(billingAccountData)) throw new HttpException(400, 'BillingAccount must not be empty');
     // get address key based on addressId
     const addressKey: number = await this.addressService.findAdreesKeyById(billingAccountData.addressId);
-    // get payment tender key from paymentTender table
-    const paymentTenderKey: number = await this.paymentTenderService.findTenderKeyById(billingAccountData.paymentTenderId);
     // get billingAccountId from billingAccount table
     const tableIdName: string = 'BillingAccount';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
@@ -35,7 +32,6 @@ class BillingAccountService {
       ...billingAccountData,
       customerAccountKey: customerAccountKey,
       addressKey,
-      paymentTenderKey,
       billingAccountId,
       createdAt: currentDate,
       createdBy: partyId,
@@ -93,14 +89,10 @@ class BillingAccountService {
     if (!findBillingAccount) throw new HttpException(400, "Billing Account doesn't exist");
     // get address key based on addressId
     const addressKey: number = await this.addressService.findAdreesKeyById(billingAccountData.addressId);
-    // get payment tender key from paymentTender table
-    const paymentTenderKey: number = await this.paymentTenderService.findTenderKeyById(billingAccountData.paymentTenderId);
-
     const updatedBillingAccount = {
       ...billingAccountData,
       customerAccountKey: customerAccountKey,
       addressKey,
-      paymentTenderKey,
       updatedBy: partyId,
       updatedAt: new Date(),
     };
