@@ -29,7 +29,7 @@ class AlertReceivedService {
     const [results] = await DB.sequelize.query(`WITH recent_alerts AS (
         SELECT m.*, ROW_NUMBER() OVER (PARTITION BY alert_received_name ORDER BY created_at ASC) AS rn
         FROM AlertReceived AS m
-        WHERE customer_account_key = "${customerAccountKey}" AND deleted_at = NULL
+        WHERE customer_account_key = "${customerAccountKey}" AND deleted_at IS NULL
       )
       SELECT
         recent_alerts.alert_received_id as alertReceivedId,
@@ -175,26 +175,3 @@ class AlertReceivedService {
 }
 
 export default AlertReceivedService;
-
-/*
-      SELECT
-        recent_alerts.alert_received_id as alertReceivedId,
-        recent_alerts.created_at as createdAt,
-        recent_alerts.updated_at as updatedAt,
-        recent_alerts.alert_received_name as alertReceivedName,
-        recent_alerts.alert_received_value as alertReceivedValue,
-        recent_alerts.alert_received_state as alertReceivedState,
-        recent_alerts.alert_received_namespace as alertReceivedNamespace,
-        recent_alerts.alert_received_severity as alertReceivedSeverity,
-        recent_alerts.alert_received_description as alertReceivedDescription,
-        recent_alerts.alert_received_summary as alertReceivedSummary,
-        recent_alerts.alert_received_active_at as alertReceivedActive,
-        recent_alerts.alert_received_node as alertReceivedNode,
-        recent_alerts.alert_received_service as alertReceivedService,
-        recent_alerts.alert_received_pod as alertReceivedPod,
-        recent_alerts.alert_received_instance as alertReceivedInstance,
-        recent_alerts.alert_received_labels as alertReceivedLabels,
-        recent_alerts.alert_received_pinned as alertReceivedPinned,
-        AlertRule.resource_group_uuid as 'alertRule.resourceGroupUuid',
-        AlertRule.alert_rule_id as 'alertRule.alertRuleId'
-*/
