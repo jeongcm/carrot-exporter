@@ -33,7 +33,7 @@ import massUploaderRoute from './modules/CommonService/routes/massUploader.route
 import InvitationRoute from './modules/Party/routes/invitation.route';
 import MetricRoute from './modules/Metric/routes/metric.route';
 import ExecutorRoute from './modules/CommonService/routes/executor.route';
-
+import GrafanaRoute from './modules/Grafana/routes/grafana.route';
 
 const app = new App([
   new IndexRoute(),
@@ -58,7 +58,7 @@ const app = new App([
   new TableIdRoute(),
   new PartyRoute(),
   new NotificationRoute(),
-  new PartyChannelRoute(),  
+  new PartyChannelRoute(),
   new ResourceRoute(),
   new ResourceGroupRoute(),
 
@@ -68,6 +68,8 @@ const app = new App([
   new InvitationRoute(),
   new MetricRoute(),
   new ExecutorRoute(),
+
+  new GrafanaRoute(),
 ]);
 
 app.listen();
