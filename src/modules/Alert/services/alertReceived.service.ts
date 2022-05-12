@@ -29,7 +29,7 @@ class AlertReceivedService {
     const [results] = await DB.sequelize.query(`WITH recent_alerts AS (
         SELECT m.*, ROW_NUMBER() OVER (PARTITION BY alert_received_name ORDER BY created_at ASC) AS rn
         FROM AlertReceived AS m
-        WHERE customer_account_key = "${customerAccountKey}"
+        WHERE customer_account_key = "${customerAccountKey}" AND deleted_at = NULL
       )
       SELECT
         recent_alerts.alert_received_id as alertReceivedId,
@@ -80,7 +80,8 @@ class AlertReceivedService {
         },
       ],
     });
-    if (!findAlertReceived) throw new HttpException(404, 'Alert Received Id Not found');
+
+    if (!findAlertReceived) throw new HttpException(404, 'Alert Received Not found');
 
     return findAlertReceived;
   }
