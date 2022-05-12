@@ -46,7 +46,7 @@ class ResourceGroupService {
   public async getAllResourceGroups(customerAccountKey: number): Promise<IResourceGroup[]> {
     const allResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
       where: { deletedAt: null, customerAccountKey },
-      attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
+      attributes: { exclude: ['deletedAt'] },
     });
 
     return allResourceGroup;
@@ -59,7 +59,7 @@ class ResourceGroupService {
   public async getResourceGroupById(resourceGroupId: string): Promise<IResourceGroup> {
     const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
       where: { resourceGroupId },
-      attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
+      attributes: { exclude: ['deletedAt'] },
     });
 
     return resourceGroup;

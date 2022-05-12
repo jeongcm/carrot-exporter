@@ -114,9 +114,8 @@ class ResourceController {
    * @param  {NextFunction} next
    */
    public getResourceByTypeCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const resourceType = req.body.resourceType;
-    const customerAccountId = req.body.customerAccountId;
-
+    const resourceType: string[] = req.query.resourceType as string[];
+    const customerAccountId: string = req.params.customerAccountId;
 
     try {
       const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId(resourceType, customerAccountId);
@@ -132,8 +131,8 @@ class ResourceController {
    * @param  {NextFunction} next
    */
    public getResourceByTypeResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const resourceType = req.body.resourceType;
-    const resourceGroupId = req.body.resourceGroupId;
+    const resourceType: string[] = req.query.resourceType as string[];
+    const resourceGroupId: string = req.params.resourceGroupId;
 
     try {
       const resource: IResource[] = await this.resourceService.getResourceByTypeResourceGroupId(resourceType, resourceGroupId);
@@ -142,9 +141,6 @@ class ResourceController {
       next(error);
     }
   };
-
-
-  
 
   /**
    * @param  {IRequestWithUser} req
