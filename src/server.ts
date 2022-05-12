@@ -36,6 +36,7 @@ import DiscountRoute from './modules/Billing/routes/discount.route';
 import CouponRoute from './modules/Billing/routes/coupon.route';
 import BillingAccountRoute from './modules/Billing/routes/billingAccount.route';
 import PaymentTenderRoute from './modules/Billing/routes/paymentTender.route';
+import BillingAccountDiscountRoute from './modules/Billing/routes/billingAccountDiscount.route';
 
 const app = new App([
   new IndexRoute(),
@@ -72,7 +73,8 @@ const app = new App([
   new DiscountRoute(),
   new CouponRoute(),
   new BillingAccountRoute(),
-  new PaymentTenderRoute()
+  new PaymentTenderRoute(),
+  new BillingAccountDiscountRoute(),
 ]);
 
 app.listen();
