@@ -850,6 +850,7 @@ class executorService {
                             template_uuid: "10000000000000000000000000000007",
                             summary: "Get MetricMeta",
                             subscribed_channel: "nc_metric",
+                            on_completion: 1,
                             steps: [
                                     {
                                         args: {
@@ -913,6 +914,7 @@ class executorService {
                             template_uuid: "10000000000000000000000000000004",
                             summary: "Get Alert Rules & Alert Received",
                             subscribed_channel: "nc_alert",
+                            on_completion: 1,
                             steps: [
                                     {
                                         args: {
@@ -1007,6 +1009,7 @@ class executorService {
                             template_uuid: template_uuid,
                             summary: scheduleSummary,
                             subscribed_channel: subscribed_channel,
+                            on_completion: 1,
                             steps: [
                                     {
                                         args: {
@@ -1078,6 +1081,7 @@ class executorService {
                             template_uuid: "10000000000000000000000000000001",
                             summary: matricSummary,
                             subscribed_channel: subscribed_channel,
+                            on_completion: 1,
                             steps: [
                                     {
                                         args: {

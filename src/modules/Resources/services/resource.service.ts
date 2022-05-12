@@ -136,7 +136,7 @@ class ResourceService {
     const allResources: IResource[] = await this.resource.findAll({
       where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey },
     });
-    console.log(allResources);
+    
     return allResources;
   }
 
@@ -147,6 +147,7 @@ class ResourceService {
   public async getResourceByTypeResourceGroupId(resourceType: string[], resourceGroupId: string): Promise<IResource[]> {
     const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+
 
     console.log('--------------')
     console.log(resultResourceGroup)
