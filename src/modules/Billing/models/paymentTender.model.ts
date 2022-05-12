@@ -57,7 +57,7 @@ export default function (sequelize: Sequelize): typeof PaymentTenderModel {
       paymentTenderId: {
         allowNull: false,
         type: DataTypes.STRING(16),
-        unique: 'unique_index',
+        unique: true,
       },
       createdBy: {
         allowNull: false,
@@ -108,15 +108,8 @@ export default function (sequelize: Sequelize): typeof PaymentTenderModel {
       },
     },
     {
-      indexes: [
-        {
-          name: 'unique_index',
-          unique: true,
-          fields: ['paymentTenderId'],
-        },
-      ],
-      tableName: 'paymentTender',
-      modelName: 'paymentTender',
+      tableName: 'PaymentTender',
+      modelName: 'PaymentTender',
       sequelize,
     },
   );

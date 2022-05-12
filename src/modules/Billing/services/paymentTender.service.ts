@@ -4,36 +4,46 @@ import { isEmpty } from '@/common/utils/util';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IPaymentTender } from '@/common/interfaces/paymentTender.interface';
 import { PaymentTenderDto } from '../dtos/paymentTender.dto';
-import BillingAccountService from './billingAccount.service';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
+import { IBillingAccount } from '@/common/interfaces/billingAccount.interface';
 const { Op } = require('sequelize');
 
 class PaymentTenderService {
   public paymentTender = DB.PaymentTender;
-  public billingAccountService = new BillingAccountService();
+  public billingAccount = DB.BillingAccount;
   public tableIdService = new TableIdService();
 
-  public async createPaymentTender(paymentTenderData: PaymentTenderDto, partyId: string): Promise<IPaymentTender> {
-    if (isEmpty(paymentTenderData)) throw new HttpException(400, 'PaymentTender must not be empty');
-    // get billingAccountKey from billingAccount table
-    const billingAccountKey: number = await this.billingAccountService.getBillingAccountKeyById(paymentTenderData.billingAccountId);
+  public async createPaymentTender(paymentTenderData: PaymentTenderDto, currentUserId: string): Promise<IPaymentTender> {
+    if (isEmpty(paymentTenderData)) throw new HttpException(400, 'PaymentTender  must not be empty');
+    const currentBillingAccount: IBillingAccount = await this.billingAccount.findOne({
+      where: { billingAccountId: paymentTenderData.billingAccountId },
+    });
 
-    const tableIdName: string = 'PaymentTender';
-    const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
-    const paymentTenderId: string = responseTableIdData.tableIdFinalIssued;
-    const currentDate = new Date();
-    const newPaymentTender = {
-      ...paymentTenderData,
-      billingAccountKey,
-      paymentTenderId,
-      validatedAt: currentDate,
-      createdAt: currentDate,
-      createdBy: partyId,
-    };
-    const newPaymentTenderData: IPaymentTender = await this.paymentTender.create(newPaymentTender);
-    return newPaymentTenderData;
+    if (!currentBillingAccount) {
+      throw new HttpException(400, 'billingAccountId not found');
+    }
+
+    try {
+      const tableIdTableName = 'PaymentTender';
+      const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
+
+      if (!tableId) {
+        return;
+      }
+
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+
+      const createPaymentTender: IPaymentTender = await this.paymentTender.create({
+        paymentTenderId: responseTableIdData.tableIdFinalIssued,
+        createdBy: currentUserId,
+        billingAccountKey: currentBillingAccount.billingAccountKey,
+        ...paymentTenderData,
+        validatedAt: new Date(),
+      });
+
+      return createPaymentTender;
+    } catch (error) {}
   }
-
 
   public async getPaymentTender(): Promise<IPaymentTender[]> {
     const allPaymentTender: IPaymentTender[] = await this.paymentTender.findAll({
@@ -44,16 +54,54 @@ class PaymentTenderService {
     return allPaymentTender;
   }
 
-  public async findTenderKeyById(paymentTenderId: string): Promise<number> {
-    if (isEmpty(paymentTenderId)) throw new HttpException(400, 'Not a valid Payment Tender Id');
-
-    const findPaymentTender: IPaymentTender = await this.paymentTender.findOne({
+  public async findTenderKeyById(paymentTenderId: string): Promise<IPaymentTender> {
+    const paymentTender: IPaymentTender = await this.paymentTender.findOne({
       where: { paymentTenderId, deletedAt: null },
-      attributes: { exclude: ['paymentTenderId', 'deletedAt', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['paymentTenderKey', 'deletedAt'] },
     });
-    if (!findPaymentTender) throw new HttpException(409, 'Payment Tender Not found');
 
-    return findPaymentTender.paymentTenderKey;
+    return paymentTender;
+  }
+
+  public async updatePaymentTenderById(paymentTenderId: string, paymentTenderData: PaymentTenderDto, currentUserId: string): Promise<IPaymentTender> {
+    if (isEmpty(paymentTenderData)) throw new HttpException(400, 'PaymentTender  must not be empty');
+
+    const findPaymentTender: IPaymentTender = await this.paymentTender.findOne({ where: { paymentTenderId: paymentTenderId } });
+
+    if (!findPaymentTender) throw new HttpException(400, "PaymentTender  doesn't exist");
+
+    const updatedPaymentTender = {
+      ...paymentTenderData,
+      updatedBy: currentUserId,
+    };
+
+    await this.paymentTender.update(updatedPaymentTender, { where: { paymentTenderId: paymentTenderId } });
+
+    return this.findTenderKeyById(paymentTenderId);
+  }
+
+  public async deletePaymentTender(paymentTenderId: string) {
+    try {
+      const deletePaymentTenderData = {
+        deletedAt: new Date(),
+      };
+
+      const result = await this.paymentTender.update(deletePaymentTenderData, {
+        where: {
+          paymentTenderId: paymentTenderId,
+          deletedAt: {
+            [Op.eq]: null,
+          },
+        },
+      });
+      if (result[0] == 1) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      return false;
+    }
   }
 }
 

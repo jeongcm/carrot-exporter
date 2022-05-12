@@ -14,5 +14,5 @@ export interface IPaymentTender {
     paymentTenderDetails4: string;
     isValidated: Boolean;
     validatedAt: Date;
-    paymentTenderType:string;
+    paymentTenderType: 'VI' | 'MS' | 'AM' | 'PP';
   }

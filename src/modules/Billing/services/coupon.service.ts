@@ -53,7 +53,7 @@ class CouponService {
 
   public async getCouponById(couponId: string): Promise<ICoupon> {
     const coupon: ICoupon = await this.coupon.findOne({
-      where: { couponId },
+      where: { couponId, deletedAt: null },
       attributes: { exclude: ['couponKey', 'deletedAt'] },
     });
 

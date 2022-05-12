@@ -20,7 +20,7 @@ export class PaymentTenderDto {
   public isValidated: boolean;
 
   @IsString()
-  public paymentTenderType: string;
+  public paymentTenderType: 'VI' | 'MS' | 'AM' | 'PP';
 
   @IsString()
   public billingAccountId: string;

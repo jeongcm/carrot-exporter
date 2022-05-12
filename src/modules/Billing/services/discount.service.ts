@@ -45,7 +45,7 @@ class DiscountService {
 
   public async getDiscountById(discountId: string): Promise<IDiscount> {
     const discount: IDiscount = await this.discount.findOne({
-      where: { discountId },
+      where: { discountId, deletedAt: null },
       attributes: { exclude: ['discountKey', 'deletedAt'] },
     });
 

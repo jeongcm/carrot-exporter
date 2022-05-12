@@ -18,9 +18,17 @@ class PaymentTenderRoute implements Routes {
       '/payment/tender',
       authMiddleware,
       validationMiddleware(PaymentTenderDto, 'body'),
-      this.paymentTenderController.createPaymentTender,
+      this.paymentTenderController.createPaymentTender
     );
     this.router.get('/payment/tender', authMiddleware, this.paymentTenderController.getPaymentTender);
+    this.router.get('/payment/tender/:paymentTenderId', authMiddleware, this.paymentTenderController.getPaymentTenderById);
+    this.router.put(
+      '/payment/tender/:paymentTenderId',
+      authMiddleware,
+      validationMiddleware(PaymentTenderDto, 'body'),
+      this.paymentTenderController.updatePaymentTenderById
+    );
+    this.router.delete('/payment/tender/:paymentTenderId', authMiddleware, this.paymentTenderController.deletePaymentTender);
   }
 }
 
