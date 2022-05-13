@@ -59,6 +59,7 @@ class CustomerAccountController {
     }
   };
 
+
   public getCustomerAccountById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
 

@@ -279,7 +279,7 @@
     "tableIdIssuedSequence": 1,
     "createdBy": "SYSTEM"
   },
-  {    
+  {
     "tableIdTableName": "PartyResource",
     "tableIdHeader": "PE",
     "tableMonth": 1,
@@ -332,6 +332,16 @@
   {    
     "tableIdTableName": "Coupon",
     "tableIdHeader": "CO",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "IncidentActionAttachment",
+    "tableIdHeader": "IT",
     "tableMonth": 1,
     "tableYear": 2,
     "tableDay": 1,

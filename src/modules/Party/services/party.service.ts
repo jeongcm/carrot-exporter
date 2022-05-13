@@ -112,7 +112,6 @@ class PartyService {
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
     try {
-
       return await DB.sequelize.transaction(async t => {
         let hashedPassword;
         if (createPartyUserData && createPartyUserData.password) {
@@ -167,7 +166,7 @@ class PartyService {
         };
       });
     } catch (error) {
-      console.log(error); 
+      console.log(error);
     }
   }
 
@@ -195,10 +194,6 @@ class PartyService {
     const { partyName, partyDescription, parentPartyId } = createData;
 
     const tableIdTableName = 'Party';
-    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-    if (!tableId) {
-      return;
-    }
 
     try {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
@@ -263,9 +258,9 @@ class PartyService {
         },
         { where: { customerAccountKey, partyId: updatePartyId, partyType: 'AG' } },
       );
-    } catch (error) {}
 
-    return await this.getAccessGroup(customerAccountKey, updatePartyId);
+      return await this.getAccessGroup(customerAccountKey, updatePartyId);
+    } catch (error) {}
   }
 
   public async addUserToAccessGroup(
@@ -274,42 +269,46 @@ class PartyService {
     partyParentId: string,
     addingPartyChildData: AddUserAccessGroupDto,
   ): Promise<any> {
-    return await DB.sequelize.transaction(async t => {
-      const partyParent: IParty = await this.party.findOne({ where: { customerAccountKey, partyId: partyParentId }, transaction: t });
+    try {
+      return await DB.sequelize.transaction(async t => {
+        const partyParent: IParty = await this.party.findOne({ where: { customerAccountKey, partyId: partyParentId }, transaction: t });
 
-      if (!partyParent) {
-        return [];
-      }
+        if (!partyParent) {
+          return [];
+        }
 
-      const partyParentKey = partyParent.partyKey;
+        const partyParentKey = partyParent.partyKey;
 
-      const partyChildAll = await this.party.findAll({
-        where: { partyId: { [Op.in]: addingPartyChildData.partyIds } },
-        attributes: ['partyKey'],
-        transaction: t,
-      });
-
-      const partyChildKeys = partyChildAll.map(party => party.partyKey);
-
-      let insertDataList = [];
-
-      for (const partyChildKey of partyChildKeys) {
-        const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('partyRelation');
-        const currentTime = new Date();
-
-        insertDataList.push({
-          partyRelationId: responseTableIdData.tableIdFinalIssued,
-          partyParentKey,
-          partyChildKey,
-          createdBy: logginedUserId,
-          partyRelationType: 'AU',
-          partyRelationFrom: currentTime,
-          partyRelationTo: currentTime,
+        const partyChildAll = await this.party.findAll({
+          where: { partyId: { [Op.in]: addingPartyChildData.partyIds } },
+          attributes: ['partyKey'],
+          transaction: t,
         });
-      }
 
-      return await this.partyRelation.bulkCreate(insertDataList, { returning: true });
-    });
+        const partyChildKeys = partyChildAll.map(party => party.partyKey);
+
+        let insertDataList = [];
+
+        for (const partyChildKey of partyChildKeys) {
+          const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('partyRelation');
+          const currentTime = new Date();
+
+          insertDataList.push({
+            partyRelationId: responseTableIdData.tableIdFinalIssued,
+            partyParentKey,
+            partyChildKey,
+            createdBy: logginedUserId,
+            partyRelationType: 'AU',
+            partyRelationFrom: currentTime,
+            partyRelationTo: currentTime,
+          });
+        }
+
+        return await this.partyRelation.bulkCreate(insertDataList, { returning: true });
+      });
+    } catch (error) {
+      return error;
+    }
   }
 
   public async getUserOfAccessGroup(partyParentId: string): Promise<IPartyRelation[]> {
@@ -342,7 +341,7 @@ class PartyService {
     logginedUserId: string,
     partyParentId: string,
     removingPartyChildData: AddUserAccessGroupDto,
-  ): Promise<void> {
+  ): Promise<[number]> {
     const partyParent: IParty = await this.party.findOne({
       where: { partyId: partyParentId },
       attributes: ['partyKey'],
@@ -357,7 +356,7 @@ class PartyService {
 
     const partyChildKeyList = partyChildAll.map(party => party.partyKey);
 
-    await this.partyRelation.update(
+    return await this.partyRelation.update(
       { deletedAt: new Date() },
       {
         where: {
@@ -480,7 +479,7 @@ class PartyService {
 
     return updated;
   }
-  
+
   public async getUserAPILog(partyId: string): Promise<IPartyUserAPILog[]> {
     const partyUser: IPartyUser = await this.partyUser.findOne({
       where: { partyUserId: partyId },
@@ -503,11 +502,11 @@ class PartyService {
     if (isEmpty(loginData)) throw new Error('LoginData must not be empty');
 
     const findUser: IPartyUser = await this.partyUser.findOne({ where: { userId: loginData.userId } });
-    if (!findUser) throw new HttpException(409, `You're userId ${loginData.userId} not found`);
+    if (!findUser) throw new HttpException(401, `LOGIN_FAILED`);
 
     const isPasswordMatching: boolean = await bcrypt.compare(loginData.password, findUser.password);
 
-    if (!isPasswordMatching) throw new HttpException(409, "You're password not matching");
+    if (!isPasswordMatching) throw new HttpException(401, `LOGIN_FAILED`);
 
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);

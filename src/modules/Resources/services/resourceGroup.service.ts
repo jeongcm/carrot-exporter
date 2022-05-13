@@ -1,6 +1,8 @@
 import DB from '@/database';
+import axios from 'axios';
+import config from '@config/index';
 import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
-import { ResourceGroupDto } from '../dtos/resourceGroup.dto';
+import { ResourceGroupDto, ResourceGroupExecutorDto } from '../dtos/resourceGroup.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
@@ -44,7 +46,7 @@ class ResourceGroupService {
   public async getAllResourceGroups(customerAccountKey: number): Promise<IResourceGroup[]> {
     const allResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
       where: { deletedAt: null, customerAccountKey },
-      attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
+      attributes: { exclude: ['deletedAt'] },
     });
 
     return allResourceGroup;
@@ -57,7 +59,7 @@ class ResourceGroupService {
   public async getResourceGroupById(resourceGroupId: string): Promise<IResourceGroup> {
     const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
       where: { resourceGroupId },
-      attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
+      attributes: { exclude: ['deletedAt'] },
     });
 
     return resourceGroup;
@@ -137,11 +139,35 @@ class ResourceGroupService {
     const updatedResourceGroup = {
       ...resourceGroupData,
       updatedBy: currentUserId,
+      updatedAt: new Date(),
     };
 
     await this.resourceGroup.update(updatedResourceGroup, { where: { resourceGroupId: resourceGroupId } });
 
     return this.getResourceGroupById(resourceGroupId);
+  }
+
+  /**
+   * @param  {string} resourceGroupUuId
+   * @param  {ResourceGroupDto} resourceGroupData
+   * @param  {string} currentUserId
+   */
+   public async updateResourceGroupByUuid(resourceGroupUuid: string, resourceGroupData: object, currentUserId: string): Promise<IResourceGroup> {
+    if (isEmpty(resourceGroupData)) throw new HttpException(400, 'ResourceGroup  must not be empty');
+
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid } });
+
+    if (!findResourceGroup) throw new HttpException(400, "ResourceGroup  doesn't exist");
+
+    const updatedResourceGroup = {
+      ...resourceGroupData,
+      updatedBy: currentUserId,
+      updatedAt: new Date(),
+    };
+
+    await this.resourceGroup.update(updatedResourceGroup, { where: { resourceGroupUuid: resourceGroupUuid } });
+
+    return this.getResourceGroupById(findResourceGroup.resourceGroupId);
   }
 
   /**
@@ -154,6 +180,6 @@ class ResourceGroupService {
     });
     return resourceGroup.resourceGroupUuid;
   }
-}
 
+}
 export default ResourceGroupService;

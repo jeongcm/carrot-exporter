@@ -1,5 +1,5 @@
 import { HttpException } from '@/common/exceptions/HttpException';
-import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
+import { IAlertReceived, IAlertReceivedDetailed } from '@/common/interfaces/alertReceived.interface';
 import { isEmpty } from '@/common/utils/util';
 import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
@@ -7,14 +7,17 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { AlertReceivedDto } from '../dtos/alertReceived.dto';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import AlertRuleService from './alertRule.service';
+import { AlertRuleModel } from '@/modules/Alert/models/alertRule.model';
+
 const { Op } = require('sequelize');
+
 class AlertReceivedService {
   public tableIdService = new TableIdService();
   public alertRule = DB.AlertRule;
   public alertReceived = DB.AlertReceived;
   public alertRuleService = new AlertRuleService();
 
-  public async getAlertReceived(customerAccountKey: number): Promise<IAlertReceived[]> {
+  public async getAllAlertReceived(customerAccountKey: number): Promise<IAlertReceived[]> {
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
@@ -22,17 +25,67 @@ class AlertReceivedService {
     return allAlertReceived;
   }
 
-  public async findAlertReceivedById(alertReceivedId: string): Promise<IAlertReceived> {
+  public async getAllAlertReceivedMostRecent(customerAccountKey: number): Promise<IAlertReceivedWithRule[]> {
+    const [results] = await DB.sequelize.query(`WITH recent_alerts AS (
+        SELECT m.*, ROW_NUMBER() OVER (PARTITION BY alert_received_name ORDER BY created_at ASC) AS rn
+        FROM AlertReceived AS m
+        WHERE customer_account_key = "${customerAccountKey}" AND deleted_at IS NULL
+      )
+      SELECT
+        recent_alerts.alert_received_id as alertReceivedId,
+        recent_alerts.created_at as createdAt,
+        recent_alerts.updated_at as updatedAt,
+        recent_alerts.alert_received_name as alertReceivedName,
+        recent_alerts.alert_received_value as alertReceivedValue,
+        recent_alerts.alert_received_state as alertReceivedState,
+        recent_alerts.alert_received_namespace as alertReceivedNamespace,
+        recent_alerts.alert_received_severity as alertReceivedSeverity,
+        recent_alerts.alert_received_description as alertReceivedDescription,
+        recent_alerts.alert_received_summary as alertReceivedSummary,
+        recent_alerts.alert_received_active_at as alertReceivedActive,
+        recent_alerts.alert_received_node as alertReceivedNode,
+        recent_alerts.alert_received_service as alertReceivedService,
+        recent_alerts.alert_received_pod as alertReceivedPod,
+        recent_alerts.alert_received_instance as alertReceivedInstance,
+        recent_alerts.alert_received_labels as alertReceivedLabels,
+        recent_alerts.alert_received_pinned as alertReceivedPinned,
+        JSON_OBJECT(
+          'alertRuleId', AlertRule.alert_rule_id
+        ) AS alertRule,
+        JSON_OBJECT(
+          'resourceGroupUuid', ResourceGroup.resource_group_uuid,
+          'resourceGroupId', ResourceGroup.resource_group_id,
+          'resourceGroupName', ResourceGroup.resource_group_name
+        ) AS resourceGroup
+      FROM recent_alerts
+      INNER JOIN AlertRule ON recent_alerts.alert_rule_key = AlertRule.alert_rule_key
+      INNER JOIN ResourceGroup ON AlertRule.resource_group_uuid = ResourceGroup.resource_group_uuid
+      WHERE rn = 1;
+    `);
+
+    return results;
+  }
+
+  public async findAlertReceivedById(alertReceivedId: string): Promise<IAlertReceivedDetailed> {
     if (isEmpty(alertReceivedId)) throw new HttpException(400, 'Not a valid Alert Received Id');
 
-    const findAlertReceived: IAlertReceived = await this.alertReceived.findOne({
+    const findAlertReceived: IAlertReceivedDetailed = await this.alertReceived.findOne({
       where: { alertReceivedId, deletedAt: null },
-      attributes: { exclude: ['alertReceivedId', 'deletedAt', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['customerAccountKey', 'alertRuleKey', 'alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+      include: [
+        {
+          model: AlertRuleModel,
+          as: 'alertRule',
+          attributes: { exclude: ['alertRuleKey', 'customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+        },
+      ],
     });
-    if (!findAlertReceived) throw new HttpException(409, 'Alert Received Id Not found');
+
+    if (!findAlertReceived) throw new HttpException(404, 'Alert Received Not found');
 
     return findAlertReceived;
   }
+
   public async deleteAlertReceived(customerAccountKey: number, alertReceivedId: string) {
     try {
       const deleteAlertReceivedData = {
@@ -57,6 +110,26 @@ class AlertReceivedService {
       return false;
     }
   }
+
+  public async getAlertReceivedHistory(customerAccountKey: number, alertReceivedId: string): Promise<IAlertReceived[]> {
+    const alertFound: IAlertReceived = await this.alertReceived.findOne({
+      where: { customerAccountKey: customerAccountKey, alertReceivedId: alertReceivedId, deletedAt: null },
+    });
+
+    if (!alertFound) {
+      throw new HttpException(404, 'ALERT_NOT_FOUND');
+    };
+
+    // TODO: to add more criteria to identify a group of alerts
+    const query = { alertReceivedName: alertFound.alertReceivedName };
+
+    const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
+      where: { customerAccountKey: customerAccountKey, deletedAt: null, ...query },
+      attributes: { exclude: ['alertReceivedKey', 'alertRuleKey', 'customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+    });
+    return allAlertReceived;
+  }
+
   public async updateAlertReceived(
     alertReceivedId: string,
     alertReceivedData: CreateAlertRuleDto,

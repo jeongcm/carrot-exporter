@@ -42,6 +42,13 @@ class App {
       logger.info(`🚀 NexClipper listening on the port ${this.port}`);
       logger.info(`=================================`);
     });
+    require( 'console-stamp' )( console, {
+      format: '(console).yellow :date().green.underline :label(7)'
+    } );
+
+    //const listEndpoints = require ("express-list-endpoints")
+    //console.log(listEndpoints(this.app)); 
+
   }
 
   public getServer() {
@@ -103,6 +110,7 @@ class App {
 
   private initializeErrorHandling() {
     this.app.use(errorMiddleware);
+
   }
   private intializeMiddlewareLogging() {
     this.app.use((req: Request, res: Response, next: NextFunction) => {

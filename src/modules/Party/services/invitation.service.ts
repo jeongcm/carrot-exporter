@@ -112,7 +112,7 @@ class InvitationService {
     } catch (error) {}
   }
 
-  public async checkForToken(token: string): Promise<IInvitation> {
+  public async checkForToken(token): Promise<IInvitation> {
     try {
       const findInvitation: IInvitation = await this.invitations.findOne({ where: { token } });
       return findInvitation;
