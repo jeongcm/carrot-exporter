@@ -9,33 +9,12 @@ class CouponController {
 
   public createCoupon = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const couponData: CouponDto = req.body;
-      const currentUserId = req?.user?.partyId;
-      const createCouponData: ICoupon = await this.couponService.createCoupon(couponData, currentUserId);
-
       const {
-        couponId,
-        discountKey,
-        createdBy,
-        createdAt,
-        couponFrom,
-        couponTo,
-        couponCode,
-        couponName,
-      } = createCouponData;
-
-      const response = {
-        couponId,
-        discountKey,
-        createdBy,
-        createdAt,
-        couponFrom,
-        couponTo,
-        couponCode,
-        couponName,
-      };
-
-      res.status(201).json({ data: response, message: 'created' });
+        user: { partyId },
+      } = req;
+      const couponData: CouponDto = req.body;
+      const createCouponData: ICoupon = await this.couponService.createCoupon(couponData, partyId)
+      res.status(201).json({ data: createCouponData, message: 'created' });
     } catch (error) {
       next(error);
     }
@@ -64,11 +43,14 @@ class CouponController {
 
   public updateCouponById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
+
+      const {
+        user: { partyId },
+      } = req;
       const couponId = req.params.couponId;
       const couponData = req.body;
-      const currentUserId = req?.user?.partyId;
 
-      const updateCouponData: ICoupon = await this.couponService.updateCouponById(couponId, couponData, currentUserId);
+      const updateCouponData: ICoupon = await this.couponService.updateCouponById(couponId, couponData, partyId);
 
       res.status(200).json({ data: updateCouponData, message: 'updated' });
     } catch (error) {

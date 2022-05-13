@@ -13,7 +13,7 @@ class CouponService {
   public discount = DB.Discount;
   public tableIdService = new tableIdService();
 
-  public async createCoupon(couponData: CouponDto, currentUserId: string): Promise<ICoupon> {
+  public async createCoupon(couponData: CouponDto, partyId: string): Promise<ICoupon> {
     if (isEmpty(couponData)) throw new HttpException(400, 'Coupon  must not be empty');
     const currentDiscount: IDiscount = await this.discount.findOne({ where: { discountId: couponData.discountId } });
 
@@ -33,7 +33,7 @@ class CouponService {
 
       const createCoupon: ICoupon = await this.coupon.create({
         couponId: responseTableIdData.tableIdFinalIssued,
-        createdBy: currentUserId,
+        createdBy: partyId,
         discountKey: currentDiscount.discountKey,
         ...couponData,
       });
@@ -60,7 +60,7 @@ class CouponService {
     return coupon;
   }
 
-  public async updateCouponById(couponId: string, couponData: CouponDto, currentUserId: string): Promise<ICoupon> {
+  public async updateCouponById(couponId: string, couponData: CouponDto, partyId: string): Promise<ICoupon> {
     if (isEmpty(couponData)) throw new HttpException(400, 'Coupon  must not be empty');
 
     const findCoupon: ICoupon = await this.coupon.findOne({ where: { couponId: couponId } });
@@ -69,7 +69,8 @@ class CouponService {
 
     const updatedCoupon = {
       ...couponData,
-      updatedBy: currentUserId,
+      updatedBy: partyId,
+      updatedAt: new Date()
     };
 
     await this.coupon.update(updatedCoupon, { where: { couponId: couponId } });

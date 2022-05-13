@@ -9,41 +9,12 @@ class DiscountController {
 
   public createDiscount = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const discountData: DiscountDto = req.body;
-      const currentUserId = req?.user?.partyId;
-      const createDiscountData: IDiscount = await this.discountService.createDiscount(discountData, currentUserId);
-
       const {
-        discountId,
-        createdBy,
-        createdAt,
-        discountName,
-        discountDescription,
-        discountBillingSolutionCode,
-        discountType,
-        discountValue,
-        discountCurrency,
-        discountRecurringType,
-        discountFrom,
-        discountTo,
-      } = createDiscountData;
-
-      const response = {
-        discountId,
-        createdBy,
-        createdAt,
-        discountName,
-        discountDescription,
-        discountBillingSolutionCode,
-        discountType,
-        discountValue,
-        discountCurrency,
-        discountRecurringType,
-        discountFrom,
-        discountTo,
-      };
-
-      res.status(201).json({ data: response, message: 'created' });
+        user: { partyId },
+      } = req;
+      const discountData: DiscountDto = req.body;
+      const createDiscountData: IDiscount = await this.discountService.createDiscount(discountData, partyId);
+      res.status(201).json({ data: createDiscountData, message: 'created' });
     } catch (error) {
       next(error);
     }
@@ -72,11 +43,13 @@ class DiscountController {
 
   public updateDiscountById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
+      const {
+        user: { partyId },
+      } = req;
       const discountId = req.params.discountId;
       const discountData = req.body;
-      const currentUserId = req?.user?.partyId;
 
-      const updateDiscountData: IDiscount = await this.discountService.updateDiscountById(discountId, discountData, currentUserId);
+      const updateDiscountData: IDiscount = await this.discountService.updateDiscountById(discountId, discountData, partyId);
 
       res.status(200).json({ data: updateDiscountData, message: 'updated' });
     } catch (error) {

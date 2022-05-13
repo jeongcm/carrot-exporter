@@ -54,19 +54,6 @@ class BillingAccountDiscountService {
     return allBillingAccountDiscount;
   }
 
-  public async getBillingAccountDiscountKeyById(billingAccountId: string): Promise<number> {
-    const billingAccount: IBillingAccount = await this.billingAccount.findOne({
-      where: {
-        billingAccountId,
-        deletedAt: {
-          [Op.eq]: null,
-        },
-      },
-    });
-
-    return billingAccount.billingAccountKey;
-  }
-
   public async getBillingAccountDiscountById(billingAccountDiscountId: string): Promise<IBillingAccountDiscount> {
     const billingAccountDuscount: IBillingAccountDiscount = await this.billingAccountDiscount.findOne({
       where: {

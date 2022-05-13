@@ -11,7 +11,7 @@ class DiscountService {
   public discount = DB.Discount;
   public tableIdService = new tableIdService();
 
-  public async createDiscount(discountData: DiscountDto, currentUserId: string): Promise<IDiscount> {
+  public async createDiscount(discountData: DiscountDto, partyId: string): Promise<IDiscount> {
     if (isEmpty(discountData)) throw new HttpException(400, 'Discount  must not be empty');
 
     try {
@@ -26,7 +26,7 @@ class DiscountService {
 
       const createDiscount: IDiscount = await this.discount.create({
         discountId: responseTableIdData.tableIdFinalIssued,
-        createdBy: currentUserId,
+        createdBy: partyId,
         ...discountData,
       });
 
@@ -52,7 +52,7 @@ class DiscountService {
     return discount;
   }
 
-  public async updateDiscountById(discountId: string, discountData: DiscountDto, currentUserId: string): Promise<IDiscount> {
+  public async updateDiscountById(discountId: string, discountData: DiscountDto, partyId: string): Promise<IDiscount> {
     if (isEmpty(discountData)) throw new HttpException(400, 'Discount  must not be empty');
 
     const findDiscount: IDiscount = await this.discount.findOne({ where: { discountId: discountId } });
@@ -61,7 +61,8 @@ class DiscountService {
 
     const updatedDiscount = {
       ...discountData,
-      updatedBy: currentUserId,
+      updatedBy: partyId,
+      updatedAt: new Date()
     };
 
     await this.discount.update(updatedDiscount, { where: { discountId: discountId } });
