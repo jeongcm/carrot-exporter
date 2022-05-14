@@ -135,6 +135,8 @@ class ResourceController {
     const resourceType: string[] = req.query.resourceType as string[];
     const resourceGroupId: string = req.params.resourceGroupId;
 
+    console.log('>>>>>>', req.query)
+
     try {
       const resource: IResource[] = await this.resourceService.getResourceByTypeResourceGroupId(resourceType, resourceGroupId);
       res.status(200).json({ data: resource, message: `find resources with resourceGroup(${resourceGroupId}) and resoruceType ${resourceType}` });

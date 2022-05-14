@@ -14,7 +14,7 @@ export type EventFrom = 'LARI' | 'PROMETHEUS';
 
 export type NotificationStatus = "CR" | "SM";
 
-export type ResourceType = 'K8' | 'ND' | 'PD' | 'NS' | 'SV' | 'OP' | 'PD' | 'PM' | 'PJ' | 'VM' | 'CT';
+export type ResourceType = 'K8' | 'ND' | 'DP' | 'NS' | 'SV' | 'OP' | 'PD' | 'PM' | 'PJ' | 'VM' | 'CT';
 
 export type ResourceTypeLevel1 = 'K8' | 'OP';
 

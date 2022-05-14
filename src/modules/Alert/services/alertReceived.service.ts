@@ -13,14 +13,22 @@ const { Op } = require('sequelize');
 
 class AlertReceivedService {
   public tableIdService = new TableIdService();
-  public alertRule = DB.AlertRule;
+  private alertRule = DB.AlertRule;
   public alertReceived = DB.AlertReceived;
   public alertRuleService = new AlertRuleService();
+  private resourceGroup = DB.ResourceGroup;
 
   public async getAllAlertReceived(customerAccountKey: number): Promise<IAlertReceived[]> {
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+      include: [{
+        model: this.alertRule,
+        as: 'alertRule',
+        include: [{
+          model: this.resourceGroup,
+        }]
+      }],
     });
     return allAlertReceived;
   }

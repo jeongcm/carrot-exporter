@@ -186,15 +186,16 @@ DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' })
 // DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
 
 DB.Incident.belongsToMany(DB.AlertReceived, {
-  through: 'IncidentAlertReceived',
+  through: DB.IncidentAlertReceived,
   foreignKey: 'incidentKey',
   otherKey: 'alertReceivedKey',
   as: 'alertReceived',
 });
 DB.AlertReceived.belongsToMany(DB.Incident, {
-  through: 'IncidentAlertReceived',
+  through: DB.IncidentAlertReceived,
   foreignKey: 'alertReceivedKey',
   otherKey: 'incidentKey',
+  as: 'incidents',
 });
 
 DB.CustomerAccount.belongsToMany(DB.Address, {
@@ -214,6 +215,9 @@ DB.AlertRule.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' })
 
 DB.AlertRule.hasMany(DB.AlertReceived, { foreignKey: 'alertRuleKey' });
 DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey', as: 'alertRule' });
+
+DB.AlertRule.hasMany(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
+DB.ResourceGroup.belongsTo(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
 
 DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' });
 DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });

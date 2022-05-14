@@ -42,13 +42,12 @@ class App {
       logger.info(`🚀 NexClipper listening on the port ${this.port}`);
       logger.info(`=================================`);
     });
-    require( 'console-stamp' )( console, {
-      format: '(console).yellow :date().green.underline :label(7)'
-    } );
+    require('console-stamp')(console, {
+      format: '(console).yellow :date().green.underline :label(7)',
+    });
 
     //const listEndpoints = require ("express-list-endpoints")
-    //console.log(listEndpoints(this.app)); 
-
+    //console.log(listEndpoints(this.app));
   }
 
   public getServer() {
@@ -69,12 +68,12 @@ class App {
   private initializeMiddlewares() {
     this.app.use(morgan(config.logFormat, { stream }));
     this.app.use(cors({ origin: config.cors.allowAnyOrigin, credentials: config.cors.credentials }));
-    this.app.use(hpp());
+    this.app.use(hpp({ whitelist: ['resourceType'] }));
     this.app.use(helmet());
     this.app.use(compression());
-    this.app.use(express.json({limit: config.maxApiBodySize} ));
+    this.app.use(express.json({ limit: config.maxApiBodySize }));
     this.intializeMiddlewareLogging();
-    this.app.use(express.urlencoded({ extended: true, limit: config.maxApiBodySize  }));
+    this.app.use(express.urlencoded({ extended: true, limit: config.maxApiBodySize }));
     this.app.use(cookieParser());
     this.app.use(
       session({
@@ -110,7 +109,6 @@ class App {
 
   private initializeErrorHandling() {
     this.app.use(errorMiddleware);
-
   }
   private intializeMiddlewareLogging() {
     this.app.use((req: Request, res: Response, next: NextFunction) => {
