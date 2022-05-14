@@ -70,6 +70,7 @@ class ResourceService {
   public async getResourceForMass(resourceType: string, resourceGroupKey: number, customerAccountKey: number): Promise<IResourceTargetUuid[]> {
     const allResource: IResourceTargetUuid[] = await this.resource.findAll({
       where: { resourceType, resourceGroupKey, customerAccountKey, deletedAt: null },
+      attributes: ['resourceTargetUuid', 'deletedAt'],
     });
 
     return allResource;

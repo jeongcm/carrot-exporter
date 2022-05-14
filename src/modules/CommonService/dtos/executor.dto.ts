@@ -89,6 +89,10 @@ export class ExecutorResourceDto {
     @IsNotEmpty()
     public clusterUuid: string;
 
+    @IsString()
+    @IsNotEmpty()
+    public cronTab: string;
+
 }
 
 export interface IExecutorClientCheck {
