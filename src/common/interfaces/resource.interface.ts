@@ -56,4 +56,5 @@ export interface IResource {
 
 export interface IResourceTargetUuid {
   resourceTargetUuid: string;
+
 }

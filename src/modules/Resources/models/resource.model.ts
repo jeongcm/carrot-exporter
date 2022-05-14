@@ -337,7 +337,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         {
           name: 'unique_index',
           unique: true,
-          fields: ['resourceTargetUuid', 'customerAccountKey', 'resourceGroupKey'],
+          fields: ['resourceTargetUuid', 'resourceGroupKey', 'deletedAt', 'resourceType'],
         },
       ],
       tableName: 'Resource',
