@@ -25,19 +25,19 @@ class TableIdService {
 
     const getTableId: tableId = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
     if (!getTableId) throw new HttpException(409, "Can't find a matched tableId record");
-   
+
     const currentDate = new Date();
     const currentDay = currentDate.getDate() + getTableId.tableDay;
 
     let currentDayText = currentDay.toString();
-    if (currentDayText.length == 1) { 
+    if (currentDayText.length == 1) {
       currentDayText = "0"+ currentDayText;
     }
 
     const currentMonth = currentDate.getMonth() + 1 + getTableId.tableMonth;
 
     let currentMonthText = currentMonth.toString();
-    if (currentMonthText.length == 1) { 
+    if (currentMonthText.length == 1) {
       currentMonthText = "0"+ currentMonthText;
     }
 
@@ -56,11 +56,20 @@ class TableIdService {
     const idIssuedSequence = getTableId.tableIdIssuedSequence + 1;
 
     const internalAccountParty: IParty = await DB.Party.findOne({ where: { partyName: process.env.NC_LARI_SYSTEM_PARTY_NAME } });
-  
+
     let systemPartyId = "SYSTEM";
     if (internalAccountParty) systemPartyId = internalAccountParty.partyId;
-   
-    const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: systemPartyId };       
+
+    const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: systemPartyId };
+
+    console.log('---------');
+    console.log(tableIdTableName);
+    console.log('---------');
+
+    /* TODO: NOT WORKING FROM THIS POINT ON
+       2022-05-15 09:31:49 info: Response Body is {"message":"(conn=396508, no: 1205, SQLState: HY000) Lock wait timeout exceeded; try restarting transaction\nsql: UPDATE `TableId` SET `table_id_final_issued`=?,`table_id_issued_sequence`=?,`updated_at`=?,`updated_by`=? WHERE `table_id_table_name` = ? - parameters:['PL24061600000812',813,'2022-05-15 16:30:58.606','PU24052300000001','PartyUserLogs']"}
+       2022-05-15 09:31:49 info: ::1 - - [15/May/2022:16:31:49 +0000] "POST /login HTTP/1.1" 500 352 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36"
+    */
     await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
 
     const updateResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
@@ -68,7 +77,7 @@ class TableIdService {
   }
 
   /**
-   * Issue a new table id after the range provided. it's for issuing bulk table id range for alerts or metrics where it requires massive amount of id issurance. 
+   * Issue a new table id after the range provided. it's for issuing bulk table id range for alerts or metrics where it requires massive amount of id issurance.
    *
    * @param  tableIdData, tableIdRange
    * @returns IResponseIssueTableIdDtoBulk
@@ -92,14 +101,14 @@ class TableIdService {
     const currentDay = currentDate.getDate() + getTableId.tableDay;
 
     let currentDayText = currentDay.toString();
-    if (currentDayText.length == 1) { 
+    if (currentDayText.length == 1) {
       currentDayText = "0"+ currentDayText;
     }
 
     const currentMonth = currentDate.getMonth() + 1 + getTableId.tableMonth;
 
     let currentMonthText = currentMonth.toString();
-    if (currentMonthText.length == 1) { 
+    if (currentMonthText.length == 1) {
       currentMonthText = "0"+ currentMonthText;
     }
 
@@ -118,23 +127,23 @@ class TableIdService {
     const idIssuedSequence = currentSequence;
 
     const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: internalAccountParty.partyId};
-    
+
     try {
       await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
     } catch (err) {
       if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
-        var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis); 
+        var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis);
         setTimeout(function() {
-          this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });            
+          this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
         },sleepMillis);
-      } // end of second if    
-    } // end of catch 
+      } // end of second if
+    } // end of catch
 
     const updateDBResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
     const updateResult: IResponseIssueTableIdBulkDto = {tableIdTableName:updateDBResult.tableIdTableName, tableIdFinalIssued:updateDBResult.tableIdFinalIssued, tableIdRange, tableIdSequenceDigit:updateDBResult.tableIdSequenceDigit};
     return updateResult;
   }
-   
+
 
 
   /**
