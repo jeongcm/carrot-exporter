@@ -62,7 +62,6 @@ class massUploaderService {
 
     // mass upload #2
     // query below will cover "insert" of new resources or "update" of existing resources.    
-
     const query1 = `INSERT INTO Resource (resource_id, created_by, created_at, resource_target_uuid, resource_target_created_at,
                       resource_name, resource_namespace, resource_type, resource_labels, resource_annotations, resource_owner_references, resource_description, resource_status,
                       resource_level1, resource_level2, resource_level3, resource_level4, resource_level_type, resource_instance,
