@@ -33,7 +33,9 @@ const createUserLogMiddleware = async (req, res: Response, next: NextFunction) =
       apiEndPoint2,
     },
   });
-  
+
+  next();
+
 /*
   try {
     // TODO: handle better if an API is not in the API table
@@ -47,7 +49,7 @@ const createUserLogMiddleware = async (req, res: Response, next: NextFunction) =
         apiKey: apiFound.apiKey,
         createdBy: partyUserId,
       });
- 
+
     }
 
     return next();
