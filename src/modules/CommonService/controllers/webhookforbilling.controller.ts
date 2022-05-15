@@ -20,7 +20,7 @@ class webhookForBillingController {
   public resourceService = new ResourceService();
   public receiveBillingInterface = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const { body: { eventType }, user: { partyId }, systemId, customerAccountKey } = req;
+      const { body: { eventType }, user: { partyId } = {}, systemId, customerAccountKey } = req;
 
       switch (eventType) {
         case "CustomerCreated":

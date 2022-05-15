@@ -21,7 +21,7 @@ class SubscriptionController {
   public createSubscriptions = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const subscriptionData: CreateSubscriptionDto = req.body;
-      const { user: { partyId }, systemId, customerAccountKey } = req;
+      const { user: { partyId } = {}, systemId, customerAccountKey } = req;
       const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, systemId, customerAccountKey);
       res.status(201).json({ data: newSubscription, message: 'success' });
     } catch (error) {
