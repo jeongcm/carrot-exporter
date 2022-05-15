@@ -519,7 +519,7 @@ class PartyService {
   public createToken(user: IPartyUser): ITokenData {
     const dataStoredInToken: IDataStoredInToken = { partyUserKey: user.partyUserKey };
     const secretKey: string = config.auth.jwtSecretKey;
-    const expiresIn: number = 60 * 60;
+    const expiresIn: number = config.auth.authTokenExpirySecond; // 60 * 60;
 
     return { expiresIn, token: jwt.sign(dataStoredInToken, secretKey, { expiresIn }) };
   }
