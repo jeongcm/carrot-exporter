@@ -133,12 +133,13 @@ class ResourceController {
    public getResourceByTypeResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
 
     const resourceType: string[] = req.query.resourceType as string[];
+    const resourceQuery: any = {
+      excludeFailed: req.query.excludeFailed === 'true',
+    };
     const resourceGroupId: string = req.params.resourceGroupId;
 
-    console.log('>>>>>>', req.query)
-
     try {
-      const resource: IResource[] = await this.resourceService.getResourceByTypeResourceGroupId(resourceType, resourceGroupId);
+      const resource: IResource[] = await this.resourceService.getResourceByTypeResourceGroupId(resourceType, resourceGroupId, resourceQuery);
       res.status(200).json({ data: resource, message: `find resources with resourceGroup(${resourceGroupId}) and resoruceType ${resourceType}` });
     } catch (error) {
       next(error);

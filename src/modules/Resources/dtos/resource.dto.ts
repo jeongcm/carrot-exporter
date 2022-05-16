@@ -1,5 +1,17 @@
-import { IsString, IsNotEmpty, IsBoolean, IsOptional, IsDate, IsObject, IsNumber, IsByteLength, IsDateString } from 'class-validator';
-import { ResourceType, ResourceTypeLevel1, ResourceTypeLevel2, ResourceTypeLevel3, ResourceTypeLevel4 } from 'common/types'
+import {
+  Allow,
+  IsString,
+  IsNotEmpty,
+  IsBoolean,
+  IsOptional,
+  IsDate,
+  IsObject,
+  IsNumber,
+  IsByteLength,
+  IsDateString,
+  isBooleanString,
+} from 'class-validator';
+import { ResourceType, ResourceTypeLevel1, ResourceTypeLevel2, ResourceTypeLevel3, ResourceTypeLevel4 } from 'common/types';
 
 export class ResourceDto {
   @IsString()
@@ -40,7 +52,6 @@ export class ResourceDto {
 
   @IsString()
   @IsOptional()
-
   public resourceLevel4: ResourceTypeLevel4;
 
   @IsString()
@@ -83,12 +94,12 @@ export class ResourceDto {
   @IsOptional()
   public resourceOwnerReferences: JSON;
 }
-export class resourceTypeCustomerAccountIdDto {
-  @IsString()
+export class ResourceQueryDTO {
+  @Allow()
+  @IsOptional()
   public resourceType: ResourceType[];
-}
 
-export class resourceTypeResourceGroupIdDto {
-  @IsString()
-  public resourceType: ResourceType[];
+  @isBooleanString()
+  @IsOptional()
+  public excludeFailed: Boolean;
 }
