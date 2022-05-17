@@ -91,8 +91,7 @@ class GrafanaSettingController {
 
   public deleteGrafanaSetting = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const resourceGroupId = req.params.resourceGroupId;
-
-    console.log(resourceGroupId);
+    const grafanaType = req.params.grafanaType;
 
     try {
       const resourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);

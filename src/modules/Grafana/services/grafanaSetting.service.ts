@@ -75,6 +75,7 @@ class GrafanaSettingService extends ServiceExtension {
           where: {
             customerAccountKey,
             resourceGroupKey,
+            grafanaType: grafanaSettingData.grafanaType,
           },
         },
       );

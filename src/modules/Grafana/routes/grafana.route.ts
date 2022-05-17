@@ -38,7 +38,7 @@ class GrafanaRoute implements Routes {
       this.grafanaSettingController.createGrafanaSetting,
     );
     this.router.delete(
-      '/grafana/resourceGroup/:resourceGroupId/settings',
+      '/grafana/resourceGroup/:resourceGroupId/settings/:grafanaType',
       systemAuthMiddleware,
       authMiddleware,
       this.grafanaSettingController.deleteGrafanaSetting,
