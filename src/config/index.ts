@@ -97,20 +97,25 @@ export default {
     baseURL: process.env.FUSEBILL_BASE_URL,
   },
   ncCronApiDetail: {
-    baseURL: process.env.NC_CRON_URL || "http://localhost:5010/scheduler",
-    authToken: process.env.NC_CRON_X_AUTH_TOKEN || "CRON",
-
+    baseURL: process.env.NC_CRON_URL || 'http://localhost:5010/scheduler',
+    authToken: process.env.NC_CRON_X_AUTH_TOKEN || 'CRON',
   },
   sudoryApiDetail: {
-    authToken: process.env.SUDORY_X_AUTH_TOKEN || "SUDORY",
-    baseURL: process.env.SUDORY_BASE_URL || "http://localhost:8099",
-    pathCreateCluster: process.env.SUDORY_PATH_CREATECLUSTER || "/server/cluster",
-    pathCreateToken: process.env.SUDORY_PATH_CREATETOKEN || "/server/cluster_token",
-    pathSession: process.env.SUDORY_PATH_SESSION || "/server/session",
-    pathService: process.env.SUDORY_PATH_SERVICE || "/server/service",
-    channel_resource: process.env.SUDORY_SUBSCRIBED_CHANNEL_RESOURCE || "nc_resource",
-    channel_alert: process.env.SUDORY_SUBSCRIBED_CHANNEL_ALERT || "nc_alert",
-    channel_metric: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC || "nc_metric",
-    channel_metric_received: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED || "nc_metric_received"
+    authToken: process.env.SUDORY_X_AUTH_TOKEN || 'SUDORY',
+    baseURL: process.env.SUDORY_BASE_URL || 'http://localhost:8099',
+    pathCreateCluster: process.env.SUDORY_PATH_CREATECLUSTER || '/server/cluster',
+    pathCreateToken: process.env.SUDORY_PATH_CREATETOKEN || '/server/cluster_token',
+    pathSession: process.env.SUDORY_PATH_SESSION || '/server/session',
+    pathService: process.env.SUDORY_PATH_SERVICE || '/server/service',
+    channel_resource: process.env.SUDORY_SUBSCRIBED_CHANNEL_RESOURCE || 'nc_resource',
+    channel_alert: process.env.SUDORY_SUBSCRIBED_CHANNEL_ALERT || 'nc_alert',
+    channel_metric: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC || 'nc_metric',
+    channel_metric_received: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED || 'nc_metric_received',
+  },
+  fileUpload: {
+    awsS3Bucket: process.env.NC_LARI_AWS_S3_BUCKET,
+    awsS3AccessKeyId: process.env.NC_LARI_AWS_ACCESS_KEY_ID,
+    awsS3SecretAccessKey: process.env.NC_LARI_AWS_SECRET_ACCESS_KEY,
+    awsS3DefaultRegion: process.env.NC_LARI_AWS_DEFAULT_REGION,
   },
 };
