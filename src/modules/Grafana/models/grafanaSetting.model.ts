@@ -5,6 +5,7 @@ export interface IGrafanaSetting {
   grafanaSettingId: string;
   resourceGroupKey: number;
   customerAccountKey: number;
+  grafanaType: string;
   grafanaUrl: string;
   configJson: string;
   createdBy: number;
@@ -15,7 +16,16 @@ export interface IGrafanaSetting {
 
 export type GrafanaSettingCreationAttributes = Optional<
   IGrafanaSetting,
-  'grafanaSettingId' | 'grafanaSettingKey' | 'resourceGroupKey' | 'createdAt' | 'createdBy' | 'grafanaUrl' | 'configJson' | 'updatedAt' | 'updatedBy'
+  | 'grafanaSettingId'
+  | 'grafanaSettingKey'
+  | 'resourceGroupKey'
+  | 'createdAt'
+  | 'createdBy'
+  | 'grafanaUrl'
+  | 'grafanaType'
+  | 'configJson'
+  | 'updatedAt'
+  | 'updatedBy'
 >;
 
 export class GrafanaSettingModel extends Model<IGrafanaSetting, GrafanaSettingCreationAttributes> implements IGrafanaSetting {
@@ -24,6 +34,7 @@ export class GrafanaSettingModel extends Model<IGrafanaSetting, GrafanaSettingCr
   public customerAccountKey: number;
   public resourceGroupKey: number;
   public grafanaUrl: string;
+  public grafanaType: string;
   public configJson: string;
   public createdBy: number;
   public updatedBy: number;
@@ -49,15 +60,17 @@ export default function (sequelize: Sequelize): typeof GrafanaSettingModel {
       resourceGroupKey: {
         allowNull: false,
         type: DataTypes.INTEGER,
-        unique: 'unique_index',
       },
       customerAccountKey: {
         allowNull: false,
         type: DataTypes.INTEGER,
-        unique: 'unique_index',
+      },
+      grafanaType: {
+        type: DataTypes.STRING(15),
+        allowNull: false,
       },
       grafanaUrl: {
-        type: DataTypes.STRING(120),
+        type: DataTypes.STRING(500),
         allowNull: true,
       },
       configJson: {

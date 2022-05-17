@@ -13,16 +13,21 @@ class GrafanaSettingController {
     const resourceGroupId = req.params.resourceGroupId;
     const grafanaSettingData: CreateGrafanaSettingDto = req.body;
 
-    const resourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
-
-    if (!resourceGroup) {
-      res.status(500).json({ message: `resource group with id(${resourceGroupId}) does not found` });
-    }
-
     try {
+      const resourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+
+      if (!resourceGroup) {
+        res.status(500).json({ message: `resource group with id(${resourceGroupId}) does not found` });
+      }
+
       const customerAccountKey = req.customerAccountKey;
       const currentUserPartyKey = req.user.partyKey;
-      const createdGrafanaSetting: IGrafanaSetting = await this.grafanaSettingService.createGrafanaSetting(customerAccountKey, currentUserPartyKey, resourceGroup.resourceGroupKey, grafanaSettingData);
+      const createdGrafanaSetting: IGrafanaSetting = await this.grafanaSettingService.createGrafanaSetting(
+        customerAccountKey,
+        currentUserPartyKey,
+        resourceGroup.resourceGroupKey,
+        grafanaSettingData,
+      );
 
       res.status(201).json({ data: createdGrafanaSetting, message: 'created' });
     } catch (error) {
@@ -32,15 +37,26 @@ class GrafanaSettingController {
 
   public getGrafanaSetting = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
-    const GrafanaSettingId = req.params.GrafanaSettingId;
+    const grafanaType = req.params.grafanaType;
+    const resourceGroupId = req.params.resourceGroupId;
 
     try {
-      const GrafanaSetting: IGrafanaSetting = await this.grafanaSettingService.getGrafanaSettingById(customerAccountKey, GrafanaSettingId);
+      const resourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
 
-      if (GrafanaSetting) {
-        res.status(200).json({ data: GrafanaSetting, message: `find GrafanaSetting id(${GrafanaSettingId}) ` });
+      if (!resourceGroup) {
+        res.status(500).json({ message: `resource group with id(${resourceGroupId}) does not found` });
+      }
+
+      const grafanaSetting: IGrafanaSetting = await this.grafanaSettingService.getGrafanaSettingByResourceGroupId(
+        customerAccountKey,
+        resourceGroup.resourceGroupKey,
+        grafanaType,
+      );
+
+      if (grafanaSetting) {
+        res.status(200).json({ data: grafanaSetting, message: `Found GrafanaSetting id(${grafanaSetting.grafanaSettingId}) ` });
       } else {
-        res.status(404).json({ message: `GrafanaSetting id(${GrafanaSettingId}) not found` });
+        res.status(404).json({ message: `GrafanaSetting not found` });
       }
     } catch (error) {
       next(error);
@@ -48,42 +64,47 @@ class GrafanaSettingController {
   };
 
   public updateGrafanaSetting = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const customerAccountKey = req.customerAccountKey;
-    const GrafanaSettingId = req.params.GrafanaSettingId;
-    const grafanaSettingData: UpdateGrafanaSettingDto = req.body;
-
-    const GrafanaSetting = await this.grafanaSettingService.getGrafanaSettingById(customerAccountKey, GrafanaSettingId);
-
-    if (!GrafanaSetting) {
-      return res.sendStatus(404);
-    }
+    const resourceGroupId = req.params.resourceGroupId;
+    const grafanaSettingData: CreateGrafanaSettingDto = req.body;
 
     try {
-      const grafanaSettingData: CreateGrafanaSettingDto = req.body;
-      const logginedUserId = req.user.partyId;
+      const resourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
 
-      const updatedGrafanaSetting: IGrafanaSetting = await this.grafanaSettingService.updateGrafanaSetting(customerAccountKey, GrafanaSettingId, grafanaSettingData, logginedUserId);
-      res.status(200).json({ data: updatedGrafanaSetting, message: 'updated' });
+      if (!resourceGroup) {
+        res.status(500).json({ message: `resource group with id(${resourceGroupId}) does not found` });
+      }
+
+      const customerAccountKey = req.customerAccountKey;
+      const currentUserPartyKey = req.user.partyKey;
+      const updated: boolean = await this.grafanaSettingService.updateGrafanaSettingByGroupId(
+        customerAccountKey,
+        currentUserPartyKey,
+        resourceGroup.resourceGroupKey,
+        grafanaSettingData,
+      );
+
+      res.status(200).json({ updated });
     } catch (error) {
       next(error);
     }
   };
 
   public deleteGrafanaSetting = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const customerAccountKey = req.customerAccountKey;
-    const GrafanaSettingId = req.params.GrafanaSettingId;
+    const resourceGroupId = req.params.resourceGroupId;
 
-    const GrafanaSetting = await this.grafanaSettingService.getGrafanaSettingById(customerAccountKey, GrafanaSettingId);
-
-    if (!GrafanaSetting) {
-      return res.sendStatus(404);
-    }
+    console.log(resourceGroupId);
 
     try {
-      const logginedUserId = req.user.partyId;
+      const resourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
 
-      await this.grafanaSettingService.deleteGrafanaSettingById(customerAccountKey, GrafanaSettingId, logginedUserId);
-      res.status(204).json({ message: `delete GrafanaSetting id(${GrafanaSettingId})` });
+      if (!resourceGroup) {
+        res.status(500).json({ message: `resource group with id(${resourceGroupId}) does not found` });
+      }
+
+      const customerAccountKey = req.customerAccountKey;
+      const deleted: boolean = await this.grafanaSettingService.deleteGrafanaSettingByGroupId(customerAccountKey, resourceGroup.resourceGroupKey);
+
+      res.status(200).json({ deleted });
     } catch (error) {
       next(error);
     }
