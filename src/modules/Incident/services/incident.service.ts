@@ -70,7 +70,9 @@ class IncidentService {
       });
 
       return createIncidentData;
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -172,7 +174,9 @@ class IncidentService {
       );
 
       return this.getIncidentById(customerAccountKey, incidentId);
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
