@@ -26,7 +26,9 @@ class AlertRuleController extends ControllerExtension {
   public getAllAlertReceivedMostRecent = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const findAllAlertReceived: IAlertReceived[] = await this.alertReceivedService.getAllAlertReceivedMostRecent(customerAccountKey);
+      const query = JSON.parse(req.query.query as string);
+
+      const findAllAlertReceived: IAlertReceived[] = await this.alertReceivedService.getAllAlertReceivedMostRecent(customerAccountKey, query);
       res.status(200).json({ data: findAllAlertReceived, message: 'findAll' });
     } catch (error) {
       next(error);
