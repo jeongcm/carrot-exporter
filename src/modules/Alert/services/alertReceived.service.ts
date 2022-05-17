@@ -77,7 +77,7 @@ class AlertReceivedService extends ServiceExtension {
     console.log(query, extraQuery)
 
     const [results] = await DB.sequelize.query(`WITH recent_alerts AS (
-        SELECT m.*, ROW_NUMBER() OVER (PARTITION BY alert_received_name ORDER BY created_at ASC) AS rn
+        SELECT m.*, ROW_NUMBER() OVER (PARTITION BY alert_received_name, alert_rule_key, alert_received_state ORDER BY created_at ASC) AS rn
         FROM AlertReceived AS m
         WHERE customer_account_key = "${customerAccountKey}" AND deleted_at IS NULL${extraQuery}
       )
