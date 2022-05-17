@@ -46,7 +46,9 @@ import SubscribedProductModel from '@/modules/Subscriptions/models/subscribedPro
 import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
 import invitationModel from '@/modules/Party/models/invitation.model';
 import MetricMetaModel from '@/modules/Metric/models/metricMeta.model';
-import metricReceivedModel from '@/modules/Metric/models/metricReceived.model';
+import MetricReceivedModel from '@/modules/Metric/models/metricReceived.model';
+
+import GrafanaSettingModel from '@/modules/Grafana/models/grafanaSetting.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -123,7 +125,8 @@ const DB = {
   AlertRule: AlertRuleModel(sequelize),
   Invitation: invitationModel(sequelize),
   MetricMeta: MetricMetaModel(sequelize),
-  MetricReceived: metricReceivedModel(sequelize),
+  MetricReceived: MetricReceivedModel(sequelize),
+  GrafanaSetting: GrafanaSettingModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
