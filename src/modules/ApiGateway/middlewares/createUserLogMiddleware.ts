@@ -34,8 +34,12 @@ const createUserLogMiddleware = async (req, res: Response, next: NextFunction) =
     },
   });
 
+  next();
+
+/*
   try {
     // TODO: handle better if an API is not in the API table
+
     if (apiFound) {
       const responseTableIdData: IResponseIssueTableIdDto = await tableIdService.issueTableId('PartyUserLogs');
 
@@ -45,12 +49,15 @@ const createUserLogMiddleware = async (req, res: Response, next: NextFunction) =
         apiKey: apiFound.apiKey,
         createdBy: partyUserId,
       });
+
     }
 
     return next();
   } catch (error) {
     return next(error);
   }
+*/
+
 };
 
 export default createUserLogMiddleware;

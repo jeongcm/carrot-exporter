@@ -68,7 +68,7 @@ class App {
   private initializeMiddlewares() {
     this.app.use(morgan(config.logFormat, { stream }));
     this.app.use(cors({ origin: config.cors.allowAnyOrigin, credentials: config.cors.credentials }));
-    this.app.use(hpp({ whitelist: ['resourceType'] }));
+    this.app.use(hpp({ whitelist: ['resourceType', 'query'] }));
     this.app.use(helmet());
     this.app.use(compression());
     this.app.use(express.json({ limit: config.maxApiBodySize }));

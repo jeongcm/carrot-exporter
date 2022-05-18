@@ -511,7 +511,7 @@ class PartyService {
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);
 
-    await this.partyUser.update({ lastAccessAt: new Date() }, { where: { userId: loginData.userId } });
+    // await this.partyUser.update({ lastAccessAt: new Date() }, { where: { userId: loginData.userId } });
 
     return { cookie, findUser, token: tokenData.token };
   }
@@ -519,7 +519,7 @@ class PartyService {
   public createToken(user: IPartyUser): ITokenData {
     const dataStoredInToken: IDataStoredInToken = { partyUserKey: user.partyUserKey };
     const secretKey: string = config.auth.jwtSecretKey;
-    const expiresIn: number = 60 * 60;
+    const expiresIn: number = config.auth.authTokenExpirySecond; // 60 * 60;
 
     return { expiresIn, token: jwt.sign(dataStoredInToken, secretKey, { expiresIn }) };
   }

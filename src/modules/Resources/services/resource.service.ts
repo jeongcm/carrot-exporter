@@ -9,7 +9,7 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-
+import { Op } from 'sequelize';
 class ResourceService {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
@@ -144,16 +144,69 @@ class ResourceService {
   /**
    * @param  {string} resourceType
    * @param  {number} resourceGroupId
+   * @param  {any} query
    */
-  public async getResourceByTypeResourceGroupId(resourceType: string[], resourceGroupId: string): Promise<IResource[]> {
+  public async getResourceByTypeResourceGroupId(resourceType: string[], resourceGroupId: string, query?: any): Promise<IResource[]> {
     const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
 
+    const resourceQuery = this.getResourceQuery(query);
+
     const allResources: IResource[] = await this.resource.findAll({
-      where: { deletedAt: null, resourceType: resourceType, resourceGroupKey: resourceGroupKey },
+      where: {
+        deletedAt: null,
+        resourceType,
+        resourceGroupKey: resourceGroupKey,
+        [Op.and]: [...resourceQuery],
+      },
     });
-    console.log(allResources);
+
     return allResources;
+  }
+
+  /**
+   * generates sequelize query object to query resource more efficiently
+   *
+   * @param  {any} query
+   */
+  private getResourceQuery(query: any) {
+    let generatedQuery: any[] = [];
+
+    if (query.excludeFailed === true) {
+      generatedQuery.push({
+        [Op.or]: [
+          {
+            resourcePodPhase: {
+              [Op.eq]: null,
+            },
+          },
+          {
+            resourcePodPhase: {
+              [Op.ne]: 'Failed',
+            },
+          },
+          {
+            resourcePodPhase: {
+              [Op.eq]: 'Running',
+            },
+          },
+          {
+            resourcePodPhase: {
+              [Op.eq]: 'Active',
+            },
+          },
+          {
+            resourceStatus: {
+              phase: {
+                [Op.eq]: 'Active',
+              },
+            },
+          },
+        ],
+      });
+    }
+
+    return generatedQuery;
   }
 }
 
