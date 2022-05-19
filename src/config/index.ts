@@ -113,9 +113,10 @@ export default {
     channel_metric_received: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED || 'nc_metric_received',
   },
   fileUpload: {
-    awsS3Bucket: process.env.NC_LARI_AWS_S3_BUCKET,
-    awsS3AccessKeyId: process.env.NC_LARI_AWS_ACCESS_KEY_ID,
-    awsS3SecretAccessKey: process.env.NC_LARI_AWS_SECRET_ACCESS_KEY,
-    awsS3DefaultRegion: process.env.NC_LARI_AWS_DEFAULT_REGION,
+    DOBucket: process.env.NC_LARI_DO_BUCKET,
+    DOAccessKeyId: process.env.NC_LARI_DO_ACCESS_KEY_ID,
+    DOSecretAccessKey: process.env.NC_LARI_DO_SECRET_ACCESS_KEY,
+    awsS3DefaultRegion: process.env.NC_LARI_DO_DEFAULT_REGION,
+    DOEndPoint: process.env.NC_LARI_DO_ENDPOINT
   },
 };
