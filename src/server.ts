@@ -32,6 +32,13 @@ import massUploaderRoute from './modules/CommonService/routes/massUploader.route
 
 import InvitationRoute from './modules/Party/routes/invitation.route';
 import MetricRoute from './modules/Metric/routes/metric.route';
+
+import DiscountRoute from './modules/Billing/routes/discount.route';
+import CouponRoute from './modules/Billing/routes/coupon.route';
+import BillingAccountRoute from './modules/Billing/routes/billingAccount.route';
+import PaymentTenderRoute from './modules/Billing/routes/paymentTender.route';
+import BillingAccountDiscountRoute from './modules/Billing/routes/billingAccountDiscount.route';
+
 import ExecutorRoute from './modules/CommonService/routes/executor.route';
 import GrafanaRoute from './modules/Grafana/routes/grafana.route';
 
@@ -67,6 +74,11 @@ const app = new App([
 
   new InvitationRoute(),
   new MetricRoute(),
+  new DiscountRoute(),
+  new CouponRoute(),
+  new BillingAccountRoute(),
+  new PaymentTenderRoute(),
+  new BillingAccountDiscountRoute(),
   new ExecutorRoute(),
 
   new GrafanaRoute(),
