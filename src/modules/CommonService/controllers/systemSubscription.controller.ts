@@ -32,7 +32,6 @@ class SystemSubscriptionController {
             customerAccountType: null
           };
           const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, systemId || partyId);
-          console.log("createdCustomerAccount=====================", createdCustomerAccount)
           const partyData =
           {
             partyName: companyName || `${firstName} ${lastName}`,
