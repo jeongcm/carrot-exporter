@@ -21,6 +21,18 @@ class AddressService {
   public custoemrAccountAdress = DB.CustomerAccountAddress;
   public tableIdService = new tableIdService();
 
+  public async findAdreesKeyById(addressId: string): Promise<number> {
+    if (isEmpty(addressId)) throw new HttpException(400, 'Not a valid Address Id');
+
+    const findAddress: IAddress = await this.address.findOne({
+      where: { addressId, deletedAt: null },
+      attributes: { exclude: ['addressId', 'deletedAt', 'updatedBy', 'createdBy'] },
+    });
+    if (!findAddress) throw new HttpException(409, 'Address Not found');
+
+    return findAddress.addressKey;
+  }
+
   public async createAddress(addressData: CreateAddressDto, logginedUserId: string): Promise<IAddress> {
     if (isEmpty(addressData)) throw new HttpException(400, 'Address must not be empty');
 

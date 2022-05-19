@@ -6,6 +6,7 @@ import validationMiddleware from '@/common/middlewares/validation.middleware';
 import { CreateSubscribedProductDto, CreateSubscriptionDto, UpdateSubscriptionDto } from '@/modules/Subscriptions/dtos/subscriptions.dto';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
+import systemAuthMiddleware from '@/modules/ApiGateway/middlewares/systemAuth.middleware';
 
 class SubscriptionRoute implements Routes {
   public router = Router();
@@ -17,7 +18,7 @@ class SubscriptionRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/subscription', authMiddleware, validationMiddleware(CreateSubscriptionDto, 'body'), createUserLogMiddleware,  this.subscriptionController.createSubscriptions);
+    this.router.post('/subscription', systemAuthMiddleware, validationMiddleware(CreateSubscriptionDto, 'body'), createUserLogMiddleware,  this.subscriptionController.createSubscriptions);
     this.router.get('/subscriptions', authMiddleware, createUserLogMiddleware, this.subscriptionController.getAllSubscriptions);
     this.router.get('/subscription/:subscriptionId', authMiddleware, createUserLogMiddleware, this.subscriptionController.findSubscription);
     this.router.put('/subscription/:subscriptionId', authMiddleware, validationMiddleware(UpdateSubscriptionDto, 'body'), createUserLogMiddleware, this.subscriptionController.updateSubscription);

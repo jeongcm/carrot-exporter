@@ -46,9 +46,15 @@ import SubscribedProductModel from '@/modules/Subscriptions/models/subscribedPro
 import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
 import invitationModel from '@/modules/Party/models/invitation.model';
 import MetricMetaModel from '@/modules/Metric/models/metricMeta.model';
-import MetricReceivedModel from '@/modules/Metric/models/metricReceived.model';
 
+import metricReceivedModel from '@/modules/Metric/models/metricReceived.model';
+import discountModel from '@/modules/Billing/models/discount.model';
+import couponModel from '@/modules/Billing/models/coupon.model';
+import billingAccountDiscountModel from '@/modules/Billing/models/billingAccountDiscount.model';
+import billingAccountModel from '@/modules/Billing/models/billingAccount.model';
+import paymentTenderModel from '@/modules/Billing/models/paymentTender.model';
 import GrafanaSettingModel from '@/modules/Grafana/models/grafanaSetting.model';
+
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -125,8 +131,14 @@ const DB = {
   AlertRule: AlertRuleModel(sequelize),
   Invitation: invitationModel(sequelize),
   MetricMeta: MetricMetaModel(sequelize),
-  MetricReceived: MetricReceivedModel(sequelize),
+  MetricReceived: metricReceivedModel(sequelize),
+  Discount: discountModel(sequelize),
+  Coupon: couponModel(sequelize),
+  BillingAccountDiscount: billingAccountDiscountModel(sequelize),
+  BillingAccount: billingAccountModel(sequelize),
+  PaymentTender: paymentTenderModel(sequelize),
   GrafanaSetting: GrafanaSettingModel(sequelize),
+
   sequelize, // connection instance (RAW queries)
 };
 
@@ -152,6 +164,9 @@ DB.ResourceGroup.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey
 
 DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resourceGroupKey' });
 DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
+
+DB.Discount.hasMany(DB.Coupon, { foreignKey: 'discountKey' });
+DB.Coupon.belongsTo(DB.Discount, { foreignKey: 'discountKey' });
 
 DB.Party.hasMany(DB.Incident, { foreignKey: 'assigneeKey', as: 'incidents' });
 DB.Incident.belongsTo(DB.Party, { foreignKey: 'assigneeKey', as: 'assignee' });
@@ -327,6 +342,22 @@ DB.MetricMeta.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' }
 
 DB.Resource.hasMany(DB.MetricMeta, { foreignKey: 'resourceKey' });
 DB.MetricMeta.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
+
+DB.BillingAccount.hasMany(DB.PaymentTender, { foreignKey: 'billingAccountKey' });
+DB.PaymentTender.belongsTo(DB.BillingAccount, { foreignKey: 'billingAccountKey' });
+
+DB.CustomerAccount.hasMany(DB.BillingAccount, { foreignKey: 'customerAccountKey' });
+DB.BillingAccount.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.Address.hasOne(DB.BillingAccount, { foreignKey: 'addressKey' });
+DB.BillingAccount.belongsTo(DB.Address, { foreignKey: 'addressKey' });
+
+DB.BillingAccount.hasOne(DB.BillingAccountDiscount, { foreignKey: 'billingAccountKey' });
+DB.BillingAccountDiscount.belongsTo(DB.BillingAccount, { foreignKey: 'billingAccountKey' });
+
+DB.Discount.hasOne(DB.BillingAccountDiscount, { foreignKey: 'discountKey' });
+DB.BillingAccountDiscount.belongsTo(DB.Discount, { foreignKey: 'discountKey' })
+
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
