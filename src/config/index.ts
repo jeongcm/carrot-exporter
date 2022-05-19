@@ -54,6 +54,7 @@ export default {
   auth: {
     jwtSecretKey: process.env.NC_LARI_JWT_SECRET_KEY,
     systemVerifyKey: process.env.NC_LARI_SYSTEM_NAME,
+    authTokenExpirySecond: Number(process.env.AUTH_TOKEN_EXPIRY_SECOND) || 60 * 60 * 3,
   },
   socialKey: {
     github: {
@@ -98,7 +99,7 @@ export default {
   ncCronApiDetail: {
     baseURL: process.env.NC_CRON_URL || "http://localhost:5010/scheduler",
     authToken: process.env.NC_CRON_X_AUTH_TOKEN || "CRON",
-    
+
   },
   sudoryApiDetail: {
     authToken: process.env.SUDORY_X_AUTH_TOKEN || "SUDORY",

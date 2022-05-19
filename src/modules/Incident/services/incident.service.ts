@@ -27,6 +27,7 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachment.dto';
+import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
 
 /**
  * @memberof Incident
@@ -69,7 +70,9 @@ class IncidentService {
       });
 
       return createIncidentData;
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -171,7 +174,9 @@ class IncidentService {
       );
 
       return this.getIncidentById(customerAccountKey, incidentId);
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -520,6 +525,31 @@ class IncidentService {
     } catch (error) {}
   }
 
+  public async getAlertByIncidentKey(customerAccountKey: number, incidentKey: number): Promise<any> {
+    try {
+      const foundIncidentWithAlerts = await this.incident.findOne({
+        where: {
+          incidentKey,
+        },
+        include: [
+          {
+            model: this.alertReceived,
+            required: false,
+            as: 'alertReceived',
+          },
+        ],
+      });
+
+      if (!foundIncidentWithAlerts) {
+        throw new HttpException(400, 'Incident not found');
+      }
+
+      return foundIncidentWithAlerts?.alertReceived;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   public async addAlertReceivedtoIncident(
     customerAccountKey: number,
     incidentId: string,
@@ -546,7 +576,7 @@ class IncidentService {
 
       const alertReceivedKeyList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedKey);
 
-      let insertDataList = [];
+      const insertDataList = [];
 
       for (const alertReceivedKey of alertReceivedKeyList) {
         const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
@@ -560,7 +590,9 @@ class IncidentService {
       }
 
       return await this.incidentAlertReceived.bulkCreate(insertDataList, { returning: true });
-    } catch (error) {}
+    } catch (error) {
+      throw error;
+    }
   }
 
   public async dropAlertReceivedfromIncident(
@@ -569,30 +601,42 @@ class IncidentService {
     dropAlertReceivedData: DropAlertReceivedFromIncidentDto,
     logginedUserId: string,
   ): Promise<any> {
-    const { incidentKey = undefined } = await this.getIncidentKey(customerAccountKey, incidentId);
+    try {
+      const { incidentKey = undefined } = await this.getIncidentKey(customerAccountKey, incidentId);
 
-    const { alertReceivedIds } = dropAlertReceivedData;
+      const { alertReceivedIds } = dropAlertReceivedData;
 
-    const alertReceivedDetails = await this.alertReceived.findAll({
-      where: { alertReceivedId: { [Op.in]: alertReceivedIds } },
-      attributes: ['alertReceivedKey'],
-    });
+      const alertReceivedDetails = await this.alertReceived.findAll({
+        where: { alertReceivedId: { [Op.in]: alertReceivedIds } },
+        attributes: ['alertReceivedKey'],
+      });
 
-    if (!alertReceivedDetails.length) {
-      return 'alertReceivedId error';
-    }
+      if (!alertReceivedDetails.length) {
+        return 'alertReceivedId error';
+      }
 
-    const alertReceivedKeyList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedKey);
+      const alertReceivedKeyList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedKey);
 
-    await this.incidentAlertReceived.update(
-      { deletedAt: new Date(), updatedBy: logginedUserId },
-      {
+      await this.incidentAlertReceived.update(
+        { deletedBy: logginedUserId },
+        {
+          where: {
+            incidentKey,
+            alertReceivedKey: { [Op.in]: alertReceivedKeyList },
+          },
+        },
+      );
+      const result = await this.incidentAlertReceived.destroy({
         where: {
           incidentKey,
           alertReceivedKey: { [Op.in]: alertReceivedKeyList },
         },
-      },
-    );
+      });
+
+      return result > 0 ? 'deleted' : false;
+    } catch (error) {
+      throw error;
+    }
   }
 }
 

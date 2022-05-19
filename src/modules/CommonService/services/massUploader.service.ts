@@ -6,62 +6,63 @@ import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IResourceTargetUuid } from '@/common/interfaces/resource.interface';
-import debug from 'debug';
+//import { condition } from 'sequelize';
+import Connection from 'mysql2/typings/mysql/lib/Connection';
+import DB from '@/database';
+//import { ConnectionAcquireTimeoutError } from 'sequelize/types';
+
 
 class massUploaderService {
   public tableIdService = new tableIdService();
   public resourceGroupService = new resourceGroupService(); 
   public resourceService = new resourceService(); 
 
-  public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<IResponseMassUploader> {
+  public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<string> {
     const targetTable = 'Resource';
-    var fieldCount = 0;
-    var affectedRows = 0;
-    var insertId = 0;
-    var info = '';
+    const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const sizeOfInput = resourceMassFeed.resource.length;
-    //const for deadlock processing
-    const retries = config.deadLock.retries || 5;
-    const maxMillis = config.deadLock.maxMillis || 100;
-    const minMillis = config.deadLock.maxMillis || 1;
-
     // process bulk id for Resource table
     const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk(targetTable, sizeOfInput);
     const resource_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
     var resource_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
     var resource_id_postfix = '';
     const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
-
     // search for customerAccount & resourceGroup key
     const resourceGroupUuid = resourceMassFeed.resource_Group_Uuid;
     const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid); 
     const customerAccountKey = responseResourceGroup.customerAccountKey;
     const resourceGroupKey = responseResourceGroup.resourceGroupKey;
     const resourceType = resourceMassFeed.resource_Type; 
-
     // mass upload #1
     // update resource deactivated if there is no matched resoure in NC database. 
     const currentResourceFiltered: IResourceTargetUuid[] = await this.resourceService.getResourceForMass(resourceType, resourceGroupKey, customerAccountKey); 
     const sizeOfCurrentResource =  currentResourceFiltered.length;
+    var sleepMillis = Math.floor((Math.random()*1000)+1000);
+    //const maxRetry = config.deadLock.retries; 
+    //var retrycount = 0;
 
     var currentResource = new Array();
     for (let i = 0; i < sizeOfCurrentResource; i++) {
         currentResource[i] =  currentResourceFiltered[i].resourceTargetUuid;
     } 
-
+    console.log("********in db********************")
+    console.log(currentResource);
     var newResourceReceived = new Array();
     for (let i = 0; i < sizeOfInput; i++) {
         newResourceReceived [i]=  resourceMassFeed.resource[i].resource_Target_Uuid;
     } 
+    console.log("********in msg********************")
+    console.log(newResourceReceived);
 
-    // filter only for the resource that is needed to be deleted. 
+    // filter only for the resource that is needed to be deleted softly. 
     const difference = currentResource.filter(o1 => !newResourceReceived.includes(o1));
     const lengthOfDifference = difference.length;
+    console.log("********in difference********************")
+    console.log(lengthOfDifference); 
 
     // mass upload #2
-    // query below will cover "insert" of new resources or "update" of existing resources. 
-
-    const query1 = `INSERT INTO Resource (resource_id, created_by, created_at, resource_target_uuid, resource_target_created_at, 
+    // query below will cover "insert" of new resources or "update" of existing resources.    
+    const query1 = `INSERT INTO Resource (resource_id, created_by, created_at, resource_target_uuid, resource_target_created_at,
                       resource_name, resource_namespace, resource_type, resource_labels, resource_annotations, resource_owner_references, resource_description, resource_status,
                       resource_level1, resource_level2, resource_level3, resource_level4, resource_level_type, resource_instance,
                       resource_pod_phase, resource_pod_container, resource_pod_volume, resource_replicas, resource_sts_volume_claim_templates,
@@ -117,9 +118,7 @@ class massUploaderService {
                       updated_at=VALUES(created_at),
                       updated_by=VALUES(created_by)        
                       `;
-
     var query2 = new Array();
-
     for (let i = 0; i < sizeOfInput; i++) {
         // create resource_id 
         resource_id_postfix_number = resource_id_postfix_number + 1;
@@ -145,7 +144,7 @@ class massUploaderService {
         query2[i] = [
             resource_id, //resource_Id
             'SYSTEM', // created_By
-            new Date(), //created_At
+            currentTime, //created_At
             resourceMassFeed.resource[i].resource_Target_Uuid, 
             resource_Target_Created_At, 
             resourceMassFeed.resource[i].resource_Name, 
@@ -192,91 +191,80 @@ class massUploaderService {
         //resource_Target_Created_At = null;
     }
 
-    console.log('**********************************');
-    console.log(' db connect for raw SQL execution');
-    console.log('**********************************');
-
-    const mysql = require('mysql2');
-
-    const mysqlConnection = mysql.createConnection({
+    const mysql = require('mysql2/promise');
+    const mysqlConnection = await mysql.createConnection({
         host: config.db.mariadb.host,
         user: config.db.mariadb.user,
         port: config.db.mariadb.port || 3306,
         password: config.db.mariadb.password,
         database: config.db.mariadb.dbName,
         multipleStatements: true,
-        //          minimumpoolsize: config.db.mariadb.poolMin,
-        //          maximumpoolsize: config.db.mariadb.poolMin,
     });
-
-    mysqlConnection.connect(function(err) {
-        if (err) {
-            console.log('DB connection error' + err.stack);
-            return;
-        } 
-        console.log('DB connected for raw SQL run, ' + mysqlConnection.threadId);
-
-      });
-
-    //create sql to delete the retired resources if exist.   
-    if (lengthOfDifference > 0) {
-        var query_delete = ""; 
-        query_delete += "UPDATE Resource SET deleted_at = NOW(), updated_at = NOW(), updated_by = 'SYSTEM', resource_active = 0  WHERE resource_target_uuid IN (";
-        for (let i = 0; i < lengthOfDifference; i++) {
-            if (lengthOfDifference == 1) {
-                query_delete += "'" + difference[i] + "')"; 
+    
+    await mysqlConnection.query('START TRANSACTION');
+    try { 
+        //create sql to delete the retired resources if exist.   
+        if (lengthOfDifference > 0) {
+            var query_delete = ""; 
+            query_delete += "UPDATE Resource SET deleted_at = NOW(), updated_at = NOW(), updated_by = 'SYSTEM', resource_active = 0  WHERE resource_target_uuid IN (";
+            for (let i = 0; i < lengthOfDifference; i++) {
+                if (lengthOfDifference == 1) {
+                    query_delete += "'" + difference[i] + "')"; 
+                }
+                else if (i==(lengthOfDifference-1)) {
+                    query_delete += "'" + difference[i] + "')"; 
+                }
+                else {
+                    query_delete += "'" + difference[i] + "',";
+                }
             }
-            else if (i==(lengthOfDifference-1)) {
-                query_delete += "'" + difference[i] + "')"; 
+            await mysqlConnection.query(query_delete);
+            await mysqlConnection.query('COMMIT');
+        } // end of soft delete
+        
+        await mysqlConnection.query(query1, [query2])
+        await mysqlConnection.query('COMMIT');
+        
+    } catch (err){
+        console.error(`Error occurred while creating resource: ${err.message}`, err);
+        await mysqlConnection.query('ROLLBACK');
+        await mysqlConnection.end();
+        console.info('Rollback successful');
+        throw err `error on sql execution: ${resourceType}`;
+/*        if (err && (+err.errno == 1205 || +err.errno == 1213 )) {  //deadlock or timeout
+            mysqlConnection.query('ROLLBACK');
+            console.log("resourceType", resourceType);
+            console.log("deadlock retry:",retrycount);
+            console.log("max retry:",maxRetry);
+            if (maxRetry > retrycount) {
+                setTimeout(() => {
+                    console.log("timeout");     
+                }, 500);
+                mysqlConnection.query(query1, [query2])
+                mysqlConnection.query('COMMIT');
+                retrycount++;
             }
-            else {
-                query_delete += "'" + difference[i] + "',";
+            else{
+                console.error(`Error occurred while creating resource: ${err.message}`, err);
+                await mysqlConnection.query('ROLLBACK');
+                await mysqlConnection.end();
+                console.info('Rollback successful');
+                throw err `error on sql execution: ${resourceType}`;
             }
         }    
-
-        // run update query to process delete resource data softly
-        mysqlConnection.query(query_delete, function(err,result) {
-            if (err) {
-                mysqlConnection.rollback(function(){
-                    mysqlConnection.end();
-                    console.log(err.code);
-                    throw err;
-                });
-            }    
-            mysqlConnection.commit(function(){
-                    console.log("success on soft-delete query");
-            });  
-        });     // end of query
-    } // end of soft delete
-
-    //run insert/status update query
-    mysqlConnection.query(query1, [query2], function(err,result) {
-        if (err) {
-            mysqlConnection.rollback(function(){
-                mysqlConnection.end();
-                console.log(err.code);
-                throw err;
-            });
-        }    
-        mysqlConnection.commit(function(){
-                console.log("success on insert/update query");
-        });  
-    });     // end of query
-
-    mysqlConnection.end();
-    console.log('**********************************');
-    console.log(' db connection closed');
-    console.log('**********************************');
-
-    const updateResult: IResponseMassUploader = {
-//      fieldCount,
-//      affectedRows,
-//      insertId,
-//      info,
-      targetTable,
-    };
-    return updateResult;
-  } // end of massUploadResource
+        else {
+            console.error(`Error occurred while creating resource: ${err.message}`, err);
+            await mysqlConnection.query('ROLLBACK');
+            await mysqlConnection.end();
+            console.info('Rollback successful');
+            throw err `error on sql execution: ${resourceType}`;
+        }
+*/        
+    }
+    await mysqlConnection.end();
+    return "successful DB update ";
+} // end of massUploadResource
+  
 }
 
 export default massUploaderService;

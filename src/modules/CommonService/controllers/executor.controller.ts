@@ -207,8 +207,9 @@ class executorController{
         try {
             const clusterUuid = req.body.clusterUuid; 
             const resourceType = req.body.resourceType;
+            const cronTab = req.body.cronTab;
             
-            const cronJobKey: string = await this.executorService.scheduleResource(clusterUuid, resourceType);
+            const cronJobKey: string = await this.executorService.scheduleResource(clusterUuid, resourceType,cronTab);
             res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule resource interfaces` });
     
         } catch (error) {

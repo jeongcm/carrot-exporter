@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
-import { ResourceDto, resourceTypeCustomerAccountIdDto, resourceTypeResourceGroupIdDto } from '../dtos/resource.dto';
+import { ResourceDto, ResourceQueryDTO } from '../dtos/resource.dto';
 import ResourceController from '../controllers/resource.controller';
 import systemAuthMiddleware from '@/modules/ApiGateway/middlewares/systemAuth.middleware';
 import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
@@ -28,15 +28,14 @@ class ResourceRoute implements Routes {
     this.router.get('/resource/:resourceId', systemAuthMiddleware, authMiddleware, createUserLogMiddleware, this.resourceController.getResourceById);
     this.router.get(
       '/resource/customerAccount/:customerAccountId',
-      validationMiddleware(resourceTypeCustomerAccountIdDto, 'query'),
+      validationMiddleware(ResourceQueryDTO, 'query'),
       authMiddleware,
       createUserLogMiddleware,
       this.resourceController.getResourceByTypeCustomerAccountId,
     );
     this.router.get(
-
       '/resource/resourceGroup/:resourceGroupId',
-      validationMiddleware(resourceTypeResourceGroupIdDto, 'query'),
+      validationMiddleware(ResourceQueryDTO, 'query'),
       authMiddleware,
       createUserLogMiddleware,
       this.resourceController.getResourceByTypeResourceGroupId,

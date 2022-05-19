@@ -46,12 +46,15 @@ import SubscribedProductModel from '@/modules/Subscriptions/models/subscribedPro
 import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
 import invitationModel from '@/modules/Party/models/invitation.model';
 import MetricMetaModel from '@/modules/Metric/models/metricMeta.model';
+
 import metricReceivedModel from '@/modules/Metric/models/metricReceived.model';
 import discountModel from '@/modules/Billing/models/discount.model';
 import couponModel from '@/modules/Billing/models/coupon.model';
 import billingAccountDiscountModel from '@/modules/Billing/models/billingAccountDiscount.model';
 import billingAccountModel from '@/modules/Billing/models/billingAccount.model';
 import paymentTenderModel from '@/modules/Billing/models/paymentTender.model';
+import GrafanaSettingModel from '@/modules/Grafana/models/grafanaSetting.model';
+
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -134,6 +137,8 @@ const DB = {
   BillingAccountDiscount: billingAccountDiscountModel(sequelize),
   BillingAccount: billingAccountModel(sequelize),
   PaymentTender: paymentTenderModel(sequelize),
+  GrafanaSetting: GrafanaSettingModel(sequelize),
+
   sequelize, // connection instance (RAW queries)
 };
 
@@ -199,15 +204,16 @@ DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' })
 // DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
 
 DB.Incident.belongsToMany(DB.AlertReceived, {
-  through: 'IncidentAlertReceived',
+  through: DB.IncidentAlertReceived,
   foreignKey: 'incidentKey',
   otherKey: 'alertReceivedKey',
   as: 'alertReceived',
 });
 DB.AlertReceived.belongsToMany(DB.Incident, {
-  through: 'IncidentAlertReceived',
+  through: DB.IncidentAlertReceived,
   foreignKey: 'alertReceivedKey',
   otherKey: 'incidentKey',
+  as: 'incidents',
 });
 
 DB.CustomerAccount.belongsToMany(DB.Address, {
@@ -227,6 +233,9 @@ DB.AlertRule.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' })
 
 DB.AlertRule.hasMany(DB.AlertReceived, { foreignKey: 'alertRuleKey' });
 DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey', as: 'alertRule' });
+
+DB.AlertRule.hasMany(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
+DB.ResourceGroup.belongsTo(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
 
 DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' });
 DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });

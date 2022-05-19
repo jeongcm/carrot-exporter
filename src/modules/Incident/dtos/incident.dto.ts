@@ -65,10 +65,10 @@ export class UpdateIncidentStatusDto {
 
 export class AddAlertReceivedToIncidentDto {
   @IsNotEmpty()
-  public alertReceivedIds: [string];
+  public alertReceivedIds: string[];
 }
 
 export class DropAlertReceivedFromIncidentDto {
   @IsNotEmpty()
-  public alertReceivedIds: [string];
+  public alertReceivedIds: string[];
 }

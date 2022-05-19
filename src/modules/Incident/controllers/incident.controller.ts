@@ -372,6 +372,25 @@ class IncidentController {
     }
   };
 
+  public getAlertByIncidentId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const incidentId = req.params.incidentId;
+
+    const { incidentKey } = await this.incidentService.getIncidentKey(customerAccountKey, incidentId);
+
+    if (!incidentKey) {
+      return res.status(404).json({ message: `Incident Key for (${incidentId}) not found` });
+    }
+
+    try {
+      const incidentAlerts: any = await this.incidentService.getAlertByIncidentKey(customerAccountKey, incidentKey);
+
+      return res.status(200).json({ data: incidentAlerts, message: 'FOUND' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public addAlertReceivedtoIncident = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
     const incidentId = req.params.incidentId;
@@ -427,7 +446,9 @@ class IncidentController {
       if (dropAlertReceived === 'alertReceivedId error') {
         return res.status(404).json({ message: `Check AlertReceivedIds (${dropAlertReceivedData?.alertReceivedIds}) again.` });
       } else if (dropAlertReceived === 'deleted') {
-        res.status(204).json({ message: 'deleted' });
+        return res.status(204).json({ message: 'deleted' });
+      } else {
+        return res.status(500).json({ message: 'could not delete' });
       }
     } catch (error) {
       next(error);

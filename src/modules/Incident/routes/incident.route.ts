@@ -90,7 +90,7 @@ class IncidentRoute implements Routes {
       this.incidentController.updateIncidentActionAttachment,
     );
 
-    // this.router.get('/incidents/:incidentId/relates/alerts', authMiddleware, this.incidentController.getAlertByIncident);
+    this.router.get('/incidents/:incidentId/relates/alerts', authMiddleware, this.incidentController.getAlertByIncidentId);
 
     this.router.post(
       '/incidents/:incidentId/relates/alerts',

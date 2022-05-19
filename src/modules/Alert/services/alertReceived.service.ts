@@ -2,34 +2,84 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { IAlertReceived, IAlertReceivedDetailed } from '@/common/interfaces/alertReceived.interface';
 import { isEmpty } from '@/common/utils/util';
 import DB from '@/database';
-import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
-import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { AlertReceivedDto } from '../dtos/alertReceived.dto';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import AlertRuleService from './alertRule.service';
 import { AlertRuleModel } from '@/modules/Alert/models/alertRule.model';
+import ServiceExtension from '@/common/extentions/service.extension';
 
 const { Op } = require('sequelize');
 
-class AlertReceivedService {
-  public tableIdService = new TableIdService();
-  public alertRule = DB.AlertRule;
+const ALERT_STATUS = {
+  firing: 'firing',
+  pending: 'pending',
+  resolved: 'resolved',
+};
+
+class AlertReceivedService extends ServiceExtension {
+  private alertRule = DB.AlertRule;
   public alertReceived = DB.AlertReceived;
   public alertRuleService = new AlertRuleService();
+  private resourceGroup = DB.ResourceGroup;
+
+  constructor() {
+    super({
+      tableName: 'AlertReceived',
+    });
+  }
 
   public async getAllAlertReceived(customerAccountKey: number): Promise<IAlertReceived[]> {
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+      include: [{
+        model: this.alertRule,
+        as: 'alertRule',
+        include: [{
+          model: this.resourceGroup,
+        }]
+      }],
     });
     return allAlertReceived;
   }
 
-  public async getAllAlertReceivedMostRecent(customerAccountKey: number): Promise<IAlertReceivedWithRule[]> {
+  private getWhereClauseFrom(query: any[], op: 'AND' | 'OR') {
+    let where = '';
+    query.forEach((value: any) => {
+      let symbol = '';
+      switch ((value.op || '').toUpperCase()) {
+        case 'EQ':
+          symbol = '=';
+          break;
+        default:
+      }
+
+      switch (value.name) {
+        case 'alertReceivedState':
+          where = ` ${op} alert_received_state ${symbol} "${ALERT_STATUS[value.value]}"`;
+          break;
+      }
+    });
+
+    return where;
+  }
+
+  public async getAllAlertReceivedMostRecent(customerAccountKey: number, query?: any[]): Promise<IAlertReceivedWithRule[]> {
+    if (query && !Array.isArray(query)) {
+      this.throwError('EXCEPTION', 'incorrect query format');
+    }
+    const extraQuery = this.getWhereClauseFrom(query, 'AND');
+
+    if (query.length > 0 && !extraQuery) {
+      return [];
+    }
+
+    console.log(query, extraQuery)
+
     const [results] = await DB.sequelize.query(`WITH recent_alerts AS (
-        SELECT m.*, ROW_NUMBER() OVER (PARTITION BY alert_received_name ORDER BY created_at ASC) AS rn
+        SELECT m.*, ROW_NUMBER() OVER (PARTITION BY alert_received_name, alert_rule_key, alert_received_state ORDER BY created_at ASC) AS rn
         FROM AlertReceived AS m
-        WHERE customer_account_key = "${customerAccountKey}" AND deleted_at IS NULL
+        WHERE customer_account_key = "${customerAccountKey}" AND deleted_at IS NULL${extraQuery}
       )
       SELECT
         recent_alerts.alert_received_id as alertReceivedId,
@@ -152,9 +202,7 @@ class AlertReceivedService {
 
   public async createAlertReceived(alertReceivedData: AlertReceivedDto, customerAccountKey: number, partyId: string): Promise<IAlertReceived> {
     if (isEmpty(alertReceivedData)) throw new HttpException(400, 'Create AlertReceived cannot be blank');
-    const tableIdName: string = 'AlertReceived';
-    const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
-    const tempAlertReceivedId: string = responseTableIdData.tableIdFinalIssued;
+    const tempAlertReceivedId: string = await this.createTableId();
 
     // get alertRuleKey using customerAccountKey
     const alertRuleKey: number = await this.alertRuleService.getAlertRuleKey(customerAccountKey);

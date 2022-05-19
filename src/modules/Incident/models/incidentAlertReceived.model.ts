@@ -11,7 +11,6 @@ export type IncidentAlertReceivedCreationAttributes = Optional<
   | 'updatedBy'
   | 'createdAt'
   | 'updatedAt'
-  | 'deletedAt'
 >;
 
 export class IncidentAlertReceivedModel
@@ -24,7 +23,6 @@ export class IncidentAlertReceivedModel
   public alertReceivedKey: number;
   public createdBy: string;
   public updatedBy: string;
-  public deletedAt: Date;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -65,16 +63,13 @@ export default function (sequelize: Sequelize): typeof IncidentAlertReceivedMode
       },
       updatedAt: {
         type: DataTypes.DATE,
-      },
-      deletedAt: {
-        type: DataTypes.DATE,
-      },
+      }
     },
     {
       tableName: 'IncidentAlertReceived',
       modelName: 'IncidentAlertReceived',
       sequelize,
-      // timestamps: false,
+      paranoid: true,
     },
   );
 
