@@ -41,6 +41,7 @@ import PaymentTenderRoute from './modules/Billing/routes/paymentTender.route';
 import BillingAccountDiscountRoute from './modules/Billing/routes/billingAccountDiscount.route';
 
 import ExecutorRoute from './modules/CommonService/routes/executor.route';
+import FileUploadRoute from './modules/CommonService/routes/fileUpload.route';
 import GrafanaRoute from './modules/Grafana/routes/grafana.route';
 
 const app = new App([
@@ -82,6 +83,7 @@ const app = new App([
   new PaymentTenderRoute(),
   new BillingAccountDiscountRoute(),
   new ExecutorRoute(),
+  new FileUploadRoute(),
 
   new GrafanaRoute(),
 ]);
