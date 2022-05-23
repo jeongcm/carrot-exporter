@@ -1,8 +1,21 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 
-export class BayesianModelDto {
+export class CreateBayesianModelDto {
   @IsString()
   @IsNotEmpty()
+  public bayesianModelName: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public baysianModelDescription: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public baysianModelResourceType: string;
+
+}
+export class UpdateBayesianModelDto {
+  @IsString()
   public bayesianModelName: string;
 
   @IsString()
@@ -11,6 +24,4 @@ export class BayesianModelDto {
   @IsString()
   public baysianModelResourceType: string;
 
-  @IsString()
-  public baysianModelStatus: string;
 }

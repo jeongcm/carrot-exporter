@@ -2,7 +2,6 @@ import { NextFunction, Response } from 'express';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 
 import { IMetricMeta } from '@/common/interfaces/metricMeta.interface';
-import { BillingAccountDto } from '../dtos/billingAccount.dto';
 import BillingAccountService from '../services/billingAccount.service';
 import { IBillingAccount } from '@/common/interfaces/billingAccount.interface';
 import { BayesianModelDto } from '../dtos/bayesianModel.dto';
