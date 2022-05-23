@@ -54,7 +54,7 @@ import billingAccountDiscountModel from '@/modules/Billing/models/billingAccount
 import billingAccountModel from '@/modules/Billing/models/billingAccount.model';
 import paymentTenderModel from '@/modules/Billing/models/paymentTender.model';
 import GrafanaSettingModel from '@/modules/Grafana/models/grafanaSetting.model';
-
+import BayesianModelTable from '@/modules/MetricOps/models/bayesianModel.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -138,6 +138,7 @@ const DB = {
   BillingAccount: billingAccountModel(sequelize),
   PaymentTender: paymentTenderModel(sequelize),
   GrafanaSetting: GrafanaSettingModel(sequelize),
+  BayesianModel: BayesianModelTable(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
@@ -356,8 +357,10 @@ DB.BillingAccount.hasOne(DB.BillingAccountDiscount, { foreignKey: 'billingAccoun
 DB.BillingAccountDiscount.belongsTo(DB.BillingAccount, { foreignKey: 'billingAccountKey' });
 
 DB.Discount.hasOne(DB.BillingAccountDiscount, { foreignKey: 'discountKey' });
-DB.BillingAccountDiscount.belongsTo(DB.Discount, { foreignKey: 'discountKey' })
+DB.BillingAccountDiscount.belongsTo(DB.Discount, { foreignKey: 'discountKey' });
 
+DB.CustomerAccount.hasMany(DB.BayesianModel, { foreignKey: 'customerAccountKey' });
+DB.BayesianModel.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
