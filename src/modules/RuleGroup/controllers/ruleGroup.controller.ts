@@ -16,6 +16,16 @@ class RuleGroupController {
     }
   };
 
+  public getRuleGroupById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const ruleGroupId: string = req.params.ruleGroupId;
+      const findRuleGroupData: IRuleGroup = await this.ruleGroupService.getRuleGroupById(ruleGroupId);
+      res.status(200).json({ data: findRuleGroupData, message: 'findOne' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public deleteRuleGroup = async (req:IRequestWithUser, res:Response, next:NextFunction) => {
     try{
       const ruleGroupId: string = req.params.ruleGroupId;

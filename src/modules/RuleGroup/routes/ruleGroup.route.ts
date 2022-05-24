@@ -22,6 +22,7 @@ class RuleGroupRoute implements Routes {
   private initializeRoutes() {
     this.router.post('/rule/group', authMiddleware, validationMiddleware(RuleGroupDto, 'body'), this.ruleGroupController.createRuleGroup);
     this.router.get('/rule/group', authMiddleware, this.ruleGroupController.getRuleGroup);
+    this.router.get('/rule/group/:ruleGroupId', authMiddleware, this.ruleGroupController.getRuleGroupById);
     this.router.put(
       '/rule/group/:ruleGroupId',
       authMiddleware,

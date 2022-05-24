@@ -18,6 +18,14 @@ class RuleGroupService {
     return allRuleGroup;
   }
 
+  public async getRuleGroupById(ruleGroupId: string): Promise<IRuleGroup> {
+    const ruleGroup: IRuleGroup = await this.ruleGroup.findOne({
+      where: { ruleGroupId: ruleGroupId, deletedAt: null },
+      attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
+    });
+    return ruleGroup;
+  }
+
   public async deleteRuleGroup(ruleGroupId: string) {
     try {
       const deleteRuleGroupData = {
@@ -34,7 +42,7 @@ class RuleGroupService {
       });
       if (result[0] == 1) {
         return true;
-      }else{
+      } else {
         return false;
       }
     } catch (error) {
@@ -53,12 +61,8 @@ class RuleGroupService {
 
     return findRuleGroup;
   }
-  
-  public async updateRuleGroup(
-    ruleGroupId: string,
-    ruleGroupData: RuleGroupDto,
-    partyId: string,
-  ): Promise<IRuleGroup> {
+
+  public async updateRuleGroup(ruleGroupId: string, ruleGroupData: RuleGroupDto, partyId: string): Promise<IRuleGroup> {
     if (isEmpty(ruleGroupData)) throw new HttpException(400, 'RuleGroup Data cannot be blank');
     const findRuleGroupData: IRuleGroup = await this.ruleGroup.findOne({ where: { ruleGroupId } });
     if (!findRuleGroupData) throw new HttpException(409, "RuleGroup doesn't exist");
