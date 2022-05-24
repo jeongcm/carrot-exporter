@@ -54,6 +54,7 @@ import billingAccountDiscountModel from '@/modules/Billing/models/billingAccount
 import billingAccountModel from '@/modules/Billing/models/billingAccount.model';
 import paymentTenderModel from '@/modules/Billing/models/paymentTender.model';
 import GrafanaSettingModel from '@/modules/Grafana/models/grafanaSetting.model';
+import RuleGroupModel from '@/modules/RuleGroup/models/ruleGroup.model';
 
 
 const host = config.db.mariadb.host;
@@ -138,6 +139,7 @@ const DB = {
   BillingAccount: billingAccountModel(sequelize),
   PaymentTender: paymentTenderModel(sequelize),
   GrafanaSetting: GrafanaSettingModel(sequelize),
+  RuleGroup : RuleGroupModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
