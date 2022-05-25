@@ -26,7 +26,7 @@ export type AlertRuleCreationAttributes = Optional<
 >;
 
 export class AlertRuleModel extends Model<IAlertRule, AlertRuleCreationAttributes> implements IAlertRule {
-  alertRuleMlSubGroup: string;
+  public alertRuleMlSubGroup: string;
   public alertRuleKey: number;
   public customerAccountKey: number;
   public alertRuleId: string;
@@ -44,7 +44,6 @@ export class AlertRuleModel extends Model<IAlertRule, AlertRuleCreationAttribute
   public alertRuleSummary: string;
   public alertRuleRunbook: string;
   public alertRuleMlGroup: string;
-  public alertRuleMLSubGroup: string;
   public resourceGroupUuid: string;
 
   public readonly createdAt!: Date;
