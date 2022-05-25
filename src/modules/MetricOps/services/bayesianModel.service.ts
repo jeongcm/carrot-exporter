@@ -28,34 +28,33 @@ class BayesianModelServices {
    * Create a new BayesianModel
    *
    * @param  {CreateBayesianModelDto} bayesianModelData
-   * @returns Promise<Notification>
+   * @returns Promise<IBayesianModel>
    * @author Shrishti Raj
    */
-  public async createNotification(
+  public async createBayesianModel(
     bayesianModelData: CreateBayesianModelDto,
-    partyKey: number,
     customerAccountKey: number,
     systemId: string,
   ): Promise<IBayesianModel> {
-    if (isEmpty(bayesianModelData)) throw new HttpException(400, 'Notification Data cannot be blank');
+    if (isEmpty(bayesianModelData)) throw new HttpException(400, 'BayesianModel Data cannot be blank');
 
 
     const tableIdName: string = 'BayesianModel';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
-    const tempNotificationId: string = responseTableIdData.tableIdFinalIssued;
-    const {bayesianModelName, baysianModelDescription, baysianModelResourceType} = bayesianModelData
+    const BayesianModelId: string = responseTableIdData.tableIdFinalIssued;
+    const {bayesianModelName, bayesianModelDescription, bayesianModelResourceType} = bayesianModelData
     const currentDate = new Date();
-    const newNotification = {
-      bayesianModelId: tempNotificationId,
+    const BayesianModel = {
+      bayesianModelId: BayesianModelId,
       createdBy: systemId,
       createdAt: currentDate,
       updatedAt: currentDate,
       bayesianModelName,
-      baysianModelDescription, 
-      baysianModelResourceType,
+      bayesianModelDescription, 
+      bayesianModelResourceType,
       customerAccountKey,
     };
-    const newBayesianModel: IBayesianModel = await this.bayesianModel.create(newNotification);
+    const newBayesianModel: IBayesianModel = await this.bayesianModel.create(BayesianModel);
     return newBayesianModel;
   }
 
@@ -67,12 +66,12 @@ class BayesianModelServices {
    * @author Shrishti Raj
    */
   public async findBayesianModelById(bayesianModelId: string): Promise<IBayesianModel> {
-    if (isEmpty(bayesianModelId)) throw new HttpException(400, 'Not a valid notificationId');
+    if (isEmpty(bayesianModelId)) throw new HttpException(400, 'Not a valid BayesianModelId');
 
     const findBayesianModel: IBayesianModel = await this.bayesianModel.findOne({
       where: { bayesianModelId, deletedAt: null },
     });
-    if (!bayesianModelId) throw new HttpException(409, 'Notification Id Not found');
+    if (!bayesianModelId) throw new HttpException(409, 'BayesianModel Id Not found');
 
     return findBayesianModel;
   }
@@ -82,9 +81,9 @@ class BayesianModelServices {
     bayesianModelData: UpdateBayesianModelDto,
     systemId: string,
   ): Promise<IBayesianModel> {
-    if (isEmpty(UpdateBayesianModelDto)) throw new HttpException(400, 'Notification Data cannot be blank');
+    if (isEmpty(UpdateBayesianModelDto)) throw new HttpException(400, 'BayesianModel Data cannot be blank');
     const findBayesianModel: IBayesianModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
-    if (!findBayesianModel) throw new HttpException(409, "Notification doesn't exist");
+    if (!findBayesianModel) throw new HttpException(409, "BayesianModel doesn't exist");
 
     const currentDate = new Date();
     const updatedChannelData = {

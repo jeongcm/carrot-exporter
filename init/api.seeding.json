@@ -517,5 +517,12 @@
     "apiEndPoint1": "PUT",
     "apiEndPoint2": "/resourceGroup/:resourceGroupId",
     "apiVisibleTF": true
+  },
+  {
+    "apiName": "createBayesianModel",
+    "apiDescription": "create Bayesian Model",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/bayesianModel",
+    "apiVisibleTF": true
   }
 ]
