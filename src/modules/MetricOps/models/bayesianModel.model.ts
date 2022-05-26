@@ -84,6 +84,12 @@ export default function (sequelize: Sequelize): typeof BayesianModelTable {
     {
       tableName: 'BayesianModel',
       modelName: 'BayesianModel',
+      indexes: [
+        {
+          unique: true,
+          fields: ['bayesian_model_id'],
+        },
+      ],
       sequelize,
     },
   );

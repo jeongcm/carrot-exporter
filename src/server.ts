@@ -45,6 +45,7 @@ import FileUploadRoute from './modules/CommonService/routes/fileUpload.route';
 import GrafanaRoute from './modules/Grafana/routes/grafana.route';
 
 import BayesianModelRoute from './modules/MetricOps/routes/bayesianModel.route';
+import ResolutionActionRoute from './modules/MetricOps/routes/resolutionAction.route';
 
 const app = new App([
   new IndexRoute(),
@@ -89,7 +90,8 @@ const app = new App([
 
   new GrafanaRoute(),
 
-  new BayesianModelRoute()
+  new BayesianModelRoute(),
+  new ResolutionActionRoute()
 ]);
 
 app.listen();

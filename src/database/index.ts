@@ -55,6 +55,8 @@ import billingAccountModel from '@/modules/Billing/models/billingAccount.model';
 import paymentTenderModel from '@/modules/Billing/models/paymentTender.model';
 import GrafanaSettingModel from '@/modules/Grafana/models/grafanaSetting.model';
 import BayesianModelTable from '@/modules/MetricOps/models/bayesianModel.model';
+import ResolutionActionModel  from '@/modules/MetricOps/models/resolutionAction.model';
+import SudoryTemplateModel from '@/modules/MetricOps/models/sudoryTemplate.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -139,6 +141,8 @@ const DB = {
   PaymentTender: paymentTenderModel(sequelize),
   GrafanaSetting: GrafanaSettingModel(sequelize),
   BayesianModel: BayesianModelTable(sequelize),
+  ResolutionAction: ResolutionActionModel(sequelize),
+  SudoryTemplate:SudoryTemplateModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
