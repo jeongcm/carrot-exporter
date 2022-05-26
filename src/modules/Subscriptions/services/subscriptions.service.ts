@@ -171,15 +171,15 @@ class SubscriptionService {
     const catalogPlanProductDetails : ICatalogPlanProduct =  await  this.catalogPlanProduct.findOne(
       {where:
         {
-          catalogPlanKey:subscriptionDetail.catalogPlanKey,
-          catalogPlanProductType:productData.catalogPlanProductType
+          catalogPlanKey: subscriptionDetail.catalogPlanKey,
+          catalogPlanProductType: productData.catalogPlanProductType
         }
       });
     if(productCode){
       fuseBillProduct  =  await  this.catalogPlanProduct.findOne(
         {where:
           {
-            catalogPlanProductId:productCode,
+            catalogPlanProductId: productCode,
           }
         });
     }
