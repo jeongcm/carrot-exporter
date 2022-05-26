@@ -12,7 +12,6 @@ const BucketName = config.fileUpload.DOBucket;
 
 class fileUploadService {
   public async upload(req: any): Promise<any> {
-    
     let uploadParameters = {
       Bucket: BucketName,
       ContentType: req.query.content_type,
@@ -20,15 +19,48 @@ class fileUploadService {
       ACL: req.query.acl,
       Key: req.query.file_name, //we have to define a new file_name which also includes some extra coding to define our path.
     };
-
     const result = await space.upload(uploadParameters, function (error, data) {
       if (error) {
-        console.error(error);
         throw new HttpException(500, error);
       }
       return data;
     });
     return result;
+  }
+
+  public async get(req: any): Promise<any> {
+    let downloadParameters = {
+      Bucket: BucketName,
+      Key: req.params.fileName,
+    };
+
+    const result = await space.getObject(downloadParameters, function (error, data) {
+      if (error) {
+        throw new HttpException(500, error.message);
+      }
+      return data;
+    });
+    return result;
+  }
+
+  public async delete(req: any): Promise<any> {
+    let downloadParameters = {
+      Bucket: BucketName,
+      Key: req.query.fileName,
+    };
+    const result = await space.deleteObject(downloadParameters, function (error, data) {
+      if (error) {
+        console.error(error.code);
+        throw new HttpException(500, error.message);
+      }
+      console.log(data)
+      return data;
+    });
+    return result;
+  }
+
+  public uploadedFileLink(fileName: String): String {
+    return `${config.fileUpload.DOEndPoint}/${BucketName}/${fileName}`;
   }
 }
 
