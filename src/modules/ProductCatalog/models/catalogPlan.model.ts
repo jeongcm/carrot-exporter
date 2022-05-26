@@ -20,14 +20,15 @@ export class CatalogPlanModel extends Model<ICatalogPlan, CatalogPlanCreationAtt
     public catalogPlanId: string;
     public catalogPlanKey: number;
     public catalogPlanName: string;
-    public catalogPlanType  :  'OB'|'MO'
+    public catalogPlanType: string;
     public catalogPlanDescription: string;
     public createdBy: string;
     public updatedBy: string;
     public deletedAt: Date;
+    public updatedAt: Date;
 
     public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
+
 }
 
 export default function (sequelize: Sequelize): typeof CatalogPlanModel {
@@ -56,13 +57,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
       catalogPlanType: {
         allowNull: false,
         type: DataTypes.STRING(2),
-        validate: {
-            isIn: {
-                args: [[ 'OB','MO']],
-                msg: " subscriptionStatus must be of type  [ 'OB'|'MO']  Where  - OB (Observability)  - MO (MetricOps)"
-            }
-        }
-    },
+      },
       deletedAt: {
         allowNull: true,
         type: DataTypes.DATE()

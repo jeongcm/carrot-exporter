@@ -14,7 +14,7 @@ class massUploaderController{
         const massFeedResult = await this.massUploaderService.massUploadResource(resourceMassFeed);
   
         if (!massFeedResult) {
-          return res.sendStatus(404);
+          return res.sendStatus(500);
         }
   
         res.status(200).json({ data: massFeedResult, message: `bulk data feed is successfully complete` });

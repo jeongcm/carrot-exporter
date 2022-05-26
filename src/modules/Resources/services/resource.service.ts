@@ -1,5 +1,6 @@
 import DB from '@/database';
 import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
+import { IRquestMassUploaderMongo } from '@/common/interfaces/massUploader.interface';
 import { ResourceDto } from '../dtos/resource.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
@@ -208,6 +209,107 @@ class ResourceService {
 
     return generatedQuery;
   }
+
+  /**
+   * @param  {object} resourceTargetUuid
+   * @param  {string} resoruceType
+   */
+   public async retireResourceByUuidNotIn(resourceTargetUuid: object, resourceType: string): Promise<Object> {
+    if (isEmpty(resourceTargetUuid)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
+   
+    const deleted_At = new Date();
+    const notInQuery = { where:  { resourceTargetUuid: 
+                                 {[Op.notIn]: resourceTargetUuid}, 
+                                  resourceType: resourceType,
+                                  resourceActive: true
+                                 }
+                        }; 
+    const updatedResource = {
+      resourceActive: false,
+      updatedBy: "SYSTEM",
+      updatedAt: deleted_At,
+      deletedAt: deleted_At,
+    };
+    var returnResult;
+
+    try {
+      const updateResult = await this.resource.update(updatedResource, notInQuery);
+      returnResult = updateResult;
+      console.log (updateResult);
+    } catch (error) {
+      throw new HttpException(500, error);
+    }
+
+    return returnResult;
+  }
+
+/**
+   * @param  {string} resourceTargetUuid
+   */
+ public async updateResourceByMongoUploader(resourceTargetUuid: string): Promise<Object> {
+  if (isEmpty(resourceTargetUuid)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
+ 
+  const updated_At = new Date();
+
+  const updatedResource = {
+    updatedBy: "SYSTEM",
+    updatedAt: updated_At,
+    resourceStatusUpdatedAt: updated_At,
+  };
+
+  var returnResult;
+
+  try {
+    const updateResult = await this.resource.update(updatedResource, {where: {resourceTargetUuid: resourceTargetUuid},});
+    returnResult = updateResult;
+    console.log (updateResult);
+  } catch (error) {
+    throw new HttpException(500, error);
+  }
+
+  return returnResult;
+}
+
+
+  /**
+   * @param  {IRquestMassUploaderMongo} resourceData
+   * @param  {string} resourceGroupKey
+   */
+   public async createResourcefromMongoUploader(resourceData: IRquestMassUploaderMongo, resourceGroupKey: string): Promise<IResource> {
+    if (isEmpty(resourceData)) throw new HttpException(400, 'Resource  must not be empty');
+
+    const currentResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupKey: resourceGroupKey } });
+
+    if (!currentResourceGroup) {
+      throw new HttpException(400, 'resourceGroupId not found');
+    }
+    
+    const resourceInputData = {
+      resourceType: resourceData.resource_Type,
+      resourceName: resourceData.resource_Name,
+      resourceGroupKey: resourceData.resource_Group_Key,
+      customerAccountKey: resourceData.customer_Account_Key,
+      resourceRbac: resourceData.resource_Rbac,
+      resourceAnomalyMonitor: resourceData.resource_Anomaly_Monitor,
+      resourceGroupUuid: resourceData.resource_Group_Uuid,
+      resourceTargetUuid: resourceData.resource_Target_Uuid
+    };  
+
+    try {
+      const tableIdTableName = 'Resource';
+      const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
+      const createResource: IResource = await this.resource.create({
+        resourceId: responseTableIdData.tableIdFinalIssued,
+        createdAt: new Date(),
+        createdBy: "SYSTEM",
+        ...resourceInputData,
+      });
+      return createResource;
+    } catch (error) {
+      throw new HttpException(500, error);
+    }
+  }
+
 }
 
 export default ResourceService;
