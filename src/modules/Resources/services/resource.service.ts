@@ -245,29 +245,30 @@ class ResourceService {
 
 /**
    * @param  {string} resourceTargetUuid
+   * @param  {string} resourceNamespace
    */
- public async updateResourceByMongoUploader(resourceTargetUuid: string): Promise<Object> {
+ public async updateResourceByMongoUploader(resourceTargetUuid: string, resourceNamespace: string): Promise<String> {
   if (isEmpty(resourceTargetUuid)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
  
   const updated_At = new Date();
 
   const updatedResource = {
+    resourceNamespace: resourceNamespace,
     updatedBy: "SYSTEM",
     updatedAt: updated_At,
     resourceStatusUpdatedAt: updated_At,
   };
 
-  var returnResult;
+  console.log("updatedResource: ", updatedResource); 
 
   try {
     const updateResult = await this.resource.update(updatedResource, {where: {resourceTargetUuid: resourceTargetUuid},});
-    returnResult = updateResult;
     console.log (updateResult);
   } catch (error) {
     throw new HttpException(500, error);
   }
 
-  return returnResult;
+  return "updated well";
 }
 
 
@@ -287,12 +288,18 @@ class ResourceService {
     const resourceInputData = {
       resourceType: resourceData.resource_Type,
       resourceName: resourceData.resource_Name,
+      resourceDescription: resourceData.resource_Name,
+      resourceNamespace: resourceData.resource_Namespace,
       resourceGroupKey: resourceData.resource_Group_Key,
       customerAccountKey: resourceData.customer_Account_Key,
       resourceRbac: resourceData.resource_Rbac,
       resourceAnomalyMonitor: resourceData.resource_Anomaly_Monitor,
       resourceGroupUuid: resourceData.resource_Group_Uuid,
-      resourceTargetUuid: resourceData.resource_Target_Uuid
+      resourceTargetUuid: resourceData.resource_Target_Uuid,
+      resourceLevel1: resourceData.resource_Level1,
+      resourceActive: resourceData.resource_Active,
+      resourceStatusUpdatedAt: resourceData.resource_Status_Updated_At,
+      resourceTargetCreatedAt: resourceData.resource_Target_Created_At,
     };  
 
     try {

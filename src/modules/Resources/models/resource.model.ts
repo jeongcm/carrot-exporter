@@ -108,9 +108,10 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceTargetUuid: string;
   public resourceTargetCreatedAt: Date;
   public resourceOwnerReferences: JSON;
+  public updatedAt: Date;
 
   public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  
 }
 
 export default function (sequelize: Sequelize): typeof ResourceModel {
