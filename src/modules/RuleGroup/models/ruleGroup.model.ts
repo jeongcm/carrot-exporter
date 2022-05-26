@@ -25,9 +25,10 @@ export class RuleGroupModel extends Model<IRuleGroup, RuleGroupAttributes > impl
     public 'ruleGroupName': string; 
     public 'ruleGroupDescription': string;
     public 'ruleGroupStatus': string;
+    public 'updatedAt': Date;
 
     public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
+    
 
 }
 

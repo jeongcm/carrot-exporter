@@ -16,7 +16,5 @@ export interface IAlertRule {
     alertRuleSummary: string;
     alertRuleRunbook: string;
     alertRuleState: string;
-    alertRuleMlGroup: string;
-    alertRuleMlSubGroup: string;
     resourceGroupUuid: string;
   }
