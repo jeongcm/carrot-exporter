@@ -368,5 +368,25 @@
     "tableIdSequenceDigit": 8,
     "tableIdIssuedSequence": 1,
     "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "ResolutionAction",
+    "tableIdHeader": "RA",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "SudoryTemplate",
+    "tableIdHeader": "ST",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
   }
 ]
