@@ -44,6 +44,8 @@ import BillingAccountDiscountRoute from './modules/Billing/routes/billingAccount
 import ExecutorRoute from './modules/CommonService/routes/executor.route';
 import FileUploadRoute from './modules/CommonService/routes/fileUpload.route';
 import GrafanaRoute from './modules/Grafana/routes/grafana.route';
+import RuleGroupRoute from './modules/RuleGroup/routes/ruleGroup.route';
+import RuleGroupAlertRoute from './modules/RuleGroupAlertRule/routes/ruleGroupAlertRule.route';
 
 const app = new App([
   new IndexRoute(),
@@ -86,8 +88,9 @@ const app = new App([
   new BillingAccountDiscountRoute(),
   new ExecutorRoute(),
   new FileUploadRoute(),
-
   new GrafanaRoute(),
+  new RuleGroupRoute(),
+  new RuleGroupAlertRoute()
 ]);
 
 app.listen();

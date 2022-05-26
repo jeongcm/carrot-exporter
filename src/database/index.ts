@@ -54,7 +54,8 @@ import billingAccountDiscountModel from '@/modules/Billing/models/billingAccount
 import billingAccountModel from '@/modules/Billing/models/billingAccount.model';
 import paymentTenderModel from '@/modules/Billing/models/paymentTender.model';
 import GrafanaSettingModel from '@/modules/Grafana/models/grafanaSetting.model';
-
+import RuleGroupModel from '@/modules/RuleGroup/models/ruleGroup.model';
+import ruleGroupAlertRuleModel from '@/modules/RuleGroupAlertRule/models/ruleGroupAlertRule.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -138,6 +139,8 @@ const DB = {
   BillingAccount: billingAccountModel(sequelize),
   PaymentTender: paymentTenderModel(sequelize),
   GrafanaSetting: GrafanaSettingModel(sequelize),
+  RuleGroup: RuleGroupModel(sequelize),
+  RuleGroupAlertRule: ruleGroupAlertRuleModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
@@ -287,6 +290,13 @@ DB.Notification.belongsTo(DB.Messages, { foreignKey: 'messageKey' });
 DB.CustomerAccount.hasMany(DB.Notification, { foreignKey: 'customerAccountKey' });
 DB.Notification.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
+DB.RuleGroup.hasMany(DB.RuleGroupAlertRule, { foreignKey: 'ruleGroupKey' });
+DB.RuleGroupAlertRule.belongsTo(DB.RuleGroup, { foreignKey: 'ruleGroupKey' });
+
+DB.AlertRule.hasOne(DB.RuleGroupAlertRule, { foreignKey: 'alertRuleKey' });
+DB.RuleGroupAlertRule.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey' });
+
+
 DB.Party.belongsToMany(DB.Resource, {
   through: {
     model: 'PartyResource',
@@ -356,8 +366,7 @@ DB.BillingAccount.hasOne(DB.BillingAccountDiscount, { foreignKey: 'billingAccoun
 DB.BillingAccountDiscount.belongsTo(DB.BillingAccount, { foreignKey: 'billingAccountKey' });
 
 DB.Discount.hasOne(DB.BillingAccountDiscount, { foreignKey: 'discountKey' });
-DB.BillingAccountDiscount.belongsTo(DB.Discount, { foreignKey: 'discountKey' })
-
+DB.BillingAccountDiscount.belongsTo(DB.Discount, { foreignKey: 'discountKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
