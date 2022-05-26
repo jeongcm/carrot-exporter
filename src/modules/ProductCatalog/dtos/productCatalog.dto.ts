@@ -14,9 +14,10 @@ export class CreateCatalogPlanDto {
   @IsString()
   @IsNotEmpty()
   public catalogPlanDescription : string;
+  
   @IsString()
   @IsNotEmpty()
-  public catalogPlanType  :  'OB'|'MO'
+  public catalogPlanType  :  string;
   // - OB (Observability)
   // - MO (MetricOps;
 

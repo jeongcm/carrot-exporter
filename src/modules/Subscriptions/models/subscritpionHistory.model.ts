@@ -34,10 +34,11 @@ export class SubscriptionHistoryModel extends Model<ISubscriptionHistory, Subscr
     public subscriptionOldCommitment: 'AC' | 'MM' ;
     public subscriptionNewCommitment: 'AC' | 'MM' ;
     public subscriptionCommitmentChangeReason: "EA"
-    public subscriptionChangedAt: Date
+    public subscriptionChangedAt: Date;
+    public updatedAt: Date;
 
     public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
+    
 }
 
 export default function (sequelize: Sequelize): typeof SubscriptionHistoryModel {

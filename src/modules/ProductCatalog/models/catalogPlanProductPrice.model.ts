@@ -24,9 +24,9 @@ export class CatalogPlanProductPriceModel extends Model<ICatalogPlanProductPrice
     public deletedAt: Date;
     public createdBy: string;
     public updatedBy: string;
+    public updatedAt: Date;
 
     public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceModel {

@@ -33,9 +33,9 @@ export class SubscriptionModel extends Model<ISubscriptions, SubscriptionCreatio
     public subscriptionStatus :'AC' |'SP' | 'TM';
     public subscriptionConsent :boolean;
     public subscriptionCommitmentType: 'AC' | 'MM' 
-
+    public updatedAt: Date;
     public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
+    
 }
 
 export default function (sequelize: Sequelize): typeof SubscriptionModel {
@@ -65,7 +65,7 @@ export default function (sequelize: Sequelize): typeof SubscriptionModel {
         type: DataTypes.DATE,
       },
       subscriptionTerminatedAt: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.DATE,
       },
       subscriptionStatus: {

@@ -25,7 +25,7 @@ export class CreateSubscriptionDto {
   public subscriptionActivatedAt : Date;
 
   @IsDateString()
-  @IsNotEmpty()
+  @IsOptional()
   public subscriptionTerminatedAt : Date;
 
   @IsString()
@@ -54,15 +54,12 @@ export class CreateSubscriptionDto {
  export class UpdateSubscriptionDto {
 
   @IsString()
-  @IsOptional()
   public subscriptionStatus : 'AC' |'SP' | 'TM'; // ## 'AC', 'Active', '계약중' ## 'SP', 'Suspended', '일시정지' ## 'TM', 'Terminated', '해지'
 
   @IsBoolean()
-  @IsOptional()
   public subscriptionConsent : boolean;
 
   @IsDateString()
-  @IsOptional()
   public subscriptionActivatedAt : Date;
 
   @IsDateString()
@@ -70,7 +67,6 @@ export class CreateSubscriptionDto {
   public subscriptionTerminatedAt : Date;
 
   @IsString()
-  @IsOptional()
   public subscriptionCommitmentType : 'AC' | 'MM'; // ##'AC', 'Annual Contract', '연간계약' ## 'MM', 'Month to Month', '월간계약'
 
 
