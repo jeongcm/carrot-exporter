@@ -28,6 +28,39 @@ class fileUploadService {
     return result;
   }
 
+  public async uploadService(fileName: string, contentType: string, file: any): Promise<any> {
+    try {
+      let uploadParameters = {
+        Bucket: BucketName,
+        ContentType: contentType,
+        Body: file.buffer,
+        ACL: 'public-read',
+        Key: fileName,
+      };
+
+      const result = space.upload(uploadParameters);
+      var promise = result.promise();
+
+      let data = await promise.then(
+        function (data) {
+          return {
+            status: 'ok',
+            data: data,
+          };
+        },
+        function (err) {
+          return {
+            status: 'error',
+            data: err,
+          };
+        },
+      );
+      return data;
+    } catch (err) {
+      return 'err';
+    }
+  }
+
   public async get(req: any): Promise<any> {
     let downloadParameters = {
       Bucket: BucketName,
@@ -53,7 +86,6 @@ class fileUploadService {
         console.error(error.code);
         throw new HttpException(500, error.message);
       }
-      console.log(data)
       return data;
     });
     return result;

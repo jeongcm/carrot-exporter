@@ -15,8 +15,8 @@ export type IIncidentActionAttachmentCreationAttributes = Optional<
   | 'incidentActionAttachmentDescription'
   | 'incidentActionAttachmentType'
   | 'incidentActionAttachmentFilename'
-  | 'incidentActionAttachmentBLOB'
-  | 'incidentActionAttachmentJSON'
+  | 'incidentActionAttachmentFileType'
+  | 'incidentActionAttachmentPath'
 >;
 
 export class IncidentActionAttachmentModel
@@ -32,10 +32,10 @@ export class IncidentActionAttachmentModel
 
   public incidentActionAttachmentName: string;
   public incidentActionAttachmentDescription: string;
-  public incidentActionAttachmentType: 'JS' | 'IM';
+  public incidentActionAttachmentType: 'JSON' | 'IMAGE' | 'PDF';
   public incidentActionAttachmentFilename: string;
-  public incidentActionAttachmentBLOB: Blob;
-  public incidentActionAttachmentJSON: JSON;
+  public incidentActionAttachmentFileType: string;
+  public incidentActionAttachmentPath: JSON;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -92,11 +92,11 @@ export default function (sequelize: Sequelize): typeof IncidentActionAttachmentM
         type: DataTypes.STRING(255),
         allowNull: false,
       },
-      incidentActionAttachmentBLOB: {
-        type: DataTypes.BLOB,
+      incidentActionAttachmentFileType: {
+        type: DataTypes.STRING(10),
         defaultValue: null,
       },
-      incidentActionAttachmentJSON: {
+      incidentActionAttachmentPath: {
         type: DataTypes.JSON,
         defaultValue: null,
       },
