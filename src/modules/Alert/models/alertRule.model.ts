@@ -20,13 +20,11 @@ export type AlertRuleCreationAttributes = Optional<
   | 'alertRuleDescription'
   | 'alertRuleSummary'
   | 'alertRuleRunbook'
-  | 'alertRuleMlGroup'
-  | 'alertRuleMlSubGroup'
   | 'resourceGroupUuid'
 >;
 
 export class AlertRuleModel extends Model<IAlertRule, AlertRuleCreationAttributes> implements IAlertRule {
-  alertRuleMlSubGroup: string;
+  public alertRuleMlSubGroup: string;
   public alertRuleKey: number;
   public customerAccountKey: number;
   public alertRuleId: string;
@@ -43,12 +41,12 @@ export class AlertRuleModel extends Model<IAlertRule, AlertRuleCreationAttribute
   public alertRuleDescription: string;
   public alertRuleSummary: string;
   public alertRuleRunbook: string;
-  public alertRuleMlGroup: string;
-  public alertRuleMLSubGroup: string;
   public resourceGroupUuid: string;
+  
+  public updatedAt: Date;
 
   public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  
 }
 
 export default function (sequelize: Sequelize): typeof AlertRuleModel {
@@ -88,8 +86,6 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
         type: DataTypes.DATE(),
         allowNull: true,
       },
-
-
       alertRuleName: {
         type: DataTypes.STRING(100),
         allowNull: false,
@@ -124,14 +120,6 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
       },
       alertRuleRunbook: {
         type: DataTypes.STRING(100),
-        allowNull: false,
-      },
-      alertRuleMlGroup: {
-        type: DataTypes.STRING(2),
-        allowNull: false,
-      },
-      alertRuleMlSubGroup: {
-        type: DataTypes.STRING(2),
         allowNull: false,
       },
       resourceGroupUuid: {

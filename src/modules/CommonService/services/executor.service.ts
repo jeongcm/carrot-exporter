@@ -207,33 +207,35 @@ class executorService {
   /**
    * @param  {string} clusterUuid
    */
-     public async checkExecutorClient(clusterUuid: string): Promise<IExecutorClientCheck> {
-      var clientUuid = "";
-      var resourceJobKey = [];
-      var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
-      const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
-      executorServerUrl = executorServerUrl + sessionQueryParameter;
-      await axios(
+   public async checkExecutorClient(clusterUuid: string): Promise<IExecutorClientCheck> {
+        var clientUuid = "";
+        var resourceJobKey = [];
+        var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
+        const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
+        executorServerUrl = executorServerUrl + sessionQueryParameter;
+        await axios(
         {
-          method: 'get',
-          url: `${executorServerUrl}`,
-          headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
+            method: 'get',
+            url: `${executorServerUrl}`,
+            headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
         }).then(async (res: any) => {
-          if(!res.data[0]) {  
+            if(!res.data[0]) {  
             console.log(`Executor/Sudory client not found yet from cluster: ${clusterUuid}`); 
             return clientUuid;
-          };
-          const clientData = Object.assign({},res.data[0]); 
-          clientUuid = clientData.uuid;
-          console.log(`Successful to run API to search Executor/Sudory client ${clientUuid}`);
+            };
+            const clientData = Object.assign({},res.data[0]); 
+            clientUuid = clientData.uuid;
+            console.log(`Successful to run API to search Executor/Sudory client ${clientUuid}`);
         }).catch(error => {
-          console.log(error);
-          throw new HttpException(500, "Unknown error while searching executor/sudory client");
+            console.log(error);
+            throw new HttpException(500, "Unknown error while searching executor/sudory client");
         });
 
+
         const d = new Date();
-        var newMin = new Array();
         let minutes = d.getMinutes();
+        /* this is for a logic to avoid deadlock when you use Mariadb"        
+        var newMin = new Array();
         for (let i=1; i<16; i++) {
             if ((minutes+i)>=60) {
                 newMin[i] = (minutes+i)-60;
@@ -259,6 +261,25 @@ class executorService {
 
         for (let i=1; i<16; i++){    
             console.log(newMin[i]);}
+        */
+
+        let newMin = minutes + 1;
+        const newCrontab1 = newMin + " * * * *";
+        const newCrontab2 = newMin + " * * * *";
+        const newCrontab3 = newMin + " * * * *";
+        const newCrontab4 = newMin + " * * * *";
+        const newCrontab5 = newMin + " * * * *";
+        const newCrontab6 = newMin + " * * * *";
+        const newCrontab7 = newMin + " * * * *";
+        const newCrontab8 = newMin + " * * * *";
+        const newCrontab9 = newMin + " * * * *";
+        const newCrontab10 = newMin + " * * * *";
+        const newCrontab11 = newMin + " * * * *";
+        const newCrontab12 = newMin + " * * * *";
+        const newCrontab13 = newMin + " * * * *";
+        const newCrontab14 = newMin + " * * * *";
+        const newCrontab15 = newMin + " * * * *";
+            
 
     // scheduleResource - node
         await this.scheduleResource(clusterUuid, "ND", newCrontab1
@@ -413,15 +434,14 @@ class executorService {
 
 
         const responseExecutorClientCheck = {resourceJobKey, clientUuid}; 
-
-    return responseExecutorClientCheck;
-     }  
+        return responseExecutorClientCheck;
+    }  
 
   /**
    * @param {string} clusterUuid
    * @param {string} targetNamespace 
    */
-     public async installKpsOnResourceGroup(clusterUuid: string, targetNamespace: string, systemId: string ): Promise<string> {
+    public async installKpsOnResourceGroup(clusterUuid: string, targetNamespace: string, systemId: string ): Promise<string> {
 
       var serviceUuid ="";
       var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;    
@@ -430,14 +450,15 @@ class executorService {
                                  name: "kps helm installation", 
                                  template_uuid: "20000000000000000000000000000001", 
                                  summary: "kps helm installation", 
+                                 on_completion: 1,
                                  subscribe_channel: "", 
                                  steps: [
                                     {args: 
                                         {name: 'kps', 
                                          chart_name:'kube-prometheus-stack',
-                                         repo_url:'https://prometheus-community.github.io/helm-charts', 
+                                         repo_url:'https://repo.nexclipper.io/chartrepo/nexclipper-dev', 
                                          namespace: targetNamespace,
-                                         chart_version:'35.0.3',
+                                         chart_version:'35.2.0',
                                          values:{}
                                         }
                                     }
@@ -491,7 +512,7 @@ class executorService {
   
       
       return serviceUuid;
-     }          
+    }          
 
   /**
    * @param {ExecutorResourceDto} resourceInputData
@@ -1018,18 +1039,7 @@ class executorService {
         const template_uuid = selectedTemplate.template_uuid; 
         const scheduleName = "K8s interface for " + selectedTemplate.resourceName;
         const scheduleSummary = "K8s interface for " + selectedTemplate.resourceName;
-        /*
-        const d = new Date();
-        var newCrontab;
-        let seconds = d.getSeconds();
-        let minutes = d.getMinutes();
-        if (seconds>45) {
-            newCrontab = minutes+2 + " * * * *";
-        } 
-        else {
-            newCrontab = minutes+1 + " * * * *";
-        }
-        */
+ 
         cronData = { name: scheduleName,
                     summary: scheduleSummary,
                     cronTab: newCrontab,
@@ -1060,7 +1070,7 @@ class executorService {
             headers: { 'X_AUTH_TOKEN': `${authToken}` }
             }).then(async (res: any) => {                            
                 cronJobKey = res.data.data.scheduleKey;
-                console.log(`Submit Resource-Node feeds scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
+                console.log(`Submit Resource feeds scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
             }).catch(error => {
                 console.log(error);
                 throw new HttpException(500, "Unknown error to request resource-node feeds scheduling");

@@ -3,7 +3,7 @@ export interface ICatalogPlan {
     catalogPlanId: string;
     catalogPlanKey:number;
     catalogPlanName: string;
-    catalogPlanType:'OB' | 'MO';
+    catalogPlanType: string;
     catalogPlanDescription: string;
     deletedAt:Date;
     createdAt: Date;

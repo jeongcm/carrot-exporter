@@ -6,6 +6,23 @@ export interface IResponseMassUploader {
     targetTable: string;
 }
 
+export interface IRquestMassUploaderMongo {
+    resource_Name: string,
+    resource_Description: string,
+    resource_Namespace: string,
+    resource_Type: string,
+    resource_Group_Uuid: string,
+    resource_Target_Uuid: string,
+    customer_Account_Key: number,
+    resource_Group_Key: number,
+    resource_Rbac: boolean,
+    resource_Anomaly_Monitor: boolean,
+    resource_Active: boolean,
+    resource_Status_Updated_At: Date,
+    resource_Level1: string,
+    resource_Target_Created_At: Date,
+}
+
 export interface IRequestMassUploader {
     resource_Type: string,
     resource_Group_Uuid: string,

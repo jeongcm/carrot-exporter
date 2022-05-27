@@ -23,7 +23,7 @@ export class CatalogPlanProductModel extends Model<ICatalogPlanProduct, CatalogP
     public catalogPlanProductKey:number;
     public catalogPlanProductId:string
     public catalogPlanKey:number;
-    public catalogPlanProductType:'ON' | 'MN' | 'MS' | 'MC';
+    public catalogPlanProductType:string
     public catalogPlanProductName:string
     public catalogPlanProductDescription:string
     public catalogPlanProductMonthlyPrice:number
@@ -32,9 +32,9 @@ export class CatalogPlanProductModel extends Model<ICatalogPlanProduct, CatalogP
     public deletedAt: Date;
     public createdBy: string;
     public updatedBy: string;
+    public updatedAt: Date;
 
     public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
@@ -78,12 +78,6 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
             catalogPlanProductType: {
                 allowNull: false,
                 type: DataTypes.STRING(2),
-                validate: {
-                    isIn: {
-                        args: [['ON' , 'MN' , 'MS' , 'MC']],
-                        msg: " subscriptionStatus must be of type  ['ON' | 'MN' | 'MS' | 'MC']  Where  ON (ObservabilityNode) - MN (MetricOps Node)- MS (MetricOps Service)  - MC (MetricOps Cluster)"
-                    }
-                }
             },
             createdBy: {
                 allowNull: false,
