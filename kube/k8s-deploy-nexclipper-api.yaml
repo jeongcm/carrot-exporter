@@ -50,6 +50,7 @@ data:
   SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED: "nc_metric_received"
   NC_CRON_URL: "http://nexclipper-cron.nc.svc.cluster.local:5001/scheduler"
   NC_CRON_X_AUTH_TOKEN: "CRON"
+  NC_LARI_MONGO_URL: "mongodb://nc_api:nc_api@ncmongodb.mongodb.svc.cluster.local:27017/nc_api"
 ---
 apiVersion: apps/v1
 kind: Deployment

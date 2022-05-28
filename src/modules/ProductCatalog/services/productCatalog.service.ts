@@ -38,9 +38,9 @@ class ProductCatlogService {
     const createData =
     {
       ...data,
-      catalogPlanId,
-      createdBy: partyId || systemId,
-      updatedBy: partyId || systemId
+      catalogPlanId: catalogPlanId,
+      createdBy: partyId,
+      createdAt: new Date()
     }
     const newCatalogPlan: ICatalogPlan = await this.catalogPlan.create(createData);
     return newCatalogPlan;
@@ -139,7 +139,6 @@ class ProductCatlogService {
       catalogPlanProductUOM,
       catalogPlanProductType,
       createdBy: partyId || systemId,
-      updatedBy: partyId || systemId
     }
     const newCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.create(createData);
     console.log(
@@ -212,14 +211,10 @@ class ProductCatlogService {
       catalogPlanProductMonthlyPriceTo,
       catalogPlanProductKey,
       createdBy: partyId || systemId,
-      updatedBy: partyId || systemId
-
-    }
+      }
     const newData: ICatalogPlanProductPrice = await this.catalogPlanProductPrice.create(createData);
     return newData
   }
-
-
 
 
   public getTableId = async (tableIdTableName: string) => {

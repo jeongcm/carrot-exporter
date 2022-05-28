@@ -99,7 +99,7 @@ export class ResourceQueryDTO {
   @IsOptional()
   public resourceType: ResourceType[];
 
-  @isBooleanString()
+  //@isBooleanString()
   @IsOptional()
   public excludeFailed: Boolean;
 }

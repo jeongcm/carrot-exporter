@@ -57,6 +57,8 @@ import GrafanaSettingModel from '@/modules/Grafana/models/grafanaSetting.model';
 import BayesianModelTable from '@/modules/MetricOps/models/bayesianModel.model';
 import ResolutionActionModel  from '@/modules/MetricOps/models/resolutionAction.model';
 import SudoryTemplateModel from '@/modules/MetricOps/models/sudoryTemplate.model';
+import RuleGroupModel from '@/modules/RuleGroup/models/ruleGroup.model';
+import ruleGroupAlertRuleModel from '@/modules/RuleGroupAlertRule/models/ruleGroupAlertRule.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -143,6 +145,8 @@ const DB = {
   BayesianModel: BayesianModelTable(sequelize),
   ResolutionAction: ResolutionActionModel(sequelize),
   SudoryTemplate:SudoryTemplateModel(sequelize),
+  RuleGroup: RuleGroupModel(sequelize),
+  RuleGroupAlertRule: ruleGroupAlertRuleModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
@@ -291,6 +295,13 @@ DB.Notification.belongsTo(DB.Messages, { foreignKey: 'messageKey' });
 
 DB.CustomerAccount.hasMany(DB.Notification, { foreignKey: 'customerAccountKey' });
 DB.Notification.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.RuleGroup.hasMany(DB.RuleGroupAlertRule, { foreignKey: 'ruleGroupKey' });
+DB.RuleGroupAlertRule.belongsTo(DB.RuleGroup, { foreignKey: 'ruleGroupKey' });
+
+DB.AlertRule.hasOne(DB.RuleGroupAlertRule, { foreignKey: 'alertRuleKey' });
+DB.RuleGroupAlertRule.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey' });
+
 
 DB.Party.belongsToMany(DB.Resource, {
   through: {

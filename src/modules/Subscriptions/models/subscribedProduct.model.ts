@@ -30,10 +30,11 @@ export class SubscribedProductModel extends Model<ISubscribedProduct, subscribed
     public deletedAt: Date;
     public subscribedProductFrom: Date;
     public subscribedProductTo: Date;
-    public subscribedProductStatus: string
+    public subscribedProductStatus: string;
+    public updatedAt: Date;
 
     public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
+    
 }
 
 export default function (sequelize: Sequelize): typeof SubscribedProductModel {

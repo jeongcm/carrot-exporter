@@ -50,6 +50,9 @@ export default {
       poolMin: Number(process.env.NC_LARI_DB_CONFIG_POOL_MIN),
       poolMax: Number(process.env.NC_LARI_DB_CONFIG_POOL_MAX),
     },
+    mongodb: {
+      url: process.env.NC_LARI_MONGO_URL,
+    },
   },
   auth: {
     jwtSecretKey: process.env.NC_LARI_JWT_SECRET_KEY,

@@ -39,7 +39,7 @@ export class CreateAlertRuleDto {
 
   @IsString()
   @IsNotEmpty()
-  public alertRuleMLSubGroup: string;
+  public alertRuleMlSubGroup: string;
 
   @IsString()
   @IsNotEmpty()

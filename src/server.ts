@@ -30,6 +30,7 @@ import PartyChannelRoute from './modules/Party/routes/partychannel.route';
 import ResourceRoute from '@modules/Resources/routes/resource.route';
 import ResourceGroupRoute from '@modules/Resources/routes/resourceGroup.route';
 import massUploaderRoute from './modules/CommonService/routes/massUploader.route';
+import massUploaderMongoRoute from './modules/CommonService/routes/massUploaderMongo.route';
 
 import InvitationRoute from './modules/Party/routes/invitation.route';
 import MetricRoute from './modules/Metric/routes/metric.route';
@@ -43,6 +44,8 @@ import BillingAccountDiscountRoute from './modules/Billing/routes/billingAccount
 import ExecutorRoute from './modules/CommonService/routes/executor.route';
 import FileUploadRoute from './modules/CommonService/routes/fileUpload.route';
 import GrafanaRoute from './modules/Grafana/routes/grafana.route';
+import RuleGroupRoute from './modules/RuleGroup/routes/ruleGroup.route';
+import RuleGroupAlertRoute from './modules/RuleGroupAlertRule/routes/ruleGroupAlertRule.route';
 
 import BayesianModelRoute from './modules/MetricOps/routes/bayesianModel.route';
 import ResolutionActionRoute from './modules/MetricOps/routes/resolutionAction.route';
@@ -78,6 +81,7 @@ const app = new App([
   new webhookForBillingRoute(),
   new systemSubscription(),
   new massUploaderRoute(),
+  new massUploaderMongoRoute(),
 
   new InvitationRoute(),
   new MetricRoute(),
@@ -88,12 +92,14 @@ const app = new App([
   new BillingAccountDiscountRoute(),
   new ExecutorRoute(),
   new FileUploadRoute(),
-
   new GrafanaRoute(),
 
   new BayesianModelRoute(),
   new ResolutionActionRoute(),
-  new SudoryTemplateRoute()
+  new SudoryTemplateRoute(),
+
+  new RuleGroupRoute(),
+  new RuleGroupAlertRoute()
 ]);
 
 app.listen();

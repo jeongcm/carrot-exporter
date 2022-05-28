@@ -41,6 +41,7 @@ class SubscriptionService {
 
 
   public async createSubscription(data: CreateSubscriptionDto, userId: string, systemId: string, customerAccountKey: number): Promise<ISubscriptions> {
+
     const subscriptionId = await this.getTableId('Subscription');
     const catalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: data.catalogPlanId } })
     const createObj = {
@@ -49,7 +50,6 @@ class SubscriptionService {
       catalogPlanKey: catalogPlan.catalogPlanKey,
       customerAccountKey,
       createdBy: userId || systemId,
-      updatedBy: userId || systemId,
     }
     const newSubscription: ISubscriptions = await this.subscription.create(createObj);
     delete newSubscription.subscriptionKey;
@@ -171,15 +171,15 @@ class SubscriptionService {
     const catalogPlanProductDetails : ICatalogPlanProduct =  await  this.catalogPlanProduct.findOne(
       {where:
         {
-          catalogPlanKey:subscriptionDetail.catalogPlanKey,
-          catalogPlanProductType:productData.catalogPlanProductType
+          catalogPlanKey: subscriptionDetail.catalogPlanKey,
+          catalogPlanProductType: productData.catalogPlanProductType
         }
       });
     if(productCode){
       fuseBillProduct  =  await  this.catalogPlanProduct.findOne(
         {where:
           {
-            catalogPlanProductId:productCode,
+            catalogPlanProductId: productCode,
           }
         });
     }
@@ -192,8 +192,7 @@ class SubscriptionService {
       subscribedProductStatus,
       subscribedProductFrom, 
       subscribedProductTo,
-      createdBy:partyId||systemId,
-      updatedBy:partyId || systemId
+      createdBy:partyId||systemId
     }
     const newObj = await this.subscribedProduct.create(createObj)
     return {data:newObj, message:"success"};
@@ -239,8 +238,7 @@ class SubscriptionService {
       subscribedProductStatus,
       subscribedProductFrom, 
       subscribedProductTo,
-      createdBy:partyId||systemId,
-      updatedBy:partyId || systemId
+      createdBy:partyId||systemId
     })
   })
     const newObj = await this.subscribedProduct.bulkCreate(createObj)
