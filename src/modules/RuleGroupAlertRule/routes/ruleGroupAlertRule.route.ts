@@ -10,11 +10,14 @@ import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import { Router } from 'express';
 import RuleGroupAlertRuleController from '../controllers/ruleGroupAlertRule.controller';
+import RuleGroupResolutionActionController from '../controllers/ruleGroupResolutionAction.controller';
 import { RuleGroupAlertRuleDto, UnRegisterRuleGroupAlertRuleDto } from '../dtos/ruleGroupAlertRule.dto';
+import { RuleGroupResolutionActionDto, UnRegisterResolutionActionDto } from '../dtos/ruleGroupResolutionAction.dto';
 
 class RuleGroupAlertRoute implements Routes {
   public router = Router();
   public ruleGroupAlertRuleController = new RuleGroupAlertRuleController();
+  public ruleGroupResolutionActionController = new RuleGroupResolutionActionController();
 
   constructor() {
     this.initializeRoutes();
@@ -24,7 +27,9 @@ class RuleGroupAlertRoute implements Routes {
     this.router.post('/register/alert/rule', authMiddleware, validationMiddleware(RuleGroupAlertRuleDto, 'body'), this.ruleGroupAlertRuleController.registerAlertRule);
     this.router.post('/unregister/alert/rule', authMiddleware, validationMiddleware(UnRegisterRuleGroupAlertRuleDto, 'body'), this.ruleGroupAlertRuleController.unregisterAlertRule);
     this.router.get('/register/alert/rule', authMiddleware, this.ruleGroupAlertRuleController.listRegisterAlertRule);
-    
+    this.router.post('/register/resolution/action', authMiddleware, validationMiddleware(RuleGroupResolutionActionDto, 'body'), this.ruleGroupResolutionActionController.registerResolutionAction);
+    this.router.post('/unregister/resolution/action', authMiddleware, validationMiddleware(UnRegisterResolutionActionDto, 'body'), this.ruleGroupResolutionActionController.unregisterResolutionAction);
+    this.router.get('/register/resolution/action', authMiddleware, this.ruleGroupResolutionActionController.listRegisterResolutionAction);
   }
 }
 

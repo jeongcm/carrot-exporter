@@ -59,6 +59,7 @@ import ResolutionActionModel  from '@/modules/MetricOps/models/resolutionAction.
 import SudoryTemplateModel from '@/modules/MetricOps/models/sudoryTemplate.model';
 import RuleGroupModel from '@/modules/RuleGroup/models/ruleGroup.model';
 import ruleGroupAlertRuleModel from '@/modules/RuleGroupAlertRule/models/ruleGroupAlertRule.model';
+import RuleGroupResolutionActionModel from '@/modules/RuleGroupAlertRule/models/RuleGroupResolutionAction.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -147,6 +148,7 @@ const DB = {
   SudoryTemplate:SudoryTemplateModel(sequelize),
   RuleGroup: RuleGroupModel(sequelize),
   RuleGroupAlertRule: ruleGroupAlertRuleModel(sequelize),
+  RuleGroupResolutionAction: RuleGroupResolutionActionModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
@@ -243,8 +245,8 @@ DB.AlertRule.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' })
 DB.AlertRule.hasMany(DB.AlertReceived, { foreignKey: 'alertRuleKey' });
 DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey', as: 'alertRule' });
 
-DB.AlertRule.hasMany(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
-DB.ResourceGroup.belongsTo(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
+// DB.AlertRule.hasMany(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
+// DB.ResourceGroup.belongsTo(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
 
 DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' });
 DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
@@ -377,6 +379,8 @@ DB.BillingAccountDiscount.belongsTo(DB.Discount, { foreignKey: 'discountKey' });
 DB.CustomerAccount.hasMany(DB.BayesianModel, { foreignKey: 'customerAccountKey' });
 DB.BayesianModel.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
+DB.RuleGroup.hasMany(DB.RuleGroupResolutionAction,{ foreignKey:'ruleGroupKey'});
+DB.RuleGroupResolutionAction.belongsTo(DB.RuleGroup,{ foreignKey:'ruleGroupKey'})
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
 //[[force: true]] is used when changes made in database.

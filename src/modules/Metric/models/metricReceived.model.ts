@@ -25,22 +25,22 @@ export type MetricMetaCreationAttributes = Optional<
 
 export class MetricReceivedModel extends Model<IMetricReceived, MetricMetaCreationAttributes > implements IMetricReceived {
 
-    public 'metricReceivedKey': number;
-    public 'metricReceivedId': string;
-    public 'metricReceivedHash': string;  
-    public 'createdBy': string;
-    public 'updatedBy': string;
-    public 'deletedAt': Date;
-    public 'metricReceivedName': string; 
-    public 'metricReceivedMetricInstance': string;
-    public 'metricReceivedMetricJob': string;  
-    public 'metricReceivedMetricService': string;
-    public 'metricReceivedMetricPod': string;
-    public 'metricReceivedMetric': JSON;
-    public 'metricReceivedMetricValue': string;
-    public 'metricReceivedMetricDatetime': Date;
-    public 'metricMetaKey': number;
-    public 'customerAccountKey': number;
+    public metricReceivedKey: number;
+    public metricReceivedId: string;
+    public metricReceivedHash: string;  
+    public createdBy: string;
+    public updatedBy: string;
+    public deletedAt: Date;
+    public metricReceivedName: string; 
+    public metricReceivedMetricInstance: string;
+    public metricReceivedMetricJob: string;  
+    public metricReceivedMetricService: string;
+    public metricReceivedMetricPod: string;
+    public metricReceivedMetric: JSON;
+    public metricReceivedMetricValue: string;
+    public metricReceivedMetricDatetime: Date;
+    public metricMetaKey: number;
+    public customerAccountKey: number;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
