@@ -17,15 +17,15 @@ export type RuleGroupAttributes = Optional<
 
 export class RuleGroupModel extends Model<IRuleGroup, RuleGroupAttributes > implements IRuleGroup {
 
-    public 'ruleGroupKey': number;
-    public 'ruleGroupId': string;
-    public 'createdBy': string;
-    public 'updatedBy': string;
-    public 'deletedAt': Date;
-    public 'ruleGroupName': string; 
-    public 'ruleGroupDescription': string;
-    public 'ruleGroupStatus': string;
-    public 'updatedAt': Date;
+    public ruleGroupKey: number;
+    public ruleGroupId: string;
+    public createdBy: string;
+    public updatedBy: string;
+    public deletedAt: Date;
+    public ruleGroupName: string; 
+    public ruleGroupDescription: string;
+    public ruleGroupStatus: string;
+    public updatedAt: Date;
 
     public readonly createdAt!: Date;
     

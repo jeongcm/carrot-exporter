@@ -16,14 +16,14 @@ export type RuleGroupAlertRuleAttributes = Optional<
 >;
 
 export class RuleGroupAlertRuleModel extends Model<IRuleGroupAlertRule, RuleGroupAlertRuleAttributes> implements IRuleGroupAlertRule {
-  public 'ruleGroupAlertRuleKey': number;
-  public 'ruleGroupKey': number;
-  public 'alertRuleKey': number;
-  public 'ruleGroupAlertRuleId': string;
-  public 'createdBy': string;
-  public 'updatedBy': string;
-  public 'deletedAt': Date;
-  public 'ruleGroupAlertRuleStatus': string;
+  public ruleGroupAlertRuleKey: number;
+  public ruleGroupKey: number;
+  public alertRuleKey: number;
+  public ruleGroupAlertRuleId: string;
+  public createdBy: string;
+  public updatedBy: string;
+  public deletedAt: Date;
+  public ruleGroupAlertRuleStatus: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;

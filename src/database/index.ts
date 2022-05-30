@@ -54,8 +54,13 @@ import billingAccountDiscountModel from '@/modules/Billing/models/billingAccount
 import billingAccountModel from '@/modules/Billing/models/billingAccount.model';
 import paymentTenderModel from '@/modules/Billing/models/paymentTender.model';
 import GrafanaSettingModel from '@/modules/Grafana/models/grafanaSetting.model';
-import RuleGroupModel from '@/modules/RuleGroup/models/ruleGroup.model';
-import ruleGroupAlertRuleModel from '@/modules/RuleGroupAlertRule/models/ruleGroupAlertRule.model';
+import BayesianModelTable from '@/modules/MetricOps/models/bayesianModel.model';
+import ResolutionActionModel  from '@/modules/MetricOps/models/resolutionAction.model';
+import SudoryTemplateModel from '@/modules/MetricOps/models/sudoryTemplate.model';
+import RuleGroupModel from '@/modules/MetricOps/models/ruleGroup.model';
+import ruleGroupAlertRuleModel from '@/modules/MetricOps/models/ruleGroupAlertRule.model';
+import RuleGroupResolutionActionModel from '@/modules/MetricOps/models/RuleGroupResolutionAction.model';
+import ModelRuleScoreModel from '@/modules/MetricOps/models/modelRuleScore.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -139,8 +144,13 @@ const DB = {
   BillingAccount: billingAccountModel(sequelize),
   PaymentTender: paymentTenderModel(sequelize),
   GrafanaSetting: GrafanaSettingModel(sequelize),
+  BayesianModel: BayesianModelTable(sequelize),
+  ResolutionAction: ResolutionActionModel(sequelize),
+  SudoryTemplate:SudoryTemplateModel(sequelize),
   RuleGroup: RuleGroupModel(sequelize),
   RuleGroupAlertRule: ruleGroupAlertRuleModel(sequelize),
+  RuleGroupResolutionAction: RuleGroupResolutionActionModel(sequelize),
+  ModelRuleScore: ModelRuleScoreModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
@@ -237,8 +247,8 @@ DB.AlertRule.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' })
 DB.AlertRule.hasMany(DB.AlertReceived, { foreignKey: 'alertRuleKey' });
 DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey', as: 'alertRule' });
 
-DB.AlertRule.hasMany(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
-DB.ResourceGroup.belongsTo(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
+// DB.AlertRule.hasMany(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
+// DB.ResourceGroup.belongsTo(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
 
 DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' });
 DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
@@ -368,6 +378,11 @@ DB.BillingAccountDiscount.belongsTo(DB.BillingAccount, { foreignKey: 'billingAcc
 DB.Discount.hasOne(DB.BillingAccountDiscount, { foreignKey: 'discountKey' });
 DB.BillingAccountDiscount.belongsTo(DB.Discount, { foreignKey: 'discountKey' });
 
+DB.CustomerAccount.hasMany(DB.BayesianModel, { foreignKey: 'customerAccountKey' });
+DB.BayesianModel.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.RuleGroup.hasMany(DB.RuleGroupResolutionAction,{ foreignKey:'ruleGroupKey'});
+DB.RuleGroupResolutionAction.belongsTo(DB.RuleGroup,{ foreignKey:'ruleGroupKey'})
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
 //[[force: true]] is used when changes made in database.
