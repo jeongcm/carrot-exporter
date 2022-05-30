@@ -7,88 +7,48 @@ import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesian
 import ModelRuleScoreService from '../services/modelRuleScore.service';
 import { IBayesianModel } from '@/common/interfaces/bayesianModel.interface';
 import { updateTenancyMemberDto } from '@/modules/UserTenancy/dtos/tenancyMember.dto';
+import { DetachRuleGroupDto, AttachRuleGroupDto } from '../dtos/modelRuleScore.dto';
+import { IModelRuleScore } from '@/common/interfaces/modelRuleScore.interface';
 
 class ModelRuleGroupController {
   public modelRuleScoreService= new ModelRuleScoreService();
 
-  public getAllBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    try {
-      const customerAccountKey = req.customerAccountKey;
-      const bayesianModelList: IBayesianModel[] = await this.bayesianModelService.findAllBayesianModel(customerAccountKey);
-      res.status(200).json({ data: bayesianModelList, message: 'findAll' });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  // public deleteBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-  //   try {
-  //     const billingAccountId: string = req.params.billingAccountId;
-  //     const customerAccountKey = req.customerAccountKey;
-  //     const deletedFlag = await this.billingAccountService.deleteBillingAccount(customerAccountKey, billingAccountId);
-  //     if (deletedFlag) {
-  //       res.status(200).json({ data: deletedFlag, message: 'deleted' });
-  //     } else {
-  //       res.status(204).json({ data: deletedFlag, message: 'No Content' });
-  //     }
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
-
-  public createBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public attachRuleGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const {
         user: { partyId } = {},
         systemId,
-        customerAccountKey
       } = req;
-      console.log("customerAccountKey", customerAccountKey)
-      const bayesianModelData: CreateBayesianModelDto = req.body;
-      const newBayesianModel: IBayesianModel = await this.bayesianModelService.createBayesianModel(
-        bayesianModelData,
-        customerAccountKey,
+      const modelRuleScoreData: AttachRuleGroupDto = req.body;
+      const newRuleGroupAdded: IModelRuleScore = await this.modelRuleScoreService.attachRuleGroup(
+        modelRuleScoreData,
         systemId || partyId,
       );
-      res.status(201).json({ data: newBayesianModel, message: 'created' });
+      res.status(201).json({ data: newRuleGroupAdded, message: 'rule group added' });
     } catch (error) {
       next(error);
     }
   };
 
-  public updateBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public detachRuleGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const {
         user: { partyId } = {},
-        params: { bayesianModelId } = {}
+        params: { bayesianModelId } = {},
+        systemId
       } = req;
-      const bayesianModelData: UpdateBayesianModelDto = req.body;
-      const customerAccountKey: number = req.customerAccountKey;
-      const updateBayesianModelData: IBayesianModel = await this.bayesianModelService.updateBayesianModel(
-        bayesianModelId,
-        bayesianModelData,
-        partyId,
+      const modelRuleScoreData: DetachRuleGroupDto = req.body;
+      const isDetached: Boolean = await this.modelRuleScoreService.detachRuleGroup(
+        modelRuleScoreData,
+        systemId||partyId
       );
-      res.status(200).json({ data: updateBayesianModelData, message: 'updated' });
+      res.status(200).json({ message: 'Rule group detached successfully' });
     } catch (error) {
       next(error);
     }
   };
 
-  public getBayesianModelById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    try {
-      const {
-        user: { partyId },
-        params: { bayesianModelId }
-      } = req;
-      const bayesianModelData: IBayesianModel = await this.bayesianModelService.findBayesianModelById(
-        bayesianModelId
-      );
-      res.status(200).json({ data: bayesianModelData, message: 'find' });
-    } catch (error) {
-      next(error);
-    }
-  };
+ 
 }
 
 export default ModelRuleGroupController;
