@@ -32,6 +32,27 @@ class BayesianModelRoute implements Routes {
       validationMiddleware(UpdateBayesianModelDto, 'body'),
       this.bayesianModelController.updateBayesianModel,
     );
+    this.router.put(
+      '/bayesianModel/:bayesianModelId',
+      authMiddleware,
+      createUserLogMiddleware,
+      validationMiddleware(UpdateBayesianModelDto, 'body'),
+      this.bayesianModelController.updateBayesianModel,
+    );
+    this.router.put(
+      '/bayesianModel/attachRuleGroup',
+      authMiddleware,
+      createUserLogMiddleware,
+      validationMiddleware(UpdateBayesianModelDto, 'body'),
+      this.bayesianModelController.updateBayesianModel,
+    );
+    this.router.put(
+      '/bayesianModel/detachRuleGroup',
+      authMiddleware,
+      createUserLogMiddleware,
+      validationMiddleware(UpdateBayesianModelDto, 'body'),
+      this.bayesianModelController.updateBayesianModel,
+    );
   }
 }
 

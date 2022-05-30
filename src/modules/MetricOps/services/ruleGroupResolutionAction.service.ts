@@ -6,8 +6,8 @@ import { isEmpty } from '@/common/utils/util';
 import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
-import RuleGroupService from '@/modules/RuleGroup/services/ruleGroup.service';
-import { RuleGroupAlertRuleDto, UnRegisterRuleGroupAlertRuleDto } from '../dtos/ruleGroupAlertRule.dto';
+import RuleGroupService from '@/modules/MetricOps/services/ruleGroup.service';
+import { RuleGroupAlertRuleDto, UnRegisterRuleGroupAlertRuleDto } from '../../MetricOps/dtos/ruleGroupAlertRule.dto';
 import { RuleGroupResolutionActionDto, UnRegisterResolutionActionDto } from '../dtos/ruleGroupResolutionAction.dto';
 const { Op } = require('sequelize');
 

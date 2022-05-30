@@ -1,8 +1,8 @@
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import { IRuleGroupResolutionAction } from '@/common/interfaces/ruleGroupResolutionAction.interface';
 import { NextFunction, Response } from 'express';
-import { RuleGroupResolutionActionDto, UnRegisterResolutionActionDto } from '../dtos/ruleGroupResolutionAction.dto';
-import RuleGroupResolutionActionService from '../services/ruleGroupResolutionAction.service';
+import { RuleGroupResolutionActionDto, UnRegisterResolutionActionDto } from '../../MetricOps/dtos/ruleGroupResolutionAction.dto';
+import RuleGroupResolutionActionService from '../../MetricOps/services/ruleGroupResolutionAction.service';
 
 class RuleGroupResolutionActionController {
     public ruleGroupResolutionActionService = new RuleGroupResolutionActionService();

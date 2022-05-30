@@ -12,7 +12,7 @@ import { Router } from 'express';
 import RuleGroupAlertRuleController from '../controllers/ruleGroupAlertRule.controller';
 import RuleGroupResolutionActionController from '../controllers/ruleGroupResolutionAction.controller';
 import { RuleGroupAlertRuleDto, UnRegisterRuleGroupAlertRuleDto } from '../dtos/ruleGroupAlertRule.dto';
-import { RuleGroupResolutionActionDto, UnRegisterResolutionActionDto } from '../dtos/ruleGroupResolutionAction.dto';
+import { RuleGroupResolutionActionDto, UnRegisterResolutionActionDto } from '../../MetricOps/dtos/ruleGroupResolutionAction.dto';
 
 class RuleGroupAlertRoute implements Routes {
   public router = Router();

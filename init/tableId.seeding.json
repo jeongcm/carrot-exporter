@@ -411,7 +411,7 @@
   },
   {
     "tableIdTableName": "RuleGroupResolutionAction",
-    "tableIdHeader": "RA",
+    "tableIdHeader": "RC",
     "tableMonth": 1,
     "tableYear": 2,
     "tableDay": 1,

@@ -57,9 +57,10 @@ import GrafanaSettingModel from '@/modules/Grafana/models/grafanaSetting.model';
 import BayesianModelTable from '@/modules/MetricOps/models/bayesianModel.model';
 import ResolutionActionModel  from '@/modules/MetricOps/models/resolutionAction.model';
 import SudoryTemplateModel from '@/modules/MetricOps/models/sudoryTemplate.model';
-import RuleGroupModel from '@/modules/RuleGroup/models/ruleGroup.model';
-import ruleGroupAlertRuleModel from '@/modules/RuleGroupAlertRule/models/ruleGroupAlertRule.model';
-import RuleGroupResolutionActionModel from '@/modules/RuleGroupAlertRule/models/RuleGroupResolutionAction.model';
+import RuleGroupModel from '@/modules/MetricOps/models/ruleGroup.model';
+import ruleGroupAlertRuleModel from '@/modules/MetricOps/models/ruleGroupAlertRule.model';
+import RuleGroupResolutionActionModel from '@/modules/MetricOps/models/RuleGroupResolutionAction.model';
+import ModelRuleScoreModel from '@/modules/MetricOps/models/modelRuleScore.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -149,6 +150,7 @@ const DB = {
   RuleGroup: RuleGroupModel(sequelize),
   RuleGroupAlertRule: ruleGroupAlertRuleModel(sequelize),
   RuleGroupResolutionAction: RuleGroupResolutionActionModel(sequelize),
+  ModelRuleScore: ModelRuleScoreModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
