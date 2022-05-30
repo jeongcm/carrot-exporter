@@ -216,11 +216,20 @@ class ResourceService {
    * @param  {object} resourceTargetUuid
    * @param  {string} resoruceType
    */
-   public async retireResourceByUuidNotIn(resourceTargetUuid: object, resourceType: string): Promise<Object> {
+   public async retireResourceByUuidNotIn(resourceTargetUuid: object, resourceType: string, resourceGroupUuid: string): Promise<Object> {
     if (isEmpty(resourceTargetUuid)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
-   
+    if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid must not be empty');
+    if (isEmpty(resourceType)) throw new HttpException(400, 'ResourceType must not be empty');
+
+  
+    const getResourcegroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
+    if (!getResourcegroup) {
+      throw new HttpException(500, `can't find resourcegroup with resourcegroupuuid ${resourceGroupUuid}`);
+    }
+
     const deleted_At = new Date();
-    const notInQuery = { where:  { resourceTargetUuid: {[Op.notIn]: resourceTargetUuid}, 
+    const notInQuery = { where:  { resourceTargetUuid: {[Op.notIn]: resourceTargetUuid},
+                                  resourceGroupKey: getResourcegroup.resourceGroupKey,
                                   resourceType: resourceType,
                                   resourceActive: true
                                  }
@@ -277,7 +286,7 @@ class ResourceService {
    * @param  {IRquestMassUploaderMongo} resourceData
    * @param  {string} resourceGroupKey
    */
-   public async createResourcefromMongoUploader(resourceData: IRquestMassUploaderMongo, resourceGroupKey: string): Promise<IResource> {
+   public async createResourcefromMongoUploader(resourceData: IRquestMassUploaderMongo, resourceGroupKey: string): Promise<Object> {
     if (isEmpty(resourceData)) throw new HttpException(400, 'Resource  must not be empty');
 
     const currentResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupKey: resourceGroupKey } });
