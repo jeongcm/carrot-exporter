@@ -26,6 +26,7 @@ class GrafanaSettingService extends ServiceExtension {
 
       const createGrafanaSetting: IGrafanaSetting = await this.grafanaSetting.create({
         grafanaSettingId,
+        grafanaName: grafanaSettingData.grafanaName,
         grafanaType: grafanaSettingData.grafanaType,
         grafanaUrl: grafanaSettingData.grafanaUrl,
         configJson: grafanaSettingData.configJson,
