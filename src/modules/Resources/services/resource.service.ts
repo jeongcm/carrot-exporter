@@ -33,12 +33,14 @@ class ResourceService {
     }
 
     try {
-      const tableIdTableName = 'Resource';
-
-      const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
+      //const tableIdTableName = 'Resource';
+      //const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
+      const uuid = require('uuid'); 
+      const apiId = uuid.v1();
 
       const createResource: IResource = await this.resource.create({
-        resourceId: responseTableIdData.tableIdFinalIssued,
+        //resourceId: responseTableIdData.tableIdFinalIssued,
+        resourceId: apiId,
         createdBy: currentUserId,
         customerAccountKey,
         resourceStatusUpdatedAt: new Date(),
@@ -218,8 +220,7 @@ class ResourceService {
     if (isEmpty(resourceTargetUuid)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
    
     const deleted_At = new Date();
-    const notInQuery = { where:  { resourceTargetUuid: 
-                                 {[Op.notIn]: resourceTargetUuid}, 
+    const notInQuery = { where:  { resourceTargetUuid: {[Op.notIn]: resourceTargetUuid}, 
                                   resourceType: resourceType,
                                   resourceActive: true
                                  }
@@ -246,11 +247,11 @@ class ResourceService {
 /**
    * @param  {string} resourceTargetUuid
    * @param  {string} resourceNamespace
+   * @param  {any} updated_At
    */
- public async updateResourceByMongoUploader(resourceTargetUuid: string, resourceNamespace: string): Promise<String> {
+ public async updateResourceByMongoUploader(resourceTargetUuid: string, resourceNamespace: string, updated_At: any): Promise<String> {
   if (isEmpty(resourceTargetUuid)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
  
-  const updated_At = new Date();
 
   const updatedResource = {
     resourceNamespace: resourceNamespace,
@@ -304,9 +305,14 @@ class ResourceService {
 
     try {
       const tableIdTableName = 'Resource';
-      const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
+      //const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
+
+      const uuid = require('uuid'); 
+      const apiId = uuid.v1();
+
       const createResource: IResource = await this.resource.create({
-        resourceId: responseTableIdData.tableIdFinalIssued,
+        //resourceId: responseTableIdData.tableIdFinalIssued,
+        resourceId: apiId,
         createdAt: new Date(),
         createdBy: "SYSTEM",
         ...resourceInputData,
@@ -316,6 +322,7 @@ class ResourceService {
       throw new HttpException(500, error);
     }
   }
+
 
 }
 

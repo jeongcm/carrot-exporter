@@ -67,8 +67,10 @@ class massUploaderMongoService {
             console.log (deletedInfo); 
             console.log("query for delete:  ", queryN);
         //update mariadb resource table
-            const resource_delete_maria = await this.resourceService.retireResourceByUuidNotIn(resource_Target_Uuid_Local, resource_Type);
-            console.log ("db update for Maria: ", resource_delete_maria);
+            if (result_delete.modifiedCount>0){
+                const resource_delete_maria = await this.resourceService.retireResourceByUuidNotIn(resource_Target_Uuid_Local, resource_Type);
+                console.log ("db update for Maria: ", resource_delete_maria);
+            }
 
         //up-seart
             for (let i=0; i<itemLength; i++)
@@ -79,7 +81,6 @@ class massUploaderMongoService {
                 let resourceTargetUuid = resourceMassFeed[i].resource_Target_Uuid;
                 let resourceNamespace = resourceMassFeed[i].resource_Namespace;
 
-
                 var query_search = {resource_Target_Uuid: resourceTargetUuid};
                 var query_data = { "$set": resourceMassFeed[i]}; 
 
@@ -88,7 +89,7 @@ class massUploaderMongoService {
                 if (result_update.lastErrorObject.updatedExisting){
                     updatedCount=updatedCount+1;
                 // update Mariadb....    
-                    const result_update_maria = await this.resourceService.updateResourceByMongoUploader(resourceTargetUuid, resourceNamespace);
+                    const result_update_maria = await this.resourceService.updateResourceByMongoUploader(resourceTargetUuid, resourceNamespace, updated_At);
                     console.log(result_update_maria); 
                 }
                 else {
