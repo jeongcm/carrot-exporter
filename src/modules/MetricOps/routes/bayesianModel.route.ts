@@ -40,7 +40,7 @@ class BayesianModelRoute implements Routes {
       validationMiddleware(UpdateBayesianModelDto, 'body'),
       this.bayesianModelController.updateBayesianModel,
     );
-    this.router.put(
+    this.router.post(
       '/bayesianModel/attachRuleGroup',
       authMiddleware,
       createUserLogMiddleware,

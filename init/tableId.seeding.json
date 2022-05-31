@@ -418,6 +418,16 @@
     "tableIdSequenceDigit": 8,
     "tableIdIssuedSequence": 1,
     "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "ModelRuleScore",
+    "tableIdHeader": "MS",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
   }
 
 ]

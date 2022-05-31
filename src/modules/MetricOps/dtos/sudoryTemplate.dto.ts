@@ -13,7 +13,6 @@ export class CreateSudoryTemplateDto {
     @IsNotEmpty()
     public sudoryTemplateUuid: string;
 
-    @IsJSON()
     @IsOptional()
     public sudoryTemplateArgs: JSON;
 
