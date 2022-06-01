@@ -32,7 +32,7 @@ export class IncidentActionAttachmentModel
 
   public incidentActionAttachmentName: string;
   public incidentActionAttachmentDescription: string;
-  public incidentActionAttachmentType: 'JSON' | 'IMAGE' | 'PDF';
+  public incidentActionAttachmentType: 'JS' | 'IM' | 'PD' | 'MO';
   public incidentActionAttachmentFilename: string;
   public incidentActionAttachmentFileType: string;
   public incidentActionAttachmentPath: JSON;
@@ -93,7 +93,7 @@ export default function (sequelize: Sequelize): typeof IncidentActionAttachmentM
         allowNull: false,
       },
       incidentActionAttachmentFileType: {
-        type: DataTypes.STRING(10),
+        type: DataTypes.STRING(20),
         defaultValue: null,
       },
       incidentActionAttachmentPath: {

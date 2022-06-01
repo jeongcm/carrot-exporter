@@ -70,7 +70,7 @@ class IncidentRoute implements Routes {
       createUserLogMiddleware,
       this.incidentController.deleteIncidentAction,
     );
-
+    this.router.get('/incidents/:incidentId/attachments', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidentAttachments);
     this.router.post(
       '/incidents/:incidentId/actions/:actionId/attachment',
       authMiddleware,

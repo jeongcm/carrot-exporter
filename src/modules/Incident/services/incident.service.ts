@@ -322,6 +322,7 @@ class IncidentService {
 
     return incidentActions;
   }
+
   /**
    * Get an incidentAction by incidentActionId
    *
@@ -336,6 +337,13 @@ class IncidentService {
     });
 
     return incidentAction;
+  }
+
+  public async getIncidentActionKeysByIncidentId(incidentKey: number): Promise<IIncidentAction[]> {
+    const incidentActionKeys: IIncidentAction[] = await this.incidentAction.findAll({
+      where: { incidentKey: incidentKey, deletedAt: null },
+    });
+    return incidentActionKeys;
   }
 
   /**
@@ -458,19 +466,19 @@ class IncidentService {
         actionAttachmentData.incidentActionAttachmentFileType,
         incidentActionAttachmentFile,
       );
-
-      if(uploadedFilePath.status==="ok"){
+      if (uploadedFilePath.status === 'ok') {
         const createdActionAttachment: IIncidentActionAttachment = await this.incidentActionAttachment.create({
           ...actionAttachmentData,
           createdBy: logginedUserId,
           incidentActionKey,
           incidentActionAttachmentId: responseTableIdData.tableIdFinalIssued,
+          incidentActionAttachmentPath: uploadedFilePath.data.key,
         });
         return createdActionAttachment;
       }
-
     } catch (error) {
-      new HttpException(400, "Not able to attach this attachment.");
+      console.log(error);
+      new HttpException(400, 'Not able to attach this attachment.');
     }
   }
 
@@ -491,6 +499,16 @@ class IncidentService {
 
       return incidentActionAttachments;
     } catch (error) {}
+  }
+
+  public async getIncidentAttachmentByIncidentId(customerAccountKey: number, incidentId: string): Promise<IIncidentActionAttachment[]> {
+    const { incidentKey } = await this.getIncidentKey(customerAccountKey, incidentId);
+    const incidentActionKeys = await this.getIncidentActionKeysByIncidentId(incidentKey);
+    const incidentActionKeysList = incidentActionKeys.map(incidentActionKeysX => incidentActionKeysX.incidentActionKey);
+    const incidentActionAttachments: IIncidentActionAttachment[] = await this.incidentActionAttachment.findAll({
+      where: { incidentActionKey: { [Op.in]: incidentActionKeysList } },
+    });
+    return incidentActionAttachments;
   }
 
   /**

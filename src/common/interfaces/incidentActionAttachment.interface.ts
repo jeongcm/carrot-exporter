@@ -9,7 +9,7 @@ export interface IIncidentActionAttachment {
   deletedAt: Date;
   incidentActionAttachmentName: string;
   incidentActionAttachmentDescription: string;
-  incidentActionAttachmentType: 'JSON' | 'IMAGE' | 'PDF';
+  incidentActionAttachmentType: 'JS' | 'IM' | 'PD' | 'MO';
   incidentActionAttachmentFilename: string;
   incidentActionAttachmentFileType: string;
   incidentActionAttachmentPath: JSON;
@@ -21,7 +21,7 @@ export interface IIncidentActionAttachmentResponse {
   updatedAt: Date;
   incidentActionAttachmentName: string;
   incidentActionAttachmentDescription: string;
-  incidentActionAttachmentType: 'JSON' | 'IMAGE' | 'PDF';
+  incidentActionAttachmentType: 'JS' | 'IM' | 'PD' | 'MO';
   incidentActionAttachmentFilename: string;
   incidentActionAttachmentFileType: string;
   incidentActionAttachmentPath: JSON;

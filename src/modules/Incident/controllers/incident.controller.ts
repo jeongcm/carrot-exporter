@@ -337,6 +337,30 @@ class IncidentController {
     }
   };
 
+  
+  public getIncidentAttachments = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const incidentId = req.params.incidentId;
+
+    const incident = await this.incidentService.getIncidentById(customerAccountKey, incidentId);
+
+    if (!incident) {
+      return res.status(404).json({ message: `Incident id(${incidentId}) not found` });
+    }
+
+    try {
+      const actions: IIncidentActionAttachment[] = await this.incidentService.getIncidentAttachmentByIncidentId(customerAccountKey, incidentId);
+
+      if (actions) {
+        res.status(200).json({ data: actions, message: `find incident id(${incidentId})'s attachments` });
+      } else {
+        res.status(404).json({ message: `Incident id(${incidentId})'s attachment not found` });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public updateIncidentActionAttachment = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
     const incidentId = req.params.incidentId;
