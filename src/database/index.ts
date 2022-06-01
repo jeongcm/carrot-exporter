@@ -61,6 +61,7 @@ import RuleGroupModel from '@/modules/MetricOps/models/ruleGroup.model';
 import ruleGroupAlertRuleModel from '@/modules/MetricOps/models/ruleGroupAlertRule.model';
 import RuleGroupResolutionActionModel from '@/modules/MetricOps/models/RuleGroupResolutionAction.model';
 import ModelRuleScoreModel from '@/modules/MetricOps/models/modelRuleScore.model';
+import AnomalyMonitoringTargetTable from '@/modules/MetricOps/models/monitoringTarget.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -158,6 +159,7 @@ const DB = {
   RuleGroupAlertRule: ruleGroupAlertRuleModel(sequelize),
   RuleGroupResolutionAction: RuleGroupResolutionActionModel(sequelize),
   ModelRuleScore: ModelRuleScoreModel(sequelize),
+  AnomalyMonitoringTarget: AnomalyMonitoringTargetTable(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };

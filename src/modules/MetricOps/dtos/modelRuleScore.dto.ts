@@ -9,7 +9,7 @@ export class AttachRuleGroupDto {
     @IsOptional()
     public bayesianModelId: string;
   
-    @IsString()
+
     @IsOptional()
     public scoreCard: JSON;
   
@@ -26,7 +26,7 @@ export class DetachRuleGroupDto {
 
     
     @IsString()
-    @IsOptional()
+    @IsNotEmpty()
     public modelRuleScoreId: string;
   
   

@@ -9,9 +9,9 @@ export class CreateResolutionActionDto {
     @IsNotEmpty()
     public resolutionActionDescription: string;
 
-    @IsNumber()
+    @IsString()
     @IsNotEmpty()
-    public sudoryTemplateKey: number;
+    public sudoryTemplateId: string;
 
 }
 export class UpdateResolutionActionDto {
@@ -23,8 +23,8 @@ export class UpdateResolutionActionDto {
     @IsOptional()
     public resolutionActionDescription: string;
 
-    @IsNumber()
+    @IsString()
     @IsOptional()
-    public sudoryTemplateKey: number;
+    public sudoryTemplateId: string;
 
 }
