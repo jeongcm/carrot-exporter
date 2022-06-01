@@ -33,9 +33,10 @@ export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreat
   public resourceGroupPrometheus: string;
   public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR' | 'OR' | 'OT';
   public resourceGroupUuid: string;
+  public updatedAt: Date;
 
   public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  
 }
 
 export default function (sequelize: Sequelize): typeof ResourceGroupModel {
