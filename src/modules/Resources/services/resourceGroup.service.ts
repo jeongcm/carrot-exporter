@@ -10,11 +10,12 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceService from './resource.service';
+import { createSemanticDiagnosticsBuilderProgram } from 'typescript';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
   public resource = DB.Resource;
-  public resourceSerivce = new ResourceService(); 
+  //public resourceSerivce = new ResourceService(); 
   public tableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
 
@@ -57,12 +58,13 @@ class ResourceGroupService {
         resourceStatus: null,
         parentResourceId: '',
         resourceOwnerReferences: null,
+        createdAt: new Date(),
+        createdBy: currentUserId,
+        customerAccountKey: customerAccountKey
       }
 
-      const createResource: IResource = await this.resourceSerivce.createResource(resourceData, currentUserId, customerAccountKey)
-
-
-
+      const createResource: IResource = await this.resource.create(resourceData);
+      console.log(createResource);
 
       return createResourceGroup;
     } catch (error) {
