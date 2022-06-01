@@ -310,6 +310,7 @@ class ResourceService {
       resourceActive: resourceData.resource_Active,
       resourceStatusUpdatedAt: resourceData.resource_Status_Updated_At,
       resourceTargetCreatedAt: resourceData.resource_Target_Created_At,
+      resourceInstance: resourceData.resource_Instance,
     };  
 
     try {
