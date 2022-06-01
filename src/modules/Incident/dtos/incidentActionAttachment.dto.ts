@@ -11,7 +11,7 @@ export class CreateIncidentActionAttachmentDto {
 
   @IsString()
   @IsNotEmpty()
-  public incidentActionAttachmentType: 'JSON' | 'IMAGE' | 'PDF';
+  public incidentActionAttachmentType: 'JS' | 'IM' | 'PD' | 'MO';
 
   @IsString()
   @IsNotEmpty()
