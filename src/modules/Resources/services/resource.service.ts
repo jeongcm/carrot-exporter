@@ -42,7 +42,7 @@ class ResourceService {
         //resourceId: responseTableIdData.tableIdFinalIssued,
         resourceId: apiId,
         createdBy: currentUserId,
-        customerAccountKey,
+        customerAccountKey: customerAccountKey,
         resourceStatusUpdatedAt: new Date(),
         resourceGroupKey: currentResourceGroup.resourceGroupKey,
         ...resourceData,

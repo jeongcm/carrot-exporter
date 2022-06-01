@@ -2,16 +2,19 @@ import DB from '@/database';
 import axios from 'axios';
 import config from '@config/index';
 import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
+import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import { ResourceGroupDto, ResourceGroupExecutorDto } from '../dtos/resourceGroup.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+import ResourceService from './resource.service';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
   public resource = DB.Resource;
+  public resourceSerivce = new ResourceService(); 
   public tableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
 
@@ -25,15 +28,42 @@ class ResourceGroupService {
 
     try {
       const tableIdTableName = 'ResourceGroup';
-
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
-
       const createResourceGroup: IResourceGroup = await this.resourceGroup.create({
         resourceGroupId: responseTableIdData.tableIdFinalIssued,
         createdBy: currentUserId,
         customerAccountKey,
         ...resourceGroupData,
       });
+
+      const resourceData = {
+        resourceType: 'K8',
+        resourceName: resourceGroupData.resourceGroupName,
+        resourceDescription: resourceGroupData.resourceGroupDescription,
+        resourceTargetUuid: resourceGroupData.resourceGroupUuid,
+        resourceGroupId: responseTableIdData.tableIdFinalIssued,
+        resourceLevelType: 'K8',
+        resourceLevel1: 'K8',
+        resourceRbac: true,
+        resourceAnomalyMonitor: false,
+        resourceActive: true,
+        resourceStatusUpdatedAt: new Date(),
+        resourceInstance: '',
+        resourceLevel2: '',
+        resourceLevel3: '',
+        resourceLevel4: '',
+        resourceNamespace: '',
+        resourceTargetCreatedAt: null,
+        resourceStatus: null,
+        parentResourceId: '',
+        resourceOwnerReferences: null,
+      }
+
+      const createResource: IResource = await this.resourceSerivce.createResource(resourceData, currentUserId, customerAccountKey)
+
+
+
+
       return createResourceGroup;
     } catch (error) {
       throw new HttpException(500, error);

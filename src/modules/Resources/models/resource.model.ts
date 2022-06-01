@@ -167,7 +167,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         },
       },
       resourceLevel1: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
@@ -208,7 +208,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-            args: [['', 'KN', 'KS', 'OP', 'KC']],
+            args: [['', 'KN', 'KS', 'OP', 'K8']],
             msg: 'Resource must be of type KN, KS or OP.',
           },
         },
