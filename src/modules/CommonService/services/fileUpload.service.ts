@@ -12,7 +12,6 @@ const BucketName = config.fileUpload.DOBucket;
 
 class fileUploadService {
   public async upload(req: any): Promise<any> {
-    
     let uploadParameters = {
       Bucket: BucketName,
       ContentType: req.query.content_type,
@@ -20,15 +19,80 @@ class fileUploadService {
       ACL: req.query.acl,
       Key: req.query.file_name, //we have to define a new file_name which also includes some extra coding to define our path.
     };
-
     const result = await space.upload(uploadParameters, function (error, data) {
       if (error) {
-        console.error(error);
         throw new HttpException(500, error);
       }
       return data;
     });
     return result;
+  }
+
+  public async uploadService(fileName: string, contentType: string, file: any): Promise<any> {
+    try {
+      let uploadParameters = {
+        Bucket: BucketName,
+        ContentType: contentType,
+        Body: file.buffer,
+        ACL: 'public-read',
+        Key: fileName,
+      };
+
+      const result = space.upload(uploadParameters);
+      var promise = result.promise();
+
+      let data = await promise.then(
+        function (data) {
+          return {
+            status: 'ok',
+            data: data,
+          };
+        },
+        function (err) {
+          return {
+            status: 'error',
+            data: err,
+          };
+        },
+      );
+      return data;
+    } catch (err) {
+      return 'err';
+    }
+  }
+
+  public async get(req: any): Promise<any> {
+    let downloadParameters = {
+      Bucket: BucketName,
+      Key: req.params.fileName,
+    };
+
+    const result = await space.getObject(downloadParameters, function (error, data) {
+      if (error) {
+        throw new HttpException(500, error.message);
+      }
+      return data;
+    });
+    return result;
+  }
+
+  public async delete(req: any): Promise<any> {
+    let downloadParameters = {
+      Bucket: BucketName,
+      Key: req.query.fileName,
+    };
+    const result = await space.deleteObject(downloadParameters, function (error, data) {
+      if (error) {
+        console.error(error.code);
+        throw new HttpException(500, error.message);
+      }
+      return data;
+    });
+    return result;
+  }
+
+  public uploadedFileLink(fileName: String): String {
+    return `${config.fileUpload.DOEndPoint}/${BucketName}/${fileName}`;
   }
 }
 

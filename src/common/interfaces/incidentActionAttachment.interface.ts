@@ -9,13 +9,11 @@ export interface IIncidentActionAttachment {
   deletedAt: Date;
   incidentActionAttachmentName: string;
   incidentActionAttachmentDescription: string;
-  incidentActionAttachmentType: 'JS' | 'IM';
+  incidentActionAttachmentType: 'JSON' | 'IMAGE' | 'PDF';
   incidentActionAttachmentFilename: string;
-  incidentActionAttachmentBLOB: Blob;
-  incidentActionAttachmentJSON: JSON;
+  incidentActionAttachmentFileType: string;
+  incidentActionAttachmentPath: JSON;
 }
-
-// incidentActionAttachmentType: 'JSON' | 'IMAGE';
 
 export interface IIncidentActionAttachmentResponse {
   incidentActionAttachmentId: string;
@@ -23,8 +21,8 @@ export interface IIncidentActionAttachmentResponse {
   updatedAt: Date;
   incidentActionAttachmentName: string;
   incidentActionAttachmentDescription: string;
-  incidentActionAttachmentType: 'JS' | 'IM';
+  incidentActionAttachmentType: 'JSON' | 'IMAGE' | 'PDF';
   incidentActionAttachmentFilename: string;
-  incidentActionAttachmentBLOB: Blob;
-  incidentActionAttachmentJSON: JSON;
+  incidentActionAttachmentFileType: string;
+  incidentActionAttachmentPath: JSON;
 }

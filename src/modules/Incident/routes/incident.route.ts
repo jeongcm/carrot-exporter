@@ -16,10 +16,14 @@ import { CreateIncidentActionAttachmentDto } from '@/modules/Incident/dtos/incid
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
 
+import multer from 'multer';
+
 class IncidentRoute implements Routes {
   public router = Router();
   public incidentController = new IncidentController();
   public authservice = new AuthService();
+  public storage = multer.memoryStorage();
+  public upload = multer({ storage: this.storage });
 
   constructor() {
     this.initializeRoutes();
@@ -70,6 +74,7 @@ class IncidentRoute implements Routes {
     this.router.post(
       '/incidents/:incidentId/actions/:actionId/attachment',
       authMiddleware,
+      this.upload.single("incidentActionAttachmentFile"),
       validationMiddleware(CreateIncidentActionAttachmentDto, 'body'),
       createUserLogMiddleware,
       this.incidentController.createIncidentActionAttachment,

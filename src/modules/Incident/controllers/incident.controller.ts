@@ -268,6 +268,7 @@ class IncidentController {
     const customerAccountKey = req.customerAccountKey;
     const incidentId = req.params.incidentId;
     const actionId = req.params.actionId;
+    const incidentActionAttachmentFile = req.file;
 
     const incident = await this.incidentService.getIncidentById(customerAccountKey, incidentId);
 
@@ -281,6 +282,10 @@ class IncidentController {
       return res.status(404).json({ message: `Incident action id(${actionId}) not found` });
     }
 
+    if(!incidentActionAttachmentFile){
+      return  res.status(404).json({ message: `Payload request must contain some attachments(pdf,image/json)` });
+    }
+
     try {
       const actionAttachmentData: CreateIncidentActionAttachmentDto = req.body;
       const logginedUserId = req.user.partyId;
@@ -291,6 +296,7 @@ class IncidentController {
         actionId,
         actionAttachmentData,
         logginedUserId,
+        incidentActionAttachmentFile
       );
 
       if (createdActionAttachment) {

@@ -23,6 +23,7 @@ import sequelize from 'sequelize';
 import { Op } from 'sequelize';
 import { PartyModel } from '@/modules/Party/models/party.model';
 import PartyService from '@/modules/Party/services/party.service';
+import UploadService from '@/modules/CommonService/services/fileUpload.service';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
@@ -41,6 +42,7 @@ class IncidentService {
 
   public partyService = new PartyService();
   public tableIdService = new TableIdService();
+  public fileUploadService = new UploadService();
 
   /**
    * Create a new incident
@@ -437,25 +439,39 @@ class IncidentService {
     actionId: string,
     actionAttachmentData: CreateIncidentActionAttachmentDto,
     logginedUserId: string,
+    incidentActionAttachmentFile: any,
   ): Promise<IIncidentActionAttachment> {
     if (isEmpty(actionAttachmentData)) throw new HttpException(400, 'Incident must not be empty');
 
     const tableIdTableName = 'IncidentActionAttachment';
+    const moduleName = 'INC';
 
     const { incidentActionKey } = await this.getIncidentActionKey(customerAccountKey, incidentId, actionId);
 
     try {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
-      const createdActionAttachment: IIncidentActionAttachment = await this.incidentActionAttachment.create({
-        ...actionAttachmentData,
-        createdBy: logginedUserId,
-        incidentActionKey,
-        incidentActionAttachmentId: responseTableIdData.tableIdFinalIssued,
-      });
+      const fileName = moduleName + customerAccountKey + '-' + logginedUserId + '-' + responseTableIdData.tableIdFinalIssued;
 
-      return createdActionAttachment;
-    } catch (error) {}
+      const uploadedFilePath = await this.fileUploadService.uploadService(
+        fileName,
+        actionAttachmentData.incidentActionAttachmentFileType,
+        incidentActionAttachmentFile,
+      );
+
+      if(uploadedFilePath.status==="ok"){
+        const createdActionAttachment: IIncidentActionAttachment = await this.incidentActionAttachment.create({
+          ...actionAttachmentData,
+          createdBy: logginedUserId,
+          incidentActionKey,
+          incidentActionAttachmentId: responseTableIdData.tableIdFinalIssued,
+        });
+        return createdActionAttachment;
+      }
+
+    } catch (error) {
+      new HttpException(400, "Not able to attach this attachment.");
+    }
   }
 
   public async getIncidentActionAttachment(customerAccountKey: number, incidentId: string, actionId: string): Promise<IIncidentActionAttachment[]> {
