@@ -31,32 +31,32 @@ export class ResourceDto {
   public resourceDescription: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public resourceInstance: string;
 
   @IsString()
   @IsNotEmpty()
-  public resourceType: ResourceType;
-
-  @IsString()
-  @IsNotEmpty()
-  public resourceLevel1: ResourceTypeLevel1;
+  public resourceType: string;
 
   @IsString()
   @IsOptional()
-  public resourceLevel2: ResourceTypeLevel2;
+  public resourceLevel1: string;
 
   @IsString()
   @IsOptional()
-  public resourceLevel3: ResourceTypeLevel3;
+  public resourceLevel2: string;
 
   @IsString()
   @IsOptional()
-  public resourceLevel4: ResourceTypeLevel4;
+  public resourceLevel3: string;
 
   @IsString()
-  @IsNotEmpty()
-  public resourceLevelType: 'KN' | 'KS' | 'OP';
+  @IsOptional()
+  public resourceLevel4: string;
+
+  @IsString()
+  @IsOptional()
+  public resourceLevelType: string;
 
   @IsBoolean()
   @IsNotEmpty()
@@ -83,11 +83,11 @@ export class ResourceDto {
   public parentResourceId: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public resourceNamespace: string;
 
   @IsDateString()
-  @IsNotEmpty()
+  @IsOptional()
   public resourceTargetCreatedAt: Date;
 
   @IsObject()

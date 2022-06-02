@@ -3,6 +3,10 @@ import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 export class CreateGrafanaSettingDto {
   @IsString()
   @IsOptional()
+  public grafanaName: string;
+
+  @IsString()
+  @IsOptional()
   public grafanaUrl: string;
 
   @IsString()
@@ -14,6 +18,10 @@ export class CreateGrafanaSettingDto {
 }
 
 export class UpdateGrafanaSettingDto {
+  @IsString()
+  @IsOptional()
+  public grafanaName: string;
+
   @IsString()
   @IsOptional()
   public grafanaUrl: string;

@@ -268,6 +268,7 @@ class IncidentController {
     const customerAccountKey = req.customerAccountKey;
     const incidentId = req.params.incidentId;
     const actionId = req.params.actionId;
+    const incidentActionAttachmentFile = req.file;
 
     const incident = await this.incidentService.getIncidentById(customerAccountKey, incidentId);
 
@@ -281,6 +282,10 @@ class IncidentController {
       return res.status(404).json({ message: `Incident action id(${actionId}) not found` });
     }
 
+    if(!incidentActionAttachmentFile){
+      return  res.status(404).json({ message: `Payload request must contain some attachments(pdf,image/json)` });
+    }
+
     try {
       const actionAttachmentData: CreateIncidentActionAttachmentDto = req.body;
       const logginedUserId = req.user.partyId;
@@ -291,6 +296,7 @@ class IncidentController {
         actionId,
         actionAttachmentData,
         logginedUserId,
+        incidentActionAttachmentFile
       );
 
       if (createdActionAttachment) {
@@ -325,6 +331,30 @@ class IncidentController {
         res.status(200).json({ data: incidentActionAttachments, message: `find incidentAction id(${actionId})'s attachments` });
       } else {
         res.status(404).json({ message: `Incident id(${incidentId})'s action(id: ${actionId}) not found` });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  
+  public getIncidentAttachments = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const incidentId = req.params.incidentId;
+
+    const incident = await this.incidentService.getIncidentById(customerAccountKey, incidentId);
+
+    if (!incident) {
+      return res.status(404).json({ message: `Incident id(${incidentId}) not found` });
+    }
+
+    try {
+      const actions: IIncidentActionAttachment[] = await this.incidentService.getIncidentAttachmentByIncidentId(customerAccountKey, incidentId);
+
+      if (actions) {
+        res.status(200).json({ data: actions, message: `find incident id(${incidentId})'s attachments` });
+      } else {
+        res.status(404).json({ message: `Incident id(${incidentId})'s attachment not found` });
       }
     } catch (error) {
       next(error);

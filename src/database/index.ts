@@ -61,6 +61,7 @@ import RuleGroupModel from '@/modules/MetricOps/models/ruleGroup.model';
 import ruleGroupAlertRuleModel from '@/modules/MetricOps/models/ruleGroupAlertRule.model';
 import RuleGroupResolutionActionModel from '@/modules/MetricOps/models/RuleGroupResolutionAction.model';
 import ModelRuleScoreModel from '@/modules/MetricOps/models/modelRuleScore.model';
+import AnomalyMonitoringTargetTable from '@/modules/MetricOps/models/monitoringTarget.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -91,6 +92,13 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
     logger.info(time + 'ms' + ' ' + query);
   },
   benchmark: true,
+  retry: {
+    match: [/Deadlock/i],
+    max: 3, // Maximum rety 3 times
+    backoffBase: 1000, // Initial backoff duration in ms. Default: 100,
+    backoffExponent: 1.5, // Exponent to increase backoff each try. Default: 1.1
+    timeout: 50000,
+  }
 });
 
 sequelize.authenticate();
@@ -151,6 +159,7 @@ const DB = {
   RuleGroupAlertRule: ruleGroupAlertRuleModel(sequelize),
   RuleGroupResolutionAction: RuleGroupResolutionActionModel(sequelize),
   ModelRuleScore: ModelRuleScoreModel(sequelize),
+  AnomalyMonitoringTarget: AnomalyMonitoringTargetTable(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };

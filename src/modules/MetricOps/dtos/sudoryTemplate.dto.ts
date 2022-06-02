@@ -14,6 +14,7 @@ export class CreateSudoryTemplateDto {
     public sudoryTemplateUuid: string;
 
     @IsObject()
+    @IsOptional()
     public sudoryTemplateArgs: JSON;
 
 }
@@ -30,7 +31,7 @@ export class UpdateSudoryTemplateDto {
    @IsOptional()
     public sudoryTemplateUuid: string;
 
-    @IsJSON()
+    @IsObject()
     @IsOptional()
     public sudoryTemplateArgs: JSON;
 

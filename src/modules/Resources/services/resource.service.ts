@@ -5,7 +5,7 @@ import { ResourceDto } from '../dtos/resource.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
-import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import { IMassUploaderMongoUpdateDto } from '@modules/CommonService/dtos/massUploaderMongo.dto';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
@@ -33,14 +33,16 @@ class ResourceService {
     }
 
     try {
-      const tableIdTableName = 'Resource';
-
-      const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
+      //const tableIdTableName = 'Resource';
+      //const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
+      const uuid = require('uuid'); 
+      const apiId = uuid.v1();
 
       const createResource: IResource = await this.resource.create({
-        resourceId: responseTableIdData.tableIdFinalIssued,
+        //resourceId: responseTableIdData.tableIdFinalIssued,
+        resourceId: apiId,
         createdBy: currentUserId,
-        customerAccountKey,
+        customerAccountKey: customerAccountKey,
         resourceStatusUpdatedAt: new Date(),
         resourceGroupKey: currentResourceGroup.resourceGroupKey,
         ...resourceData,
@@ -214,12 +216,20 @@ class ResourceService {
    * @param  {object} resourceTargetUuid
    * @param  {string} resoruceType
    */
-   public async retireResourceByUuidNotIn(resourceTargetUuid: object, resourceType: string): Promise<Object> {
+   public async retireResourceByUuidNotIn(resourceTargetUuid: object, resourceType: string, resourceGroupUuid: string): Promise<Object> {
     if (isEmpty(resourceTargetUuid)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
-   
+    if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid must not be empty');
+    if (isEmpty(resourceType)) throw new HttpException(400, 'ResourceType must not be empty');
+
+  
+    const getResourcegroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
+    if (!getResourcegroup) {
+      throw new HttpException(500, `can't find resourcegroup with resourcegroupuuid ${resourceGroupUuid}`);
+    }
+
     const deleted_At = new Date();
-    const notInQuery = { where:  { resourceTargetUuid: 
-                                 {[Op.notIn]: resourceTargetUuid}, 
+    const notInQuery = { where:  { resourceTargetUuid: {[Op.notIn]: resourceTargetUuid},
+                                  resourceGroupKey: getResourcegroup.resourceGroupKey,
                                   resourceType: resourceType,
                                   resourceActive: true
                                  }
@@ -244,25 +254,24 @@ class ResourceService {
   }
 
 /**
-   * @param  {string} resourceTargetUuid
-   * @param  {string} resourceNamespace
+   * @param  {IMassUploaderMongoUpdateDto} updateRequest
    */
- public async updateResourceByMongoUploader(resourceTargetUuid: string, resourceNamespace: string): Promise<String> {
-  if (isEmpty(resourceTargetUuid)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
+ public async updateResourceByMongoUploader(updateRequest: IMassUploaderMongoUpdateDto): Promise<String> {
+  if (isEmpty(updateRequest)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
  
-  const updated_At = new Date();
 
   const updatedResource = {
-    resourceNamespace: resourceNamespace,
+    resourceNamespace: updateRequest.resourceNamespace,
     updatedBy: "SYSTEM",
-    updatedAt: updated_At,
-    resourceStatusUpdatedAt: updated_At,
+    updatedAt: updateRequest.updatedAt,
+    resourceStatusUpdatedAt: updateRequest.updatedAt,
+    resourceInstance: updateRequest.resourceInstance,
   };
 
   console.log("updatedResource: ", updatedResource); 
 
   try {
-    const updateResult = await this.resource.update(updatedResource, {where: {resourceTargetUuid: resourceTargetUuid},});
+    const updateResult = await this.resource.update(updatedResource, {where: {resourceTargetUuid: updateRequest.resourceTargetUuid},});
     console.log (updateResult);
   } catch (error) {
     throw new HttpException(500, error);
@@ -276,7 +285,7 @@ class ResourceService {
    * @param  {IRquestMassUploaderMongo} resourceData
    * @param  {string} resourceGroupKey
    */
-   public async createResourcefromMongoUploader(resourceData: IRquestMassUploaderMongo, resourceGroupKey: string): Promise<IResource> {
+   public async createResourcefromMongoUploader(resourceData: IRquestMassUploaderMongo, resourceGroupKey: string): Promise<Object> {
     if (isEmpty(resourceData)) throw new HttpException(400, 'Resource  must not be empty');
 
     const currentResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupKey: resourceGroupKey } });
@@ -300,13 +309,19 @@ class ResourceService {
       resourceActive: resourceData.resource_Active,
       resourceStatusUpdatedAt: resourceData.resource_Status_Updated_At,
       resourceTargetCreatedAt: resourceData.resource_Target_Created_At,
+      resourceInstance: resourceData.resource_Instance,
     };  
 
     try {
       const tableIdTableName = 'Resource';
-      const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
+      //const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
+
+      const uuid = require('uuid'); 
+      const apiId = uuid.v1();
+
       const createResource: IResource = await this.resource.create({
-        resourceId: responseTableIdData.tableIdFinalIssued,
+        //resourceId: responseTableIdData.tableIdFinalIssued,
+        resourceId: apiId,
         createdAt: new Date(),
         createdBy: "SYSTEM",
         ...resourceInputData,
@@ -316,6 +331,7 @@ class ResourceService {
       throw new HttpException(500, error);
     }
   }
+
 
 }
 

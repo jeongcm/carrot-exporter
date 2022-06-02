@@ -155,6 +155,7 @@ export interface IRequestWithUser extends Request {
   user: IParty;
   customerAccountKey: number;
   systemId?: string;
+  file?: any;
 }
 
 export interface IRequestWithSystem extends Request {

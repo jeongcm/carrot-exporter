@@ -1,9 +1,6 @@
 import { MongoClient } from 'mongodb';
 import DB from '@/database';
-import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
-import { ResourceDto } from '@modules/Resources/dtos/resource.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
-import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
@@ -26,15 +23,16 @@ class massUploaderMongoService {
         var returnResult;
         var customerAccountKey;
         var resourceGroupKey;
-        var resource_Target_Uuid_Local = []; 
+        var resourceGroupUuid;
+        var resourceTargetUuidLocal = []; 
         const deleted_At = new Date().toISOString();
         const created_At = new Date().toISOString();
         const updated_At = new Date().toISOString();
 
         //prepare for db work for resource table in mariadb
         try {
-            const resource_Group_Uuid = resourceMassFeed[0].resource_Group_Uuid; 
-            const resourceGroupResult: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resource_Group_Uuid); 
+            resourceGroupUuid = resourceMassFeed[0].resource_Group_Uuid; 
+            const resourceGroupResult: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid); 
             customerAccountKey = resourceGroupResult.customerAccountKey;
             resourceGroupKey = resourceGroupResult.resourceGroupKey;
 
@@ -48,7 +46,7 @@ class massUploaderMongoService {
         const resource_Type = resourceMassFeed[0].resource_Type; 
         for (let i=0; i<itemLength; i++)
         {
-            resource_Target_Uuid_Local.push(resourceMassFeed[i].resource_Target_Uuid);
+            resourceTargetUuidLocal.push(resourceMassFeed[i].resource_Target_Uuid);
         }
 
         try {
@@ -58,7 +56,7 @@ class massUploaderMongoService {
             await client.connect();            
             const database = client.db("nc_api");
             const resource = database.collection("resource");
-            const queryN = {resource_Active: true, resource_Type: resource_Type, resource_Target_Uuid: {$nin: resource_Target_Uuid_Local}};
+            const queryN = {resource_Active: true, resource_Type: resource_Type, resource_Group_Uuid: resourceGroupUuid, resource_Target_Uuid: {$nin: resourceTargetUuidLocal}};
 
         //change resource= -  resource_Active = false if there is no matched "resource_Target_Uuid" in the database
             const result_delete = await resource.updateMany(queryN, {$set: {resource_Active: false, deleted_At: deleted_At}});
@@ -67,8 +65,10 @@ class massUploaderMongoService {
             console.log (deletedInfo); 
             console.log("query for delete:  ", queryN);
         //update mariadb resource table
-            const resource_delete_maria = await this.resourceService.retireResourceByUuidNotIn(resource_Target_Uuid_Local, resource_Type);
-            console.log ("db update for Maria: ", resource_delete_maria);
+            if (result_delete.modifiedCount>0){
+                const resource_delete_maria = await this.resourceService.retireResourceByUuidNotIn(resourceTargetUuidLocal, resource_Type, resourceGroupUuid);
+                console.log ("db update for Maria: ", resource_delete_maria);
+            }
 
         //up-seart
             for (let i=0; i<itemLength; i++)
@@ -76,9 +76,12 @@ class massUploaderMongoService {
                 resourceMassFeed[i].updated_At = updated_At;
                 resourceMassFeed[i].customer_Account_Key = customerAccountKey;
                 resourceMassFeed[i].resource_Group_Key = resourceGroupKey;
+                const updateRequest = { resourceTargetUuid:  resourceMassFeed[i].resource_Target_Uuid,
+                                        resourceNamespace: resourceMassFeed[i].resource_Namespace,
+                                        resourceInstance: resourceMassFeed[i].resource_Instance,
+                                        updatedAt: new Date(),
+                                        };
                 let resourceTargetUuid = resourceMassFeed[i].resource_Target_Uuid;
-                let resourceNamespace = resourceMassFeed[i].resource_Namespace;
-
 
                 var query_search = {resource_Target_Uuid: resourceTargetUuid};
                 var query_data = { "$set": resourceMassFeed[i]}; 
@@ -88,7 +91,7 @@ class massUploaderMongoService {
                 if (result_update.lastErrorObject.updatedExisting){
                     updatedCount=updatedCount+1;
                 // update Mariadb....    
-                    const result_update_maria = await this.resourceService.updateResourceByMongoUploader(resourceTargetUuid, resourceNamespace);
+                    const result_update_maria = await this.resourceService.updateResourceByMongoUploader(updateRequest);
                     console.log(result_update_maria); 
                 }
                 else {

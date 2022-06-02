@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsJSON } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class CreateIncidentActionAttachmentDto {
   @IsString()
@@ -11,16 +11,13 @@ export class CreateIncidentActionAttachmentDto {
 
   @IsString()
   @IsNotEmpty()
-  public incidentActionAttachmentType: 'JS' | 'IM';
+  public incidentActionAttachmentType: 'JS' | 'IM' | 'PD' | 'MO';
 
   @IsString()
   @IsNotEmpty()
   public incidentActionAttachmentFilename: string;
 
-  @IsOptional()
-  public incidentActionAttachmentBLOB: Blob;
-
-  @IsOptional()
-  // @IsJSON()
-  public incidentActionAttachmentJSON: JSON;
+  @IsString()
+  @IsNotEmpty()
+  public incidentActionAttachmentFileType: string;
 }

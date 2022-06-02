@@ -38,14 +38,16 @@ class ResolutionActionService {
     resolutionActionData: CreateResolutionActionDto,
     systemId: string,
   ): Promise<IResolutionAction> {
+
+
     if (isEmpty(resolutionActionData)) throw new HttpException(400, 'resolutionAction Data cannot be blank');
 
 
     const tableIdName: string = 'ResolutionAction';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const resolutionActionId: string = responseTableIdData.tableIdFinalIssued;
-    const {resolutionActionName, resolutionActionDescription, sudoryTemplateKey} = resolutionActionData;
-    const sudoryTemplateDetails = await this.sudoryTemplate.findOne({where:{sudoryTemplateKey}});
+    const {resolutionActionName, resolutionActionDescription, sudoryTemplateId} = resolutionActionData;
+    const sudoryTemplateDetails = await this.sudoryTemplate.findOne({where:{sudoryTemplateId:sudoryTemplateId}});
     if(!sudoryTemplateDetails)  throw new HttpException(400, 'SudoryTemplate is not found');
     const currentDate = new Date();
     const resolutionAction = {
@@ -55,7 +57,7 @@ class ResolutionActionService {
       updatedAt: currentDate,
       resolutionActionName,
       resolutionActionDescription, 
-      sudoryTemplateKey
+      sudoryTemplateKey: sudoryTemplateDetails.sudoryTemplateKey
     };
     const newresolutionAction: IResolutionAction = await this.resolutionAction.create(resolutionAction);
     return newresolutionAction;

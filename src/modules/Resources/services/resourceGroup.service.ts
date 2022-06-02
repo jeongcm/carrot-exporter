@@ -2,16 +2,20 @@ import DB from '@/database';
 import axios from 'axios';
 import config from '@config/index';
 import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
+import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import { ResourceGroupDto, ResourceGroupExecutorDto } from '../dtos/resourceGroup.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+import ResourceService from './resource.service';
+import { createSemanticDiagnosticsBuilderProgram } from 'typescript';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
   public resource = DB.Resource;
+  //public resourceSerivce = new ResourceService(); 
   public tableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
 
@@ -20,12 +24,11 @@ class ResourceGroupService {
    * @param  {string} currentUserId
    * @param  {number} customerAccountKey
    */
-  public async createResourceGroup(resourceGroupData: ResourceGroupDto, currentUserId: string, customerAccountKey: number): Promise<IResourceGroup> {
+  public async createResourceGroup(resourceGroupData: ResourceGroupDto, currentUserId: string, customerAccountKey: number): Promise<Object> {
     if (isEmpty(resourceGroupData)) throw new HttpException(400, 'ResourceGroup must not be empty');
 
     try {
       const tableIdTableName = 'ResourceGroup';
-
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
       const createResourceGroup: IResourceGroup = await this.resourceGroup.create({
@@ -34,7 +37,43 @@ class ResourceGroupService {
         customerAccountKey,
         ...resourceGroupData,
       });
-      return createResourceGroup;
+
+      console.log (createResourceGroup)  
+      const uuid = require('uuid'); 
+      const apiId = uuid.v1();
+      const resourceData = {
+        resourceId: apiId,
+        customerAccountKey: customerAccountKey,
+        resourceType: 'K8',
+        resourceName: resourceGroupData.resourceGroupName,
+        resourceDescription: resourceGroupData.resourceGroupDescription,
+        resourceTargetUuid: resourceGroupData.resourceGroupUuid,
+        resourceGroupKey: createResourceGroup.resourceGroupKey,
+        resourceLevelType: 'K8',
+        resourceLevel1: 'K8',
+        resourceRbac: true,
+        resourceAnomalyMonitor: false,
+        resourceActive: true,
+        resourceStatusUpdatedAt: new Date(),
+        resourceInstance: '',
+        resourceLevel2: '',
+        resourceLevel3: '',
+        resourceLevel4: '',
+        resourceNamespace: '',
+        resourceStatus: null,
+        parentResourceId: '',
+        resourceOwnerReferences: null,
+        resourceTargetCreatedAt: new Date(),
+        createdAt: new Date(),
+        createdBy: currentUserId,
+      }
+
+      const createResource: IResource = await this.resource.create(resourceData);
+
+
+      const returnResult = createResourceGroup;
+      
+      return returnResult;
     } catch (error) {
       throw new HttpException(500, error);
     }

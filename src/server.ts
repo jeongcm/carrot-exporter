@@ -50,6 +50,7 @@ import ResolutionActionRoute from './modules/MetricOps/routes/resolutionAction.r
 import SudoryTemplateRoute from './modules/MetricOps/routes/sudoryTemplate.route';
 import RuleGroupRoute from './modules/MetricOps/routes/ruleGroup.route';
 import RuleGroupAlertRoute from './modules/MetricOps/routes/ruleGroupAlertRule.route';
+import AnomalyMonitoringTargetRoute from './modules/MetricOps/routes/monitoringTarget.route';
 
 const app = new App([
   new IndexRoute(),
@@ -97,6 +98,7 @@ const app = new App([
   new BayesianModelRoute(),
   new ResolutionActionRoute(),
   new SudoryTemplateRoute(),
+  new AnomalyMonitoringTargetRoute(),
 
   new RuleGroupRoute(),
   new RuleGroupAlertRoute()
