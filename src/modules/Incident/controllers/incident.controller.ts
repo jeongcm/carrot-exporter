@@ -337,6 +337,22 @@ class IncidentController {
     }
   };
 
+  public getAttachmentById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const attachmentId = req.params.attachmentId;
+
+    try {
+      const attachment: IIncidentActionAttachment = await this.incidentService.getAttachmentById(customerAccountKey, attachmentId);
+
+      if (attachment) {
+        res.status(200).json({ data: attachment, message: `find incident id(${attachmentId}) ` });
+      } else {
+        res.status(404).json({ message: `Attachment id(${attachmentId}) not found` });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
   
   public getIncidentAttachments = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;

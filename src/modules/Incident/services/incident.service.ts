@@ -482,6 +482,16 @@ class IncidentService {
     }
   }
 
+  public async getAttachmentById(customerAccountKey: number, attachmentId: string): Promise<IIncidentActionAttachment> {
+    const attachment: IIncidentActionAttachment = await this.incidentActionAttachment.findOne({
+      where: { deletedAt: null, incidentActionAttachmentId: attachmentId },
+      attributes: { exclude: ['incidentKey', 'customerAccountKey', 'assigneeKey', 'deletedAt', 'incidentActionKey'] },
+    });
+    const downloadLink = this.fileUploadService.uploadedFileLink(attachment.incidentActionAttachmentPath);
+    attachment.incidentActionAttachmentPath = String(downloadLink);
+    return attachment;
+  }
+
   public async getIncidentActionAttachment(customerAccountKey: number, incidentId: string, actionId: string): Promise<IIncidentActionAttachment[]> {
     const { incidentActionKey = undefined } = await this.getIncidentActionKey(customerAccountKey, incidentId, actionId);
 
@@ -508,6 +518,7 @@ class IncidentService {
     const incidentActionAttachments: IIncidentActionAttachment[] = await this.incidentActionAttachment.findAll({
       where: { incidentActionKey: { [Op.in]: incidentActionKeysList } },
     });
+
     return incidentActionAttachments;
   }
 

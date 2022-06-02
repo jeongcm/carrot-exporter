@@ -71,6 +71,9 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   port,
   dialect: 'mariadb',
   timezone: '+00:00',
+  dialectOptions: {
+    autoJsonMap: false,
+  },
   define: {
     charset: 'utf8mb4',
     collate: 'utf8mb4_general_ci',
@@ -295,7 +298,6 @@ DB.RuleGroupAlertRule.belongsTo(DB.RuleGroup, { foreignKey: 'ruleGroupKey' });
 
 DB.AlertRule.hasOne(DB.RuleGroupAlertRule, { foreignKey: 'alertRuleKey' });
 DB.RuleGroupAlertRule.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey' });
-
 
 DB.Party.belongsToMany(DB.Resource, {
   through: {

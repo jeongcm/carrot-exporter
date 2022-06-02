@@ -12,7 +12,7 @@ export interface IIncidentActionAttachment {
   incidentActionAttachmentType: 'JS' | 'IM' | 'PD' | 'MO';
   incidentActionAttachmentFilename: string;
   incidentActionAttachmentFileType: string;
-  incidentActionAttachmentPath: JSON;
+  incidentActionAttachmentPath: string;
 }
 
 export interface IIncidentActionAttachmentResponse {
@@ -24,5 +24,5 @@ export interface IIncidentActionAttachmentResponse {
   incidentActionAttachmentType: 'JS' | 'IM' | 'PD' | 'MO';
   incidentActionAttachmentFilename: string;
   incidentActionAttachmentFileType: string;
-  incidentActionAttachmentPath: JSON;
+  incidentActionAttachmentPath: string;
 }
