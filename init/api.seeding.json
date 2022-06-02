@@ -517,5 +517,89 @@
     "apiEndPoint1": "PUT",
     "apiEndPoint2": "/resourceGroup/:resourceGroupId",
     "apiVisibleTF": true
+  },
+  {
+    "apiName": "createBayesianModel",
+    "apiDescription": "create Bayesian Model",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/bayesianModel",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getAllBayesianModel",
+    "apiDescription": "get all  Bayesian Model",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/bayesianModels",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getBayesianModelById",
+    "apiDescription": "get Bayesian Model by Id",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/bayesianModel/:bayesianModelId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateBayesianModel",
+    "apiDescription": "update Bayesian Model",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/bayesianModel/:bayesianModelId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createResolutionAction",
+    "apiDescription": "create ResolutionAction",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/resolutionAction",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getAllResolutionAction",
+    "apiDescription": "Get All  ResolutionAction",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/resolutionActions",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getResolutionActionById",
+    "apiDescription": "get ResolutionAction by Id",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/resolutionAction/:resolutionActionId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateResolutionAction",
+    "apiDescription": "update ResolutionAction",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/resolutionAction/:resolutionActionId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "createSudoryTemplate",
+    "apiDescription": "create SudoryTemplate",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/sudoryTemplate",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getAllSudoryTemplate",
+    "apiDescription": "Get All  SudoryTemplate",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/sudoryTemplates",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getSudoryTemplateById",
+    "apiDescription": "get SudoryTemplate by Id",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/sudoryTemplate/:sudoryTemplateId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateSudoryTemplate",
+    "apiDescription": "update SudoryTemplate",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/sudoryTemplate/:sudoryTemplateId",
+    "apiVisibleTF": true
   }
 ]

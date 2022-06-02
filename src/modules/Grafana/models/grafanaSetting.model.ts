@@ -5,6 +5,7 @@ export interface IGrafanaSetting {
   grafanaSettingId: string;
   resourceGroupKey: number;
   customerAccountKey: number;
+  grafanaName: string;
   grafanaType: string;
   grafanaUrl: string;
   configJson: string;
@@ -21,6 +22,7 @@ export type GrafanaSettingCreationAttributes = Optional<
   | 'resourceGroupKey'
   | 'createdAt'
   | 'createdBy'
+  | 'grafanaName'
   | 'grafanaUrl'
   | 'grafanaType'
   | 'configJson'
@@ -34,6 +36,7 @@ export class GrafanaSettingModel extends Model<IGrafanaSetting, GrafanaSettingCr
   public customerAccountKey: number;
   public resourceGroupKey: number;
   public grafanaUrl: string;
+  public grafanaName: string;
   public grafanaType: string;
   public configJson: string;
   public createdBy: number;
@@ -65,6 +68,10 @@ export default function (sequelize: Sequelize): typeof GrafanaSettingModel {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
+      grafanaName: {
+        type: DataTypes.STRING(15),
+        allowNull: false,
+      },
       grafanaType: {
         type: DataTypes.STRING(15),
         allowNull: false,
@@ -74,7 +81,7 @@ export default function (sequelize: Sequelize): typeof GrafanaSettingModel {
         allowNull: true,
       },
       configJson: {
-        type: DataTypes.TEXT,
+        type: DataTypes.TEXT('medium'),
         allowNull: true,
       },
       createdBy: {

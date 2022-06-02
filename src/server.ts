@@ -44,8 +44,13 @@ import BillingAccountDiscountRoute from './modules/Billing/routes/billingAccount
 import ExecutorRoute from './modules/CommonService/routes/executor.route';
 import FileUploadRoute from './modules/CommonService/routes/fileUpload.route';
 import GrafanaRoute from './modules/Grafana/routes/grafana.route';
-import RuleGroupRoute from './modules/RuleGroup/routes/ruleGroup.route';
-import RuleGroupAlertRoute from './modules/RuleGroupAlertRule/routes/ruleGroupAlertRule.route';
+
+import BayesianModelRoute from './modules/MetricOps/routes/bayesianModel.route';
+import ResolutionActionRoute from './modules/MetricOps/routes/resolutionAction.route';
+import SudoryTemplateRoute from './modules/MetricOps/routes/sudoryTemplate.route';
+import RuleGroupRoute from './modules/MetricOps/routes/ruleGroup.route';
+import RuleGroupAlertRoute from './modules/MetricOps/routes/ruleGroupAlertRule.route';
+import AnomalyMonitoringTargetRoute from './modules/MetricOps/routes/monitoringTarget.route';
 
 const app = new App([
   new IndexRoute(),
@@ -89,6 +94,12 @@ const app = new App([
   new ExecutorRoute(),
   new FileUploadRoute(),
   new GrafanaRoute(),
+
+  new BayesianModelRoute(),
+  new ResolutionActionRoute(),
+  new SudoryTemplateRoute(),
+  new AnomalyMonitoringTargetRoute(),
+
   new RuleGroupRoute(),
   new RuleGroupAlertRoute()
 ]);
