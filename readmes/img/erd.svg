@@ -583,7 +583,6 @@
 <!-- IncidentActionAttachment -->
 <g id="node13" class="node">
 <title>IncidentActionAttachment</title>
-
 <polygon fill="#add8e6" stroke="transparent" points="3403.2314,-1351.9727 3403.2314,-1373.9727 3607.2314,-1373.9727 3607.2314,-1351.9727 3403.2314,-1351.9727"/>
 <polygon fill="none" stroke="#000000" points="3403.2314,-1351.9727 3403.2314,-1373.9727 3607.2314,-1373.9727 3607.2314,-1351.9727 3403.2314,-1351.9727"/>
 <text text-anchor="start" x="3451.9149" y="-1360.9727" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">IncidentActionAttachment</text>
@@ -617,7 +616,6 @@
 <text text-anchor="start" x="3408.2314" y="-1073.9727" font-family="Times,serif" font-size="10.00" fill="#000000">incidentActionAttachmentFileType: STRING</text>
 <polygon fill="none" stroke="#000000" points="3403.2314,-1043.9727 3403.2314,-1065.9727 3607.2314,-1065.9727 3607.2314,-1043.9727 3403.2314,-1043.9727"/>
 <text text-anchor="start" x="3408.2314" y="-1051.9727" font-family="Times,serif" font-size="10.00" fill="#000000">incidentActionAttachmentPath: JSON</text>
-
 </g>
 <!-- IncidentActionAttachment&#45;&gt;incidentAction -->
 <g id="edge19" class="edge">
@@ -1221,7 +1219,6 @@
 <!-- ResourceGroup -->
 <g id="node29" class="node">
 <title>ResourceGroup</title>
-
 <polygon fill="#add8e6" stroke="transparent" points="4456.245,-4423.6416 4456.245,-4445.6416 4614.245,-4445.6416 4614.245,-4423.6416 4456.245,-4423.6416"/>
 <polygon fill="none" stroke="#000000" points="4456.245,-4423.6416 4456.245,-4445.6416 4614.245,-4445.6416 4614.245,-4423.6416 4456.245,-4423.6416"/>
 <text text-anchor="start" x="4503.869" y="-4432.6416" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">ResourceGroup</text>
@@ -1255,16 +1252,13 @@
 <text text-anchor="start" x="4461.245" y="-4145.6416" font-family="Times,serif" font-size="10.00" fill="#000000">resourceGroupUuid: STRING</text>
 <polygon fill="none" stroke="#000000" points="4456.245,-4115.6416 4456.245,-4137.6416 4614.245,-4137.6416 4614.245,-4115.6416 4456.245,-4115.6416"/>
 <text text-anchor="start" x="4461.241" y="-4123.6416" font-family="Times,serif" font-size="10.00" fill="#000000">resourceGroupPrometheus: STRING</text>
-
 </g>
 <!-- Resource&#45;&gt;ResourceGroup -->
 <g id="edge26" class="edge">
 <title>Resource&#45;&gt;ResourceGroup</title>
-
 <path fill="none" stroke="#00cd00" d="M3598.9009,-3447.4681C3808.9651,-3634.3864 4256.7922,-4032.87 4446.9263,-4202.0541"/>
 <polygon fill="#00cd00" stroke="#00cd00" points="3592.6464,-3436.2807 3598.8192,-3447.3954 3587.0625,-3442.5561 3592.6464,-3436.2807"/>
 <polygon fill="#00cd00" stroke="#00cd00" points="4447.0935,-4202.2029 4452.4686,-4214.2141 4451.5759,-4206.1915 4456.0583,-4210.18 4456.0583,-4210.18 4456.0583,-4210.18 4451.5759,-4206.1915 4459.648,-4206.1458 4447.0935,-4202.2029 4447.0935,-4202.2029"/>
-
 </g>
 <!-- Resource&#45;&gt;PartyResource -->
 <g id="edge10" class="edge">
