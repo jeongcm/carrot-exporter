@@ -188,8 +188,8 @@ class executorService {
       }; 
 
     try {  
-      const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.createResourceGroup(resourceGroup, currentUserId, customerAccountKey); 
-      console.log ("Success to create ResponseGroup: ", ResponseResoureGroup.resourceGroupId)
+      const ResponseResoureGroup: Object = await this.resourceGroupService.createResourceGroup(resourceGroup, currentUserId, customerAccountKey); 
+      console.log ("Success to create ResponseGroup: ", ResponseResoureGroup)
     } catch (error) {
       console.log (error);
       throw new HttpException(500, `Error on creating cluster ${resourceGroupName}`);
@@ -1103,14 +1103,14 @@ class executorService {
         // get distinct data of job... 
         DistinctJobList = await this.MetricMetaService.getDistinctJobOfMetricMetabyUuid(clusterUuid); 
         if (!DistinctJobList) {
-            throw new HttpException(404, `No metric information with the clusterUuid: ${clusterUuid}`);   
+            throw new HttpException(404, `No metric Job information with the clusterUuid: ${clusterUuid}`);   
         }
         // loop to schedule MetricReceived by 
         for (let i=0; i<DistinctJobList.length; i++){
             let targetJob = DistinctJobList[i].metricMetaTargetJob
             let matricQuery = "{job=" + targetJob + "}";
-            let matricName = "MetricReceived" + targetJob; 
-            let matricSummary = "MetricReceived" + targetJob; 
+            let matricName = "MetricReceived-" + targetJob; 
+            let matricSummary = "MetricReceived-" + targetJob; 
             
             cronData = { name: matricName,
                         summary: matricSummary,

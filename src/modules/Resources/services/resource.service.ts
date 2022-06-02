@@ -5,7 +5,7 @@ import { ResourceDto } from '../dtos/resource.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
-import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import { IMassUploaderMongoUpdateDto } from '@modules/CommonService/dtos/massUploaderMongo.dto';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
@@ -254,25 +254,24 @@ class ResourceService {
   }
 
 /**
-   * @param  {string} resourceTargetUuid
-   * @param  {string} resourceNamespace
-   * @param  {any} updated_At
+   * @param  {IMassUploaderMongoUpdateDto} updateRequest
    */
- public async updateResourceByMongoUploader(resourceTargetUuid: string, resourceNamespace: string, updated_At: any): Promise<String> {
-  if (isEmpty(resourceTargetUuid)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
+ public async updateResourceByMongoUploader(updateRequest: IMassUploaderMongoUpdateDto): Promise<String> {
+  if (isEmpty(updateRequest)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
  
 
   const updatedResource = {
-    resourceNamespace: resourceNamespace,
+    resourceNamespace: updateRequest.resourceNamespace,
     updatedBy: "SYSTEM",
-    updatedAt: updated_At,
-    resourceStatusUpdatedAt: updated_At,
+    updatedAt: updateRequest.updatedAt,
+    resourceStatusUpdatedAt: updateRequest.updatedAt,
+    resourceInstance: updateRequest.resourceInstance,
   };
 
   console.log("updatedResource: ", updatedResource); 
 
   try {
-    const updateResult = await this.resource.update(updatedResource, {where: {resourceTargetUuid: resourceTargetUuid},});
+    const updateResult = await this.resource.update(updatedResource, {where: {resourceTargetUuid: updateRequest.resourceTargetUuid},});
     console.log (updateResult);
   } catch (error) {
     throw new HttpException(500, error);
