@@ -5,7 +5,7 @@ import { RuleGroupResolutionActionDto, UnRegisterResolutionActionDto } from '../
 import RuleGroupResolutionActionService from '../../MetricOps/services/ruleGroupResolutionAction.service';
 
 class RuleGroupResolutionActionController {
-    public ruleGroupResolutionActionService = new RuleGroupResolutionActionService();
+  public ruleGroupResolutionActionService = new RuleGroupResolutionActionService();
 
   public registerResolutionAction = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
@@ -13,7 +13,10 @@ class RuleGroupResolutionActionController {
         user: { partyId },
       } = req;
       const ruleGroupResolutionActionData: RuleGroupResolutionActionDto = req.body;
-      const createRuleGroupResolutionAction: IRuleGroupResolutionAction = await this.ruleGroupResolutionActionService.registerResolutionAction(ruleGroupResolutionActionData, partyId);
+      const createRuleGroupResolutionAction: IRuleGroupResolutionAction = await this.ruleGroupResolutionActionService.registerResolutionAction(
+        ruleGroupResolutionActionData,
+        partyId,
+      );
       res.status(201).json({ data: createRuleGroupResolutionAction, message: 'created' });
     } catch (error) {
       next(error);
@@ -22,7 +25,8 @@ class RuleGroupResolutionActionController {
 
   public listRegisterResolutionAction = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const findRuleGroupResolutionActionData: IRuleGroupResolutionAction[] = await this.ruleGroupResolutionActionService.listRegisterResolutionAction();
+      const findRuleGroupResolutionActionData: IRuleGroupResolutionAction[] =
+        await this.ruleGroupResolutionActionService.listRegisterResolutionAction();
       res.status(200).json({ data: findRuleGroupResolutionActionData, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -36,12 +40,11 @@ class RuleGroupResolutionActionController {
       } = req;
       const unRegisterResolutionActionData: UnRegisterResolutionActionDto = req.body;
       const flag: boolean = await this.ruleGroupResolutionActionService.unregisterResolutionAction(unRegisterResolutionActionData, partyId);
-      if (flag){
+      if (flag) {
         res.status(201).json({ data: flag, message: 'deleted' });
-      }else{
+      } else {
         res.status(204).json({ data: flag, message: 'No Content' });
       }
-      
     } catch (error) {
       next(error);
     }
