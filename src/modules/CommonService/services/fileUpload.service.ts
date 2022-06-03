@@ -91,8 +91,8 @@ class fileUploadService {
     return result;
   }
 
-  public uploadedFileLink(fileName: String): String {
-    return `${config.fileUpload.DOEndPoint}/${BucketName}/${fileName}`;
+  public uploadedFileLink(fileName: any): String {
+    return `https://${config.fileUpload.DOEndPoint}/${BucketName}/${fileName}`;
   }
 }
 
