@@ -106,7 +106,7 @@ class ResolutionActionService {
     };
     await this.resolutionAction.update(updatedChannelData, { where: { resolutionActionId } });
 
-    return this.findResolutionActionById(resolutionActionId);
+    return await this.findResolutionActionById(resolutionActionId);
   }
 }
 

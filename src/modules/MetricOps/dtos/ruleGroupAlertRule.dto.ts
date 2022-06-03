@@ -1,11 +1,11 @@
 import { IsString, IsNotEmpty, IsNumber, IsDate, IsObject, IsOptional } from 'class-validator';
 
 export class RuleGroupAlertRuleDto {
-  @IsNumber()
-  public ruleGroupKey: number;
+  @IsString()
+  public ruleGroupId: string;
 
-  @IsNumber()
-  public alertRuleKey: number;
+  @IsString()
+  public alertRuleId: string;
 
   @IsString()
   public ruleGroupAlertRuleStatus: string;
@@ -14,10 +14,10 @@ export class RuleGroupAlertRuleDto {
 
 
 export class UnRegisterRuleGroupAlertRuleDto {
-  @IsNumber()
-  public ruleGroupKey: number;
+  @IsString()
+  public ruleGroupId: string;
 
-  @IsNumber()
-  public alertRuleKey: number;
+  @IsString()
+  public alertRuleId: string;
 
 }
