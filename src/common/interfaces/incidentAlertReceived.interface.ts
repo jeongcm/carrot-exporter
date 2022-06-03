@@ -5,7 +5,6 @@ export interface IIncidentAlertReceived {
   alertReceivedKey: number;
   createdBy: string;
   updatedBy: string;
-  deletedBy: string;
   createdAt: Date;
   updatedAt: Date;
 }
