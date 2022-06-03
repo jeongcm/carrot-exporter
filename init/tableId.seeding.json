@@ -289,7 +289,7 @@
     "tableIdIssuedSequence": 1,
     "createdBy": "SYSTEM"
   },
-  {    
+  {
     "tableIdTableName": "PaymentTender",
     "tableIdHeader": "PA",
     "tableMonth": 1,
@@ -299,7 +299,7 @@
     "tableIdIssuedSequence": 1,
     "createdBy": "SYSTEM"
   },
-  {    
+  {
     "tableIdTableName": "BillingAccount",
     "tableIdHeader": "BA",
     "tableMonth": 1,
@@ -309,7 +309,7 @@
     "tableIdIssuedSequence": 1,
     "createdBy": "SYSTEM"
   },
-  {    
+  {
     "tableIdTableName": "BillingAccountDiscount",
     "tableIdHeader": "BD",
     "tableMonth": 1,
@@ -319,7 +319,7 @@
     "tableIdIssuedSequence": 1,
     "createdBy": "SYSTEM"
   },
-  {    
+  {
     "tableIdTableName": "Discount",
     "tableIdHeader": "DI",
     "tableMonth": 1,
@@ -329,7 +329,7 @@
     "tableIdIssuedSequence": 1,
     "createdBy": "SYSTEM"
   },
-  {    
+  {
     "tableIdTableName": "Coupon",
     "tableIdHeader": "CO",
     "tableMonth": 1,
@@ -438,6 +438,25 @@
     "tableIdSequenceDigit": 8,
     "tableIdIssuedSequence": 1,
     "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "Role",
+    "tableIdHeader": "RL",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "RoleParty",
+    "tableIdHeader": "RT",
+    "tableMonth": 1,
+    "tableYear": 2,
+    "tableDay": 1,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
   }
-
 ]
