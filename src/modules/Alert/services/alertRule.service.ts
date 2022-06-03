@@ -27,6 +27,17 @@ class AlertRuleService {
 
     return findAlertRule;
   }
+  public async findAlertRuleKeyById(alertRuleId: string): Promise<number> {
+    if (isEmpty(alertRuleId)) throw new HttpException(400, 'Not a valid Alert Rule');
+
+    const findAlertRule: IAlertRule = await this.alertRule.findOne({
+      where: { alertRuleId, deletedAt: null },
+      attributes: { exclude: [ 'deletedAt', 'updatedBy', 'createdBy'] },
+    });
+    if (!findAlertRule) throw new HttpException(404, 'NOT_FOUND');
+
+    return findAlertRule.alertRuleKey;
+  }
 
   public async getAlertRuleByKey(alertRuleKey: number): Promise<IAlertRule> {
     if (isEmpty(alertRuleKey)) throw new HttpException(400, 'MISSING_KEY');

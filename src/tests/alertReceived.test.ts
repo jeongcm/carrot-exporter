@@ -7,7 +7,7 @@ afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
 });
 
-describe('Testing Channel Module', () => {
+describe('Testing AlertReceived Module', () => {
   let alertReceived, alertReceivedId, token;
   let alertRoute = new AlertRoute();
 

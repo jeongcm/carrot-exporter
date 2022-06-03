@@ -55,13 +55,15 @@ import billingAccountModel from '@/modules/Billing/models/billingAccount.model';
 import paymentTenderModel from '@/modules/Billing/models/paymentTender.model';
 import GrafanaSettingModel from '@/modules/Grafana/models/grafanaSetting.model';
 import BayesianModelTable from '@/modules/MetricOps/models/bayesianModel.model';
-import ResolutionActionModel  from '@/modules/MetricOps/models/resolutionAction.model';
+import ResolutionActionModel from '@/modules/MetricOps/models/resolutionAction.model';
 import SudoryTemplateModel from '@/modules/MetricOps/models/sudoryTemplate.model';
 import RuleGroupModel from '@/modules/MetricOps/models/ruleGroup.model';
 import ruleGroupAlertRuleModel from '@/modules/MetricOps/models/ruleGroupAlertRule.model';
 import RuleGroupResolutionActionModel from '@/modules/MetricOps/models/RuleGroupResolutionAction.model';
 import ModelRuleScoreModel from '@/modules/MetricOps/models/modelRuleScore.model';
 import AnomalyMonitoringTargetTable from '@/modules/MetricOps/models/monitoringTarget.model';
+import RoleModel from '@/modules/Role/models/role.model';
+import RolePartyModel from '@/modules/Role/models/roleParty.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -101,7 +103,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
     backoffBase: 1000, // Initial backoff duration in ms. Default: 100,
     backoffExponent: 1.5, // Exponent to increase backoff each try. Default: 1.1
     timeout: 50000,
-  }
+  },
 });
 
 sequelize.authenticate();
@@ -157,12 +159,14 @@ const DB = {
   GrafanaSetting: GrafanaSettingModel(sequelize),
   BayesianModel: BayesianModelTable(sequelize),
   ResolutionAction: ResolutionActionModel(sequelize),
-  SudoryTemplate:SudoryTemplateModel(sequelize),
+  SudoryTemplate: SudoryTemplateModel(sequelize),
   RuleGroup: RuleGroupModel(sequelize),
   RuleGroupAlertRule: ruleGroupAlertRuleModel(sequelize),
   RuleGroupResolutionAction: RuleGroupResolutionActionModel(sequelize),
   ModelRuleScore: ModelRuleScoreModel(sequelize),
   AnomalyMonitoringTarget: AnomalyMonitoringTargetTable(sequelize),
+  Role: RoleModel(sequelize),
+  RoleParty: RolePartyModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
@@ -392,8 +396,17 @@ DB.BillingAccountDiscount.belongsTo(DB.Discount, { foreignKey: 'discountKey' });
 DB.CustomerAccount.hasMany(DB.BayesianModel, { foreignKey: 'customerAccountKey' });
 DB.BayesianModel.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
-DB.RuleGroup.hasMany(DB.RuleGroupResolutionAction,{ foreignKey:'ruleGroupKey'});
-DB.RuleGroupResolutionAction.belongsTo(DB.RuleGroup,{ foreignKey:'ruleGroupKey'})
+DB.RuleGroup.hasMany(DB.RuleGroupResolutionAction, { foreignKey: 'ruleGroupKey' });
+DB.RuleGroupResolutionAction.belongsTo(DB.RuleGroup, { foreignKey: 'ruleGroupKey' });
+
+DB.CustomerAccount.hasMany(DB.Role, { foreignKey: 'customerAccountKey' });
+DB.Role.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.Role.hasMany(DB.RoleParty, { foreignKey: 'roleKey' });
+DB.Party.hasMany(DB.RoleParty, { foreignKey: 'partyKey' });
+DB.RoleParty.belongsTo(DB.Role, { foreignKey: 'roleKey' });
+DB.RoleParty.belongsTo(DB.Party, { foreignKey: 'partyKey' });
+
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
 //[[force: true]] is used when changes made in database.

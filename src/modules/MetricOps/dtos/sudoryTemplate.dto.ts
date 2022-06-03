@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, IsJSON } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsJSON, IsObject } from 'class-validator';
 
 export class CreateSudoryTemplateDto {
     @IsString()
@@ -13,6 +13,7 @@ export class CreateSudoryTemplateDto {
     @IsNotEmpty()
     public sudoryTemplateUuid: string;
 
+    @IsObject()
     @IsOptional()
     public sudoryTemplateArgs: JSON;
 
@@ -30,7 +31,7 @@ export class UpdateSudoryTemplateDto {
    @IsOptional()
     public sudoryTemplateUuid: string;
 
-    @IsJSON()
+    @IsObject()
     @IsOptional()
     public sudoryTemplateArgs: JSON;
 

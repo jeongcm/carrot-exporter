@@ -1,14 +1,14 @@
 import { HttpException } from '@/common/exceptions/HttpException';
+import { IResolutionAction } from '@/common/interfaces/resolutionAction.interface';
 import { IRuleGroup } from '@/common/interfaces/ruleGroup.interface';
-import { IRuleGroupAlertRule } from '@/common/interfaces/ruleGroupAlertRule.interface';
 import { IRuleGroupResolutionAction } from '@/common/interfaces/ruleGroupResolutionAction.interface';
 import { isEmpty } from '@/common/utils/util';
 import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import RuleGroupService from '@/modules/MetricOps/services/ruleGroup.service';
-import { RuleGroupAlertRuleDto, UnRegisterRuleGroupAlertRuleDto } from '../../MetricOps/dtos/ruleGroupAlertRule.dto';
 import { RuleGroupResolutionActionDto, UnRegisterResolutionActionDto } from '../dtos/ruleGroupResolutionAction.dto';
+import ResolutionActionService from './resolutionAction.service';
 const { Op } = require('sequelize');
 
 class RuleGroupResolutionActionService {
@@ -17,6 +17,7 @@ class RuleGroupResolutionActionService {
   public ruleGroupAlertRule = DB.RuleGroupAlertRule;
   public ruleGroupResolutionAction = DB.RuleGroupResolutionAction;
   public ruleGroupService = new RuleGroupService();
+  public resolutionActionService = new ResolutionActionService();
 
   public async deleteRuleGroupResolutionAction(ruleGroupKey: number, resolutionActionKey: number) {
     try {
@@ -48,9 +49,11 @@ class RuleGroupResolutionActionService {
     // get ruleGroupKey based on ruleGroupId from RuleGroup table
 
     const ruleGroupData: IRuleGroup = await this.ruleGroupService.findRuleGroupById(unRegisterResolutionActionData.ruleGroupId);
-    // get resolutionActionKey based on resolutionActionId from ResolutionAction -- pending
-    const resolutionActionKey = 34;//dummy data
-    const flag: boolean = await this.deleteRuleGroupResolutionAction(ruleGroupData.ruleGroupKey, resolutionActionKey);
+    // get resolutionActionKey based on resolutionActionId from ResolutionAction
+    const resolutionActionData: IResolutionAction = await this.resolutionActionService.findResolutionActionById(
+      unRegisterResolutionActionData.resolutionActionId,
+    );
+    const flag: boolean = await this.deleteRuleGroupResolutionAction(ruleGroupData.ruleGroupKey, resolutionActionData.resolutionActionKey);
     return flag;
   }
 
@@ -62,18 +65,21 @@ class RuleGroupResolutionActionService {
     const tableIdName: string = 'RuleGroupResolutionAction';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const ruleGroupResolutionActionId: string = responseTableIdData.tableIdFinalIssued;
+    
     // get ruleGroupKey based on ruleGroupId from RuleGroup table
-
     const ruleGroupData: IRuleGroup = await this.ruleGroupService.findRuleGroupById(ruleGroupResolutionActionData.ruleGroupId);
-    // get resolutionActionKey based on resolutionActionId from ResolutionAction -- pending
-    const resolutionActionKey = 34;// dummy data
+    // get resolutionActionKey based on resolutionActionId from ResolutionAction
+    const resolutionActionData: IResolutionAction = await this.resolutionActionService.findResolutionActionById(
+      ruleGroupResolutionActionData.resolutionActionId,
+    );
+
     const currentDate = new Date();
     const newRuleGroupResolutionAction = {
-      resolutionActionDescription:ruleGroupResolutionActionData.resolutionActionDescription,
-      sudoryTemplateArgsOption:ruleGroupResolutionActionData.sudoryTemplateArgsOption,
+      resolutionActionDescription: ruleGroupResolutionActionData.resolutionActionDescription,
+      sudoryTemplateArgsOption: ruleGroupResolutionActionData.sudoryTemplateArgsOption,
       ruleGroupResolutionActionId,
       ruleGroupKey: ruleGroupData.ruleGroupKey,
-      resolutionActionKey: resolutionActionKey,
+      resolutionActionKey: resolutionActionData.resolutionActionKey,
       createdAt: currentDate,
       createdBy: partyId,
     };
