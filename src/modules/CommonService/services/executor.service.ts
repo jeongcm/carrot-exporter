@@ -188,8 +188,8 @@ class executorService {
       }; 
 
     try {  
-      const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.createResourceGroup(resourceGroup, currentUserId, customerAccountKey); 
-      console.log ("Success to create ResponseGroup: ", ResponseResoureGroup.resourceGroupId)
+      const ResponseResoureGroup: Object = await this.resourceGroupService.createResourceGroup(resourceGroup, currentUserId, customerAccountKey); 
+      console.log ("Success to create ResponseGroup: ", ResponseResoureGroup)
     } catch (error) {
       console.log (error);
       throw new HttpException(500, `Error on creating cluster ${resourceGroupName}`);
@@ -1091,26 +1091,32 @@ class executorService {
         const subscribed_channel = config.sudoryApiDetail.channel_metric_received;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
-        var cronJobKey;
+        var cronJobKey =[];
         var DistinctJobList;
+
+        console.log("###########");
+        console.log(clusterUuid); 
 
         const responseResourceGroup: IResourceGroup =  await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
         if (!responseResourceGroup) {
             throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);   
         }
         const prometheus = responseResourceGroup.resourceGroupPrometheus;
+        console.log (prometheus);
 
         // get distinct data of job... 
         DistinctJobList = await this.MetricMetaService.getDistinctJobOfMetricMetabyUuid(clusterUuid); 
         if (!DistinctJobList) {
-            throw new HttpException(404, `No metric information with the clusterUuid: ${clusterUuid}`);   
+            throw new HttpException(404, `No metric Job information with the clusterUuid: ${clusterUuid}`);   
         }
+
+        console.log(DistinctJobList); 
         // loop to schedule MetricReceived by 
         for (let i=0; i<DistinctJobList.length; i++){
             let targetJob = DistinctJobList[i].metricMetaTargetJob
             let matricQuery = "{job=" + targetJob + "}";
-            let matricName = "MetricReceived" + targetJob; 
-            let matricSummary = "MetricReceived" + targetJob; 
+            let matricName = "MetricReceived-" + targetJob; 
+            let matricSummary = "MetricReceived-" + targetJob; 
             
             cronData = { name: matricName,
                         summary: matricSummary,
@@ -1143,7 +1149,7 @@ class executorService {
                 data: cronData,
                 headers: { 'X_AUTH_TOKEN': `${authToken}` }
                 }).then(async (res: any) => {                            
-                    cronJobKey[i] = res.data.data.scheduleKey;
+                    cronJobKey[i] = {key: res.data.data.scheduleKey, jobname: targetJob}
                     console.log(`Submit metric-received feeds - job ${targetJob} scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
                 }).catch(error => {
                     console.log(error);

@@ -99,7 +99,7 @@ export default function (sequelize: Sequelize): typeof MetricMetaModel {
         allowNull: false,
       },
       metricMetaDescription: {
-        type: DataTypes.STRING(500),
+        type: DataTypes.STRING(1000),
         allowNull: false,
       },
       metricMetaType: {

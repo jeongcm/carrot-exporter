@@ -1,9 +1,6 @@
 import { MongoClient } from 'mongodb';
 import DB from '@/database';
-import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
-import { ResourceDto } from '@modules/Resources/dtos/resource.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
-import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
@@ -79,8 +76,12 @@ class massUploaderMongoService {
                 resourceMassFeed[i].updated_At = updated_At;
                 resourceMassFeed[i].customer_Account_Key = customerAccountKey;
                 resourceMassFeed[i].resource_Group_Key = resourceGroupKey;
+                const updateRequest = { resourceTargetUuid:  resourceMassFeed[i].resource_Target_Uuid,
+                                        resourceNamespace: resourceMassFeed[i].resource_Namespace,
+                                        resourceInstance: resourceMassFeed[i].resource_Instance,
+                                        updatedAt: new Date(),
+                                        };
                 let resourceTargetUuid = resourceMassFeed[i].resource_Target_Uuid;
-                let resourceNamespace = resourceMassFeed[i].resource_Namespace;
 
                 var query_search = {resource_Target_Uuid: resourceTargetUuid};
                 var query_data = { "$set": resourceMassFeed[i]}; 
@@ -90,7 +91,7 @@ class massUploaderMongoService {
                 if (result_update.lastErrorObject.updatedExisting){
                     updatedCount=updatedCount+1;
                 // update Mariadb....    
-                    const result_update_maria = await this.resourceService.updateResourceByMongoUploader(resourceTargetUuid, resourceNamespace, updated_At);
+                    const result_update_maria = await this.resourceService.updateResourceByMongoUploader(updateRequest);
                     console.log(result_update_maria); 
                 }
                 else {

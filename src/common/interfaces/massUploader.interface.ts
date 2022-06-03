@@ -21,6 +21,7 @@ export interface IRquestMassUploaderMongo {
     resource_Status_Updated_At: Date,
     resource_Level1: string,
     resource_Target_Created_At: Date,
+    resource_Instance: string,
 }
 
 export interface IRequestMassUploader {

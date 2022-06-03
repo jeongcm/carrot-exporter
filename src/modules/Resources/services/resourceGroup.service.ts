@@ -24,12 +24,13 @@ class ResourceGroupService {
    * @param  {string} currentUserId
    * @param  {number} customerAccountKey
    */
-  public async createResourceGroup(resourceGroupData: ResourceGroupDto, currentUserId: string, customerAccountKey: number): Promise<IResourceGroup> {
+  public async createResourceGroup(resourceGroupData: ResourceGroupDto, currentUserId: string, customerAccountKey: number): Promise<Object> {
     if (isEmpty(resourceGroupData)) throw new HttpException(400, 'ResourceGroup must not be empty');
 
     try {
       const tableIdTableName = 'ResourceGroup';
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+
       const createResourceGroup: IResourceGroup = await this.resourceGroup.create({
         resourceGroupId: responseTableIdData.tableIdFinalIssued,
         createdBy: currentUserId,
@@ -37,12 +38,17 @@ class ResourceGroupService {
         ...resourceGroupData,
       });
 
+      console.log (createResourceGroup)  
+      const uuid = require('uuid'); 
+      const apiId = uuid.v1();
       const resourceData = {
+        resourceId: apiId,
+        customerAccountKey: customerAccountKey,
         resourceType: 'K8',
         resourceName: resourceGroupData.resourceGroupName,
         resourceDescription: resourceGroupData.resourceGroupDescription,
         resourceTargetUuid: resourceGroupData.resourceGroupUuid,
-        resourceGroupId: responseTableIdData.tableIdFinalIssued,
+        resourceGroupKey: createResourceGroup.resourceGroupKey,
         resourceLevelType: 'K8',
         resourceLevel1: 'K8',
         resourceRbac: true,
@@ -54,19 +60,20 @@ class ResourceGroupService {
         resourceLevel3: '',
         resourceLevel4: '',
         resourceNamespace: '',
-        resourceTargetCreatedAt: null,
         resourceStatus: null,
         parentResourceId: '',
         resourceOwnerReferences: null,
+        resourceTargetCreatedAt: new Date(),
         createdAt: new Date(),
         createdBy: currentUserId,
-        customerAccountKey: customerAccountKey
       }
 
       const createResource: IResource = await this.resource.create(resourceData);
-      console.log(createResource);
 
-      return createResourceGroup;
+
+      const returnResult = createResourceGroup;
+      
+      return returnResult;
     } catch (error) {
       throw new HttpException(500, error);
     }
