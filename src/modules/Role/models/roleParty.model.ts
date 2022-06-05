@@ -14,9 +14,9 @@ export class RolePartyModel extends Model<IRoleParty, rolePartyAttributes> imple
   public createdBy: string;
   public updatedBy: string;
   public deletedAt: Date;
+  public updatedAt: Date;
 
   public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof RolePartyModel {

@@ -1094,23 +1094,18 @@ class executorService {
         var cronJobKey =[];
         var DistinctJobList;
 
-        console.log("###########");
-        console.log(clusterUuid); 
-
         const responseResourceGroup: IResourceGroup =  await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
         if (!responseResourceGroup) {
             throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);   
         }
         const prometheus = responseResourceGroup.resourceGroupPrometheus;
-        console.log (prometheus);
 
         // get distinct data of job... 
         DistinctJobList = await this.MetricMetaService.getDistinctJobOfMetricMetabyUuid(clusterUuid); 
         if (!DistinctJobList) {
             throw new HttpException(404, `No metric Job information with the clusterUuid: ${clusterUuid}`);   
         }
-
-        console.log(DistinctJobList); 
+ 
         // loop to schedule MetricReceived by 
         for (let i=0; i<DistinctJobList.length; i++){
             let targetJob = DistinctJobList[i].metricMetaTargetJob
@@ -1140,6 +1135,8 @@ class executorService {
                             ]
                         }
             };
+            
+            console.log(cronData);
         //interface with Cron
        
             await axios(

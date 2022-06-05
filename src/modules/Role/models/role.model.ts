@@ -10,7 +10,7 @@ export class RoleModel extends Model<IRole, RoleCreationAttributes> implements I
   public roleKey: number;
   public roleId: string;
   public roleName: string;
-  public roleCode: 'AD' | 'ME' | 'AM';
+  public roleCode: string;
   public customerAccountKey: number;
   public createdBy: string;
   public updatedBy: string;
@@ -36,6 +36,7 @@ export default function (sequelize: Sequelize): typeof RoleModel {
       roleName: {
         type: DataTypes.STRING(50),
         allowNull: false,
+        unique: true,   //don't drop unique index of roleName
       },
       roleCode: {
         type: DataTypes.STRING(2),

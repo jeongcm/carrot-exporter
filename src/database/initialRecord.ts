@@ -32,18 +32,17 @@ class InitialRecordService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    //create TableId
-
-    const getTableId: ITableId = await this.tableId.findOne({ where: { tableIdTableName: 'customerAccount' } });
-    if (!getTableId) {
-      try {
-        await DB.sequelize.transaction(async t => {
-          await this.tableId.bulkCreate(tableIds, { transaction: t });
-        }); // end of transaction
+    //insert/update TableId
+    try {
+      await this.tableId.bulkCreate(tableIds, 
+        {
+          fields: ["tableIdTableName", "tableIdHeader", "tableMonth", "tableYear", "tableDay","tableIdSequenceDigit","tableIdIssuedSequence","createdBy"],
+          updateOnDuplicate: ["tableIdTableName"]
+        }
+      );
       } catch (error) {
         console.log(error);
-      }
-    } // end of !getTableId
+      } 
 
     //create a system user
     const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountType: 'IA' } });
@@ -95,87 +94,85 @@ class InitialRecordService {
       }
     } // end of !findIaCustomer
 
-    const getApi: IApi = await this.api.findOne({ where: { apiEndPoint2: '/customerAccount' } });
-    if (!getApi) {
-      let insertDataList = [];
 
+    //insert/update API
+
+
+    let apiDataList = [];
       // pre-step to be ready to use bulk table id
-      let apiListLength = apiList.length;
-      const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Api', apiListLength);
-      const api_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
-      let api_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
-      let api_id_postfix = '';
-      const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
+    let apiListLength = apiList.length;
+    const responseApiTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Api', apiListLength);
+    const api_id_prefix = responseApiTableIdData.tableIdFinalIssued.substring(0, 8);
+    let api_id_postfix_number = Number(responseApiTableIdData.tableIdFinalIssued.substring(8, 16)) - responseApiTableIdData.tableIdRange;
+    let api_id_postfix = '';
+    const tableIdApiSequenceDigit = responseApiTableIdData.tableIdSequenceDigit;
       //
-      for (const apiObj of apiList) {
-        // creating tableid from bulk
-        api_id_postfix_number = api_id_postfix_number + 1;
-        api_id_postfix = api_id_postfix_number.toString();
-        while (api_id_postfix.length < tableIdSequenceDigit) {
-          api_id_postfix = '0' + api_id_postfix;
-        }
-        let api_id = api_id_prefix + api_id_postfix;
-
-        insertDataList.push({
-          ...apiObj,
-          createdBy: 'SYSTEM',
-          apiId: api_id,
-        });
+    for (const apiObj of apiList) {
+      // creating tableid from bulk
+      api_id_postfix_number = api_id_postfix_number + 1;
+      api_id_postfix = api_id_postfix_number.toString();
+      while (api_id_postfix.length < tableIdApiSequenceDigit) {
+        api_id_postfix = '0' + api_id_postfix;
       }
-      //console.log ("###########################SQL API.....")
-      //console.log(insertDataList);
-      //console.log ("###########################SQL API.....")
+      let api_id = api_id_prefix + api_id_postfix;
 
-      const t = await DB.sequelize.transaction();
-      try {
-        await this.api.bulkCreate(insertDataList, { transaction: t });
-        //console.log(t);
-        await t.commit();
+      apiDataList.push({
+        ...apiObj,
+        createdBy: 'SYSTEM',
+        createdAt: new Date(),
+        apiId: api_id,
+      });
+    }
+    try {
+      await this.api.bulkCreate(apiDataList, 
+        {
+          fields: ["apiId","apiName", "apiDescription", "apiEndPoint1", "apiEndPoint2", "apiVisibleTF", "createdBy", "createdAt"],
+          updateOnDuplicate: ["apiName"]
+        }
+      );
       } catch (error) {
         console.log(error);
-        await t.rollback();
-      } // end of try
-    } // end of !getApi
+      } 
 
-    //create role data ---------------------------
-    const getRole: IRole = await this.role.findOne({ where: { roleCode: 'AD' } });
-    if (!getRole) {
-      let insertDataList = [];
 
-      // pre-step to be ready to use bulk table id
-      let roleListLength = roleList.length;
-      const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Role', roleListLength);
-      const role_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
-      let role_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
-      let role_id_postfix = '';
-      const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
-      //
-      for (const roleObj of roleList) {
-        // creating tableid from bulk
-        role_id_postfix_number = role_id_postfix_number + 1;
-        role_id_postfix = role_id_postfix_number.toString();
-        while (role_id_postfix.length < tableIdSequenceDigit) {
-          role_id_postfix = '0' + role_id_postfix;
-        }
-        let role_id = role_id_prefix + role_id_postfix;
 
-        insertDataList.push({
-          ...roleObj,
-          createdBy: 'SYSTEM',
-          roleId: role_id,
-        });
+  //insert/update Role   
+  let roleDataList = [];
+  let roleListLength = roleList.length;
+  const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Role', roleListLength);
+  const role_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
+  let role_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
+  let role_id_postfix = '';
+  const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
+
+  for (const roleObj of roleList) {
+    // creating tableid from bulk
+    role_id_postfix_number = role_id_postfix_number + 1;
+    role_id_postfix = role_id_postfix_number.toString();
+    while (role_id_postfix.length < tableIdSequenceDigit) {
+      role_id_postfix = '0' + role_id_postfix;
+    }
+    let role_id = role_id_prefix + role_id_postfix;
+
+    roleDataList.push({
+      ...roleObj,
+      createdBy: 'SYSTEM',
+      createdAt: new Date(),
+      roleId: role_id,
+    });
+  }
+
+  try {
+    await this.role.bulkCreate(roleDataList, 
+      {
+        fields: ["roleName", "roleCode", "roleId", "createdBy", "createdAt"],
+        updateOnDuplicate: ["roleName"]
       }
+    );
+    } catch (error) {
+      console.log(error);
+    } 
 
-      const t = await DB.sequelize.transaction();
-      try {
-        await this.role.bulkCreate(insertDataList, { transaction: t });
-        //console.log(t);
-        await t.commit();
-      } catch (error) {
-        console.log(error);
-        await t.rollback();
-      } // end of try
-    } //end of !getRolea ---------------------------
   } // end of method
 } // end of class
 

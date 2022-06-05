@@ -3,7 +3,7 @@ export interface IRole {
   roleKey: number;
   roleId: string;
   roleName: string;
-  roleCode: 'AD' | 'ME' | 'AM';
+  roleCode: string;
   createdBy: string;
   updatedBy: string;
   createdAt: Date;

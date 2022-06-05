@@ -14,5 +14,10 @@
   {
     "roleName": "Access Group Manager",
     "roleCode": "AM"
+  },
+  {
+    "roleName": "Billing & Payment",
+    "roleCode": "BP"
   }
+
 ]
