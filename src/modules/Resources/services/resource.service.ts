@@ -254,29 +254,49 @@ class ResourceService {
   }
 
 /**
-   * @param  {IMassUploaderMongoUpdateDto} updateRequest
+   * @param  {IRquestMassUploaderMongo} updateRequest
    */
- public async updateResourceByMongoUploader(updateRequest: IMassUploaderMongoUpdateDto): Promise<String> {
+ public async updateResourceByMongoUploader(updateRequest: IRquestMassUploaderMongo): Promise<String> {
   if (isEmpty(updateRequest)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
  
 
   const updatedResource = {
-    resourceNamespace: updateRequest.resourceNamespace,
+    resourceNamespace: updateRequest.resource_Namespace,
     updatedBy: "SYSTEM",
-    updatedAt: updateRequest.updatedAt,
-    resourceStatusUpdatedAt: updateRequest.updatedAt,
-    resourceInstance: updateRequest.resourceInstance,
-    resourceLabels: updateRequest.resourceLabels,
-    resourceAnnotations: updateRequest.resourceAnnotations,
-    resourceSpec: updateRequest.resourceSpec,
-    resourceStatus: updateRequest.resourceStatus,
-    resourceEndpoint: updateRequest.resourceEndpoint,
+    updatedAt: new Date(),
+    resourceStatusUpdatedAt: updateRequest.resource_Status_Updated_At,
+    resourceInstance: updateRequest.resource_Instance,
+    resourceLabels: updateRequest.resource_Labels,
+    resourceAnnotations: updateRequest.resource_Annotations,
+    resourceSpec: updateRequest.resource_Spec,
+    resourceStatus: updateRequest.resource_Status,
+    resourceEndpoint: updateRequest.resource_Endpoint,
+    resourcePodPhase: updateRequest.resource_Pod_Phase,
+    resourcePodContainer: updateRequest.resource_Pod_Container,
+    resourcePodVolume: updateRequest.resource_Pod_Volume,
+    resourceReplicas: updateRequest.resource_Replicas,
+    resourceStsvolumeClaimTemplates: updateRequest.resource_Sts_volume_Claim_Templates,
+    resourcePvcStorage: updateRequest.resource_Pvc_Storage,
+    resourcePvcVolumneName: updateRequest.resource_Pvc_Volumne_Name,
+    resourcePvcStorageClassName: updateRequest.resource_Pvc_Storage_Class_Name,
+    resourcePvcVolumeMode: updateRequest.resource_Pvc_Volume_Mode,
+    resourceConfigmapData: updateRequest.resource_Configmap_Data,
+    resourceIngressClass: updateRequest.resource_Ingress_Class,
+    resourceIngressRules: updateRequest.resource_Ingress_Rules,
+    resourcePvStorage: updateRequest.resource_Pv_Storage,
+    resourcePvClaimRef: updateRequest.resource_Pv_Claim_Ref,
+    resorucePvStorageClassName: updateRequest.resoruce_Pv_Storage_Class_Name,
+    resourcePvVolumeMode: updateRequest.resource_Pv_Volume_Mode,
+    resourceScProvisioner: updateRequest.resource_Sc_Provisioner, 
+    resourceScReclaimPolicy: updateRequest.resource_Sc_Reclaim_Policy, 
+    resourceScAllowVolumeExpansion: updateRequest.resource_Sc_Allow_Volume_Expansion, 
+    resourceScVolumeBindingMode: updateRequest.resource_Sc_Volume_Binding_Mode, 
   };
 
   console.log("updatedResource: ", updatedResource); 
 
   try {
-    const updateResult = await this.resource.update(updatedResource, {where: {resourceTargetUuid: updateRequest.resourceTargetUuid},});
+    const updateResult = await this.resource.update(updatedResource, {where: {resourceTargetUuid: updateRequest.resource_Target_Uuid},});
     console.log (updateResult);
   } catch (error) {
     throw new HttpException(500, error);
@@ -325,6 +345,26 @@ class ResourceService {
       resourceId: apiId,
       createdAt: new Date(),
       createdBy: "SYSTEM",
+      resourcePodPhase: resourceData.resource_Pod_Phase,
+      resourcePodContainer: resourceData.resource_Pod_Container,
+      resourcePodVolume: resourceData.resource_Pod_Volume,
+      resourceReplicas: resourceData.resource_Replicas,
+      resourceStsvolumeClaimTemplates: resourceData.resource_Sts_volume_Claim_Templates,
+      resourcePvcStorage: resourceData.resource_Pvc_Storage,
+      resourcePvcVolumneName: resourceData.resource_Pvc_Volumne_Name,
+      resourcePvcStorageClassName: resourceData.resource_Pvc_Storage_Class_Name,
+      resourcePvcVolumeMode: resourceData.resource_Pvc_Volume_Mode,
+      resourceConfigmapData: resourceData.resource_Configmap_Data,
+      resourceIngressClass: resourceData.resource_Ingress_Class,
+      resourceIngressRules: resourceData.resource_Ingress_Rules,
+      resourcePvStorage: resourceData.resource_Pv_Storage,
+      resourcePvClaimRef: resourceData.resource_Pv_Claim_Ref,
+      resorucePvStorageClassName: resourceData.resoruce_Pv_Storage_Class_Name,
+      resourcePvVolumeMode: resourceData.resource_Pv_Volume_Mode,
+      resourceScProvisioner: resourceData.resource_Sc_Provisioner, 
+      resourceScReclaimPolicy: resourceData.resource_Sc_Reclaim_Policy, 
+      resourceScAllowVolumeExpansion: resourceData.resource_Sc_Allow_Volume_Expansion, 
+      resourceScVolumeBindingMode: resourceData.resource_Sc_Volume_Binding_Mode,  
     };  
 
     try {

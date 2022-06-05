@@ -33,9 +33,9 @@ export interface IResource {
   resourceEndpoint: JSON;
   resourceConfigmapData: JSON;
   resourceIngressClass: string;
-  resourceIngressRules: string;
+  resourceIngressRules: JSON;
   resourcePvStorage: string;
-  resourcePvClaimRef: string;
+  resourcePvClaimRef: JSON;
   resourcePvStorageClassName: string;
   resourcePvVolumeMode: string;
   resourceScProvisioner: string;

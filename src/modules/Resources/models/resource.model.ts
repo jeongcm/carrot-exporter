@@ -95,9 +95,9 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceEndpoint: JSON;
   public resourceConfigmapData: JSON;
   public resourceIngressClass: string;
-  public resourceIngressRules: string;
+  public resourceIngressRules: JSON;
   public resourcePvStorage: string;
-  public resourcePvClaimRef: string;
+  public resourcePvClaimRef: JSON;
   public resourcePvStorageClassName: string;
   public resourcePvVolumeMode: string;
   public resourceScProvisioner: string;
