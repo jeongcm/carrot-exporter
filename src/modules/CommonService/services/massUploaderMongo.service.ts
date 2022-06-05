@@ -80,11 +80,18 @@ class massUploaderMongoService {
                                         resourceNamespace: resourceMassFeed[i].resource_Namespace,
                                         resourceInstance: resourceMassFeed[i].resource_Instance,
                                         updatedAt: new Date(),
+                                        updatedBy: "SYSTEM",
+                                        resourceLabels: resourceMassFeed[i].resource_Labels,
+                                        resourceAnnotations: resourceMassFeed[i].resource_Annotations,
+                                        resourceSpec: resourceMassFeed[i].resource_Spec,
+                                        resourceStatus: resourceMassFeed[i].resource_Status,
+                                        resourceEndpoint: resourceMassFeed[i].resource_Endpoint,
                                         };
                 let resourceTargetUuid = resourceMassFeed[i].resource_Target_Uuid;
 
                 var query_search = {resource_Target_Uuid: resourceTargetUuid};
                 var query_data = { "$set": resourceMassFeed[i]}; 
+                
 
                 const result_update = await resource.findOneAndUpdate(query_search, query_data);
                 console.log ("result_update: ", result_update);

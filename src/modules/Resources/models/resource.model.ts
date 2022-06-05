@@ -14,6 +14,7 @@ export type ResourceCreationAttributes = Optional<
   | 'deletedAt'
   | 'resourceName'
   | 'resourceDescription'
+  | 'resourceSpec'
   | 'resourceInstance'
   | 'resourceType'
   | 'resourceLevel1'
@@ -67,6 +68,7 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceName: string;
   public resourceDescription: string;
   public resourceInstance: string;
+  public resourceSpec: JSON;
   public resourceType: ResourceType;
   public resourceLevel1: ResourceTypeLevel1;
   public resourceLevel2: ResourceTypeLevel2;
@@ -152,6 +154,9 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       resourceDescription: {
         allowNull: false,
         type: DataTypes.STRING(500),
+      },
+      resourceSpec: {
+        type: DataTypes.STRING(100),
       },
       resourceInstance: {
         type: DataTypes.STRING(100),

@@ -35,6 +35,7 @@ export interface IRequestMassUploader {
                 resource_Annotations: object,
                 resource_Namespace: string,
                 resource_Instance: string,
+                resource_Spec: string,
                 resource_Status: object,
                 resource_Type: string,
                 resource_Level1: string,

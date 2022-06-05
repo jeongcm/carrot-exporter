@@ -14,6 +14,7 @@ export interface IResource {
   resourceLabels: JSON;
   resourceAnnotations: JSON;
   resourceInstance: string;
+  resourceSpec: JSON;
   resourceType: string;
   resourceLevel1: string;
   resourceLevel2: string;
