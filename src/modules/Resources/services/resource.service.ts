@@ -298,9 +298,12 @@ class ResourceService {
     if (!currentResourceGroup) {
       throw new HttpException(400, 'resourceGroupId not found');
     }
-    
+    const uuid = require('uuid'); 
+    const apiId = uuid.v1();
+
     const resourceInputData = {
       resourceType: resourceData.resource_Type,
+      resourceSpec: resourceData.resource_Spec,
       resourceName: resourceData.resource_Name,
       resourceDescription: resourceData.resource_Name,
       resourceNamespace: resourceData.resource_Namespace,
@@ -315,22 +318,17 @@ class ResourceService {
       resourceStatusUpdatedAt: resourceData.resource_Status_Updated_At,
       resourceTargetCreatedAt: resourceData.resource_Target_Created_At,
       resourceInstance: resourceData.resource_Instance,
+      resourceLabels: resourceData.resource_Labels,
+      resourceAnnotations: resourceData.resource_Annotations,
+      resourceStatus: resourceData.resource_Status,
+      resourceEndpoint: resourceData.resource_Endpoint,
+      resourceId: apiId,
+      createdAt: new Date(),
+      createdBy: "SYSTEM",
     };  
 
     try {
-      const tableIdTableName = 'Resource';
-      //const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
-
-      const uuid = require('uuid'); 
-      const apiId = uuid.v1();
-
-      const createResource: IResource = await this.resource.create({
-        //resourceId: responseTableIdData.tableIdFinalIssued,
-        resourceId: apiId,
-        createdAt: new Date(),
-        createdBy: "SYSTEM",
-        ...resourceInputData,
-      });
+      const createResource = await this.resource.create(resourceInputData);
       return createResource;
     } catch (error) {
       throw new HttpException(500, error);

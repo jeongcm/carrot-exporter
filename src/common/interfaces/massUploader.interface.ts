@@ -22,6 +22,11 @@ export interface IRquestMassUploaderMongo {
     resource_Level1: string,
     resource_Target_Created_At: Date,
     resource_Instance: string,
+    resource_Spec: JSON,
+    resource_Labels: JSON,
+    resource_Annotations: JSON,
+    resource_Endpoint: JSON,
+    resource_Status: JSON,
 }
 
 export interface IRequestMassUploader {
@@ -35,7 +40,7 @@ export interface IRequestMassUploader {
                 resource_Annotations: object,
                 resource_Namespace: string,
                 resource_Instance: string,
-                resource_Spec: string,
+                resource_Spec: object,
                 resource_Status: object,
                 resource_Type: string,
                 resource_Level1: string,

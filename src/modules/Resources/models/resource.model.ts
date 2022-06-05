@@ -156,7 +156,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         type: DataTypes.STRING(500),
       },
       resourceSpec: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.JSON,
       },
       resourceInstance: {
         type: DataTypes.STRING(100),
