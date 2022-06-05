@@ -266,6 +266,11 @@ class ResourceService {
     updatedAt: updateRequest.updatedAt,
     resourceStatusUpdatedAt: updateRequest.updatedAt,
     resourceInstance: updateRequest.resourceInstance,
+    resourceLabels: updateRequest.resourceLabels,
+    resourceAnnotations: updateRequest.resourceAnnotations,
+    resourceSpec: updateRequest.resourceSpec,
+    resourceStatus: updateRequest.resourceStatus,
+    resourceEndpoint: updateRequest.resourceEndpoint,
   };
 
   console.log("updatedResource: ", updatedResource); 
