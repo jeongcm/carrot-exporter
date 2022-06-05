@@ -1109,7 +1109,7 @@ class executorService {
         // loop to schedule MetricReceived by 
         for (let i=0; i<DistinctJobList.length; i++){
             let targetJob = DistinctJobList[i].metricMetaTargetJob
-            let matricQuery = "{job=" + targetJob + "}";
+            let matricQuery = `{job="` + targetJob + `"}`;
             let matricName = "MetricReceived-" + targetJob; 
             let matricSummary = "MetricReceived-" + targetJob; 
             
