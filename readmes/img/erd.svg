@@ -1121,7 +1121,7 @@
 <polygon fill="none" stroke="#000000" points="2974.6048,-3700.1349 2974.6048,-3722.1349 3180.6048,-3722.1349 3180.6048,-3700.1349 2974.6048,-3700.1349"/>
 <text text-anchor="start" x="2979.6048" y="-3708.1349" font-family="Times,serif" font-size="10.00" fill="#000000">resourceDescription: STRING</text>
 <polygon fill="none" stroke="#000000" points="2974.6048,-3678.1349 2974.6048,-3700.1349 3180.6048,-3700.1349 3180.6048,-3678.1349 2974.6048,-3678.1349"/>
-<text text-anchor="start" x="2979.6048" y="-3686.1349" font-family="Times,serif" font-size="10.00" fill="#000000">resourceSpec: STRING</text>
+<text text-anchor="start" x="2979.6048" y="-3686.1349" font-family="Times,serif" font-size="10.00" fill="#000000">resourceSpec: JSON</text>
 <polygon fill="none" stroke="#000000" points="2974.6048,-3656.1349 2974.6048,-3678.1349 3180.6048,-3678.1349 3180.6048,-3656.1349 2974.6048,-3656.1349"/>
 <text text-anchor="start" x="2979.6048" y="-3664.1349" font-family="Times,serif" font-size="10.00" fill="#000000">resourceInstance: STRING</text>
 <polygon fill="none" stroke="#000000" points="2974.6048,-3634.1349 2974.6048,-3656.1349 3180.6048,-3656.1349 3180.6048,-3634.1349 2974.6048,-3634.1349"/>

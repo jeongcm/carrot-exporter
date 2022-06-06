@@ -54,6 +54,7 @@ class ResourceService {
   }
 
   /**
+   * @param {number} customerAccountKey
    * @returns Promise
    */
   public async getAllResources(customerAccountKey: number): Promise<IResource[]> {
@@ -64,6 +65,19 @@ class ResourceService {
 
     return allResource;
   }
+
+  /**
+   * @param {number} customerAccountKey
+   * @returns Promise
+   */
+     public async getAllResourcesRbac(customerAccountKey: number): Promise<IResource[]> {
+      const allResource: IResource[] = await this.resource.findAll({
+        where: { deletedAt: null, customerAccountKey, resourceRbac: true },
+        attributes: { exclude: ['deletedAt'] },
+      });
+  
+      return allResource;
+    }
 
   /**
    * @param  {string} resourceType
