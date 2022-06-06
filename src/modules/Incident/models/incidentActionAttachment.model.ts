@@ -35,7 +35,7 @@ export class IncidentActionAttachmentModel
   public incidentActionAttachmentType: 'JS' | 'IM' | 'PD' | 'MO';
   public incidentActionAttachmentFilename: string;
   public incidentActionAttachmentFileType: string;
-  public incidentActionAttachmentPath: JSON;
+  public incidentActionAttachmentPath: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -97,7 +97,7 @@ export default function (sequelize: Sequelize): typeof IncidentActionAttachmentM
         defaultValue: null,
       },
       incidentActionAttachmentPath: {
-        type: DataTypes.JSON,
+        type: DataTypes.STRING(50),
         defaultValue: null,
       },
     },

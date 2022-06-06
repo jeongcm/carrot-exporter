@@ -17,7 +17,7 @@ class PartyChannelRoute implements Routes {
       validationMiddleware(CreatePartyChannel, 'body'),
       this.partyChannelController.createPartyChannel,
     );
-    this.router.get('/partychannel',authMiddleware,this.partyChannelController.getPartyChannel);
+    this.router.get('/partychannel', authMiddleware, this.partyChannelController.getPartyChannel);
   }
 }
 

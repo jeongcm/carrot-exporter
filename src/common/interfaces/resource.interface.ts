@@ -14,6 +14,7 @@ export interface IResource {
   resourceLabels: JSON;
   resourceAnnotations: JSON;
   resourceInstance: string;
+  resourceSpec: JSON;
   resourceType: string;
   resourceLevel1: string;
   resourceLevel2: string;
@@ -32,9 +33,9 @@ export interface IResource {
   resourceEndpoint: JSON;
   resourceConfigmapData: JSON;
   resourceIngressClass: string;
-  resourceIngressRules: string;
+  resourceIngressRules: JSON;
   resourcePvStorage: string;
-  resourcePvClaimRef: string;
+  resourcePvClaimRef: JSON;
   resourcePvStorageClassName: string;
   resourcePvVolumeMode: string;
   resourceScProvisioner: string;

@@ -3,7 +3,7 @@ import App from '@/app';
 import AuthRoute from '@/modules/UserTenancy/routes/auth.route';
 import IndexRoute from '@/modules/ApiGateway/routes/index.route';
 import UsersRoute from '@/modules/UserTenancy/routes/users.route';
-import AccessGroupRoute from '@/modules/UserTenancy/routes/accessGroup.route';
+import AccessGroupRoute from '@/modules/Party/routes/accessgroup.route';
 import TenancyRoute from '@/modules/UserTenancy/routes/tenancy.route';
 import AlertRoute from '@/modules/Alert/routes/alert.route';
 import LogRoute from '@/modules/Log/routes/log.route';
@@ -51,6 +51,7 @@ import SudoryTemplateRoute from './modules/MetricOps/routes/sudoryTemplate.route
 import RuleGroupRoute from './modules/MetricOps/routes/ruleGroup.route';
 import RuleGroupAlertRoute from './modules/MetricOps/routes/ruleGroupAlertRule.route';
 import AnomalyMonitoringTargetRoute from './modules/MetricOps/routes/monitoringTarget.route';
+import RoleRoute from './modules/Role/routes/role.route';
 
 const app = new App([
   new IndexRoute(),
@@ -101,7 +102,8 @@ const app = new App([
   new AnomalyMonitoringTargetRoute(),
 
   new RuleGroupRoute(),
-  new RuleGroupAlertRoute()
+  new RuleGroupAlertRoute(),
+  new RoleRoute(),
 ]);
 
 app.listen();

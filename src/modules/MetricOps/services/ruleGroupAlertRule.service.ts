@@ -9,6 +9,7 @@ import AlertRuleService from '@/modules/Alert/services/alertRule.service';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import RuleGroupService from './ruleGroup.service';
 import { IRuleGroup } from '@/common/interfaces/ruleGroup.interface';
+import { AlertRuleModel } from '@/modules/Alert/models/alertRule.model';
 
 const { Op } = require('sequelize');
 class RuleGroupAlertRuleService {
@@ -79,12 +80,24 @@ class RuleGroupAlertRuleService {
     return newnewruleGroupAlertRuleData;
   }
 
-  public async listRegisterAlertRule(): Promise<IRuleGroupAlertRule[]> {
+  public async listRegisterAlertRule(ruleGroupId:string): Promise<IRuleGroupAlertRule[]> {
+    let alertRuleList = [];
+    const ruleGroupDetails = await this.ruleGroup.findOne({where:{ruleGroupId}});
+    if (isEmpty(ruleGroupDetails)) throw new HttpException(400, ` Rule  Group not found`);
     const allRuleGroupAlertRule: IRuleGroupAlertRule[] = await this.ruleGroupAlertRule.findAll({
-      where: { deletedAt: null },
+      where: { ruleGroupKey:ruleGroupDetails.ruleGroupKey, deletedAt: null },
+      include:[{
+        model:AlertRuleModel
+      }],
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
-    return allRuleGroupAlertRule;
+
+    allRuleGroupAlertRule.map((alertGroup:any)=>{
+      const a = alertGroup.AlertRule;
+      alertRuleList.push(alertGroup.AlertRule);
+    })
+
+    return alertRuleList;
   }
 }
 

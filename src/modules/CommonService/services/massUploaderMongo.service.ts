@@ -76,22 +76,19 @@ class massUploaderMongoService {
                 resourceMassFeed[i].updated_At = updated_At;
                 resourceMassFeed[i].customer_Account_Key = customerAccountKey;
                 resourceMassFeed[i].resource_Group_Key = resourceGroupKey;
-                const updateRequest = { resourceTargetUuid:  resourceMassFeed[i].resource_Target_Uuid,
-                                        resourceNamespace: resourceMassFeed[i].resource_Namespace,
-                                        resourceInstance: resourceMassFeed[i].resource_Instance,
-                                        updatedAt: new Date(),
-                                        };
+
                 let resourceTargetUuid = resourceMassFeed[i].resource_Target_Uuid;
 
                 var query_search = {resource_Target_Uuid: resourceTargetUuid};
                 var query_data = { "$set": resourceMassFeed[i]}; 
+                
 
                 const result_update = await resource.findOneAndUpdate(query_search, query_data);
                 console.log ("result_update: ", result_update);
                 if (result_update.lastErrorObject.updatedExisting){
                     updatedCount=updatedCount+1;
                 // update Mariadb....    
-                    const result_update_maria = await this.resourceService.updateResourceByMongoUploader(updateRequest);
+                    const result_update_maria = await this.resourceService.updateResourceByMongoUploader(resourceMassFeed[i]);
                     console.log(result_update_maria); 
                 }
                 else {

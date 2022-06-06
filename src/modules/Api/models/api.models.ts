@@ -28,9 +28,10 @@ export class ApiModel extends Model<IApi, ApiCreationAttributes> implements IApi
   public apiEndPoint1: string;
   public apiEndPoint2: string;
   public apiVisibleTF: Boolean;
+  public updatedAt: Date;
 
   public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+
 }
 
 export default function (sequelize: Sequelize): typeof ApiModel {
@@ -67,6 +68,7 @@ export default function (sequelize: Sequelize): typeof ApiModel {
       apiName: {
         allowNull: false,
         type: DataTypes.STRING(500),
+        unique: true // don't remove the unique index
       },
       apiDescription: {
         allowNull: false,

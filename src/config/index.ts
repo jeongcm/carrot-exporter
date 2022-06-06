@@ -12,6 +12,7 @@ How to add config:
 import validateEnv from './validateEnv';
 import tableIds from '../../init/tableId.seeding.json';
 import api from '../../init/api.seeding.json';
+import role from '../../init/role.seeding.json';
 
 validateEnv();
 
@@ -89,6 +90,7 @@ export default {
     },
     tableIds,
     api,
+    role,
   },
   deadLock: {
     retries: Number(process.env.NC_LARI_DEADLOCK_RETRIES) || 5,
@@ -120,6 +122,6 @@ export default {
     DOAccessKeyId: process.env.NC_LARI_DO_ACCESS_KEY_ID,
     DOSecretAccessKey: process.env.NC_LARI_DO_SECRET_ACCESS_KEY,
     awsS3DefaultRegion: process.env.NC_LARI_DO_DEFAULT_REGION,
-    DOEndPoint: process.env.NC_LARI_DO_ENDPOINT
+    DOEndPoint: process.env.NC_LARI_DO_ENDPOINT,
   },
 };

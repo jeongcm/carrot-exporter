@@ -39,6 +39,7 @@ class IncidentRoute implements Routes {
     );
     this.router.get('/incidents', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidents);
     this.router.get('/incidents/counts', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidentCounts);
+    this.router.get('/incidents/attachments/:attachmentId',  authMiddleware, createUserLogMiddleware,this.incidentController.getAttachmentById)
     this.router.get('/incidents/:incidentId', authMiddleware, createUserLogMiddleware, this.incidentController.getIncident);
     this.router.put(
       '/incidents/:incidentId',

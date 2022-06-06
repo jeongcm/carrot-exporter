@@ -9,6 +9,7 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 import { timeStamp } from 'console';
 import partyRelationModel from '@/modules/Party/models/partyRelation.model';
+import { ResourceModel } from '@/modules/Resources/models/resource.model';
 
 class AnomalyMonitoringTargetService {
     public AnomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
@@ -26,7 +27,8 @@ class AnomalyMonitoringTargetService {
      */
     public async findAllMonitoringTargets(): Promise<IAnomalyMonitoringTarget[]> {
         const monitoringTargetList: IAnomalyMonitoringTarget[] = await this.AnomalyMonitoringTarget.findAll({
-            where: { deletedAt: null }
+            where: { deletedAt: null }, 
+            include:[{model:ResourceModel}]
         });
         return monitoringTargetList;
     }

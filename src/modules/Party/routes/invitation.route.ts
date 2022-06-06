@@ -18,7 +18,7 @@ class InvitationRoute implements Routes {
     this.router.get('/invitation/accept', this.invitationController.acceptInvitation);
     this.router.get('/invitation/reject', this.invitationController.rejectInvitation);
     this.router.put('/invitation/email', authMiddleware, validationMiddleware(UpdateInvitation, 'body'), this.invitationController.updateInvitation);
-    this.router.get('/invitation/email',authMiddleware, this.invitationController.checkForDuplicateInvitation);
+    this.router.get('/invitation/email', authMiddleware, this.invitationController.checkForDuplicateInvitation);
   }
 }
 
