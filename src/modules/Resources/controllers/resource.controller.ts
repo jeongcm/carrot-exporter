@@ -96,7 +96,7 @@ class ResourceController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-   public getAllResourcesRbac = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public getAllResourcesRbac = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
       const findAllResourceRbacData: IResource[] = await this.resourceService.getAllResourcesRbac(customerAccountKey);
