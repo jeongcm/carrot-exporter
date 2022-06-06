@@ -17,9 +17,11 @@ class InvitationController {
 
   public createInvitation = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const{
-        user: { partyId, partyKey }, customerAccountKey, body
-      } = req
+      const {
+        user: { partyId, partyKey },
+        customerAccountKey,
+        body,
+      } = req;
       const invitationData: InvitationDto = body;
 
       const invitationDetail: IInvitation = await this.invitationService.getInvitationByEmail(invitationData.invitedTo);
@@ -27,7 +29,7 @@ class InvitationController {
         return res.status(200).json({ data: 'ok', message: 'PartyUser already invited' });
       }
       const invitedByPartyKey: number = partyKey;
-      
+
       const email: string = await this.partyService.getEmailFromPartyUser(invitedByPartyKey);
       if (!email) {
         return res.status(200).json({ data: 'ok', message: 'Party user Not Exists' });
@@ -53,7 +55,7 @@ class InvitationController {
 
   public acceptInvitation = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {token} = req.query;
+      const { token } = req.query;
 
       const invitationData = await this.invitationService.checkForToken(token);
       if (!invitationData) {
@@ -67,7 +69,7 @@ class InvitationController {
           acceptedAt: new Date(),
         };
         const partyId = req.params.partyId;
-        const {invitationId} = invitationData;
+        const { invitationId } = invitationData;
         await this.invitationService.updateInvitation(invitationId, acceptInvitation, partyId);
 
         return res.status(200).json({ message: 'VERIFICATION_DONE_SUCCESSFULLY' });
@@ -79,7 +81,7 @@ class InvitationController {
 
   public rejectInvitation = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {token} = req.query;
+      const { token } = req.query;
       const invitationData = await this.invitationService.checkForToken(token);
       if (!invitationData) {
         return res.status(200).json({ message: 'TOKEN_IS_INVALID' });
@@ -91,8 +93,8 @@ class InvitationController {
           isRejected: true,
           rejectedAt: new Date(),
         };
-        const partyId = req.params.partyId
-        await this.invitationService.updateInvitation(invitationData.invitationId, rejectInvitation, partyId );
+        const partyId = req.params.partyId;
+        await this.invitationService.updateInvitation(invitationData.invitationId, rejectInvitation, partyId);
         return res.status(200).json({ message: 'REQUEST_IS_REJECTED_SUCCESSFULLY' });
       }
     } catch (error) {
@@ -103,7 +105,7 @@ class InvitationController {
   public updateInvitation = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { email } = req.body;
-      const isEmailExist:IInvitation = await this.invitationService.getInvitationByEmail(email);
+      const isEmailExist: IInvitation = await this.invitationService.getInvitationByEmail(email);
       if (!isEmailExist) {
         return res.status(200).json({
           ok: false,
@@ -124,7 +126,7 @@ class InvitationController {
   public checkForDuplicateInvitation = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { email } = req.query;
-      
+
       const findInvitationData: IInvitation = await this.invitationService.getInvitationByEmail(email);
       if (!findInvitationData) {
         return res.status(200).json({ message: `Invitation for  ${email} mail, doesn't exist` });
