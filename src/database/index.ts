@@ -312,8 +312,11 @@ DB.Notification.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey'
 DB.RuleGroup.hasMany(DB.RuleGroupAlertRule, { foreignKey: 'ruleGroupKey' });
 DB.RuleGroupAlertRule.belongsTo(DB.RuleGroup, { foreignKey: 'ruleGroupKey' });
 
-DB.AlertRule.hasOne(DB.RuleGroupAlertRule, { foreignKey: 'alertRuleKey' });
+DB.AlertRule.hasMany(DB.RuleGroupAlertRule, { foreignKey: 'alertRuleKey' });
 DB.RuleGroupAlertRule.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey' });
+
+DB.AnomalyMonitoringTarget.hasMany(DB.Resource, { foreignKey: 'resource_id' });
+DB.Resource.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'resource_id' });
 
 
 DB.Party.belongsToMany(DB.Resource, {
