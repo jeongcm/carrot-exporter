@@ -35,7 +35,7 @@ class ResourceService {
     try {
       //const tableIdTableName = 'Resource';
       //const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
-      const uuid = require('uuid'); 
+      const uuid = require('uuid');
       const apiId = uuid.v1();
 
       const createResource: IResource = await this.resource.create({
@@ -70,14 +70,14 @@ class ResourceService {
    * @param {number} customerAccountKey
    * @returns Promise
    */
-     public async getAllResourcesRbac(customerAccountKey: number): Promise<IResource[]> {
-      const allResource: IResource[] = await this.resource.findAll({
-        where: { deletedAt: null, customerAccountKey, resourceRbac: true },
-        attributes: { exclude: ['deletedAt'] },
-      });
-  
-      return allResource;
-    }
+  public async getAllResourcesRbac(customerAccountKey: number): Promise<IResource[]> {
+    const allResource: IResource[] = await this.resource.findAll({
+      where: { deletedAt: null, customerAccountKey, resourceRbac: true },
+      attributes: { exclude: ['deletedAt'] },
+    });
+
+    return allResource;
+  }
 
   /**
    * @param  {string} resourceType
@@ -187,7 +187,7 @@ class ResourceService {
    * @param  {any} query
    */
   private getResourceQuery(query: any) {
-    let generatedQuery: any[] = [];
+    const generatedQuery: any[] = [];
 
     if (query.excludeFailed === true) {
       generatedQuery.push({
@@ -230,36 +230,37 @@ class ResourceService {
    * @param  {object} resourceTargetUuid
    * @param  {string} resoruceType
    */
-   public async retireResourceByUuidNotIn(resourceTargetUuid: object, resourceType: string, resourceGroupUuid: string): Promise<Object> {
+  public async retireResourceByUuidNotIn(resourceTargetUuid: object, resourceType: string, resourceGroupUuid: string): Promise<Object> {
     if (isEmpty(resourceTargetUuid)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
     if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid must not be empty');
     if (isEmpty(resourceType)) throw new HttpException(400, 'ResourceType must not be empty');
 
-  
     const getResourcegroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
     if (!getResourcegroup) {
       throw new HttpException(500, `can't find resourcegroup with resourcegroupuuid ${resourceGroupUuid}`);
     }
 
     const deleted_At = new Date();
-    const notInQuery = { where:  { resourceTargetUuid: {[Op.notIn]: resourceTargetUuid},
-                                  resourceGroupKey: getResourcegroup.resourceGroupKey,
-                                  resourceType: resourceType,
-                                  resourceActive: true
-                                 }
-                        }; 
+    const notInQuery = {
+      where: {
+        resourceTargetUuid: { [Op.notIn]: resourceTargetUuid },
+        resourceGroupKey: getResourcegroup.resourceGroupKey,
+        resourceType: resourceType,
+        resourceActive: true,
+      },
+    };
     const updatedResource = {
       resourceActive: false,
-      updatedBy: "SYSTEM",
+      updatedBy: 'SYSTEM',
       updatedAt: deleted_At,
       deletedAt: deleted_At,
     };
-    var returnResult;
+    let returnResult;
 
     try {
       const updateResult = await this.resource.update(updatedResource, notInQuery);
       returnResult = updateResult;
-      console.log (updateResult);
+      console.log(updateResult);
     } catch (error) {
       throw new HttpException(500, error);
     }
@@ -267,64 +268,62 @@ class ResourceService {
     return returnResult;
   }
 
-/**
+  /**
    * @param  {IRquestMassUploaderMongo} updateRequest
    */
- public async updateResourceByMongoUploader(updateRequest: IRquestMassUploaderMongo): Promise<String> {
-  if (isEmpty(updateRequest)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
- 
+  public async updateResourceByMongoUploader(updateRequest: IRquestMassUploaderMongo): Promise<String> {
+    if (isEmpty(updateRequest)) throw new HttpException(400, 'ResourceTargetUuid must not be empty');
 
-  const updatedResource = {
-    resourceNamespace: updateRequest.resource_Namespace,
-    updatedBy: "SYSTEM",
-    updatedAt: new Date(),
-    resourceStatusUpdatedAt: updateRequest.resource_Status_Updated_At,
-    resourceInstance: updateRequest.resource_Instance,
-    resourceLabels: updateRequest.resource_Labels,
-    resourceAnnotations: updateRequest.resource_Annotations,
-    resourceSpec: updateRequest.resource_Spec,
-    resourceStatus: updateRequest.resource_Status,
-    resourceEndpoint: updateRequest.resource_Endpoint,
-    resourcePodPhase: updateRequest.resource_Pod_Phase,
-    resourcePodContainer: updateRequest.resource_Pod_Container,
-    resourcePodVolume: updateRequest.resource_Pod_Volume,
-    resourceReplicas: updateRequest.resource_Replicas,
-    resourceStsvolumeClaimTemplates: updateRequest.resource_Sts_volume_Claim_Templates,
-    resourcePvcStorage: updateRequest.resource_Pvc_Storage,
-    resourcePvcVolumneName: updateRequest.resource_Pvc_Volumne_Name,
-    resourcePvcStorageClassName: updateRequest.resource_Pvc_Storage_Class_Name,
-    resourcePvcVolumeMode: updateRequest.resource_Pvc_Volume_Mode,
-    resourceConfigmapData: updateRequest.resource_Configmap_Data,
-    resourceIngressClass: updateRequest.resource_Ingress_Class,
-    resourceIngressRules: updateRequest.resource_Ingress_Rules,
-    resourcePvStorage: updateRequest.resource_Pv_Storage,
-    resourcePvClaimRef: updateRequest.resource_Pv_Claim_Ref,
-    resorucePvStorageClassName: updateRequest.resoruce_Pv_Storage_Class_Name,
-    resourcePvVolumeMode: updateRequest.resource_Pv_Volume_Mode,
-    resourceScProvisioner: updateRequest.resource_Sc_Provisioner, 
-    resourceScReclaimPolicy: updateRequest.resource_Sc_Reclaim_Policy, 
-    resourceScAllowVolumeExpansion: updateRequest.resource_Sc_Allow_Volume_Expansion, 
-    resourceScVolumeBindingMode: updateRequest.resource_Sc_Volume_Binding_Mode, 
-  };
+    const updatedResource = {
+      resourceNamespace: updateRequest.resource_Namespace,
+      updatedBy: 'SYSTEM',
+      updatedAt: new Date(),
+      resourceStatusUpdatedAt: updateRequest.resource_Status_Updated_At,
+      resourceInstance: updateRequest.resource_Instance,
+      resourceLabels: updateRequest.resource_Labels,
+      resourceAnnotations: updateRequest.resource_Annotations,
+      resourceSpec: updateRequest.resource_Spec,
+      resourceStatus: updateRequest.resource_Status,
+      resourceEndpoint: updateRequest.resource_Endpoint,
+      resourcePodPhase: updateRequest.resource_Pod_Phase,
+      resourcePodContainer: updateRequest.resource_Pod_Container,
+      resourcePodVolume: updateRequest.resource_Pod_Volume,
+      resourceReplicas: updateRequest.resource_Replicas,
+      resourceStsvolumeClaimTemplates: updateRequest.resource_Sts_volume_Claim_Templates,
+      resourcePvcStorage: updateRequest.resource_Pvc_Storage,
+      resourcePvcVolumneName: updateRequest.resource_Pvc_Volumne_Name,
+      resourcePvcStorageClassName: updateRequest.resource_Pvc_Storage_Class_Name,
+      resourcePvcVolumeMode: updateRequest.resource_Pvc_Volume_Mode,
+      resourceConfigmapData: updateRequest.resource_Configmap_Data,
+      resourceIngressClass: updateRequest.resource_Ingress_Class,
+      resourceIngressRules: updateRequest.resource_Ingress_Rules,
+      resourcePvStorage: updateRequest.resource_Pv_Storage,
+      resourcePvClaimRef: updateRequest.resource_Pv_Claim_Ref,
+      resorucePvStorageClassName: updateRequest.resoruce_Pv_Storage_Class_Name,
+      resourcePvVolumeMode: updateRequest.resource_Pv_Volume_Mode,
+      resourceScProvisioner: updateRequest.resource_Sc_Provisioner,
+      resourceScReclaimPolicy: updateRequest.resource_Sc_Reclaim_Policy,
+      resourceScAllowVolumeExpansion: updateRequest.resource_Sc_Allow_Volume_Expansion,
+      resourceScVolumeBindingMode: updateRequest.resource_Sc_Volume_Binding_Mode,
+    };
 
-  console.log("updatedResource: ", updatedResource); 
+    console.log('updatedResource: ', updatedResource);
 
-  try {
-    const updateResult = await this.resource.update(updatedResource, {where: {resourceTargetUuid: updateRequest.resource_Target_Uuid},});
-    console.log (updateResult);
-  } catch (error) {
-    throw new HttpException(500, error);
+    try {
+      const updateResult = await this.resource.update(updatedResource, { where: { resourceTargetUuid: updateRequest.resource_Target_Uuid } });
+      console.log(updateResult);
+    } catch (error) {
+      throw new HttpException(500, error);
+    }
+
+    return 'updated well';
   }
-
-  return "updated well";
-}
-
 
   /**
    * @param  {IRquestMassUploaderMongo} resourceData
    * @param  {string} resourceGroupKey
    */
-   public async createResourcefromMongoUploader(resourceData: IRquestMassUploaderMongo, resourceGroupKey: string): Promise<Object> {
+  public async createResourcefromMongoUploader(resourceData: IRquestMassUploaderMongo, resourceGroupKey: string): Promise<Object> {
     if (isEmpty(resourceData)) throw new HttpException(400, 'Resource  must not be empty');
 
     const currentResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupKey: resourceGroupKey } });
@@ -332,7 +331,7 @@ class ResourceService {
     if (!currentResourceGroup) {
       throw new HttpException(400, 'resourceGroupId not found');
     }
-    const uuid = require('uuid'); 
+    const uuid = require('uuid');
     const apiId = uuid.v1();
 
     const resourceInputData = {
@@ -358,7 +357,7 @@ class ResourceService {
       resourceEndpoint: resourceData.resource_Endpoint,
       resourceId: apiId,
       createdAt: new Date(),
-      createdBy: "SYSTEM",
+      createdBy: 'SYSTEM',
       resourcePodPhase: resourceData.resource_Pod_Phase,
       resourcePodContainer: resourceData.resource_Pod_Container,
       resourcePodVolume: resourceData.resource_Pod_Volume,
@@ -375,11 +374,11 @@ class ResourceService {
       resourcePvClaimRef: resourceData.resource_Pv_Claim_Ref,
       resorucePvStorageClassName: resourceData.resoruce_Pv_Storage_Class_Name,
       resourcePvVolumeMode: resourceData.resource_Pv_Volume_Mode,
-      resourceScProvisioner: resourceData.resource_Sc_Provisioner, 
-      resourceScReclaimPolicy: resourceData.resource_Sc_Reclaim_Policy, 
-      resourceScAllowVolumeExpansion: resourceData.resource_Sc_Allow_Volume_Expansion, 
-      resourceScVolumeBindingMode: resourceData.resource_Sc_Volume_Binding_Mode,  
-    };  
+      resourceScProvisioner: resourceData.resource_Sc_Provisioner,
+      resourceScReclaimPolicy: resourceData.resource_Sc_Reclaim_Policy,
+      resourceScAllowVolumeExpansion: resourceData.resource_Sc_Allow_Volume_Expansion,
+      resourceScVolumeBindingMode: resourceData.resource_Sc_Volume_Binding_Mode,
+    };
 
     try {
       const createResource = await this.resource.create(resourceInputData);
@@ -388,8 +387,6 @@ class ResourceService {
       throw new HttpException(500, error);
     }
   }
-
-
 }
 
 export default ResourceService;
