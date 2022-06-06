@@ -1,9 +1,8 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { IResource } from '@/common/interfaces/resource.interface';
 import ResourceService from '../services/resource.service';
 import { ResourceDto } from '../dtos/resource.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
-import customerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 
 class ResourceController {
   public resourceService = new ResourceService();
@@ -113,7 +112,7 @@ class ResourceController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-   public getResourceByTypeCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public getResourceByTypeCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const resourceType: string[] = req.query.resourceType as string[];
     const customerAccountId: string = req.params.customerAccountId;
 
@@ -130,8 +129,7 @@ class ResourceController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-   public getResourceByTypeResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-
+  public getResourceByTypeResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const resourceType: string[] = req.query.resourceType as string[];
     const resourceQuery: any = {
       excludeFailed: req.query.excludeFailed === 'true',

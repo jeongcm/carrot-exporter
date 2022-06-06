@@ -3,7 +3,7 @@ import App from '@/app';
 import AuthRoute from '@/modules/UserTenancy/routes/auth.route';
 import IndexRoute from '@/modules/ApiGateway/routes/index.route';
 import UsersRoute from '@/modules/UserTenancy/routes/users.route';
-import AccessGroupRoute from '@/modules/UserTenancy/routes/accessGroup.route';
+import AccessGroupRoute from '@/modules/Party/routes/accessgroup.route';
 import TenancyRoute from '@/modules/UserTenancy/routes/tenancy.route';
 import AlertRoute from '@/modules/Alert/routes/alert.route';
 import LogRoute from '@/modules/Log/routes/log.route';
