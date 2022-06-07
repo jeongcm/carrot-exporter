@@ -4,9 +4,12 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import ChannelService from '@/modules/Messaging/services/channel.service';
 import { NextFunction, Response } from 'express';
+import PartyService from '@/modules/Party/services/party.service';
 import PartyChannelService from '../services/partychannel.service';
 
 class PartyChannelController {
+  public partyService = new PartyService();
+
   public partyChannelService = new PartyChannelService();
   public channelService = new ChannelService();
   public tableIdService = new TableIdService();
@@ -15,7 +18,8 @@ class PartyChannelController {
     const partyId: string = req.params.partyId;
 
     try {
-      const findAllChannelsData: PartyChannel[] = await this.partyChannelService.getChannelOfAccessGroup(partyId);
+      const partyKey: number = await this.partyService.getPartyKeyById(partyId);
+      const findAllChannelsData: PartyChannel[] = await this.partyChannelService.getChannelOfAccessGroup(partyKey);
       res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -33,11 +37,12 @@ class PartyChannelController {
       const partyChannelData = req.body;
       const logginedUserId = req.user.partyId;
 
+      const partyKey: number = await this.partyService.getPartyKeyById(partyId);
       const channelKeys: number[] = await this.channelService.findChannelKeysByIds(partyChannelData.channelIds);
 
       const addedChannelToAccessGroupData: PartyChannel[] = await this.partyChannelService.addChannelToAccessGroup(
         logginedUserId,
-        partyId,
+        partyKey,
         channelKeys,
       );
 
@@ -53,9 +58,10 @@ class PartyChannelController {
       const partyChannelData = req.body;
       const logginedUserId = req.user.partyId;
 
+      const partyKey: number = await this.partyService.getPartyKeyById(partyId);
       const channelKeys: number[] = await this.channelService.findChannelKeysByIds(partyChannelData.channelIds);
 
-      const removeChannelFromAccessGroupData = await this.partyChannelService.removeChannelFromAccessGroup(logginedUserId, partyId, channelKeys);
+      const removeChannelFromAccessGroupData = await this.partyChannelService.removeChannelFromAccessGroup(logginedUserId, partyKey, channelKeys);
 
       if (removeChannelFromAccessGroupData) {
         res.status(200).json({ message: 'removed' });

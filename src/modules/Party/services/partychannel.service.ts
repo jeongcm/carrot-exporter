@@ -8,7 +8,6 @@ import { AddChannelToAccessGroupDto } from '../dtos/partychannel.dto';
 import { Op } from 'sequelize';
 
 class PartyChannelService extends ServiceExtension {
-  public party = DB.Party;
   public partyChannel = DB.PartyChannel;
 
   constructor() {
@@ -33,14 +32,9 @@ class PartyChannelService extends ServiceExtension {
    *
    * @returns Promise<PartyChannel[]>
    */
-  public async getChannelOfAccessGroup(partyId: string): Promise<PartyChannel[]> {
-    const party: IParty = await this.party.findOne({
-      where: { partyId },
-      attributes: ['partyKey'],
-    });
-
+  public async getChannelOfAccessGroup(partyKey: number): Promise<PartyChannel[]> {
     const allPartyChannel: PartyChannel[] = await this.partyChannel.findAll({
-      where: { partyKey: party.partyKey, deletedAt: null },
+      where: { partyKey, deletedAt: null },
       include: {
         model: ChannelModel,
         attributes: { exclude: ['channelKey', 'customerAccountKey', 'deletedAt', 'partyChannelKey', 'partyKey'] },
@@ -57,21 +51,16 @@ class PartyChannelService extends ServiceExtension {
    * @returns Promise<PartyChannel[]>
    * @author saemsol
    */
-  public async addChannelToAccessGroup(logginedUserId: string, partyId: string, channelKeys: number[]): Promise<PartyChannel[]> {
-    const party: IParty = await this.party.findOne({
-      where: { partyId },
-      attributes: ['partyKey'],
-    });
-
+  public async addChannelToAccessGroup(logginedUserId: string, partyKey: number, channelKeys: number[]): Promise<PartyChannel[]> {
     const insertDataList = [];
 
     for (const channelKey of channelKeys) {
-      const tempPartyChannelId: string = await this.createTableId();
+      const newPartyChannelId: string = await this.createTableId();
       const currentDate = new Date();
 
       insertDataList.push({
-        PartychannelId: tempPartyChannelId,
-        partyKey: party.partyKey,
+        PartychannelId: newPartyChannelId,
+        partyKey,
         channelKey,
         createdBy: logginedUserId,
         partyChannelFrom: currentDate,
@@ -83,19 +72,14 @@ class PartyChannelService extends ServiceExtension {
     return await this.partyChannel.bulkCreate(insertDataList, { returning: true });
   }
 
-  public async removeChannelFromAccessGroup(logginedUserId: string, partyId: string, channelKeys: number[]): Promise<[number]> {
-    const party: IParty = await this.party.findOne({
-      where: { partyId },
-      attributes: ['partyKey'],
-    });
-
+  public async removeChannelFromAccessGroup(logginedUserId: string, partyKey: number, channelKeys: number[]): Promise<[number]> {
     const currentDate = new Date();
 
     const updated: [number] = await this.partyChannel.update(
       { deletedAt: currentDate, updatedBy: logginedUserId, partyChannelTo: currentDate },
       {
         where: {
-          partyKey: party.partyKey,
+          partyKey,
           channelKey: { [Op.in]: channelKeys },
           deletedAt: null,
         },
