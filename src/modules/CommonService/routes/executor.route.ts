@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
-import { ExecutorResourceDto,  ExecutorDto, ExecutorKpsDto, ExecutorResourceListDto, ExecutorUuidDto} from '@modules/CommonService/dtos/executor.dto';
+import { ExecutorResourceDto,  ExecutorDto, ExecutorKpsDto, ExecutorResourceListDto, ExecutorUuidDto, SudoryWebhookDto} from '@modules/CommonService/dtos/executor.dto';
 import ResourceGroupController from '@modules/Resources/controllers/resourceGroup.controller';
 import executorController from '@modules/CommonService/controllers/executor.controller';
 import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
@@ -67,7 +67,13 @@ class ExecutorRoute implements Routes {
     //      createUserLogMiddleware,
         this.executorController.scheduleAlert,
     );
-
+    this.router.post(
+      '/executor/sudorywebhook',
+      authMiddleware,
+      validationMiddleware(SudoryWebhookDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.processSudoryWebhook,
+  );
     this.router.get(
         '/executor/resource/:serviceUuid',
         authMiddleware,
@@ -80,12 +86,17 @@ class ExecutorRoute implements Routes {
   //      createUserLogMiddleware,
         this.executorController.checkExecutorResponse
       );
-
     this.router.get(
         '/executor/:clusterUuid', 
         authMiddleware, 
    //     createUserLogMiddleware, 
    this.executorController.checkExecutorClient);
+   this.router.get(
+    '/executor/sudorywebhook/:serviceUuid', 
+    authMiddleware, 
+//     createUserLogMiddleware, 
+    this.executorController.getSudoryWebhook);
+
   }
 }
 

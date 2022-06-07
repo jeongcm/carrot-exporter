@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
 import { ExecutorDto, IExecutorClient, IExecutorClientCheck } from '@/modules/CommonService/dtos/executor.dto';
 import executorService from '../services/executor.service';
+import { HttpException } from '@/common/exceptions/HttpException';
 
 
 class executorController{
@@ -217,8 +218,37 @@ class executorController{
         }
         };
 
-
-
+    /**
+     * @param  {IRequestWithUser} req
+     * @param  {Response} res
+     * @param  {NextFunction} next
+     */
+     public processSudoryWebhook = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+        try {
+            if (!req.body) throw new HttpException(404, "no req dataset");
+            const resultSudoryWebhook: object = await this.executorService.processSudoryWebhook(req.body);
+            res.status(200).json({ data: resultSudoryWebhook, message: `Successfully process SudoryWebhook` });
+    
+        } catch (error) {
+            next(error);
+        }
+        };
+    /**
+     * @param  {IRequestWithUser} req
+     * @param  {Response} res
+     * @param  {NextFunction} next
+     */
+     public getSudoryWebhook = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+        try {
+            const serviceUuid = req.params.serviceUuid;
+            const resultSudoryWebhook: object = await this.executorService.getSudoryWebhook(serviceUuid);
+            if (!resultSudoryWebhook) res.status(404).json({ data: resultSudoryWebhook, message: `no SUdoryWebhook result` });
+            res.status(200).json({ Data: resultSudoryWebhook, message: `Successfully provide SudoryWebhook result` });
+    
+        } catch (error) {
+            next(error);
+        }
+        };
         
 
 
