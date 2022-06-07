@@ -1,13 +1,15 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsArray } from 'class-validator';
 
-export class CreatePartyChannelDto {
-  @IsString()
+export class AddChannelToAccessGroupDto {
   @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
   public channelIds: string[];
 }
 
-export class DeletePartyChannelDto {
-  @IsString()
+export class RemoveChannelFromAccessGroupDto {
   @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
   public channelIds: string[];
 }
