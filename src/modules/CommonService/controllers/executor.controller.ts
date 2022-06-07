@@ -226,6 +226,7 @@ class executorController{
      public processSudoryWebhook = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
         try {
             if (!req.body) throw new HttpException(404, "no req dataset");
+
             const resultSudoryWebhook: object = await this.executorService.processSudoryWebhook(req.body);
             res.status(200).json({ data: resultSudoryWebhook, message: `Successfully process SudoryWebhook` });
     

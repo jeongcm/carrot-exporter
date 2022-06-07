@@ -101,7 +101,7 @@ export interface IExecutorClientCheck {
 }
 
 export class SudoryWebhookDto {
-  @IsString()
+
   @IsNotEmpty()
   public service_uuid: string;
   

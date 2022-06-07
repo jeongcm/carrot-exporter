@@ -71,7 +71,7 @@ class ExecutorRoute implements Routes {
     this.router.post(
       '/executor/sudorywebhook',
       systemAuthMiddleware,
-      validationMiddleware(SudoryWebhookDto, 'body'),
+      //validationMiddleware(SudoryWebhookDto, 'body'),
       //      createUserLogMiddleware,
       this.executorController.processSudoryWebhook,
   );
