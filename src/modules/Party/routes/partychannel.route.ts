@@ -3,7 +3,7 @@ import { Router } from 'express';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import PartyChannelController from '../controllers/partychannel.controller';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
-import { CreatePartyChannel } from '../dtos/partychannel.dto';
+import { CreatePartyChannelDto, DeletePartyChannelDto } from '../dtos/partychannel.dto';
 class PartyChannelRoute implements Routes {
   public router = Router();
   public partyChannelController = new PartyChannelController();
@@ -12,12 +12,18 @@ class PartyChannelRoute implements Routes {
   }
   private initializeRoutes() {
     this.router.post(
-      '/partychannel',
+      '/party/:partyId/channels',
       authMiddleware,
-      validationMiddleware(CreatePartyChannel, 'body'),
+      validationMiddleware(CreatePartyChannelDto, 'body'),
       this.partyChannelController.createPartyChannel,
     );
-    this.router.get('/partychannel', authMiddleware, this.partyChannelController.getPartyChannel);
+    this.router.delete(
+      '/party/:partyId/channels',
+      authMiddleware,
+      validationMiddleware(DeletePartyChannelDto, 'body'),
+      this.partyChannelController.createPartyChannel,
+    );
+    this.router.get('/party/:partyId/channels', authMiddleware, this.partyChannelController.getPartyChannel);
   }
 }
 

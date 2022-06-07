@@ -11,14 +11,14 @@ class PartyChannelController {
   public channelService = new ChannelService();
   public tableIdService = new TableIdService();
 
-  public getPartyChannel = async (req:IRequestWithUser,res:Response, next: NextFunction) => {
+  public getPartyChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-        const findAllChannelsData: PartyChannel[] = await this.partyChannelService.findAllChannel();
-        res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
-      } catch (error) {
-        next(error);
-      }
-  }
+      const findAllChannelsData: PartyChannel[] = await this.partyChannelService.findAllChannel();
+      res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
@@ -26,17 +26,21 @@ class PartyChannelController {
    */
   public createPartyChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
+      const partyId = req.params.partyId; // <-- use this to get partyKey
+      const partyKey: number = req.user.partyKey;
+
       const customerAccountKey: number = req.customerAccountKey;
-      const tempPartyKey: number = req.user.partyKey;
       const partyChannelData = req.body;
       // based on channelId fetch channelKey
-      const channelData: Channel= await this.channelService.findChannelById(partyChannelData.channelId);
-      const channelKey:number = channelData.channelKey;
-      const tableIdName: string = 'PartyChannel';
+      const channelKeys: number[] = await this.channelService.findChannelKeyById(partyChannelData.channelIds);
+
+      // --------------
+      const channelKey: number = channelData.channelKey;
+      const tableIdName = 'PartyChannel';
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
       const tempPartyChannelId: string = responseTableIdData.tableIdFinalIssued;
       const createPartyChannelData: PartyChannel = await this.partyChannelService.createPartyChannel(
-        tempPartyKey,
+        partyKey,
         channelKey,
         tempPartyChannelId,
         customerAccountKey,

@@ -32,15 +32,15 @@ class PartyChannelService {
    * @author Akshay
    */
   public async createPartyChannel(
-    tempPartyKey: number,
+    partyKey: number,
     channelKey: number,
     tempPartyChannelId: string,
     customerAccountKey: number,
   ): Promise<PartyChannel> {
     const currentDate = new Date();
     const newPartyChannel = {
-      partyKey: tempPartyKey,
-      channelKey:channelKey,
+      partyKey: partyKey,
+      channelKey: channelKey,
       PartychannelId: tempPartyChannelId,
       createdBy: customerAccountKey.toLocaleString(),
       updatedBy: customerAccountKey.toLocaleString(),

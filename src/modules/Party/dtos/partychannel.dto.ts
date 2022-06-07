@@ -1,7 +1,13 @@
-import { IsString, IsNotEmpty, IsOptional, IsEmail, IsArray, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
-export class CreatePartyChannel {
+export class CreatePartyChannelDto {
   @IsString()
   @IsNotEmpty()
-  public channelId: string;
+  public channelIds: string[];
+}
+
+export class DeletePartyChannelDto {
+  @IsString()
+  @IsNotEmpty()
+  public channelIds: string[];
 }
