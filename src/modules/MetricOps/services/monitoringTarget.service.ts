@@ -10,6 +10,8 @@ import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.i
 import { timeStamp } from 'console';
 import partyRelationModel from '@/modules/Party/models/partyRelation.model';
 import { ResourceModel } from '@/modules/Resources/models/resource.model';
+import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
+import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 
 class AnomalyMonitoringTargetService {
     public AnomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
@@ -28,7 +30,7 @@ class AnomalyMonitoringTargetService {
     public async findAllMonitoringTargets(): Promise<IAnomalyMonitoringTarget[]> {
         const monitoringTargetList: IAnomalyMonitoringTarget[] = await this.AnomalyMonitoringTarget.findAll({
             where: { deletedAt: null }, 
-            include:[{model:ResourceModel}]
+            include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}, {model:PartyUserModel}]
         });
         return monitoringTargetList;
     }
@@ -82,6 +84,7 @@ class AnomalyMonitoringTargetService {
             anomalyMonitoringTargetName,
             bayesianModelKey: bayesianModelDetails.bayesianModelKey,
             anomalyMonitoringTargetStatus, 
+            resourceKey:resourceDetail.resourceKey,
             subscribedProductKey: subscribedProductDetail.subscribedProductKey
         };
         console.log("anomalyMonitoringTarget==========", anomalyMonitoringTarget)

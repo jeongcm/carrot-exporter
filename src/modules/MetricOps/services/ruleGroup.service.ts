@@ -5,16 +5,21 @@ import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { RuleGroupDto } from '../dtos/ruleGroup.dto';
+import { BayesianModelTable } from '../models/bayesianModel.model';
+import {ModelRuleScoreTable} from '../models/modelRuleScore.model';
 const { Op } = require('sequelize');
 class RuleGroupService {
   public tableIdService = new TableIdService();
   public ruleGroup = DB.RuleGroup;
+  public modelRuleScore = DB.ModelRuleScore;
 
   public async getRuleGroup(): Promise<IRuleGroup[]> {
     const allRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({
       where: { deletedAt: null },
+      include:[{model:ModelRuleScoreTable, attributes:["bayesianModelKey"], include:[{model:BayesianModelTable}]}],
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
+
     return allRuleGroup;
   }
 

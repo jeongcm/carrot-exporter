@@ -322,8 +322,20 @@ DB.RuleGroupAlertRule.belongsTo(DB.RuleGroup, { foreignKey: 'ruleGroupKey' });
 DB.AlertRule.hasMany(DB.RuleGroupAlertRule, { foreignKey: 'alertRuleKey' });
 DB.RuleGroupAlertRule.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey' });
 
-DB.AnomalyMonitoringTarget.hasMany(DB.Resource, { foreignKey: 'resource_id' });
-DB.Resource.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'resource_id' });
+DB.Resource.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'resource_key' });
+DB.AnomalyMonitoringTarget.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
+
+DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resource_group_key' });
+DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
+
+// DB.AnomalyMonitoringTarget.hasOne(DB.PartyUser, { foreignKey: 'created_by' });
+// DB.PartyUser.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'party_user_id' });
+
+DB.ModelRuleScore.hasOne(DB.RuleGroup, { foreignKey: 'rule_group_key' });
+DB.RuleGroup.belongsTo(DB.ModelRuleScore, { foreignKey: 'rule_group_key' });
+
+DB.BayesianModel.hasOne(DB.ModelRuleScore, { foreignKey: 'bayesian_model_key' });
+DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
 
 DB.Party.belongsToMany(DB.Resource, {
