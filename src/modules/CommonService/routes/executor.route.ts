@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
+import systemAuthMiddleware from '@/modules/ApiGateway/middlewares/systemAuth.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import { ExecutorResourceDto,  ExecutorDto, ExecutorKpsDto, ExecutorResourceListDto, ExecutorUuidDto, SudoryWebhookDto} from '@modules/CommonService/dtos/executor.dto';
 import ResourceGroupController from '@modules/Resources/controllers/resourceGroup.controller';
@@ -69,7 +70,7 @@ class ExecutorRoute implements Routes {
     );
     this.router.post(
       '/executor/sudorywebhook',
-      authMiddleware,
+      systemAuthMiddleware,
       validationMiddleware(SudoryWebhookDto, 'body'),
       //      createUserLogMiddleware,
       this.executorController.processSudoryWebhook,
