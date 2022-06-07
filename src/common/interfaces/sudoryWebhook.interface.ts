@@ -8,4 +8,7 @@ export interface ISudoryWebhook {
     deletedAt: Date;
     serviceUuid: string;
     serviceResult: JSON;
+    serviceName: string;
+    status: number;
+    clusterUuid: string;
 }

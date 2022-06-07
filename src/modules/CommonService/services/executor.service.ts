@@ -1172,8 +1172,11 @@ class executorService {
             sudoryWebhookId: sudoryWebhookId,
             createdAt: new Date(),
             createdBy: "SYSTEM",
-            serviceUuid: DataSetFromSudory.serviceUuid,
-            serviceResult: DataSetFromSudory.serviceResult,
+            serviceUuid: DataSetFromSudory.service_uuid,
+            clusterUuid: DataSetFromSudory.cluster_uuid,
+            status: DataSetFromSudory.status,
+            serviceName: DataSetFromSudory.service_name,
+            serviceResult: DataSetFromSudory.result,
         }
         console.log(insertData);
 

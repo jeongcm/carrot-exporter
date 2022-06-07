@@ -5,20 +5,25 @@ export type SudoryWebhookUpdateAttributes = Optional<
 ISudoryWebhook,
   | 'sudoryWebhookKey'
   | 'sudoryWebhookId'
+  | 'clusterUuid' 
+  | 'status' 
+  | 'serviceUuid'
+  | 'serviceName' 
+  | 'serviceResult'
   | 'createdAt'
   | 'updatedAt'
   | 'createdBy'
   | 'updatedBy'
   | 'deletedAt'
-  | 'serviceUuid'
-  | 'serviceResult'
 >;
 
 export class SudoryWebhookModel extends Model<ISudoryWebhook, SudoryWebhookUpdateAttributes> implements ISudoryWebhook {
   public sudoryWebhookKey: number;
   public sudoryWebhookId: string;
-
+  public clusterUuid: string;
+  public status: number;
   public serviceUuid: string;
+  public serviceName: string;
   public serviceResult: JSON;
 
   public deletedAt: Date;
@@ -44,7 +49,14 @@ export default function (sequelize: Sequelize): typeof SudoryWebhookModel {
         unique: true,
         type: DataTypes.STRING(100),
       },
+      clusterUuid: {
+        type: DataTypes.STRING(100),
+      },
       serviceUuid: {
+        allowNull: false,
+        type: DataTypes.STRING(100),
+      },
+      serviceName: {
         allowNull: false,
         unique: true,
         type: DataTypes.STRING(100),
@@ -52,6 +64,10 @@ export default function (sequelize: Sequelize): typeof SudoryWebhookModel {
       serviceResult: {
         allowNull: false,
         type: DataTypes.JSON,
+      },
+      status: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
       },
       deletedAt: {
         allowNull: true,
