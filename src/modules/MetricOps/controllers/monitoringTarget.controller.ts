@@ -69,6 +69,19 @@ class AnomalyMonitoringTargetController {
       next(error);
     }
   };
+
+  public getMonitoringTargetByResourceKey = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+
+      const resourceKey = req.params.resourceKey;
+      const monitoringTargetData: IAnomalyMonitoringTarget = await this.anomalyMonitoringTargetService.findMonitoringTargetsByResourceKeys(
+        resourceKey
+      );
+      res.status(200).json({ data: monitoringTargetData, message: 'find' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AnomalyMonitoringTargetController;
