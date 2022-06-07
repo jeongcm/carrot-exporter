@@ -57,7 +57,7 @@ class ChannelService {
    * @returns Promise<Channel>
    * @author Akshay
    */
-  public async findChannelKeyById(channelId: string[]): Promise<number[]> {
+  public async findChannelKeysByIds(channelId: string[]): Promise<number[]> {
     if (isEmpty(channelId)) throw new HttpException(400, 'Missing channel ID');
 
     const channelsFound: Channel[] = await this.channels.findAll({

@@ -11,41 +11,55 @@ class PartyChannelController {
   public channelService = new ChannelService();
   public tableIdService = new TableIdService();
 
-  public getPartyChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public getChannelOfAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const partyId: string = req.params.partyId;
+
     try {
-      const findAllChannelsData: PartyChannel[] = await this.partyChannelService.findAllChannel();
+      const findAllChannelsData: PartyChannel[] = await this.partyChannelService.getChannelOfAccessGroup(partyId);
       res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
     } catch (error) {
       next(error);
     }
   };
+
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-  public createPartyChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public addChannelToAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const partyId = req.params.partyId; // <-- use this to get partyKey
-      const partyKey: number = req.user.partyKey;
-
-      const customerAccountKey: number = req.customerAccountKey;
       const partyChannelData = req.body;
-      // based on channelId fetch channelKey
-      const channelKeys: number[] = await this.channelService.findChannelKeyById(partyChannelData.channelIds);
+      const logginedUserId = req.user.partyId;
 
-      // --------------
-      const channelKey: number = channelData.channelKey;
-      const tableIdName = 'PartyChannel';
-      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
-      const tempPartyChannelId: string = responseTableIdData.tableIdFinalIssued;
-      const createPartyChannelData: PartyChannel = await this.partyChannelService.createPartyChannel(
-        partyKey,
-        channelKey,
-        tempPartyChannelId,
-        customerAccountKey,
+      const channelKeys: number[] = await this.channelService.findChannelKeysByIds(partyChannelData.channelIds);
+
+      const addedChannelToAccessGroupData: PartyChannel[] = await this.partyChannelService.addChannelToAccessGroup(
+        logginedUserId,
+        partyId,
+        channelKeys,
       );
-      res.status(201).json({ data: createPartyChannelData, message: 'created' });
+
+      res.status(201).json({ data: addedChannelToAccessGroupData, message: 'added' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public removeChannelFromAccessGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const partyId = req.params.partyId;
+      const partyChannelData = req.body;
+      const logginedUserId = req.user.partyId;
+
+      const channelKeys: number[] = await this.channelService.findChannelKeysByIds(partyChannelData.channelIds);
+
+      const removeChannelFromAccessGroupData = await this.partyChannelService.removeChannelFromAccessGroup(logginedUserId, partyId, channelKeys);
+
+      if (removeChannelFromAccessGroupData) {
+        res.status(200).json({ message: 'removed' });
+      }
     } catch (error) {
       next(error);
     }
