@@ -1,11 +1,13 @@
 import { NextFunction, Response } from 'express';
 import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
 import ResourceGroupService from '../services/resourceGroup.service';
-import { ResourceGroupDto, ResourceGroupExecutorDto } from '../dtos/resourceGroup.dto';
+import { ResourceGroupDto } from '../dtos/resourceGroup.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
+import k8sService from '../services/k8s.service';
 
 class ResourceGroupController {
   public resourceGroupService = new ResourceGroupService();
+  public k8sService = new k8sService();
 
   /**
    * @param  {IRequestWithUser} req
@@ -146,7 +148,28 @@ class ResourceGroupController {
       next(error);
     }
   };
-  
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public getK8sClusterDetail = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const resourceGroupId = req.params.resourceGroupId;
+      const customerAccountKey = req.customerAccountKey;
+
+      // TODO: to create getResourceGroupKeyById
+      const resourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+
+      // TODO: create an interface
+      const k8sDetail: any = await this.k8sService.getClusterDetail(resourceGroup.resourceGroupKey, customerAccountKey);
+
+      res.status(200).json({ data: k8sDetail, message: 'getK8sDetail' });
+    } catch (error) {
+      next(error);
+    }
+  };
 
 }
 
