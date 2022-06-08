@@ -1,11 +1,13 @@
 import { NextFunction, Response } from 'express';
 import { IResource } from '@/common/interfaces/resource.interface';
 import ResourceService from '../services/resource.service';
+import TopologyService from '../services/topology.service';
 import { ResourceDto } from '../dtos/resource.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 
 class ResourceController {
   public resourceService = new ResourceService();
+  public topologyService = new TopologyService();
 
   /**
    * @param  {IRequestWithUser} req
@@ -179,6 +181,19 @@ class ResourceController {
     }
   };
 
+  public getAllTopology = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const topologyType = req.params.topologyType;
+      const customerAccountKey = req.customerAccountKey;
+
+      // TODO: Define ITopology
+      const topology: any = await this.topologyService.getAllTopology(topologyType, customerAccountKey);
+
+      res.status(200).json({ data: topology, message: 'get all topology' });
+    } catch (error) {
+      next(error);
+    }
+  };
 
 }
 
