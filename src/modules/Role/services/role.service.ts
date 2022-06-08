@@ -27,6 +27,15 @@ class RoleService extends ServiceExtension {
       this.throwError(`EXCEPTION`, e);
     }
   }
+
+  public async getRoleKeyById(roleId: string): Promise<number> {
+    const role: IRole = await this.role.findOne({
+      where: { roleId },
+      attributes: ['roleKey'],
+    });
+
+    return role.roleKey;
+  }
 }
 
 export default RoleService;
