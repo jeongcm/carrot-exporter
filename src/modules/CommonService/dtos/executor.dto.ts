@@ -106,7 +106,7 @@ export class SudoryWebhookDto {
   public service_uuid: string;
   
   @IsNotEmpty()
-  public result: JSON;
+  public result: string;
   public event_name: string;
   public service_name: string;
   public cluster_uuid: string;

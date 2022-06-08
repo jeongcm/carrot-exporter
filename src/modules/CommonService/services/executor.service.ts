@@ -1164,7 +1164,7 @@ class executorService {
      */
     public async processSudoryWebhook(DataSetFromSudory: SudoryWebhookDto): Promise<object> {
 
-        console.log(DataSetFromSudory); 
+        console.log("Data from Sudory: ", DataSetFromSudory); 
         const uuid = require('uuid');
         const sudoryWebhookId = uuid.v1();
 
@@ -1175,9 +1175,10 @@ class executorService {
             serviceUuid: DataSetFromSudory.service_uuid,
             clusterUuid: DataSetFromSudory.cluster_uuid,
             status: DataSetFromSudory.status,
-            serviceName: JSON.parse(DataSetFromSudory.service_name),
-            serviceResult: DataSetFromSudory.result,
+            serviceName: DataSetFromSudory.service_name,
+            serviceResult: JSON.parse(DataSetFromSudory.result),
         }
+        console.log("Data for DB insert: ");
         console.log(insertData);
 
         const resultSudoryWebhook = await this.sudoryWebhook.create(insertData); 
