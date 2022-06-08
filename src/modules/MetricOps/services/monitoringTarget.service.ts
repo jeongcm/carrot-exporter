@@ -9,6 +9,9 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 import { timeStamp } from 'console';
 import partyRelationModel from '@/modules/Party/models/partyRelation.model';
+import { ResourceModel } from '@/modules/Resources/models/resource.model';
+import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
+import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 import { ISubscribedProduct } from '@/common/interfaces/subscription.interface';
 import Op from 'sequelize/types/operators';
 
@@ -28,7 +31,8 @@ class AnomalyMonitoringTargetService {
      */
     public async findAllMonitoringTargets(): Promise<IAnomalyMonitoringTarget[]> {
         const monitoringTargetList: IAnomalyMonitoringTarget[] = await this.AnomalyMonitoringTarget.findAll({
-            where: { deletedAt: null }
+            where: { deletedAt: null }, 
+            include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}, {model:PartyUserModel}]
         });
         return monitoringTargetList;
     }
@@ -82,9 +86,9 @@ class AnomalyMonitoringTargetService {
             anomalyMonitoringTargetName,
             bayesianModelKey: bayesianModelDetails.bayesianModelKey,
             anomalyMonitoringTargetStatus, 
+            resourceKey:resourceDetail.resourceKey,
             subscribedProductKey: subscribedProductDetail.subscribedProductKey
         };
-        console.log("anomalyMonitoringTarget==========", anomalyMonitoringTarget)
         const newresolutionAction: IAnomalyMonitoringTarget = await this.AnomalyMonitoringTarget.create(anomalyMonitoringTarget);
         return newresolutionAction;
     }

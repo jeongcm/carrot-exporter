@@ -53,6 +53,7 @@ class BayesianModelServices {
       bayesianModelDescription, 
       bayesianModelResourceType,
       customerAccountKey,
+      bayesianModelStatus:"AC"
     };
     const newBayesianModel: IBayesianModel = await this.bayesianModel.create(BayesianModel);
     return newBayesianModel;

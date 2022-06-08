@@ -7,6 +7,7 @@ export interface IBayesianModel {
     updatedAt: Date;
     deletedAt: Date;
     bayesianModelName: string;
+    bayesianModelStatus: string;
     bayesianModelDescription: string;
     customerAccountKey: number;
     bayesianModelResourceType: string;

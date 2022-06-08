@@ -23,7 +23,8 @@ class RuleGroupAlertRuleController {
 
   public listRegisterAlertRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const findRuleGroupAlertRuleData: IRuleGroupAlertRule[] = await this.ruleGroupAlertRuleService.listRegisterAlertRule();
+      const {params:{ruleGroupId}}= req;
+      const findRuleGroupAlertRuleData: IRuleGroupAlertRule[] = await this.ruleGroupAlertRuleService.listRegisterAlertRule(ruleGroupId);
       res.status(200).json({ data: findRuleGroupAlertRuleData, message: 'findAll' });
     } catch (error) {
       next(error);

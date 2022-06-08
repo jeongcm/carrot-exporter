@@ -12,6 +12,7 @@ export type BayesianModelAttributes = Optional<
   | 'deletedAt'
   | 'bayesianModelName'
   | 'bayesianModelDescription'
+  | 'bayesianModelStatus'
   | 'customerAccountKey'
   | 'bayesianModelResourceType'
 >;
@@ -24,8 +25,9 @@ export class BayesianModelTable extends Model<IBayesianModel, BayesianModelAttri
   public deletedAt: Date;
   public bayesianModelName: string;
   public bayesianModelDescription: string;
+  public bayesianModelStatus: string;
   public customerAccountKey: number;
-  public bayesianModelResourceType: "ND" |"SV";
+  public bayesianModelResourceType: "ND" | "SV";
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -68,6 +70,9 @@ export default function (sequelize: Sequelize): typeof BayesianModelTable {
       bayesianModelDescription: {
         type: DataTypes.STRING(100),
       },
+      bayesianModelStatus: {
+        type: DataTypes.STRING(100),
+      },
       customerAccountKey: {
         type: DataTypes.INTEGER,
       },
@@ -75,10 +80,10 @@ export default function (sequelize: Sequelize): typeof BayesianModelTable {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-              args: [[ 'ND','SV']],
-              msg: "bayesianModelResourceType must be of type  [ 'ND'|'SV']  Where  - ND (Node)  - SV (Service)"
+            args: [['ND', 'SV']],
+            msg: "bayesianModelResourceType must be of type  [ 'ND'|'SV']  Where  - ND (Node)  - SV (Service)"
           }
-      }
+        }
       }
     },
     {
