@@ -99,3 +99,20 @@ export interface IExecutorClientCheck {
   resourceJobKey: object;
   clientUuid: string;
 }
+
+export class SudoryWebhookDto {
+
+  @IsNotEmpty()
+  public service_uuid: string;
+  
+  @IsNotEmpty()
+  public result: JSON;
+  public event_name: string;
+  public service_name: string;
+  public cluster_uuid: string;
+  public status: number;
+  public step_count: number;
+  public step_position: number;
+  public template_uuid: string;
+
+}

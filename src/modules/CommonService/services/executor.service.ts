@@ -1,10 +1,10 @@
-//import DB from '@/database';
+import DB from '@/database';
 import axios from 'axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
-import { IExecutorClient, ExecutorResultDto, ExecutorResourceListDto, IExecutorClientCheck } from '@/modules/CommonService/dtos/executor.dto';
+import { IExecutorClient, ExecutorResultDto, ExecutorResourceListDto, IExecutorClientCheck, SudoryWebhookDto } from '@/modules/CommonService/dtos/executor.dto';
 
 //import TableIdService from '@/modules/CommonService/services/tableId.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
@@ -12,12 +12,15 @@ import ResourceGroupService from '@/modules/Resources/services/resourceGroup.ser
 //import { isBreakOrContinueStatement } from 'typescript';
 //import { template } from 'lodash';
 import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
+import {SudoryWebhookModel} from'@/modules/CommonService/models/exectuor.model';
+import { response } from 'express';
 
 class executorService {
 //    public tableIdService = new TableIdService();
     public customerAccountService = new CustomerAccountService();
     public resourceGroupService = new ResourceGroupService();
     public MetricMetaService = new MetricMetaService();
+    public sudoryWebhook = DB.SudoryWebhook; 
 
   /**
    * @param {string} serviceUuid
@@ -1156,10 +1159,43 @@ class executorService {
         return cronJobKey;            
     }
 
-    public sleep (ms) {
-        return new Promise((resolve)=> {
-            setTimeout (resolve, ms); 
-        }); 
+    /**
+     * @param {SudoryWebhookDto} DataSetFromSudory
+     */
+    public async processSudoryWebhook(DataSetFromSudory: SudoryWebhookDto): Promise<object> {
+
+        console.log(DataSetFromSudory); 
+        const uuid = require('uuid');
+        const sudoryWebhookId = uuid.v1();
+
+        const insertData = {
+            sudoryWebhookId: sudoryWebhookId,
+            createdAt: new Date(),
+            createdBy: "SYSTEM",
+            serviceUuid: DataSetFromSudory.service_uuid,
+            clusterUuid: DataSetFromSudory.cluster_uuid,
+            status: DataSetFromSudory.status,
+            serviceName: DataSetFromSudory.service_name,
+            serviceResult: DataSetFromSudory.result,
+        }
+        console.log(insertData);
+
+        const resultSudoryWebhook = await this.sudoryWebhook.create(insertData); 
+
+        return resultSudoryWebhook;
     }
+
+    /**
+     * @param {string} serviceUuid
+     */
+     public async getSudoryWebhook(serviceUuid: string): Promise<object> {
+
+        console.log(serviceUuid); 
+        const resultSudoryWebhook = await this.sudoryWebhook.findOne({where: { serviceUuid }}); 
+        return resultSudoryWebhook;
+    }
+
+
+
 }
 export default executorService;

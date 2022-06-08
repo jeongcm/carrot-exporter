@@ -80,6 +80,15 @@ class PartyService {
     return user;
   }
 
+  public async getPartyKeyById(partyId: string): Promise<number> {
+    const party: IParty = await this.party.findOne({
+      where: { partyId },
+      attributes: ['partyKey'],
+    });
+
+    return party.partyKey;
+  }
+
   public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string): Promise<IPartyUserResponse> {
     const tableIdTableName = 'PartyUser';
 

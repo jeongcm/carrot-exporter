@@ -42,7 +42,7 @@ export interface IResource {
   resourceScReclaimPolicy: string;
   resourceScAllowVolumeExpansion: Boolean;
   resourceScVolumeBindingMode: string;
-  resourceMatchLabels: JSON;  
+  resourceMatchLabels: JSON;
   resourceRbac: Boolean;
   resourceAnomalyMonitor: Boolean;
   resourceActive: Boolean;

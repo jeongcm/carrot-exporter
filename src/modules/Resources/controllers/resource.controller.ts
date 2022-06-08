@@ -178,6 +178,8 @@ class ResourceController {
       next(error);
     }
   };
+
+
 }
 
 export default ResourceController;

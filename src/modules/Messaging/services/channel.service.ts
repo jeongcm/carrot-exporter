@@ -51,6 +51,26 @@ class ChannelService {
   }
 
   /**
+   * find channel keys by Ids
+   *
+   * @param  {string[]} id
+   * @returns Promise<Channel>
+   * @author Akshay
+   */
+  public async findChannelKeysByIds(channelId: string[]): Promise<number[]> {
+    if (isEmpty(channelId)) throw new HttpException(400, 'Missing channel ID');
+
+    const channelsFound: Channel[] = await this.channels.findAll({
+      where: { channelId, deletedAt: null },
+    });
+    if (!channelsFound) throw new HttpException(409, 'Channel Not found');
+
+    const returnKeys = channelsFound.map((channel: Channel) => channel.channelKey);
+
+    return returnKeys;
+  }
+
+  /**
    * Create a new channel
    *
    * @param  {CreateChannelDto} channelData
@@ -60,7 +80,7 @@ class ChannelService {
    */
   public async createChannel(channelData: CreateChannelDto, customerAccountKey: number, partyId: string): Promise<Channel> {
     if (isEmpty(channelData)) throw new HttpException(400, 'Channel Data cannot be blank');
-    const tableIdName: string = 'Channel';
+    const tableIdName = 'Channel';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const tempChannelId: string = responseTableIdData.tableIdFinalIssued;
 

@@ -113,6 +113,12 @@ export class AddResourceToAccessGroupDto {
   public resourceIds: string[];
 }
 
+export class AddChannelToAccessGroupDto {
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
+  public channelIds: string[];
+}
 export class LoginDto {
   @IsString()
   @IsNotEmpty()

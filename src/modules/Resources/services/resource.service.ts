@@ -307,11 +307,8 @@ class ResourceService {
       resourceScVolumeBindingMode: updateRequest.resource_Sc_Volume_Binding_Mode,
     };
 
-    console.log('updatedResource: ', updatedResource);
-
     try {
       const updateResult = await this.resource.update(updatedResource, { where: { resourceTargetUuid: updateRequest.resource_Target_Uuid } });
-      console.log(updateResult);
     } catch (error) {
       throw new HttpException(500, error);
     }
