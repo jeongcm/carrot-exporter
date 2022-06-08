@@ -58,7 +58,6 @@ export default function (sequelize: Sequelize): typeof SudoryWebhookModel {
       },
       serviceName: {
         allowNull: false,
-        unique: true,
         type: DataTypes.STRING(100),
       },
       serviceResult: {

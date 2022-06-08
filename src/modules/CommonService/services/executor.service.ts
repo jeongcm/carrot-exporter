@@ -1175,7 +1175,7 @@ class executorService {
             serviceUuid: DataSetFromSudory.service_uuid,
             clusterUuid: DataSetFromSudory.cluster_uuid,
             status: DataSetFromSudory.status,
-            serviceName: DataSetFromSudory.service_name,
+            serviceName: JSON.parse(DataSetFromSudory.service_name),
             serviceResult: DataSetFromSudory.result,
         }
         console.log(insertData);
