@@ -337,6 +337,9 @@ DB.RuleGroup.belongsTo(DB.ModelRuleScore, { foreignKey: 'rule_group_key' });
 DB.BayesianModel.hasOne(DB.ModelRuleScore, { foreignKey: 'bayesian_model_key' });
 DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
+DB.SudoryTemplate.hasMany(DB.ResolutionAction, {  foreignKey: 'sudory_template_key' });
+DB.ResolutionAction.belongsTo(DB.SudoryTemplate, { as:"sudoryTemplate", foreignKey: 'sudory_template_key' });
+
 
 DB.Party.belongsToMany(DB.Resource, {
   through: {

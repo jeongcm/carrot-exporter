@@ -16,7 +16,7 @@ class RuleGroupService {
   public async getRuleGroup(): Promise<IRuleGroup[]> {
     const allRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({
       where: { deletedAt: null },
-      include:[{model:ModelRuleScoreTable, attributes:["bayesianModelKey"], include:[{model:BayesianModelTable}]}],
+      include:[{model:ModelRuleScoreTable,   attributes:["bayesianModelKey"], include:[{model:BayesianModelTable, required:true}]}],
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
 
@@ -26,6 +26,7 @@ class RuleGroupService {
   public async getRuleGroupById(ruleGroupId: string): Promise<IRuleGroup> {
     const ruleGroup: IRuleGroup = await this.ruleGroup.findOne({
       where: { ruleGroupId: ruleGroupId, deletedAt: null },
+      include:[{model:ModelRuleScoreTable, attributes:["bayesianModelKey"],required:false, include:[{model:BayesianModelTable, required:false}]}],
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
     return ruleGroup;
