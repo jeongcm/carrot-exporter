@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional, IsJSON, IsObject, IsDate } from 'class-validator';
+import { IsString, IsArray, IsNotEmpty, IsObject } from 'class-validator';
 
 export class CreateChannelDto {
   @IsString()
@@ -15,11 +15,9 @@ export class CreateChannelDto {
 
   @IsObject()
   public channelAdaptor: JSON;
-
 }
 
 export class UpdateChannelDto {
-
   @IsString()
   @IsNotEmpty()
   public channelType: string;
@@ -37,5 +35,11 @@ export class UpdateChannelDto {
   // @IsNotEmpty()
   @IsObject()
   public channelAdaptor: JSON;
+}
 
+export class RemoveChannelDto {
+  @IsNotEmpty()
+  @IsArray()
+  @IsString({ each: true })
+  public channelIds: string[];
 }
