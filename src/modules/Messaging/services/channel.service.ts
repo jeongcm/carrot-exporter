@@ -7,6 +7,7 @@ import { ChannelType, Platform } from '../../../common/types';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+import { Op } from 'sequelize';
 
 /**
  * @memberof Messaging
@@ -14,6 +15,7 @@ import CustomerAccountService from '@/modules/CustomerAccount/services/customerA
 class ChannelService {
   public channels = DB.Channel;
   public accessGroupChannel = DB.AccessGroupChannel;
+  public partyChannel = DB.PartyChannel;
   public tableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
 
@@ -112,6 +114,40 @@ class ChannelService {
     await this.channels.update(updatedChannelData, { where: { channelId: Id } });
 
     return this.findChannelById(Id);
+  }
+
+  public async removeChannel(logginedUserId: string, channelKeys: number[]): Promise<[number]> {
+    try {
+      return await DB.sequelize.transaction(async t => {
+        const currentDate = new Date();
+
+        const removedChannel: [number] = await this.channels.update(
+          { deletedAt: currentDate, updatedBy: logginedUserId },
+          {
+            where: {
+              channelKey: { [Op.in]: channelKeys },
+              deletedAt: null,
+            },
+            transaction: t,
+          },
+        );
+
+        const removedPartyChannel: [number] = await this.partyChannel.update(
+          { deletedAt: currentDate, updatedBy: logginedUserId, partyChannelTo: currentDate },
+          {
+            where: {
+              channelKey: { [Op.in]: channelKeys },
+              deletedAt: null,
+            },
+            transaction: t,
+          },
+        );
+
+        return removedPartyChannel;
+      });
+    } catch (error) {
+      return error;
+    }
   }
 }
 
