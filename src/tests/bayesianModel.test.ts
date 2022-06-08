@@ -9,7 +9,7 @@ afterAll(async () => {
   await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
 });
 
-describe('Testing SodoryTemplate Module', () => {
+describe('Testing BayesianModel Module', () => {
   let bayesianModel, bayesianModelId, token, bayesianModelService;
   let bayesianModelRoute = new BayesianModelRoute();
 

@@ -17,16 +17,17 @@ class AnomalyMonitoringTargetRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post(
-      '/registerTarget',
+      '/registerAnomalyTarget',
       authMiddleware,
       createUserLogMiddleware,
       validationMiddleware(CreateMonitoringTargetDto, 'body'),
       this.anomalyMonitoringTargetController.createMonitoringTarget,
     );
-    this.router.get('/allTargets', authMiddleware, createUserLogMiddleware,  this.anomalyMonitoringTargetController.getAllMonitoringTarget);
-    this.router.get('/target/:anomalyMonitoringTargetId', authMiddleware, createUserLogMiddleware,  this.anomalyMonitoringTargetController.getMonitoringTargetById);
+    this.router.get('/anomalyTargetAll', authMiddleware, createUserLogMiddleware,  this.anomalyMonitoringTargetController.getAllMonitoringTarget);
+    this.router.get('/anomalyTarget/:anomalyMonitoringTargetId', authMiddleware, createUserLogMiddleware,  this.anomalyMonitoringTargetController.getMonitoringTargetById);
+    this.router.get('/anomalyTarget/:resourceKey', authMiddleware, createUserLogMiddleware,  this.anomalyMonitoringTargetController.getMonitoringTargetByResourceKey);
     this.router.put(
-      '/target/:anomalyMonitoringTargetId',
+      '/anomalyTarget/:anomalyMonitoringTargetId',
       authMiddleware,
       createUserLogMiddleware,
       validationMiddleware(UpdateMonitoringTargetDto, 'body'),

@@ -608,5 +608,40 @@
     "apiEndPoint1": "PUT",
     "apiEndPoint2": "/sudoryTemplate/:sudoryTemplateId",
     "apiVisibleTF": true
+  },
+  {
+    "apiName": "createMonitoringTarget",
+    "apiDescription": "createMonitoringTarget",
+    "apiEndPoint1": "POST",
+    "apiEndPoint2": "/registerAnomalyTarget",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getAllMonitoringTarget",
+    "apiDescription": "getAllMonitoringTarget",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/anomalyTargetAll",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getMonitoringTargetById",
+    "apiDescription": "getMonitoringTargetById",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/anomalyTarget/:anomalyMonitoringTargetId",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "getMonitoringTargetByResourceKey",
+    "apiDescription": "getMonitoringTargetByResourceKey",
+    "apiEndPoint1": "GET",
+    "apiEndPoint2": "/anomalyTarget/:resourceKey",
+    "apiVisibleTF": true
+  },
+  {
+    "apiName": "updateMonitoringTarget",
+    "apiDescription": "updateMonitoringTarget",
+    "apiEndPoint1": "PUT",
+    "apiEndPoint2": "/anomalyTarget/:anomalyMonitoringTargetId",
+    "apiVisibleTF": true
   }
 ]

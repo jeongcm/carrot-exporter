@@ -33,10 +33,11 @@ class ChannelController {
   public createChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const { user:{partyId}} = req
+      const {
+        user: { partyId },
+      } = req;
       const channelData: CreateChannelDto = req.body;
-      const createChannelData: Channel = await this.channelService.createChannel(channelData, 
-        customerAccountKey, partyId);
+      const createChannelData: Channel = await this.channelService.createChannel(channelData, customerAccountKey, partyId);
       res.status(201).json({ data: createChannelData, message: 'created' });
     } catch (error) {
       next(error);
@@ -46,11 +47,30 @@ class ChannelController {
   public updateChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const channelId = req.params.channelId;
-      const { user:{partyId}} = req
+      const {
+        user: { partyId },
+      } = req;
       const channelData = req.body;
       const customerAccountKey = req.customerAccountKey;
       const updateChannelData: Channel = await this.channelService.updateChannel(channelId, channelData, customerAccountKey, partyId);
       res.status(200).json({ data: updateChannelData, message: 'updated' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public removeChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const ChannelData = req.body;
+      const logginedUserId = req.user.partyId;
+
+      const channelKeys: number[] = await this.channelService.findChannelKeysByIds(ChannelData.channelIds);
+
+      const removeChannelData = await this.channelService.removeChannel(logginedUserId, channelKeys);
+
+      if (removeChannelData) {
+        res.status(204).json({ message: 'removed' });
+      }
     } catch (error) {
       next(error);
     }

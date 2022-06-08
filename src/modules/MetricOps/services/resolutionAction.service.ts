@@ -7,6 +7,7 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { ResolutionActionModel } from '../models/resolutionAction.model';
 import { IResolutionAction } from '@/common/interfaces/resolutionAction.interface';
+import { SudoryTemplateModel } from '../models/sudoryTemplate.model';
 
 class ResolutionActionService {
   public resolutionAction = DB.ResolutionAction;
@@ -22,7 +23,8 @@ class ResolutionActionService {
    */
   public async findAllResolutionAction(): Promise<IResolutionAction[]> {
     const resolutionActionList: IResolutionAction[] = await this.resolutionAction.findAll({
-      where: {deletedAt: null }
+      where: {deletedAt: null },
+      include:[{model:SudoryTemplateModel , as:"sudoryTemplate"}]
     });
     return resolutionActionList;
   }

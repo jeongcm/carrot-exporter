@@ -8,6 +8,7 @@ export type ModelRuleScoreAttributes = Optional<
     | 'subscribedProductKey'
     | 'bayesianModelKey'
     | 'anomalyMonitoringTargetId'
+    | 'resourceKey'
     | 'createdBy'
     | 'updatedBy'
     | 'createdAt'
@@ -22,13 +23,14 @@ export class AnomalyMonitoringTargetTable extends Model<IAnomalyMonitoringTarget
     public anomalyMonitoringTargetKey: number;
     public subscribedProductKey: number;
     public bayesianModelKey: number;
+    public resourceKey: number;
     public anomalyMonitoringTargetId: string;
     public createdBy: string;
     public updatedBy: string;
     public deletedAt: Date;
-   public anomalyMonitoringTargetName: string;
-   public anomalyMonitoringTargetDescription: string;
-   public anomalyMonitoringTargetStatus: string;
+    public anomalyMonitoringTargetName: string;
+    public anomalyMonitoringTargetDescription: string;
+    public anomalyMonitoringTargetStatus: string;
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -49,6 +51,10 @@ export default function (sequelize: Sequelize): typeof AnomalyMonitoringTargetTa
                 unique: true
             },
             bayesianModelKey: {
+                type: DataTypes.INTEGER,
+                allowNull: false
+            },
+            resourceKey: {
                 type: DataTypes.INTEGER,
                 allowNull: false
             },

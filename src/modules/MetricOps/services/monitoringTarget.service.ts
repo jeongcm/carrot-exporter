@@ -9,6 +9,11 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 import { timeStamp } from 'console';
 import partyRelationModel from '@/modules/Party/models/partyRelation.model';
+import { ResourceModel } from '@/modules/Resources/models/resource.model';
+import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
+import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
+import { ISubscribedProduct } from '@/common/interfaces/subscription.interface';
+import Op from 'sequelize/types/operators';
 
 class AnomalyMonitoringTargetService {
     public AnomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
@@ -26,7 +31,8 @@ class AnomalyMonitoringTargetService {
      */
     public async findAllMonitoringTargets(): Promise<IAnomalyMonitoringTarget[]> {
         const monitoringTargetList: IAnomalyMonitoringTarget[] = await this.AnomalyMonitoringTarget.findAll({
-            where: { deletedAt: null }
+            where: { deletedAt: null }, 
+            include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}, {model:PartyUserModel}]
         });
         return monitoringTargetList;
     }
@@ -69,7 +75,7 @@ class AnomalyMonitoringTargetService {
         console.log("subscribeProductDetails", subscribedProductDetail);
         const bayesianModelDetails = await this.bayesianModel.findOne({ where: { bayesianModelId } });
         if (isEmpty(bayesianModelDetails)) throw new HttpException(400, `Bayesian model doesn't exist with ${bayesianModelId}`);
-
+        
         const currentDate = new Date();
         const anomalyMonitoringTarget = {
             anomalyMonitoringTargetId,
@@ -80,9 +86,9 @@ class AnomalyMonitoringTargetService {
             anomalyMonitoringTargetName,
             bayesianModelKey: bayesianModelDetails.bayesianModelKey,
             anomalyMonitoringTargetStatus, 
+            resourceKey:resourceDetail.resourceKey,
             subscribedProductKey: subscribedProductDetail.subscribedProductKey
         };
-        console.log("anomalyMonitoringTarget==========", anomalyMonitoringTarget)
         const newresolutionAction: IAnomalyMonitoringTarget = await this.AnomalyMonitoringTarget.create(anomalyMonitoringTarget);
         return newresolutionAction;
     }
@@ -99,7 +105,7 @@ class AnomalyMonitoringTargetService {
     /**
      * find AnomalyMonitoringTarget by Id
      *
-     * @param  {string} resolutionActionId
+     * @param  {string} anomalyMonitoringTargetId
      * @returns Promise<IAnomalyMonitoringTarget>
      * @author Shrishti Raj
      */
@@ -113,7 +119,27 @@ class AnomalyMonitoringTargetService {
         return findMonitoringTarget;
     }
 
+    /**
+     * find AnomalyMonitoringTarget by resourceKey
+     *
+     * @param  {string} resourceKey
+     * @returns Promise<IAnomalyMonitoringTarget>
+     * @author Jerry Lee
+     */
+     public async findMonitoringTargetsByResourceKeys(resourceKey: string): Promise<IAnomalyMonitoringTarget> {
+        
+        const findSubscribedProduct: ISubscribedProduct = await this.subscribedProduct.findOne({
+            where: { deletedAt: null,  resourceKey: resourceKey} },
+        ); 
+        if (!findSubscribedProduct) throw new HttpException(409, 'AnomalyMonitoringTarget Not found');
 
+        const findMonitoringTarget: IAnomalyMonitoringTarget = await this.AnomalyMonitoringTarget.findOne({
+            where: {deletedAt: null, subscribedProductKey: findSubscribedProduct.subscribedProductKey},
+        });
+        if (!findMonitoringTarget) throw new HttpException(409, 'AnomalyMonitoringTarget Id Not found');
+
+        return findMonitoringTarget;
+    }
 
     public getTableId = async (tableIdTableName: string) => {
         const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
