@@ -1,7 +1,6 @@
 export interface IMetricReceived{
     metricReceivedKey: number;
     metricReceivedId: string;
-    metricReceivedHash: string;
     createdBy: string;
     updatedBy: string;
     createdAt: Date;
