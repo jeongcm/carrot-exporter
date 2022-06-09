@@ -32,7 +32,7 @@ class AnomalyMonitoringTargetService {
     public async findAllMonitoringTargets(): Promise<IAnomalyMonitoringTarget[]> {
         const monitoringTargetList: IAnomalyMonitoringTarget[] = await this.AnomalyMonitoringTarget.findAll({
             where: { deletedAt: null }, 
-            include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}, {model:PartyUserModel}]
+            include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}]
         });
         return monitoringTargetList;
     }
