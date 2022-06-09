@@ -7,6 +7,9 @@ import CustomerAccountService from '@/modules/CustomerAccount/services/customerA
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { BayesianModelTable } from '../models/bayesianModel.model';
+import { ModelRuleScoreTable } from '../models/modelRuleScore.model';
+import { RuleGroupAlertRuleModel } from '../models/ruleGroupAlertRule.model';
+import { RuleGroupModel } from '../models/ruleGroup.model';
 
 class BayesianModelServices {
   public bayesianModel = DB.BayesianModel;
@@ -42,7 +45,7 @@ class BayesianModelServices {
     const tableIdName: string = 'BayesianModel';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const BayesianModelId: string = responseTableIdData.tableIdFinalIssued;
-    const {bayesianModelName, bayesianModelDescription, bayesianModelResourceType} = bayesianModelData
+    const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType } = bayesianModelData
     const currentDate = new Date();
     const BayesianModel = {
       bayesianModelId: BayesianModelId,
@@ -50,10 +53,10 @@ class BayesianModelServices {
       createdAt: currentDate,
       updatedAt: currentDate,
       bayesianModelName,
-      bayesianModelDescription, 
+      bayesianModelDescription,
       bayesianModelResourceType,
       customerAccountKey,
-      bayesianModelStatus:"AC"
+      bayesianModelStatus: "AC"
     };
     const newBayesianModel: IBayesianModel = await this.bayesianModel.create(BayesianModel);
     return newBayesianModel;
@@ -71,6 +74,23 @@ class BayesianModelServices {
 
     const findBayesianModel: IBayesianModel = await this.bayesianModel.findOne({
       where: { bayesianModelId, deletedAt: null },
+      include: [
+        {
+          model: ModelRuleScoreTable,
+          attributes: ['bayesianModelKey'],
+          include: [
+            {
+              model: RuleGroupModel,
+              attributes: ['ruleGroupKey'],
+              include:[
+                {
+                  model:RuleGroupAlertRuleModel
+                }
+              ]
+            }
+          ]
+        }
+      ]
     });
     if (!bayesianModelId) throw new HttpException(409, 'BayesianModel Id Not found');
 
