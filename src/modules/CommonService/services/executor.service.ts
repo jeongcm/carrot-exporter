@@ -265,7 +265,7 @@ class executorService {
         for (let i=1; i<16; i++){    
             console.log(newMin[i]);}
         */
-
+/*
         let newMin = minutes + 1;
         const newCrontab1 = newMin + " * * * *";
         const newCrontab2 = newMin + " * * * *";
@@ -283,6 +283,23 @@ class executorService {
         const newCrontab14 = newMin + " * * * *";
         const newCrontab15 = newMin + " * * * *";
             
+*/
+        const newCrontab1 = " */10 * * * *";
+        const newCrontab2 = " */10 * * * *";
+        const newCrontab3 = " */10 * * * *";
+        const newCrontab4 = " */10 * * * *";
+        const newCrontab5 = " */10 * * * *";
+        const newCrontab6 = " */10 * * * *";
+        const newCrontab7 = " */10 * * * *";
+        const newCrontab8 = " */10 * * * *";
+        const newCrontab9 = " */10 * * * *";
+        const newCrontab10 = " */10 * * * *";
+        const newCrontab11 = " */10 * * * *";
+        const newCrontab12 = " */10 * * * *";
+        const newCrontab13 = " */10 * * * *";
+        const newCrontab14 = " */10 * * * *";
+        const newCrontab15 = " */10 * * * *";
+
 
     // scheduleResource - node
         await this.scheduleResource(clusterUuid, "ND", newCrontab1
@@ -447,13 +464,14 @@ class executorService {
     public async installKpsOnResourceGroup(clusterUuid: string, targetNamespace: string, systemId: string ): Promise<string> {
 
       var serviceUuid ="";
-      var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;    
+      var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+      const on_completion=config.sudoryApiDetail.service_result_delete;
       const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
       const sudoryServiceData = {cluster_uuid: clusterUuid, 
                                  name: "kps helm installation", 
                                  template_uuid: "20000000000000000000000000000001", 
                                  summary: "kps helm installation", 
-                                 on_completion: 1,
+                                 on_completion: on_completion,
                                  subscribe_channel: "", 
                                  steps: [
                                     {args: 
@@ -881,6 +899,7 @@ class executorService {
 
    public async scheduleMetricMeta(clusterUuid: string): Promise<string> {
 
+        const on_completion=config.sudoryApiDetail.service_result_delete;
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
@@ -905,7 +924,7 @@ class executorService {
                             template_uuid: "10000000000000000000000000000007",
                             summary: "Get MetricMeta",
                             subscribed_channel: "nc_metric",
-                            on_completion: 1,
+                            on_completion: on_completion,
                             steps: [
                                     {
                                         args: {
@@ -946,6 +965,7 @@ class executorService {
 
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
+        const on_completion=config.sudoryApiDetail.service_result_delete;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
@@ -969,7 +989,7 @@ class executorService {
                             template_uuid: "10000000000000000000000000000004",
                             summary: "Get Alert Rules & Alert Received",
                             subscribed_channel: "nc_alert",
-                            on_completion: 1,
+                            on_completion: on_completion,
                             steps: [
                                     {
                                         args: {
@@ -1006,6 +1026,7 @@ class executorService {
 
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
+        const on_completion=config.sudoryApiDetail.service_result_delete;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         const subscribed_channel = config.sudoryApiDetail.channel_resource;
         var cronData;
@@ -1054,7 +1075,7 @@ class executorService {
                             template_uuid: template_uuid,
                             summary: scheduleSummary,
                             subscribed_channel: subscribed_channel,
-                            on_completion: 1,
+                            on_completion: on_completion,
                             steps: [
                                     {
                                         args: {
@@ -1090,6 +1111,7 @@ class executorService {
 
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
+        const on_completion=config.sudoryApiDetail.service_result_delete;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         const subscribed_channel = config.sudoryApiDetail.channel_metric_received;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
@@ -1127,7 +1149,7 @@ class executorService {
                             template_uuid: "10000000000000000000000000000001",
                             summary: matricSummary,
                             subscribed_channel: subscribed_channel,
-                            on_completion: 1,
+                            on_completion: on_completion,
                             steps: [
                                     {
                                         args: {

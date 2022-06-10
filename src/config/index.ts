@@ -116,6 +116,7 @@ export default {
     channel_alert: process.env.SUDORY_SUBSCRIBED_CHANNEL_ALERT || 'nc_alert',
     channel_metric: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC || 'nc_metric',
     channel_metric_received: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED || 'nc_metric_received',
+    service_result_delete: process.env.SUDORY_SERVICE_RESULT_DELETE || 0,
   },
   fileUpload: {
     DOBucket: process.env.NC_LARI_DO_BUCKET,
