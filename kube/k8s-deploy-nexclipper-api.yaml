@@ -48,7 +48,7 @@ data:
   SUDORY_SUBSCRIBED_CHANNEL_ALERT: "nc_alert"
   SUDORY_SUBSCRIBED_CHANNEL_METRIC: "nc_metric"
   SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED: "nc_metric_received"
-  SUDORY_SERVICE_RESULT_DELETE: 0
+  SUDORY_SERVICE_RESULT_DELETE: "0"
   NC_CRON_URL: "http://nexclipper-cron.nc.svc.cluster.local:5001/scheduler"
   NC_CRON_X_AUTH_TOKEN: "CRON"
   NC_LARI_MONGO_URL: "mongodb://nc_api:nc_api@ncmongodb.mongodb.svc.cluster.local:27017/nc_api"
