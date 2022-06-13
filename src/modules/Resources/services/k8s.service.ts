@@ -1,11 +1,19 @@
 import DB from '@/database';
 import { IResource } from '@/common/interfaces/resource.interface';
+import ServiceExtension from '@/common/extentions/service.extension';
+import sizeToBytes from 'common/utils/sizeToBytes';
 
 const RESOURCE_TYPES = ['K8', 'ND', 'SV', 'PD', 'PV'];
 
-class k8sService {
+class k8sService extends ServiceExtension {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
+
+  constructor() {
+    super({
+      tableName: '',
+    });
+  }
 
   async getClusterDetail(resourceGroupKey: number, customerAccountKey: number) {
     const allResource: IResource[] = await this.resource.findAll({
@@ -57,7 +65,7 @@ class k8sService {
   }
 
   private processK8sDetailPv(detail: any, resource: IResource) {
-    const pvSize = this.convertStrSizeToNum(resource.resourceSpec?.capacity?.storage);
+    const pvSize = sizeToBytes(resource.resourceSpec?.capacity?.storage);
     detail.pv.totalSize += pvSize;
 
     switch (resource.resourceStatus?.phase) {
@@ -95,12 +103,12 @@ class k8sService {
 
       const ephemeralStorage = resourceStatus?.allocatable?.['ephemeral-storage'];
       if (ephemeralStorage) {
-        detail.allocatable.ephemeralStorage += this.convertStrSizeToNum(ephemeralStorage);
+        detail.allocatable.ephemeralStorage += sizeToBytes(ephemeralStorage);
       }
 
       const memory = resourceStatus?.allocatable?.memory;
       if (memory) {
-        detail.allocatable.memory += this.convertStrSizeToNum(memory);
+        detail.allocatable.memory += sizeToBytes(memory);
       }
 
       detail.allocatable.pods += parseInt(resourceStatus?.allocatable?.pods || 0);
@@ -129,19 +137,6 @@ class k8sService {
 
   }
 
-  private convertStrSizeToNum(strSize): number {
-    if (strSize.indexOf('Ki') > 0) {
-      return parseFloat(strSize.replace('Ki', '')) * 1024;
-    } else if (strSize.indexOf('Mi') > 0) {
-      return parseFloat(strSize.replace('Mi', '')) * 1024 * 1024;
-    } else if (strSize.indexOf('Gi') > 0) {
-      return parseFloat(strSize.replace('Gi', '')) * 1024 * 1024 * 1024;
-    } else if (strSize.indexOf('Ti') > 0) {
-      return parseFloat(strSize.replace('Ti', '')) * 1024 * 1024 * 1024 * 1024;
-    } else {
-      return parseFloat(strSize);
-    }
-  }
 }
 
 export default k8sService;

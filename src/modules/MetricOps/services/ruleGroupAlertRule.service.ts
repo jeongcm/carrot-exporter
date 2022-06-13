@@ -57,7 +57,7 @@ class RuleGroupAlertRuleService {
   }
 
   public async registerAlertRule(ruleGroupAlertRuleData: RuleGroupAlertRuleDto, partyId: string): Promise<IRuleGroupAlertRule> {
-    if (isEmpty(ruleGroupAlertRuleData)) throw new HttpException(400, 'UnRegister RuleGroup AlertRule cannot be blank');
+    if (isEmpty(ruleGroupAlertRuleData)) throw new HttpException(400, 'Register RuleGroup AlertRule cannot be blank');
     const tableIdName: string = 'RuleGroupAlertRule';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const ruleGroupAlertRuleId: string = responseTableIdData.tableIdFinalIssued;

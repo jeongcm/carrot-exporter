@@ -5,7 +5,6 @@ export type MetricMetaCreationAttributes = Optional<
   IMetricReceived,
   | 'metricReceivedKey'
   | 'metricReceivedId'
-  | 'metricReceivedHash'  
   | 'createdBy'
   | 'updatedBy'
   | 'createdAt'
@@ -27,7 +26,6 @@ export class MetricReceivedModel extends Model<IMetricReceived, MetricMetaCreati
 
     public metricReceivedKey: number;
     public metricReceivedId: string;
-    public metricReceivedHash: string;  
     public createdBy: string;
     public updatedBy: string;
     public deletedAt: Date;
@@ -63,11 +61,7 @@ export default function (sequelize: Sequelize): typeof MetricReceivedModel {
       metricReceivedId: {
         allowNull: false,
         type: DataTypes.STRING(16),
-      },
-      metricReceivedHash: {
-        allowNull: false,
-        type: DataTypes.STRING(40),
-      },      
+      },   
       createdBy: {
         type: DataTypes.STRING(16),
         allowNull: false,

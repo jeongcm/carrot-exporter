@@ -24,12 +24,12 @@ class RuleGroupAlertRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/register/alert/rule', authMiddleware, validationMiddleware(RuleGroupAlertRuleDto, 'body'), this.ruleGroupAlertRuleController.registerAlertRule);
-    this.router.post('/unregister/alert/rule', authMiddleware, validationMiddleware(UnRegisterRuleGroupAlertRuleDto, 'body'), this.ruleGroupAlertRuleController.unregisterAlertRule);
-    this.router.get('/register/alertRule/:ruleGroupId', authMiddleware, this.ruleGroupAlertRuleController.listRegisterAlertRule);
-    this.router.post('/register/resolution/action', authMiddleware, validationMiddleware(RuleGroupResolutionActionDto, 'body'), this.ruleGroupResolutionActionController.registerResolutionAction);
-    this.router.post('/unregister/resolution/action', authMiddleware, validationMiddleware(UnRegisterResolutionActionDto, 'body'), this.ruleGroupResolutionActionController.unregisterResolutionAction);
-    this.router.get('/register/resolution/action', authMiddleware, this.ruleGroupResolutionActionController.listRegisterResolutionAction);
+    this.router.post('/ruleGroup/alertRule/register', authMiddleware, validationMiddleware(RuleGroupAlertRuleDto, 'body'), this.ruleGroupAlertRuleController.registerAlertRule);
+    this.router.post('/ruleGroup/alertRule/unregister', authMiddleware, validationMiddleware(UnRegisterRuleGroupAlertRuleDto, 'body'), this.ruleGroupAlertRuleController.unregisterAlertRule);
+    this.router.post('/ruleGroup/resolutionAction/register', authMiddleware, validationMiddleware(RuleGroupResolutionActionDto, 'body'), this.ruleGroupResolutionActionController.registerResolutionAction);
+    this.router.post('/ruleGroup/resolutionAction/unregister', authMiddleware, validationMiddleware(UnRegisterResolutionActionDto, 'body'), this.ruleGroupResolutionActionController.unregisterResolutionAction);
+    this.router.get('/ruleGroup/:ruleGroupId/alertRule', authMiddleware, this.ruleGroupAlertRuleController.listRegisterAlertRule);
+    this.router.get('/ruleGroup/resolutionAction', authMiddleware, this.ruleGroupResolutionActionController.listRegisterResolutionAction);
   }
 }
 

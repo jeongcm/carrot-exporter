@@ -27,6 +27,8 @@ import PartyRoute from '@modules/Party/routes/party.route';
 import NotificationRoute from './modules/Notification/routes/notification.route';
 import PartyChannelRoute from './modules/Party/routes/partychannel.route';
 
+import TopologyRoute from '@modules/Resources/routes/topology.route';
+
 import ResourceRoute from '@modules/Resources/routes/resource.route';
 import ResourceGroupRoute from '@modules/Resources/routes/resourceGroup.route';
 import massUploaderRoute from './modules/CommonService/routes/massUploader.route';
@@ -52,6 +54,7 @@ import RuleGroupRoute from './modules/MetricOps/routes/ruleGroup.route';
 import RuleGroupAlertRoute from './modules/MetricOps/routes/ruleGroupAlertRule.route';
 import AnomalyMonitoringTargetRoute from './modules/MetricOps/routes/monitoringTarget.route';
 import RoleRoute from './modules/Role/routes/role.route';
+import RolePartyRoute from './modules/Role/routes/roleParty.route';
 
 const app = new App([
   new IndexRoute(),
@@ -101,9 +104,11 @@ const app = new App([
   new SudoryTemplateRoute(),
   new AnomalyMonitoringTargetRoute(),
 
+  new TopologyRoute(),
   new RuleGroupRoute(),
   new RuleGroupAlertRoute(),
   new RoleRoute(),
+  new RolePartyRoute(),
 ]);
 
 app.listen();
