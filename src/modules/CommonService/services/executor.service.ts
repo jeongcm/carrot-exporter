@@ -535,6 +535,47 @@ class executorService {
       return serviceUuid;
     }          
 
+      /**
+   * @param {string} clusterUuid
+   * @param {string} targetNamespace 
+   */
+       public async postExecuteService(clusterUuid:string, argsUrl:string, stepQuery:string  ): Promise<string> {
+
+        const sudoryServiceData = {
+          cluster_uuid: clusterUuid,
+          name: 'metric meta from Prometheus / DO cluster',
+          template_uuid: '10000000000000000000000000000001',
+          steps: [
+            {
+              args: {
+                url: argsUrl,
+                query: stepQuery,
+              },
+            },
+          ],
+          summary: 'pull metric received list from Prometheus',
+          on_completion: 1,
+          subscribed_channel: 'webhook_test',
+        };
+       let serviceData = await axios(
+          {
+            method: 'post',
+            url: "http://146.190.1.148:8099/server/service",
+            data: sudoryServiceData,
+          }).then(async (res: any) => {
+              console.log(res.data);
+            // serviceUuid = res.data.uuid
+            return res.data
+            // console.log(`Submit kps chart installation reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
+  
+          }).catch(error => {
+            console.log(error);
+            throw new HttpException(500, "Not able to execute service");
+          });
+          console.log(serviceData)
+        return serviceData;
+      }          
+  
   /**
    * @param {ExecutorResourceDto} resourceInputData
    */
