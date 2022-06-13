@@ -70,7 +70,7 @@ export default function (sequelize: Sequelize): typeof RuleGroupModel {
         allowNull: false,
       },
       ruleGroupDescription: {
-        type: DataTypes.STRING(2)
+        type: DataTypes.STRING(500)
       },
       ruleGroupStatus: {
         type: DataTypes.STRING(2),

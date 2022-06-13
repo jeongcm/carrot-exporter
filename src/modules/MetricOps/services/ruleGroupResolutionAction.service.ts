@@ -8,6 +8,7 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import RuleGroupService from '@/modules/MetricOps/services/ruleGroup.service';
 import { RuleGroupResolutionActionDto, UnRegisterResolutionActionDto } from '../dtos/ruleGroupResolutionAction.dto';
+import { ResolutionActionModel } from '../models/resolutionAction.model';
 import ResolutionActionService from './resolutionAction.service';
 const { Op } = require('sequelize');
 
@@ -87,9 +88,14 @@ class RuleGroupResolutionActionService {
     return newruleGroupResolutionAction;
   }
 
-  public async listRegisterResolutionAction(): Promise<IRuleGroupResolutionAction[]> {
+  public async listRegisterResolutionAction(ruleGroupId:string): Promise<IRuleGroupResolutionAction[]> {
+    const ruleGroupDetails = await this.ruleGroup.findOne({where:{ruleGroupId}});
+    if (isEmpty(ruleGroupDetails)) throw new HttpException(400, ` Rule  Group not found`);
     const allRuleGroupResolutionAction: IRuleGroupResolutionAction[] = await this.ruleGroupResolutionAction.findAll({
-      where: { deletedAt: null },
+      where: { deletedAt: null, ruleGroupKey:ruleGroupDetails.ruleGroupKey},
+      include:[{
+        model:ResolutionActionModel
+      }],
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
     return allRuleGroupResolutionAction;

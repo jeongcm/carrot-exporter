@@ -348,6 +348,9 @@ DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key'
 DB.BayesianModel.hasMany(DB.AnomalyMonitoringTarget, {  foreignKey: 'bayesian_model_key' });
 DB.AnomalyMonitoringTarget.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
+DB.RuleGroupResolutionAction.hasMany(DB.ResolutionAction, {  foreignKey: 'resolution_action_key' });
+DB.ResolutionAction.belongsTo(DB.RuleGroupResolutionAction, { foreignKey: 'resolution_action_key' });
+
 
 
 

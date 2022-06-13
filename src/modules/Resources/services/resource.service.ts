@@ -11,9 +11,11 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import { Op } from 'sequelize';
+import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 class ResourceService {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
+  public anamolyTarget = DB.AnomalyMonitoringTarget;
   public TableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
   public resourceGroupService = new ResourceGroupService();
@@ -172,19 +174,32 @@ class ResourceService {
   public async getResourceByTypeResourceGroupId(resourceType: string[], resourceGroupId: string, query?: any): Promise<IResource[]> {
     const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
-
+    let resourceKeys = []
     const resourceQuery = this.getResourceQuery(query);
-
+    const allMonitoringTarget: IAnomalyMonitoringTarget[] = await this.anamolyTarget.findAll({where:{deletedAt:null}, attributes:["resourceKey"], raw:true});
+    if(allMonitoringTarget){
+      resourceKeys = this.uniqueData(allMonitoringTarget);
+    }
     const allResources: IResource[] = await this.resource.findAll({
       where: {
         deletedAt: null,
         resourceType,
         resourceGroupKey: resourceGroupKey,
         [Op.and]: [...resourceQuery],
+        resourceKey:{[Op.notIn]:resourceKeys}
       },
     });
 
+
     return allResources;
+  }
+
+  public uniqueData = (arrayData:any)=>{
+    let resourseKeys= []
+    for(let i=0; i<arrayData.length; i++){
+      resourseKeys.push(arrayData[i].resourceKey);
+    }
+    return [...new Set(resourseKeys)];
   }
 
   /**
