@@ -238,7 +238,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       },
       customerAccountKey: {
         allowNull: false,
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
       },
       resourceGroupKey: {
         allowNull: false,
