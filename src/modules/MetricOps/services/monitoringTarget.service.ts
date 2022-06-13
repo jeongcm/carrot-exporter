@@ -14,6 +14,7 @@ import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.mod
 import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 import { ISubscribedProduct } from '@/common/interfaces/subscription.interface';
 import Op from 'sequelize/types/operators';
+import { BayesianModelTable } from '../models/bayesianModel.model';
 
 class AnomalyMonitoringTargetService {
     public AnomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
@@ -32,7 +33,7 @@ class AnomalyMonitoringTargetService {
     public async findAllMonitoringTargets(): Promise<IAnomalyMonitoringTarget[]> {
         const monitoringTargetList: IAnomalyMonitoringTarget[] = await this.AnomalyMonitoringTarget.findAll({
             where: { deletedAt: null }, 
-            include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}, {model:PartyUserModel}]
+            include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}]
         });
         return monitoringTargetList;
     }
@@ -113,6 +114,7 @@ class AnomalyMonitoringTargetService {
 
         const findMonitoringTarget: IAnomalyMonitoringTarget = await this.AnomalyMonitoringTarget.findOne({
             where: { anomalyMonitoringTargetId, deletedAt: null },
+            include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}, {model:BayesianModelTable}]
         });
         if (!anomalyMonitoringTargetId) throw new HttpException(409, 'AnomalyMonitoringTarget Id Not found');
 

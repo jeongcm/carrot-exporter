@@ -25,6 +25,7 @@ class BayesianModelRoute implements Routes {
       this.bayesianModelController.createBayesianModel,
     );
     this.router.get('/bayesianModels', authMiddleware, createUserLogMiddleware,  this.bayesianModelController.getAllBayesianModel);
+    this.router.get('/bayesianModels/:resourceType', authMiddleware, createUserLogMiddleware,  this.bayesianModelController.getBayesianModelByResourceType);
     this.router.get('/bayesianModel/:bayesianModelId', authMiddleware, createUserLogMiddleware,  this.bayesianModelController.getBayesianModelById);
     this.router.put(
       '/bayesianModel/:bayesianModelId',

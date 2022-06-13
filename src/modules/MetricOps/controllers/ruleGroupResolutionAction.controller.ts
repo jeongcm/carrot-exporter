@@ -25,8 +25,9 @@ class RuleGroupResolutionActionController {
 
   public listRegisterResolutionAction = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
+      const {params:{ruleGroupId}}= req;
       const findRuleGroupResolutionActionData: IRuleGroupResolutionAction[] =
-        await this.ruleGroupResolutionActionService.listRegisterResolutionAction();
+        await this.ruleGroupResolutionActionService.listRegisterResolutionAction(ruleGroupId);
       res.status(200).json({ data: findRuleGroupResolutionActionData, message: 'findAll' });
     } catch (error) {
       next(error);

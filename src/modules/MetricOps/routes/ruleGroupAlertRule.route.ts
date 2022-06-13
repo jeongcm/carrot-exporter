@@ -29,7 +29,7 @@ class RuleGroupAlertRoute implements Routes {
     this.router.post('/ruleGroup/resolutionAction/register', authMiddleware, validationMiddleware(RuleGroupResolutionActionDto, 'body'), this.ruleGroupResolutionActionController.registerResolutionAction);
     this.router.post('/ruleGroup/resolutionAction/unregister', authMiddleware, validationMiddleware(UnRegisterResolutionActionDto, 'body'), this.ruleGroupResolutionActionController.unregisterResolutionAction);
     this.router.get('/ruleGroup/:ruleGroupId/alertRule', authMiddleware, this.ruleGroupAlertRuleController.listRegisterAlertRule);
-    this.router.get('/ruleGroup/resolutionAction', authMiddleware, this.ruleGroupResolutionActionController.listRegisterResolutionAction);
+    this.router.get('/ruleGroup/:ruleGroupId/resolutionAction', authMiddleware, this.ruleGroupResolutionActionController.listRegisterResolutionAction);
   }
 }
 
