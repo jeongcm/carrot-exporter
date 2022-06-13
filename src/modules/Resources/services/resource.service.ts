@@ -57,9 +57,15 @@ class ResourceService {
    * @param {number} customerAccountKey
    * @returns Promise
    */
-  public async getAllResources(customerAccountKey: number): Promise<IResource[]> {
+  public async getAllResources(customerAccountKey: number, query:any): Promise<IResource[]> {
+    const {resourceType} = query;
+    let whereCondition = { deletedAt: null, customerAccountKey};
+    if(resourceType){
+      whereCondition['resourceType'] = resourceType;
+      whereCondition['resourceAnomalyMonitor'] = true;
+    }
     const allResource: IResource[] = await this.resource.findAll({
-      where: { deletedAt: null, customerAccountKey },
+      where: whereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
 

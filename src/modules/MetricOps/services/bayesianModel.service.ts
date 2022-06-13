@@ -81,7 +81,7 @@ class BayesianModelServices {
           include: [
             {
               model: RuleGroupModel,
-              attributes: ['ruleGroupKey'],
+              attributes: ['ruleGroupKey', "ruleGroupId"],
               include:[
                 {
                   model:RuleGroupAlertRuleModel
@@ -93,6 +93,24 @@ class BayesianModelServices {
       ]
     });
     if (!bayesianModelId) throw new HttpException(409, 'BayesianModel Id Not found');
+
+    return findBayesianModel;
+  }
+  /**
+   * find BayesianModel by Id
+   *
+   * @param  {string} BayesianModelId
+   * @returns Promise<IBayesianModel>
+   * @author Shrishti Raj
+   */
+  public async findBayesianModelByResourceType(resourceType: string): Promise<IBayesianModel[]> {
+    if (isEmpty(resourceType)) throw new HttpException(400, 'Not a valid BayesianModelId');
+console.log("resourceTyperesourceType", resourceType)
+    const findBayesianModel: IBayesianModel[] = await this.bayesianModel.findAll({
+      where: { bayesianModelResourceType:resourceType, deletedAt: null },
+     
+    });
+    if (!findBayesianModel) throw new HttpException(409, 'BayesianModel detail Not found');
 
     return findBayesianModel;
   }

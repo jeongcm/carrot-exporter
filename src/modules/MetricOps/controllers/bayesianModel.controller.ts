@@ -89,6 +89,22 @@ class BayesianModelController {
       next(error);
     }
   };
+  public getBayesianModelByResourceType = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {
+        user: { partyId },
+        params: { resourceType }
+      } = req;
+      console.log("resourceType in params")
+      const bayesianModelData: IBayesianModel[] = await this.bayesianModelService.findBayesianModelByResourceType(
+        resourceType
+      );
+      res.status(200).json({ data: bayesianModelData, message: 'find', resourceType });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
+
 
 export default BayesianModelController;
