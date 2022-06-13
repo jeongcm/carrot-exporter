@@ -18,7 +18,12 @@ class massUploaderRoute implements Routes {
     this.router.post('/resourceMassMongo', 
     //validationMiddleware(ExecutorUuidDto, 'body'), 
     this.massUploaderMongoController.massUploadMongoForResource)
+    this.router.post('/metricReceivedMassVm', 
+    //validationMiddleware(ExecutorUuidDto, 'body'), 
+    this.massUploaderMongoController.massUploadVMForMetricReceived)
+
   }
+
 }
 
 export default massUploaderRoute;

@@ -125,4 +125,8 @@ export default {
     awsS3DefaultRegion: process.env.NC_LARI_DO_DEFAULT_REGION,
     DOEndPoint: process.env.NC_LARI_DO_ENDPOINT,
   },
+  victoriaMetrics: {
+    NC_LARI_VM_ADDRESS: process.env.NC_LARI_VM_ADDRESS,
+    NC_LARI_VM_API: process.env.NC_LARI_VM_API, 
+  },
 };

@@ -1,10 +1,13 @@
 import { MongoClient } from 'mongodb';
 import DB from '@/database';
+import axios from 'axios';
+import { HttpException } from '@/common/exceptions/HttpException';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import config from '@config/index';
+import { timeStamp } from 'console';
 
 
 class massUploaderMongoService {
@@ -117,6 +120,40 @@ class massUploaderMongoService {
         }
         return returnResult;
     } // end of massUploadResourceMongo method      
+
+
+
+    public async massUpdoadMetricReceived(metricReceivedMassFeed: string, clusterUuid: string): Promise<object> {
+
+        const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+            where: { resourceGroupUuid: clusterUuid },
+        });
+        if (!resultResourceGroup) {
+            throw new HttpException(400, `cluster uuid ${clusterUuid} doesn't exist`);
+        }
+
+        const victoriaMetricsAddress = config.victoriaMetrics.NC_LARI_VM_ADDRESS;
+        const victoriaMetricsApiImport = config.victoriaMetrics.NC_LARI_VM_API; + resultResourceGroup.customerAccountKey.toString();
+        //const victoriaMetricsAddress = "http://127.0.0.1:8428";
+        //const victoriaMetricsApiImport = "/api/v1/import?extra_label=customer=" + customerAccountKey.toString();
+        const apiUrl = victoriaMetricsAddress + victoriaMetricsApiImport;
+        var result;
+
+        await axios(
+            {
+              method: 'post',
+              url: `${apiUrl}`,
+              data: metricReceivedMassFeed
+            }).then(async (res: any) => {
+              console.log(`Sucess to call ${apiUrl} for MetricReceived Feed, status code: ${res.status} `);
+              result = {"response code: ": res.status}  
+            }).catch(error => {
+              console.log(error);
+              throw new HttpException(500, "Unknown error to call Victoriametrics api");
+            });
+
+        return result;
+    }
 } // end of massUploaderMongoService class
 
 export default massUploaderMongoService;
