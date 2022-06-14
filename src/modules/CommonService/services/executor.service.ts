@@ -465,7 +465,7 @@ class executorService {
 
       var serviceUuid ="";
       var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
-      const on_completion=config.sudoryApiDetail.service_result_delete;
+      const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
       const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
       const sudoryServiceData = {cluster_uuid: clusterUuid, 
                                  name: "kps helm installation", 
@@ -540,7 +540,7 @@ class executorService {
    * @param {string} targetNamespace 
    */
        public async postExecuteService(clusterUuid:string, argsUrl:string, stepQuery:string  ): Promise<string> {
-
+        const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const sudoryServiceData = {
           cluster_uuid: clusterUuid,
           name: 'metric meta from Prometheus / DO cluster',
@@ -554,7 +554,7 @@ class executorService {
             },
           ],
           summary: 'pull metric received list from Prometheus',
-          on_completion: 1,
+          on_completion: on_completion,
           subscribed_channel: 'webhook_test',
         };
        let serviceData = await axios(
@@ -940,7 +940,7 @@ class executorService {
 
    public async scheduleMetricMeta(clusterUuid: string): Promise<string> {
 
-        const on_completion=config.sudoryApiDetail.service_result_delete;
+        const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
@@ -1067,7 +1067,7 @@ class executorService {
 
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
-        const on_completion=config.sudoryApiDetail.service_result_delete;
+        const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         const subscribed_channel = config.sudoryApiDetail.channel_resource;
         var cronData;
@@ -1152,7 +1152,7 @@ class executorService {
 
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
-        const on_completion=config.sudoryApiDetail.service_result_delete;
+        const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         const subscribed_channel = config.sudoryApiDetail.channel_metric_received;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
