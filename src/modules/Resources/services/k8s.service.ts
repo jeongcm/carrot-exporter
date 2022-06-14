@@ -1,5 +1,5 @@
 import DB from '@/database';
-import { IResource } from '@/common/interfaces/resource.interface';
+import { IResource, IK8sResourceRelationNode } from '@/common/interfaces/resource.interface';
 import ServiceExtension from '@/common/extentions/service.extension';
 import sizeToBytes from 'common/utils/sizeToBytes';
 
@@ -57,6 +57,10 @@ class k8sService extends ServiceExtension {
     });
 
     return detail;
+  }
+
+  public async getResourceRelationByKey(resourceKey: number, customerAccountKey: number) {
+
   }
 
   private processK8sDetailServices(detail: any, resource: IResource) {

@@ -1,12 +1,14 @@
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IMetricReceived } from '@/common/interfaces/metricReceived.interface';
+import { IResource } from '@/common/interfaces/resource.interface';
 import { isEmpty } from '@/common/utils/util';
 import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { MetricReceivedDto } from '../dtos/metricReceived.dto';
 import MetricMetaService from './metricMeta.service';
-const { Op } = require('sequelize');
+import sequelize, { Op } from 'sequelize';
+
 class MetricReceivedService {
   public tableIdService = new TableIdService();
   public metricMeta = DB.MetricMeta;
@@ -16,7 +18,7 @@ class MetricReceivedService {
   public async getMetricReceived(customerAccountKey: number): Promise<IMetricReceived[]> {
     const allMetricReceived: IMetricReceived[] = await this.metricReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
-      attributes: { exclude: ['metricReceivedKey','deletedAt', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['metricReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
     });
     return allMetricReceived;
   }
@@ -39,7 +41,7 @@ class MetricReceivedService {
       });
       if (result[0] == 1) {
         return true;
-      }else{
+      } else {
         return false;
       }
     } catch (error) {
@@ -75,7 +77,7 @@ class MetricReceivedService {
       customerAccountKey: customerAccountKey,
       updatedBy: partyId,
       updatedAt: new Date(),
-      metricMetaKey
+      metricMetaKey,
     };
     await this.metricReceived.update(updatedMetricReceivedData, { where: { metricReceivedId: metricReceivedId } });
 
@@ -84,7 +86,7 @@ class MetricReceivedService {
 
   public async createMetricReceived(metricReceivedData: MetricReceivedDto, customerAccountKey: number, partyId: string): Promise<IMetricReceived> {
     if (isEmpty(metricReceivedData)) throw new HttpException(400, 'Create MetricReceived cannot be blank');
-    const tableIdName: string = 'MetricReceived';
+    const tableIdName = 'MetricReceived';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const tempMetricReceivedId: string = responseTableIdData.tableIdFinalIssued;
 
@@ -97,10 +99,41 @@ class MetricReceivedService {
       metricReceivedId: tempMetricReceivedId,
       createdAt: currentDate,
       createdBy: partyId,
-      metricMetaKey:metricMetaKey
+      metricMetaKey: metricMetaKey,
     };
     const newMetricReceivedData: IMetricReceived = await this.metricReceived.create(newMetricReceived);
     return newMetricReceivedData;
+  }
+
+  public async getMetricReceivedByResourceId(customerAccountKey, resourceId: string, metricReceivedName: string[]): Promise<IMetricReceived> {
+    if (isEmpty(resourceId)) throw new HttpException(400, 'resourceId required');
+    if (isEmpty(metricReceivedName)) throw new HttpException(400, 'metricReceivedName[] required');
+
+    console.log(metricReceivedName);
+
+    const findMetricReceivedById: IResource = await DB.Resource.findOne({
+      where: { customerAccountKey, resourceId, deletedAt: null },
+      attributes: ['resourceName', 'resourceGroupKey'],
+      include: [
+        {
+          model: DB.MetricMeta,
+          where: {
+            metricMetaName: {
+              [Op.in]: metricReceivedName,
+            },
+          },
+          attributes: ['metricMetaName'],
+          include: [
+            {
+              model: DB.MetricReceived,
+            },
+          ],
+        },
+      ],
+    });
+    if (!findMetricReceivedById) throw new HttpException(409, 'Metric Received Not found');
+
+    return findMetricReceivedById;
   }
 }
 

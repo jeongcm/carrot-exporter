@@ -57,5 +57,9 @@ export interface IResource {
 
 export interface IResourceTargetUuid {
   resourceTargetUuid: string;
+}
 
+export interface IK8sResourceRelationNode {
+  resource: IResource;
+  rel: IK8sResourceRelationNode[];
 }

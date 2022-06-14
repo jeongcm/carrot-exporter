@@ -41,7 +41,11 @@ class MetricReceivedController {
         user: { partyId },
       } = req;
       const metricReceivedData: MetricReceivedDto = req.body;
-      const createMetricReceivedData: IMetricReceived = await this.metricReceivedService.createMetricReceived(metricReceivedData, customerAccountKey, partyId);
+      const createMetricReceivedData: IMetricReceived = await this.metricReceivedService.createMetricReceived(
+        metricReceivedData,
+        customerAccountKey,
+        partyId,
+      );
       res.status(201).json({ data: createMetricReceivedData, message: 'created' });
     } catch (error) {
       next(error);
@@ -63,6 +67,27 @@ class MetricReceivedController {
         partyId,
       );
       res.status(200).json({ data: updateMetricReceivedUpdate, message: 'updated' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getMetricReceivedByResourceId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.customerAccountKey;
+      const resourceId = req.params.resourceId;
+      let metricReceivedName = req.query.metricReceivedName;
+
+      if (!Array.isArray(metricReceivedName)) {
+        metricReceivedName = [metricReceivedName as string];
+      }
+
+      const findMetricData: IMetricReceived[] = await this.metricReceivedService.getMetricReceivedByResourceId(
+        customerAccountKey,
+        resourceId,
+        metricReceivedName as string[],
+      );
+      res.status(200).json({ data: findMetricData, message: 'findAll' });
     } catch (error) {
       next(error);
     }

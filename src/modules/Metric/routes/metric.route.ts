@@ -40,6 +40,7 @@ class MetricRoute implements Routes {
       this.metricReceivedController.createMetricReceived,
     );
     this.router.get('/metric/received', authMiddleware, this.metricReceivedController.getMetricReceived);
+    this.router.get('/resource/:resourceId/metric/received', authMiddleware, this.metricReceivedController.getMetricReceivedByResourceId);
     this.router.put(
       '/metric/received/:metricReceivedId',
       authMiddleware,
