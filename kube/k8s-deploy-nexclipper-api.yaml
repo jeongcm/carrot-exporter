@@ -53,7 +53,7 @@ data:
   NC_CRON_X_AUTH_TOKEN: "CRON"
   NC_LARI_MONGO_URL: "mongodb://nc_api:nc_api@ncmongodb.mongodb.svc.cluster.local:27017/nc_api"
   NC_LARI_VM_ADDRESS: "http://vm-victoria-metrics-single-server.vm.svc.cluster.local:8428"
-  NC_LARI_VM_API: "/api/v1/import?extra_label=customer="
+  NC_LARI_VM_API: "/api/v1/import?extra_label=clusterUuid="
 ---
 apiVersion: apps/v1
 kind: Deployment
