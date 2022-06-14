@@ -37,7 +37,7 @@ class massUploaderMongoController{
           let newResultMap1 = [];
           firstHalf.map((data)=>{
             const{metric, value} = data;
-            newResultMap1.push(JSON.stringify({metric, values: [(value[1])], timestamps:[value[0]*1000]}))
+            newResultMap1.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]*1000]}))
           });
           let finalResult1 = (newResultMap1).join("\n")
 
@@ -49,7 +49,7 @@ class massUploaderMongoController{
           let newResultMap2 = [];
           secondHalf.map((data)=>{
             const{metric, value} = data;
-            newResultMap2.push(JSON.stringify({metric, values: [(value[1])], timestamps:[value[0]*1000]}))
+            newResultMap2.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]*1000]}))
           });
           let finalResult2 = (newResultMap2).join("\n")
 
@@ -66,7 +66,7 @@ class massUploaderMongoController{
           let newResultMap = [];
           receivedMetrics.map((data)=>{
             const{metric, value} = data;
-            newResultMap.push(JSON.stringify({metric, values: [(value[1])], timestamps:[value[0]*1000]}))
+            newResultMap.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]*1000]}))
           });
           const finalResult = (newResultMap).join("\n")
 
