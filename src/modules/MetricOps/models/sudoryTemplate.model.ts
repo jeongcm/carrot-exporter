@@ -42,7 +42,7 @@ export default function (sequelize: Sequelize): typeof SudoryTemplateModel {
             },
             sudoryTemplateId: {
                 allowNull: false,
-                type: DataTypes.STRING(16),
+                type: DataTypes.STRING(100),
                 unique: true
             },
             createdBy: {
@@ -75,7 +75,8 @@ export default function (sequelize: Sequelize): typeof SudoryTemplateModel {
             },
             sudoryTemplateUuid: {
                 type: DataTypes.STRING(),
-                allowNull: false
+                allowNull: false,
+                unique: true
             },
             sudoryTemplateArgs: {
                 type: DataTypes.JSON,
@@ -85,12 +86,6 @@ export default function (sequelize: Sequelize): typeof SudoryTemplateModel {
         {
             tableName: 'SudoryTemplate',
             modelName: 'SudoryTemplate',
-            indexes: [
-                {
-                  unique: true,
-                  fields: ['sudory_template_id'],
-                },
-              ],
             sequelize,
         },
     );
