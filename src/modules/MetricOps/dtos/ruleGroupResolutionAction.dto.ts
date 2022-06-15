@@ -1,23 +1,23 @@
-import { IsString, IsNotEmpty, IsNumber, IsDate, IsObject, IsOptional, IsJSON } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsDate, IsObject, IsOptional, IsJSON, IsArray } from 'class-validator';
 
 export class RuleGroupResolutionActionDto {
   @IsString()
+  @IsNotEmpty()
   public ruleGroupId: string;
 
-  @IsString()
-  public resolutionActionId: string;
+  @IsArray()
+  @IsNotEmpty()
+  public resolutionActionIds: Array<{}>;
 
-  @IsString()
-  public resolutionActionDescription: string;
-
-  @IsObject()
-  public sudoryTemplateArgsOption: JSON;
 }
 
 export class UnRegisterResolutionActionDto {
   @IsString()
+  @IsNotEmpty()
   public ruleGroupId: string;
 
-  @IsString()
-  public resolutionActionId: string;
+
+  @IsArray()
+  @IsNotEmpty()
+  public resolutionActionIds: Array<{}>;
 }

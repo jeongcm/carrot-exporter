@@ -13,7 +13,7 @@ class RuleGroupResolutionActionController {
         user: { partyId },
       } = req;
       const ruleGroupResolutionActionData: RuleGroupResolutionActionDto = req.body;
-      const createRuleGroupResolutionAction: IRuleGroupResolutionAction = await this.ruleGroupResolutionActionService.registerResolutionAction(
+      const createRuleGroupResolutionAction: IRuleGroupResolutionAction[] = await this.ruleGroupResolutionActionService.registerResolutionAction(
         ruleGroupResolutionActionData,
         partyId,
       );

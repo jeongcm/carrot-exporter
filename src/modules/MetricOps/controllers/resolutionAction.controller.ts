@@ -84,6 +84,16 @@ class ResolutionActionController {
       next(error);
     }
   };
+  public getResolutionActionByRuleGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {params:{ruleGroupId}} = req;
+      const resolutionActionList :IResolutionAction[]  = await this.resolutionActionService.getResolutionActionByRuleGroupId(ruleGroupId);
+      return res.status(200).json({ data: resolutionActionList, message: 'findAll' });
+    } catch (error) {
+      console.log(error)
+      next(error);
+    }
+  };
 }
 
 export default ResolutionActionController;

@@ -9,12 +9,14 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import RuleGroupService from '@/modules/MetricOps/services/ruleGroup.service';
 import { RuleGroupResolutionActionDto, UnRegisterResolutionActionDto } from '../dtos/ruleGroupResolutionAction.dto';
 import { ResolutionActionModel } from '../models/resolutionAction.model';
+import { SudoryTemplateModel } from '../models/sudoryTemplate.model';
 import ResolutionActionService from './resolutionAction.service';
 const { Op } = require('sequelize');
 
 class RuleGroupResolutionActionService {
   public tableIdService = new TableIdService();
   public ruleGroup = DB.RuleGroup;
+  public resolutionAction = DB.ResolutionAction;
   public ruleGroupAlertRule = DB.RuleGroupAlertRule;
   public ruleGroupResolutionAction = DB.RuleGroupResolutionAction;
   public ruleGroupService = new RuleGroupService();
@@ -51,50 +53,69 @@ class RuleGroupResolutionActionService {
 
     const ruleGroupData: IRuleGroup = await this.ruleGroupService.findRuleGroupById(unRegisterResolutionActionData.ruleGroupId);
     // get resolutionActionKey based on resolutionActionId from ResolutionAction
-    const resolutionActionData: IResolutionAction = await this.resolutionActionService.findResolutionActionById(
-      unRegisterResolutionActionData.resolutionActionId,
-    );
-    const flag: boolean = await this.deleteRuleGroupResolutionAction(ruleGroupData.ruleGroupKey, resolutionActionData.resolutionActionKey);
-    return flag;
+    const {resolutionActionIds} = unRegisterResolutionActionData;
+    const resolutionActionData: any = await this.resolutionAction.findAll({
+      where: {
+        deletedAt: null,
+        resolutionActionId: { [Op.in]: resolutionActionIds }
+      }
+    }
+    )
+    resolutionActionData.map(async (resolutionObj)=>{
+      await this.deleteRuleGroupResolutionAction(ruleGroupData.ruleGroupKey, resolutionObj.resolutionActionKey);
+    })
+   
+    return true;
   }
 
   public async registerResolutionAction(
     ruleGroupResolutionActionData: RuleGroupResolutionActionDto,
     partyId: string,
-  ): Promise<IRuleGroupResolutionAction> {
+  ): Promise<IRuleGroupResolutionAction[]> {
     if (isEmpty(ruleGroupResolutionActionData)) throw new HttpException(400, 'RuleGroup ResolutionAction cannot be blank');
     const tableIdName: string = 'RuleGroupResolutionAction';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const ruleGroupResolutionActionId: string = responseTableIdData.tableIdFinalIssued;
-    
+
     // get ruleGroupKey based on ruleGroupId from RuleGroup table
     const ruleGroupData: IRuleGroup = await this.ruleGroupService.findRuleGroupById(ruleGroupResolutionActionData.ruleGroupId);
     // get resolutionActionKey based on resolutionActionId from ResolutionAction
-    const resolutionActionData: IResolutionAction = await this.resolutionActionService.findResolutionActionById(
-      ruleGroupResolutionActionData.resolutionActionId,
-    );
+    const { resolutionActionIds } = ruleGroupResolutionActionData
+    const resolutionActionData: any = await this.resolutionAction.findAll({
+      where: {
+        deletedAt: null,
+        resolutionActionId: { [Op.in]: resolutionActionIds }
+      },
+      include:[{model:SudoryTemplateModel, as:"sudoryTemplate"}]
+    }
+    )
+
 
     const currentDate = new Date();
-    const newRuleGroupResolutionAction = {
-      resolutionActionDescription: ruleGroupResolutionActionData.resolutionActionDescription,
-      sudoryTemplateArgsOption: ruleGroupResolutionActionData.sudoryTemplateArgsOption,
-      ruleGroupResolutionActionId,
-      ruleGroupKey: ruleGroupData.ruleGroupKey,
-      resolutionActionKey: resolutionActionData.resolutionActionKey,
-      createdAt: currentDate,
-      createdBy: partyId,
-    };
-    const newruleGroupResolutionAction: IRuleGroupResolutionAction = await this.ruleGroupResolutionAction.create(newRuleGroupResolutionAction);
+    const newRuleGroupResolutionAction = [];
+    resolutionActionData.map((resolutionAction: any)=>{
+
+      newRuleGroupResolutionAction.push({
+        resolutionActionDescription: resolutionAction.resolutionActionDescription,
+        sudoryTemplateArgsOption: resolutionAction?.sudoryTemplate.sudoryTemplateArgs,
+        ruleGroupResolutionActionId,
+        ruleGroupKey: ruleGroupData.ruleGroupKey,
+        resolutionActionKey: resolutionAction.resolutionActionKey,
+        createdAt: currentDate,
+        createdBy: partyId,
+      });
+    })
+    const newruleGroupResolutionAction: IRuleGroupResolutionAction[] = await this.ruleGroupResolutionAction.bulkCreate(newRuleGroupResolutionAction);
     return newruleGroupResolutionAction;
   }
 
-  public async listRegisterResolutionAction(ruleGroupId:string): Promise<IRuleGroupResolutionAction[]> {
-    const ruleGroupDetails = await this.ruleGroup.findOne({where:{ruleGroupId}});
+  public async listRegisterResolutionAction(ruleGroupId: string): Promise<IRuleGroupResolutionAction[]> {
+    const ruleGroupDetails = await this.ruleGroup.findOne({ where: { ruleGroupId } });
     if (isEmpty(ruleGroupDetails)) throw new HttpException(400, ` Rule  Group not found`);
     const allRuleGroupResolutionAction: IRuleGroupResolutionAction[] = await this.ruleGroupResolutionAction.findAll({
-      where: { deletedAt: null, ruleGroupKey:ruleGroupDetails.ruleGroupKey},
-      include:[{
-        model:ResolutionActionModel
+      where: { deletedAt: null, ruleGroupKey: ruleGroupDetails.ruleGroupKey },
+      include: [{
+        model: ResolutionActionModel
       }],
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });

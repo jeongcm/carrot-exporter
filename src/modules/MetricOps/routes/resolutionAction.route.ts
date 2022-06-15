@@ -30,6 +30,8 @@ class ResolutionActionRoute implements Routes {
       validationMiddleware(UpdateResolutionActionDto, 'body'),
       this.resoltutionActionController.updateResolutionAction,
     );
+
+    this.router.get('/resolutionActions/:ruleGroupId', authMiddleware, this.resoltutionActionController.getResolutionActionByRuleGroupId);
   }
 }
 

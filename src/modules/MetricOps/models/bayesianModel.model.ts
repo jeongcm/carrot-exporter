@@ -65,13 +65,13 @@ export default function (sequelize: Sequelize): typeof BayesianModelTable {
         type: DataTypes.DATE,
       },
       bayesianModelName: {
-        type: DataTypes.STRING(16),
+        type: DataTypes.STRING(100),
       },
       bayesianModelDescription: {
         type: DataTypes.STRING(100),
       },
       bayesianModelStatus: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(2),
       },
       customerAccountKey: {
         type: DataTypes.INTEGER,
