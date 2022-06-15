@@ -15,11 +15,12 @@ const { Op } = require('sequelize');
 class RuleGroupAlertRuleService {
   public tableIdService = new TableIdService();
   public ruleGroup = DB.RuleGroup;
+  public alertRule = DB.AlertRule;
   public ruleGroupAlertRule = DB.RuleGroupAlertRule;
   public alertRuleService = new AlertRuleService();
   public ruleGroupService = new RuleGroupService();
 
-  public async deleteRuleGroupAlertRule(alertRuleKey: number,ruleGroupKey: number) {
+  public async deleteRuleGroupAlertRule(alertRuleKey: number, ruleGroupKey: number) {
     try {
       const deleteRuleGroupData = {
         deletedAt: new Date(),
@@ -27,8 +28,8 @@ class RuleGroupAlertRuleService {
 
       const result = await this.ruleGroupAlertRule.update(deleteRuleGroupData, {
         where: {
-          ruleGroupKey:ruleGroupKey,
-          alertRuleKey:alertRuleKey,
+          ruleGroupKey: ruleGroupKey,
+          alertRuleKey: alertRuleKey,
           deletedAt: {
             [Op.eq]: null,
           },
@@ -46,53 +47,61 @@ class RuleGroupAlertRuleService {
 
   public async unregisterAlertRule(unRegisterAlertRule: UnRegisterRuleGroupAlertRuleDto, partyId: string): Promise<boolean> {
     if (isEmpty(unRegisterAlertRule)) throw new HttpException(400, 'UnRegister RuleGroup AlertRule data is not there');
+    const {alertRuleIds} = unRegisterAlertRule;
     // get alertRuleId from AlertRule table
-    const alertRuleKey: number = await this.alertRuleService.findAlertRuleKeyById(unRegisterAlertRule.alertRuleId);
+    const alertRuleArray = await this.alertRule.findAll(
+      {where: { alertRuleId: { [Op.in]: alertRuleIds } }})
 
     // get ruleGroupId from RuleGroup table
     const ruleGroupData: IRuleGroup = await this.ruleGroupService.findRuleGroupById(unRegisterAlertRule.ruleGroupId);
-    
-    const flag: boolean = await this.deleteRuleGroupAlertRule(alertRuleKey,ruleGroupData.ruleGroupKey);
-    return flag;
+    alertRuleArray.map(async(ruleObj)=>{
+      await this.deleteRuleGroupAlertRule(ruleObj.alertRuleKey, ruleGroupData.ruleGroupKey);
+    })
+   return true
   }
 
-  public async registerAlertRule(ruleGroupAlertRuleData: RuleGroupAlertRuleDto, partyId: string): Promise<IRuleGroupAlertRule> {
+  public async registerAlertRule(ruleGroupAlertRuleData: RuleGroupAlertRuleDto, partyId: string): Promise<IRuleGroupAlertRule[]> {
     if (isEmpty(ruleGroupAlertRuleData)) throw new HttpException(400, 'Register RuleGroup AlertRule cannot be blank');
     const tableIdName: string = 'RuleGroupAlertRule';
+    const { alertRuleIds } = ruleGroupAlertRuleData;
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const ruleGroupAlertRuleId: string = responseTableIdData.tableIdFinalIssued;
     // get alertRuleId from AlertRule table
-    const alertRuleKey: number = await this.alertRuleService.findAlertRuleKeyById(ruleGroupAlertRuleData.alertRuleId);
+    const alertRuleArray = await this.alertRule.findAll(
+      {where: { alertRuleId: { [Op.in]: alertRuleIds } }})
 
     // get ruleGroupId from RuleGroup table
     const ruleGroupData: IRuleGroup = await this.ruleGroupService.findRuleGroupById(ruleGroupAlertRuleData.ruleGroupId);
-
     const currentDate = new Date();
-    const newruleGroupAlertRule = {
-      ruleGroupAlertRuleStatus:ruleGroupAlertRuleData.ruleGroupAlertRuleStatus,
-      alertRuleKey,
-      ruleGroupKey:ruleGroupData.ruleGroupKey,
-      ruleGroupAlertRuleId,
-      createdAt: currentDate,
-      createdBy: partyId,
-    };
-    const newnewruleGroupAlertRuleData: IRuleGroupAlertRule = await this.ruleGroupAlertRule.create(newruleGroupAlertRule);
-    return newnewruleGroupAlertRuleData;
+    const newruleGroupAlertRule = []
+    alertRuleArray.map((alertRule: any)=>{
+
+      newruleGroupAlertRule.push({
+        ruleGroupAlertRuleStatus: ruleGroupAlertRuleData.ruleGroupAlertRuleStatus,
+        alertRuleKey:alertRule.alertRuleKey,
+        ruleGroupKey: ruleGroupData.ruleGroupKey,
+        ruleGroupAlertRuleId,
+        createdAt: currentDate,
+        createdBy: partyId,
+      });
+    })
+    const newRuleGroupAlertRuleData: IRuleGroupAlertRule[] = await this.ruleGroupAlertRule.bulkCreate(newruleGroupAlertRule);
+    return newRuleGroupAlertRuleData;
   }
 
-  public async listRegisterAlertRule(ruleGroupId:string): Promise<IRuleGroupAlertRule[]> {
+  public async listRegisterAlertRule(ruleGroupId: string): Promise<IRuleGroupAlertRule[]> {
     let alertRuleList = [];
-    const ruleGroupDetails = await this.ruleGroup.findOne({where:{ruleGroupId}});
+    const ruleGroupDetails = await this.ruleGroup.findOne({ where: { ruleGroupId } });
     if (isEmpty(ruleGroupDetails)) throw new HttpException(400, ` Rule  Group not found`);
     const allRuleGroupAlertRule: IRuleGroupAlertRule[] = await this.ruleGroupAlertRule.findAll({
-      where: { ruleGroupKey:ruleGroupDetails.ruleGroupKey, deletedAt: null },
-      include:[{
-        model:AlertRuleModel
+      where: { ruleGroupKey: ruleGroupDetails.ruleGroupKey, deletedAt: null },
+      include: [{
+        model: AlertRuleModel
       }],
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
 
-    allRuleGroupAlertRule.map((alertGroup:any)=>{
+    allRuleGroupAlertRule.map((alertGroup: any) => {
       const a = alertGroup.AlertRule;
       alertRuleList.push(alertGroup.AlertRule);
     })

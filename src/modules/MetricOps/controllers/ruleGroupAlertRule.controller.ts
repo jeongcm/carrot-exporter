@@ -14,7 +14,7 @@ class RuleGroupAlertRuleController {
         user: { partyId },
       } = req;
       const ruleGroupAlertRuleData: RuleGroupAlertRuleDto = req.body;
-      const createRuleGroupRuleData: IRuleGroupAlertRule = await this.ruleGroupAlertRuleService.registerAlertRule(ruleGroupAlertRuleData, partyId);
+      const createRuleGroupRuleData: IRuleGroupAlertRule[] = await this.ruleGroupAlertRuleService.registerAlertRule(ruleGroupAlertRuleData, partyId);
       res.status(201).json({ data: createRuleGroupRuleData, message: 'created' });
     } catch (error) {
       next(error);
