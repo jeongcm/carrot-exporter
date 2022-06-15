@@ -8,10 +8,13 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { ResolutionActionModel } from '../models/resolutionAction.model';
 import { IResolutionAction } from '@/common/interfaces/resolutionAction.interface';
 import { SudoryTemplateModel } from '../models/sudoryTemplate.model';
-
+const { Op } = require('sequelize');
+import _ from 'lodash';
 class ResolutionActionService {
   public resolutionAction = DB.ResolutionAction;
   public sudoryTemplate = DB.SudoryTemplate;
+  public ruleGroup = DB.RuleGroup;
+  public ruleGroupResolutionAction = DB.RuleGroupResolutionAction;
   public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
 
@@ -109,6 +112,28 @@ class ResolutionActionService {
     await this.resolutionAction.update(updatedChannelData, { where: { resolutionActionId } });
 
     return await this.findResolutionActionById(resolutionActionId);
+  }
+  public async getResolutionActionByRuleGroupId(ruleGroupId: string) {
+    try {
+      const ruleGroupDetail: any = await this.ruleGroup.findOne({ where: { ruleGroupId } });
+      const ruleGroupResolutionAction = await this.ruleGroupResolutionAction.findAll({
+        where: { deletedAt: { [Op.eq]: null }, ruleGroupKey: ruleGroupDetail.ruleGroupKey }, attributes: ["resolutionActionKey"]
+      });
+      let resolutionActionKeys: any[]
+      if (ruleGroupResolutionAction) {
+        resolutionActionKeys = _.map(ruleGroupResolutionAction, "resolutionActionKey")
+      }
+      const allResolutionAction: IResolutionAction[] = await this.resolutionAction.findAll({
+        where: {
+          deletedAt: null,
+          resolutionActionKey: { [Op.notIn]: resolutionActionKeys }
+        },
+      });
+      return allResolutionAction;
+    } catch (error) {
+      console.log(error)
+      return [];
+    }
   }
 }
 

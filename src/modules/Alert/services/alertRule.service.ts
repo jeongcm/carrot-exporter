@@ -97,7 +97,6 @@ class AlertRuleService {
   public async getAlertRuleByRuleGroupId(ruleGroupId: string) {
     try {
       const ruleGroupDetail: any = await this.ruleGroup.findOne({ where: { ruleGroupId } });
-      console.log("ruleGroupDetail", ruleGroupDetail)
       const ruleGroupAlert = await this.ruleGroupAlertRule.findAll({
         where: { deletedAt: { [Op.eq]: null }, ruleGroupKey: ruleGroupDetail.ruleGroupKey }, attributes: ["alertRuleKey"]
       });
