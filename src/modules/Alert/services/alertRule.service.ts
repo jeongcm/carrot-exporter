@@ -5,9 +5,13 @@ import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
+const { Op } = require('sequelize');
+import _ from 'lodash';
 class AlertRuleService {
   public tableIdService = new TableIdService();
   public alertRule = DB.AlertRule;
+  public ruleGroupAlertRule = DB.RuleGroupAlertRule;
+  public ruleGroup = DB.RuleGroup;
 
   public async getAlertRule(customerAccountKey: number): Promise<IAlertRule[]> {
     const allAlertRules: IAlertRule[] = await this.alertRule.findAll({
@@ -32,7 +36,7 @@ class AlertRuleService {
 
     const findAlertRule: IAlertRule = await this.alertRule.findOne({
       where: { alertRuleId, deletedAt: null },
-      attributes: { exclude: [ 'deletedAt', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
     if (!findAlertRule) throw new HttpException(404, 'NOT_FOUND');
 
@@ -51,9 +55,9 @@ class AlertRuleService {
     return findAlertRule;
   }
 
-  public async getAlertRuleKey(customerAccountKey: number):Promise<number>{
+  public async getAlertRuleKey(customerAccountKey: number): Promise<number> {
     if (isEmpty(customerAccountKey)) throw new HttpException(400, 'customerAccountKey cannot be blank');
-    const alertRuleData: IAlertRule = await this.alertRule.findOne({where:{customerAccountKey}});
+    const alertRuleData: IAlertRule = await this.alertRule.findOne({ where: { customerAccountKey } });
     return alertRuleData.alertRuleKey;
   }
 
@@ -80,7 +84,7 @@ class AlertRuleService {
 
     const currentDate = new Date();
     const newAlertRule = {
-      ... alertRuleData,
+      ...alertRuleData,
       customerAccountKey: customerAccountKey,
       alertRuleId: tempAlertRuleId,
       createdAt: currentDate,
@@ -88,6 +92,29 @@ class AlertRuleService {
     };
     const createAlertRuleData: IAlertRule = await this.alertRule.create(newAlertRule);
     return createAlertRuleData;
+  };
+
+  public async getAlertRuleByRuleGroupId(ruleGroupId: string) {
+    try {
+      const ruleGroupDetail: any = await this.ruleGroup.findOne({ where: { ruleGroupId } });
+      console.log("ruleGroupDetail", ruleGroupDetail)
+      const ruleGroupAlert = await this.ruleGroupAlertRule.findAll({
+        where: { deletedAt: { [Op.eq]: null }, ruleGroupKey: ruleGroupDetail.ruleGroupKey }, attributes: ["alertRuleKey"]
+      });
+      let alertRuleKeys: any[]
+      if (ruleGroupAlert) {
+        alertRuleKeys = _.map(ruleGroupAlert, "alertRuleKey")
+      }
+      const allAlertRules: IAlertRule[] = await this.alertRule.findAll({
+        where: {
+          deletedAt: null,
+          alertRuleKey: { [Op.notIn]: alertRuleKeys }
+        },
+      });
+      return allAlertRules;
+    } catch (error) {
+      return [];
+    }
   }
 
 }

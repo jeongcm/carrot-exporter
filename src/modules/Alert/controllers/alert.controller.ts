@@ -47,11 +47,13 @@ class AlertRuleController extends ControllerExtension {
   public getAllAlertReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const findAllAlertReceived: IAlertReceived[] = await this.alertReceivedService.getAllAlertReceived(customerAccountKey, {
-        query: {
-          alertReceivedName: `${req.query?.name}`,
-        },
-      });
+      const findAllAlertReceived: IAlertReceived[] = await this.alertReceivedService.getAllAlertReceived(customerAccountKey, 
+      // {
+      //   query: {
+      //     alertReceivedName: `${req.query?.name}`,
+      //   },
+      // }
+      );
       res.status(200).json({ data: findAllAlertReceived, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -161,6 +163,16 @@ class AlertRuleController extends ControllerExtension {
       } else {
         res.status(204).json({ data: deletedFlag, message: 'No Content' });
       }
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAlertRuleByRuleGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {params:{ruleGroupId}} = req;
+      const aletRuleList :IAlertRule[]  = await this.alertRuleService.getAlertRuleByRuleGroupId(ruleGroupId);
+      return res.status(200).json({ data: aletRuleList, message: 'findAll' });
     } catch (error) {
       next(error);
     }
