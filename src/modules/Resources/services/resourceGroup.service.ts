@@ -124,6 +124,14 @@ class ResourceGroupService {
     return resourceGroup;
   }
 
+  public async getUserResourceGroupByKey(customerAccountKey: number, resourceGroupKey: number): Promise<IResourceGroup> {
+    const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+      where: { resourceGroupKey, customerAccountKey },
+      //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
+    });
+    return resourceGroup;
+  }
+
   /**
    * @param  {string} customerAccountId
    * @returns Promise

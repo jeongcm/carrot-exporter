@@ -35,6 +35,26 @@ class VictoriaMetricService extends ServiceExtension {
       this.throwError('EXCEPTION', 'failed to call victoria metric server');
     }
   }
-}
+
+  public async query(promQl) {
+    if (isEmpty(promQl)) return this.throwError('EXCEPTION', 'promQL is missing');
+
+    const url = `${this.victoriaEndpoint}/api/v1/query?query=${promQl}`;
+
+    try {
+      const result = await axios({
+        method: 'GET',
+        url: `${url}`,
+      });
+
+      if (result && result.data && result.data.data) {
+        return result.data.data;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      this.throwError('EXCEPTION', 'failed to call victoria metric server');
+    }
+  }}
 
 export default VictoriaMetricService;

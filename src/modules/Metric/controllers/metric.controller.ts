@@ -15,7 +15,6 @@ class MetricController {
       next(error);
     }
   };
-
 }
 
 export default MetricController;

@@ -139,7 +139,6 @@ class ResourceService {
     return resource;
   }
 
-
   /**
    * @param  {string} resourceId
    * @param  {ResourceDto} resourceData
