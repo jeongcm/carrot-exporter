@@ -15,7 +15,7 @@ import { createSemanticDiagnosticsBuilderProgram } from 'typescript';
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
   public resource = DB.Resource;
-  //public resourceSerivce = new ResourceService(); 
+  //public resourceSerivce = new ResourceService();
   public tableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
 
@@ -38,8 +38,8 @@ class ResourceGroupService {
         ...resourceGroupData,
       });
 
-      console.log (createResourceGroup)  
-      const uuid = require('uuid'); 
+      console.log (createResourceGroup)
+      const uuid = require('uuid');
       const apiId = uuid.v1();
       const resourceData = {
         resourceId: apiId,
@@ -72,7 +72,7 @@ class ResourceGroupService {
 
 
       const returnResult = createResourceGroup;
-      
+
       return returnResult;
     } catch (error) {
       throw new HttpException(500, error);
@@ -111,6 +111,14 @@ class ResourceGroupService {
   public async getResourceGroupByUuid(resourceGroupUuid: string): Promise<IResourceGroup> {
     const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
       where: { resourceGroupUuid },
+      //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
+    });
+    return resourceGroup;
+  }
+
+  public async getUserResourceGroupByUuid(customerAccountKey: number, resourceGroupUuid: string): Promise<IResourceGroup> {
+    const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+      where: { resourceGroupUuid, customerAccountKey },
       //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
     });
     return resourceGroup;

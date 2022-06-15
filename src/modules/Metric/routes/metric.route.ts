@@ -10,11 +10,13 @@ import validationMiddleware from '@/common/middlewares/validation.middleware';
 // import AuthService from '@/services/auth.service';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import { MetricMetaDto } from '../dtos/metricMeta.dto';
+import MetricController from '../controllers/metric.controller';
 import MetricMetaController from '../controllers/metricMeta.controller';
 import MetricReceivedController from '../controllers/metricReceived.controller';
 import { MetricReceivedDto } from '../dtos/metricReceived.dto';
 class MetricRoute implements Routes {
   public router = Router();
+  public metricController = new MetricController();
   public metricMetaController = new MetricMetaController();
   public metricReceivedController = new MetricReceivedController();
   // public authservice = new AuthService();
@@ -24,6 +26,8 @@ class MetricRoute implements Routes {
   }
 
   private initializeRoutes() {
+    this.router.post('/metric', authMiddleware, this.metricController.getMetric);
+
     this.router.post('/metric/meta', authMiddleware, validationMiddleware(MetricMetaDto, 'body'), this.metricMetaController.createMetricMeta);
     this.router.get('/metric/meta', authMiddleware, this.metricMetaController.getMetricMeta);
     this.router.put(
