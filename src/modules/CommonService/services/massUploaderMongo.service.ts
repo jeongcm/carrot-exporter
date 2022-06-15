@@ -132,16 +132,11 @@ class massUploaderMongoService {
             throw new HttpException(400, `cluster uuid ${clusterUuid} doesn't exist`);
         }
 
-        
-
         const victoriaMetricsAddress = config.victoriaMetrics.NC_LARI_VM_ADDRESS;
         const victoriaMetricsApiImport = config.victoriaMetrics.NC_LARI_VM_API + clusterUuid;
-        //const victoriaMetricsAddress = "http://127.0.0.1:8428";
-        //const victoriaMetricsApiImport = "/api/v1/import?extra_label=clusterUuid=" + customerAccountKey.toString();
         const apiUrl = victoriaMetricsAddress + victoriaMetricsApiImport;
         var result;
-        console.log(apiUrl);
-        console.log(metricReceivedMassFeed);
+
         await axios(
             {
               method: 'post',
