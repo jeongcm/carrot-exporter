@@ -59,13 +59,13 @@ class ResourceService {
    * @param {number} customerAccountKey
    * @returns Promise
    */
-  public async getAllResources(customerAccountKey: number, query:any): Promise<IResource[]> {
-    const {resourceType, resourceAnomalyMonitor} = query;
-    let whereCondition = { deletedAt: null, customerAccountKey};
-    if(resourceType){
+  public async getAllResources(customerAccountKey: number, query: any): Promise<IResource[]> {
+    const { resourceType, resourceAnomalyMonitor } = query;
+    const whereCondition = { deletedAt: null, customerAccountKey };
+    if (resourceType) {
       whereCondition['resourceType'] = resourceType;
     }
-   if(resourceAnomalyMonitor){
+    if (resourceAnomalyMonitor) {
       whereCondition['resourceAnomalyMonitor'] = resourceAnomalyMonitor;
     }
     const allResource: IResource[] = await this.resource.findAll({
@@ -130,7 +130,7 @@ class ResourceService {
   /**
    * @param  {string} resourceId
    */
-   public async getUserResourceById(customerAccountKey: number, resourceId: string): Promise<IResource> {
+  public async getUserResourceById(customerAccountKey: number, resourceId: string): Promise<IResource> {
     const resource: IResource = await this.resource.findOne({
       where: { resourceId, customerAccountKey },
       attributes: { exclude: ['deletedAt'] },
@@ -188,33 +188,39 @@ class ResourceService {
   public async getResourceByTypeResourceGroupId(resourceType: string[], resourceGroupId: string, query?: any): Promise<IResource[]> {
     const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
-    let resourceKeys = []
+    let resourceKeys = [];
     const resourceQuery = this.getResourceQuery(query);
-    const allMonitoringTarget: IAnomalyMonitoringTarget[] = await this.anamolyTarget.findAll({where:{deletedAt:null}, attributes:["resourceKey"], raw:true});
-    if(allMonitoringTarget){
+    const allMonitoringTarget: IAnomalyMonitoringTarget[] = await this.anamolyTarget.findAll({
+      where: { deletedAt: null },
+      attributes: ['resourceKey'],
+      raw: true,
+    });
+    if (allMonitoringTarget) {
       resourceKeys = this.uniqueData(allMonitoringTarget);
     }
+
+    console.log(query, resourceQuery);
+
     const allResources: IResource[] = await this.resource.findAll({
       where: {
         deletedAt: null,
         resourceType,
         resourceGroupKey: resourceGroupKey,
         [Op.and]: [...resourceQuery],
-        resourceKey:{[Op.notIn]:resourceKeys}
+        resourceKey: { [Op.notIn]: resourceKeys },
       },
     });
-
 
     return allResources;
   }
 
-  public uniqueData = (arrayData:any)=>{
-    let resourseKeys= []
-    for(let i=0; i<arrayData.length; i++){
+  public uniqueData = (arrayData: any) => {
+    const resourseKeys = [];
+    for (let i = 0; i < arrayData.length; i++) {
       resourseKeys.push(arrayData[i].resourceKey);
     }
     return [...new Set(resourseKeys)];
-  }
+  };
 
   /**
    * generates sequelize query object to query resource more efficiently
@@ -223,6 +229,12 @@ class ResourceService {
    */
   private getResourceQuery(query: any) {
     const generatedQuery: any[] = [];
+
+    if (query.searchResourceName && query.searchResourceValue) {
+      generatedQuery.push({
+        [query.searchResourceName]: query.searchResourceValue,
+      });
+    }
 
     if (query.excludeFailed === true) {
       generatedQuery.push({

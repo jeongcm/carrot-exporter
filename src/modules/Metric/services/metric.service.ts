@@ -13,7 +13,7 @@ export interface IMetricQueryBodyQuery {
   resourceId: string;
   start?: string;
   end?: string;
-  step?: number;
+  step?: string;
   resourceGroupUuid?: string;
 }
 
@@ -86,13 +86,13 @@ class MetricService extends ServiceExtension {
             results[name] = {
               ok: true,
               data,
-              promQl,
+              query: promQl,
             };
           } catch (e) {
             results[name] = {
               ok: false,
               reason: e,
-              promQl,
+              query: promQl,
             };
           }
         }),

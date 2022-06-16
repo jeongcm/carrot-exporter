@@ -84,7 +84,7 @@ class ResourceController {
    */
   public getAllResources = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {customerAccountKey, query} = req
+      const { customerAccountKey, query } = req;
       const findAllResourceData: IResource[] = await this.resourceService.getAllResources(customerAccountKey, query);
 
       res.status(200).json({ data: findAllResourceData, message: 'findAll' });
@@ -150,6 +150,7 @@ class ResourceController {
   public getResourceByTypeResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const resourceType: string[] = req.query.resourceType as string[];
     const resourceQuery: any = {
+      ...req.query,
       excludeFailed: req.query.excludeFailed === 'true',
     };
     const resourceGroupId: string = req.params.resourceGroupId;
@@ -195,6 +196,20 @@ class ResourceController {
     }
   };
 
+  public getRelatedResources = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.customerAccountKey;
+      const resourceKey = await this.resourceService.getResourceKeyById(req.params.resourceId);
+
+      // TODO: Define ITopology
+      // Definitely need to add customerAccountKey for security reason
+      const topology: any = await this.topologyService.getRelatedResources(resourceKey, customerAccountKey);
+
+      res.status(200).json({ data: topology, message: 'get all topology' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default ResourceController;

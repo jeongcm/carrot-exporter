@@ -1,8 +1,9 @@
 import DB from '@/database';
 import { IResource } from '@/common/interfaces/resource.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { IRelatedResourceResultDto, IRelatedResource } from '@/common/interfaces/topology.interface';
 import ServiceExtension from '@/common/extentions/service.extension';
-
+import { Op } from 'sequelize';
 class TopologyService extends ServiceExtension {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
@@ -105,6 +106,59 @@ class TopologyService extends ServiceExtension {
     });
 
     return topologyItems;
+  }
+
+  public async getRelatedResources(resourceKey: number, customerAccountKey?: number): Promise<IRelatedResourceResultDto> {
+    const customerAccountKeyWhereInsert: any = customerAccountKey ? { customerAccountKey } : {};
+
+    const resource: IResource = await this.resource.findOne({
+      where: { resourceKey, ...customerAccountKeyWhereInsert },
+    });
+
+    if (!resource) {
+      return this.throwError('EXCEPTION', 'no resource found');
+    }
+
+    const resourceNamespace = resource.resourceType === 'NS' ? resource.resourceName : resource.resourceNamespace;
+    const { resourceGroupKey } = resource;
+
+    const resourcesInSameNs: IResource[] = await this.resource.findAll({
+      where: {
+        customerAccountKey,
+        resourceGroupKey,
+        [Op.or]: [
+          {
+            resourceNamespace,
+          },
+        ],
+      },
+    });
+
+    const flat = this.getFlatResourceList(resourcesInSameNs);
+    const nodes = this.getRelatedResourceNodes(resourcesInSameNs);
+
+    return {
+      namespace: resourceNamespace,
+      nodes,
+      flat,
+    }
+  }
+
+  private getFlatResourceList(resourcesInSameNs: IResource[]): IRelatedResource[] {
+    return resourcesInSameNs.map(({ resourceKey, resourceId, resourceGroupKey, resourceType, resourceName }) => {
+      const related: IRelatedResource = {
+        resourceKey,
+        resourceId,
+        resourceGroupKey,
+        resourceType,
+        resourceName,
+      };
+      return related;
+    });
+  }
+
+  private getRelatedResourceNodes(resources: IResource[]) {
+
   }
 }
 

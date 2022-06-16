@@ -102,4 +102,10 @@ export class ResourceQueryDTO {
   //@isBooleanString()
   @IsOptional()
   public excludeFailed: Boolean;
+
+  @IsOptional()
+  public searchResourceName: string;
+
+  @IsOptional()
+  public searchResourceValue: string;
 }
