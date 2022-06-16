@@ -956,7 +956,7 @@ class executorService {
 
         cronData = { name: "Get MetricMeta",
                     summary: "Get MetricMeta",
-                    cronTab: "* * * * *",
+                    cronTab: "*/5 * * * *",
                     apiUrl: executorServerUrl,
                     apiBody:
                         {
@@ -1181,7 +1181,7 @@ class executorService {
             
             cronData = { name: matricName,
                         summary: matricSummary,
-                        cronTab: "* * * * *",
+                        cronTab: "*/5 * * * *",
                         apiUrl: executorServerUrl,
                         apiBody:
                         {
