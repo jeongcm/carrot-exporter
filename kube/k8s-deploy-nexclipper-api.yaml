@@ -54,6 +54,11 @@ data:
   NC_LARI_MONGO_URL: "mongodb://nc_api:nc_api@ncmongodb.mongodb.svc.cluster.local:27017/nc_api"
   NC_LARI_VM_ADDRESS: "http://vm-victoria-metrics-single-server.vm.svc.cluster.local:8428"
   NC_LARI_VM_API: "/api/v1/import?extra_label=clusterUuid="
+  NC_LARI_DO_BUCKET: "nc-api-storage"
+  NC_LARI_DO_ACCESS_KEY_ID: "6CVTSYBHOIM3OOUN62FI"
+  NC_LARI_DO_SECRET_ACCESS_KEY: "uSlofDZZLNGtPMfZ2NHjrQwt2y0wZ+o1Of7eLuoLh/g"
+  NC_LARI_DO_DEFAULT_REGION: "sgp1"
+  NC_LARI_DO_ENDPOINT: "sgp1.digitaloceanspaces.com"
 ---
 apiVersion: apps/v1
 kind: Deployment
