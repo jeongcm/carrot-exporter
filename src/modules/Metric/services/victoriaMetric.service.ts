@@ -20,6 +20,8 @@ class VictoriaMetricService extends ServiceExtension {
       url = `${url}&step=${step}`;
     }
 
+    console.log('Calling Victoria Metric: ', url);
+
     try {
       const result = await axios({
         method: 'GET',
