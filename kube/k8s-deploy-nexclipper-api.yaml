@@ -57,6 +57,8 @@ data:
   NC_LARI_DO_BUCKET: "nc-api-storage"
   NC_LARI_DO_DEFAULT_REGION: "sgp1"
   NC_LARI_DO_ENDPOINT: "sgp1.digitaloceanspaces.com"
+  NODE_OPTIONS: "--max-old-space-size=8192"
+
 ---
 apiVersion: apps/v1
 kind: Deployment
