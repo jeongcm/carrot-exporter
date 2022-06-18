@@ -192,7 +192,7 @@ class MetricService extends ServiceExtension {
       case 'POD_CPU':
         labelString += getSelectorLabels({
           clusterUuid,
-          node: resource.resourceName,
+          pod: resource.resourceName,
           namespace: resource.resourceNamespace,
         });
         ranged = true;
@@ -212,7 +212,7 @@ class MetricService extends ServiceExtension {
       case 'POD_NETWORK_RX':
         labelString += getSelectorLabels({
           clusterUuid,
-          node: resource.resourceName,
+          pod: resource.resourceName,
         });
         ranged = true;
 
@@ -221,12 +221,40 @@ class MetricService extends ServiceExtension {
       case 'POD_NETWORK_TX':
         labelString += getSelectorLabels({
           clusterUuid,
-          node: resource.resourceName,
+          pod: resource.resourceName,
         });
         ranged = true;
 
         promQl = `sort_desc(sum by (pod) (rate (container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[5m])))`;
         break;
+
+      case 'PV_SPACE_USAGE_USED':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          persistentvolumeclaim: resource.resourcePvClaimRef?.name,
+          namespace: resource.resourcePvClaimRef?.namespace,
+        });
+        ranged = true;
+
+        promQl = `(
+          sum without(instance, node) (topk(1, (kubelet_volume_stats_capacity_bytes{job="kubelet", metrics_path="/metrics", __LABEL_PLACE_HOLDER__})))
+          -
+          sum without(instance, node) (topk(1, (kubelet_volume_stats_available_bytes{job="kubelet", metrics_path="/metrics", __LABEL_PLACE_HOLDER__})))
+        )`;
+        break;
+
+      case 'PV_SPACE_USAGE_FREE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          persistentvolumeclaim: resource.resourcePvClaimRef?.name,
+          namespace: resource.resourcePvClaimRef?.namespace,
+        });
+        ranged = true;
+
+        promQl = `sum without(instance, node) (topk(1, (kubelet_volume_stats_available_bytes{job="kubelet", metrics_path="/metrics", __LABEL_PLACE_HOLDER__})))`;
+        break;
+
+
       case 'NS_container_network_receive_bytes_total':
         labelString += getSelectorLabels({
           clusterUuid,
