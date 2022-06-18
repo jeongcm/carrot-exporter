@@ -39,7 +39,7 @@ class IncidentRoute implements Routes {
     );
     this.router.get('/incidents', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidents);
     this.router.get('/incidents/counts', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidentCounts);
-    this.router.get('/incidents/attachments/:attachmentId',  authMiddleware, createUserLogMiddleware,this.incidentController.getAttachmentById)
+    this.router.get('/incidents/attachments/:attachmentId', authMiddleware, createUserLogMiddleware, this.incidentController.getAttachmentById);
     this.router.get('/incidents/:incidentId', authMiddleware, createUserLogMiddleware, this.incidentController.getIncident);
     this.router.put(
       '/incidents/:incidentId',
@@ -71,11 +71,13 @@ class IncidentRoute implements Routes {
       createUserLogMiddleware,
       this.incidentController.deleteIncidentAction,
     );
-    this.router.get('/incidents/:incidentId/attachments', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidentAttachments);
+    this.router.get('/incidents/:incidentId/attachments', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidentAttachments)
+
+    // UPLOADING
     this.router.post(
       '/incidents/:incidentId/actions/:actionId/attachment',
       authMiddleware,
-      this.upload.single("incidentActionAttachmentFile"),
+      this.upload.single('incidentActionAttachmentFile'),
       validationMiddleware(CreateIncidentActionAttachmentDto, 'body'),
       createUserLogMiddleware,
       this.incidentController.createIncidentActionAttachment,

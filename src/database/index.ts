@@ -95,7 +95,8 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   },
   logQueryParameters: config.nodeEnv === 'development',
   logging: (query, time) => {
-    logger.info(time + 'ms' + ' ' + query);
+    // TODO: find a better way to leave a log
+    // logger.info(time + 'ms' + ' ' + query);
   },
   benchmark: true,
   retry: {

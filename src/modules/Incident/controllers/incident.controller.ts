@@ -296,7 +296,7 @@ class IncidentController {
         actionId,
         actionAttachmentData,
         logginedUserId,
-        incidentActionAttachmentFile
+        incidentActionAttachmentFile,
       );
 
       if (createdActionAttachment) {
@@ -353,7 +353,7 @@ class IncidentController {
       next(error);
     }
   };
-  
+
   public getIncidentAttachments = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
     const incidentId = req.params.incidentId;
