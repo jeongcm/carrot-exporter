@@ -101,7 +101,14 @@ class MetricService extends ServiceExtension {
       return this.throwError('EXCEPTION', e);
     }
 
-    return results;
+    const resultInOrder = {}
+
+    queryBody.query.forEach((query: IMetricQueryBodyQuery) => {
+      const { name } = query;
+      resultInOrder[name] = results[name];
+    });
+
+    return resultInOrder;
   }
 
   private getPromQlFromQuery(query: IMetricQueryBodyQuery, resource?: IResource, resourceGroup?: IResourceGroup) {
