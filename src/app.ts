@@ -15,9 +15,8 @@ import { logger, stream } from '@/common/utils/logger';
 import Passport from './modules/UserTenancy/provider/passport';
 import { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
+import sqlInjection from 'sql-injection';
 
-// RYAN: for git commit, please do not just use wip, as it's impossible to track it in logs. Please at least mark the ticket number:
-// eg: wip: NEX-1123
 class App {
   public port: number;
   public env: string;
@@ -68,6 +67,7 @@ class App {
   private initializeMiddlewares() {
     this.app.use(morgan(config.logFormat, { stream }));
     this.app.use(cors({ origin: config.cors.allowAnyOrigin, credentials: config.cors.credentials }));
+    this.app.use(sqlInjection);
     this.app.use(hpp({ whitelist: ['resourceType', 'query', 'metricReceivedName'] }));
     this.app.use(helmet());
     this.app.use(compression());

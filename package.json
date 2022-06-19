@@ -61,6 +61,7 @@
     "pm2": "^5.2.0",
     "pug": "3.0.2",
     "sequelize": "^6.19.0",
+    "sql-injection": "^0.0.7",
     "swagger-jsdoc": "^6.2.0",
     "swagger-ui-express": "^4.3.0",
     "ts-jest": "^27.1.4",
