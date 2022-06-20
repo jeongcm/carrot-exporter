@@ -1,3 +1,4 @@
+import { IResource } from './resource.interface';
 export interface IRelatedResource {
   resourceKey?: number;
   resourceId: string;
@@ -5,6 +6,7 @@ export interface IRelatedResource {
   resourceGroupId?: string;
   resourceType: string;
   resourceName: string;
+  resource?: IResource;
   relatedResources?: IRelatedResource[];
   parentResources?: IRelatedResource[];
   childResources?: IRelatedResource[];

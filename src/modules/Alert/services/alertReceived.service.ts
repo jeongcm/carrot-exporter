@@ -58,6 +58,9 @@ class AlertReceivedService extends ServiceExtension {
         case 'alertReceivedState':
           where = ` ${op} alert_received_state ${symbol} "${ALERT_STATUS[value.value]}"`;
           break;
+        case 'alertReceivedNode':
+          where = ` ${op} alert_received_node ${symbol} "${value.value}"`;
+          break;
       }
     });
 
