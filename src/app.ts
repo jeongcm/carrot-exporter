@@ -67,7 +67,7 @@ class App {
   private initializeMiddlewares() {
     this.app.use(morgan(config.logFormat, { stream }));
     this.app.use(cors({ origin: config.cors.allowAnyOrigin, credentials: config.cors.credentials }));
-    this.app.use(sqlInjection);
+    //this.app.use(sqlInjection);
     this.app.use(hpp({ whitelist: ['resourceType', 'query', 'metricReceivedName'] }));
     this.app.use(helmet());
     this.app.use(compression());

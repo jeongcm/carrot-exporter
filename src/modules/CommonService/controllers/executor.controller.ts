@@ -237,7 +237,7 @@ class executorController {
       const serviceUuid = req.params.serviceUuid;
       const resultSudoryWebhook: object = await this.executorService.getSudoryWebhook(serviceUuid);
       if (!resultSudoryWebhook) {
-        res.status(404).json({ data: resultSudoryWebhook, message: `no SUdoryWebhook result` });
+        res.status(404).json({ data: resultSudoryWebhook, message: `no sudoryWebhook result` });
         return;
       }
       res.status(200).json({ Data: resultSudoryWebhook, message: `Successfully provide SudoryWebhook result` });
