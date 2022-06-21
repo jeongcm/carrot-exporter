@@ -14,6 +14,6 @@ export interface IRelatedResource {
 
 export interface IRelatedResourceResultDto {
   namespace: string;
-  nodes: IRelatedResource[];
-  flat: IRelatedResource[];
+  nodes: any[];
+  edges: any[];
 }

@@ -61,6 +61,9 @@ class AlertReceivedService extends ServiceExtension {
         case 'alertReceivedNode':
           where = ` ${op} alert_received_node ${symbol} "${value.value}"`;
           break;
+        case 'alertReceivedPod':
+          where = ` ${op} alert_received_pod ${symbol} "${value.value}"`;
+          break;
       }
     });
 
@@ -154,7 +157,7 @@ class AlertReceivedService extends ServiceExtension {
       });
       if (result[0] == 1) {
         return true;
-      }else{
+      } else {
         return false;
       }
     } catch (error) {

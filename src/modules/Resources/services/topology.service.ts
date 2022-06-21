@@ -4,6 +4,9 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IRelatedResourceResultDto, IRelatedResource } from '@/common/interfaces/topology.interface';
 import ServiceExtension from '@/common/extentions/service.extension';
 import { Op } from 'sequelize';
+import createK8sGarph from './create-k8s-graph';
+import createK8sGraph from './create-k8s-graph';
+
 interface IHashedResources {
   [key: string]: IResource;
 }
@@ -171,14 +174,12 @@ class TopologyService extends ServiceExtension {
       },
     });
 
-    const nsFlat = this.getFlatResourceList(resourcesInSameNs);
-    const [nodes, flat] = this.getRelatedResourceNodes(resourceNamespace, targetResource, resourcesInSameNs);
+    const { nodes, edges } = await createK8sGraph(resourcesInSameNs, {});
 
     return {
       namespace: resourceNamespace,
       nodes,
-      flat,
-      nsFlat,
+      edges,
     };
   }
 
@@ -226,13 +227,20 @@ class TopologyService extends ServiceExtension {
       resourceGroupKey,
       resourceType,
       resourceName,
-      // resource: targetResource,
+      resource: targetResource,
       relatedResources: [],
     };
 
     // STEP 2: Decide strategy
     switch (targetType) {
       case 'PD':
+        nodes = this.getResourceRelatedResource(includedIdLabels, nodes, {
+          flat,
+          targetNamespace,
+          pod: targetResource,
+          targetResource,
+          hashedResource,
+        });
         break;
       default:
         pods.forEach((pod: IResource) => {
@@ -264,6 +272,8 @@ class TopologyService extends ServiceExtension {
       const uid = owner.uid;
     });
 
+    let result: any[] = [];
+
     (pod.resourcePodVolume || []).forEach((volume: any) => {
       let target = '';
 
@@ -276,9 +286,9 @@ class TopologyService extends ServiceExtension {
       }
 
       if (targetIdHash === target) {
-        nodes = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
+        result = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
       } else if (targetNameHash === target) {
-        nodes = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
+        result = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
       }
     });
 
@@ -292,14 +302,14 @@ class TopologyService extends ServiceExtension {
         }
 
         if (targetIdHash === target) {
-          nodes = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
+          result = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
         } else if (targetNameHash === target) {
-          nodes = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
+          result = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
         }
       });
     });
 
-    return [nodes, opts.flat];
+    return result;
   }
 
   private getResourceRelatedResource(includedIdLabels, nodes: IRelatedResource, opts: any) {
@@ -324,7 +334,8 @@ class TopologyService extends ServiceExtension {
         }
 
         if (target) {
-          nodes = this.addResourceToNodes(target, includedIdLabels, nodes, opts);
+          const result = this.addResourceToNodes(target, includedIdLabels, nodes, opts);
+          nodes = result[0];
         }
       });
 
@@ -338,7 +349,8 @@ class TopologyService extends ServiceExtension {
           }
 
           if (target) {
-            nodes = this.addResourceToNodes(target, includedIdLabels, nodes, opts);
+            const result = this.addResourceToNodes(target, includedIdLabels, nodes, opts);
+            nodes = result[0];
           }
         });
       });
@@ -354,7 +366,7 @@ class TopologyService extends ServiceExtension {
     console.log('>>', Object.keys(hashedResource));
 
     if (includedIdLabels.indexOf(target) > -1 || !hashedResource[target]) {
-      return nodes;
+      return [nodes, opts.flat];
     }
 
     const resource = hashedResource[target];
@@ -382,7 +394,7 @@ class TopologyService extends ServiceExtension {
       resourceName,
     });
 
-    return nodes;
+    return [nodes, opts.flat];
   }
 }
 
