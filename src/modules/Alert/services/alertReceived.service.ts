@@ -64,8 +64,16 @@ class AlertReceivedService extends ServiceExtension {
         case 'alertReceivedPod':
           where = ` ${op} alert_received_pod ${symbol} "${value.value}"`;
           break;
+        case 'alertReceivedService':
+          where = ` ${op} alert_received_service ${symbol} "${value.value}"`;
+          break;
+        case 'persistentVolumeClaim':
+          where = ` ${op} JSON_CONTAINS(alert_received_labels, '"${value.value}"', '$.persistentvolumeclaim')`;
+          break;
       }
     });
+
+    console.log(where);
 
     return where;
   }
