@@ -29,6 +29,7 @@ export interface IRquestMassUploaderMongo {
     resource_Status: JSON,
     resource_Pod_Phase: string,
     resource_Pod_Container: JSON,
+    resource_Owner_References: JSON,
     resource_Pod_Volume: JSON,
     resource_Replicas: number,
     resource_Sts_volume_Claim_Templates: JSON,
