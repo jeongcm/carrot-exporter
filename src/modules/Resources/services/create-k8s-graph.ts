@@ -39,15 +39,18 @@ export const NAME_PER_TYPE: any = {
 const createK8sGraph = async (resources: any, injectedForNode: any) => {
   if (!resources) {
     return {
-      nodes: [],
-      edges: [],
+      nodes: [
+        {
+          children: [],
+          edges: [],
+        },
+      ],
     };
   }
 
   const resourcePerNodeId: any = {};
 
   // STEP 1: Create nodes[] and data per ID object for STEP 2
-  const nodes: any[] = [];
   const nsNodes: any = {};
 
   (resources || []).map((resource: any, index: number) => {
@@ -113,7 +116,6 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
     }
   });
 
-  const edges: any[] = [];
   const existingEdgeIds: string[] = [];
 
   const addEdge = (namespace: string, edge: any) => {
@@ -253,11 +255,10 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
 
   return {
     nodes: nsNodesArr,
-    edges,
   };
 };
 
-const createNodeId: any = (resource: any) => {
+export const createNodeId: any = (resource: any) => {
   const { resourceType, resourceNamespace } = resource;
 
   switch (resourceType) {

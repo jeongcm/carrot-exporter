@@ -4,8 +4,8 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IRelatedResourceResultDto, IRelatedResource } from '@/common/interfaces/topology.interface';
 import ServiceExtension from '@/common/extentions/service.extension';
 import { Op } from 'sequelize';
-import createK8sGarph from './create-k8s-graph';
 import createK8sGraph from './create-k8s-graph';
+import filterRelatedGraph from './filter-related-graph';
 
 interface IHashedResources {
   [key: string]: IResource;
@@ -174,228 +174,27 @@ class TopologyService extends ServiceExtension {
       },
     });
 
-    const { nodes, edges } = await createK8sGraph(resourcesInSameNs, {});
+    const { nodes } = await createK8sGraph(resourcesInSameNs, {});
+
+    if (!nodes || nodes.length === 0) {
+      return {
+        namespace: resourceNamespace,
+        nodes,
+        relatedNodes: null,
+        flat: [],
+      };
+    }
+
+    const result = filterRelatedGraph(nodes, targetResource);
 
     return {
       namespace: resourceNamespace,
-      nodes,
-      edges,
+      nodes: result.nodes,
+      flat: result.flat,
     };
   }
 
-  private getFlatResourceList(resourcesInSameNs: IResource[]): IRelatedResource[] {
-    return resourcesInSameNs.map(({ resourceKey, resourceId, resourceGroupKey, resourceType, resourceName }) => {
-      const related: IRelatedResource = {
-        resourceKey,
-        resourceId,
-        resourceGroupKey,
-        resourceType,
-        resourceName,
-      };
-      return related;
-    });
-  }
 
-  private getRelatedResourceNodes(targetNamespace: string, targetResource: IResource, resources: IResource[]) {
-    const targetType: string = targetResource.resourceType;
-    const hashedResource: IHashedResources = {};
-    let flat: IHashedResources[] = [];
-    const pods: IResource[] = [];
-
-    // STEP 1: Create a hashmap per id and name and collect pods
-    resources.forEach((resource: IResource) => {
-      const { resourceType, resourceId, resourceName } = resource;
-      const resourceNamespace = resourceType === 'NS' ? resource.resourceName : resource.resourceNamespace;
-      const idHash = `id.${resourceType}.${resourceId}`;
-      const nameHash = `name.${resourceType}.${resourceName}`;
-
-      hashedResource[idHash] = resource;
-      hashedResource[nameHash] = resource;
-      if (resourceType === 'PD') {
-        if (targetType !== 'PD' || (targetType !== 'PD' && resource.resourceId !== targetResource.resourceId)) {
-          pods.push(resource);
-        }
-      }
-    });
-
-    const { resourceKey, resourceId, resourceGroupKey, resourceType, resourceName } = targetResource;
-    const includedIdLabels: string[] = [`id.${resourceType}.${resourceId}`, `name.${resourceType}.${resourceName}`];
-
-    let nodes: IRelatedResource = {
-      resourceKey,
-      resourceId,
-      resourceGroupKey,
-      resourceType,
-      resourceName,
-      resource: targetResource,
-      relatedResources: [],
-    };
-
-    // STEP 2: Decide strategy
-    switch (targetType) {
-      case 'PD':
-        nodes = this.getResourceRelatedResource(includedIdLabels, nodes, {
-          flat,
-          targetNamespace,
-          pod: targetResource,
-          targetResource,
-          hashedResource,
-        });
-        break;
-      default:
-        pods.forEach((pod: IResource) => {
-          const result = this.getPodRelatedResource(includedIdLabels, nodes, {
-            flat,
-            targetNamespace,
-            pod,
-            targetResource,
-            hashedResource,
-          });
-          nodes = result[0];
-          flat = result[1];
-        });
-        break;
-    }
-
-    return [nodes, flat];
-  }
-
-  private getPodRelatedResource(includedIdLabels, nodes: IRelatedResource, opts: any) {
-    const { targetNamespace, pod, targetResource } = opts;
-
-    const podIdHash = `id.${pod.resourceType}.${pod.resourceId}`;
-    const targetIdHash = `id.${targetResource.resourceType}.${targetResource.resourceId}`;
-    const targetNameHash = `name.${targetResource.resourceType}.${targetResource.resourceName}`;
-
-    (pod.resourceOwnerReferences || []).map((owner: any) => {
-      const type = TYPE_PER_NAME[(owner.kind || '').toLowerCase()];
-      const uid = owner.uid;
-    });
-
-    let result: any[] = [];
-
-    (pod.resourcePodVolume || []).forEach((volume: any) => {
-      let target = '';
-
-      if (volume.persistentVolumeClaim) {
-        target = `name.PC.${volume.persistentVolumeClaim.claimName}`;
-      } else if (volume.configMap) {
-        target = `name.CM.${volume.configMap.name}`;
-      } else if (volume.secret) {
-        target = `name.SE.${volume.secret.secretName}`;
-      }
-
-      if (targetIdHash === target) {
-        result = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
-      } else if (targetNameHash === target) {
-        result = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
-      }
-    });
-
-    (pod.resourcePodContainer || []).forEach((container: any) => {
-      let target = '';
-      (container.env || []).forEach((env: any) => {
-        if (env.valueFrom?.configMapKeyRef) {
-          target = `name.CM.${env.valueFrom.configMapKeyRef.name}`;
-        } else if (env.valueFrom?.secretKeyRef) {
-          target = `name.SE.${env.valueFrom.secretKeyRef.name}`;
-        }
-
-        if (targetIdHash === target) {
-          result = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
-        } else if (targetNameHash === target) {
-          result = this.addResourceToNodes(podIdHash, includedIdLabels, nodes, opts);
-        }
-      });
-    });
-
-    return result;
-  }
-
-  private getResourceRelatedResource(includedIdLabels, nodes: IRelatedResource, opts: any) {
-    if (nodes.resourceType === 'PD') {
-      const podIdHash = `id.${nodes.resourceType}.${nodes.resourceId}`;
-      const pod = opts.hashedResource[podIdHash];
-
-      (pod.resourceOwnerReferences || []).map((owner: any) => {
-        const type = TYPE_PER_NAME[(owner.kind || '').toLowerCase()];
-        const uid = owner.uid;
-      });
-
-      (pod.resourcePodVolume || []).forEach((volume: any) => {
-        let target = '';
-
-        if (volume.persistentVolumeClaim) {
-          target = `name.PC.${volume.persistentVolumeClaim.claimName}`;
-        } else if (volume.configMap) {
-          target = `name.CM.${volume.configMap.name}`;
-        } else if (volume.secret) {
-          target = `name.SE.${volume.secret.secretName}`;
-        }
-
-        if (target) {
-          const result = this.addResourceToNodes(target, includedIdLabels, nodes, opts);
-          nodes = result[0];
-        }
-      });
-
-      (pod.resourcePodContainer || []).forEach((container: any) => {
-        let target = '';
-        (container.env || []).forEach((env: any) => {
-          if (env.valueFrom?.configMapKeyRef) {
-            target = `name.CM.${env.valueFrom.configMapKeyRef.name}`;
-          } else if (env.valueFrom?.secretKeyRef) {
-            target = `name.SE.${env.valueFrom.secretKeyRef.name}`;
-          }
-
-          if (target) {
-            const result = this.addResourceToNodes(target, includedIdLabels, nodes, opts);
-            nodes = result[0];
-          }
-        });
-      });
-    }
-
-    return nodes;
-  }
-
-  private addResourceToNodes(target: string, includedIdLabels, nodes, opts: any) {
-    const { hashedResource } = opts;
-
-    console.log('>>', target, includedIdLabels.indexOf(target) > -1, !hashedResource[target]);
-    console.log('>>', Object.keys(hashedResource));
-
-    if (includedIdLabels.indexOf(target) > -1 || !hashedResource[target]) {
-      return [nodes, opts.flat];
-    }
-
-    const resource = hashedResource[target];
-
-    const { resourceKey, resourceId, resourceGroupKey, resourceType, resourceName } = resource;
-
-    let newNodes: IRelatedResource = {
-      resourceKey,
-      resourceId,
-      resourceGroupKey,
-      resourceType,
-      resourceName,
-      relatedResources: [],
-    };
-
-    newNodes = this.getResourceRelatedResource(includedIdLabels, newNodes, opts);
-
-    includedIdLabels.push(target);
-    nodes.relatedResources.push(newNodes);
-    opts.flat.push({
-      resourceKey,
-      resourceId,
-      resourceGroupKey,
-      resourceType,
-      resourceName,
-    });
-
-    return [nodes, opts.flat];
-  }
 }
 
 export default TopologyService;

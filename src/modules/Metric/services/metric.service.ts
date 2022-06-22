@@ -60,6 +60,11 @@ class MetricService extends ServiceExtension {
             if (!resourceGroup) {
               return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupUuid})`);
             }
+          } else if (resourceGroupUuid) {
+            resourceGroup = await this.resourceGroupService.getUserResourceGroupByUuid(customerAccountKey, resourceGroupUuid);
+            if (!resourceGroup) {
+              return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupUuid})`);
+            }
           }
 
           const promQl = this.getPromQlFromQuery(query, resource, resourceGroup);
@@ -261,55 +266,103 @@ class MetricService extends ServiceExtension {
         promQl = `sum without(instance, node) (topk(1, (kubelet_volume_stats_available_bytes{job="kubelet", metrics_path="/metrics", __LABEL_PLACE_HOLDER__})))`;
         break;
 
-
-      case 'NS_container_network_receive_bytes_total':
+      // PD_: start
+      case 'PD_container_network_receive_bytes_total':
         labelString += getSelectorLabels({
           clusterUuid,
           namespace: resource.resourceName,
         });
 
-        promQl = `sum(irate(container_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[4h:5m])) by (pod)`;
+        promQl = `sum(irate(container_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
+        break;
+      case 'PD_container_network_transmit_bytes_total':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resource.resourceName,
+        });
+
+        promQl = `sum(irate(container_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
+        break;
+      case 'PD_container_network_receive_packets_total':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resource.resourceName,
+        });
+
+        promQl = `sum(irate(container_network_receive_packets_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
+        break;
+      case 'PD_container_network_transmit_packets_total':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resource.resourceName,
+        });
+
+        promQl = `sum(irate(container_network_transmit_packets_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
+        break;
+      case 'PD_container_network_receive_packets_dropped_total':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resource.resourceName,
+        });
+
+        promQl = `sum(irate(container_network_receive_packets_dropped_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
+        break;
+      case 'PD_container_network_transmit_packets_dropped_total':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resource.resourceName,
+        });
+
+        promQl = `sum(irate(container_network_transmit_packets_dropped_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
+        break;
+      // NS_: end
+
+      // NS_: start
+      case 'NS_container_network_receive_bytes_total':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sum(irate(container_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (namespace)`;
         break;
       case 'NS_container_network_transmit_bytes_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceName,
         });
 
-        promQl = `sum(irate(container_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[4h:5m])) by (pod)`;
+        promQl = `sum(irate(container_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (namespace)`;
         break;
       case 'NS_container_network_receive_packets_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceName,
         });
 
-        promQl = `sum(irate(container_network_receive_packets_total{__LABEL_PLACE_HOLDER__}[4h:5m])) by (pod)`;
+        promQl = `sum(irate(container_network_receive_packets_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (namespace)`;
         break;
       case 'NS_container_network_transmit_packets_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceName,
         });
 
-        promQl = `sum(irate(container_network_transmit_packets_total{__LABEL_PLACE_HOLDER__}[4h:5m])) by (pod)`;
+        promQl = `sum(irate(container_network_transmit_packets_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (namespace)`;
         break;
       case 'NS_container_network_receive_packets_dropped_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceName,
         });
 
-        promQl = `sum(irate(container_network_receive_packets_dropped_total{__LABEL_PLACE_HOLDER__}[4h:5m])) by (pod)`;
+        promQl = `sum(irate(container_network_receive_packets_dropped_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (namespace)`;
         break;
       case 'NS_container_network_transmit_packets_dropped_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceName,
         });
 
-        promQl = `sum(irate(container_network_transmit_packets_dropped_total{__LABEL_PLACE_HOLDER__}[4h:5m])) by (pod)`;
+        promQl = `sum(irate(container_network_transmit_packets_dropped_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (namespace)`;
         break;
+      // NS_: end
+
+
       case 'NS_RUNNING_PVCS_USED_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
