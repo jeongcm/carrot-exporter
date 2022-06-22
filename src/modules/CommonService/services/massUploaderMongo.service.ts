@@ -7,7 +7,7 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import config from '@config/index';
-import { timeStamp } from 'console';
+
 
 
 class massUploaderMongoService {
@@ -65,8 +65,8 @@ class massUploaderMongoService {
             const result_delete = await resource.updateMany(queryN, {$set: {resource_Active: false, deleted_At: deleted_At}});
             const deletedInfo = {deletedCount: result_delete.modifiedCount}; 
 
-            console.log (deletedInfo); 
-            console.log("query for delete:  ", queryN);
+            //console.log (deletedInfo); 
+            //console.log("query for delete:  ", queryN);
         //update mariadb resource table
             if (result_delete.modifiedCount>0){
                 const resource_delete_maria = await this.resourceService.retireResourceByUuidNotIn(resourceTargetUuidLocal, resource_Type, resourceGroupUuid);
@@ -87,12 +87,12 @@ class massUploaderMongoService {
                 
 
                 const result_update = await resource.findOneAndUpdate(query_search, query_data);
-                console.log ("result_update: ", result_update);
+                //console.log ("result_update: ", result_update);
                 if (result_update.lastErrorObject.updatedExisting){
                     updatedCount=updatedCount+1;
                 // update Mariadb....    
                     const result_update_maria = await this.resourceService.updateResourceByMongoUploader(resourceMassFeed[i]);
-                    console.log(result_update_maria); 
+                //    console.log(result_update_maria); 
                 }
                 else {
                     resourceMassFeed[i].updated_At = "";
@@ -102,7 +102,7 @@ class massUploaderMongoService {
                     if (result_insert.acknowledged){
                         insertedCount = insertedCount + 1;
                         const result_insert_maria = await this.resourceService.createResourcefromMongoUploader(resourceMassFeed[i], resourceGroupKey);
-                        console.log (result_insert_maria); 
+                    //    console.log (result_insert_maria); 
                     }
                 }
             }
