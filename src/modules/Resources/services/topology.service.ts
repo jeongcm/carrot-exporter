@@ -70,20 +70,24 @@ class TopologyService extends ServiceExtension {
 
     await Promise.all(
       accountResourceGroups.map(async (resourceGroup: IResourceGroup) => {
-        const resourceGroupKey: number = resourceGroup.resourceGroupKey;
+        const topology = await this.getResourceGroupTopology(type, resourceGroup, customerAccountKey);
 
-        const topology = await this.getResourceGroupTopology(type, resourceGroupKey, customerAccountKey);
-
-        const { resourceGroupName, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider } = resourceGroup;
+        const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider } = resourceGroup;
 
         topologyPerGroupId[resourceGroup.resourceGroupId] = {
           resourceGroup: {
+            resourceGroupId,
             resourceGroupName,
             resourceGroupDescription,
             resourceGroupPlatform,
             resourceGroupProvider,
           },
-          topology,
+          topology: (topology || []).map((item: any) => {
+            return {
+              ...item,
+              resourceGroupId,
+            };
+          }),
         };
       }),
     );
@@ -91,8 +95,9 @@ class TopologyService extends ServiceExtension {
     return topologyPerGroupId;
   }
 
-  public async getResourceGroupTopology(type: string, resourceGroupKey: number, customerAccountKey: number) {
+  public async getResourceGroupTopology(type: string, resourceGroup: IResourceGroup, customerAccountKey: number) {
     let resourceType: string[] = [];
+    const { resourceGroupKey } = resourceGroup;
 
     switch (type) {
       case 'nodes':
@@ -105,6 +110,7 @@ class TopologyService extends ServiceExtension {
 
     const resources: IResource[] = await this.resource.findAll({
       where: {
+        customerAccountKey,
         resourceGroupKey,
         resourceType,
         deletedAt: null,
@@ -119,7 +125,7 @@ class TopologyService extends ServiceExtension {
       case 'nodes':
         return await this.createNodesTopology(resources);
       case 'ns-services':
-        return await this.createNsServiceTopology(resources);
+        return await this.createNsServiceTopology(resources, resourceGroup);
     }
   }
 
@@ -135,14 +141,17 @@ class TopologyService extends ServiceExtension {
     return topologyItems;
   }
 
-  public async createNsServiceTopology(resources: IResource[]) {
+  public async createNsServiceTopology(resources: IResource[], resourceGroup: IResourceGroup) {
     const topologyItems = [];
 
     resources.forEach((resource: IResource) => {
-      topologyItems.push({
-        id: resource.resourceId,
-        namespace: resource.resourceNamespace,
-      });
+      if (resource.resourceType === 'SV') {
+        topologyItems.push({
+          id: resource.resourceId,
+          namespace: resource.resourceNamespace,
+          resourceGroupId: resourceGroup.resourceGroupId,
+        });
+      }
     });
 
     return topologyItems;
