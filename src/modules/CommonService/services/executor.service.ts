@@ -504,7 +504,6 @@ class executorService {
       const resourceGroup = {resourceGroupPrometheus: prometheus}; 
       // get system user id
 
-
       try {  
         const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId); 
         console.log ("Success to create ResponseGroup: ", ResponseResoureGroup.resourceGroupId)
@@ -516,7 +515,7 @@ class executorService {
       //schedule metricMeta  
       await this.scheduleMetricMeta(clusterUuid
       ).then(async (res: any) =>{
-        console.log(`Submitted metricmeta schedule reqeust on ${clusterUuid} cluster successfully`);
+        console.log(`Submitted metric meta feeds schedule reqeust on ${clusterUuid} cluster successfully`);
       }).catch(error => {
         console.log(error);
         throw new HttpException(500, "Submitted kps chart installation request but fail to schedule MetricMeta; ");
@@ -530,8 +529,7 @@ class executorService {
           console.log(error);
           throw new HttpException(500, "Submitted kps chart installation request but fail to schedule alert feeds; ");
         }); //end of catch
-  
-      
+
       return serviceUuid;
     }          
 

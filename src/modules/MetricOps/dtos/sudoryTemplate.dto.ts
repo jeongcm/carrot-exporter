@@ -17,22 +17,30 @@ export class CreateSudoryTemplateDto {
     @IsOptional()
     public sudoryTemplateArgs: JSON;
 
+    @IsString()
+    @IsOptional()
+    public subscribedChannel: string;
+
 }
 export class UpdateSudoryTemplateDto {
     @IsString()
-   @IsOptional()
+    @IsOptional()
     public sudoryTemplateName: string;
 
     @IsString()
-   @IsOptional()
+    @IsOptional()
     public sudoryTemplateDescription: string;
 
     @IsString()
-   @IsOptional()
+    @IsOptional()
     public sudoryTemplateUuid: string;
 
     @IsObject()
     @IsOptional()
     public sudoryTemplateArgs: JSON;
+
+    @IsString()
+    @IsOptional()
+    public subscribedChannel: string;
 
 }

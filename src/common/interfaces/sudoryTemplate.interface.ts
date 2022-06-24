@@ -10,4 +10,5 @@ export interface ISudoryTemplate {
     sudoryTemplateDescription: string;
     sudoryTemplateUuid: string;
     sudoryTemplateArgs: JSON;
+    subscribedChannel: string;
 }

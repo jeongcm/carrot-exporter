@@ -14,6 +14,7 @@ export type SudoryTemplateAttributes = Optional<
     | 'sudoryTemplateDescription'
     | 'sudoryTemplateUuid'
     | 'sudoryTemplateArgs'
+    | 'subscribedChannel'
 >;
 
 export class SudoryTemplateModel extends Model<ISudoryTemplate, SudoryTemplateAttributes> implements ISudoryTemplate {
@@ -26,9 +27,10 @@ export class SudoryTemplateModel extends Model<ISudoryTemplate, SudoryTemplateAt
     public sudoryTemplateDescription: string;
     public sudoryTemplateUuid: string;
     public sudoryTemplateArgs: JSON;
+    public subscribedChannel: string;
+    public updatedAt!: Date;
 
     public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof SudoryTemplateModel {
@@ -80,6 +82,10 @@ export default function (sequelize: Sequelize): typeof SudoryTemplateModel {
             },
             sudoryTemplateArgs: {
                 type: DataTypes.JSON,
+                allowNull: true
+            },
+            subscribedChannel: {
+                type: DataTypes.STRING(100),
                 allowNull: true
             }
         },
