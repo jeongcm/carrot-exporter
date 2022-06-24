@@ -55,6 +55,7 @@ import RuleGroupAlertRoute from './modules/MetricOps/routes/ruleGroupAlertRule.r
 import AnomalyMonitoringTargetRoute from './modules/MetricOps/routes/monitoringTarget.route';
 import RoleRoute from './modules/Role/routes/role.route';
 import RolePartyRoute from './modules/Role/routes/roleParty.route';
+import SchedulerRoute from './modules/Scheduler/routes/scheduler.route';
 
 const app = new App([
   new IndexRoute(),
@@ -109,6 +110,7 @@ const app = new App([
   new RuleGroupAlertRoute(),
   new RoleRoute(),
   new RolePartyRoute(),
+  new SchedulerRoute(),
 ]);
 
 app.listen();
