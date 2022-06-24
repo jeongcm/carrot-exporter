@@ -327,6 +327,7 @@ class MetricService extends ServiceExtension {
       case 'NS_container_network_receive_bytes_total':
         labelString += getSelectorLabels({
           clusterUuid,
+          namespace: resource?.resourceName,
         });
 
         promQl = `sum(irate(container_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (namespace)`;
@@ -334,6 +335,7 @@ class MetricService extends ServiceExtension {
       case 'NS_container_network_transmit_bytes_total':
         labelString += getSelectorLabels({
           clusterUuid,
+          namespace: resource?.resourceName,
         });
 
         promQl = `sum(irate(container_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (namespace)`;
