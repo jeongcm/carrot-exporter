@@ -1222,7 +1222,7 @@ class executorService {
             let targetJob = DistinctJobList[i].metricMetaTargetJob
             let matricQuery = `{job="` + targetJob + `"}`;
             let matricName = "MetricReceived-" + targetJob; 
-            let matricSummary = "MetricReceived-" + targetJob;
+            let matricSummary = targetJob;
             
             cronData = { name: matricName,
                         summary: matricSummary,
