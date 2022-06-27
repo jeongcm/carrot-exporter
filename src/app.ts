@@ -27,7 +27,6 @@ class App {
     this.port = Number(config.appPort);
     this.env = config.nodeEnv;
 
-    // this.connectToDatabase();
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
@@ -51,17 +50,6 @@ class App {
 
   public getServer() {
     return this.app;
-  }
-
-  private connectToDatabase() {
-    DB.sequelize
-      .sync({ force: false })
-      .then(() => {
-        console.log('Database connected successfully');
-      })
-      .catch(err => {
-        console.log(err);
-      });
   }
 
   private initializeMiddlewares() {

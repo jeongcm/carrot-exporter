@@ -54,7 +54,6 @@ export interface IResource {
   resourceOwnerReferences: JSON;
 }
 
-
 export interface IResourceTargetUuid {
   resourceTargetUuid: string;
 }

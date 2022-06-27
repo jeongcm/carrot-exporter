@@ -42,11 +42,10 @@ export class AlertRuleModel extends Model<IAlertRule, AlertRuleCreationAttribute
   public alertRuleSummary: string;
   public alertRuleRunbook: string;
   public resourceGroupUuid: string;
-  
+
   public updatedAt: Date;
 
   public readonly createdAt!: Date;
-  
 }
 
 export default function (sequelize: Sequelize): typeof AlertRuleModel {

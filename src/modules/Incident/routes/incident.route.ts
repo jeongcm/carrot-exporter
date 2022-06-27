@@ -78,7 +78,7 @@ class IncidentRoute implements Routes {
       '/incidents/:incidentId/actions/:actionId/attachment',
       authMiddleware,
       this.upload.single('incidentActionAttachmentFile'),
-      validationMiddleware(CreateIncidentActionAttachmentDto, 'body'),
+      validationMiddleware(CreateIncidentActionAttachmentDto, 'body'), // Temporarily disabled. we need to be able to check the form data
       createUserLogMiddleware,
       this.incidentController.createIncidentActionAttachment,
     );
