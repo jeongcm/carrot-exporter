@@ -27,6 +27,22 @@ class SchedulerController {
     }
   };
 
+  public getSchedulerByClusterId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const clusterId = req.params.clusterId;
+
+      const getSchedulerResult = await this.schedulerService.getSchedulerByClusterId(clusterId);
+
+      if (!getSchedulerResult) {
+        return res.sendStatus(404);
+      }
+
+      res.status(200).json({ data: getSchedulerResult, message: `scheduler list of cluster: ${clusterId}` });
+    } catch (error) {
+      next(error);
+    }
+  };  
+
   public createScheduler = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
     const createSchedulerData = req.body;

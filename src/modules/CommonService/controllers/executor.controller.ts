@@ -79,8 +79,9 @@ class executorController {
   public checkExecutorClient = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterUuid = req.params.clusterUuid;
+      const customerAccountKey = req.customerAccountKey;
 
-      const clientResponse: IExecutorClientCheck = await this.executorService.checkExecutorClient(clusterUuid);
+      const clientResponse: IExecutorClientCheck = await this.executorService.checkExecutorClient(clusterUuid, customerAccountKey);
 
       if (clientResponse) {
         res
@@ -103,9 +104,10 @@ class executorController {
     try {
       const clusterUuid = req.body.clusterUuid;
       const targetNamespace = req.body.targetNamespace;
+      const customerAccountKey = req.customerAccountKey;
       const systemId = req.systemId;
 
-      const serviceUuid: string = await this.executorService.installKpsOnResourceGroup(clusterUuid, targetNamespace, systemId);
+      const serviceUuid: string = await this.executorService.installKpsOnResourceGroup(clusterUuid, customerAccountKey, targetNamespace, systemId);
       res
         .status(200)
         .json({ serviceUuid: serviceUuid, message: `Successfullyt submit kps stack installation service request on cluserUuid: ${clusterUuid}` });
@@ -147,8 +149,9 @@ class executorController {
     try {
       const clusterUuid = req.body.clusterUuid;
       //const targetNamespace = req.body.targetNamespace;
+      const customerAccountKey = req.customerAccountKey;
 
-      const cronJobKey: string = await this.executorService.scheduleMetricMeta(clusterUuid);
+      const cronJobKey: string = await this.executorService.scheduleMetricMeta(clusterUuid, customerAccountKey);
       res.status(200).json({ cronJobResult: cronJobKey, message: `Successfullyt schedule metric meta job` });
     } catch (error) {
       next(error);
@@ -162,7 +165,8 @@ class executorController {
   public scheduleAlert = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterUuid = req.body.clusterUuid;
-      const cronJobKey: string = await this.executorService.scheduleAlert(clusterUuid);
+      const customerAccountKey = req.customerAccountKey;
+      const cronJobKey: string = await this.executorService.scheduleAlert(clusterUuid, customerAccountKey);
       res.status(200).json({ cronJobResult: cronJobKey, message: `Successfullyt schedule alert job` });
     } catch (error) {
       next(error);
@@ -178,8 +182,9 @@ class executorController {
     try {
       const clusterUuid = req.body.clusterUuid;
       //const targetNamespace = req.body.targetNamespace;
+      const customerAccountKey = req.customerAccountKey;
 
-      const cronJobKey: object = await this.executorService.scheduleMetricReceived(clusterUuid);
+      const cronJobKey: object = await this.executorService.scheduleMetricReceived(clusterUuid, customerAccountKey);
       res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule metric received jobs` });
     } catch (error) {
       next(error);
@@ -196,8 +201,9 @@ class executorController {
       const clusterUuid = req.body.clusterUuid;
       const resourceType = req.body.resourceType;
       const cronTab = req.body.cronTab;
+      const customerAccountKey = req.customerAccountKey;
 
-      const cronJobKey: string = await this.executorService.scheduleResource(clusterUuid, resourceType, cronTab);
+      const cronJobKey: string = await this.executorService.scheduleResource(clusterUuid, customerAccountKey, resourceType, cronTab);
       res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule resource interfaces` });
     } catch (error) {
       next(error);
@@ -263,6 +269,25 @@ class executorController {
       next(error);
     }
   };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+   public syncMetricReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const clusterUuid = req.body.clusterUuid;
+      const customerAccountKey = req.customerAccountKey; 
+      
+      const serviceOutput: any = await this.executorService.syncMetricReceived(clusterUuid, customerAccountKey);
+      if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
+      res.status(200).json({ Data: serviceOutput, message: `Sync metric Successful.` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
 } // end of class
 
 export default executorController;

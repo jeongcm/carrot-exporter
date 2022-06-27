@@ -2239,32 +2239,34 @@
 <!-- SudoryTemplate -->
 <g id="node51" class="node">
 <title>SudoryTemplate</title>
-<polygon fill="#add8e6" stroke="transparent" points="2661.6304,-1247.9992 2661.6304,-1269.9992 2824.6304,-1269.9992 2824.6304,-1247.9992 2661.6304,-1247.9992"/>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1247.9992 2661.6304,-1269.9992 2824.6304,-1269.9992 2824.6304,-1247.9992 2661.6304,-1247.9992"/>
-<text text-anchor="start" x="2709.8049" y="-1256.9992" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">SudoryTemplate</text>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1225.9992 2661.6304,-1247.9992 2824.6304,-1247.9992 2824.6304,-1225.9992 2661.6304,-1225.9992"/>
-<text text-anchor="start" x="2666.6304" y="-1234.9992" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">sudoryTemplateKey</text>
-<text text-anchor="start" x="2748.2694" y="-1234.9992" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1203.9992 2661.6304,-1225.9992 2824.6304,-1225.9992 2824.6304,-1203.9992 2661.6304,-1203.9992"/>
-<text text-anchor="start" x="2666.6304" y="-1211.9992" font-family="Times,serif" font-size="10.00" fill="#000000">sudoryTemplateId: STRING</text>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1181.9992 2661.6304,-1203.9992 2824.6304,-1203.9992 2824.6304,-1181.9992 2661.6304,-1181.9992"/>
-<text text-anchor="start" x="2666.6304" y="-1189.9992" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1159.9992 2661.6304,-1181.9992 2824.6304,-1181.9992 2824.6304,-1159.9992 2661.6304,-1159.9992"/>
-<text text-anchor="start" x="2666.6304" y="-1167.9992" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1137.9992 2661.6304,-1159.9992 2824.6304,-1159.9992 2824.6304,-1137.9992 2661.6304,-1137.9992"/>
-<text text-anchor="start" x="2666.6304" y="-1145.9992" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1115.9992 2661.6304,-1137.9992 2824.6304,-1137.9992 2824.6304,-1115.9992 2661.6304,-1115.9992"/>
-<text text-anchor="start" x="2666.6304" y="-1123.9992" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1093.9992 2661.6304,-1115.9992 2824.6304,-1115.9992 2824.6304,-1093.9992 2661.6304,-1093.9992"/>
-<text text-anchor="start" x="2666.6304" y="-1101.9992" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1071.9992 2661.6304,-1093.9992 2824.6304,-1093.9992 2824.6304,-1071.9992 2661.6304,-1071.9992"/>
-<text text-anchor="start" x="2666.6304" y="-1079.9992" font-family="Times,serif" font-size="10.00" fill="#000000">sudoryTemplateName: STRING</text>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1049.9992 2661.6304,-1071.9992 2824.6304,-1071.9992 2824.6304,-1049.9992 2661.6304,-1049.9992"/>
-<text text-anchor="start" x="2666.6224" y="-1057.9992" font-family="Times,serif" font-size="10.00" fill="#000000">sudoryTemplateDescription: STRING</text>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1027.9992 2661.6304,-1049.9992 2824.6304,-1049.9992 2824.6304,-1027.9992 2661.6304,-1027.9992"/>
-<text text-anchor="start" x="2666.6304" y="-1035.9992" font-family="Times,serif" font-size="10.00" fill="#000000">sudoryTemplateUuid: STRING</text>
-<polygon fill="none" stroke="#000000" points="2661.6304,-1005.9992 2661.6304,-1027.9992 2824.6304,-1027.9992 2824.6304,-1005.9992 2661.6304,-1005.9992"/>
-<text text-anchor="start" x="2666.6304" y="-1013.9992" font-family="Times,serif" font-size="10.00" fill="#000000">sudoryTemplateArgs: JSON</text>
+<polygon fill="#add8e6" stroke="transparent" points="2661.6304,-1258.9992 2661.6304,-1280.9992 2824.6304,-1280.9992 2824.6304,-1258.9992 2661.6304,-1258.9992"/>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1258.9992 2661.6304,-1280.9992 2824.6304,-1280.9992 2824.6304,-1258.9992 2661.6304,-1258.9992"/>
+<text text-anchor="start" x="2709.8049" y="-1267.9992" font-family="Times,serif" font-weight="bold" font-size="10.00" fill="#000000">SudoryTemplate</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1236.9992 2661.6304,-1258.9992 2824.6304,-1258.9992 2824.6304,-1236.9992 2661.6304,-1236.9992"/>
+<text text-anchor="start" x="2666.6304" y="-1245.9992" font-family="Times,serif" text-decoration="underline" font-size="10.00" fill="#000000">sudoryTemplateKey</text>
+<text text-anchor="start" x="2748.2694" y="-1245.9992" font-family="Times,serif" font-size="10.00" fill="#000000">: NUMBER</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1214.9992 2661.6304,-1236.9992 2824.6304,-1236.9992 2824.6304,-1214.9992 2661.6304,-1214.9992"/>
+<text text-anchor="start" x="2666.6304" y="-1222.9992" font-family="Times,serif" font-size="10.00" fill="#000000">sudoryTemplateId: STRING</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1192.9992 2661.6304,-1214.9992 2824.6304,-1214.9992 2824.6304,-1192.9992 2661.6304,-1192.9992"/>
+<text text-anchor="start" x="2666.6304" y="-1200.9992" font-family="Times,serif" font-size="10.00" fill="#000000">createdBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1170.9992 2661.6304,-1192.9992 2824.6304,-1192.9992 2824.6304,-1170.9992 2661.6304,-1170.9992"/>
+<text text-anchor="start" x="2666.6304" y="-1178.9992" font-family="Times,serif" font-size="10.00" fill="#000000">updatedBy: STRING</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1148.9992 2661.6304,-1170.9992 2824.6304,-1170.9992 2824.6304,-1148.9992 2661.6304,-1148.9992"/>
+<text text-anchor="start" x="2666.6304" y="-1156.9992" font-family="Times,serif" font-size="10.00" fill="#000000">createdAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1126.9992 2661.6304,-1148.9992 2824.6304,-1148.9992 2824.6304,-1126.9992 2661.6304,-1126.9992"/>
+<text text-anchor="start" x="2666.6304" y="-1134.9992" font-family="Times,serif" font-size="10.00" fill="#000000">updatedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1104.9992 2661.6304,-1126.9992 2824.6304,-1126.9992 2824.6304,-1104.9992 2661.6304,-1104.9992"/>
+<text text-anchor="start" x="2666.6304" y="-1112.9992" font-family="Times,serif" font-size="10.00" fill="#000000">deletedAt: DATE</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1082.9992 2661.6304,-1104.9992 2824.6304,-1104.9992 2824.6304,-1082.9992 2661.6304,-1082.9992"/>
+<text text-anchor="start" x="2666.6304" y="-1090.9992" font-family="Times,serif" font-size="10.00" fill="#000000">sudoryTemplateName: STRING</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1060.9992 2661.6304,-1082.9992 2824.6304,-1082.9992 2824.6304,-1060.9992 2661.6304,-1060.9992"/>
+<text text-anchor="start" x="2666.6224" y="-1068.9992" font-family="Times,serif" font-size="10.00" fill="#000000">sudoryTemplateDescription: STRING</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1038.9992 2661.6304,-1060.9992 2824.6304,-1060.9992 2824.6304,-1038.9992 2661.6304,-1038.9992"/>
+<text text-anchor="start" x="2666.6304" y="-1046.9992" font-family="Times,serif" font-size="10.00" fill="#000000">sudoryTemplateUuid: STRING</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-1016.9992 2661.6304,-1038.9992 2824.6304,-1038.9992 2824.6304,-1016.9992 2661.6304,-1016.9992"/>
+<text text-anchor="start" x="2666.6304" y="-1024.9992" font-family="Times,serif" font-size="10.00" fill="#000000">sudoryTemplateArgs: JSON</text>
+<polygon fill="none" stroke="#000000" points="2661.6304,-994.9992 2661.6304,-1016.9992 2824.6304,-1016.9992 2824.6304,-994.9992 2661.6304,-994.9992"/>
+<text text-anchor="start" x="2666.6304" y="-1002.9992" font-family="Times,serif" font-size="10.00" fill="#000000">subscribedChannel: STRING</text>
 </g>
 <!-- ResolutionAction&#45;&gt;SudoryTemplate -->
 <g id="edge53" class="edge">

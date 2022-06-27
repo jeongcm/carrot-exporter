@@ -12,14 +12,15 @@ import ResourceGroupService from '@/modules/Resources/services/resourceGroup.ser
 //import { isBreakOrContinueStatement } from 'typescript';
 //import { template } from 'lodash';
 import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
-import {SudoryWebhookModel} from'@/modules/CommonService/models/exectuor.model';
-import { response } from 'express';
+import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
+
 
 class executorService {
 //    public tableIdService = new TableIdService();
     public customerAccountService = new CustomerAccountService();
     public resourceGroupService = new ResourceGroupService();
     public MetricMetaService = new MetricMetaService();
+    public schedulerService = new SchedulerService();
     public sudoryWebhook = DB.SudoryWebhook; 
 
   /**
@@ -129,7 +130,6 @@ class executorService {
     const resourceGroupPlatform = requestExecutorClient.resourceGroupPlatform;
 
     const customerAccountData = await this.customerAccountService.getCustomerAccountById(customerAccountId);
-
     if (!customerAccountData) {
       throw new HttpException(404, `customerAccountId ${customerAccountId} not found`);
      }
@@ -210,7 +210,7 @@ class executorService {
   /**
    * @param  {string} clusterUuid
    */
-   public async checkExecutorClient(clusterUuid: string): Promise<IExecutorClientCheck> {
+   public async checkExecutorClient(clusterUuid: string, customerAccountKey: number): Promise<IExecutorClientCheck> {
         var clientUuid = "";
         var resourceJobKey = [];
         var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
@@ -233,6 +233,9 @@ class executorService {
             console.log(error);
             throw new HttpException(500, "Unknown error while searching executor/sudory client");
         });
+
+
+
 
 
         const d = new Date();
@@ -298,11 +301,10 @@ class executorService {
         const newCrontab12 = " */10 * * * *";
         const newCrontab13 = " */10 * * * *";
         const newCrontab14 = " */10 * * * *";
-        const newCrontab15 = " */10 * * * *";
-
+        const newCrontab15 = " */10 * * * *";  
 
     // scheduleResource - node
-        await this.scheduleResource(clusterUuid, "ND", newCrontab1
+        await this.scheduleResource(clusterUuid, customerAccountKey, "ND", newCrontab1
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "ND", cronKey: res});
             console.log(`Submitted resource ND schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -312,7 +314,7 @@ class executorService {
         }); //end of catch
 
     // scheduleResource - namespace
-        await this.scheduleResource(clusterUuid, "NS", newCrontab2
+        await this.scheduleResource(clusterUuid, customerAccountKey,  "NS", newCrontab2
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "NS", cronKey: res});           
             console.log(`Submitted resource NS schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -322,7 +324,7 @@ class executorService {
         }); //end of catch        
 
     // scheduleResource - service
-        await this.scheduleResource(clusterUuid, "SV", newCrontab3
+        await this.scheduleResource(clusterUuid, customerAccountKey,  "SV", newCrontab3
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "SV", cronKey: res});    
             console.log(`Submitted resource SV schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -332,7 +334,7 @@ class executorService {
         }); //end of catch        
 
     // scheduleResource - Endpoint
-        await this.scheduleResource(clusterUuid, "EP", newCrontab4
+        await this.scheduleResource(clusterUuid, customerAccountKey, "EP", newCrontab4
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "EP", cronKey: res});            
             console.log(`Submitted resource EP schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -342,7 +344,7 @@ class executorService {
         }); //end of catch        
 
     // scheduleResource - pod
-        await this.scheduleResource(clusterUuid, "PD", newCrontab5
+        await this.scheduleResource(clusterUuid, customerAccountKey, "PD", newCrontab5
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "PD", cronKey: res});       
             console.log(`Submitted resource PD schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -352,7 +354,7 @@ class executorService {
         }); //end of catch
 
     // scheduleResource - deployment
-        await this.scheduleResource(clusterUuid, "DP", newCrontab6
+        await this.scheduleResource(clusterUuid, customerAccountKey, "DP", newCrontab6
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "DP", cronKey: res});        
             console.log(`Submitted resource DP schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -362,7 +364,7 @@ class executorService {
         }); //end of catch        
 
     // scheduleResource - daemonset
-        await this.scheduleResource(clusterUuid, "DS", newCrontab7
+        await this.scheduleResource(clusterUuid, customerAccountKey,  "DS", newCrontab7
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "DS", cronKey: res});            
             console.log(`Submitted resource DS schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -372,7 +374,7 @@ class executorService {
         }); //end of catch        
 
     // scheduleResource - replicaset
-        await this.scheduleResource(clusterUuid, "RS", newCrontab8
+        await this.scheduleResource(clusterUuid, customerAccountKey,  "RS", newCrontab8
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "RS", cronKey: res});            
             console.log(`Submitted resource RS schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -383,7 +385,7 @@ class executorService {
 
         // scheduleResource - statefulset
     //  await this.scheduleResource(clusterUuid, "SS"
-    this.scheduleResource(clusterUuid, "SS", newCrontab9
+    this.scheduleResource(clusterUuid, customerAccountKey, "SS", newCrontab9
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "SS", cronKey: res});            
             console.log(`Submitted resource SS schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -393,7 +395,7 @@ class executorService {
         }); //end of catch        
 
     // scheduleResource - pvc
-        await this.scheduleResource(clusterUuid, "PC", newCrontab10
+        await this.scheduleResource(clusterUuid, customerAccountKey,  "PC", newCrontab10
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "PC", cronKey: res});            
             console.log(`Submitted resource PC schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -403,7 +405,7 @@ class executorService {
         }); //end of catch        
 
     // scheduleResource - Secret
-        await this.scheduleResource(clusterUuid, "SE", newCrontab11
+        await this.scheduleResource(clusterUuid, customerAccountKey, "SE", newCrontab11
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "SE", cronKey: res});            
             console.log(`Submitted resource SE schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -413,7 +415,7 @@ class executorService {
         }); //end of catch        
 
     // scheduleResource - Configmap
-        await this.scheduleResource(clusterUuid, "CM", newCrontab12
+        await this.scheduleResource(clusterUuid, customerAccountKey, "CM", newCrontab12
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "CM", cronKey: res});            
             console.log(`Submitted resource CM schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -423,7 +425,7 @@ class executorService {
         }); //end of catch        
 
     // scheduleResource - PV
-        await this.scheduleResource(clusterUuid, "PV", newCrontab13
+        await this.scheduleResource(clusterUuid, customerAccountKey, "PV", newCrontab13
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "PV", cronKey: res});            
             console.log(`Submitted resource PV schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -433,7 +435,7 @@ class executorService {
         }); //end of catch        
 
     // scheduleResource - Storage Class
-        await this.scheduleResource(clusterUuid, "SC", newCrontab14
+        await this.scheduleResource(clusterUuid, customerAccountKey, "SC", newCrontab14
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "SC", cronKey: res});            
             console.log(`Submitted resource SC schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -443,7 +445,7 @@ class executorService {
         }); //end of catch        
 
     // scheduleResource - Ingress
-        await this.scheduleResource(clusterUuid, "IG", newCrontab15
+        await this.scheduleResource(clusterUuid, customerAccountKey, "IG", newCrontab15
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "IG", cronKey: res});            
             console.log(`Submitted resource IG schedule reqeust on ${clusterUuid} cluster successfully`);
@@ -461,10 +463,11 @@ class executorService {
    * @param {string} clusterUuid
    * @param {string} targetNamespace 
    */
-    public async installKpsOnResourceGroup(clusterUuid: string, targetNamespace: string, systemId: string ): Promise<string> {
+    public async installKpsOnResourceGroup(clusterUuid: string, customerAccountKey: number, targetNamespace: string, systemId: string ): Promise<string> {
 
       var serviceUuid ="";
       var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+
       const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
       const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
       const sudoryServiceData = {cluster_uuid: clusterUuid, 
@@ -513,22 +516,32 @@ class executorService {
         }     
 
       //schedule metricMeta  
-      await this.scheduleMetricMeta(clusterUuid
+      await this.scheduleMetricMeta(clusterUuid, customerAccountKey,
       ).then(async (res: any) =>{
         console.log(`Submitted metric meta feeds schedule reqeust on ${clusterUuid} cluster successfully`);
       }).catch(error => {
         console.log(error);
-        throw new HttpException(500, "Submitted kps chart installation request but fail to schedule MetricMeta; ");
+        throw new HttpException(500, "Submitted kps chart installation request but fail to schedule MetricMeta ");
       }); //end of catch
  
       //schedule alert rules & received
-      await this.scheduleAlert(clusterUuid
+      await this.scheduleAlert(clusterUuid, customerAccountKey
         ).then(async (res: any) =>{
           console.log(`Submitted alert feeds schedule reqeust on ${clusterUuid} cluster successfully`);
         }).catch(error => {
           console.log(error);
-          throw new HttpException(500, "Submitted kps chart installation request but fail to schedule alert feeds; ");
+          throw new HttpException(500, "Submitted kps chart installation request but fail to schedule alert feeds ");
         }); //end of catch
+
+      //schedule sync task for metricReceived
+      await this.syncMetricReceived(clusterUuid, customerAccountKey
+        ).then(async (res: any) =>{
+            console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
+          }).catch(error => {
+            console.log(error);
+            throw new HttpException(500, "Submitted kps chart installation request but fail to schedule metric-received sync");
+          }); //end of catch
+  
 
       return serviceUuid;
     }          
@@ -537,7 +550,7 @@ class executorService {
    * @param {string} clusterUuid
    * @param {string} targetNamespace 
    */
-       public async postExecuteService(clusterUuid:string, argsUrl:string, stepQuery:string  ): Promise<string> {
+    public async postExecuteService(clusterUuid:string, argsUrl:string, stepQuery:string  ): Promise<string> {
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const sudoryServiceData = {
           cluster_uuid: clusterUuid,
@@ -572,7 +585,7 @@ class executorService {
           });
           console.log(serviceData)
         return serviceData;
-      }          
+    }          
   
   /**
    * @param {ExecutorResourceDto} resourceInputData
@@ -936,7 +949,7 @@ class executorService {
    * @param {string} targetNamespace
    */
 
-   public async scheduleMetricMeta(clusterUuid: string): Promise<string> {
+   public async scheduleMetricMeta(clusterUuid: string, customerAccountKey: number): Promise<string> {
 
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const cronUrl = config.ncCronApiDetail.baseURL; 
@@ -945,6 +958,12 @@ class executorService {
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
         var cronJobKey;
+
+        //get customerAccountId
+        const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
+        if (!customerAccountData) {
+          throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
+         }    
 
         const responseResourceGroup: IResourceGroup =  await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
         if (!responseResourceGroup) {
@@ -955,6 +974,9 @@ class executorService {
         cronData = { name: "Get MetricMeta",
                     summary: "Get MetricMeta",
                     cronTab: "*/5 * * * *",
+                    clusterId: clusterUuid,
+                    reRunRequire: true,
+                    accountId: customerAccountData.customerAccountId,
                     apiUrl: executorServerUrl,
                     apiBody:
                         {
@@ -1000,7 +1022,7 @@ class executorService {
    * @param {string} targetNamespace
    */
 
-     public async scheduleAlert(clusterUuid: string): Promise<string> {
+     public async scheduleAlert(clusterUuid: string, customerAccountKey: number): Promise<string> {
 
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
@@ -1009,6 +1031,12 @@ class executorService {
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
         var cronJobKey;
+
+        //get customerAccountId
+        const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
+        if (!customerAccountData) {
+          throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
+         }    
 
         const responseResourceGroup: IResourceGroup =  await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
         if (!responseResourceGroup) {
@@ -1021,6 +1049,9 @@ class executorService {
                     summary: "Get Alert Rules & Alert Received",
                     cronTab: "* * * * *",
                     apiUrl: executorServerUrl,
+                    reRunRequire: true,
+                    clusterId: clusterUuid,
+                    accountId: customerAccountData.customerAccountId,
                     apiBody:
                         {
                             cluster_uuid: clusterUuid,
@@ -1061,7 +1092,7 @@ class executorService {
    * @param {string} clusterUuid
    * @param {string} resourceType
    */
-    public async scheduleResource(clusterUuid: string, resourceType: string, newCrontab: string): Promise<string> {
+    public async scheduleResource(clusterUuid: string, customerAccountKey: number, resourceType: string, newCrontab: string): Promise<string> {
 
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
@@ -1070,6 +1101,13 @@ class executorService {
         const subscribed_channel = config.sudoryApiDetail.channel_resource;
         var cronData;
         var cronJobKey;
+
+        //get customerAccountId
+        const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
+        if (!customerAccountData) {
+          throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
+         }    
+
         //sudory template uuid
         const resource_template = [
          {resourceName: "Service", resourceType: "SV", template_uuid:  "00000000000000000000000000000020"},  //service
@@ -1107,6 +1145,9 @@ class executorService {
                     summary: scheduleSummary,
                     cronTab: newCrontab,
                     apiUrl: executorServerUrl,
+                    reRunRequire: true,
+                    clusterId: clusterUuid,
+                    accountId: customerAccountData.customerAccountId,
                     apiBody:
                         {
                             cluster_uuid: clusterUuid,
@@ -1146,7 +1187,7 @@ class executorService {
    /**
    * @param {string} clusterUuid
    */
-    public async scheduleMetricReceived(clusterUuid: string): Promise<object> {
+    public async scheduleMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
 
         const cronUrl = config.ncCronApiDetail.baseURL; 
         const authToken = config.ncCronApiDetail.authToken;
@@ -1157,6 +1198,12 @@ class executorService {
         var cronData;
         var cronJobKey =[];
         var DistinctJobList;
+
+        //get customerAccountId
+        const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
+        if (!customerAccountData) {
+            throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
+            } 
 
         const responseResourceGroup: IResourceGroup =  await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
         if (!responseResourceGroup) {
@@ -1181,6 +1228,9 @@ class executorService {
                         summary: matricSummary,
                         cronTab: "*/5 * * * *",
                         apiUrl: executorServerUrl,
+                        clusterId: clusterUuid,
+                        accountId: customerAccountData.customerAccountId,
+                        reRunRequire: true,
                         apiBody:
                         {
                             cluster_uuid: clusterUuid,
@@ -1220,6 +1270,77 @@ class executorService {
         return cronJobKey;            
     }
 
+   /**
+   * @param {string} clusterUuid
+   */
+    public async syncMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
+/*        
+        let cronUrl = config.ncCronApiDetail.baseURL; 
+        let authToken = config.ncCronApiDetail.authToken;
+        let distinctJobList;
+        let targetJobDbAll;
+        let targetJobDb = [];
+        let targetJobCron = [];
+
+        //get customerAccountId
+        const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
+        if (!customerAccountData) {
+          throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
+         }
+    
+        // validate clusterUuid
+        const responseResourceGroup: IResourceGroup =  await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+        if (!responseResourceGroup) {
+            throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);   
+        }
+        //pull metric target
+        distinctJobList = await this.MetricMetaService.getDistinctJobOfMetricMetabyUuid(clusterUuid); 
+        if (!distinctJobList) {
+            throw new HttpException(404, `No metric Job information with the clusterUuid: ${clusterUuid}`);   
+        }
+        console.log ("######## target job from db");
+        targetJobDbAll = JSON.parse(JSON.stringify(distinctJobList));
+        targetJobDb = targetJobDbAll.map(function (obj) {return obj.metricMetaTargetJob})
+        console.log (targetJobDb);
+
+       //pull active metric-received job from nc-cron
+       const resultFromCron = await this.schedulerService.getSchedulerByClusterId(clusterUuid);
+       console.log ("######## target job from scheduler");
+       let newList = [];
+       resultFromCron.map((data)=>{
+            const {scheduleApiBody} = data;
+            newList.push ({scheduleApiBody});
+       });
+       //filter only for metric_received
+       let newFilterList = newList.filter(data => data.scheduleApiBody.subscribed_channel === "nc_metric_received");
+       //pull metricMetaTargetJob
+       for (let i=0; i<Object.keys(newFilterList).length; i++) {
+            let steps = newFilterList[i].scheduleApiBody.steps;
+            let query = steps.map(obj => {return obj.args.query}); 
+            let job = query.toString().substring(query.toString().indexOf('"')+1, query.toString().lastIndexOf('"'));
+            targetJobCron[i] = job;
+       }
+       console.log (targetJobCron);
+
+       //start metric-received feeds for any new targets
+
+       let newTargetJob = targetJobDb.filter(x => !targetJobCron.includes(x)); 
+       console.log ("filter result for new  "); 
+       console.log (newTargetJob);  
+        // call scheduleMetricReceived() with loop
+        // 
+
+        //cancel metric-received feeds for any retuired targets
+        // call cancel method with loop
+        let oldTargetJob = targetJobCron.filter(x => !targetJobDb.includes(x)); 
+        console.log ("filter result for cancellation "); 
+        console.log (oldTargetJob);  
+        //search the cron job and run cancellation loop
+        //return process results
+*/        
+        return;
+    }    
+    
     /**
      * @param {SudoryWebhookDto} DataSetFromSudory
      */

@@ -55,7 +55,7 @@ class ExecutorRoute implements Routes {
       this.executorController.installKpsOnResourceGroup,
     );
     this.router.post(
-      '/executor/metricreceived',
+      '/executor/metricReceived',
       authMiddleware,
       validationMiddleware(ExecutorUuidDto, 'body'),
       //      createUserLogMiddleware,
@@ -74,6 +74,13 @@ class ExecutorRoute implements Routes {
       validationMiddleware(ExecutorUuidDto, 'body'),
       //      createUserLogMiddleware,
       this.executorController.scheduleAlert,
+    );
+    this.router.post(
+      '/executor/syncMetricReceived',
+      authMiddleware,
+      validationMiddleware(ExecutorUuidDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.syncMetricReceived,
     );
     this.router.post(
       '/executor/sudorywebhook',
