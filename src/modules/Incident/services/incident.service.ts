@@ -477,7 +477,8 @@ class IncidentService {
         });
         return createdActionAttachment;
       } else {
-        // throw something
+        console.log(uploadedFilePath)
+        throw new HttpException(500, uploadedFilePath.data);
       }
     } catch (error) {
       console.log(error);
