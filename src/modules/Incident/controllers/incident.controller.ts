@@ -302,7 +302,7 @@ class IncidentController {
       if (createdActionAttachment) {
         res.status(201).json({ data: createdActionAttachment, message: 'created' });
       } else {
-        res.status(404).json({ message: `Incident id(${incidentId})'s action (actionId : ${actionId}) not found` });
+        res.status(404).json({ message: `Failed to create incident id(${incidentId})'s action (actionId : ${actionId})'s attachment` });
       }
     } catch (error) {
       next(error);

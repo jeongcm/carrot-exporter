@@ -57,7 +57,7 @@ class fileUploadService {
       );
       return data;
     } catch (err) {
-      return 'err';
+      throw err;
     }
   }
 
