@@ -8,6 +8,8 @@ let space = new AWS.S3({
   credentials: new AWS.Credentials(config.fileUpload.DOAccessKeyId, config.fileUpload.DOSecretAccessKey, null),
 });
 
+console.log(config.fileUpload);
+
 const BucketName = config.fileUpload.DOBucket;
 
 class fileUploadService {
