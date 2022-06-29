@@ -334,10 +334,10 @@ DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 // DB.AnomalyMonitoringTarget.hasOne(DB.PartyUser, { foreignKey: 'created_by' });
 // DB.PartyUser.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'party_user_id' });
 
-DB.ModelRuleScore.hasOne(DB.RuleGroup, { foreignKey: 'rule_group_key' });
+DB.ModelRuleScore.hasMany(DB.RuleGroup, { foreignKey: 'rule_group_key' });
 DB.RuleGroup.belongsTo(DB.ModelRuleScore, { foreignKey: 'rule_group_key' });
 
-DB.BayesianModel.hasOne(DB.ModelRuleScore, { foreignKey: 'bayesian_model_key' });
+DB.BayesianModel.hasMany(DB.ModelRuleScore, { foreignKey: 'bayesian_model_key' });
 DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
 DB.SudoryTemplate.hasMany(DB.ResolutionAction, {  foreignKey: 'sudory_template_key' });

@@ -81,7 +81,6 @@ class BayesianModelServices {
           include: [
             {
               model: RuleGroupModel,
-              attributes: ['ruleGroupKey', "ruleGroupId"],
               include:[
                 {
                   model:RuleGroupAlertRuleModel
