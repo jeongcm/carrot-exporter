@@ -12,6 +12,7 @@ import CustomerAccountService from '@/modules/CustomerAccount/services/customerA
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import { Op } from 'sequelize';
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
+import { ResourceGroupModel } from '../models/resourceGroup.model';
 class ResourceService {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
@@ -209,6 +210,7 @@ class ResourceService {
         [Op.and]: [...resourceQuery],
         resourceKey: { [Op.notIn]: resourceKeys },
       },
+      include:[{model:ResourceGroupModel, attributes:['resourceGroupName']}]
     });
 
     return allResources;
