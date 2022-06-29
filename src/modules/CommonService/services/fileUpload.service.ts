@@ -8,8 +8,6 @@ let space = new AWS.S3({
   credentials: new AWS.Credentials(config.fileUpload.DOAccessKeyId, config.fileUpload.DOSecretAccessKey, null),
 });
 
-console.log(config.fileUpload);
-
 const BucketName = config.fileUpload.DOBucket;
 
 class fileUploadService {
@@ -40,10 +38,13 @@ class fileUploadService {
         Key: fileName,
       };
 
-      const result = space.upload(uploadParameters);
-      var promise = result.promise();
+      console.log(uploadParameters);
+      console.log(config.fileUpload);
 
-      let data = await promise.then(
+      const result = space.upload(uploadParameters);
+      const promise = result.promise();
+
+      const data = await promise.then(
         function (data) {
           return {
             status: 'ok',
