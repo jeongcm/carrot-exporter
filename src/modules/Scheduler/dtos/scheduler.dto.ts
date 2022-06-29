@@ -25,12 +25,12 @@ export class SchedulerDto {
   @IsNotEmpty()
   public clusterId: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   public scheduleFrom: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
   public scheduleTo: string;
 
   @IsBoolean()
