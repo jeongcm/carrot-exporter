@@ -119,11 +119,11 @@ export default {
     service_result_delete: process.env.SUDORY_SERVICE_RESULT_DELETE || '1',
   },
   fileUpload: {
-    DOBucket: `${process.env.NC_LARI_DO_BUCKET}`,
-    DOAccessKeyId: `${process.env.NC_LARI_DO_ACCESS_KEY_ID}`,
-    DOSecretAccessKey: `${process.env.NC_LARI_DO_SECRET_ACCESS_KEY}`,
-    awsS3DefaultRegion: `${process.env.NC_LARI_DO_DEFAULT_REGION}`,
-    DOEndPoint: `${process.env.NC_LARI_DO_ENDPOINT}`,
+    DOBucket: `${process.env.NC_LARI_DO_BUCKET}`.replace('\n', ''),
+    DOAccessKeyId: `${process.env.NC_LARI_DO_ACCESS_KEY_ID}`.replace('\n', ''),
+    DOSecretAccessKey: `${process.env.NC_LARI_DO_SECRET_ACCESS_KEY}`.replace('\n', ''),
+    awsS3DefaultRegion: `${process.env.NC_LARI_DO_DEFAULT_REGION}`.replace('\n', ''),
+    DOEndPoint: `${process.env.NC_LARI_DO_ENDPOINT}`.replace('\n', ''),
   },
   victoriaMetrics: {
     NC_LARI_VM_ADDRESS: process.env.NC_LARI_VM_ADDRESS,
