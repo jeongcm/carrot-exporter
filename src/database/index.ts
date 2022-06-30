@@ -64,7 +64,8 @@ import ModelRuleScoreModel from '@/modules/MetricOps/models/modelRuleScore.model
 import AnomalyMonitoringTargetTable from '@/modules/MetricOps/models/monitoringTarget.model';
 import RoleModel from '@/modules/Role/models/role.model';
 import RolePartyModel from '@/modules/Role/models/roleParty.model';
-import SudoryWebhookModel from '@/modules/CommonService/models/exectuor.model';
+import ExecutorServiceModel from '@/modules/CommonService/models/exectuorService.model';
+import SudoryWebhookModel from '@/modules/CommonService/models/sudoryWebhook.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -170,6 +171,7 @@ const DB = {
   Role: RoleModel(sequelize),
   RoleParty: RolePartyModel(sequelize),
   SudoryWebhook: SudoryWebhookModel(sequelize),
+  ExecutorService: ExecutorServiceModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };

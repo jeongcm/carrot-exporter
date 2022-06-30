@@ -22,6 +22,7 @@ class executorService {
     public MetricMetaService = new MetricMetaService();
     public schedulerService = new SchedulerService();
     public sudoryWebhook = DB.SudoryWebhook; 
+    public executorService = DB.ExecutorService; 
 
   /**
    * @param {string} serviceUuid
@@ -234,13 +235,11 @@ class executorService {
             throw new HttpException(500, "Unknown error while searching executor/sudory client");
         });
 
-
-
-
+        /* this is for a logic to avoid deadlock when you use Mariadb"        
 
         const d = new Date();
         let minutes = d.getMinutes();
-        /* this is for a logic to avoid deadlock when you use Mariadb"        
+
         var newMin = new Array();
         for (let i=1; i<16; i++) {
             if ((minutes+i)>=60) {
@@ -550,41 +549,59 @@ class executorService {
    * @param {string} clusterUuid
    * @param {string} targetNamespace 
    */
-    public async postExecuteService(clusterUuid:string, argsUrl:string, stepQuery:string  ): Promise<string> {
-        const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
-        const sudoryServiceData = {
+    public async postExecuteService(name: string, summary: string, clusterUuid:string, templateUuid:string, steps:Object): Promise<object> {
+        let on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
+        let sudoryBaseUrl = config.sudoryApiDetail.baseURL; 
+        let sudoryPathService = config.sudoryApiDetail.pathService;
+        let sudoryUrl = sudoryBaseUrl+sudoryPathService; 
+        let uuid = require('uuid');
+        let executorServiceId = uuid.v1();
+
+        let sudoryServiceData = {
           cluster_uuid: clusterUuid,
-          name: 'metric meta from Prometheus / DO cluster',
-          template_uuid: '10000000000000000000000000000001',
-          steps: [
-            {
-              args: {
-                url: argsUrl,
-                query: stepQuery,
-              },
-            },
-          ],
-          summary: 'pull metric received list from Prometheus',
+          name: name,
+          template_uuid: templateUuid,
+          steps: steps,
+          summary: summary,
           on_completion: on_completion,
           subscribed_channel: 'webhook_test',
         };
        let serviceData = await axios(
           {
             method: 'post',
-            url: "http://146.190.1.148:8099/server/service",
+            url: sudoryUrl,
             data: sudoryServiceData,
           }).then(async (res: any) => {
               console.log(res.data);
-            // serviceUuid = res.data.uuid
+              //serviceUuid = res.data.uuid
             return res.data
-            // console.log(`Submit kps chart installation reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
+            // console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
   
           }).catch(error => {
             console.log(error);
             throw new HttpException(500, "Not able to execute service");
           });
-          console.log(serviceData)
-        return serviceData;
+        
+  
+          const insertData = {
+              executorServiceId: executorServiceId,
+              name: name,
+              summary: summary,
+              createdAt: new Date(),
+              createdBy: "SYSTEM",
+              serviceUuid: serviceData.uuid,
+              clusterUuid: serviceData.cluster_uuid,
+              templateUuid: templateUuid,
+              onCompletion: on_completion,
+              subscribed_channel: 'webhook_test',
+          }
+          console.log("Data for DB insert: ");
+          console.log(insertData);
+  
+          const resultExecutorService = await this.executorService.create(insertData); 
+   
+        console.log(resultExecutorService)
+        return resultExecutorService;
     }          
   
   /**

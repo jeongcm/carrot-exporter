@@ -259,10 +259,13 @@ class executorController {
    */
   public executeService = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const clusterUuid = req.body.clusterUuid;
-      const argsUrl = req.body.argsUrl;
-      const stepQuery = req.body.stepQuery;
-      const serviceOutput: any = await this.executorService.postExecuteService(clusterUuid, argsUrl, stepQuery);
+      let name = req.body.name;
+      let summary = req.body.summary;
+      let clusterUuid = req.body.clusterUuid;
+      let templateUuid = req.body.templateUuid;
+      let steps = req.body.steps;
+
+      const serviceOutput: any = await this.executorService.postExecuteService(name, summary, clusterUuid, templateUuid, steps);
       if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
       res.status(200).json({ Data: serviceOutput, message: `Execution Successful.` });
     } catch (error) {

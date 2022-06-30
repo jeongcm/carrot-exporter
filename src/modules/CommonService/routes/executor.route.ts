@@ -102,12 +102,6 @@ class ExecutorRoute implements Routes {
       this.executorController.checkExecutorResponse,
     );
     this.router.get(
-      '/executor/service/:serviceUuid',
-      authMiddleware,
-      //      createUserLogMiddleware,
-      this.executorController.checkExecutorResponse,
-    );
-    this.router.get(
       '/executor/:clusterUuid',
       authMiddleware,
       //     createUserLogMiddleware,
