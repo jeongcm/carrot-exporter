@@ -1,5 +1,5 @@
 import { HttpException } from '@/common/exceptions/HttpException';
-import { IAlertRule } from '@/common/interfaces/alertRule.interface';
+import { IAlertRule, IAlertRuleGraph } from '@/common/interfaces/alertRule.interface';
 import { isEmpty } from '@/common/utils/util';
 import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
@@ -17,6 +17,30 @@ class AlertRuleService {
     const allAlertRules: IAlertRule[] = await this.alertRule.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['alertRuleKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+    });
+    return allAlertRules;
+  }
+
+  public async getAlertRuleGraph(customerAccountKey: number): Promise<IAlertRuleGraph[]> {
+    const allAlertRules: IAlertRuleGraph[] = await this.alertRule.findAll({
+      where: { customerAccountKey: customerAccountKey, deletedAt: null },
+      attributes: {
+        exclude: [
+          'alertRuleKey',
+          'deletedAt',
+          'updatedBy',
+          'createdBy',
+          'alertRuleQuery',
+          'customerAccountKey',
+          'alertRuleDuration',
+          'alertRuleSeverity',
+          'alertRuleDescription',
+          'alertRuleSummary',
+          'alertRuleRunbook',
+          'createdAt',
+          'updatedAt',
+        ],
+      },
     });
     return allAlertRules;
   }
@@ -61,7 +85,12 @@ class AlertRuleService {
     return alertRuleData.alertRuleKey;
   }
 
-  public async updateAlertRule(alertRuleId: string, alertRuleData: CreateAlertRuleDto, customerAccountKey: number, partyId: string): Promise<IAlertRule> {
+  public async updateAlertRule(
+    alertRuleId: string,
+    alertRuleData: CreateAlertRuleDto,
+    customerAccountKey: number,
+    partyId: string,
+  ): Promise<IAlertRule> {
     if (isEmpty(alertRuleData)) throw new HttpException(400, 'AlertRule Data cannot be blank');
     const findAlertRule: IAlertRule = await this.alertRule.findOne({ where: { alertRuleId } });
     if (!findAlertRule) throw new HttpException(409, "AlertRule doesn't exist");
@@ -88,26 +117,27 @@ class AlertRuleService {
       customerAccountKey: customerAccountKey,
       alertRuleId: tempAlertRuleId,
       createdAt: currentDate,
-      createdBy: partyId
+      createdBy: partyId,
     };
     const createAlertRuleData: IAlertRule = await this.alertRule.create(newAlertRule);
     return createAlertRuleData;
-  };
+  }
 
   public async getAlertRuleByRuleGroupId(ruleGroupId: string) {
     try {
       const ruleGroupDetail: any = await this.ruleGroup.findOne({ where: { ruleGroupId } });
       const ruleGroupAlert = await this.ruleGroupAlertRule.findAll({
-        where: { deletedAt: { [Op.eq]: null }, ruleGroupKey: ruleGroupDetail.ruleGroupKey }, attributes: ["alertRuleKey"]
+        where: { deletedAt: { [Op.eq]: null }, ruleGroupKey: ruleGroupDetail.ruleGroupKey },
+        attributes: ['alertRuleKey'],
       });
-      let alertRuleKeys: any[]
+      let alertRuleKeys: any[];
       if (ruleGroupAlert) {
-        alertRuleKeys = _.map(ruleGroupAlert, "alertRuleKey")
+        alertRuleKeys = _.map(ruleGroupAlert, 'alertRuleKey');
       }
       const allAlertRules: IAlertRule[] = await this.alertRule.findAll({
         where: {
           deletedAt: null,
-          alertRuleKey: { [Op.notIn]: alertRuleKeys }
+          alertRuleKey: { [Op.notIn]: alertRuleKeys },
         },
       });
       return allAlertRules;
@@ -115,7 +145,6 @@ class AlertRuleService {
       return [];
     }
   }
-
 }
 
 export default AlertRuleService;

@@ -2,7 +2,7 @@ import { NextFunction, Response } from 'express';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import AlertRuleService from '../services/alertRule.service';
-import { IAlertRule } from '@/common/interfaces/alertRule.interface';
+import { IAlertRule,IAlertRuleGraph } from '@/common/interfaces/alertRule.interface';
 import AlertReceivedService from '../services/alertReceived.service';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 import { AlertReceivedDto } from '../dtos/alertReceived.dto';
@@ -18,6 +18,16 @@ class AlertRuleController extends ControllerExtension {
     try {
       const customerAccountKey = req.customerAccountKey;
       const findAllChannelsData: IAlertRule[] = await this.alertRuleService.getAlertRule(customerAccountKey);
+      res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAllAlertRulesGraph = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.customerAccountKey;
+      const findAllChannelsData: IAlertRuleGraph[] = await this.alertRuleService.getAlertRuleGraph(customerAccountKey);
       res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
     } catch (error) {
       next(error);
