@@ -21,9 +21,9 @@ class AlertRuleService {
     return allAlertRules;
   }
 
-  public async getAlertRuleGraph(customerAccountKey: number): Promise<IAlertRuleGraph[]> {
+  public async getAlertRuleGraph(customerAccountKey: number, status: string): Promise<IAlertRuleGraph[]> {
     const allAlertRules: IAlertRuleGraph[] = await this.alertRule.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null },
+      where: { customerAccountKey: customerAccountKey, deletedAt: null,alertRuleState: status },
       attributes: {
         exclude: [
           'alertRuleKey',
@@ -102,6 +102,13 @@ class AlertRuleService {
     };
     await this.alertRule.update(updatedAlertRuleData, { where: { alertRuleId: alertRuleId } });
 
+    return await this.findAlertRuleById(alertRuleId);
+  }
+
+  public async getAlertRuleById(
+    alertRuleId: string,
+  ): Promise<IAlertRule> {
+    if (isEmpty(alertRuleId)) throw new HttpException(400, 'alertRuleId must not be blank.');
     return await this.findAlertRuleById(alertRuleId);
   }
 

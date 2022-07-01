@@ -27,7 +27,8 @@ class AlertRuleController extends ControllerExtension {
   public getAllAlertRulesGraph = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const findAllChannelsData: IAlertRuleGraph[] = await this.alertRuleService.getAlertRuleGraph(customerAccountKey);
+      const status = req.params.status;
+      const findAllChannelsData: IAlertRuleGraph[] = await this.alertRuleService.getAlertRuleGraph(customerAccountKey,status);
       res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -79,6 +80,16 @@ class AlertRuleController extends ControllerExtension {
       const customerAccountKey = req.customerAccountKey;
       const updateAlertRuleData: IAlertRule = await this.alertRuleService.updateAlertRule(alertRuleId, alertRuleData, customerAccountKey, partyId);
       res.status(200).json({ data: updateAlertRuleData, message: 'updated' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAlertRuleById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertRuleId: string = req.params.alertRuleId;
+      const updateAlertRuleData: IAlertRule = await this.alertRuleService.getAlertRuleById(alertRuleId);
+      res.status(200).json({ data: updateAlertRuleData, message: 'findOne' });
     } catch (error) {
       next(error);
     }

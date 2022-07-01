@@ -30,6 +30,11 @@ class AlertRoute implements Routes {
       validationMiddleware(CreateAlertRuleDto, 'body'),
       this.alertController.updateAlertRule,
     );
+    this.router.get(
+      '/alert/rule/:alertRuleId',
+      authMiddleware,
+      this.alertController.getAlertRuleById,
+    );
     this.router.post('/alert/received', authMiddleware, validationMiddleware(AlertReceivedDto, 'body'), this.alertController.createAlertReceived);
     this.router.get('/alert/received', authMiddleware, this.alertController.getAllAlertReceived);
     this.router.get('/alert/received/recent', authMiddleware, this.alertController.getAllAlertReceivedMostRecent);
@@ -42,7 +47,7 @@ class AlertRoute implements Routes {
       this.alertController.updateAlertReceived,
     );
     this.router.delete('/alert/received/:alertReceivedId', authMiddleware, this.alertController.deleteAlertReceived);
-    this.router.get('/alertRule/graph', authMiddleware, this.alertController.getAllAlertRulesGraph);
+    this.router.get('/alertRule/graph/:status', authMiddleware, this.alertController.getAllAlertRulesGraph);
     this.router.get('/alertRule/:ruleGroupId', authMiddleware, this.alertController.getAlertRuleByRuleGroupId);
   }
 }
