@@ -24,6 +24,7 @@ class AccessGroupService {
   public resource = DB.Resource;
   public partyResource = DB.PartyResource;
   public partyUserLogs = DB.PartyUserLogs;
+  private resourceGroup = DB.ResourceGroup;
   public api = DB.Api;
 
   public tableIdService = new tableIdService();
@@ -217,8 +218,16 @@ class AccessGroupService {
     });
 
     const resourceAll = await this.resource.findAll({
-      where: { resourceId: { [Op.in]: addingResourceData.resourceIds } },
-      attributes: ['resourceKey'],
+      where: {
+        resourceId: { [Op.in]: addingResourceData.resourceIds },
+      },
+      include: [
+        {
+          model: this.resourceGroup,
+          attributes: ['resourceGroupUuid'],
+        },
+      ],
+      attributes: ['resourceKey', 'resourceType', 'resourceNamespace', 'resourceName'],
     });
 
     const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
@@ -239,7 +248,8 @@ class AccessGroupService {
 
     const insertDataList = [];
 
-    for (const resourceKey of resourceKeyList) {
+    for (const resource of resourceAll) {
+      const { resourceKey } = resource;
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyResource');
 
       insertDataList.push({

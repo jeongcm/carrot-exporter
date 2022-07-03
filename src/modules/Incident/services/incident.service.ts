@@ -466,6 +466,7 @@ class IncidentService {
         actionAttachmentData.incidentActionAttachmentFileType,
         incidentActionAttachmentFile,
       );
+
       if (uploadedFilePath.status === 'ok') {
         const createdActionAttachment: IIncidentActionAttachment = await this.incidentActionAttachment.create({
           ...actionAttachmentData,
@@ -475,10 +476,13 @@ class IncidentService {
           incidentActionAttachmentPath: uploadedFilePath.data.key,
         });
         return createdActionAttachment;
+      } else {
+        console.log(uploadedFilePath)
+        throw new HttpException(500, uploadedFilePath.data);
       }
     } catch (error) {
       console.log(error);
-      new HttpException(400, 'Not able to attach this attachment.');
+      throw new HttpException(400, 'Not able to attach this attachment.');
     }
   }
 

@@ -64,7 +64,8 @@ import ModelRuleScoreModel from '@/modules/MetricOps/models/modelRuleScore.model
 import AnomalyMonitoringTargetTable from '@/modules/MetricOps/models/monitoringTarget.model';
 import RoleModel from '@/modules/Role/models/role.model';
 import RolePartyModel from '@/modules/Role/models/roleParty.model';
-import SudoryWebhookModel from '@/modules/CommonService/models/exectuor.model';
+import ExecutorServiceModel from '@/modules/CommonService/models/exectuorService.model';
+import SudoryWebhookModel from '@/modules/CommonService/models/sudoryWebhook.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -170,6 +171,7 @@ const DB = {
   Role: RoleModel(sequelize),
   RoleParty: RolePartyModel(sequelize),
   SudoryWebhook: SudoryWebhookModel(sequelize),
+  ExecutorService: ExecutorServiceModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
@@ -334,10 +336,10 @@ DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 // DB.AnomalyMonitoringTarget.hasOne(DB.PartyUser, { foreignKey: 'created_by' });
 // DB.PartyUser.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'party_user_id' });
 
-DB.ModelRuleScore.hasOne(DB.RuleGroup, { foreignKey: 'rule_group_key' });
+DB.ModelRuleScore.hasMany(DB.RuleGroup, { foreignKey: 'rule_group_key' });
 DB.RuleGroup.belongsTo(DB.ModelRuleScore, { foreignKey: 'rule_group_key' });
 
-DB.BayesianModel.hasOne(DB.ModelRuleScore, { foreignKey: 'bayesian_model_key' });
+DB.BayesianModel.hasMany(DB.ModelRuleScore, { foreignKey: 'bayesian_model_key' });
 DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
 DB.SudoryTemplate.hasMany(DB.ResolutionAction, {  foreignKey: 'sudory_template_key' });
@@ -457,6 +459,7 @@ DB.sequelize
 /**
  * Save live ERD in svg on development mode
  */
+/*
 if (config.nodeEnv === 'development') {
   const saveErdToSvg = async () => {
     const svg = await sequelizeErd({
@@ -477,5 +480,6 @@ if (config.nodeEnv === 'development') {
   };
   saveErdToSvg();
 }
+*/
 
 export default DB;

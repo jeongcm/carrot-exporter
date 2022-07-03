@@ -38,10 +38,13 @@ class fileUploadService {
         Key: fileName,
       };
 
-      const result = space.upload(uploadParameters);
-      var promise = result.promise();
+      console.log(uploadParameters);
+      console.log(config.fileUpload);
 
-      let data = await promise.then(
+      const result = space.upload(uploadParameters);
+      const promise = result.promise();
+
+      const data = await promise.then(
         function (data) {
           return {
             status: 'ok',
@@ -57,7 +60,10 @@ class fileUploadService {
       );
       return data;
     } catch (err) {
-      return 'err';
+      return {
+        status: 'error',
+        data: err,
+      }
     }
   }
 

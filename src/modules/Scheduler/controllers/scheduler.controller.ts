@@ -27,6 +27,23 @@ class SchedulerController {
     }
   };
 
+  public getAllSchedulersByAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const accountId = req.params.accountId;
+
+      const getSchedulerResult = await this.schedulerService.getAllSchedulersByAccountId(accountId);
+
+      if (!getSchedulerResult) {
+        return res.sendStatus(404);
+      }
+
+      res.status(200).json({ data: getSchedulerResult, message: `scheduler list of customerAccountId: ${accountId}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
   public getSchedulerByClusterId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterId = req.params.clusterId;
@@ -41,7 +58,39 @@ class SchedulerController {
     } catch (error) {
       next(error);
     }
-  };  
+  };
+
+  public getSchedulerBySchedulerId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const schedulerId = req.params.schedulerId;
+
+      const getSchedulerResult = await this.schedulerService.getSchedulerBySchedulerId(schedulerId);
+
+      if (!getSchedulerResult) {
+        return res.sendStatus(404);
+      }
+
+      res.status(200).json({ data: getSchedulerResult, message: `scheduler (Id: ${schedulerId})` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAllSchedulerByAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const accountId = req.params.accountId;
+
+      const getSchedulerResult = await this.schedulerService.getAllSchedulerByAccountId(accountId);
+
+      if (!getSchedulerResult) {
+        return res.sendStatus(404);
+      }
+
+      res.status(200).json({ data: getSchedulerResult, message: `all scheduler list of customerAccountId: ${accountId}` });
+    } catch (error) {
+      next(error);
+    }
+  };
 
   public createScheduler = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
@@ -52,6 +101,22 @@ class SchedulerController {
     try {
       const createSchedulerResult = await this.schedulerService.createScheduler(createSchedulerData, customerAccountId);
       res.status(200).json({ data: createSchedulerResult, message: `created scheduler` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public cancelCronScheduleBySchedulerId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const schedulerId = req.params.schedulerId;
+
+      const cancelSchedulerResult = await this.schedulerService.cancelCronScheduleBySchedulerId(schedulerId);
+
+      if (!cancelSchedulerResult) {
+        return res.sendStatus(404);
+      }
+
+      res.status(200).json({ data: cancelSchedulerResult, message: `scheduler (Id: ${schedulerId}) has been cancelled` });
     } catch (error) {
       next(error);
     }
