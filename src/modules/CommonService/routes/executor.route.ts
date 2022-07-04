@@ -33,7 +33,7 @@ class ExecutorRoute implements Routes {
       this.executorController.requestResourceToExecutor,
     );
     this.router.post(
-      '/executor/resource',
+      '/executor/schedule/resource',
       authMiddleware,
       validationMiddleware(ExecutorResourceDto, 'body'),
       //      createUserLogMiddleware,
@@ -55,21 +55,21 @@ class ExecutorRoute implements Routes {
       this.executorController.installKpsOnResourceGroup,
     );
     this.router.post(
-      '/executor/metricReceived',
+      '/executor/schedule/metricReceived',
       authMiddleware,
       validationMiddleware(ExecutorUuidDto, 'body'),
       //      createUserLogMiddleware,
       this.executorController.scheduleMetricReceived,
     );
     this.router.post(
-      '/executor/metric',
+      '/executor/schedule/metric',
       authMiddleware,
       validationMiddleware(ExecutorUuidDto, 'body'),
       //      createUserLogMiddleware,
       this.executorController.scheduleMetricMeta,
     );
     this.router.post(
-      '/executor/alert',
+      '/executor/schedule/alert',
       authMiddleware,
       validationMiddleware(ExecutorUuidDto, 'body'),
       //      createUserLogMiddleware,
@@ -95,6 +95,13 @@ class ExecutorRoute implements Routes {
       //      createUserLogMiddleware,
       this.executorController.executeService,
     );
+    this.router.post(
+      '/executor/service/metric',
+      authMiddleware,
+      //      createUserLogMiddleware,
+      this.executorController.postMetricRequest,
+    );
+    
     this.router.get(
       '/executor/service/:serviceUuid',
       authMiddleware,

@@ -23,6 +23,7 @@ class executorService {
     public schedulerService = new SchedulerService();
     public sudoryWebhook = DB.SudoryWebhook; 
     public executorService = DB.ExecutorService; 
+    public resourceGroup = DB.ResourceGroup; 
 
   /**
    * @param {string} serviceUuid
@@ -545,9 +546,12 @@ class executorService {
       return serviceUuid;
     }          
 
-      /**
+  /**
    * @param {string} clusterUuid
-   * @param {string} targetNamespace 
+   * @param {string} templateUud
+   * @param {string} name
+   * @param {string} summary
+   * @param {Object} steps
    */
     public async postExecuteService(name: string, summary: string, clusterUuid:string, templateUuid:string, steps:Object): Promise<object> {
         let on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
@@ -572,7 +576,6 @@ class executorService {
             url: sudoryUrl,
             data: sudoryServiceData,
           }).then(async (res: any) => {
-              console.log(res.data);
               //serviceUuid = res.data.uuid
             return res.data
             // console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
@@ -1393,6 +1396,40 @@ class executorService {
         console.log(serviceUuid); 
         const resultSudoryWebhook = await this.sudoryWebhook.findOne({where: { serviceUuid }}); 
         return resultSudoryWebhook;
+    }
+
+
+    /**
+     * @param {string} clusterUuid
+     * @param {string} queryType
+     * @param {string} stepQuery
+     */
+     public async postMetricRequest(clusterUuid: string, queryType: string, stepQuery: string): Promise<object> {
+        console.log ("method start");
+        let name = "postMetricReqeust for Incident Attachment";
+        let summary = "postMetricReqeust for Incident Attachment";
+        let templateUuid = "";
+        //let url = "http://kps-kube-prometheus-stack-prometheus.monitor.svc.cluster.local:9090";
+        let steps;
+        let start = new Date();
+        start.setHours(start.getHours()- 1);
+        let startString = start.toISOString();
+        let endString = new Date().toISOString();
+        let query = stepQuery; 
+
+        const ResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupUuid: clusterUuid}}); 
+        let url = ResourceGroup.resourceGroupPrometheus; 
+
+        if (queryType == "range") {
+            templateUuid = "10000000000000000000000000000002";
+            steps = [{args: {url: url, query: stepQuery, start: startString, end: endString, step: "15s"}}]; 
+        }
+        else {
+            templateUuid = "10000000000000000000000000000001";  
+            steps = [{args:{url: url, query: query}}];
+        }
+        const postMetricRequest = await this.postExecuteService(name, summary, clusterUuid, templateUuid, steps);
+        return postMetricRequest;
     }
 
 
