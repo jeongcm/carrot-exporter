@@ -972,7 +972,7 @@ class executorService {
    public async scheduleMetricMeta(clusterUuid: string, customerAccountKey: number): Promise<string> {
 
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
-        const cronUrl = config.ncCronApiDetail.baseURL; 
+        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
         const authToken = config.ncCronApiDetail.authToken;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
@@ -1044,7 +1044,7 @@ class executorService {
 
      public async scheduleAlert(clusterUuid: string, customerAccountKey: number): Promise<string> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL; 
+        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
         const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
@@ -1114,7 +1114,7 @@ class executorService {
    */
     public async scheduleResource(clusterUuid: string, customerAccountKey: number, resourceType: string, newCrontab: string): Promise<string> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL; 
+        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
         const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
@@ -1209,7 +1209,7 @@ class executorService {
    */
     public async scheduleMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL; 
+        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
         const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
@@ -1295,7 +1295,7 @@ class executorService {
    */
     public async syncMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
 /*        
-        let cronUrl = config.ncCronApiDetail.baseURL; 
+        let cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
         let authToken = config.ncCronApiDetail.authToken;
         let distinctJobList;
         let targetJobDbAll;
