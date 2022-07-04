@@ -459,6 +459,7 @@ DB.sequelize
 /**
  * Save live ERD in svg on development mode
  */
+/*
 if (config.nodeEnv === 'development') {
   const saveErdToSvg = async () => {
     const svg = await sequelizeErd({
@@ -479,5 +480,5 @@ if (config.nodeEnv === 'development') {
   };
   saveErdToSvg();
 }
-
+*/
 export default DB;
