@@ -9,7 +9,17 @@ class RuleGroupController {
 
   public getRuleGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
+      
       const findRuleGroupData: IRuleGroup[] = await this.ruleGroupService.getRuleGroup();
+      res.status(200).json({ data: findRuleGroupData, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+  public getRuleGroupByModelId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {body:{bayesianModelId = ""}} = req;
+      const findRuleGroupData: IRuleGroup[] = await this.ruleGroupService.getRuleGroupByModelId(bayesianModelId);
       res.status(200).json({ data: findRuleGroupData, message: 'findAll' });
     } catch (error) {
       next(error);
