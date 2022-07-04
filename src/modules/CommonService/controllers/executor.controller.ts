@@ -291,6 +291,27 @@ class executorController {
     }
   };
 
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+   public postMetricRequest = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      let clusterUuid = req.body.clusterUuid;
+      let queryType = req.body.queryType;
+      let steps = req.body.stepQuery;
+      const serviceOutput: any = await this.executorService.postMetricRequest(clusterUuid, queryType, steps);
+      
+      if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
+      res.status(200).json({ Data: serviceOutput, message: `Execution Successful.` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+
 } // end of class
 
 export default executorController;
