@@ -18,3 +18,11 @@ export interface IAlertRule {
     alertRuleState: string;
     resourceGroupUuid: string;
   }
+
+
+  export interface IAlertRuleGraph {
+    alertRuleId: string;
+    alertRuleGroup: string;
+    alertRuleState: string;
+    resourceGroupUuid: string;
+  }
