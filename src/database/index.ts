@@ -36,6 +36,7 @@ import PartyUserModel from '@/modules/Party/models/partyUser.model';
 import TableIdModel from '@/modules/CommonService/models/tableIdmodel';
 import PartyChannelModel from '@/modules/Party/models/partychannel.model';
 import NotificationModel from '@/modules/Notification/models/notification.model';
+import AlertNotificationModel from '@/modules/Notification/models/alertNotification.model';
 import PartyResourceModel from '@/modules/Party/models/partyResource.model';
 import PartyUserLogsModel from '@/modules/Party/models/partyUserLogs.model';
 import config from '@config/index';
@@ -145,6 +146,7 @@ const DB = {
   PartyUser: PartyUserModel(sequelize),
   PartyUserLogs: PartyUserLogsModel(sequelize),
   Notification: NotificationModel(sequelize),
+  AlertNotification: AlertNotificationModel(sequelize),
   Subscription: SubscriptionModel(sequelize),
   SubscribedProduct: SubscribedProductModel(sequelize),
   SubscriptionHistory: SubscriptionHistoryModel(sequelize),
@@ -267,6 +269,9 @@ DB.AlertRule.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' })
 
 DB.AlertRule.hasMany(DB.AlertReceived, { foreignKey: 'alertRuleKey' });
 DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey', as: 'alertRule' });
+
+DB.AlertNotification.hasMany(DB.AlertReceived, { foreignKey: 'alertNotificationKey' });
+DB.AlertReceived.belongsTo(DB.AlertNotification, { foreignKey: 'alertNotificationKey', as: 'alertNotification' });
 
 // DB.AlertRule.hasMany(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
 // DB.ResourceGroup.belongsTo(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
