@@ -599,6 +599,7 @@ class executorService {
               clusterUuid: serviceData.cluster_uuid,
               templateUuid: templateUuid,
               onCompletion: on_completion,
+              steps: JSON.parse(JSON.stringify(steps)),
               subscribed_channel: 'webhook_test',
           }
           console.log("Data for DB insert: ");

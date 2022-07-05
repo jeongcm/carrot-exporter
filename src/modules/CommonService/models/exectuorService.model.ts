@@ -14,6 +14,7 @@ IExecutorService,
   | 'serviceUuid'
   | 'onCompletion'
   | 'subscribedChannel'
+  | 'steps' 
   | 'createdAt'
   | 'updatedAt'
   | 'createdBy'
@@ -32,6 +33,7 @@ export class ExecutorServiceModel extends Model<IExecutorService, ExecutorServic
   public templateUuid: string;
   public serviceUuid: string;
   public clusterUuid: string;
+  public steps: JSON;
   
   public deletedAt: Date;
   public createdBy: string;
@@ -86,6 +88,10 @@ export default function (sequelize: Sequelize): typeof ExecutorServiceModel {
       subscribedChannel: {
         allowNull: true,
         type: DataTypes.STRING(100),
+      },
+      steps: {
+        allowNull: true,
+        type: DataTypes.JSON,
       },
       deletedAt: {
         allowNull: true,

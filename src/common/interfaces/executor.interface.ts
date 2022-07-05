@@ -13,5 +13,6 @@ export interface IExecutorService {
     summary: string;
     onCompletion: number;
     subscribedChannel: string;
+    steps: JSON;
     templateUuid: string;
 }
