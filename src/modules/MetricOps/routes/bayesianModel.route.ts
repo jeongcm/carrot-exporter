@@ -6,7 +6,7 @@ import BayesianModelController  from '../controllers/bayesianModel.controller';
 import ModelRuleScoreController  from '../controllers/modelRuleScore.controller';
 import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
 import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
-import { AttachRuleGroupDto, DetachRuleGroupDto } from '../dtos/modelRuleScore.dto';
+import { AttachRuleGroupDto, DetachRuleGroupDto, UpdateAttachRuleGroupDto } from '../dtos/modelRuleScore.dto';
 
 class BayesianModelRoute implements Routes {
   public router = Router();
@@ -49,11 +49,24 @@ class BayesianModelRoute implements Routes {
       this.modelRuleScoreController.attachRuleGroup,
     );
     this.router.put(
+      '/bayesianModel/updateAttachRuleGroup/:modelRuleScoreId',
+      authMiddleware,
+      createUserLogMiddleware,
+      validationMiddleware(UpdateAttachRuleGroupDto, 'body'),
+      this.modelRuleScoreController.updateAttachRuleGroup,
+    );
+    this.router.put(
       '/bayesianModel/detachRuleGroup',
       authMiddleware,
       createUserLogMiddleware,
       validationMiddleware(DetachRuleGroupDto, 'body'),
       this.modelRuleScoreController.detachRuleGroup,
+    );
+    this.router.get(
+      '/bayesianModel/:ruleGroupId/:bayesianModelId',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.modelRuleScoreController.getModelScoreByGroupId,
     );
   }
 }

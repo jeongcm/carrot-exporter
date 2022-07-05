@@ -11,4 +11,6 @@ export interface IBayesianModel {
     bayesianModelDescription: string;
     customerAccountKey: number;
     bayesianModelResourceType: string;
+    bayesianModelClusterId:string;
+    bayesianModelScoreCard:JSON
   }
