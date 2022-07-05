@@ -27,7 +27,7 @@ class ResourceGroupRoute implements Routes {
     this.router.get('/resourceGroup/:resourceGroupId', authMiddleware, createUserLogMiddleware, this.resourceGroupController.getResourceGroupById);
 
     this.router.get(
-      '/resourceGroup/:resourceGroupUuid',
+      '/resourceGroup/uuid/:resourceGroupUuid',
       authMiddleware,
       createUserLogMiddleware,
       this.resourceGroupController.getResourceGroupByUuid,
