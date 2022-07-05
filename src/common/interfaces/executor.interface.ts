@@ -1,6 +1,7 @@
 export interface IExecutorService {
     executorServiceKey: number;
     executorServiceId: string;
+    customerAccountKey: number;
     createdBy: string;
     updatedBy: string;
     createdAt: Date;

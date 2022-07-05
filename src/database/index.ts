@@ -233,6 +233,10 @@ DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourc
 DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterPk' });
 DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
+DB.CustomerAccount.hasMany(DB.ExecutorService, { foreignKey: 'customerAccountKey' });
+DB.ExecutorService.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+
 // DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
 // DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
 

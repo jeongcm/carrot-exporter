@@ -6,6 +6,7 @@ export type ExecutorServiceUpdateAttributes = Optional<
 IExecutorService,
   | 'executorServiceKey'
   | 'executorServiceId'
+  | 'customerAccountKey'
   | 'name'
   | 'summary'
   | 'clusterUuid' 
@@ -23,6 +24,7 @@ IExecutorService,
 export class ExecutorServiceModel extends Model<IExecutorService, ExecutorServiceUpdateAttributes> implements IExecutorService {
   public executorServiceKey: number;
   public executorServiceId: string;
+  public customerAccountKey: number;
   public name: string;
   public summary: string;
   public onCompletion: number;
@@ -53,6 +55,10 @@ export default function (sequelize: Sequelize): typeof ExecutorServiceModel {
         allowNull: false,
         unique: true,
         type: DataTypes.STRING(100),
+      },
+      customerAccountKey: {
+        allowNull: false,
+        type: DataTypes.STRING(16),
       },
       clusterUuid: {
         type: DataTypes.STRING(100),
