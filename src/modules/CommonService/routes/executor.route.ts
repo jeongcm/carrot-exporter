@@ -95,6 +95,18 @@ class ExecutorRoute implements Routes {
       //      createUserLogMiddleware,
       this.executorController.executeService,
     );
+    this.router.get(
+      '/executor/server/service/:executorServiceId',
+      authMiddleware,
+      //      createUserLogMiddleware,
+      this.executorController.getExecuteServicebyExecutorServiceId,
+    );
+    this.router.get(
+      '/executor/server/service/customerAccount/:customerAccountId',
+      authMiddleware,
+      //      createUserLogMiddleware,
+      this.executorController.getExecuteServicebyCustomerAccountId,
+    );
     this.router.post(
       '/executor/service/metric',
       authMiddleware,

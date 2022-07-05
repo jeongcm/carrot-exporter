@@ -13,6 +13,8 @@ import ResourceGroupService from '@/modules/Resources/services/resourceGroup.ser
 //import { template } from 'lodash';
 import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
+import { IExecutorService } from '@/common/interfaces/executor.interface';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
 
 class executorService {
@@ -553,7 +555,7 @@ class executorService {
    * @param {string} summary
    * @param {Object} steps
    */
-    public async postExecuteService(name: string, summary: string, clusterUuid:string, templateUuid:string, steps:Object): Promise<object> {
+    public async postExecuteService(name: string, summary: string, clusterUuid:string, templateUuid:string, steps:Object, customerAccountKey: number): Promise<object> {
         let on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         let sudoryBaseUrl = config.sudoryApiDetail.baseURL; 
         let sudoryPathService = config.sudoryApiDetail.pathService;
@@ -588,6 +590,7 @@ class executorService {
   
           const insertData = {
               executorServiceId: executorServiceId,
+              customerAccountKey: customerAccountKey,
               name: name,
               summary: summary,
               createdAt: new Date(),
@@ -596,6 +599,7 @@ class executorService {
               clusterUuid: serviceData.cluster_uuid,
               templateUuid: templateUuid,
               onCompletion: on_completion,
+              steps: JSON.parse(JSON.stringify(steps)),
               subscribed_channel: 'webhook_test',
           }
           console.log("Data for DB insert: ");
@@ -972,7 +976,7 @@ class executorService {
    public async scheduleMetricMeta(clusterUuid: string, customerAccountKey: number): Promise<string> {
 
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
-        const cronUrl = config.ncCronApiDetail.baseURL; 
+        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
         const authToken = config.ncCronApiDetail.authToken;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
@@ -1044,7 +1048,7 @@ class executorService {
 
      public async scheduleAlert(clusterUuid: string, customerAccountKey: number): Promise<string> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL; 
+        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
         const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
@@ -1114,7 +1118,7 @@ class executorService {
    */
     public async scheduleResource(clusterUuid: string, customerAccountKey: number, resourceType: string, newCrontab: string): Promise<string> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL; 
+        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
         const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
@@ -1209,7 +1213,7 @@ class executorService {
    */
     public async scheduleMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL; 
+        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
         const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
@@ -1295,7 +1299,7 @@ class executorService {
    */
     public async syncMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
 /*        
-        let cronUrl = config.ncCronApiDetail.baseURL; 
+        let cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
         let authToken = config.ncCronApiDetail.authToken;
         let distinctJobList;
         let targetJobDbAll;
@@ -1404,7 +1408,7 @@ class executorService {
      * @param {string} queryType
      * @param {string} stepQuery
      */
-     public async postMetricRequest(clusterUuid: string, queryType: string, stepQuery: string): Promise<object> {
+     public async postMetricRequest(clusterUuid: string, queryType: string, stepQuery: string, customerAccountKey: number): Promise<object> {
         console.log ("method start");
         let name = "postMetricReqeust for Incident Attachment";
         let summary = "postMetricReqeust for Incident Attachment";
@@ -1428,11 +1432,25 @@ class executorService {
             templateUuid = "10000000000000000000000000000001";  
             steps = [{args:{url: url, query: query}}];
         }
-        const postMetricRequest = await this.postExecuteService(name, summary, clusterUuid, templateUuid, steps);
+        const postMetricRequest = await this.postExecuteService(name, summary, clusterUuid, templateUuid, steps, customerAccountKey );
         return postMetricRequest;
     }
 
+    public async getExecutorServicebyExecutorServiceId(executorServiceId: string): Promise<IExecutorService>{
 
+        const getExecutorService: IExecutorService = await this.executorService.findOne({where: {executorServiceId}});
+        return getExecutorService;
+    }
+
+    public async getExecutorServicebyCustomerAccountId(customerAccountId: string): Promise<IExecutorService[]>{
+
+        const getCustomerAccount: ICustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
+        let customerAccountKey = getCustomerAccount.customerAccountKey; 
+
+        const getExecutorServiceAll: IExecutorService[] = await this.executorService.findAll({where: {customerAccountKey}}
+        );
+        return getExecutorServiceAll;
+    }  
 
 }
 export default executorService;
