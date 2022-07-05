@@ -14,6 +14,7 @@ import ResourceGroupService from '@/modules/Resources/services/resourceGroup.ser
 import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import { IExecutorService } from '@/common/interfaces/executor.interface';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
 
 class executorService {
@@ -598,6 +599,7 @@ class executorService {
               clusterUuid: serviceData.cluster_uuid,
               templateUuid: templateUuid,
               onCompletion: on_completion,
+              steps: JSON.parse(JSON.stringify(steps)),
               subscribed_channel: 'webhook_test',
           }
           console.log("Data for DB insert: ");
@@ -1440,7 +1442,10 @@ class executorService {
         return getExecutorService;
     }
 
-    public async getExecutorServicebyCustomerAccountKey(customerAccountKey: number): Promise<IExecutorService[]>{
+    public async getExecutorServicebyCustomerAccountId(customerAccountId: string): Promise<IExecutorService[]>{
+
+        const getCustomerAccount: ICustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
+        let customerAccountKey = getCustomerAccount.customerAccountKey; 
 
         const getExecutorServiceAll: IExecutorService[] = await this.executorService.findAll({where: {customerAccountKey}}
         );
