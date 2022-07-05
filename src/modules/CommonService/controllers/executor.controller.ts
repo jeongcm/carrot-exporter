@@ -264,8 +264,9 @@ class executorController {
       let clusterUuid = req.body.clusterUuid;
       let templateUuid = req.body.templateUuid;
       let steps = req.body.steps;
+      let customerAccountKey = req.customerAccountKey;
 
-      const serviceOutput: any = await this.executorService.postExecuteService(name, summary, clusterUuid, templateUuid, steps);
+      const serviceOutput: any = await this.executorService.postExecuteService(name, summary, clusterUuid, templateUuid, steps, customerAccountKey);
       if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
       res.status(200).json({ Data: serviceOutput, message: `Execution Successful.` });
     } catch (error) {
@@ -301,7 +302,8 @@ class executorController {
       let clusterUuid = req.body.clusterUuid;
       let queryType = req.body.queryType;
       let steps = req.body.stepQuery;
-      const serviceOutput: any = await this.executorService.postMetricRequest(clusterUuid, queryType, steps);
+      let customerAccountKey = req.customerAccountKey;
+      const serviceOutput: any = await this.executorService.postMetricRequest(clusterUuid, queryType, steps, customerAccountKey);
       
       if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
       res.status(200).json({ Data: serviceOutput, message: `Execution Successful.` });
@@ -310,7 +312,40 @@ class executorController {
     }
   };
 
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+   public getExecuteServicebyExecutorServiceId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      let executorServiceId = req.params.executorServiceId;
+      const executorService: any = await this.executorService.getExecutorServicebyExecutorServiceId(executorServiceId);
+      
+      if (!executorService) res.status(404).json({ data: executorService, message: `not found executorService` });
+      res.status(200).json({ Data: executorService, message: `Found executorService` });
+    } catch (error) {
+      next(error);
+    }
+  };
 
+    /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+     public getExecuteServicebyCustomerAccountKey = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+        let customerAccountKey = parseInt(req.params.customerAccountKey);
+        const executorService: any = await this.executorService.getExecutorServicebyCustomerAccountKey(customerAccountKey);
+        
+        if (!executorService) res.status(404).json({ data: executorService, message: `not found executorService` });
+        res.status(200).json({ Data: executorService, message: `Found executorService` });
+      } catch (error) {
+        next(error);
+      }
+    };
+  
 
 } // end of class
 
