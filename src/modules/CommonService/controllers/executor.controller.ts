@@ -334,10 +334,10 @@ class executorController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-     public getExecuteServicebyCustomerAccountKey = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+     public getExecuteServicebyCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
       try {
-        let customerAccountKey = parseInt(req.params.customerAccountKey);
-        const executorService: any = await this.executorService.getExecutorServicebyCustomerAccountKey(customerAccountKey);
+        let customerAccountId = req.params.customerAccountId;
+        const executorService: any = await this.executorService.getExecutorServicebyCustomerAccountId(customerAccountId);
         
         if (!executorService) res.status(404).json({ data: executorService, message: `not found executorService` });
         res.status(200).json({ Data: executorService, message: `Found executorService` });

@@ -102,10 +102,10 @@ class ExecutorRoute implements Routes {
       this.executorController.getExecuteServicebyExecutorServiceId,
     );
     this.router.get(
-      '/executor/server/service/customerAccount/:customerAccountKey',
+      '/executor/server/service/customerAccount/:customerAccountId',
       authMiddleware,
       //      createUserLogMiddleware,
-      this.executorController.getExecuteServicebyCustomerAccountKey,
+      this.executorController.getExecuteServicebyCustomerAccountId,
     );
     this.router.post(
       '/executor/service/metric',
