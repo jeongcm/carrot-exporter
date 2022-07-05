@@ -9,10 +9,30 @@ import { BayesianModelTable } from '../models/bayesianModel.model';
 import {ModelRuleScoreTable} from '../models/modelRuleScore.model';
 import { SudoryTemplateModel } from '../models/sudoryTemplate.model';
 const { Op } = require('sequelize');
+import pluck from 'lodash/map';
+import couponModel from '@/modules/Billing/models/coupon.model';
 class RuleGroupService {
   public tableIdService = new TableIdService();
   public ruleGroup = DB.RuleGroup;
   public modelRuleScore = DB.ModelRuleScore;
+  public bayesianModel = DB.BayesianModel;
+
+  public async getRuleGroupByModelId (bayesianModelId?: string): Promise<IRuleGroup[]> {
+    if(bayesianModelId){
+      const bayesianModelDetail = await this.bayesianModel.findOne({where:{bayesianModelId}})
+      const bayesianModelRuleGroup = await this.modelRuleScore.findAll({where:{deletedAt:null, bayesianModelKey:bayesianModelDetail.bayesianModelKey}})
+      const ruleGroupKeys = pluck(bayesianModelRuleGroup, 'ruleGroupKey');
+      const allRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({
+        where: { deletedAt: null ,  ruleGroupKey: { [Op.notIn]: ruleGroupKeys },},
+        include:[{model:ModelRuleScoreTable,   attributes:["bayesianModelKey"], include:[{model:BayesianModelTable, required:false}]}],
+        attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
+      });
+      return allRuleGroup;
+    }else{
+      return await this.getRuleGroup()
+    }
+
+  }
 
   public async getRuleGroup(): Promise<IRuleGroup[]> {
     const allRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({
