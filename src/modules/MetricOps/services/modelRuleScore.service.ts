@@ -51,6 +51,36 @@ class ModelRuleScoreService {
         const newModelRuleScore: IModelRuleScore = await this.modelRuleScore.create(ruleScore);
         return newModelRuleScore;
     }
+    /**
+     * update a  modelRuleScore i.e attach rule group to bayesian model
+     *
+     * @param  {AttachRuleGroupDto} modelRuleScoreData
+     * @returns Promise<IModelRuleScore>
+     * @author Shrishti Raj
+     */
+    public async updateAttachRuleGroup(
+        modelRuleScoreData: AttachRuleGroupDto,
+        modelRuleScoreId:string,
+        systemId: string,
+    ): Promise<IModelRuleScore> {
+        if (isEmpty(modelRuleScoreData)) throw new HttpException(400, 'modelRuleScoreData cannot be blank');
+        const { ruleGroupId, bayesianModelId, scoreCard } = modelRuleScoreData
+        const ruleGroup = await this.ruleGroup.findOne({where:{ruleGroupId}});
+        if (!ruleGroup) throw new HttpException(400, `Rule group doesn't exit with this id ${ruleGroupId}`);
+        const bayesianModel = await this.bayesianModel.findOne({where:{bayesianModelId}});
+        if (!bayesianModel) throw new HttpException(400, `Bayesian model doesn't exit with this id ${bayesianModelId}`);
+
+        const currentDate = new Date();
+        const ruleScore = {
+            updatedBy: systemId,
+            updatedAt: currentDate,
+            ruleGroupKey:ruleGroup.ruleGroupKey,
+            bayesianModelKey:bayesianModel.bayesianModelKey,
+            scoreCard
+        };
+        const newModelRuleScore: any = await this.modelRuleScore.update(ruleScore, {where:{modelRuleScoreId}});
+        return newModelRuleScore;
+    }
 
     /**
      * Detach  rule group to bayesian model
@@ -60,16 +90,35 @@ class ModelRuleScoreService {
      * @author Shrishti Raj
      */
      public async detachRuleGroup(
-        modelRuleScoreData: DetachRuleGroupDto,
+        ruleGroupId: string,
+        bayesianModelId:string,
         systemId: string,
-    ): Promise<Boolean> {
-        if (isEmpty(modelRuleScoreData)) throw new HttpException(400, 'modelRuleScoreData cannot be blank');
-        const { ruleGroupId, bayesianModelId, modelRuleScoreId } = modelRuleScoreData;
-        const findData = await this.modelRuleScore.findOne({where:{modelRuleScoreId}})
-        if(!findData) throw new HttpException(400, "Model Rule Score  doesn't exist");
+    ): Promise<any> {
+
         const currentDate = new Date();;
-        await this.modelRuleScore.update({deletedAt:currentDate},{where:{modelRuleScoreId}});
-        return true;
+        const ruleGroupDetail = await this.ruleGroup.findOne({where:{ruleGroupId}});
+        const modelDetail = await this.bayesianModel.findOne({where:{bayesianModelId}});
+        const findData = await this.modelRuleScore.update({deletedAt:currentDate}, {where:{ruleGroupKey:ruleGroupDetail.ruleGroupKey, bayesianModelKey:modelDetail.bayesianModelKey}})
+    
+        return findData;
+    }
+    /**
+     * get score of   rule group to bayesian model
+     *
+     * @param  {ruleGroupId} ruleGroupId
+     * @returns Promise<IModelRuleScore>
+     * @author Shrishti Raj
+     */
+     public async getModelScoreByGroupId(
+       ruleGroupId:string,
+       bayesianModelId:string
+    ): Promise<IModelRuleScore> {
+        const ruleGroupDetail = await this.ruleGroup.findOne({where:{ruleGroupId}});
+        const modelDetail = await this.bayesianModel.findOne({where:{bayesianModelId}});
+        console.log("ruleGroupDetail=====", ruleGroupDetail)
+        const findData = await this.modelRuleScore.findOne({where:{ruleGroupKey:ruleGroupDetail.ruleGroupKey, bayesianModelKey:modelDetail.bayesianModelKey}})
+        if(!findData) throw new HttpException(400, "Model Rule Score  doesn't exist");
+        return findData;
     }
 
     
