@@ -65,6 +65,18 @@ class MetricMetaController {
       next(error);
     }
   };
+
+  public getDistinctJobOfMetricMetabyResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const resourceGroupId = req.params.resourceGroupId;
+      const findMetricData: IMetricMeta[] = await this.metricMetaService.getDistinctJobOfMetricMetabyResourceGroupId(resourceGroupId);
+      res.status(200).json({ data: findMetricData, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
 }
 
 export default MetricMetaController;
