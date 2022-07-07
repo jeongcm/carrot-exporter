@@ -1,3 +1,4 @@
+import sdk from './common/monitoring/tracing';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -16,7 +17,6 @@ import Passport from './modules/UserTenancy/provider/passport';
 import { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
 import sqlInjection from 'sql-injection';
-import sdk from './common/monitoring/tracing';
 
 sdk.start();
 class App {
