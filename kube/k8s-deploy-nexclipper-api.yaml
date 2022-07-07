@@ -80,8 +80,8 @@ spec:
         livenessProbe:
           tcpSocket:
             port: 5001
-          initialDelaySeconds: 15
-          timeoutSeconds: 15
+          initialDelaySeconds: 60
+          timeoutSeconds: 30
         envFrom:
           - configMapRef:
               name: ${APP_IMAGE_NAME}-configmap
