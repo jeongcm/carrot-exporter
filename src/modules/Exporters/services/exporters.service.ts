@@ -47,8 +47,17 @@ class executorService {
      public async getExporter(exporterId: string): Promise<IExporters> {
 
         console.log(exporterId); 
-        const resultExporter = await this.exporters.findOne({where: { exporterId }}); 
+        const resultExporter = await this.exporters.findOne({where: { exporterId, deletedAt: null }}); 
         return resultExporter;
+    }
+
+    /**
+     */
+     public async getExportersAll(): Promise<IExporters[]> {
+
+        const resultExporters: IExporters[] = await this.exporters.findAll({where: { deletedAt: null}}); 
+        console.log(resultExporters);
+        return resultExporters;
     }
 
 }
