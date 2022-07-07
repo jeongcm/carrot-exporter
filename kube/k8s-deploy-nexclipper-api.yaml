@@ -80,7 +80,7 @@ spec:
         livenessProbe:
           tcpSocket:
             port: 5001
-          initialDelaySeconds: 15
+          initialDelaySeconds: 90
           timeoutSeconds: 15
         envFrom:
           - configMapRef:
