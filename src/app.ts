@@ -16,13 +16,18 @@ import Passport from './modules/UserTenancy/provider/passport';
 import { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
 import sqlInjection from 'sql-injection';
+import sdk from './common/monitoring/tracing';
 
+sdk.start();
 class App {
+  
   public port: number;
   public env: string;
   public app: express.Application;
+  
 
   constructor(routes: Routes[]) {
+    
     this.app = express();
     this.port = Number(config.appPort);
     this.env = config.nodeEnv;
