@@ -66,10 +66,6 @@ class TableIdService {
     console.log(tableIdTableName);
     console.log('---------');
 
-    /* TODO: NOT WORKING FROM THIS POINT ON
-       2022-05-15 09:31:49 info: Response Body is {"message":"(conn=396508, no: 1205, SQLState: HY000) Lock wait timeout exceeded; try restarting transaction\nsql: UPDATE `TableId` SET `table_id_final_issued`=?,`table_id_issued_sequence`=?,`updated_at`=?,`updated_by`=? WHERE `table_id_table_name` = ? - parameters:['PL24061600000812',813,'2022-05-15 16:30:58.606','PU24052300000001','PartyUserLogs']"}
-       2022-05-15 09:31:49 info: ::1 - - [15/May/2022:16:31:49 +0000] "POST /login HTTP/1.1" 500 352 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.64 Safari/537.36"
-    */
     await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
 
     const updateResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });

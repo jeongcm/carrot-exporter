@@ -38,6 +38,7 @@ class AlertRoute implements Routes {
     this.router.post('/alert/received', authMiddleware, validationMiddleware(AlertReceivedDto, 'body'), this.alertController.createAlertReceived);
     this.router.get('/alert/received', authMiddleware, this.alertController.getAllAlertReceived);
     this.router.get('/alert/received/recent', authMiddleware, this.alertController.getAllAlertReceivedMostRecent);
+    this.router.get('/alert/received/byalertrule/:alertRuleId', authMiddleware, this.alertController.getAllAlertReceivedByAlertRuleId);
     this.router.get('/alert/received/:alertReceivedId', authMiddleware, this.alertController.getAlertReceived);
     this.router.get('/alert/received/:alertReceivedId/history', authMiddleware, this.alertController.getAlertReceivedHistory);
     this.router.put(

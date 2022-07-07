@@ -14,8 +14,7 @@ export class AttachRuleGroupDto {
     public scoreCard: JSON;
   
   }
-
-export class DetachRuleGroupDto {
+export class UpdateAttachRuleGroupDto {
     @IsString()
     @IsOptional()
     public ruleGroupId: string;
@@ -23,11 +22,22 @@ export class DetachRuleGroupDto {
     @IsString()
     @IsOptional()
     public bayesianModelId: string;
+  
 
-    
+    @IsNotEmpty()
+    public scoreCard: JSON;
+  
+  }
+
+export class DetachRuleGroupDto {
     @IsString()
     @IsNotEmpty()
-    public modelRuleScoreId: string;
+    public ruleGroupId: string;
+  
+    @IsString()
+    @IsNotEmpty()
+    public bayesianModelId: string;
+
   
   
   }

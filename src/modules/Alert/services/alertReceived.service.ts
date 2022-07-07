@@ -7,6 +7,7 @@ import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import AlertRuleService from './alertRule.service';
 import { AlertRuleModel } from '@/modules/Alert/models/alertRule.model';
 import ServiceExtension from '@/common/extentions/service.extension';
+import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 
 const { Op } = require('sequelize');
 
@@ -76,6 +77,32 @@ class AlertReceivedService extends ServiceExtension {
     console.log(where);
 
     return where;
+  }
+
+  public async getAllAlertReceivedByAlertRuleId(customerAccountKey: number, alertRuleId?: string): Promise<any[]>{
+    if (isEmpty(alertRuleId)) throw new HttpException(400, 'Not a valid AlertRuleId');
+    const currentAlertRule: IAlertRule = await this.alertRule.findOne({
+      where: { alertRuleId, deletedAt: null },
+      attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
+    });
+    console.log(currentAlertRule.alertRuleKey)
+    const currentAlertRuleKey = currentAlertRule.alertRuleKey;
+    if (!currentAlertRule) throw new HttpException(404, 'AlertRuleId is not found');
+    const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
+      where: { customerAccountKey: customerAccountKey, deletedAt: null, alertRuleKey: currentAlertRuleKey },
+      // attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+      // include: [{
+      //   model: this.alertRule,
+      //   as: 'alertRule',
+      //   include: [{
+      //     model: this.resourceGroup,
+      //   }]
+      // }],
+    });
+    return allAlertReceived;
+
+
+    return null;
   }
 
   public async getAllAlertReceivedMostRecent(customerAccountKey: number, query?: any[]): Promise<IAlertReceivedWithRule[]> {

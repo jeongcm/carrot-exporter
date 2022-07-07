@@ -67,6 +67,8 @@ import RoleModel from '@/modules/Role/models/role.model';
 import RolePartyModel from '@/modules/Role/models/roleParty.model';
 import ExecutorServiceModel from '@/modules/CommonService/models/exectuorService.model';
 import SudoryWebhookModel from '@/modules/CommonService/models/sudoryWebhook.model';
+import ExportersModel from '@/modules/Exporters/models/exporters.model';
+
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -174,6 +176,7 @@ const DB = {
   RoleParty: RolePartyModel(sequelize),
   SudoryWebhook: SudoryWebhookModel(sequelize),
   ExecutorService: ExecutorServiceModel(sequelize),
+  Exporters: ExportersModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
@@ -232,6 +235,10 @@ DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourc
 
 DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterPk' });
 DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
+
+DB.CustomerAccount.hasMany(DB.ExecutorService, { foreignKey: 'customerAccountKey' });
+DB.ExecutorService.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
 
 // DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
 // DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
@@ -341,8 +348,8 @@ DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 // DB.AnomalyMonitoringTarget.hasOne(DB.PartyUser, { foreignKey: 'created_by' });
 // DB.PartyUser.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'party_user_id' });
 
-DB.ModelRuleScore.hasMany(DB.RuleGroup, { foreignKey: 'rule_group_key' });
-DB.RuleGroup.belongsTo(DB.ModelRuleScore, { foreignKey: 'rule_group_key' });
+DB.RuleGroup.hasMany(DB.ModelRuleScore, { foreignKey: 'rule_group_key' });
+DB.ModelRuleScore.belongsTo(DB.RuleGroup, { foreignKey: 'rule_group_key' });
 
 DB.BayesianModel.hasMany(DB.ModelRuleScore, { foreignKey: 'bayesian_model_key' });
 DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });

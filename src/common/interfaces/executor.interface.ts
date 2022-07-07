@@ -1,6 +1,7 @@
 export interface IExecutorService {
     executorServiceKey: number;
     executorServiceId: string;
+    customerAccountKey: number;
     createdBy: string;
     updatedBy: string;
     createdAt: Date;
@@ -12,5 +13,6 @@ export interface IExecutorService {
     summary: string;
     onCompletion: number;
     subscribedChannel: string;
+    steps: JSON;
     templateUuid: string;
 }

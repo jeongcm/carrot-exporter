@@ -45,7 +45,7 @@ class BayesianModelServices {
     const tableIdName: string = 'BayesianModel';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const BayesianModelId: string = responseTableIdData.tableIdFinalIssued;
-    const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType } = bayesianModelData
+    const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, bayesianModelClusterId } = bayesianModelData
     const currentDate = new Date();
     const BayesianModel = {
       bayesianModelId: BayesianModelId,
@@ -55,6 +55,7 @@ class BayesianModelServices {
       bayesianModelName,
       bayesianModelDescription,
       bayesianModelResourceType,
+      bayesianModelClusterId,
       customerAccountKey,
       bayesianModelStatus: "AC"
     };
