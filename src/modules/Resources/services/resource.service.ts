@@ -216,6 +216,54 @@ class ResourceService {
     return allResources;
   }
 
+    /**
+   * @param  {string} resourceType
+   * @param  {number} resourceGroupId
+   */
+     public async getResourceInNamespaceByTypeResourceGroupId(resourceType: string, resourceGroupId: string): Promise<Object> {
+      const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+      const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+      var returnResources = [];
+      const distinctiveNamespace = await this.resource.findAll(
+              {attributes: ['resourceNamespace'], group:['resourceNamespace'],
+               where: { resourceGroupKey: resourceGroupKey, deletedAt: null, resourceType: resourceType },
+      });
+
+      if (!distinctiveNamespace) {
+        throw new HttpException(404, `No namespace information with the resourceGroup: ${resourceGroupId}`);   
+      }
+
+      let allResources: IResource[] = await this.resource.findAll({
+        where: {
+          deletedAt: null,
+          resourceType,
+          resourceGroupKey: resourceGroupKey,
+        },
+        attributes:  ['resourceName', 'resourceInstance', 'resourceNamespace', 'resourceType', 'resourceId', 'resourceTargetCreatedAt'],
+      })
+
+      for (let i=0; i<distinctiveNamespace.length; i++){
+
+        returnResources[i] = {resourceNamespace: distinctiveNamespace[i].resourceNamespace, resources: allResources.filter(res => res.resourceNamespace === distinctiveNamespace[i].resourceNamespace)} 
+/*
+        let allResources: IResource[] = await this.resource.findAll({
+          where: {
+            deletedAt: null,
+            resourceType,
+            resourceGroupKey: resourceGroupKey,
+            resourceNamespace: distinctiveNamespace[i].resourceNamespace,
+          },
+        })
+        returnResources[i] = {resourceNamespace: distinctiveNamespace[i].resourceNamespace, data: allResources} 
+*/
+        };
+
+    //  return distinctiveNamespace;
+        return returnResources;
+    //    return allResources;
+    }
+
+
   public uniqueData = (arrayData: any) => {
     const resourseKeys = [];
     for (let i = 0; i < arrayData.length; i++) {
