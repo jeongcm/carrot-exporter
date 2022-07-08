@@ -13,6 +13,7 @@ export type RuleGroupAttributes = Optional<
   | 'ruleGroupName'
   | 'ruleGroupDescription'
   | 'ruleGroupStatus'
+  | 'ruleGroupClusterKey'
 >;
 
 export class RuleGroupModel extends Model<IRuleGroup, RuleGroupAttributes > implements IRuleGroup {
@@ -25,6 +26,7 @@ export class RuleGroupModel extends Model<IRuleGroup, RuleGroupAttributes > impl
     public ruleGroupName: string; 
     public ruleGroupDescription: string;
     public ruleGroupStatus: string;
+    public ruleGroupClusterKey: number;
     public updatedAt: Date;
 
     public readonly createdAt!: Date;
@@ -74,6 +76,10 @@ export default function (sequelize: Sequelize): typeof RuleGroupModel {
       },
       ruleGroupStatus: {
         type: DataTypes.STRING(2),
+        allowNull: true,
+      },
+      ruleGroupClusterKey: {
+        type: DataTypes.INTEGER,
         allowNull: true,
       }
     },

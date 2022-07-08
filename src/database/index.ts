@@ -358,6 +358,10 @@ DB.AnomalyMonitoringTarget.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_m
 DB.RuleGroupResolutionAction.hasMany(DB.ResolutionAction, {  foreignKey: 'resolution_action_key' });
 DB.ResolutionAction.belongsTo(DB.RuleGroupResolutionAction, { foreignKey: 'resolution_action_key' });
 
+
+DB.ResourceGroup.hasOne(DB.RuleGroup, { foreignKey: 'rule_group_cluster_key' });
+DB.RuleGroup.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
+
 DB.Party.belongsToMany(DB.Resource, {
   through: {
     model: 'PartyResource',
