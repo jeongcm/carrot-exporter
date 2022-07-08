@@ -12,6 +12,7 @@ const { Op } = require('sequelize');
 class MetricMetaService {
   public tableIdService = new TableIdService();
   public metricMeta = DB.MetricMeta;
+
   public resourceGroupService = new ResourceGroupService();
   public resourceService = new ResourceService();
 
@@ -29,8 +30,21 @@ class MetricMetaService {
       {attributes: ['metricMetaTargetJob'], group:['metricMetaTargetJob'],
        where: { resourceGroupUuid: resource_group_uuid, deletedAt: null },
     });
+    
     return distinctJobMetricMeta;
   }
+
+  public async getDistinctJobOfMetricMetabyResourceGroupId(resourceGroupId: string): Promise<IMetricMeta[]> {
+
+    const resourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+    const distinctJobMetricMeta: IMetricMeta[] = await this.metricMeta.findAll(
+//      {attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('metricMetaTargetJob')), 'metricMetaTargetJob']],
+      {attributes: ['metricMetaTargetJob', 'metricMetaTargetInstance'], group:['metricMetaTargetJob'],
+       where: { resourceGroupUuid: resourceGroup.resourceGroupUuid, deletedAt: null },
+    });
+    return distinctJobMetricMeta;
+  }
+
 
   public async getMetricKeybyCustomerAccountKey(customerAccountKey: number): Promise<number> {
     const allMetricMeta: IMetricMeta = await this.metricMeta.findOne({

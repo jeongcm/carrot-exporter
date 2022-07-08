@@ -168,6 +168,26 @@ class ResourceController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
+   public getResourceInNamespaceByTypeResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceType:string = req.params.resourceType;
+    const resourceGroupId: string = req.params.resourceGroupId;
+
+    try {
+      const resource: IResource[] = await this.resourceService.getResourceInNamespaceByTypeResourceGroupId(resourceType, resourceGroupId);
+      res.status(200).json({ data: resource, message: `find resources with resourceGroup(${resourceGroupId}) and resoruceType ${resourceType}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
   public updateResourceById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const resourceId = req.params.resourceId;

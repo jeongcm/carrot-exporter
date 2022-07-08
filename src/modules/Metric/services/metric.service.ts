@@ -246,18 +246,29 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(sum by (pod) (rate (container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[5m])))`;
         break;
 
-      case 'PV_SPACE_USAGE_USED':
+      case 'PV_SPACE_USAGE_CAPACITY':
         labelString += getSelectorLabels({
           clusterUuid,
-          persistentvolumeclaim: resource.resourcePvClaimRef?.name,
-          namespace: resource.resourcePvClaimRef?.namespace,
+          namespace: resource.resourceNamespace,
+          persistentvolumeclaim: resource.resourceName,
         });
         ranged = true;
 
         promQl = `(
-          sum without(instance, node) (topk(1, (kubelet_volume_stats_capacity_bytes{job="kubelet", metrics_path="/metrics", __LABEL_PLACE_HOLDER__})))
-          -
-          sum without(instance, node) (topk(1, (kubelet_volume_stats_available_bytes{job="kubelet", metrics_path="/metrics", __LABEL_PLACE_HOLDER__})))
+          sum by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
+        )`;
+        break;
+
+      case 'PV_SPACE_USAGE_USED':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resource.resourceNamespace,
+          persistentvolumeclaim: resource.resourceName,
+        });
+        ranged = true;
+
+        promQl = `(
+          sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
         )`;
         break;
 
