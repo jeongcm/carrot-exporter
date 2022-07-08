@@ -29,6 +29,13 @@ class ExporterRoute implements Routes {
       //     createUserLogMiddleware,
       this.exporterController.getExporter,
     );
+    this.router.get(
+      '/exporters',
+      authMiddleware,
+      //     createUserLogMiddleware,
+      this.exporterController.getExportersAll,
+    );
+
   }
 }
 

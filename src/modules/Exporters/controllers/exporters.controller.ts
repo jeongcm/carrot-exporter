@@ -28,6 +28,26 @@ class exporterController {
     }
   }; // end of method
 
+   /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+    public getExportersAll = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+  
+        const getExporters : IExporters[] = await this.exeporterService.getExportersAll();
+        if (!getExporters) {
+          return res.status(404).json({ Data: getExporters, message: `can't find exporter info` });  
+        
+        }
+        res.status(200).json({ data: getExporters, message: `find exporter info ` });
+      } catch (error) {
+        next(error);
+      }
+    }; // end of method
+   
+
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res

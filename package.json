@@ -5,7 +5,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "start": "npm run build && cross-env NODE_ENV=production node dist/server.js",
+    "start": "npm run build && cross-env NODE_ENV=production node -r ./monitoring/tracing.js dist/server.js",
     "dev": "cross-env NODE_ENV=development nodemon server.js",
     "build": "tsc && npx tsc-alias",
     "migrate": "npx sequelize-cli db:migrate",

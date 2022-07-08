@@ -2,7 +2,6 @@
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import sdk from '@/common/monitoring/tracing';
 import express from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
@@ -19,16 +18,15 @@ import { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
 //import sqlInjection from 'sql-injection';
 
-sdk.start();
 class App {
-  
+
   public port: number;
   public env: string;
   public app: express.Application;
-  
+
 
   constructor(routes: Routes[]) {
-    
+
     this.app = express();
     this.port = Number(config.appPort);
     this.env = config.nodeEnv;

@@ -181,6 +181,9 @@ class AccessGroupController {
         res.status(201).json({ data: addedResource, message: 'added' });
       }
     } catch (error) {
+      console.log(error, '<------');
+
+
       next(error);
     }
   };

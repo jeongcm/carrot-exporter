@@ -305,16 +305,13 @@ class AccessGroupService {
 
     const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
 
-    const updated: [number] = await this.partyResource.update(
-      { deletedAt: new Date(), updatedBy: logginedUserId },
-      {
-        where: {
-          partyKey: party.partyKey,
-          resourceKey: { [Op.in]: resourceKeyList },
-          deletedAt: null,
-        },
+    const updated: [number] = await this.partyResource.destroy({
+      where: {
+        partyKey: party.partyKey,
+        resourceKey: { [Op.in]: resourceKeyList },
+        deletedAt: null,
       },
-    );
+    });
 
     return updated;
   }
