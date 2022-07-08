@@ -64,7 +64,7 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
         type: DataTypes.STRING(16),
       },
       updatedBy: {
-        defaultValue:null,
+        defaultValue: null,
         type: DataTypes.STRING(16),
       },
       createdAt: {

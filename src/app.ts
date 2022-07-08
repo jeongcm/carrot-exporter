@@ -1,3 +1,4 @@
+
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -8,21 +9,24 @@ import morgan from 'morgan';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import session from 'express-session';
-import DB from '@/database';
+//import DB from '@/database';
 import { Routes } from '@/common/interfaces/routes.interface';
 import errorMiddleware from '@/common/middlewares/error.middleware';
 import { logger, stream } from '@/common/utils/logger';
 import Passport from './modules/UserTenancy/provider/passport';
 import { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
-import sqlInjection from 'sql-injection';
+//import sqlInjection from 'sql-injection';
 
 class App {
+
   public port: number;
   public env: string;
   public app: express.Application;
 
+
   constructor(routes: Routes[]) {
+
     this.app = express();
     this.port = Number(config.appPort);
     this.env = config.nodeEnv;

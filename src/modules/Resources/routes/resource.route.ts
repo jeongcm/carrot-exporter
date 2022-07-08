@@ -41,6 +41,13 @@ class ResourceRoute implements Routes {
       createUserLogMiddleware,
       this.resourceController.getResourceByTypeResourceGroupId,
     );
+    this.router.get(
+      '/resource/resourceGroup/:resourceGroupId/resourceType/:resourceType',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceController.getResourceInNamespaceByTypeResourceGroupId,
+    );
+
     this.router.put(
       '/resource/:resourceId',
       systemAuthMiddleware,
