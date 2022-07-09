@@ -44,7 +44,7 @@ const { ExpressInstrumentation } = require('@opentelemetry/instrumentation-expre
 
 
 const exporter = new OTLPTraceExporter({
-  url: "http://ncotel-collector-opentelemetry-collector.otel.svc.local:4318/v1/traces"
+  url: "http://ncotel-collector-opentelemetry-collector.otel.svc.cluster.local:4318/v1/traces"
 });
 
 const provider = new BasicTracerProvider({
