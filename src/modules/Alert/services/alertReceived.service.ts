@@ -85,19 +85,13 @@ class AlertReceivedService extends ServiceExtension {
       where: { alertRuleId, deletedAt: null },
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
-    console.log(currentAlertRule.alertRuleKey)
     const currentAlertRuleKey = currentAlertRule.alertRuleKey;
     if (!currentAlertRule) throw new HttpException(404, 'AlertRuleId is not found');
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null, alertRuleKey: currentAlertRuleKey },
-      // attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
-      // include: [{
-      //   model: this.alertRule,
-      //   as: 'alertRule',
-      //   include: [{
-      //     model: this.resourceGroup,
-      //   }]
-      // }],
+      order: [
+        ['alertReceivedActiveAt', 'DESC'],
+    ],
     });
     return allAlertReceived;
 
