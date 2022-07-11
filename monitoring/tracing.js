@@ -31,6 +31,8 @@ const {
   ConsoleSpanExporter,
   SimpleSpanProcessor,
 } = require("@opentelemetry/tracing");
+
+
 const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-http");
 const { Resource } = require("@opentelemetry/resources");
 const {
@@ -42,9 +44,9 @@ const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
 const { ExpressInstrumentation } = require('@opentelemetry/instrumentation-express');
 //const {getNodeAutoInstrumentations,} = require("@opentelemetry/auto-instrumentations-node");
 
-
 const exporter = new OTLPTraceExporter({
-  url: "http://ncotel-collector-opentelemetry-collector.otel.svc.cluster.local:4318/v1/traces"
+  url: "http://ncotel-collector-opentelemetry-collector.otel.svc.cluster.local:4318/v1/traces",
+  headers: {},
 });
 
 const provider = new BasicTracerProvider({
