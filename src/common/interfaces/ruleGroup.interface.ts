@@ -9,5 +9,5 @@ export interface IRuleGroup {
     ruleGroupName: string;
     ruleGroupDescription: string;
     ruleGroupStatus: string;
-    ruleGroupClusterKey: number;
+    resourceGroupKey: number;
   }

@@ -132,23 +132,28 @@ class RuleGroupService {
     return await this.findRuleGroupById(ruleGroupId);
   }
 
-  public async createRuleGroup(ruleGroupData: CreateRuleGroupDto, partyId: string): Promise<IRuleGroup> {
+  public async createRuleGroup(ruleGroupData: CreateRuleGroupDto, partyId: string): Promise<any> {
     if (isEmpty(ruleGroupData)) throw new HttpException(400, 'Create RuleGroup cannot be blank');
     const tableIdName: string = 'RuleGroup';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const ruleGroupId: string = responseTableIdData.tableIdFinalIssued;
+    console.log("ruleGroupData", ruleGroupData)
     const resourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: ruleGroupData.ruleGroupClusterId } })
+    console.log("resourceGroup", resourceGroup)
     if (isEmpty(resourceGroup)) throw new HttpException(400, 'ResouceGroup/cluster is not available');
     const currentDate = new Date();
+    const {ruleGroupDescription, ruleGroupName, ruleGroupStatus} = ruleGroupData
     const newRuleGroup = {
-      ...ruleGroupData,
+      ruleGroupName,
+      ruleGroupDescription,
+      ruleGroupStatus,
       ruleGroupId,
-      ruleGroupClusterKey: resourceGroup.resourceGroupKey,
+      resourceGroupKey: resourceGroup.resourceGroupKey,
       createdAt: currentDate,
       createdBy: partyId,
     };
     const newRuleGroupData: IRuleGroup = await this.ruleGroup.create(newRuleGroup);
-    return newRuleGroupData;
+    return newRuleGroup;
   }
 }
 
