@@ -3,7 +3,7 @@ import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 
 export type RuleGroupResolutionActionAttributes = Optional<
   IRuleGroupResolutionAction,
-  | 'ruleGroupResolutuonActionKey'
+  | 'ruleGroupResolutionActionKey'
   | 'ruleGroupKey'
   | 'resolutionActionKey'
   | 'ruleGroupResolutionActionId'
@@ -20,7 +20,7 @@ export class RuleGroupResolutionActionModel
   extends Model<IRuleGroupResolutionAction, RuleGroupResolutionActionAttributes>
   implements IRuleGroupResolutionAction
 {
-  public ruleGroupResolutuonActionKey: number;
+  public ruleGroupResolutionActionKey: number;
   public ruleGroupKey: number;
   public resolutionActionKey: number;
   public ruleGroupResolutionActionId: string;
@@ -37,7 +37,7 @@ export class RuleGroupResolutionActionModel
 export default function (sequelize: Sequelize): typeof RuleGroupResolutionActionModel {
   RuleGroupResolutionActionModel.init(
     {
-      ruleGroupResolutuonActionKey: {
+      ruleGroupResolutionActionKey: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,

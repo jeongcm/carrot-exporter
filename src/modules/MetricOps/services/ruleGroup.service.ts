@@ -6,11 +6,12 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { CreateRuleGroupDto, UpdateRuleGroupDto } from '../dtos/ruleGroup.dto';
 import { BayesianModelTable } from '../models/bayesianModel.model';
-import {ModelRuleScoreTable} from '../models/modelRuleScore.model';
+import { ModelRuleScoreTable } from '../models/modelRuleScore.model';
 import { SudoryTemplateModel } from '../models/sudoryTemplate.model';
 const { Op } = require('sequelize');
 import pluck from 'lodash/map';
 import couponModel from '@/modules/Billing/models/coupon.model';
+import resourceGroupModel, { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
 class RuleGroupService {
   public tableIdService = new TableIdService();
   public ruleGroup = DB.RuleGroup;
@@ -18,18 +19,18 @@ class RuleGroupService {
   public bayesianModel = DB.BayesianModel;
   public resourceGroup = DB.ResourceGroup;
 
-  public async getRuleGroupByModelId (bayesianModelId?: string): Promise<IRuleGroup[]> {
-    if(bayesianModelId){
-      const bayesianModelDetail = await this.bayesianModel.findOne({where:{bayesianModelId}})
-      const bayesianModelRuleGroup = await this.modelRuleScore.findAll({where:{deletedAt:null, bayesianModelKey:bayesianModelDetail.bayesianModelKey}})
+  public async getRuleGroupByModelId(bayesianModelId?: string): Promise<IRuleGroup[]> {
+    if (bayesianModelId) {
+      const bayesianModelDetail = await this.bayesianModel.findOne({ where: { bayesianModelId } })
+      const bayesianModelRuleGroup = await this.modelRuleScore.findAll({ where: { deletedAt: null, bayesianModelKey: bayesianModelDetail.bayesianModelKey } })
       const ruleGroupKeys = pluck(bayesianModelRuleGroup, 'ruleGroupKey');
       const allRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({
-        where: { deletedAt: null ,  ruleGroupKey: { [Op.notIn]: ruleGroupKeys },},
-        include:[{model:ModelRuleScoreTable,   attributes:["bayesianModelKey"], include:[{model:BayesianModelTable, required:false}]}],
+        where: { deletedAt: null, ruleGroupKey: { [Op.notIn]: ruleGroupKeys }, },
+        include: [{ model: ModelRuleScoreTable, attributes: ["bayesianModelKey"], include: [{ model: BayesianModelTable, required: false }] }],
         attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
       });
       return allRuleGroup;
-    }else{
+    } else {
       return await this.getRuleGroup()
     }
 
@@ -38,7 +39,20 @@ class RuleGroupService {
   public async getRuleGroup(): Promise<IRuleGroup[]> {
     const allRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({
       where: { deletedAt: null },
-      include:[{model:ModelRuleScoreTable,   attributes:["bayesianModelKey"], include:[{model:BayesianModelTable, required:false}]}],
+      include: [
+        {
+          model: ModelRuleScoreTable,
+          attributes: ["bayesianModelKey"],
+          include: [
+            {
+              model: BayesianModelTable,
+              required: false
+            }
+          ]
+        }, {
+          model: ResourceGroupModel
+        }
+      ],
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
 
@@ -48,7 +62,20 @@ class RuleGroupService {
   public async getRuleGroupById(ruleGroupId: string): Promise<IRuleGroup> {
     const ruleGroup: IRuleGroup = await this.ruleGroup.findOne({
       where: { ruleGroupId: ruleGroupId, deletedAt: null },
-      include:[{model:ModelRuleScoreTable, attributes:["bayesianModelKey"],required:false, include:[{model:BayesianModelTable, required:false}]}],
+      include: [{
+        model: ResourceGroupModel
+      },
+      {
+        model: ModelRuleScoreTable,
+        attributes: ["bayesianModelKey"],
+        include: [
+          {
+            model: BayesianModelTable,
+            required: false
+          }
+        ]
+      }
+      ],
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
     return ruleGroup;
@@ -83,7 +110,7 @@ class RuleGroupService {
 
     const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
       where: { ruleGroupId, deletedAt: null },
-      attributes: { exclude: [ 'deletedAt', 'updatedBy', 'createdBy'] },
+      attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
     if (!findRuleGroup) throw new HttpException(409, 'Rule Group Not found');
 
@@ -110,13 +137,13 @@ class RuleGroupService {
     const tableIdName: string = 'RuleGroup';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const ruleGroupId: string = responseTableIdData.tableIdFinalIssued;
-    const resourceGroup = await this.resourceGroup.findOne({where:{resourceGroupId:ruleGroupData.ruleGroupClusterId}})
+    const resourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: ruleGroupData.ruleGroupClusterId } })
     if (isEmpty(resourceGroup)) throw new HttpException(400, 'ResouceGroup/cluster is not available');
     const currentDate = new Date();
     const newRuleGroup = {
       ...ruleGroupData,
       ruleGroupId,
-      ruleGroupClusterKey:resourceGroup.resourceGroupKey,
+      ruleGroupClusterKey: resourceGroup.resourceGroupKey,
       createdAt: currentDate,
       createdBy: partyId,
     };

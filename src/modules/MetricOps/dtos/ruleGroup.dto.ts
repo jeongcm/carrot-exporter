@@ -26,6 +26,9 @@ export class UpdateRuleGroupDto {
   @IsOptional()
   public ruleGroupDescription: string;
 
+  
+  @IsString()
+  public ruleGroupStatus: string;
 
   @IsString()
   @IsOptional()

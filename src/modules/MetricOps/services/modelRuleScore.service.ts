@@ -7,6 +7,7 @@ import CustomerAccountService from '@/modules/CustomerAccount/services/customerA
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { Bool } from 'aws-sdk/clients/clouddirectory';
+import { BayesianModelTable } from '../models/bayesianModel.model';
 
 class ModelRuleScoreService {
     public modelRuleScore = DB.ModelRuleScore;
@@ -33,9 +34,9 @@ class ModelRuleScoreService {
         const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
         const modelRuleScoreId: string = responseTableIdData.tableIdFinalIssued;
         const { ruleGroupId, bayesianModelId, scoreCard } = modelRuleScoreData
-        const ruleGroup = await this.ruleGroup.findOne({where:{ruleGroupId}});
+        const ruleGroup = await this.ruleGroup.findOne({ where: { ruleGroupId } });
         if (!ruleGroup) throw new HttpException(400, `Rule group doesn't exit with this id ${ruleGroupId}`);
-        const bayesianModel = await this.bayesianModel.findOne({where:{bayesianModelId}});
+        const bayesianModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
         if (!bayesianModel) throw new HttpException(400, `Bayesian model doesn't exit with this id ${bayesianModelId}`);
 
         const currentDate = new Date();
@@ -44,8 +45,8 @@ class ModelRuleScoreService {
             createdBy: systemId,
             createdAt: currentDate,
             updatedAt: currentDate,
-            ruleGroupKey:ruleGroup.ruleGroupKey,
-            bayesianModelKey:bayesianModel.bayesianModelKey,
+            ruleGroupKey: ruleGroup.ruleGroupKey,
+            bayesianModelKey: bayesianModel.bayesianModelKey,
             scoreCard
         };
         const newModelRuleScore: IModelRuleScore = await this.modelRuleScore.create(ruleScore);
@@ -60,25 +61,25 @@ class ModelRuleScoreService {
      */
     public async updateAttachRuleGroup(
         modelRuleScoreData: AttachRuleGroupDto,
-        modelRuleScoreId:string,
+        modelRuleScoreId: string,
         systemId: string,
     ): Promise<IModelRuleScore> {
         if (isEmpty(modelRuleScoreData)) throw new HttpException(400, 'modelRuleScoreData cannot be blank');
         const { ruleGroupId, bayesianModelId, scoreCard } = modelRuleScoreData
-        const ruleGroup = await this.ruleGroup.findOne({where:{ruleGroupId}});
+        const ruleGroup = await this.ruleGroup.findOne({ where: { ruleGroupId } });
         if (!ruleGroup) throw new HttpException(400, `Rule group doesn't exit with this id ${ruleGroupId}`);
-        const bayesianModel = await this.bayesianModel.findOne({where:{bayesianModelId}});
+        const bayesianModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
         if (!bayesianModel) throw new HttpException(400, `Bayesian model doesn't exit with this id ${bayesianModelId}`);
 
         const currentDate = new Date();
         const ruleScore = {
             updatedBy: systemId,
             updatedAt: currentDate,
-            ruleGroupKey:ruleGroup.ruleGroupKey,
-            bayesianModelKey:bayesianModel.bayesianModelKey,
+            ruleGroupKey: ruleGroup.ruleGroupKey,
+            bayesianModelKey: bayesianModel.bayesianModelKey,
             scoreCard
         };
-        const newModelRuleScore: any = await this.modelRuleScore.update(ruleScore, {where:{modelRuleScoreId}});
+        const newModelRuleScore: any = await this.modelRuleScore.update(ruleScore, { where: { modelRuleScoreId } });
         return newModelRuleScore;
     }
 
@@ -89,17 +90,17 @@ class ModelRuleScoreService {
      * @returns Promise<IModelRuleScore>
      * @author Shrishti Raj
      */
-     public async detachRuleGroup(
+    public async detachRuleGroup(
         ruleGroupId: string,
-        bayesianModelId:string,
+        bayesianModelId: string,
         systemId: string,
     ): Promise<any> {
 
         const currentDate = new Date();;
-        const ruleGroupDetail = await this.ruleGroup.findOne({where:{ruleGroupId}});
-        const modelDetail = await this.bayesianModel.findOne({where:{bayesianModelId}});
-        const findData = await this.modelRuleScore.update({deletedAt:currentDate}, {where:{ruleGroupKey:ruleGroupDetail.ruleGroupKey, bayesianModelKey:modelDetail.bayesianModelKey}})
-    
+        const ruleGroupDetail = await this.ruleGroup.findOne({ where: { ruleGroupId } });
+        const modelDetail = await this.bayesianModel.findOne({ where: { bayesianModelId } });
+        const findData = await this.modelRuleScore.update({ deletedAt: currentDate }, { where: { ruleGroupKey: ruleGroupDetail.ruleGroupKey, bayesianModelKey: modelDetail.bayesianModelKey } })
+
         return findData;
     }
     /**
@@ -109,19 +110,53 @@ class ModelRuleScoreService {
      * @returns Promise<IModelRuleScore>
      * @author Shrishti Raj
      */
-     public async getModelScoreByGroupId(
-       ruleGroupId:string,
-       bayesianModelId:string
+    public async getModelScoreByGroupId(
+        ruleGroupId: string,
+        bayesianModelId: string
     ): Promise<IModelRuleScore> {
-        const ruleGroupDetail = await this.ruleGroup.findOne({where:{ruleGroupId}});
-        const modelDetail = await this.bayesianModel.findOne({where:{bayesianModelId}});
-        console.log("ruleGroupDetail=====", ruleGroupDetail)
-        const findData = await this.modelRuleScore.findOne({where:{ruleGroupKey:ruleGroupDetail.ruleGroupKey, bayesianModelKey:modelDetail.bayesianModelKey}})
-        if(!findData) throw new HttpException(400, "Model Rule Score  doesn't exist");
+        const ruleGroupDetail = await this.ruleGroup.findOne({ where: { ruleGroupId } });
+        const modelDetail = await this.bayesianModel.findOne({ where: { bayesianModelId } });
+        const findData = await this.modelRuleScore.findOne(
+            {
+                where:
+                {
+                    ruleGroupKey: ruleGroupDetail.ruleGroupKey,
+                    bayesianModelKey: modelDetail.bayesianModelKey
+                }, include: [{ model: BayesianModelTable }]
+            }
+        )
+
+        if (!findData) throw new HttpException(400, "Model Rule Score  doesn't exist");
         return findData;
     }
 
-    
+    /**
+     * get all bayesinaModel attach to rulegroup
+     *
+     * @param  {ruleGroupId} ruleGroupId
+     * @returns Promise<IModelRuleScore>
+     * @author Shrishti Raj
+     */
+    public async getAllModelsByGroupId(
+        ruleGroupId: string
+    ): Promise<any> {
+        const ruleGroupDetail = await this.ruleGroup.findOne({ where: { ruleGroupId } });
+        console.log("ruleGroupDetail", ruleGroupDetail)
+        const findData = await this.modelRuleScore.findOne(
+            {
+                where:
+                {
+                    ruleGroupKey: ruleGroupDetail?.ruleGroupKey,
+                }, 
+                include: [{ model: BayesianModelTable }]
+            }
+        )
+
+        if (!findData) return {message:"No bayesian model used this Group"} ;
+        return findData;
+    }
+
+
 }
 
 export default ModelRuleScoreService;
