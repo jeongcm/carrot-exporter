@@ -1,7 +1,7 @@
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import { IRuleGroup } from '@/common/interfaces/ruleGroup.interface';
 import { NextFunction, Response } from 'express';
-import { RuleGroupDto } from '../dtos/ruleGroup.dto';
+import { CreateRuleGroupDto, UpdateRuleGroupDto } from '../dtos/ruleGroup.dto';
 import RuleGroupService from '../services/ruleGroup.service';
 
 class RuleGroupController {
@@ -55,7 +55,7 @@ class RuleGroupController {
       const {
         user: { partyId },
       } = req;
-      const ruleGroupData: RuleGroupDto = req.body;
+      const ruleGroupData: CreateRuleGroupDto = req.body;
       const createRuleGroupData: IRuleGroup = await this.ruleGroupService.createRuleGroup(ruleGroupData, partyId);
       res.status(201).json({ data: createRuleGroupData, message: 'created' });
     } catch (error) {
@@ -69,7 +69,7 @@ class RuleGroupController {
       const {
         user: { partyId },
       } = req;
-      const ruleGroupData: RuleGroupDto = req.body;
+      const ruleGroupData: UpdateRuleGroupDto = req.body;
       const updateRuleGroupUpdate: IRuleGroup = await this.ruleGroupService.updateRuleGroup(
         ruleGroupId,
         ruleGroupData,

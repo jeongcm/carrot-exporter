@@ -236,8 +236,8 @@ DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourc
 DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterPk' });
 DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
-DB.CustomerAccount.hasMany(DB.ExecutorService, { foreignKey: 'customerAccountKey' });
-DB.ExecutorService.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+DB.CustomerAccount.hasMany(DB.ExecutorService, { foreignKey: 'customer_account_key' });
+DB.ExecutorService.belongsTo(DB.CustomerAccount, { foreignKey: 'customer_account_key' });
 
 
 // DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
@@ -336,8 +336,14 @@ DB.Notification.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey'
 DB.RuleGroup.hasMany(DB.RuleGroupAlertRule, { foreignKey: 'ruleGroupKey' });
 DB.RuleGroupAlertRule.belongsTo(DB.RuleGroup, { foreignKey: 'ruleGroupKey' });
 
+DB.RuleGroup.hasMany(DB.RuleGroupResolutionAction, { foreignKey: 'rule_group_key' });
+DB.RuleGroupResolutionAction.belongsTo(DB.RuleGroup, { foreignKey: 'rule_group_key' });
+
 DB.AlertRule.hasMany(DB.RuleGroupAlertRule, { foreignKey: 'alertRuleKey' });
 DB.RuleGroupAlertRule.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey' });
+
+DB.ResolutionAction.hasMany(DB.RuleGroupResolutionAction, { foreignKey: 'resolution_action_key' });
+DB.RuleGroupResolutionAction.belongsTo(DB.ResolutionAction, { foreignKey: 'resolution_action_key' });
 
 DB.Resource.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'resource_key' });
 DB.AnomalyMonitoringTarget.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
@@ -363,8 +369,8 @@ DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key'
 DB.BayesianModel.hasMany(DB.AnomalyMonitoringTarget, {  foreignKey: 'bayesian_model_key' });
 DB.AnomalyMonitoringTarget.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
-DB.RuleGroupResolutionAction.hasMany(DB.ResolutionAction, {  foreignKey: 'resolution_action_key' });
-DB.ResolutionAction.belongsTo(DB.RuleGroupResolutionAction, { foreignKey: 'resolution_action_key' });
+DB.ResourceGroup.hasOne(DB.RuleGroup, { foreignKey: 'rule_group_cluster_key' });
+DB.RuleGroup.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 
 DB.Party.belongsToMany(DB.Resource, {
   through: {

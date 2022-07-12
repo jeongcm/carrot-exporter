@@ -68,6 +68,11 @@ class BayesianModelRoute implements Routes {
       createUserLogMiddleware,
       this.modelRuleScoreController.getModelScoreByGroupId,
     );
+    this.router.get(
+      '/bayesianModels/ruleGroup/:ruleGroupId',
+      authMiddleware,
+      this.modelRuleScoreController.getAllModelsByGroupId,
+    );
   }
 }
 

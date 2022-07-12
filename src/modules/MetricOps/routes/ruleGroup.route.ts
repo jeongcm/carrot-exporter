@@ -10,7 +10,7 @@ import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import { Router } from 'express';
 import RuleGroupController from '../controllers/ruleGroup.controller';
-import { RuleGroupDto } from '../dtos/ruleGroup.dto';
+import { CreateRuleGroupDto, UpdateRuleGroupDto } from '../dtos/ruleGroup.dto';
 class RuleGroupRoute implements Routes {
   public router = Router();
   public ruleGroupController = new RuleGroupController();
@@ -20,14 +20,14 @@ class RuleGroupRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/ruleGroup', authMiddleware, validationMiddleware(RuleGroupDto, 'body'), this.ruleGroupController.createRuleGroup);
+    this.router.post('/ruleGroup', authMiddleware, validationMiddleware(CreateRuleGroupDto, 'body'), this.ruleGroupController.createRuleGroup);
     this.router.get('/ruleGroup', authMiddleware, this.ruleGroupController.getRuleGroup);
     this.router.post('/ruleGroupByModelId', authMiddleware, this.ruleGroupController.getRuleGroupByModelId);
     this.router.get('/ruleGroup/:ruleGroupId', authMiddleware, this.ruleGroupController.getRuleGroupById);
     this.router.put(
       '/ruleGroup/:ruleGroupId',
       authMiddleware,
-      validationMiddleware(RuleGroupDto, 'body'),
+      validationMiddleware(UpdateRuleGroupDto, 'body'),
       this.ruleGroupController.updateRuleGroup,
     );
     this.router.delete('/ruleGroup/:ruleGroupId', authMiddleware, this.ruleGroupController.deleteRuleGroup);

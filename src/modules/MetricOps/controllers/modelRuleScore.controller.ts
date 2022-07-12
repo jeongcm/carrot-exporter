@@ -81,6 +81,21 @@ class ModelRuleGroupController {
       next(error);
     }
   };
+  public getAllModelsByGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      console.log("getAllModelsByGroupId")
+      const {
+        params:{ruleGroupId = ""}
+      } = req;
+     
+      const modelScoreDetail: IModelRuleScore = await this.modelRuleScoreService.getAllModelsByGroupId(
+        ruleGroupId
+      );
+      res.status(200).json({ data: modelScoreDetail, message: 'findOne' });
+    } catch (error) {
+      next(error);
+    }
+  };
 
  
 }

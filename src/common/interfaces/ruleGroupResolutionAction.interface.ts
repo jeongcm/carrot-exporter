@@ -1,5 +1,5 @@
 export interface IRuleGroupResolutionAction {
-    ruleGroupResolutuonActionKey: number;
+    ruleGroupResolutionActionKey: number;
     ruleGroupKey: number;
     resolutionActionKey: number;
     ruleGroupResolutionActionId: string;

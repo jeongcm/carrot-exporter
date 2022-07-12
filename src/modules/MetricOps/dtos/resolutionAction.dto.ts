@@ -13,6 +13,9 @@ export class CreateResolutionActionDto {
     @IsNotEmpty()
     public sudoryTemplateId: string;
 
+    @IsOptional()
+    public resolutionActionTemplateSteps: JSON;
+
 }
 export class UpdateResolutionActionDto {
     @IsString()
@@ -26,5 +29,9 @@ export class UpdateResolutionActionDto {
     @IsString()
     @IsOptional()
     public sudoryTemplateId: string;
+    
+    @IsOptional()
+    public resolutionActionTemplateSteps: JSON;
+
 
 }
