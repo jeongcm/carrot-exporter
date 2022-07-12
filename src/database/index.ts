@@ -369,7 +369,7 @@ DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key'
 DB.BayesianModel.hasMany(DB.AnomalyMonitoringTarget, {  foreignKey: 'bayesian_model_key' });
 DB.AnomalyMonitoringTarget.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
-DB.ResourceGroup.hasOne(DB.RuleGroup, { foreignKey: 'rule_group_cluster_key' });
+DB.ResourceGroup.hasOne(DB.RuleGroup, { foreignKey: 'resource_group_key' });
 DB.RuleGroup.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 
 DB.Party.belongsToMany(DB.Resource, {

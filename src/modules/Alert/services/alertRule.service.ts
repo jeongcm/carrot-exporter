@@ -11,6 +11,7 @@ class AlertRuleService {
   public tableIdService = new TableIdService();
   public alertRule = DB.AlertRule;
   public ruleGroupAlertRule = DB.RuleGroupAlertRule;
+  public resourceGroup = DB.ResourceGroup;
   public ruleGroup = DB.RuleGroup;
 
   public async getAlertRule(customerAccountKey: number): Promise<IAlertRule[]> {
@@ -145,6 +146,22 @@ class AlertRuleService {
         where: {
           deletedAt: null,
           alertRuleKey: { [Op.notIn]: alertRuleKeys },
+        },
+      });
+      return allAlertRules;
+    } catch (error) {
+      return [];
+    }
+  }
+  
+  public async getAlertRuleByResourceGroupUuid(resourceGroupId: string) {
+    try {
+      const resourceGroup: any = await this.resourceGroup.findOne({ where: { resourceGroupId } });
+      if (isEmpty(resourceGroup)) throw new HttpException(400, 'resourceGroup not found.');
+      const allAlertRules: IAlertRule[] = await this.alertRule.findAll({
+        where: {
+          deletedAt: null,
+         resourceGroupUuid:resourceGroup.resourceGroupUuid,
         },
       });
       return allAlertRules;
