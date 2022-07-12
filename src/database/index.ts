@@ -280,8 +280,8 @@ DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey', as: 'aler
 DB.AlertNotification.hasMany(DB.AlertReceived, { foreignKey: 'alertNotificationKey' });
 DB.AlertReceived.belongsTo(DB.AlertNotification, { foreignKey: 'alertNotificationKey', as: 'alertNotification' });
 
-// DB.AlertRule.hasMany(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
-// DB.ResourceGroup.belongsTo(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
+DB.AlertRule.hasMany(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
+DB.ResourceGroup.belongsTo(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
 
 DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' });
 DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
