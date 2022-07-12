@@ -208,6 +208,15 @@ class AlertRuleController extends ControllerExtension {
       next(error);
     }
   };
+  public getAlertRuleByResourceGroupUuid = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {params:{resourceGroupId}} = req;
+      const aletRuleList :IAlertRule[]  = await this.alertRuleService.getAlertRuleByResourceGroupUuid(resourceGroupId);
+      return res.status(200).json({ data: aletRuleList, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AlertRuleController;
