@@ -137,9 +137,7 @@ class RuleGroupService {
     const tableIdName: string = 'RuleGroup';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const ruleGroupId: string = responseTableIdData.tableIdFinalIssued;
-    console.log("ruleGroupData", ruleGroupData)
     const resourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: ruleGroupData.ruleGroupClusterId } })
-    console.log("resourceGroup", resourceGroup)
     if (isEmpty(resourceGroup)) throw new HttpException(400, 'ResouceGroup/cluster is not available');
     const currentDate = new Date();
     const {ruleGroupDescription, ruleGroupName, ruleGroupStatus} = ruleGroupData
@@ -152,8 +150,9 @@ class RuleGroupService {
       createdAt: currentDate,
       createdBy: partyId,
     };
-    const newRuleGroupData: IRuleGroup = await this.ruleGroup.create(newRuleGroup);
-    return newRuleGroup;
+    await this.ruleGroup.create(newRuleGroup);
+    const newRuleGroupData: IRuleGroup =  await this.getRuleGroupById(ruleGroupId)
+    return newRuleGroupData;
   }
 }
 
