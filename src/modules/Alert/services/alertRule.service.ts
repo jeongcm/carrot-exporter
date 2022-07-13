@@ -5,14 +5,20 @@ import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
+import dayjs from 'dayjs';
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
+
+
 const { Op } = require('sequelize');
 import _ from 'lodash';
 class AlertRuleService {
-  public tableIdService = new TableIdService();
-  public alertRule = DB.AlertRule;
-  public ruleGroupAlertRule = DB.RuleGroupAlertRule;
-  public resourceGroup = DB.ResourceGroup;
-  public ruleGroup = DB.RuleGroup;
+  private tableIdService = new TableIdService();
+  private alertRule = DB.AlertRule;
+  private alertReceived = DB.AlertReceived;
+  private ruleGroupAlertRule = DB.RuleGroupAlertRule;
+  private resourceGroup = DB.ResourceGroup;
+  private ruleGroup = DB.RuleGroup;
 
   public async getAlertRule(customerAccountKey: number): Promise<IAlertRule[]> {
     const allAlertRules: IAlertRule[] = await this.alertRule.findAll({
@@ -23,8 +29,13 @@ class AlertRuleService {
   }
 
   public async getAlertRuleGraph(customerAccountKey: number, status: string): Promise<IAlertRuleGraph[]> {
+    const ago = dayjs().subtract(1.5, 'hour').utc().toDate();
+
+    console.log(dayjs().utc().toDate());
+    console.log(ago);
+
     const allAlertRules: IAlertRuleGraph[] = await this.alertRule.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null,alertRuleState: status },
+      where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: {
         exclude: [
           'alertRuleKey',
@@ -42,9 +53,21 @@ class AlertRuleService {
           'updatedAt',
         ],
       },
+      include: [
+        {
+          model: this.alertReceived,
+          where: {
+            // alertReceivedState: status,
+            alertReceivedActiveAt: {
+              [Op.gt]: ago,
+            },
+          },
+        },
+      ],
     });
     return allAlertRules;
   }
+
   public async findAlertRuleById(alertRuleId: string): Promise<IAlertRule> {
     if (isEmpty(alertRuleId)) throw new HttpException(400, 'Not a valid Alert Rule');
 
@@ -106,16 +129,14 @@ class AlertRuleService {
     return await this.findAlertRuleById(alertRuleId);
   }
 
-  public async getAlertRuleById(
-    alertRuleId: string,
-  ): Promise<IAlertRule> {
+  public async getAlertRuleById(alertRuleId: string): Promise<IAlertRule> {
     if (isEmpty(alertRuleId)) throw new HttpException(400, 'alertRuleId must not be blank.');
     return await this.findAlertRuleById(alertRuleId);
   }
 
   public async createAlertRule(alertRuleData: CreateAlertRuleDto, customerAccountKey: number, partyId: string): Promise<IAlertRule> {
     if (isEmpty(alertRuleData)) throw new HttpException(400, 'Create AlertRule cannot be blank');
-    const tableIdName: string = 'AlertRule';
+    const tableIdName = 'AlertRule';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const tempAlertRuleId: string = responseTableIdData.tableIdFinalIssued;
 
@@ -153,7 +174,7 @@ class AlertRuleService {
       return [];
     }
   }
-  
+
   public async getAlertRuleByResourceGroupUuid(resourceGroupId: string) {
     try {
       const resourceGroup: any = await this.resourceGroup.findOne({ where: { resourceGroupId } });
@@ -161,7 +182,7 @@ class AlertRuleService {
       const allAlertRules: IAlertRule[] = await this.alertRule.findAll({
         where: {
           deletedAt: null,
-         resourceGroupUuid:resourceGroup.resourceGroupUuid,
+          resourceGroupUuid: resourceGroup.resourceGroupUuid,
         },
       });
       return allAlertRules;
