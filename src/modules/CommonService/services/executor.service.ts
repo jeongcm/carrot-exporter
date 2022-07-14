@@ -237,57 +237,6 @@ class executorService {
             throw new HttpException(500, "Unknown error while searching executor/sudory client");
         });
 
-        /* this is for a logic to avoid deadlock when you use Mariadb"        
-
-        const d = new Date();
-        let minutes = d.getMinutes();
-
-        var newMin = new Array();
-        for (let i=1; i<16; i++) {
-            if ((minutes+i)>=60) {
-                newMin[i] = (minutes+i)-60;
-            } 
-            newMin[i] = minutes + i;
-        }    
-
-        const newCrontab1 = newMin[1] + " * * * *";  //ND
-        const newCrontab2 = newMin[2] + " * * * *";  //NS
-        const newCrontab3 = newMin[3] + " * * * *";  //SV
-        const newCrontab4 = newMin[4] + " * * * *";  //EP
-        const newCrontab5 = newMin[5] + " * * * *";  //PD
-        const newCrontab6 = newMin[6] + " * * * *";  //DP
-        const newCrontab7 = newMin[7] + " * * * *";  //DS
-        const newCrontab8 = newMin[8] + " * * * *";  //RS
-        const newCrontab9 = newMin[9] + " * * * *";  //SS
-        const newCrontab10 = newMin[10] + " * * * *";  //PC
-        const newCrontab11 = newMin[11] + " * * * *";  //SE
-        const newCrontab12 = newMin[12] + " * * * *";  //CM
-        const newCrontab13 = newMin[13] + " * * * *";  //PV
-        const newCrontab14 = newMin[14] + " * * * *";  //SC
-        const newCrontab15 = newMin[15] + " * * * *";  //IG
-
-        for (let i=1; i<16; i++){    
-            console.log(newMin[i]);}
-        */
-/*
-        let newMin = minutes + 1;
-        const newCrontab1 = newMin + " * * * *";
-        const newCrontab2 = newMin + " * * * *";
-        const newCrontab3 = newMin + " * * * *";
-        const newCrontab4 = newMin + " * * * *";
-        const newCrontab5 = newMin + " * * * *";
-        const newCrontab6 = newMin + " * * * *";
-        const newCrontab7 = newMin + " * * * *";
-        const newCrontab8 = newMin + " * * * *";
-        const newCrontab9 = newMin + " * * * *";
-        const newCrontab10 = newMin + " * * * *";
-        const newCrontab11 = newMin + " * * * *";
-        const newCrontab12 = newMin + " * * * *";
-        const newCrontab13 = newMin + " * * * *";
-        const newCrontab14 = newMin + " * * * *";
-        const newCrontab15 = newMin + " * * * *";
-            
-*/
         const newCrontab1 = " */10 * * * *";
         const newCrontab2 = " */10 * * * *";
         const newCrontab3 = " */10 * * * *";
@@ -464,12 +413,12 @@ class executorService {
    * @param {string} clusterUuid
    * @param {string} targetNamespace 
    */
-    public async installKpsOnResourceGroup(clusterUuid: string, customerAccountKey: number, targetNamespace: string, systemId: string ): Promise<string> {
+    public async installKpsOnResourceGroup(clusterUuid: string, customerAccountKey: number, targetNamespace: string, systemId: string ): Promise<object> {
 
-      var serviceUuid ="";
+      var serviceUuid =[];
       const apiUrl = config.appUrl + config.appPort;
       const prometheus = "kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"
-      const kpsSteps=  `[{args: 
+      const kpsSteps=  [{args: 
                             {name: 'kps', 
                             chart_name:'kube-prometheus-stack',
                             repo_url:'https://repo.nexclipper.io/chartrepo/nexclipper-dev', 
@@ -477,16 +426,18 @@ class executorService {
                             chart_version:'35.0.3-nc',
                             values:{}
                             }
-                    }]`
+                       }]
 
       const kpsExecuteName = "KPS Helm Instllation";
       const kpsExecuteSummary = "KPS Helm Installation";
       const kpsTemplateUuid =   "20000000000000000000000000000001"  ;                        
       const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey); 
+      console.log ("########### helm chart");
       console.log(executeKpsHelm);
+
       if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
 
-      const lokiSteps=  `[{args: 
+      const lokiSteps=  [{args: 
                             {name: 'loki', 
                             chart_name:'loki-stack',
                             repo_url:'https://repo.nexclipper.io/chartrepo/nexclipper-dev', 
@@ -494,12 +445,13 @@ class executorService {
                             chart_version:'2.6.4-nc',
                             values:{}
                             }
-                    }]`
+                        }]
 
       const lokiExecuteName = "Loki-Promtail Helm Instllation";
       const lokiExecuteSummary = "Loki-Promtail Helm Installation";
       const lokiTemplateUuid =   "20000000000000000000000000000001"  ;                        
       const executeLokiHelm = this.postExecuteService(lokiExecuteName, lokiExecuteSummary, clusterUuid, lokiTemplateUuid, lokiSteps, customerAccountKey); 
+      console.log ("########### Loki chart");
       console.log(executeLokiHelm);              
       // update ResourceGroup - resourceGroupPrometheus
       const resourceGroup = {resourceGroupPrometheus: prometheus}; 
@@ -584,7 +536,8 @@ class executorService {
           on_completion: on_completion,
           subscribed_channel: 'webhook_test',
         };
-       let serviceData = await axios(
+        console.log(sudoryServiceData); 
+        let serviceData = await axios(
           {
             method: 'post',
             url: sudoryUrl,
@@ -1159,7 +1112,7 @@ class executorService {
                     scheduleFrom: "",
                     scheduleTo: "",
                     clusterId: clusterUuid,
-                    accountId: customerAccountData.customerAccountId,
+                    //accountId: customerAccountData.customerAccountId,
                     apiBody:
                         {
                             cluster_uuid: clusterUuid,
@@ -1178,6 +1131,7 @@ class executorService {
                         }
                     };
         let resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId); 
+    
         cronJobKey = {key: resultNewCron.scheduleKey, jobname: scheduleName, type: "add"}
             
         return cronJobKey; 
