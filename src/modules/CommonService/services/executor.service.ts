@@ -16,7 +16,6 @@ import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
-
 class executorService {
 //    public tableIdService = new TableIdService();
     public customerAccountService = new CustomerAccountService();
@@ -468,43 +467,40 @@ class executorService {
     public async installKpsOnResourceGroup(clusterUuid: string, customerAccountKey: number, targetNamespace: string, systemId: string ): Promise<string> {
 
       var serviceUuid ="";
-      var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+      const apiUrl = config.appUrl + config.appPort;
+      const prometheus = "kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"
+      const kpsSteps=  `[{args: 
+                            {name: 'kps', 
+                            chart_name:'kube-prometheus-stack',
+                            repo_url:'https://repo.nexclipper.io/chartrepo/nexclipper-dev', 
+                            namespace: targetNamespace,
+                            chart_version:'35.0.3-nc',
+                            values:{}
+                            }
+                    }]`
 
-      const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
-      const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
-      const sudoryServiceData = {cluster_uuid: clusterUuid, 
-                                 name: "kps helm installation", 
-                                 template_uuid: "20000000000000000000000000000001", 
-                                 summary: "kps helm installation", 
-                                 on_completion: on_completion,
-                                 subscribe_channel: "", 
-                                 steps: [
-                                    {args: 
-                                        {name: 'kps', 
-                                         chart_name:'kube-prometheus-stack',
-                                         repo_url:'https://repo.nexclipper.io/chartrepo/nexclipper-dev', 
-                                         namespace: targetNamespace,
-                                         chart_version:'35.2.0',
-                                         values:{}
-                                        }
-                                    }
-                                ] 
-                                };
-      await axios(
-        {
-          method: 'post',
-          url: `${executorServerUrl}`,
-          data: sudoryServiceData,
-          headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
-        }).then(async (res: any) => {
-          serviceUuid = res.data.uuid
-          console.log(`Submit kps chart installation reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
+      const kpsExecuteName = "KPS Helm Instllation";
+      const kpsExecuteSummary = "KPS Helm Installation";
+      const kpsTemplateUuid =   "20000000000000000000000000000001"  ;                        
+      const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey); 
+      console.log(executeKpsHelm);
+      if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
 
-        }).catch(error => {
-          console.log(error);
-          throw new HttpException(500, "Unknown error to install kps chart");
-        });
+      const lokiSteps=  `[{args: 
+                            {name: 'loki', 
+                            chart_name:'loki-stack',
+                            repo_url:'https://repo.nexclipper.io/chartrepo/nexclipper-dev', 
+                            namespace: targetNamespace,
+                            chart_version:'2.6.4-nc',
+                            values:{}
+                            }
+                    }]`
 
+      const lokiExecuteName = "Loki-Promtail Helm Instllation";
+      const lokiExecuteSummary = "Loki-Promtail Helm Installation";
+      const lokiTemplateUuid =   "20000000000000000000000000000001"  ;                        
+      const executeLokiHelm = this.postExecuteService(lokiExecuteName, lokiExecuteSummary, clusterUuid, lokiTemplateUuid, lokiSteps, customerAccountKey); 
+      console.log(executeLokiHelm);              
       // update ResourceGroup - resourceGroupPrometheus
       const resourceGroup = {resourceGroupPrometheus: prometheus}; 
       // get system user id
@@ -543,7 +539,23 @@ class executorService {
             console.log(error);
             throw new HttpException(500, "Submitted kps chart installation request but fail to schedule metric-received sync");
           }); //end of catch
-  
+
+      const getCustomerAccount = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey); 
+
+      const cronData = { name: "SyncMetricReceived",
+        summary: "SyncMetricReceived",
+        cronTab: "*/10 * * * *",
+        apiUrl: apiUrl,
+        reRunRequire: true,
+        scheduleFrom: "",
+        scheduleTo: "",
+        clusterId: clusterUuid,
+        //accountId: getCustomerAccount.customerAccountId,
+        apiBody:
+            {}
+      };    
+      const resultSchedule = await this.schedulerService.createScheduler(cronData, getCustomerAccount.customerAccountId); 
+      console.log (resultSchedule)
 
       return serviceUuid;
     }          
@@ -976,8 +988,6 @@ class executorService {
    public async scheduleMetricMeta(clusterUuid: string, customerAccountKey: number): Promise<string> {
 
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
-        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
-        const authToken = config.ncCronApiDetail.authToken;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
@@ -1000,6 +1010,8 @@ class executorService {
                     cronTab: "*/5 * * * *",
                     clusterId: clusterUuid,
                     reRunRequire: true,
+                    scheduleFrom: "",
+                    scheduleTo: "",
                     accountId: customerAccountData.customerAccountId,
                     apiUrl: executorServerUrl,
                     apiBody:
@@ -1023,21 +1035,9 @@ class executorService {
                         }
                     };
         
-        await axios(
-            {
-            method: 'post',
-            url: `${cronUrl}`,
-            data: cronData,
-            headers: { 'X_AUTH_TOKEN': `${authToken}` }
-            }).then(async (res: any) => {
-            //    console.log(res);                              
-                cronJobKey = res.data.data.scheduleKey
-                console.log(`Submit MetricMeta scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
-            }).catch(error => {
-                console.log(error);
-                throw new HttpException(500, "Unknown error to request MetricMeta scheduling");
-            });
-       
+        let resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId); 
+        cronJobKey = {key: resultNewCron.scheduleKey, jobname: "Get MetricMeta", type: "add"}
+
         return cronJobKey; 
     }
 
@@ -1048,8 +1048,6 @@ class executorService {
 
      public async scheduleAlert(clusterUuid: string, customerAccountKey: number): Promise<string> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
-        const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
@@ -1074,6 +1072,8 @@ class executorService {
                     cronTab: "* * * * *",
                     apiUrl: executorServerUrl,
                     reRunRequire: true,
+                    scheduleFrom: "",
+                    scheduleTo: "",
                     clusterId: clusterUuid,
                     accountId: customerAccountData.customerAccountId,
                     apiBody:
@@ -1094,21 +1094,9 @@ class executorService {
                         }
                     };
         
-        await axios(
-            {
-            method: 'post',
-            url: `${cronUrl}`,
-            data: cronData,
-            headers: { 'X_AUTH_TOKEN': `${authToken}` }
-            }).then(async (res: any) => {
-            //    console.log(res);                              
-                cronJobKey = res.data.data.scheduleKey
-                console.log(`Submit alert feeds scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
-            }).catch(error => {
-                console.log(error);
-                throw new HttpException(500, "Unknown error to request Alert feeds scheduling");
-            });
-       
+        let resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId); 
+        cronJobKey = {key: resultNewCron.scheduleKey, jobname: "Get Alert Rules & Alert Received", type: "add"}
+      
         return cronJobKey; 
     }
 
@@ -1118,8 +1106,6 @@ class executorService {
    */
     public async scheduleResource(clusterUuid: string, customerAccountKey: number, resourceType: string, newCrontab: string): Promise<string> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
-        const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         const subscribed_channel = config.sudoryApiDetail.channel_resource;
@@ -1170,6 +1156,8 @@ class executorService {
                     cronTab: newCrontab,
                     apiUrl: executorServerUrl,
                     reRunRequire: true,
+                    scheduleFrom: "",
+                    scheduleTo: "",
                     clusterId: clusterUuid,
                     accountId: customerAccountData.customerAccountId,
                     apiBody:
@@ -1189,21 +1177,9 @@ class executorService {
                             ]
                         }
                     };
-        
-        await axios(
-            {
-            method: 'post',
-            url: `${cronUrl}`,
-            data: cronData,
-            headers: { 'X_AUTH_TOKEN': `${authToken}` }
-            }).then(async (res: any) => {                            
-                cronJobKey = res.data.data.scheduleKey;
-                console.log(`Submit Resource feeds scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
-            }).catch(error => {
-                console.log(error);
-                throw new HttpException(500, "Unknown error to request resource-node feeds scheduling");
-            });
-
+        let resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId); 
+        cronJobKey = {key: resultNewCron.scheduleKey, jobname: scheduleName, type: "add"}
+            
         return cronJobKey; 
     }
 
@@ -1213,8 +1189,6 @@ class executorService {
    */
     public async scheduleMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
-        const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         const subscribed_channel = config.sudoryApiDetail.channel_metric_received;
@@ -1253,8 +1227,10 @@ class executorService {
                         cronTab: "*/5 * * * *",
                         apiUrl: executorServerUrl,
                         clusterId: clusterUuid,
-                        accountId: customerAccountData.customerAccountId,
+                        //accountId: customerAccountData.customerAccountId,
                         reRunRequire: true,
+                        scheduleFrom: "",
+                        scheduleTo: "",
                         apiBody:
                         {
                             cluster_uuid: clusterUuid,
@@ -1274,22 +1250,9 @@ class executorService {
                         }
             };
             
-            console.log(cronData);
-        //interface with Cron
-       
-            await axios(
-                {
-                method: 'post',
-                url: `${cronUrl}`,
-                data: cronData,
-                headers: { 'X_AUTH_TOKEN': `${authToken}` }
-                }).then(async (res: any) => {                            
-                    cronJobKey[i] = {key: res.data.data.scheduleKey, jobname: targetJob}
-                    console.log(`Submit metric-received feeds - job ${targetJob} scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
-                }).catch(error => {
-                    console.log(error);
-                    throw new HttpException(500, "Unknown error to request metric-received feeds scheduling");
-                });
+            let resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId); 
+            cronJobKey[i] = {key: resultNewCron.scheduleKey, jobname: targetJob, type: "add"}
+
         } // end of for loop
         return cronJobKey;            
     }
