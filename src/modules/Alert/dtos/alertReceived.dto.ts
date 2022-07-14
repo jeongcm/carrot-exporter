@@ -44,5 +44,18 @@ export class AlertReceivedDto {
 
     @IsString()
     public alertReceivedPod: string;
+
+    @IsString()
+    public alertReceivedContainer: string;
+
+    @IsString()
+    public alertReceivedUid: string;
+
+    @IsString()
+    public alertReceivedReason: string;
+
+    @IsString()
+    public alertReceivedEndpoint: string;
+
   }
   

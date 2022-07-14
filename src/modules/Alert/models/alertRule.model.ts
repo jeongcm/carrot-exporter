@@ -20,6 +20,9 @@ export type AlertRuleCreationAttributes = Optional<
   | 'alertRuleDescription'
   | 'alertRuleSummary'
   | 'alertRuleRunbook'
+  | 'alertRuleEvaluationTime'
+  | 'alertRuleHealth'
+  | 'alertRuleLastEvaluation'
   | 'resourceGroupUuid'
 >;
 
@@ -42,6 +45,9 @@ export class AlertRuleModel extends Model<IAlertRule, AlertRuleCreationAttribute
   public alertRuleSummary: string;
   public alertRuleRunbook: string;
   public resourceGroupUuid: string;
+  public alertRuleHealth: string;
+  public alertRuleEvaluationTime: number;
+  public alertRuleLastEvaluation: Date;
 
   public updatedAt: Date;
 
@@ -120,6 +126,18 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
       alertRuleRunbook: {
         type: DataTypes.STRING(100),
         allowNull: false,
+      },
+      alertRuleHealth: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+      },
+      alertRuleEvaluationTime: {
+        type: DataTypes.DOUBLE,
+        allowNull: true,
+      },
+      alertRuleLastEvaluation: {
+        type: DataTypes.DOUBLE,
+        allowNull: true,
       },
       resourceGroupUuid: {
         type: DataTypes.STRING(100),
