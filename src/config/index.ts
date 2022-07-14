@@ -102,7 +102,7 @@ export default {
     baseURL: process.env.FUSEBILL_BASE_URL,
   },
   ncCronApiDetail: {
-    baseURL: process.env.NC_CRON_URL || 'http://localhost:5010/scheduler',
+    baseURL: process.env.NC_CRON_URL || 'http://localhost:5010',
     authToken: process.env.NC_CRON_X_AUTH_TOKEN || 'CRON',
   },
   sudoryApiDetail: {

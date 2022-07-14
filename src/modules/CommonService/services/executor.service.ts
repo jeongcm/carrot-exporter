@@ -1298,13 +1298,17 @@ class executorService {
    * @param {string} clusterUuid
    */
     public async syncMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
-/*        
+        
         let cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
         let authToken = config.ncCronApiDetail.authToken;
         let distinctJobList;
         let targetJobDbAll;
         let targetJobDb = [];
         let targetJobCron = [];
+        let on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
+        let executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+        let subscribed_channel = config.sudoryApiDetail.channel_metric_received;
+        var cronJobKey =[];
 
         //get customerAccountId
         const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
@@ -1317,6 +1321,7 @@ class executorService {
         if (!responseResourceGroup) {
             throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);   
         }
+        let prometheus = responseResourceGroup.resourceGroupPrometheus;
         //pull metric target
         distinctJobList = await this.MetricMetaService.getDistinctJobOfMetricMetabyUuid(clusterUuid); 
         if (!distinctJobList) {
@@ -1326,8 +1331,10 @@ class executorService {
         targetJobDbAll = JSON.parse(JSON.stringify(distinctJobList));
         targetJobDb = targetJobDbAll.map(function (obj) {return obj.metricMetaTargetJob})
         console.log (targetJobDb);
+        console.log("#####################")
 
        //pull active metric-received job from nc-cron
+    
        const resultFromCron = await this.schedulerService.getSchedulerByClusterId(clusterUuid);
        console.log ("######## target job from scheduler");
        let newList = [];
@@ -1344,7 +1351,9 @@ class executorService {
             let job = query.toString().substring(query.toString().indexOf('"')+1, query.toString().lastIndexOf('"'));
             targetJobCron[i] = job;
        }
+       console.log("###### from Cron ###############")
        console.log (targetJobCron);
+       console.log("#####################")
 
        //start metric-received feeds for any new targets
 
@@ -1352,17 +1361,68 @@ class executorService {
        console.log ("filter result for new  "); 
        console.log (newTargetJob);  
         // call scheduleMetricReceived() with loop
-        // 
+       for (let n=0; n<Object.keys(newTargetJob).length; n++) {
 
+        let targetJob = newTargetJob[n].metricMetaTargetJob
+        let matricQuery = `{job="` + targetJob + `"}`;
+        let matricName = "MetricReceived-" + targetJob; 
+        let matricSummary = targetJob;
+        
+        let cronData = { name: matricName,
+                    summary: matricSummary,
+                    cronTab: "*/5 * * * *",
+                    apiUrl: executorServerUrl,
+                    clusterId: clusterUuid,
+                    accountId: customerAccountData.customerAccountId,
+                    reRunRequire: true,
+                    apiBody:
+                    {
+                        cluster_uuid: clusterUuid,
+                        name: matricName,
+                        template_uuid: "10000000000000000000000000000001",
+                        summary: matricSummary,
+                        subscribed_channel: subscribed_channel,
+                        on_completion: on_completion,
+                        steps: [
+                                {
+                                    args: {
+                                            url: prometheus,
+                                            query: matricQuery
+                                        }
+                                }
+                        ]
+                    }
+        };
+        
+        console.log(cronData);
+    //interface with Cron
+        await axios(
+            {
+            method: 'post',
+            url: `${cronUrl}`,
+            data: cronData,
+            headers: { 'X_AUTH_TOKEN': `${authToken}` }
+            }).then(async (res: any) => {                            
+                cronJobKey[n] = {key: res.data.data.scheduleKey, jobname: targetJob}
+                console.log(`Submit metric-received feeds - job ${targetJob} scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
+            }).catch(error => {
+                console.log(error);
+                throw new HttpException(500, "Unknown error to request metric-received feeds scheduling");
+            });
+
+       }
         //cancel metric-received feeds for any retuired targets
         // call cancel method with loop
-        let oldTargetJob = targetJobCron.filter(x => !targetJobDb.includes(x)); 
+        let cancelTargetJob = targetJobCron.filter(x => !targetJobDb.includes(x)); 
         console.log ("filter result for cancellation "); 
-        console.log (oldTargetJob);  
+        console.log (cancelTargetJob);  
         //search the cron job and run cancellation loop
         //return process results
-*/        
-        return;
+        for (let n=0; n<Object.keys(cancelTargetJob).length; n++) {
+        }
+
+       
+        return cronJobKey;
     }    
     
     /**

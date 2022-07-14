@@ -58,9 +58,9 @@ class SchedulerService {
   }
 
   public async getSchedulerByClusterId(clusterId: string): Promise<any> {
-    const schedulerServerUrl = config.ncCronApiDetail.baseURL + '/cluster/' + clusterId;
+    const schedulerServerUrl = config.ncCronApiDetail.baseURL + '/scheduler/cluster/' + clusterId;
     let result = [];
-
+    
     await axios({
       method: 'get',
       url: `${schedulerServerUrl}`,
@@ -71,6 +71,7 @@ class SchedulerService {
 
         if (statusCode === 200) {
           result = res?.data?.data;
+          console.log(res.data)
         }
       })
       .catch(error => {
