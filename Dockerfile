@@ -27,7 +27,7 @@ CMD [ "npm", "run", "dev"]
 # Production build stage
 FROM common-build-stage as production-build-stage
 
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
 COPY . /usr/src/app/
 
