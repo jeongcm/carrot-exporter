@@ -24,6 +24,10 @@ export interface IAlertReceived {
   alertReceivedInstance: string;
   alertReceivedLabels: JSON;
   alertReceivedPinned: boolean;
+  alertReceivedContainer: string;
+  alertReceivedEndpoint: string;
+  alertReceivedReason: string;
+  alertReceivedUid: string;
 }
 
 export interface IAlertReceivedDetailed extends IAlertReceived {

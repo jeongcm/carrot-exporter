@@ -44,5 +44,13 @@ export class CreateAlertRuleDto {
   @IsString()
   @IsNotEmpty()
   public resourceGroupUuid: string;
+
+  @IsString()
+  public alertRuleHealth: string;
+
+  public alertRuleEvaluationTime: number;
+
+  public alertRuleLastEvaluation: Date;
+
 }
 

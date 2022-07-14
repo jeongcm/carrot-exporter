@@ -1,3 +1,5 @@
+import { double } from "aws-sdk/clients/lightsail";
+
 export interface IAlertRule {
     alertRuleKey: number;
     customerAccountKey: number;
@@ -16,6 +18,9 @@ export interface IAlertRule {
     alertRuleSummary: string;
     alertRuleRunbook: string;
     alertRuleState: string;
+    alertRuleHealth: string;
+    alertRuleEvaluationTime: double;
+    alertRuleLastEvaluation: Date;
     resourceGroupUuid: string;
   }
 

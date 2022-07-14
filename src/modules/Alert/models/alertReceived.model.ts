@@ -26,6 +26,10 @@ export type AlertReceivedCreationAttributes = Optional<
   | 'alertReceivedInstance'
   | 'alertReceivedLabels'
   | 'alertReceivedPinned'
+  | 'alertReceivedContainer'
+  | 'alertReceivedEndpoint'
+  | 'alertReceivedReason'
+  | 'alertReceivedUid'
 >;
 
 export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreationAttributes> implements IAlertReceived {
@@ -51,6 +55,10 @@ export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreat
   public alertReceivedInstance: string;
   public alertReceivedLabels: JSON;
   public alertReceivedPinned: boolean;
+  public alertReceivedContainer: string;
+  public alertReceivedEndpoint: string;
+  public alertReceivedReason: string;
+  public alertReceivedUid: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -132,19 +140,35 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
       },
       alertReceivedNode: {
         type: DataTypes.STRING(100),
-        allowNull: false,
+        allowNull: true,
       },
       alertReceivedService: {
         type: DataTypes.STRING(100),
-        allowNull: false,
+        allowNull: true,
       },
       alertReceivedPod: {
         type: DataTypes.STRING(100),
-        allowNull: false,
+        allowNull: true,
       },
       alertReceivedInstance: {
         type: DataTypes.STRING(100),
-        allowNull: false,
+        allowNull: true,
+      },
+      alertReceivedContainer: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+      },
+      alertReceivedEndpoint: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+      },
+      alertReceivedReason: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+      },
+      alertReceivedUid: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
       },
       alertReceivedLabels: {
         type: DataTypes.JSON,
