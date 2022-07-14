@@ -31,9 +31,6 @@ class AlertRuleService {
   public async getAlertRuleGraph(customerAccountKey: number, status: string): Promise<IAlertRuleGraph[]> {
     const ago = dayjs().subtract(1.5, 'hour').utc().toDate();
 
-    console.log(dayjs().utc().toDate());
-    console.log(ago);
-
     const allAlertRules: IAlertRuleGraph[] = await this.alertRule.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: {

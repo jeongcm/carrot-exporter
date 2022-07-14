@@ -26,7 +26,6 @@ export type AlertReceivedCreationAttributes = Optional<
   | 'alertReceivedInstance'
   | 'alertReceivedLabels'
   | 'alertReceivedPinned'
-  | 'alertReceivedStatus'
 >;
 
 export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreationAttributes> implements IAlertReceived {
@@ -52,7 +51,6 @@ export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreat
   public alertReceivedInstance: string;
   public alertReceivedLabels: JSON;
   public alertReceivedPinned: boolean;
-  public alertReceivedStatus: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -156,12 +154,7 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      alertReceivedStatus: {
-        type: DataTypes.STRING(2),
-        defaultValue: false,
-      },
     },
-
     {
       tableName: 'AlertReceived',
       modelName: 'AlertReceived',
