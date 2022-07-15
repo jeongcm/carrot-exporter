@@ -155,8 +155,8 @@ class PartyController {
 
   public logout = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      res.setHeader('set-cookie', ['X-AUTHORIZATION=; Max-age=0']);
-      req.logOut();
+      res.setHeader('Set-Cookie', ['X-AUTHORIZATION=; Max-age=0']);
+      res.removeHeader('X-AUTHORIZATION');
       res.status(200).send({ message: 'Logged out successfully' });
     } catch (error) {
       next(error);
