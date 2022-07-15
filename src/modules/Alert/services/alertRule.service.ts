@@ -6,9 +6,8 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import dayjs from 'dayjs';
-import utc from "dayjs/plugin/utc";
+import utc from 'dayjs/plugin/utc';
 dayjs.extend(utc);
-
 
 const { Op } = require('sequelize');
 import _ from 'lodash';
@@ -30,10 +29,23 @@ class AlertRuleService {
   }
 
   public async getAlertRuleGraph(customerAccountKey: number, status: string): Promise<IAlertRuleGraph[]> {
-    const ago = dayjs().subtract(1.5, 'hour').utc().toDate();
+    let conditionalWhere = {};
+
+    if (status === 'firing') {
+      const ago = dayjs().subtract(1.5, 'hour').utc().toDate();
+      conditionalWhere = {
+        alertReceivedActiveAt: {
+          [Op.gt]: ago,
+        },
+      };
+    }
 
     const allAlertRules: IAlertRuleGraph[] = await this.alertRule.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null },
+      where: {
+        customerAccountKey: customerAccountKey,
+        deletedAt: null,
+        alertRuleState: status,
+      },      
       attributes: {
         exclude: [
           'alertRuleKey',
@@ -51,17 +63,17 @@ class AlertRuleService {
           'updatedAt',
         ],
       },
+      /*
       include: [
         {
           model: this.alertReceived,
           where: {
-            // alertReceivedState: status,
-            alertReceivedActiveAt: {
-              [Op.gt]: ago,
-            },
+            alertReceivedState: status,
+            ...conditionalWhere,
           },
         },
       ],
+      */
     });
     return allAlertRules;
   }
