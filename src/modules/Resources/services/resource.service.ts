@@ -13,10 +13,14 @@ import ResourceGroupService from '@/modules/Resources/services/resourceGroup.ser
 import { Op } from 'sequelize';
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 import { ResourceGroupModel } from '../models/resourceGroup.model';
+
+
 class ResourceService {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
-  public anamolyTarget = DB.AnomalyMonitoringTarget;
+  public anomalyTarget = DB.AnomalyMonitoringTarget;
+  public partyResource = DB.PartyResource; 
+  public subscribedProduct = DB.SubscribedProduct; 
   public TableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
   public resourceGroupService = new ResourceGroupService();
@@ -191,7 +195,7 @@ class ResourceService {
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
     let resourceKeys = [];
     const resourceQuery = this.getResourceQuery(query);
-    const allMonitoringTarget: IAnomalyMonitoringTarget[] = await this.anamolyTarget.findAll({
+    const allMonitoringTarget: IAnomalyMonitoringTarget[] = await this.anomalyTarget.findAll({
       where: { deletedAt: null },
       attributes: ['resourceKey'],
       raw: true,
@@ -334,7 +338,7 @@ class ResourceService {
 
     const getResourcegroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
     if (!getResourcegroup) {
-      throw new HttpException(500, `can't find resourcegroup with resourcegroupuuid ${resourceGroupUuid}`);
+      throw new HttpException(400, `can't find resourcegroup with resourcegroupuuid ${resourceGroupUuid}`);
     }
 
     const deleted_At = new Date();
@@ -483,6 +487,59 @@ class ResourceService {
       throw new HttpException(500, error);
     }
   }
+
+  /**
+   * @param  {object} resourceGroupUuid
+
+   */
+   public async deleteResourceByResourceGroupUuid(resourceGroupUuid: string): Promise<Object> {
+    if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid must not be empty');
+
+    const getResourcegroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
+    if (!getResourcegroup) {
+      throw new HttpException(400, `can't find resourcegroup with resourcegroupuuid ${resourceGroupUuid}`);
+    }
+    const query = {
+      where: {
+        resourceGroupKey: getResourcegroup.resourceGroupKey,
+        deletedAt: null,
+        resourceActive: true,
+      },
+    };
+    
+    const getResource: IResource[] = await this.resource.findAll(query); 
+    var resourceKey = {};
+    
+    for (let i=0; i<getResource.length; i++)
+       {resourceKey = Object.assign(resourceKey, getResource[i].resourceKey); 
+       }
+
+    const queryIn = {
+      where: {
+        resourceKey: { [Op.in]: resourceKey },
+      },
+    };
+
+    const deleteResultPartyResource = await this.partyResource.update({deletedAt: new Date()}, queryIn); 
+    const deleteResultSubscribedProduct = await this.subscribedProduct.update({deletedAt: new Date()}, queryIn); 
+    const deleteResultAnomalyTarget = await this.anomalyTarget.update({deletedAt: new Date()}, queryIn); 
+
+    const updatedResource = {
+      resourceActive: false,
+      deletedAt: new Date(),
+    };
+
+    const deleteResultResource = await this.resource.update(updatedResource, query);
+
+    console.log (deleteResultPartyResource); 
+    console.log (deleteResultSubscribedProduct); 
+    console.log (deleteResultSubscribedProduct); 
+    console.log(deleteResultResource);
+
+    return deleteResultResource;
+  }
+
+
 }
 
 export default ResourceService;

@@ -1,6 +1,4 @@
 import DB from '@/database';
-import axios from 'axios';
-import config from '@config/index';
 import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
 import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import { ResourceGroupDto, ResourceGroupExecutorDto } from '../dtos/resourceGroup.dto';
@@ -9,8 +7,10 @@ import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
-import ResourceService from './resource.service';
-import { createSemanticDiagnosticsBuilderProgram } from 'typescript';
+import AlertRuleService from '@/modules/Alert/services/alertRule.service';
+import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
+import SubscriptionsService from '@/modules/Subscriptions/services/subscriptions.service';
+import ResourceService from '@/modules/Resources/services/resource.service';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
@@ -18,6 +18,10 @@ class ResourceGroupService {
   //public resourceSerivce = new ResourceService();
   public tableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
+  public alertRuleService = new AlertRuleService();
+  public metricMetaService = new MetricMetaService();
+  public subscriptionsService = new SubscriptionsService();
+  public resourceService = new ResourceService();
 
   /**
    * @param  {ResourceGroupDto} resourceGroupData
@@ -211,7 +215,6 @@ class ResourceGroupService {
     if (isEmpty(resourceGroupData)) throw new HttpException(400, 'ResourceGroup  must not be empty');
 
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid } });
-
     if (!findResourceGroup) throw new HttpException(400, "ResourceGroup  doesn't exist");
 
     const updatedResourceGroup = {
@@ -235,6 +238,35 @@ class ResourceGroupService {
     });
     return resourceGroup.resourceGroupUuid;
   }
+
+  /**
+   * @param  {string} resourceGroupUuid
+   */
+  public async deleteResourceGroupByResourceGroupUuid (resourceGroupUuid: string): Promise<object>{
+
+    if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid  must not be empty');
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid } });
+    if (!findResourceGroup) throw new HttpException(400, "ResourceGroup  doesn't exist");
+
+    // 1. AlertRule, AlertReceived
+    const resultAlertRule = await this.alertRuleService.deleteAlertRuleByResourceGroupUuid(resourceGroupUuid);
+    console.log (resultAlertRule); 
+
+    // 2. MetricMeta, MetricReceived
+    const resultMetricMeta = await this.metricMetaService.deleteMetricMetaByResourceGroupUuid(resourceGroupUuid);
+    console.log (resultMetricMeta); 
+
+    // 3. Resource, PartyResource, SubscribedProduct, AnomalyMonitoringTarget
+    const resultResource = await this.resourceService.deleteResourceByResourceGroupUuid(resourceGroupUuid);
+    console.log (resultResource);
+    
+    // 4. ResourceGroup
+    const resultResourceGroup = await this.resourceGroup.update({deletedAt: new Date()}, { where: {resourceGroupUuid: resourceGroupUuid} });
+    if (!resultResourceGroup) throw new HttpException(500, `Issue on deleting ResourceGroup ${resourceGroupUuid}`);
+    console.log (resultResourceGroup); 
+    return resultResourceGroup;
+  }
+
 
 }
 export default ResourceGroupService;
