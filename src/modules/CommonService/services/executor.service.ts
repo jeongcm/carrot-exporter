@@ -496,19 +496,18 @@ class executorService {
 
       const cronData = { name: "SyncMetricReceived",
         summary: "SyncMetricReceived",
-        cronTab: "*/10 * * * *",
+        cronTab: `*/10 * * * *`,
         apiUrl: apiUrl,
         reRunRequire: true,
         scheduleFrom: "",
         scheduleTo: "",
         clusterId: clusterUuid,
-        //accountId: getCustomerAccount.customerAccountId,
+//        //accountId: getCustomerAccount.customerAccountId,
         apiBody:
             {}
       };    
       const resultSchedule = await this.schedulerService.createScheduler(cronData, getCustomerAccount.customerAccountId); 
       console.log (resultSchedule)
-
       return serviceUuid;
     }          
 
