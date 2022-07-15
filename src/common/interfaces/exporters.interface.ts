@@ -13,4 +13,7 @@ export interface IExporters {
     exporterHelmChartVersion: string;
     exporterHelmChartValues: JSON;
     grafanaDashboard: JSON;
+    exporterType: string;
+    exporterNamespace: string;
+    exporterExporterhubUrl: string;
 }

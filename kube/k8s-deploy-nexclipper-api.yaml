@@ -6,6 +6,7 @@ metadata:
     app: ${APP_IMAGE_NAME}
 data:
   NC_LARI_PORT: "5001"
+  NC_LARI_URL: "http://nexclipper-api.nc.svc.cluster.local"
   NC_LARI_ENV: development
   NC_LARI_DB_CONFIG_PORT: "3306"
   NC_LARI_DB_CONFIG_HOST: "ncdb-mariadb-primary.mariadb.svc.cluster.local"

@@ -107,10 +107,10 @@ class executorController {
       const customerAccountKey = req.customerAccountKey;
       const systemId = req.systemId;
 
-      const serviceUuid: string = await this.executorService.installKpsOnResourceGroup(clusterUuid, customerAccountKey, targetNamespace, systemId);
+      const serviceUuids = await this.executorService.installKpsOnResourceGroup(clusterUuid, customerAccountKey, targetNamespace, systemId);
       res
         .status(200)
-        .json({ serviceUuid: serviceUuid, message: `Successfullyt submit kps stack installation service request on cluserUuid: ${clusterUuid}` });
+        .json({ serviceUuid: serviceUuids, message: `Successfullyt submit kps stack installation service request on cluserUuid: ${clusterUuid}` });
     } catch (error) {
       next(error);
     }

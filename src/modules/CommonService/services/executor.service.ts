@@ -16,7 +16,6 @@ import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
-
 class executorService {
 //    public tableIdService = new TableIdService();
     public customerAccountService = new CustomerAccountService();
@@ -238,57 +237,6 @@ class executorService {
             throw new HttpException(500, "Unknown error while searching executor/sudory client");
         });
 
-        /* this is for a logic to avoid deadlock when you use Mariadb"        
-
-        const d = new Date();
-        let minutes = d.getMinutes();
-
-        var newMin = new Array();
-        for (let i=1; i<16; i++) {
-            if ((minutes+i)>=60) {
-                newMin[i] = (minutes+i)-60;
-            } 
-            newMin[i] = minutes + i;
-        }    
-
-        const newCrontab1 = newMin[1] + " * * * *";  //ND
-        const newCrontab2 = newMin[2] + " * * * *";  //NS
-        const newCrontab3 = newMin[3] + " * * * *";  //SV
-        const newCrontab4 = newMin[4] + " * * * *";  //EP
-        const newCrontab5 = newMin[5] + " * * * *";  //PD
-        const newCrontab6 = newMin[6] + " * * * *";  //DP
-        const newCrontab7 = newMin[7] + " * * * *";  //DS
-        const newCrontab8 = newMin[8] + " * * * *";  //RS
-        const newCrontab9 = newMin[9] + " * * * *";  //SS
-        const newCrontab10 = newMin[10] + " * * * *";  //PC
-        const newCrontab11 = newMin[11] + " * * * *";  //SE
-        const newCrontab12 = newMin[12] + " * * * *";  //CM
-        const newCrontab13 = newMin[13] + " * * * *";  //PV
-        const newCrontab14 = newMin[14] + " * * * *";  //SC
-        const newCrontab15 = newMin[15] + " * * * *";  //IG
-
-        for (let i=1; i<16; i++){    
-            console.log(newMin[i]);}
-        */
-/*
-        let newMin = minutes + 1;
-        const newCrontab1 = newMin + " * * * *";
-        const newCrontab2 = newMin + " * * * *";
-        const newCrontab3 = newMin + " * * * *";
-        const newCrontab4 = newMin + " * * * *";
-        const newCrontab5 = newMin + " * * * *";
-        const newCrontab6 = newMin + " * * * *";
-        const newCrontab7 = newMin + " * * * *";
-        const newCrontab8 = newMin + " * * * *";
-        const newCrontab9 = newMin + " * * * *";
-        const newCrontab10 = newMin + " * * * *";
-        const newCrontab11 = newMin + " * * * *";
-        const newCrontab12 = newMin + " * * * *";
-        const newCrontab13 = newMin + " * * * *";
-        const newCrontab14 = newMin + " * * * *";
-        const newCrontab15 = newMin + " * * * *";
-            
-*/
         const newCrontab1 = " */10 * * * *";
         const newCrontab2 = " */10 * * * *";
         const newCrontab3 = " */10 * * * *";
@@ -465,46 +413,46 @@ class executorService {
    * @param {string} clusterUuid
    * @param {string} targetNamespace 
    */
-    public async installKpsOnResourceGroup(clusterUuid: string, customerAccountKey: number, targetNamespace: string, systemId: string ): Promise<string> {
+    public async installKpsOnResourceGroup(clusterUuid: string, customerAccountKey: number, targetNamespace: string, systemId: string ): Promise<object> {
 
-      var serviceUuid ="";
-      var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+      var serviceUuid =[];
+      const apiUrl = config.appUrl + config.appPort;
+      const prometheus = "kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"
+      const kpsSteps=  [{args: 
+                            {name: 'kps', 
+                            chart_name:'kube-prometheus-stack',
+                            repo_url:'https://repo.nexclipper.io/chartrepo/nexclipper-dev', 
+                            namespace: targetNamespace,
+                            chart_version:'35.0.3-nc',
+                            values:{}
+                            }
+                       }]
 
-      const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
-      const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
-      const sudoryServiceData = {cluster_uuid: clusterUuid, 
-                                 name: "kps helm installation", 
-                                 template_uuid: "20000000000000000000000000000001", 
-                                 summary: "kps helm installation", 
-                                 on_completion: on_completion,
-                                 subscribe_channel: "", 
-                                 steps: [
-                                    {args: 
-                                        {name: 'kps', 
-                                         chart_name:'kube-prometheus-stack',
-                                         repo_url:'https://repo.nexclipper.io/chartrepo/nexclipper-dev', 
-                                         namespace: targetNamespace,
-                                         chart_version:'35.2.0',
-                                         values:{}
-                                        }
-                                    }
-                                ] 
-                                };
-      await axios(
-        {
-          method: 'post',
-          url: `${executorServerUrl}`,
-          data: sudoryServiceData,
-          headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
-        }).then(async (res: any) => {
-          serviceUuid = res.data.uuid
-          console.log(`Submit kps chart installation reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
+      const kpsExecuteName = "KPS Helm Instllation";
+      const kpsExecuteSummary = "KPS Helm Installation";
+      const kpsTemplateUuid =   "20000000000000000000000000000001"  ;                        
+      const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey); 
+      console.log ("########### helm chart");
+      console.log(executeKpsHelm);
 
-        }).catch(error => {
-          console.log(error);
-          throw new HttpException(500, "Unknown error to install kps chart");
-        });
+      if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
 
+      const lokiSteps=  [{args: 
+                            {name: 'loki', 
+                            chart_name:'loki-stack',
+                            repo_url:'https://repo.nexclipper.io/chartrepo/nexclipper-dev', 
+                            namespace: targetNamespace,
+                            chart_version:'2.6.4-nc',
+                            values:{}
+                            }
+                        }]
+
+      const lokiExecuteName = "Loki-Promtail Helm Instllation";
+      const lokiExecuteSummary = "Loki-Promtail Helm Installation";
+      const lokiTemplateUuid =   "20000000000000000000000000000001"  ;                        
+      const executeLokiHelm = this.postExecuteService(lokiExecuteName, lokiExecuteSummary, clusterUuid, lokiTemplateUuid, lokiSteps, customerAccountKey); 
+      console.log ("########### Loki chart");
+      console.log(executeLokiHelm);              
       // update ResourceGroup - resourceGroupPrometheus
       const resourceGroup = {resourceGroupPrometheus: prometheus}; 
       // get system user id
@@ -543,8 +491,23 @@ class executorService {
             console.log(error);
             throw new HttpException(500, "Submitted kps chart installation request but fail to schedule metric-received sync");
           }); //end of catch
-  
 
+      const getCustomerAccount = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey); 
+
+      const cronData = { name: "SyncMetricReceived",
+        summary: "SyncMetricReceived",
+        cronTab: `*/10 * * * *`,
+        apiUrl: apiUrl,
+        reRunRequire: true,
+        scheduleFrom: "",
+        scheduleTo: "",
+        clusterId: clusterUuid,
+//        //accountId: getCustomerAccount.customerAccountId,
+        apiBody:
+            {}
+      };    
+      const resultSchedule = await this.schedulerService.createScheduler(cronData, getCustomerAccount.customerAccountId); 
+      console.log (resultSchedule)
       return serviceUuid;
     }          
 
@@ -572,7 +535,8 @@ class executorService {
           on_completion: on_completion,
           subscribed_channel: 'webhook_test',
         };
-       let serviceData = await axios(
+        console.log(sudoryServiceData); 
+        let serviceData = await axios(
           {
             method: 'post',
             url: sudoryUrl,
@@ -976,8 +940,6 @@ class executorService {
    public async scheduleMetricMeta(clusterUuid: string, customerAccountKey: number): Promise<string> {
 
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
-        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
-        const authToken = config.ncCronApiDetail.authToken;
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
@@ -1000,6 +962,8 @@ class executorService {
                     cronTab: "*/5 * * * *",
                     clusterId: clusterUuid,
                     reRunRequire: true,
+                    scheduleFrom: "",
+                    scheduleTo: "",
                     accountId: customerAccountData.customerAccountId,
                     apiUrl: executorServerUrl,
                     apiBody:
@@ -1023,21 +987,9 @@ class executorService {
                         }
                     };
         
-        await axios(
-            {
-            method: 'post',
-            url: `${cronUrl}`,
-            data: cronData,
-            headers: { 'X_AUTH_TOKEN': `${authToken}` }
-            }).then(async (res: any) => {
-            //    console.log(res);                              
-                cronJobKey = res.data.data.scheduleKey
-                console.log(`Submit MetricMeta scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
-            }).catch(error => {
-                console.log(error);
-                throw new HttpException(500, "Unknown error to request MetricMeta scheduling");
-            });
-       
+        let resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId); 
+        cronJobKey = {key: resultNewCron.scheduleKey, jobname: "Get MetricMeta", type: "add"}
+
         return cronJobKey; 
     }
 
@@ -1048,8 +1000,6 @@ class executorService {
 
      public async scheduleAlert(clusterUuid: string, customerAccountKey: number): Promise<string> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
-        const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
@@ -1074,6 +1024,8 @@ class executorService {
                     cronTab: "* * * * *",
                     apiUrl: executorServerUrl,
                     reRunRequire: true,
+                    scheduleFrom: "",
+                    scheduleTo: "",
                     clusterId: clusterUuid,
                     accountId: customerAccountData.customerAccountId,
                     apiBody:
@@ -1094,21 +1046,9 @@ class executorService {
                         }
                     };
         
-        await axios(
-            {
-            method: 'post',
-            url: `${cronUrl}`,
-            data: cronData,
-            headers: { 'X_AUTH_TOKEN': `${authToken}` }
-            }).then(async (res: any) => {
-            //    console.log(res);                              
-                cronJobKey = res.data.data.scheduleKey
-                console.log(`Submit alert feeds scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
-            }).catch(error => {
-                console.log(error);
-                throw new HttpException(500, "Unknown error to request Alert feeds scheduling");
-            });
-       
+        let resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId); 
+        cronJobKey = {key: resultNewCron.scheduleKey, jobname: "Get Alert Rules & Alert Received", type: "add"}
+      
         return cronJobKey; 
     }
 
@@ -1118,8 +1058,6 @@ class executorService {
    */
     public async scheduleResource(clusterUuid: string, customerAccountKey: number, resourceType: string, newCrontab: string): Promise<string> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
-        const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         const subscribed_channel = config.sudoryApiDetail.channel_resource;
@@ -1170,8 +1108,10 @@ class executorService {
                     cronTab: newCrontab,
                     apiUrl: executorServerUrl,
                     reRunRequire: true,
+                    scheduleFrom: "",
+                    scheduleTo: "",
                     clusterId: clusterUuid,
-                    accountId: customerAccountData.customerAccountId,
+                    //accountId: customerAccountData.customerAccountId,
                     apiBody:
                         {
                             cluster_uuid: clusterUuid,
@@ -1189,21 +1129,10 @@ class executorService {
                             ]
                         }
                     };
-        
-        await axios(
-            {
-            method: 'post',
-            url: `${cronUrl}`,
-            data: cronData,
-            headers: { 'X_AUTH_TOKEN': `${authToken}` }
-            }).then(async (res: any) => {                            
-                cronJobKey = res.data.data.scheduleKey;
-                console.log(`Submit Resource feeds scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
-            }).catch(error => {
-                console.log(error);
-                throw new HttpException(500, "Unknown error to request resource-node feeds scheduling");
-            });
-
+        let resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId); 
+    
+        cronJobKey = {key: resultNewCron.scheduleKey, jobname: scheduleName, type: "add"}
+            
         return cronJobKey; 
     }
 
@@ -1213,8 +1142,6 @@ class executorService {
    */
     public async scheduleMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
 
-        const cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
-        const authToken = config.ncCronApiDetail.authToken;
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         const subscribed_channel = config.sudoryApiDetail.channel_metric_received;
@@ -1253,8 +1180,10 @@ class executorService {
                         cronTab: "*/5 * * * *",
                         apiUrl: executorServerUrl,
                         clusterId: clusterUuid,
-                        accountId: customerAccountData.customerAccountId,
+                        //accountId: customerAccountData.customerAccountId,
                         reRunRequire: true,
+                        scheduleFrom: "",
+                        scheduleTo: "",
                         apiBody:
                         {
                             cluster_uuid: clusterUuid,
@@ -1274,22 +1203,9 @@ class executorService {
                         }
             };
             
-            console.log(cronData);
-        //interface with Cron
-       
-            await axios(
-                {
-                method: 'post',
-                url: `${cronUrl}`,
-                data: cronData,
-                headers: { 'X_AUTH_TOKEN': `${authToken}` }
-                }).then(async (res: any) => {                            
-                    cronJobKey[i] = {key: res.data.data.scheduleKey, jobname: targetJob}
-                    console.log(`Submit metric-received feeds - job ${targetJob} scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
-                }).catch(error => {
-                    console.log(error);
-                    throw new HttpException(500, "Unknown error to request metric-received feeds scheduling");
-                });
+            let resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId); 
+            cronJobKey[i] = {key: resultNewCron.scheduleKey, jobname: targetJob, type: "add"}
+
         } // end of for loop
         return cronJobKey;            
     }
@@ -1299,8 +1215,6 @@ class executorService {
    */
     public async syncMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
         
-        let cronUrl = config.ncCronApiDetail.baseURL + "/scheduler"; 
-        let authToken = config.ncCronApiDetail.authToken;
         let distinctJobList;
         let targetJobDbAll;
         let targetJobDb = [];
@@ -1308,7 +1222,9 @@ class executorService {
         let on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         let executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         let subscribed_channel = config.sudoryApiDetail.channel_metric_received;
-        var cronJobKey =[];
+        var cronJobKey = [];
+        var cronJobKey_new =[];
+        var cronJobKey_cancel =[];
 
         //get customerAccountId
         const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
@@ -1331,10 +1247,8 @@ class executorService {
         targetJobDbAll = JSON.parse(JSON.stringify(distinctJobList));
         targetJobDb = targetJobDbAll.map(function (obj) {return obj.metricMetaTargetJob})
         console.log (targetJobDb);
-        console.log("#####################")
 
-       //pull active metric-received job from nc-cron
-    
+        //pull active metric-received job from nc-cron
        const resultFromCron = await this.schedulerService.getSchedulerByClusterId(clusterUuid);
        console.log ("######## target job from scheduler");
        let newList = [];
@@ -1342,8 +1256,10 @@ class executorService {
             const {scheduleApiBody} = data;
             newList.push ({scheduleApiBody});
        });
+
        //filter only for metric_received
        let newFilterList = newList.filter(data => data.scheduleApiBody.subscribed_channel === "nc_metric_received");
+       
        //pull metricMetaTargetJob
        for (let i=0; i<Object.keys(newFilterList).length; i++) {
             let steps = newFilterList[i].scheduleApiBody.steps;
@@ -1353,75 +1269,65 @@ class executorService {
        }
        console.log("###### from Cron ###############")
        console.log (targetJobCron);
-       console.log("#####################")
 
        //start metric-received feeds for any new targets
-
-       let newTargetJob = targetJobDb.filter(x => !targetJobCron.includes(x)); 
+       let newTargetJob = targetJobDb.filter(x => !targetJobCron.includes(x));
        console.log ("filter result for new  "); 
-       console.log (newTargetJob);  
-        // call scheduleMetricReceived() with loop
+       console.log (newTargetJob);
+
+       // call scheduleMetricReceived() with loop
        for (let n=0; n<Object.keys(newTargetJob).length; n++) {
-
-        let targetJob = newTargetJob[n].metricMetaTargetJob
-        let matricQuery = `{job="` + targetJob + `"}`;
-        let matricName = "MetricReceived-" + targetJob; 
-        let matricSummary = targetJob;
-        
-        let cronData = { name: matricName,
-                    summary: matricSummary,
-                    cronTab: "*/5 * * * *",
-                    apiUrl: executorServerUrl,
-                    clusterId: clusterUuid,
-                    accountId: customerAccountData.customerAccountId,
-                    reRunRequire: true,
-                    apiBody:
-                    {
-                        cluster_uuid: clusterUuid,
-                        name: matricName,
-                        template_uuid: "10000000000000000000000000000001",
+            let targetJob = newTargetJob[n].metricMetaTargetJob
+            let matricQuery = `{job="` + targetJob + `"}`;
+            let matricName = "MetricReceived-" + targetJob; 
+            let matricSummary = targetJob;
+            let cronData = { name: matricName,
                         summary: matricSummary,
-                        subscribed_channel: subscribed_channel,
-                        on_completion: on_completion,
-                        steps: [
-                                {
-                                    args: {
-                                            url: prometheus,
-                                            query: matricQuery
-                                        }
-                                }
-                        ]
-                    }
-        };
-        
-        console.log(cronData);
-    //interface with Cron
-        await axios(
-            {
-            method: 'post',
-            url: `${cronUrl}`,
-            data: cronData,
-            headers: { 'X_AUTH_TOKEN': `${authToken}` }
-            }).then(async (res: any) => {                            
-                cronJobKey[n] = {key: res.data.data.scheduleKey, jobname: targetJob}
-                console.log(`Submit metric-received feeds - job ${targetJob} scheduling on ${clusterUuid} cluster successfully, cronJobKey is ${cronJobKey}`);    
-            }).catch(error => {
-                console.log(error);
-                throw new HttpException(500, "Unknown error to request metric-received feeds scheduling");
-            });
-
+                        cronTab: "*/5 * * * *",
+                        apiUrl: executorServerUrl,
+                        clusterId: clusterUuid,
+                        //accountId: customerAccountData.customerAccountId,
+                        reRunRequire: true,
+                        scheduleFrom: "",
+                        scheduleTo: "",
+                        apiBody:
+                        {
+                            cluster_uuid: clusterUuid,
+                            name: matricName,
+                            template_uuid: "10000000000000000000000000000001",
+                            summary: matricSummary,
+                            subscribed_channel: subscribed_channel,
+                            on_completion: on_completion,
+                            steps: [
+                                    {
+                                        args: {
+                                                url: prometheus,
+                                                query: matricQuery
+                                            }
+                                    }
+                            ]
+                        }
+            };
+            let resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId); 
+            cronJobKey_new[n] = {key: resultNewCron.scheduleKey, jobname: targetJob, type: "add"}
        }
+        
         //cancel metric-received feeds for any retuired targets
         // call cancel method with loop
         let cancelTargetJob = targetJobCron.filter(x => !targetJobDb.includes(x)); 
         console.log ("filter result for cancellation "); 
         console.log (cancelTargetJob);  
         //search the cron job and run cancellation loop
-        //return process results
-        for (let n=0; n<Object.keys(cancelTargetJob).length; n++) {
-        }
 
-       
+        for (let n=0; n<Object.keys(cancelTargetJob).length; n++) {
+            let targetJob = cancelTargetJob[n].metricMetaTargetJob
+            let scheduleName = "MetricReceived-" + targetJob; 
+            let resultFromCron = await this.schedulerService.getSchedulerByScheduleNameByClusterId(scheduleName, clusterUuid);
+            let cancelFromCron = await this.schedulerService.cancelCronScheduleBySchedulerId(resultFromCron.scheduleId);
+            cronJobKey_cancel[n] = {key: cancelFromCron.scheduleKey, jobname: targetJob, type: "cancel"}
+        }
+        cronJobKey.concat(cronJobKey_new);
+        cronJobKey.concat(cronJobKey_cancel);
         return cronJobKey;
     }    
     
