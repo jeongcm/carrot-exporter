@@ -13,6 +13,8 @@ export class ExporterDto {
     public exporterHelmChartVersion: string;
     @IsObject()
     public exporterHelmChartValues: object;
-    @IsObject()
     public grafanaDashboard: object;
+    public exportrType: string;
+    public exporterNamespace: string;
+    public exporterExporterhubUrl: string;
   }
