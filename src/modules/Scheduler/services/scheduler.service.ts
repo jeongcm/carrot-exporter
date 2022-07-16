@@ -212,6 +212,32 @@ class SchedulerService {
 
     return result;
   }
+
+  public async cancelCronScheduleByResourceGroupUuid(resourceGroupUuid: string): Promise<any>{
+    const schedulerServerUrl = config.ncCronApiDetail.baseURL + '/scheduler/cluster/' + resourceGroupUuid;
+
+    let result = [];
+
+    await axios({
+      method: 'delete',
+      url: `${schedulerServerUrl}`,
+      headers: { x_auth_token: `${config.ncCronApiDetail.authToken}` },
+    })
+      .then(async (res: any) => {
+        const statusCode = res.status;
+
+        if (statusCode === 200) {
+          result = res?.data;
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, `Unknown error to fetch the result of scheduler for cluster id: ${resourceGroupUuid}`);
+      });
+
+    return result;
+  } 
+
 }
 
 export default SchedulerService;

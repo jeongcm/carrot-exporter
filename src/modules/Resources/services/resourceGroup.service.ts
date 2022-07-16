@@ -1,34 +1,42 @@
 import DB from '@/database';
 import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
-import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
-import { ResourceGroupDto, ResourceGroupExecutorDto } from '../dtos/resourceGroup.dto';
+import { IResource } from '@/common/interfaces/resource.interface';
+import { IMetricMeta } from '@/common/interfaces/metricMeta.interface';
+//import { IMetricReceived } from '@/common/interfaces/metricReceived.interface';
+import { ResourceGroupDto } from '../dtos/resourceGroup.dto';
+import { Op } from 'sequelize';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import AlertRuleService from '@/modules/Alert/services/alertRule.service';
-import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
+import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import SubscriptionsService from '@/modules/Subscriptions/services/subscriptions.service';
-import ResourceService from '@/modules/Resources/services/resource.service';
+import SudoryService from '@/modules/CommonService/services/sudory.service';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
   public resource = DB.Resource;
-  //public resourceSerivce = new ResourceService();
+  public metricMeta = DB.MetricMeta;
+  public metricReceived = DB.MetricReceived;
+  public partyResource = DB.PartyResource;
+  public subscribedProduct= DB.SubscribedProduct;
+  public anomalyTarget = DB.AnomalyMonitoringTarget;
   public tableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
   public alertRuleService = new AlertRuleService();
-  public metricMetaService = new MetricMetaService();
+  public schedulerService = new SchedulerService();
   public subscriptionsService = new SubscriptionsService();
-  public resourceService = new ResourceService();
+  public sudoryService = new SudoryService();
+
 
   /**
    * @param  {ResourceGroupDto} resourceGroupData
    * @param  {string} currentUserId
    * @param  {number} customerAccountKey
    */
-  public async createResourceGroup(resourceGroupData: ResourceGroupDto, currentUserId: string, customerAccountKey: number): Promise<Object> {
+  public async createResourceGroup(resourceGroupData: ResourceGroupDto, currentUserId: string, customerAccountKey: number): Promise<IResourceGroup> {
     if (isEmpty(resourceGroupData)) throw new HttpException(400, 'ResourceGroup must not be empty');
 
     try {
@@ -242,28 +250,102 @@ class ResourceGroupService {
   /**
    * @param  {string} resourceGroupUuid
    */
-  public async deleteResourceGroupByResourceGroupUuid (resourceGroupUuid: string): Promise<object>{
+  
+  public async deleteResourceGroupByResourceGroupUuid (resourceGroupUuid: string, customerAccountKey: number): Promise<object>{
 
     if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid  must not be empty');
-    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid } });
-    if (!findResourceGroup) throw new HttpException(400, "ResourceGroup  doesn't exist");
+    console.log(resourceGroupUuid);
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
+    if (!findResourceGroup) throw new HttpException(400, "*ResourceGroup doesn't exist");
 
     // 1. AlertRule, AlertReceived
     const resultAlertRule = await this.alertRuleService.deleteAlertRuleByResourceGroupUuid(resourceGroupUuid);
+    console.log ("alert")
     console.log (resultAlertRule); 
 
     // 2. MetricMeta, MetricReceived
-    const resultMetricMeta = await this.metricMetaService.deleteMetricMetaByResourceGroupUuid(resourceGroupUuid);
-    console.log (resultMetricMeta); 
+//    const resultMetricMeta = await this.metricMetaService.deleteMetricMetaByResourceGroupUuid(resourceGroupUuid);
+//    console.log (resultMetricMeta);
 
+    const deleteData = { deletedAt: new Date() };
+    const findMetricMeta: IMetricMeta = await this.metricMeta.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
+    console.log ("metric")
+    if (findMetricMeta) {
+      const resultDeleteMetricReceived = await this.metricReceived.update(deleteData, {where: {metricMetaKey: findMetricMeta.metricMetaKey}} );
+      const resultDeleteMetricMeta = await this.metricMeta.update(deleteData, {where: {resourceGroupUuid: resourceGroupUuid}});
+      console.log (findMetricMeta); 
+      console.log (resultDeleteMetricReceived);
+      console.log (resultDeleteMetricMeta);
+    }
     // 3. Resource, PartyResource, SubscribedProduct, AnomalyMonitoringTarget
-    const resultResource = await this.resourceService.deleteResourceByResourceGroupUuid(resourceGroupUuid);
-    console.log (resultResource);
-    
+//    const resultResource = await this.resourceSerivce.deleteResourceByResourceGroupUuid(resourceGroupUuid, findResourceGroup.resourceGroupKey);
+//    console.log (resultResource);
+
+    const query = {
+      where: {
+        resourceGroupKey: findResourceGroup.resourceGroupKey,
+        deletedAt: null,
+        resourceActive: true,
+      },
+    };
+
+    const getResource: IResource[] = await this.resource.findAll(query); 
+    var resourceKey = {};
+
+    for (let i=0; i<getResource.length; i++)
+      {resourceKey = Object.assign(resourceKey, getResource[i].resourceKey); 
+      }
+
+    const queryIn = {
+      where: {
+        resourceKey: { [Op.in]: resourceKey },
+      },
+    };
+    console.log ("Resource");
+    const deleteResultPartyResource = await this.partyResource.update({deletedAt: new Date()}, queryIn); 
+    const deleteResultSubscribedProduct = await this.subscribedProduct.update({deletedAt: new Date()}, queryIn); 
+    const deleteResultAnomalyTarget = await this.anomalyTarget.update({deletedAt: new Date()}, queryIn); 
+
+    const updatedResource = {
+      resourceActive: false,
+      deletedAt: new Date(),
+    };
+
+    const deleteResultResource = await this.resource.update(updatedResource, query);
+
+    console.log (deleteResultPartyResource); 
+    console.log (deleteResultSubscribedProduct); 
+    console.log (deleteResultAnomalyTarget); 
+    console.log (deleteResultResource);
+
     // 4. ResourceGroup
     const resultResourceGroup = await this.resourceGroup.update({deletedAt: new Date()}, { where: {resourceGroupUuid: resourceGroupUuid} });
     if (!resultResourceGroup) throw new HttpException(500, `Issue on deleting ResourceGroup ${resourceGroupUuid}`);
+    console.log ("ResourceGroup");
     console.log (resultResourceGroup); 
+    
+
+    // 5. Billing
+
+
+    // 6. scheduler
+    const resultCancelScheduler = await this.schedulerService.cancelCronScheduleByResourceGroupUuid(resourceGroupUuid); 
+    console.log ("Scheduler"); 
+    console.log (resultCancelScheduler);
+
+    // 7. sudoryclient?
+
+    const name = "sudory uninstall";
+    const summary = "sudory uninstall";
+    const templateUuid = '20000000000000000000000000000002'; 
+    const steps = [{args: 
+      {name: 'sudory', 
+       namespace: 'sudoryclient',
+      }
+    }];
+    const resultUninstallSudoryClient = await this.sudoryService.postSudoryService(name, summary, resourceGroupUuid, templateUuid, steps, customerAccountKey )
+    console.log ("sudory");
+    console.log (resultUninstallSudoryClient);
     return resultResourceGroup;
   }
 
