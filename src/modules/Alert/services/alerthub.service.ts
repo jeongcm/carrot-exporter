@@ -19,12 +19,38 @@ class AlerthubService {
     startAt?: string,
     endAt?: string,
   ): Promise<IAlertTimeline[]> {
-    axios.get(`${config.alerthub.baseUrl}/v1/alertTimeline/${customerAccountKey}/${alertRuleKey}`, {
-      headers: { x_auth_token: `${config.alerthub.authToken}` },
-    });
+    try {
+      const { data } = await axios.get(`${config.alerthub.baseUrl}/v1/alertTimeline/${customerAccountKey}/${alertRuleKey}`, {
+        headers: { x_auth_token: `${config.alerthub.authToken}` },
+      });
 
-    return;
+      if (data.data && data.message === 'success') {
+        return data.data;
+      }
+    } catch (e) {
+      throw e;
+    }
   }
+
+  public async getAlertNotiScheduledByAlertRuleKey(
+    customerAccountKey: number,
+    alertRuleKey: number,
+    startAt?: string,
+    endAt?: string,
+  ): Promise<IAlertTimeline[]> {
+    try {
+      const { data } = await axios.get(`${config.alerthub.baseUrl}/v1/alertNotiScheduled/${customerAccountKey}/${alertRuleKey}`, {
+        headers: { x_auth_token: `${config.alerthub.authToken}` },
+      });
+
+      if (data.data && data.message === 'success') {
+        return data.data;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
 }
 
 export default AlerthubService;
