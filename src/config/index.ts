@@ -130,4 +130,8 @@ export default {
     NC_LARI_VM_ADDRESS: process.env.NC_LARI_VM_ADDRESS,
     NC_LARI_VM_API: process.env.NC_LARI_VM_API,
   },
+  alerthub: {
+    baseUrl: process.env.NC_ALERTHUB_URL,
+    authToken: process.env.NC_ALERTHUB_X_AUTH_TOKEN,
+  },
 };

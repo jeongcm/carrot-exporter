@@ -59,7 +59,8 @@ data:
   NC_LARI_DO_DEFAULT_REGION: "sgp1"
   NC_LARI_DO_ENDPOINT: "sgp1.digitaloceanspaces.com"
   NODE_OPTIONS: "--max-old-space-size=8192"
-
+  NC_ALERTHUB_URL: "http://nexclipper-notification.nc.svc.cluster.local:3039"
+  NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
 ---
 apiVersion: apps/v1
 kind: Deployment
