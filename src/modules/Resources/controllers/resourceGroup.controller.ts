@@ -171,6 +171,28 @@ class ResourceGroupController {
     }
   };
 
+/**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+ public deleteResourceGroupByResourceGroupUuid = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  try {
+    const resourceGroupUuid = req.params.resourceGroupUuid;
+    const customerAccountKey = req.customerAccountKey; 
+
+    const resultDeleteResourceGroup = await this.resourceGroupService.deleteResourceGroupByResourceGroupUuid(resourceGroupUuid, customerAccountKey);
+    res.status(200).json({ data: resultDeleteResourceGroup, message: `resourceGroup Deleted - ${resourceGroupUuid}` });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+
+
+  
+
 }
 
 export default ResourceGroupController;

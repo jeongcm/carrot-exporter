@@ -492,16 +492,12 @@ class ResourceService {
    * @param  {object} resourceGroupUuid
 
    */
-   public async deleteResourceByResourceGroupUuid(resourceGroupUuid: string): Promise<Object> {
+   public async deleteResourceByResourceGroupUuid(resourceGroupUuid: string, resourceGroupKey: number): Promise<Object> {
     if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid must not be empty');
 
-    const getResourcegroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
-    if (!getResourcegroup) {
-      throw new HttpException(400, `can't find resourcegroup with resourcegroupuuid ${resourceGroupUuid}`);
-    }
     const query = {
       where: {
-        resourceGroupKey: getResourcegroup.resourceGroupKey,
+        resourceGroupKey: resourceGroupKey,
         deletedAt: null,
         resourceActive: true,
       },
@@ -533,10 +529,11 @@ class ResourceService {
 
     console.log (deleteResultPartyResource); 
     console.log (deleteResultSubscribedProduct); 
-    console.log (deleteResultSubscribedProduct); 
-    console.log(deleteResultResource);
+    console.log (deleteResultAnomalyTarget); 
+    console.log (deleteResultResource);
 
     return deleteResultResource;
+
   }
 
 

@@ -205,19 +205,31 @@ class AlertRuleService {
   public async deleteAlertRuleByResourceGroupUuid(resourceGroupUuid: string): Promise<object> {
     if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid  must not be empty');
 
-    const findAlertRule: IAlertRule = await this.alertRule.findOne({ where: { resourceGroupUuid: resourceGroupUuid } });
-    if (!findAlertRule) throw new HttpException(400, "ResourceGroup  doesn't exist");
+    const findAlertRule: IAlertRule[] = await this.alertRule.findAll({ where: { resourceGroupUuid: resourceGroupUuid } });
+    if (!findAlertRule) {
+      console.log('no alert rules');
+    } else {
+      let alertRuleKey = {};
 
-    const deleteAlertReceived = await this.alertReceived.update({deletedAt: new Date()}, { where: {alertRuleKey: findAlertRule.alertRuleKey} });
-    const deleteAlertRule = await this.alertRule.update({deletedAt: new Date()}, { where: {resourceGroupUuid: resourceGroupUuid} });
+      for (let i = 0; i < findAlertRule.length; i++) {
+        alertRuleKey = Object.assign(alertRuleKey, findAlertRule[i].alertRuleKey);
+      }
 
-    console.log (deleteAlertReceived);
-    console.log (deleteAlertRule);
+      const queryIn = {
+        where: {
+          alertRuleKey: { [Op.in]: alertRuleKey },
+        },
+      };
+
+      console.log(alertRuleKey);
+      const deleteAlertReceived = await this.alertReceived.update({ deletedAt: new Date() }, queryIn);
+      const deleteAlertRule = await this.alertRule.update({ deletedAt: new Date() }, { where: { resourceGroupUuid: resourceGroupUuid } });
+
+      console.log(deleteAlertReceived);
+      console.log(deleteAlertRule);
+    }
     return;
   }
-
-
-
 }
 
 export default AlertRuleService;

@@ -30,7 +30,6 @@ class App {
     this.app = express();
     this.port = Number(config.appPort);
     this.env = config.nodeEnv;
-
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
@@ -41,7 +40,7 @@ class App {
     this.app.listen(this.port, () => {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
-      logger.info(`🚀 NexClipper listening on the port ${this.port}`);
+      logger.info(`🚀 NexClipper API listening on the port ${this.port}`);
       logger.info(`=================================`);
     });
     require('console-stamp')(console, {
@@ -57,6 +56,7 @@ class App {
   }
 
   private initializeMiddlewares() {
+    
     this.app.use(morgan(config.logFormat, { stream }));
     this.app.use(cors({ origin: config.cors.allowAnyOrigin, credentials: config.cors.credentials }));
     //this.app.use(sqlInjection);
@@ -87,7 +87,7 @@ class App {
     const options = {
       swaggerDefinition: {
         info: {
-          title: 'NEXCLIPPER-NODE API',
+          title: 'NEXCLIPPER-API',
           version: '1.0.0',
           description: 'API TESTING',
         },

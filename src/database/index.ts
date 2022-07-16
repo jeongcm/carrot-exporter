@@ -102,6 +102,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
     // TODO: find a better way to leave a log
     // logger.info(time + 'ms' + ' ' + query);
   },
+  //logging: console.log,
   benchmark: true,
   retry: {
     match: [/Deadlock/i],
@@ -115,6 +116,9 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
 sequelize.authenticate();
 
 const DB = {
+  TableId: TableIdModel(sequelize),
+  Messages: MessageModel(sequelize),
+
   Users: UserModel(sequelize),
   AccessGroup: AccessGroupModel(sequelize),
   AccessGroupChannel: AccessGroupChannelModel(sequelize),
@@ -138,10 +142,10 @@ const DB = {
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
   Api: ApiModel(sequelize),
-  PartyChannel: PartyChannelModel(sequelize),
-  TableId: TableIdModel(sequelize),
-  Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
+  PartyChannel: PartyChannelModel(sequelize),
+
+  
   Resource: ResourceModel(sequelize),
   ResourceGroup: ResourceGroupModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
@@ -221,9 +225,6 @@ DB.Party.hasMany(DB.PartyChannel, { foreignKey: 'partyKey' });
 DB.PartyChannel.belongsTo(DB.Channel, { foreignKey: 'channelKey' });
 DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 
-//DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
-//DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
-
 DB.AccessGroup.belongsToMany(DB.Users, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'members' });
 DB.Users.belongsToMany(DB.AccessGroup, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
 
@@ -239,12 +240,6 @@ DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' })
 DB.CustomerAccount.hasMany(DB.ExecutorService, { foreignKey: 'customer_account_key' });
 DB.ExecutorService.belongsTo(DB.CustomerAccount, { foreignKey: 'customer_account_key' });
 
-
-// DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
-// DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
-
-// DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
-// DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
 
 DB.Incident.belongsToMany(DB.AlertReceived, {
   through: DB.IncidentAlertReceived,
@@ -456,7 +451,9 @@ DB.RoleParty.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
-//[[force: true]] is used when changes made in database.
+//[[force: true]]  is used when changes made in database.
+//[[force: false]] there would be no database change even you modify the models. 
+//                 Need to have a separate operation to apply database model change.
 
 DB.sequelize
   .sync({ force: false })

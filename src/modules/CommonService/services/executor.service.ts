@@ -24,7 +24,7 @@ class executorService {
     public schedulerService = new SchedulerService();
     public sudoryWebhook = DB.SudoryWebhook; 
     public executorService = DB.ExecutorService; 
-    public resourceGroup = DB.ResourceGroup; 
+    public resourceGroup = DB.ResourceGroup;
 
   /**
    * @param {string} serviceUuid
