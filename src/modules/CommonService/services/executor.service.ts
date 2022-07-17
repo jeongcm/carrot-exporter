@@ -1277,7 +1277,7 @@ class executorService {
 
        // call scheduleMetricReceived() with loop
        for (let n=0; n<Object.keys(newTargetJob).length; n++) {
-            let targetJob = newTargetJob[n].metricMetaTargetJob
+            let targetJob = newTargetJob[n]
             let matricQuery = `{job="` + targetJob + `"}`;
             let matricName = "MetricReceived-" + targetJob; 
             let matricSummary = targetJob;
@@ -1320,7 +1320,7 @@ class executorService {
         //search the cron job and run cancellation loop
 
         for (let n=0; n<Object.keys(cancelTargetJob).length; n++) {
-            let targetJob = cancelTargetJob[n].metricMetaTargetJob
+            let targetJob = cancelTargetJob[n]
             let scheduleName = "MetricReceived-" + targetJob; 
             let resultFromCron = await this.schedulerService.getSchedulerByScheduleNameByClusterId(scheduleName, clusterUuid);
             let cancelFromCron = await this.schedulerService.cancelCronScheduleBySchedulerId(resultFromCron.scheduleId);
