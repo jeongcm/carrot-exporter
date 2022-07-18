@@ -161,7 +161,7 @@ class TopologyService extends ServiceExtension {
     const customerAccountKeyWhereInsert: any = customerAccountKey ? { customerAccountKey } : {};
 
     const targetResource: IResource = await this.resource.findOne({
-      where: { resourceKey, ...customerAccountKeyWhereInsert },
+      where: { resourceKey, ...customerAccountKeyWhereInsert, deletedAt: null },
     });
 
     if (!targetResource) {
@@ -175,6 +175,7 @@ class TopologyService extends ServiceExtension {
       where: {
         customerAccountKey,
         resourceGroupKey,
+        deletedAt: null,
         [Op.or]: [
           {
             resourceNamespace,
