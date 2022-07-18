@@ -416,7 +416,7 @@ class executorService {
     public async installKpsOnResourceGroup(clusterUuid: string, customerAccountKey: number, targetNamespace: string, systemId: string ): Promise<object> {
 
       var serviceUuid =[];
-      const nexclipperApiUrl = config.appUrl + ":" + config.appPort;
+      
       const prometheus = "kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"
       const kpsSteps=  [{args: 
                             {name: 'kps', 
@@ -483,31 +483,15 @@ class executorService {
           throw new HttpException(500, "Submitted kps chart installation request but fail to schedule alert feeds ");
         }); //end of catch
 
-      //schedule sync task for metricReceived
-      await this.syncMetricReceived(clusterUuid, customerAccountKey
+
+     //schdule SyncMetricReceived    
+     await this.scheduleSyncMetricReceived(clusterUuid, customerAccountKey
         ).then(async (res: any) =>{
             console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
           }).catch(error => {
             console.log(error);
             throw new HttpException(500, "Submitted kps chart installation request but fail to schedule metric-received sync");
           }); //end of catch
-
-      const getCustomerAccount = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey); 
-
-      const cronData = { name: "SyncMetricReceived",
-        summary: "SyncMetricReceived",
-        cronTab: `*/10 * * * *`,
-        apiUrl: nexclipperApiUrl,
-        reRunRequire: true,
-        scheduleFrom: "",
-        scheduleTo: "",
-        clusterId: clusterUuid,
-//        //accountId: getCustomerAccount.customerAccountId,
-        apiBody:
-            {}
-      };    
-      const resultSchedule = await this.schedulerService.createScheduler(cronData, getCustomerAccount.customerAccountId); 
-      console.log (resultSchedule)
       return serviceUuid;
     }          
 
@@ -1208,6 +1192,30 @@ class executorService {
 
         } // end of for loop
         return cronJobKey;            
+    }
+
+
+    public async scheduleSyncMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
+
+        const nexclipperApiUrl = config.appUrl + ":" + config.appPort + "/executor/syncMetricReceived";
+        const cronData = { name: "SyncMetricReceived",
+        summary: "SyncMetricReceived",
+        cronTab: `*/10 * * * *`,
+        apiUrl: nexclipperApiUrl,
+        reRunRequire: true,
+        scheduleFrom: "",
+        scheduleTo: "",
+        clusterId: clusterUuid,
+//        //accountId: getCustomerAccount.customerAccountId,
+        apiBody:
+            {
+                clusterUuid: clusterUuid
+            }
+      };
+      const getCustomerAccount = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);     
+      const resultSchedule = await this.schedulerService.createScheduler(cronData, getCustomerAccount.customerAccountId); 
+      console.log (resultSchedule); 
+      return resultSchedule; 
     }
 
    /**
