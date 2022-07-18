@@ -485,7 +485,7 @@ class executorService {
 
 
      //schdule SyncMetricReceived    
-     await this.scheduleSyncMetricReceived(clusterUuid, customerAccountKey
+     await this.scheduleSyncMetricReceived(clusterUuid
         ).then(async (res: any) =>{
             console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
           }).catch(error => {
@@ -1195,7 +1195,7 @@ class executorService {
     }
 
 
-    public async scheduleSyncMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
+    public async scheduleSyncMetricReceived(clusterUuid: string): Promise<object> {
 
         const nexclipperApiUrl = config.appUrl + ":" + config.appPort + "/executor/syncMetricReceived";
         const cronData = { name: "SyncMetricReceived",
@@ -1212,7 +1212,8 @@ class executorService {
                 clusterUuid: clusterUuid
             }
       };
-      const getCustomerAccount = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);     
+      const getResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid); 
+      const getCustomerAccount = await this.customerAccountService.getCustomerAccountByKey(getResourceGroup.customerAccountKey); 
       const resultSchedule = await this.schedulerService.createScheduler(cronData, getCustomerAccount.customerAccountId); 
       console.log (resultSchedule); 
       return resultSchedule; 
@@ -1221,7 +1222,7 @@ class executorService {
    /**
    * @param {string} clusterUuid
    */
-    public async syncMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
+    public async syncMetricReceived(clusterUuid: string): Promise<object> {
         
         let distinctJobList;
         let targetJobDbAll;
@@ -1235,10 +1236,8 @@ class executorService {
         var cronJobKey_cancel =[];
 
         //get customerAccountId
-        const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
-        if (!customerAccountData) {
-          throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
-         }
+        const resourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid); 
+        const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(resourceGroup.customerAccountKey);
     
         // validate clusterUuid
         const responseResourceGroup: IResourceGroup =  await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
