@@ -416,7 +416,7 @@ class executorService {
     public async installKpsOnResourceGroup(clusterUuid: string, customerAccountKey: number, targetNamespace: string, systemId: string ): Promise<object> {
 
       var serviceUuid =[];
-      const apiUrl = config.appUrl + config.appPort;
+      const nexclipperApiUrl = config.appUrl + ":" + config.appPort;
       const prometheus = "kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"
       const kpsSteps=  [{args: 
                             {name: 'kps', 
@@ -497,7 +497,7 @@ class executorService {
       const cronData = { name: "SyncMetricReceived",
         summary: "SyncMetricReceived",
         cronTab: `*/10 * * * *`,
-        apiUrl: apiUrl,
+        apiUrl: nexclipperApiUrl,
         reRunRequire: true,
         scheduleFrom: "",
         scheduleTo: "",
