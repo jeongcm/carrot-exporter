@@ -16,7 +16,7 @@ export type ResourceGroupCreationAttributes = Optional<
   | 'resourceGroupPlatform'
   | 'resourceGroupPrometheus'
   | 'resourceGroupProvider'
-  | 'resoruceGroupAlertManger'
+  | 'resoruceGroupAlertManager'
   | 'resourceGroupGrafana'
   | 'resourceGroupLoki'
   | 'resourceGroupUuid'
@@ -34,7 +34,7 @@ export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreat
   public customerAccountKey: number;
   public resourceGroupPlatform: 'OS' | 'K8';
   public resourceGroupPrometheus: string;
-  public resoruceGroupAlertManger: string;
+  public resoruceGroupAlertManager: string;
   public resourceGroupLoki: string;
   public resourceGroupGrafana: string;
   public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR' | 'OR' | 'OT';
@@ -119,7 +119,7 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
         allowNull: true,
         type: DataTypes.STRING(200),
       },
-      resoruceGroupAlertManger: {
+      resoruceGroupAlertManager: {
         allowNull: true,
         type: DataTypes.STRING(200),
       },

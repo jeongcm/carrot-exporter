@@ -184,6 +184,9 @@ class ResourceGroupService {
         resourceGroupPlatform: resultResourceGroup[i].resourceGroupPlatform,
         resourceGroupUuid: resultResourceGroup[i].resourceGroupUuid,
         resourceGroupPrometheus: resultResourceGroup[i].resourceGroupPrometheus,
+        resourceGroupGrafana: resultResourceGroup[i].resourceGroupGrafana,
+        resourceGroupLoki: resultResourceGroup[i].resourceGroupLoki,
+        resourceGroupAlertManager: resultResourceGroup[i].resoruceGroupAlertManager,
         numberOfNode: numberOfNode,
       };
     }
