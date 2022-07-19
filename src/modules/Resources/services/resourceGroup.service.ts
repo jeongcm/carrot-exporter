@@ -186,7 +186,7 @@ class ResourceGroupService {
         resourceGroupPrometheus: resultResourceGroup[i].resourceGroupPrometheus,
         resourceGroupGrafana: resultResourceGroup[i].resourceGroupGrafana,
         resourceGroupLoki: resultResourceGroup[i].resourceGroupLoki,
-        resourceGroupAlertManager: resultResourceGroup[i].resoruceGroupAlertManager,
+        resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
         numberOfNode: numberOfNode,
       };
     }
