@@ -38,6 +38,12 @@ class ResourceGroupRoute implements Routes {
       createUserLogMiddleware,
       this.resourceGroupController.getResourceGroupByCustomerAccountId,
     );
+    this.router.delete(
+      '/resourceGroup/uuid/:resourceGroupUuid',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceGroupController.deleteResourceGroupByResourceGroupUuid,
+    );
     this.router.put(
       '/resourceGroup/:resourceGroupId',
       authMiddleware,

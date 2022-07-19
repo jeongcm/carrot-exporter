@@ -6,6 +6,7 @@ export type ExporterCreationAttributes = Optional<
   | 'exporterKey'
   | 'exporterId'
   | 'updatedBy'
+  | 'createdBy'
   | 'createdAt'
   | 'updatedAt'
   | 'deletedAt'
@@ -16,6 +17,9 @@ export type ExporterCreationAttributes = Optional<
   | 'exporterHelmChartVersion'
   | 'exporterHelmChartValues'
   | 'grafanaDashboard'
+  | 'exporterExporterhubUrl'
+  | 'exporterNamespace'
+  | 'exporterType'
 >;
 
 export class ExportersModel extends Model<IExporters, ExporterCreationAttributes> implements IExporters {
@@ -33,6 +37,9 @@ export class ExportersModel extends Model<IExporters, ExporterCreationAttributes
   public exporterHelmChartValues: JSON;
   public grafanaDashboard: JSON;
   public updatedAt: Date;
+  public exporterExporterhubUrl: string;
+  public exporterNamespace: string;
+  public exporterType: string;
 
   public readonly createdAt!: Date;
   
@@ -90,6 +97,15 @@ export default function (sequelize: Sequelize): typeof ExportersModel {
       },
       grafanaDashboard: {
         type: DataTypes.JSON,
+      },
+      exporterType: {
+        type: DataTypes.STRING(2),
+      },
+      exporterNamespace: {
+        type: DataTypes.STRING(100),
+      },
+      exporterExporterhubUrl: {
+        type: DataTypes.STRING(100),
       },
     },
     {

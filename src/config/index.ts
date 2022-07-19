@@ -18,6 +18,7 @@ validateEnv();
 
 export default {
   appPort: process.env.NC_LARI_PORT || 5000,
+  appUrl: process.env.NC_LARI_URL || 'http://localhost',
   nodeEnv: process.env.NC_LARI_ENV || 'development',
   maxApiBodySize: process.env.NC_MAX_API_BODY_SIZE || '50mb',
   logFormat: process.env.NC_LARI_LOG_FORMAT,
@@ -102,7 +103,7 @@ export default {
     baseURL: process.env.FUSEBILL_BASE_URL,
   },
   ncCronApiDetail: {
-    baseURL: process.env.NC_CRON_URL || 'http://localhost:5010/scheduler',
+    baseURL: process.env.NC_CRON_URL || 'http://localhost:5010',
     authToken: process.env.NC_CRON_X_AUTH_TOKEN || 'CRON',
   },
   sudoryApiDetail: {
@@ -128,5 +129,9 @@ export default {
   victoriaMetrics: {
     NC_LARI_VM_ADDRESS: process.env.NC_LARI_VM_ADDRESS,
     NC_LARI_VM_API: process.env.NC_LARI_VM_API,
+  },
+  alerthub: {
+    baseUrl: process.env.NC_ALERTHUB_URL,
+    authToken: process.env.NC_ALERTHUB_X_AUTH_TOKEN,
   },
 };

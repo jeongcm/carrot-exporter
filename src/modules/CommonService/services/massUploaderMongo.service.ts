@@ -31,10 +31,13 @@ class massUploaderMongoService {
         const deleted_At = new Date().toISOString();
         const created_At = new Date().toISOString();
         const updated_At = new Date().toISOString();
-
+        console.log ("service-resourceMassFeed");
+        console.log(resourceMassFeed.resource_Group_Uuid);
+        console.log(resourceMassFeed.resource_Type);
         //prepare for db work for resource table in mariadb
         try {
-            resourceGroupUuid = resourceMassFeed[0].resource_Group_Uuid; 
+            resourceGroupUuid = resourceMassFeed.resource_Group_Uuid; 
+            
             const resourceGroupResult: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid); 
             customerAccountKey = resourceGroupResult.customerAccountKey;
             resourceGroupKey = resourceGroupResult.resourceGroupKey;
@@ -46,7 +49,7 @@ class massUploaderMongoService {
 
         //pull resource_Target_Uuid from resourceMassFeed
         const itemLength = resourceMassFeed.length;
-        const resource_Type = resourceMassFeed[0].resource_Type; 
+        const resource_Type = resourceMassFeed.resource_Type; 
         for (let i=0; i<itemLength; i++)
         {
             resourceTargetUuidLocal.push(resourceMassFeed[i].resource_Target_Uuid);

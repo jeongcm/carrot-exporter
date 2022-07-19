@@ -77,15 +77,22 @@ class ExecutorRoute implements Routes {
     );
     this.router.post(
       '/executor/syncMetricReceived',
-      authMiddleware,
-      validationMiddleware(ExecutorUuidDto, 'body'),
+      systemAuthMiddleware,
+      //validationMiddleware(ExecutorUuidDto, 'body'),
       //      createUserLogMiddleware,
       this.executorController.syncMetricReceived,
     );
     this.router.post(
+      '/executor/schedule/syncMetricReceived',
+      authMiddleware,
+      validationMiddleware(ExecutorUuidDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.scheduleSyncMetricReceived,
+    );
+    this.router.post(
       '/executor/sudorywebhook',
       systemAuthMiddleware,
-      validationMiddleware(SudoryWebhookDto, 'body'),
+      //validationMiddleware(SudoryWebhookDto, 'body'),
       //      createUserLogMiddleware,
       this.executorController.processSudoryWebhook,
     );

@@ -29,11 +29,6 @@ class CustomerAccountService {
 
     try {
       const tableIdTableName = 'CustomerAccount';
-      const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-
-      if (!tableId) {
-        return;
-      }
 
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 

@@ -12,7 +12,9 @@ export class ExporterDto {
     @IsNotEmpty()
     public exporterHelmChartVersion: string;
     @IsObject()
-    public exporterHelmChartValues: object;
-    @IsObject()
-    public grafanaDashboard: object;
+    public exporterHelmChartValues: JSON;
+    public grafanaDashboard: JSON;
+    public exportrType: string;
+    public exporterNamespace: string;
+    public exporterExporterhubUrl: string;
   }

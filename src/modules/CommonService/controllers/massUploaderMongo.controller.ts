@@ -10,6 +10,8 @@ class massUploaderMongoController{
     public massUploadMongoForResource = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
       try {
         const resourceMassFeed = req.body;
+        console.log ("controller-resourceMassFeed");
+        console.log(resourceMassFeed); 
         const massFeedResult = await this.massUploaderMongoService.massUploadResourceMongo(resourceMassFeed);
         if (!massFeedResult) {
             return res.sendStatus(500);

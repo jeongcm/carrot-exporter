@@ -5,13 +5,20 @@ import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+dayjs.extend(utc);
+
 const { Op } = require('sequelize');
 import _ from 'lodash';
+import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 class AlertRuleService {
-  public tableIdService = new TableIdService();
-  public alertRule = DB.AlertRule;
-  public ruleGroupAlertRule = DB.RuleGroupAlertRule;
-  public ruleGroup = DB.RuleGroup;
+  private tableIdService = new TableIdService();
+  private alertRule = DB.AlertRule;
+  private alertReceived = DB.AlertReceived;
+  private ruleGroupAlertRule = DB.RuleGroupAlertRule;
+  private resourceGroup = DB.ResourceGroup;
+  private ruleGroup = DB.RuleGroup;
 
   public async getAlertRule(customerAccountKey: number): Promise<IAlertRule[]> {
     const allAlertRules: IAlertRule[] = await this.alertRule.findAll({
@@ -22,8 +29,23 @@ class AlertRuleService {
   }
 
   public async getAlertRuleGraph(customerAccountKey: number, status: string): Promise<IAlertRuleGraph[]> {
+    let conditionalWhere = {};
+
+    if (status === 'firing') {
+      const ago = dayjs().subtract(1.5, 'hour').utc().toDate();
+      conditionalWhere = {
+        alertReceivedActiveAt: {
+          [Op.gt]: ago,
+        },
+      };
+    }
+
     const allAlertRules: IAlertRuleGraph[] = await this.alertRule.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null,alertRuleState: status },
+      where: {
+        customerAccountKey: customerAccountKey,
+        deletedAt: null,
+        alertRuleState: status,
+      },
       attributes: {
         exclude: [
           'alertRuleKey',
@@ -41,9 +63,22 @@ class AlertRuleService {
           'updatedAt',
         ],
       },
+      /*
+      include: [
+        {
+          model: this.alertReceived,
+          attributes: ['alertReceivedId'],
+          where: {
+            alertReceivedState: status,
+            ...conditionalWhere,
+          },
+        },
+      ],
+      */
     });
     return allAlertRules;
   }
+
   public async findAlertRuleById(alertRuleId: string): Promise<IAlertRule> {
     if (isEmpty(alertRuleId)) throw new HttpException(400, 'Not a valid Alert Rule');
 
@@ -105,16 +140,14 @@ class AlertRuleService {
     return await this.findAlertRuleById(alertRuleId);
   }
 
-  public async getAlertRuleById(
-    alertRuleId: string,
-  ): Promise<IAlertRule> {
+  public async getAlertRuleById(alertRuleId: string): Promise<IAlertRule> {
     if (isEmpty(alertRuleId)) throw new HttpException(400, 'alertRuleId must not be blank.');
     return await this.findAlertRuleById(alertRuleId);
   }
 
   public async createAlertRule(alertRuleData: CreateAlertRuleDto, customerAccountKey: number, partyId: string): Promise<IAlertRule> {
     if (isEmpty(alertRuleData)) throw new HttpException(400, 'Create AlertRule cannot be blank');
-    const tableIdName: string = 'AlertRule';
+    const tableIdName = 'AlertRule';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const tempAlertRuleId: string = responseTableIdData.tableIdFinalIssued;
 
@@ -151,6 +184,51 @@ class AlertRuleService {
     } catch (error) {
       return [];
     }
+  }
+
+  public async getAlertRuleByResourceGroupUuid(resourceGroupId: string) {
+    try {
+      const resourceGroup: any = await this.resourceGroup.findOne({ where: { resourceGroupId } });
+      if (isEmpty(resourceGroup)) throw new HttpException(400, 'resourceGroup not found.');
+      const allAlertRules: IAlertRule[] = await this.alertRule.findAll({
+        where: {
+          deletedAt: null,
+          resourceGroupUuid: resourceGroup.resourceGroupUuid,
+        },
+      });
+      return allAlertRules;
+    } catch (error) {
+      return [];
+    }
+  }
+
+  public async deleteAlertRuleByResourceGroupUuid(resourceGroupUuid: string): Promise<object> {
+    if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid  must not be empty');
+
+    const findAlertRule: IAlertRule[] = await this.alertRule.findAll({ where: { resourceGroupUuid: resourceGroupUuid } });
+    if (!findAlertRule) {
+      console.log('no alert rules');
+    } else {
+      let alertRuleKey = {};
+
+      for (let i = 0; i < findAlertRule.length; i++) {
+        alertRuleKey = Object.assign(alertRuleKey, findAlertRule[i].alertRuleKey);
+      }
+
+      const queryIn = {
+        where: {
+          alertRuleKey: { [Op.in]: alertRuleKey },
+        },
+      };
+
+      console.log(alertRuleKey);
+      const deleteAlertReceived = await this.alertReceived.update({ deletedAt: new Date() }, queryIn);
+      const deleteAlertRule = await this.alertRule.update({ deletedAt: new Date() }, { where: { resourceGroupUuid: resourceGroupUuid } });
+
+      console.log(deleteAlertReceived);
+      console.log(deleteAlertRule);
+    }
+    return;
   }
 }
 

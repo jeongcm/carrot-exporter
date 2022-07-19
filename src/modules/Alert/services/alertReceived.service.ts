@@ -33,13 +33,17 @@ class AlertReceivedService extends ServiceExtension {
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
-      include: [{
-        model: this.alertRule,
-        as: 'alertRule',
-        include: [{
-          model: this.resourceGroup,
-        }]
-      }],
+      include: [
+        {
+          model: this.alertRule,
+          as: 'alertRule',
+          include: [
+            {
+              model: this.resourceGroup,
+            },
+          ],
+        },
+      ],
     });
     return allAlertReceived;
   }
@@ -79,28 +83,19 @@ class AlertReceivedService extends ServiceExtension {
     return where;
   }
 
-  public async getAllAlertReceivedByAlertRuleId(customerAccountKey: number, alertRuleId?: string): Promise<any[]>{
+  public async getAllAlertReceivedByAlertRuleId(customerAccountKey: number, alertRuleId?: string): Promise<any[]> {
     if (isEmpty(alertRuleId)) throw new HttpException(400, 'Not a valid AlertRuleId');
     const currentAlertRule: IAlertRule = await this.alertRule.findOne({
       where: { alertRuleId, deletedAt: null },
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
-    console.log(currentAlertRule.alertRuleKey)
     const currentAlertRuleKey = currentAlertRule.alertRuleKey;
     if (!currentAlertRule) throw new HttpException(404, 'AlertRuleId is not found');
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null, alertRuleKey: currentAlertRuleKey },
-      // attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
-      // include: [{
-      //   model: this.alertRule,
-      //   as: 'alertRule',
-      //   include: [{
-      //     model: this.resourceGroup,
-      //   }]
-      // }],
+      order: [['alertReceivedActiveAt', 'DESC']],
     });
     return allAlertReceived;
-
 
     return null;
   }
@@ -207,7 +202,7 @@ class AlertReceivedService extends ServiceExtension {
 
     if (!alertFound) {
       throw new HttpException(404, 'ALERT_NOT_FOUND');
-    };
+    }
 
     // TODO: to add more criteria to identify a group of alerts
     const query = { alertReceivedName: alertFound.alertReceivedName };

@@ -9,4 +9,5 @@ export interface IResolutionAction {
     resolutionActionName : string;
     resolutionActionDescription : string;
     sudoryTemplateKey : number;
+    resolutionActionTemplateSteps:JSON;
   }

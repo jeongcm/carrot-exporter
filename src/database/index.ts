@@ -102,6 +102,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
     // TODO: find a better way to leave a log
     // logger.info(time + 'ms' + ' ' + query);
   },
+  //logging: console.log,
   benchmark: true,
   retry: {
     match: [/Deadlock/i],
@@ -115,6 +116,9 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
 sequelize.authenticate();
 
 const DB = {
+  TableId: TableIdModel(sequelize),
+  Messages: MessageModel(sequelize),
+
   Users: UserModel(sequelize),
   AccessGroup: AccessGroupModel(sequelize),
   AccessGroupChannel: AccessGroupChannelModel(sequelize),
@@ -138,10 +142,10 @@ const DB = {
   Address: AddressModel(sequelize),
   CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
   Api: ApiModel(sequelize),
-  PartyChannel: PartyChannelModel(sequelize),
-  TableId: TableIdModel(sequelize),
-  Messages: MessageModel(sequelize),
   Party: PartyModel(sequelize),
+  PartyChannel: PartyChannelModel(sequelize),
+
+  
   Resource: ResourceModel(sequelize),
   ResourceGroup: ResourceGroupModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
@@ -221,9 +225,6 @@ DB.Party.hasMany(DB.PartyChannel, { foreignKey: 'partyKey' });
 DB.PartyChannel.belongsTo(DB.Channel, { foreignKey: 'channelKey' });
 DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 
-//DB.AccessGroupChannel.belongsTo(DB.Channel, { foreignKey: 'channelPk' });
-//DB.AccessGroupChannel.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
-
 DB.AccessGroup.belongsToMany(DB.Users, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'members' });
 DB.Users.belongsToMany(DB.AccessGroup, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
 
@@ -236,15 +237,9 @@ DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourc
 DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterPk' });
 DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
 
-DB.CustomerAccount.hasMany(DB.ExecutorService, { foreignKey: 'customerAccountKey' });
-DB.ExecutorService.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+DB.CustomerAccount.hasMany(DB.ExecutorService, { foreignKey: 'customer_account_key' });
+DB.ExecutorService.belongsTo(DB.CustomerAccount, { foreignKey: 'customer_account_key' });
 
-
-// DB.Alerts.belongsToMany(DB.Incident, { through: 'IncidentRelAlert' });
-// DB.Incident.belongsToMany(DB.Alerts, { through: 'IncidentRelAlert' });
-
-// DB.IncidentRelAlert.belongsTo(DB.Alerts, { foreignKey: 'alertPk' });
-// DB.IncidentRelAlert.belongsTo(DB.Incident, { foreignKey: 'incidentPk' });
 
 DB.Incident.belongsToMany(DB.AlertReceived, {
   through: DB.IncidentAlertReceived,
@@ -277,11 +272,8 @@ DB.AlertRule.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' })
 DB.AlertRule.hasMany(DB.AlertReceived, { foreignKey: 'alertRuleKey' });
 DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey', as: 'alertRule' });
 
-DB.AlertNotification.hasMany(DB.AlertReceived, { foreignKey: 'alertNotificationKey' });
-DB.AlertReceived.belongsTo(DB.AlertNotification, { foreignKey: 'alertNotificationKey', as: 'alertNotification' });
-
-// DB.AlertRule.hasMany(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
-// DB.ResourceGroup.belongsTo(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
+DB.AlertRule.hasMany(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
+DB.ResourceGroup.belongsTo(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
 
 DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' });
 DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
@@ -336,8 +328,14 @@ DB.Notification.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey'
 DB.RuleGroup.hasMany(DB.RuleGroupAlertRule, { foreignKey: 'ruleGroupKey' });
 DB.RuleGroupAlertRule.belongsTo(DB.RuleGroup, { foreignKey: 'ruleGroupKey' });
 
+DB.RuleGroup.hasMany(DB.RuleGroupResolutionAction, { foreignKey: 'rule_group_key' });
+DB.RuleGroupResolutionAction.belongsTo(DB.RuleGroup, { foreignKey: 'rule_group_key' });
+
 DB.AlertRule.hasMany(DB.RuleGroupAlertRule, { foreignKey: 'alertRuleKey' });
 DB.RuleGroupAlertRule.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey' });
+
+DB.ResolutionAction.hasMany(DB.RuleGroupResolutionAction, { foreignKey: 'resolution_action_key' });
+DB.RuleGroupResolutionAction.belongsTo(DB.ResolutionAction, { foreignKey: 'resolution_action_key' });
 
 DB.Resource.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'resource_key' });
 DB.AnomalyMonitoringTarget.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
@@ -363,8 +361,8 @@ DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key'
 DB.BayesianModel.hasMany(DB.AnomalyMonitoringTarget, {  foreignKey: 'bayesian_model_key' });
 DB.AnomalyMonitoringTarget.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
-DB.RuleGroupResolutionAction.hasMany(DB.ResolutionAction, {  foreignKey: 'resolution_action_key' });
-DB.ResolutionAction.belongsTo(DB.RuleGroupResolutionAction, { foreignKey: 'resolution_action_key' });
+DB.ResourceGroup.hasOne(DB.RuleGroup, { foreignKey: 'resource_group_key' });
+DB.RuleGroup.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 
 DB.Party.belongsToMany(DB.Resource, {
   through: {
@@ -453,7 +451,9 @@ DB.RoleParty.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
-//[[force: true]] is used when changes made in database.
+//[[force: true]]  is used when changes made in database.
+//[[force: false]] there would be no database change even you modify the models. 
+//                 Need to have a separate operation to apply database model change.
 
 DB.sequelize
   .sync({ force: false })

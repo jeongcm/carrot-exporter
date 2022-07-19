@@ -115,7 +115,7 @@ class RuleGroupResolutionActionService {
     const allRuleGroupResolutionAction: IRuleGroupResolutionAction[] = await this.ruleGroupResolutionAction.findAll({
       where: { deletedAt: null, ruleGroupKey: ruleGroupDetails.ruleGroupKey },
       include: [{
-        model: ResolutionActionModel
+        model: ResolutionActionModel, include:[{model:SudoryTemplateModel, as:"sudoryTemplate"}]
       }],
       attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });

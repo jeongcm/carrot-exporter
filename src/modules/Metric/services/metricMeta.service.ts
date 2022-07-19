@@ -1,17 +1,18 @@
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IMetricMeta } from '@/common/interfaces/metricMeta.interface';
+import { IMetricReceived } from '@/common/interfaces/metricReceived.interface';
 import { isEmpty } from '@/common/utils/util';
 import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import { Sequelize } from 'sequelize/types';
 import { MetricMetaDto } from '../dtos/metricMeta.dto';
 const { Op } = require('sequelize');
 class MetricMetaService {
   public tableIdService = new TableIdService();
   public metricMeta = DB.MetricMeta;
+  public metricReceived = DB.MetricReceived;
 
   public resourceGroupService = new ResourceGroupService();
   public resourceService = new ResourceService();
@@ -78,6 +79,23 @@ class MetricMetaService {
       return false;
     }
   }
+
+  public async deleteMetricMetaByResourceGroupUuid(resourceGroupUuid: string): Promise<object> {
+
+    if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid  must not be empty');
+    const deleteData = { deletedAt: new Date() };
+    const findMetricMeta: IMetricMeta = await this.metricMeta.findOne({ where: { resourceGroupUuid: resourceGroupUuid } });
+    if (!findMetricMeta) throw new HttpException(400, "ResourceGroup  doesn't exist");
+
+    const resultDeleteMetricReceived = await this.metricReceived.update(deleteData, {where: {metricMetaKey: findMetricMeta.metricMetaKey}} );
+    const resultDeleteMetricMeta = await this.metricMeta.update(deleteData, {where: {resourceGroupUuid: resourceGroupUuid}});
+   
+    console.log (resultDeleteMetricReceived);
+    console.log (resultDeleteMetricMeta);  
+    return;
+  }
+
+
 
   public async findMetricMetaById(metricMetaId: string): Promise<IMetricMeta> {
     if (isEmpty(metricMetaId)) throw new HttpException(400, 'Not a valid Metric Meta');
