@@ -184,6 +184,9 @@ class ResourceGroupService {
         resourceGroupPlatform: resultResourceGroup[i].resourceGroupPlatform,
         resourceGroupUuid: resultResourceGroup[i].resourceGroupUuid,
         resourceGroupPrometheus: resultResourceGroup[i].resourceGroupPrometheus,
+        resourceGroupGrafana: resultResourceGroup[i].resourceGroupGrafana,
+        resourceGroupLoki: resultResourceGroup[i].resourceGroupLoki,
+        resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
         numberOfNode: numberOfNode,
       };
     }
@@ -346,6 +349,9 @@ class ResourceGroupService {
     const resultUninstallSudoryClient = await this.sudoryService.postSudoryService(name, summary, resourceGroupUuid, templateUuid, steps, customerAccountKey )
     console.log ("sudory");
     console.log (resultUninstallSudoryClient);
+
+    // 8. Customer Notification
+
     return resultResourceGroup;
   }
 
