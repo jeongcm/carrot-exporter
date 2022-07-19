@@ -55,7 +55,6 @@ class AlertRuleService {
           'alertRuleQuery',
           'customerAccountKey',
           'alertRuleDuration',
-          'alertRuleSeverity',
           'alertRuleDescription',
           'alertRuleSummary',
           'alertRuleRunbook',
