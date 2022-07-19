@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 const process = require('process');
 
 /*
@@ -18,7 +20,7 @@ const exporter = new OTLPTraceExporter({
   // optional - url default value is http://localhost:4318/v1/traces
   url: 'http://ncotel-collector-opentelemetry-collector.otel.svc.local:4318/v1/traces',
   // optional - collection of custom headers to be sent with each request, empty by default
-  headers: {}, 
+  headers: {},
 });
 const sdk = new opentelemetry.NodeSDK({
   traceExporter: new opentelemetry.tracing.ConsoleSpanExporter(),
@@ -26,7 +28,9 @@ const sdk = new opentelemetry.NodeSDK({
 });
 */
 
-const {
+if (process.env.NC_TURN_OFF_TELEMETRY != 'true') {
+
+  const {
   BasicTracerProvider,
   ConsoleSpanExporter,
   SimpleSpanProcessor,
@@ -80,3 +84,5 @@ process.on('SIGTERM', () => {
     .catch(error => console.log('Error terminating tracing', error))
     .finally(() => process.exit(0));
 });
+
+}
