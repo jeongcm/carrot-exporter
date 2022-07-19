@@ -23,9 +23,10 @@ class RuleGroupService {
     if (bayesianModelId) {
       const bayesianModelDetail = await this.bayesianModel.findOne({ where: { bayesianModelId } })
       const bayesianModelRuleGroup = await this.modelRuleScore.findAll({ where: { deletedAt: null, bayesianModelKey: bayesianModelDetail.bayesianModelKey } })
+      const resourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: bayesianModelDetail.bayesianModelClusterId } })
       const ruleGroupKeys = pluck(bayesianModelRuleGroup, 'ruleGroupKey');
       const allRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({
-        where: { deletedAt: null, ruleGroupKey: { [Op.notIn]: ruleGroupKeys }, },
+        where: { deletedAt: null, ruleGroupKey: { [Op.notIn]: ruleGroupKeys }, resourceGroupKey:resourceGroup.resourceGroupKey },
         include: [{ model: ModelRuleScoreTable, attributes: ["bayesianModelKey"], include: [{ model: BayesianModelTable, required: false }] }],
         attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
       });
@@ -35,6 +36,7 @@ class RuleGroupService {
     }
 
   }
+
 
   public async getRuleGroup(): Promise<IRuleGroup[]> {
     const allRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({
