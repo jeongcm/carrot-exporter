@@ -13,6 +13,9 @@ export interface IResourceGroup {
   resourceGroupPlatform: string;
   resourceGroupUuid: string;
   resourceGroupPrometheus: string;
+  resourceGroupGrafana: string;
+  resoruceGroupAlertManger: string;
+  resourceGroupLoki: string;
 }
 
 export interface IResourceGroupUi {
@@ -30,5 +33,8 @@ export interface IResourceGroupUi {
   resourceGroupPlatform: string;
   resourceGroupUuid: string;
   resourceGroupPrometheus: string;
+  resourceGroupGrafana: string;
+  resoruceGroupAlertManger: string;
+  resourceGroupLoki: string;
   numberofNode: number;
 }

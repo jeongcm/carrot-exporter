@@ -346,6 +346,9 @@ class ResourceGroupService {
     const resultUninstallSudoryClient = await this.sudoryService.postSudoryService(name, summary, resourceGroupUuid, templateUuid, steps, customerAccountKey )
     console.log ("sudory");
     console.log (resultUninstallSudoryClient);
+
+    // 8. Customer Notification
+
     return resultResourceGroup;
   }
 

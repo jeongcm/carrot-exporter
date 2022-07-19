@@ -416,12 +416,17 @@ class executorService {
     public async installKpsOnResourceGroup(clusterUuid: string, customerAccountKey: number, targetNamespace: string, systemId: string ): Promise<object> {
 
       var serviceUuid =[];
+      const helmRepoUrl = config.helmRepoUrl;
       
-      const prometheus = "kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"
+      const prometheus = "kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090";
+      const grafana = "kps-grafana." + targetNamespace + ".svc.cluster.local:80";
+      const alertManager = "kps-kube-prometheus-stack-alertmanager." + targetNamespace + ".svc.cluster.local:9093";
+      const loki = "loki." + targetNamespace + ".svc.cluster.local:3100";
+
       const kpsSteps=  [{args: 
                             {name: 'kps', 
                             chart_name:'kube-prometheus-stack',
-                            repo_url:'https://repo.nexclipper.io/chartrepo/nexclipper-dev', 
+                            repo_url:helmRepoUrl, 
                             namespace: targetNamespace,
                             chart_version:'35.0.3-nc',
                             values:{}
@@ -440,7 +445,7 @@ class executorService {
       const lokiSteps=  [{args: 
                             {name: 'loki', 
                             chart_name:'loki-stack',
-                            repo_url:'https://repo.nexclipper.io/chartrepo/nexclipper-dev', 
+                            repo_url:helmRepoUrl, 
                             namespace: targetNamespace,
                             chart_version:'2.6.4-nc',
                             values:{}
@@ -454,7 +459,12 @@ class executorService {
       console.log ("########### Loki chart");
       console.log(executeLokiHelm);              
       // update ResourceGroup - resourceGroupPrometheus
-      const resourceGroup = {resourceGroupPrometheus: prometheus}; 
+      const resourceGroup = {
+        resourceGroupPrometheus: prometheus,
+        resourceGroupGrafana: grafana,
+        resourceGroupAlertManager: alertManager,
+        resourceGroupLoki: loki
+      }; 
       // get system user id
 
       try {  
