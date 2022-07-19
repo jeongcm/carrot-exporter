@@ -1,8 +1,8 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import { IBayesianModel } from '@/common/interfaces/bayesianModel.interface';
+import { IBayesianModel, IBayesianDBModel } from '@/common/interfaces/bayesianModel.interface';
 
 export type BayesianModelAttributes = Optional<
-  IBayesianModel,
+  IBayesianDBModel,
   | 'bayesianModelKey'
   | 'bayesianModelId'
   | 'createdBy'
@@ -15,11 +15,11 @@ export type BayesianModelAttributes = Optional<
   | 'bayesianModelStatus'
   | 'customerAccountKey'
   | 'bayesianModelResourceType'
-  | 'bayesianModelClusterId'
   | 'bayesianModelScoreCard'
+  | 'resourceGroupKey'
 >;
 
-export class BayesianModelTable extends Model<IBayesianModel, BayesianModelAttributes> implements IBayesianModel {
+export class BayesianModelTable extends Model<IBayesianDBModel, BayesianModelAttributes> implements IBayesianDBModel {
   public bayesianModelKey: number;
   public bayesianModelId: string;
   public createdBy: string;
@@ -29,7 +29,7 @@ export class BayesianModelTable extends Model<IBayesianModel, BayesianModelAttri
   public bayesianModelDescription: string;
   public bayesianModelStatus: string;
   public customerAccountKey: number;
-  public bayesianModelClusterId:string;
+  public resourceGroupKey: number;
   public bayesianModelScoreCard:JSON
   public bayesianModelResourceType: "ND" | "SV";
 
@@ -77,8 +77,8 @@ export default function (sequelize: Sequelize): typeof BayesianModelTable {
       bayesianModelStatus: {
         type: DataTypes.STRING(2),
       },
-      bayesianModelClusterId: {
-        type: DataTypes.STRING(16),
+      resourceGroupKey: {
+        type: DataTypes.INTEGER,
       },
       bayesianModelScoreCard: {
         type: DataTypes.JSON(),
