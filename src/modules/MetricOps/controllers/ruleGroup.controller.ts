@@ -18,7 +18,7 @@ class RuleGroupController {
   };
   public getRuleGroupByModelId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {body:{bayesianModelId = ""}} = req;
+      const bayesianModelId = req.params.bayesianModelId;
       const findRuleGroupData: IRuleGroup[] = await this.ruleGroupService.getRuleGroupByModelId(bayesianModelId);
       res.status(200).json({ data: findRuleGroupData, message: 'findAll' });
     } catch (error) {

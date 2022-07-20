@@ -34,6 +34,7 @@ class BayesianModelServices {
       let resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupKey: bayesianModelList[i].resourceGroupKey}}); 
       let { 
         bayesianModelKey,
+        bayesianModelId,
         createdBy,
         updatedBy,
         createdAt,
@@ -49,6 +50,7 @@ class BayesianModelServices {
 
       resultAllBayesianModel[i] = {
         bayesianModelKey,
+        bayesianModelId,
         createdBy,
         updatedBy,
         createdAt,
@@ -228,6 +230,7 @@ class BayesianModelServices {
       let resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupKey: bayesianModelList[i].resourceGroupKey}}); 
       let { 
         bayesianModelKey,
+        bayesianModelId,
         createdBy,
         updatedBy,
         createdAt,
@@ -243,6 +246,7 @@ class BayesianModelServices {
       
       resultAllBayesianModel[i] = {
         bayesianModelKey,
+        bayesianModelId,
         createdBy,
         updatedBy,
         createdAt,
