@@ -1,7 +1,7 @@
 import DB from '@/database';
 import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import { IRquestMassUploaderMongo } from '@/common/interfaces/massUploader.interface';
-import { ResourceDto } from '../dtos/resource.dto';
+import { ResourceDto, ResourceDetailQueryDTO } from '../dtos/resource.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
@@ -169,6 +169,26 @@ class ResourceService {
 
     return this.getResourceById(resourceId);
   }
+
+    /**
+   * @param  {ResourceDto} resourceDetailData
+   */
+     public async getResourceDetail(resourceDetailData: ResourceDetailQueryDTO): Promise<IResource> {
+      if (isEmpty(resourceDetailData)) throw new HttpException(400, 'Resource  must not be empty');
+      const findResource: IResource = await this.resource.findOne({ where: {
+        resourceName: resourceDetailData.resourceName,
+        resourceType: resourceDetailData.resourceType,
+        resourceNamespace: resourceDetailData.resourceNamespace,
+        resourceTargetUuid: resourceDetailData.resourceGroupUuid,
+        deletedAt: null
+       },
+       attributes: { exclude: ['deletedAt', 'resourceKey', 'resource_group_key'] },
+       });
+      if (!findResource) throw new HttpException(400, "Resource  doesn't exist");
+  
+ 
+      return findResource;
+    }
 
   /**
    * @param  {string} resourceType
