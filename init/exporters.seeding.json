@@ -1,0 +1,47 @@
+[
+    {
+      "exporterName": "prometheus-mysql-exporter",
+      "exporterDescription": "prometheus-mysql-exporter",
+      "exporterHelmChartName": "prometheus-mysql-exporter",
+      "exporterHelmChartRepoUrl": "https://repo.nexclipper.io/chartrepo/nexclipper-dev",
+      "exporterHelmChartVersion": "1.7.0",
+      "exporterHelmChartValues": {"value1":"mysql.user","value2":"mysql.pass","value3":"mysql.host","value4":"mysql.port"},
+      "exporterType": "EX",
+      "grafanaDashboard": {},
+      "exporterExporterhubUrl": "https://exporterhub.wpcomstaging.com/exporter/mysql-exporter/"
+    },
+    {
+        "exporterName": "kube-prometheus-stack",
+        "exporterDescription": "kube-prometheus-stack",
+        "exporterHelmChartName": "kube-prometheus-stack",
+        "exporterHelmChartRepoUrl": "https://repo.nexclipper.io/chartrepo/nexclipper-dev",
+        "exporterHelmChartVersion": "35.0.3-nc",
+        "exporterHelmChartValues": {},
+        "exporterType": "HL",
+        "grafanaDashboard": {},
+        "exporterExporterhubUrl": ""
+      },
+    {
+        "exporterName": "loki-stack",
+        "exporterDescription": "loki-stack",
+        "exporterHelmChartName": "loki-stack",
+        "exporterHelmChartRepoUrl": "https://repo.nexclipper.io/chartrepo/nexclipper-dev",
+        "exporterHelmChartVersion": "2.6.4-nc",
+        "exporterHelmChartValues": {"value1":"rabbitmq.user","value2":"rabbitmq.password","value3":"rabbitmq.url","value4":"mysql.port"},
+        "exporterType": "HL",
+        "grafanaDashboard": {},
+        "exporterExporterhubUrl": ""
+    },
+    {
+      "exporterName": "prometheus-rabbitmq-exporter",
+      "exporterDescription": "prometheus-rabbitmq-exporter",
+      "exporterHelmChartName": "prometheus-rabbitmq-exporter",
+      "exporterHelmChartRepoUrl": "https://repo.nexclipper.io/chartrepo/nexclipper-dev",
+      "exporterHelmChartVersion": "1.2.0-nc",
+      "exporterHelmChartValues": {"value1":"rabbitmq.user","value2":"rabbitmq.password","value3":"rabbitmq.url"},
+      "exporterType": "HL",
+      "grafanaDashboard": {},
+      "exporterExporterhubUrl": "https://exporterhub.wpcomstaging.com/exporter/rabbitmq-exporter/"
+  }
+  ]
+  
