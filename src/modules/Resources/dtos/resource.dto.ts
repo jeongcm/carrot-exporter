@@ -111,15 +111,15 @@ export class ResourceQueryDTO {
 }
 
 export class ResourceDetailQueryDTO {
-  @IsOptional()
+  @IsNotEmpty()
   public resourceNamespace: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   public resourceName: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   public resourceType: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   public resourceGroupUuid: string;
 }

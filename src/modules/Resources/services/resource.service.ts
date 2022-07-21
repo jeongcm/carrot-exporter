@@ -174,17 +174,29 @@ class ResourceService {
    */
   public async getResourceDetail(resourceDetailData: ResourceDetailQueryDTO): Promise<IResource> {
     if (isEmpty(resourceDetailData)) throw new HttpException(400, 'Resource  must not be empty');
+
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+      attributes: ['resourceGroupKey'],
+      where: {
+        resourceGroupUuid: resourceDetailData.resourceGroupUuid,
+      },
+    });
+
+    if (!findResourceGroup) {
+      throw new HttpException(404, "ResourceGroup with resourceGroupUuid doesn't exist");
+    }
+
     const findResource: IResource = await this.resource.findOne({
       where: {
         resourceName: resourceDetailData.resourceName,
         resourceType: resourceDetailData.resourceType,
         resourceNamespace: resourceDetailData.resourceNamespace,
-        resourceTargetUuid: resourceDetailData.resourceGroupUuid,
+        resourceGroupKey: findResourceGroup.resourceGroupKey,
         deletedAt: null,
       },
       attributes: { exclude: ['deletedAt', 'resourceKey', 'resource_group_key'] },
     });
-    if (!findResource) throw new HttpException(400, "Resource  doesn't exist");
+    if (!findResource) throw new HttpException(404, "Resource  doesn't exist");
 
     return findResource;
   }
