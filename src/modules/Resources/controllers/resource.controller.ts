@@ -182,7 +182,7 @@ class ResourceController {
 
 
 
-
+  
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
@@ -201,6 +201,21 @@ class ResourceController {
       next(error);
     }
   };
+
+    /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+     public getResourceDetail = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+        const resourceDetailData = req.body;
+        const resourceData: IResource = await this.resourceService.getResourceDetail(resourceDetailData);
+        res.status(200).json({ data: resourceData, message: 'get' });
+      } catch (error) {
+        next(error);
+      }
+    };
 
   public getAllTopology = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {

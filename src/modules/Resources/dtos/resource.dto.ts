@@ -109,3 +109,16 @@ export class ResourceQueryDTO {
   @IsOptional()
   public searchResourceValue: string;
 }
+
+export class ResourceDetailQueryDTO {
+
+  @IsOptional()
+  public resourceNamespace: string;
+
+  @IsOptional()
+  public resourceName: string;
+
+  @IsOptional()
+  public resourceType: string;
+  
+}
