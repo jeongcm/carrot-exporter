@@ -355,6 +355,24 @@ class ResourceGroupService {
     return resultResourceGroup;
   }
 
+  /**
+   * @param  {string} resourceGroupUuid
+   */
+  
+   public async getObservabilityResourcesByResourceGroupUuid (resourceGroupUuid: string, customerAccountKey: number): Promise<object>{
 
+    if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid  must not be empty');
+    console.log(resourceGroupUuid);
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
+    if (!findResourceGroup) throw new HttpException(400, "ResourceGroup doesn't exist");
+
+    const resourceGroupGrafana = findResourceGroup.resourceGroupGrafana;
+    const resourceGroupPrometheus = findResourceGroup.resourceGroupPrometheus;
+    
+    const grafanaServiceName = resourceGroupGrafana.substring(7, resourceGroupPrometheus.indexOf('.')); 
+
+
+    return;
+   }
 }
 export default ResourceGroupService;

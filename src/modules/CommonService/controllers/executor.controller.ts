@@ -237,6 +237,12 @@ class executorController {
     try {
       if (!req.body) throw new HttpException(404, 'no req dataset');
 
+      const service_uuid = req.body.service_uuid;
+      const status = req.body.status;
+      if (status==2)
+      {
+        res.status(204).json({ data: service_uuid, message: `Successfully received SudoryWebhook - status code: ${status} ` });  
+      }
       const resultSudoryWebhook: object = await this.executorService.processSudoryWebhook(req.body);
       res.status(200).json({ data: resultSudoryWebhook, message: `Successfully process SudoryWebhook` });
     } catch (error) {
