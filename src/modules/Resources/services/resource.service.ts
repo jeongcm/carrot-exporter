@@ -224,7 +224,7 @@ class ResourceService {
    * @param  {string} resourceType
    * @param  {number} resourceGroupId
    */
-     public async getResourceInNamespaceByTypeResourceGroupId(resourceType: string, resourceGroupId: string): Promise<Object> {
+     public async getResourceInNamespaceByTypeResourceGroupId(resourceType: string, resourceGroupId: string): Promise<IResource[]> {
       const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
       const resourceGroupKey = resultResourceGroup.resourceGroupKey;
       var returnResources = [];

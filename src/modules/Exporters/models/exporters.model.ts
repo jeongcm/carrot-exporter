@@ -79,6 +79,7 @@ export default function (sequelize: Sequelize): typeof ExportersModel {
       exporterName: {
         type: DataTypes.STRING(100),
         allowNull: false,
+        unique: true,   //don't drop unique index of roleName
       },
       exporterDescription: {
         type: DataTypes.STRING(500),
