@@ -255,19 +255,19 @@ class ResourceService {
    * @param  {string} resourceType
    * @param  {number} resourceGroupId
    */
-  public async getResourceInNamespaceByTypeResourceGroupId(resourceType: string, resourceGroupId: string): Promise<Object> {
-    const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
-    const resourceGroupKey = resultResourceGroup.resourceGroupKey;
-    const returnResources = [];
-    const distinctiveNamespace = await this.resource.findAll({
-      attributes: ['resourceNamespace'],
-      group: ['resourceNamespace'],
-      where: { resourceGroupKey: resourceGroupKey, deletedAt: null, resourceType: resourceType },
-    });
 
-    if (!distinctiveNamespace) {
-      throw new HttpException(404, `No namespace information with the resourceGroup: ${resourceGroupId}`);
-    }
+     public async getResourceInNamespaceByTypeResourceGroupId(resourceType: string, resourceGroupId: string): Promise<IResource[]> {
+      const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+      const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+      var returnResources = [];
+      const distinctiveNamespace = await this.resource.findAll(
+              {attributes: ['resourceNamespace'], group:['resourceNamespace'],
+               where: { resourceGroupKey: resourceGroupKey, deletedAt: null, resourceType: resourceType },
+      });
+
+      if (!distinctiveNamespace) {
+        throw new HttpException(404, `No namespace information with the resourceGroup: ${resourceGroupId}`);   
+      }
 
     const allResources: IResource[] = await this.resource.findAll({
       where: {

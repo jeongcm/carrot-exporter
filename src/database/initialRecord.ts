@@ -21,11 +21,12 @@ class InitialRecordService {
   public party = DB.Party;
   public partyUser = DB.PartyUser;
   public role = DB.Role;
+  public exporters = DB.Exporters;
 
   public tableIdService = new tableIdService();
 
   public async insertInitialRecords(): Promise<void> {
-    const { tableIds, customerAccount, party, partyUser, api: apiList, role: roleList } = config.initialRecord;
+    const { tableIds, customerAccount, party, partyUser, api: apiList, role: roleList, exporters: exportersList } = config.initialRecord;
     const { customerAccountName, customerAccountDescription } = customerAccount;
     const { partyName, partyDescription } = party;
     const { firstName, lastName, userId, password, email } = partyUser;
@@ -96,8 +97,6 @@ class InitialRecordService {
 
 
     //insert/update API
-
-
     let apiDataList = [];
       // pre-step to be ready to use bulk table id
     let apiListLength = apiList.length;
@@ -134,8 +133,6 @@ class InitialRecordService {
         console.log(error);
       } 
 
-
-
   //insert/update Role   
   let roleDataList = [];
   let roleListLength = roleList.length;
@@ -165,13 +162,54 @@ class InitialRecordService {
   try {
     await this.role.bulkCreate(roleDataList, 
       {
-        fields: ["roleName", "roleCode", "roleId", "createdBy", "createdAt"],
+        fields: ["roleId", "roleName", "roleCode", "roleId", "createdBy", "createdAt"],
         updateOnDuplicate: ["roleName"]
       }
     );
     } catch (error) {
       console.log(error);
     } 
+//insert/update Exporters
+
+  let exportersDataList = [];
+  let exportersListLength = exportersList.length;
+  const responseExportersTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Exporters', exportersListLength);
+  const exporters_id_prefix = responseExportersTableIdData.tableIdFinalIssued.substring(0, 8);
+  let exporters_id_postfix_number = Number(responseExportersTableIdData.tableIdFinalIssued.substring(8, 16)) - responseExportersTableIdData.tableIdRange;
+  let exporters_id_postfix = '';
+  const exportersTableIdSequenceDigit = responseExportersTableIdData.tableIdSequenceDigit;
+
+  for (const exportersObj of exportersList) {
+    // creating tableid from bulk
+    exporters_id_postfix_number = exporters_id_postfix_number + 1;
+    exporters_id_postfix = exporters_id_postfix_number.toString();
+    while (exporters_id_postfix.length < exportersTableIdSequenceDigit) {
+      exporters_id_postfix = '0' + exporters_id_postfix;
+    }
+    let exporters_id = exporters_id_prefix + exporters_id_postfix;
+
+    exportersDataList.push({
+      ...exportersObj,
+      createdBy: 'SYSTEM',
+      createdAt: new Date(),
+      exporterId: exporters_id,
+    });
+  }
+
+  try {
+    await this.exporters.bulkCreate(exportersDataList, 
+      {
+        fields: ["exporterId", "exporterName", "exporterDescription", 
+        "exporterHelmChartName", "exporterHelmChartRepoUrl", "exporterHelmChartVersion", 
+        "exporterHelmChartValues", "grafanaDashboard", "exporterType", "exporterExporterhubUrl",
+        "createdBy", "createdAt"],
+        updateOnDuplicate: ["exporterName"]
+      }
+    );
+    } catch (error) {
+      console.log(error);
+    } 
+
 
   } // end of method
 } // end of class
