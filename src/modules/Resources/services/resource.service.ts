@@ -178,8 +178,12 @@ class ResourceService {
       const findResource: IResource = await this.resource.findOne({ where: {
         resourceName: resourceDetailData.resourceName,
         resourceType: resourceDetailData.resourceType,
-        resourceNamespace: resourceDetailData.resourceNamespace
-       } });
+        resourceNamespace: resourceDetailData.resourceNamespace,
+        resourceTargetUuid: resourceDetailData.resourceGroupUuid,
+        deletedAt: null
+       },
+       attributes: { exclude: ['deletedAt', 'resourceKey', 'resource_group_key'] },
+       });
       if (!findResource) throw new HttpException(400, "Resource  doesn't exist");
   
  

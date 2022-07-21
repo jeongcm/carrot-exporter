@@ -111,7 +111,6 @@ export class ResourceQueryDTO {
 }
 
 export class ResourceDetailQueryDTO {
-
   @IsOptional()
   public resourceNamespace: string;
 
@@ -120,5 +119,7 @@ export class ResourceDetailQueryDTO {
 
   @IsOptional()
   public resourceType: string;
-  
+
+  @IsOptional()
+  public resourceGroupUuid: string;
 }
