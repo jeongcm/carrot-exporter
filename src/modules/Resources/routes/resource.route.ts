@@ -56,7 +56,7 @@ class ResourceRoute implements Routes {
       createUserLogMiddleware,
       this.resourceController.updateResourceById,
     );
-    
+
     this.router.post(
       '/resource/resourceDetail',
       systemAuthMiddleware,
@@ -64,8 +64,7 @@ class ResourceRoute implements Routes {
       validationMiddleware(ResourceDetailQueryDTO, 'body'),
       createUserLogMiddleware,
       this.resourceController.getResourceDetail,
-    )
-
+    );
   }
 }
 

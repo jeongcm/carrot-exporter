@@ -14,13 +14,12 @@ import { Op } from 'sequelize';
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 import { ResourceGroupModel } from '../models/resourceGroup.model';
 
-
 class ResourceService {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
   public anomalyTarget = DB.AnomalyMonitoringTarget;
-  public partyResource = DB.PartyResource; 
-  public subscribedProduct = DB.SubscribedProduct; 
+  public partyResource = DB.PartyResource;
+  public subscribedProduct = DB.SubscribedProduct;
   public TableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
   public resourceGroupService = new ResourceGroupService();
@@ -170,25 +169,25 @@ class ResourceService {
     return this.getResourceById(resourceId);
   }
 
-    /**
+  /**
    * @param  {ResourceDto} resourceDetailData
    */
-     public async getResourceDetail(resourceDetailData: ResourceDetailQueryDTO): Promise<IResource> {
-      if (isEmpty(resourceDetailData)) throw new HttpException(400, 'Resource  must not be empty');
-      const findResource: IResource = await this.resource.findOne({ where: {
+  public async getResourceDetail(resourceDetailData: ResourceDetailQueryDTO): Promise<IResource> {
+    if (isEmpty(resourceDetailData)) throw new HttpException(400, 'Resource  must not be empty');
+    const findResource: IResource = await this.resource.findOne({
+      where: {
         resourceName: resourceDetailData.resourceName,
         resourceType: resourceDetailData.resourceType,
         resourceNamespace: resourceDetailData.resourceNamespace,
         resourceTargetUuid: resourceDetailData.resourceGroupUuid,
-        deletedAt: null
-       },
-       attributes: { exclude: ['deletedAt', 'resourceKey', 'resource_group_key'] },
-       });
-      if (!findResource) throw new HttpException(400, "Resource  doesn't exist");
-  
- 
-      return findResource;
-    }
+        deletedAt: null,
+      },
+      attributes: { exclude: ['deletedAt', 'resourceKey', 'resource_group_key'] },
+    });
+    if (!findResource) throw new HttpException(400, "Resource  doesn't exist");
+
+    return findResource;
+  }
 
   /**
    * @param  {string} resourceType
@@ -234,42 +233,45 @@ class ResourceService {
         [Op.and]: [...resourceQuery],
         resourceKey: { [Op.notIn]: resourceKeys },
       },
-      include:[{model:ResourceGroupModel, attributes:['resourceGroupName']}]
+      include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
     });
 
     return allResources;
   }
 
-    /**
+  /**
    * @param  {string} resourceType
    * @param  {number} resourceGroupId
    */
-     public async getResourceInNamespaceByTypeResourceGroupId(resourceType: string, resourceGroupId: string): Promise<Object> {
-      const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
-      const resourceGroupKey = resultResourceGroup.resourceGroupKey;
-      var returnResources = [];
-      const distinctiveNamespace = await this.resource.findAll(
-              {attributes: ['resourceNamespace'], group:['resourceNamespace'],
-               where: { resourceGroupKey: resourceGroupKey, deletedAt: null, resourceType: resourceType },
-      });
+  public async getResourceInNamespaceByTypeResourceGroupId(resourceType: string, resourceGroupId: string): Promise<Object> {
+    const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+    const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+    const returnResources = [];
+    const distinctiveNamespace = await this.resource.findAll({
+      attributes: ['resourceNamespace'],
+      group: ['resourceNamespace'],
+      where: { resourceGroupKey: resourceGroupKey, deletedAt: null, resourceType: resourceType },
+    });
 
-      if (!distinctiveNamespace) {
-        throw new HttpException(404, `No namespace information with the resourceGroup: ${resourceGroupId}`);   
-      }
+    if (!distinctiveNamespace) {
+      throw new HttpException(404, `No namespace information with the resourceGroup: ${resourceGroupId}`);
+    }
 
-      let allResources: IResource[] = await this.resource.findAll({
-        where: {
-          deletedAt: null,
-          resourceType,
-          resourceGroupKey: resourceGroupKey,
-        },
-        attributes:  ['resourceName', 'resourceInstance', 'resourceNamespace', 'resourceType', 'resourceId', 'resourceTargetCreatedAt'],
-      })
+    const allResources: IResource[] = await this.resource.findAll({
+      where: {
+        deletedAt: null,
+        resourceType,
+        resourceGroupKey: resourceGroupKey,
+      },
+      attributes: ['resourceName', 'resourceInstance', 'resourceNamespace', 'resourceType', 'resourceId', 'resourceTargetCreatedAt'],
+    });
 
-      for (let i=0; i<distinctiveNamespace.length; i++){
-
-        returnResources[i] = {resourceNamespace: distinctiveNamespace[i].resourceNamespace, resources: allResources.filter(res => res.resourceNamespace === distinctiveNamespace[i].resourceNamespace)} 
-/*
+    for (let i = 0; i < distinctiveNamespace.length; i++) {
+      returnResources[i] = {
+        resourceNamespace: distinctiveNamespace[i].resourceNamespace,
+        resources: allResources.filter(res => res.resourceNamespace === distinctiveNamespace[i].resourceNamespace),
+      };
+      /*
         let allResources: IResource[] = await this.resource.findAll({
           where: {
             deletedAt: null,
@@ -278,15 +280,14 @@ class ResourceService {
             resourceNamespace: distinctiveNamespace[i].resourceNamespace,
           },
         })
-        returnResources[i] = {resourceNamespace: distinctiveNamespace[i].resourceNamespace, data: allResources} 
+        returnResources[i] = {resourceNamespace: distinctiveNamespace[i].resourceNamespace, data: allResources}
 */
-        };
-
-    //  return distinctiveNamespace;
-        return returnResources;
-    //    return allResources;
     }
 
+    //  return distinctiveNamespace;
+    return returnResources;
+    //    return allResources;
+  }
 
   public uniqueData = (arrayData: any) => {
     const resourseKeys = [];
@@ -512,7 +513,7 @@ class ResourceService {
    * @param  {object} resourceGroupUuid
 
    */
-   public async deleteResourceByResourceGroupUuid(resourceGroupUuid: string, resourceGroupKey: number): Promise<Object> {
+  public async deleteResourceByResourceGroupUuid(resourceGroupUuid: string, resourceGroupKey: number): Promise<Object> {
     if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid must not be empty');
 
     const query = {
@@ -522,13 +523,13 @@ class ResourceService {
         resourceActive: true,
       },
     };
-    
-    const getResource: IResource[] = await this.resource.findAll(query); 
-    var resourceKey = {};
-    
-    for (let i=0; i<getResource.length; i++)
-       {resourceKey = Object.assign(resourceKey, getResource[i].resourceKey); 
-       }
+
+    const getResource: IResource[] = await this.resource.findAll(query);
+    let resourceKey = {};
+
+    for (let i = 0; i < getResource.length; i++) {
+      resourceKey = Object.assign(resourceKey, getResource[i].resourceKey);
+    }
 
     const queryIn = {
       where: {
@@ -536,9 +537,9 @@ class ResourceService {
       },
     };
 
-    const deleteResultPartyResource = await this.partyResource.update({deletedAt: new Date()}, queryIn); 
-    const deleteResultSubscribedProduct = await this.subscribedProduct.update({deletedAt: new Date()}, queryIn); 
-    const deleteResultAnomalyTarget = await this.anomalyTarget.update({deletedAt: new Date()}, queryIn); 
+    const deleteResultPartyResource = await this.partyResource.update({ deletedAt: new Date() }, queryIn);
+    const deleteResultSubscribedProduct = await this.subscribedProduct.update({ deletedAt: new Date() }, queryIn);
+    const deleteResultAnomalyTarget = await this.anomalyTarget.update({ deletedAt: new Date() }, queryIn);
 
     const updatedResource = {
       resourceActive: false,
@@ -547,16 +548,13 @@ class ResourceService {
 
     const deleteResultResource = await this.resource.update(updatedResource, query);
 
-    console.log (deleteResultPartyResource); 
-    console.log (deleteResultSubscribedProduct); 
-    console.log (deleteResultAnomalyTarget); 
-    console.log (deleteResultResource);
+    console.log(deleteResultPartyResource);
+    console.log(deleteResultSubscribedProduct);
+    console.log(deleteResultAnomalyTarget);
+    console.log(deleteResultResource);
 
     return deleteResultResource;
-
   }
-
-
 }
 
 export default ResourceService;
