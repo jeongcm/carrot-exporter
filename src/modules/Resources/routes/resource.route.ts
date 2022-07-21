@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
-import { ResourceDto, ResourceQueryDTO } from '../dtos/resource.dto';
+import { ResourceDto, ResourceQueryDTO, ResourceDetailQueryDTO } from '../dtos/resource.dto';
 import ResourceController from '../controllers/resource.controller';
 import systemAuthMiddleware from '@/modules/ApiGateway/middlewares/systemAuth.middleware';
 import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
@@ -55,6 +55,15 @@ class ResourceRoute implements Routes {
       validationMiddleware(ResourceDto, 'body'),
       createUserLogMiddleware,
       this.resourceController.updateResourceById,
+    );
+
+    this.router.post(
+      '/resource/resourceDetail',
+      systemAuthMiddleware,
+      authMiddleware,
+      validationMiddleware(ResourceDetailQueryDTO, 'body'),
+      createUserLogMiddleware,
+      this.resourceController.getResourceDetail,
     );
   }
 }

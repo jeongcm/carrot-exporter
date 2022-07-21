@@ -168,8 +168,8 @@ class ResourceController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-   public getResourceInNamespaceByTypeResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const resourceType:string = req.params.resourceType;
+  public getResourceInNamespaceByTypeResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceType: string = req.params.resourceType;
     const resourceGroupId: string = req.params.resourceGroupId;
 
     try {
@@ -179,9 +179,6 @@ class ResourceController {
       next(error);
     }
   };
-
-
-
 
   /**
    * @param  {IRequestWithUser} req
@@ -197,6 +194,21 @@ class ResourceController {
       const updateResourceData: IResource = await this.resourceService.updateResourceById(resourceId, resourceData, currentUserId);
 
       res.status(200).json({ data: updateResourceData, message: 'updated' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public getResourceDetail = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const resourceDetailData = req.body;
+      const resourceData: IResource = await this.resourceService.getResourceDetail(resourceDetailData);
+      res.status(200).json({ data: resourceData, message: 'get' });
     } catch (error) {
       next(error);
     }

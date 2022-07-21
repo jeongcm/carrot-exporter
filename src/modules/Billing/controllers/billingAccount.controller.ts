@@ -55,17 +55,21 @@ class BillingAccountController {
   public updateBillingAccount = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const billingAccountId: string = req.params.billingAccountId;
+      const billingAccountData: BillingAccountDto = req.body;
+
       const {
         user: { partyId },
       } = req;
-      const billingAccountData: BillingAccountDto = req.body;
+
       const customerAccountKey: number = req.customerAccountKey;
+
       const updateBillingAccountData: IBillingAccount = await this.billingAccountService.updateBillingAccountById(
         billingAccountId,
         billingAccountData,
         customerAccountKey,
         partyId,
       );
+
       res.status(200).json({ data: updateBillingAccountData, message: 'updated' });
     } catch (error) {
       next(error);
