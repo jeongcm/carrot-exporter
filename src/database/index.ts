@@ -205,8 +205,8 @@ DB.Resource.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 DB.CustomerAccount.hasMany(DB.ResourceGroup, { foreignKey: 'customerAccountKey' });
 DB.ResourceGroup.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
-DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resourceGroupKey' });
-DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
+DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resource_group_key' });
+DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 
 DB.Discount.hasMany(DB.Coupon, { foreignKey: 'discountKey' });
 DB.Coupon.belongsTo(DB.Discount, { foreignKey: 'discountKey' });
@@ -363,6 +363,9 @@ DB.AnomalyMonitoringTarget.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_m
 
 DB.ResourceGroup.hasOne(DB.RuleGroup, { foreignKey: 'resource_group_key' });
 DB.RuleGroup.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
+
+DB.ResourceGroup.hasOne(DB.BayesianModel, { foreignKey: 'resource_group_key' });
+DB.BayesianModel.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 
 DB.Party.belongsToMany(DB.Resource, {
   through: {

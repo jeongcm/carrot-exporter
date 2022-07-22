@@ -5,7 +5,7 @@ import { IMetricMeta } from '@/common/interfaces/metricMeta.interface';
 import { IBillingAccount } from '@/common/interfaces/billingAccount.interface';
 import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
 import BayesianModelService from '../services/bayesianModel.service';
-import { IBayesianModel } from '@/common/interfaces/bayesianModel.interface';
+import { IBayesianDBModel, IBayesianModel } from '@/common/interfaces/bayesianModel.interface';
 import { updateTenancyMemberDto } from '@/modules/UserTenancy/dtos/tenancyMember.dto';
 
 class BayesianModelController {
@@ -14,7 +14,7 @@ class BayesianModelController {
   public getAllBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const bayesianModelList: IBayesianModel[] = await this.bayesianModelService.findAllBayesianModel(customerAccountKey);
+      const bayesianModelList: IBayesianDBModel[] = await this.bayesianModelService.findAllBayesianModel(customerAccountKey);
       res.status(200).json({ data: bayesianModelList, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -64,7 +64,7 @@ class BayesianModelController {
       } = req;
       const bayesianModelData: UpdateBayesianModelDto = req.body;
       const customerAccountKey: number = req.customerAccountKey;
-      const updateBayesianModelData: IBayesianModel = await this.bayesianModelService.updateBayesianModel(
+      const updateBayesianModelData: IBayesianDBModel = await this.bayesianModelService.updateBayesianModel(
         bayesianModelId,
         bayesianModelData,
         partyId,
@@ -81,7 +81,7 @@ class BayesianModelController {
         user: { partyId },
         params: { bayesianModelId }
       } = req;
-      const bayesianModelData: IBayesianModel = await this.bayesianModelService.findBayesianModelById(
+      const bayesianModelData: IBayesianDBModel = await this.bayesianModelService.findBayesianModelById(
         bayesianModelId
       );
       res.status(200).json({ data: bayesianModelData, message: 'find' });

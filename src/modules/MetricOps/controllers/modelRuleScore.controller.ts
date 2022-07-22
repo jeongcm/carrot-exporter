@@ -9,6 +9,7 @@ import { IBayesianModel } from '@/common/interfaces/bayesianModel.interface';
 import { updateTenancyMemberDto } from '@/modules/UserTenancy/dtos/tenancyMember.dto';
 import { DetachRuleGroupDto, AttachRuleGroupDto } from '../dtos/modelRuleScore.dto';
 import { IModelRuleScore } from '@/common/interfaces/modelRuleScore.interface';
+import { logger } from '@/common/utils/logger';
 
 class ModelRuleGroupController {
   public modelRuleScoreService= new ModelRuleScoreService();
@@ -71,7 +72,6 @@ class ModelRuleGroupController {
       const {
         params:{ruleGroupId = "", bayesianModelId= ""}
       } = req;
-     
       const modelScoreDetail: IModelRuleScore = await this.modelRuleScoreService.getModelScoreByGroupId(
         ruleGroupId,
         bayesianModelId

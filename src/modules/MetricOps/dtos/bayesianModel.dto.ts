@@ -35,7 +35,7 @@ export class UpdateBayesianModelDto {
   public bayesianModelResourceType: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public bayesianModelClusterId: string;
 
 
