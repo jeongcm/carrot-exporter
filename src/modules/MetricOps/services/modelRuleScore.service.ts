@@ -8,6 +8,7 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { Bool } from 'aws-sdk/clients/clouddirectory';
 import { BayesianModelTable } from '../models/bayesianModel.model';
+import { logger } from '@/common/utils/logger';
 
 class ModelRuleScoreService {
     public modelRuleScore = DB.ModelRuleScore;
@@ -121,7 +122,8 @@ class ModelRuleScoreService {
                 where:
                 {
                     ruleGroupKey: ruleGroupDetail.ruleGroupKey,
-                    bayesianModelKey: modelDetail.bayesianModelKey
+                    bayesianModelKey: modelDetail.bayesianModelKey,
+                    deletedAt:null
                 }, include: [{ model: BayesianModelTable }]
             }
         )

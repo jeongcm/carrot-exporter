@@ -11,6 +11,8 @@ import { BayesianModelTable } from '../models/bayesianModel.model';
 import { ModelRuleScoreTable } from '../models/modelRuleScore.model';
 import { RuleGroupAlertRuleModel } from '../models/ruleGroupAlertRule.model';
 import { RuleGroupModel } from '../models/ruleGroup.model';
+import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
+import { logger } from '@/common/utils/logger';
 
 class BayesianModelServices {
   public bayesianModel = DB.BayesianModel;
@@ -23,50 +25,16 @@ class BayesianModelServices {
    * @returns Promise<IBayesianModel[]>
    * @author Shrishti Raj
    */
-  public async findAllBayesianModel(customerAccountKey: number): Promise<IBayesianModel[]> {
+  public async findAllBayesianModel(customerAccountKey: number): Promise<IBayesianDBModel[]> {
     const bayesianModelList: IBayesianDBModel[] = await this.bayesianModel.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null }
+      where: { customerAccountKey: customerAccountKey, deletedAt: null },
+      include: {
+        model: ResourceGroupModel,
+        attributes: ['resourceGroupName', 'resourceGroupId']
+      }
+
     });
-    var resultAllBayesianModel = [];
-    const modelLength = bayesianModelList.length;
-    
-    for (let i=0; i<modelLength; i++ ) {
-      let resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupKey: bayesianModelList[i].resourceGroupKey}}); 
-      let { 
-        bayesianModelKey,
-        bayesianModelId,
-        createdBy,
-        updatedBy,
-        createdAt,
-        updatedAt,
-        deletedAt,
-        bayesianModelName,
-        bayesianModelStatus,
-        bayesianModelDescription,
-        customerAccountKey,
-        bayesianModelResourceType,
-        bayesianModelScoreCard,
-      } = bayesianModelList[i];
-
-      resultAllBayesianModel[i] = {
-        bayesianModelKey,
-        bayesianModelId,
-        createdBy,
-        updatedBy,
-        createdAt,
-        updatedAt,
-        deletedAt,
-        bayesianModelName,
-        bayesianModelStatus,
-        bayesianModelDescription,
-        customerAccountKey,
-        bayesianModelResourceType,
-        bayesianModelScoreCard,
-        bayesianModelClusterId: resultResourceGroup.resourceGroupId
-      };  
-    }
-
-    return resultAllBayesianModel;
+    return bayesianModelList;
   }
   /**
    * Create a new BayesianModel
@@ -87,7 +55,7 @@ class BayesianModelServices {
     const BayesianModelId: string = responseTableIdData.tableIdFinalIssued;
     const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, bayesianModelClusterId } = bayesianModelData
 
-    const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupId: bayesianModelClusterId}}); 
+    const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: bayesianModelClusterId } });
     if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
     const resourceGroupKey = resultResourceGroup.resourceGroupKey
 
@@ -104,7 +72,7 @@ class BayesianModelServices {
       bayesianModelStatus: "AC"
     };
     const newBayesianModel: IBayesianDBModel = await this.bayesianModel.create(BayesianModel);
-    const { 
+    const {
       bayesianModelKey,
       createdBy,
       updatedBy,
@@ -146,11 +114,12 @@ class BayesianModelServices {
    * @returns Promise<IBayesianModel>
    * @author Shrishti Raj
    */
-  public async findBayesianModelById(bayesianModelId: string): Promise<IBayesianModel> {
-    if (isEmpty(bayesianModelId)) throw new HttpException(400, 'Not a valid BayesianModelId');
+  public async findBayesianModelById(bayesianModelId: string): Promise<IBayesianDBModel> {
+    if (!bayesianModelId) throw new HttpException(409, 'BayesianModel Id Not found');
 
     const findBayesianModel: IBayesianDBModel = await this.bayesianModel.findOne({
       where: { bayesianModelId, deletedAt: null },
+      attributes: { exclude: ["resourceGroupKey"] },
       include: [
         {
           model: ModelRuleScoreTable,
@@ -158,55 +127,21 @@ class BayesianModelServices {
           include: [
             {
               model: RuleGroupModel,
-              include:[
+              include: [
                 {
-                  model:RuleGroupAlertRuleModel
+                  model: RuleGroupAlertRuleModel
                 }
               ]
             }
           ]
+        }, {
+          model: ResourceGroupModel,
+          attributes: ['resourceGroupName', 'resourceGroupId']
         }
       ]
     });
-    if (!bayesianModelId) throw new HttpException(409, 'BayesianModel Id Not found');
 
-    const { 
-      bayesianModelKey,
-      createdBy,
-      updatedBy,
-      createdAt,
-      updatedAt,
-      deletedAt,
-      bayesianModelName,
-      bayesianModelStatus,
-      bayesianModelDescription,
-      customerAccountKey,
-      bayesianModelResourceType,
-      bayesianModelScoreCard,
-      resourceGroupKey,
-    } = findBayesianModel;
-
-    const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupKey: resourceGroupKey}}); 
-    if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
-    const bayesianModelClusterId = resultResourceGroup.resourceGroupId;
-
-    const resultBayesianModel = {
-      bayesianModelId,
-      bayesianModelKey,
-      createdBy,
-      updatedBy,
-      createdAt,
-      updatedAt,
-      deletedAt,
-      customerAccountKey,
-      bayesianModelName,
-      bayesianModelStatus, 
-      bayesianModelDescription, 
-      bayesianModelResourceType, 
-      bayesianModelScoreCard,
-      bayesianModelClusterId };  
-
-    return resultBayesianModel;
+    return findBayesianModel;
   }
   /**
    * find BayesianModel by Id
@@ -218,17 +153,16 @@ class BayesianModelServices {
   public async findBayesianModelByResourceType(resourceType: string): Promise<IBayesianModel[]> {
 
     if (isEmpty(resourceType)) throw new HttpException(400, 'No Resource Type');
-    console.log("resourceTyperesourceType", resourceType)
     const bayesianModelList: IBayesianDBModel[] = await this.bayesianModel.findAll({
-      where: { bayesianModelResourceType:resourceType, deletedAt: null },
+      where: { bayesianModelResourceType: resourceType, deletedAt: null },
     });
     if (!bayesianModelList) throw new HttpException(409, 'BayesianModel detail Not found');
 
     var resultAllBayesianModel = [];
     const modelLength = bayesianModelList.length;
-    for (let i=0; i<modelLength; i++ ) {
-      let resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupKey: bayesianModelList[i].resourceGroupKey}}); 
-      let { 
+    for (let i = 0; i < modelLength; i++) {
+      let resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupKey: bayesianModelList[i].resourceGroupKey } });
+      let {
         bayesianModelKey,
         bayesianModelId,
         createdBy,
@@ -243,7 +177,7 @@ class BayesianModelServices {
         bayesianModelResourceType,
         bayesianModelScoreCard,
       } = bayesianModelList[i];
-      
+
       resultAllBayesianModel[i] = {
         bayesianModelKey,
         bayesianModelId,
@@ -259,7 +193,7 @@ class BayesianModelServices {
         bayesianModelResourceType,
         bayesianModelScoreCard,
         bayesianModelClusterId: resultResourceGroup.resourceGroupId
-      };  
+      };
     }
 
     return resultAllBayesianModel;
@@ -269,16 +203,17 @@ class BayesianModelServices {
     bayesianModelId: string,
     bayesianModelData: UpdateBayesianModelDto,
     systemId: string,
-  ): Promise<IBayesianModel> {
+  ): Promise<IBayesianDBModel> {
     if (isEmpty(UpdateBayesianModelDto)) throw new HttpException(400, 'BayesianModel Data cannot be blank');
     const findBayesianModel: IBayesianDBModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
     if (!findBayesianModel) throw new HttpException(409, "BayesianModel doesn't exist");
-
     const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, bayesianModelScoreCard, bayesianModelClusterId } = bayesianModelData
-
-    const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupId: bayesianModelClusterId}}); 
-    if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
-    const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+    let resourceGroupKey;
+    if (bayesianModelClusterId) {
+      const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: bayesianModelClusterId } });
+      if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
+      resourceGroupKey = resultResourceGroup.resourceGroupKey;
+    }
 
     const currentDate = new Date();
     const updatedModelData = {
