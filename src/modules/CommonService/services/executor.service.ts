@@ -25,6 +25,7 @@ class executorService {
     public sudoryWebhook = DB.SudoryWebhook; 
     public executorService = DB.ExecutorService; 
     public resourceGroup = DB.ResourceGroup;
+    public exporters = DB.Exporters;
 
   /**
    * @param {string} serviceUuid
@@ -416,38 +417,71 @@ class executorService {
     public async installKpsOnResourceGroup(clusterUuid: string, customerAccountKey: number, targetNamespace: string, systemId: string ): Promise<object> {
 
       var serviceUuid =[];
-      const helmRepoUrl = config.helmRepoUrl;
-      
-      const prometheus = "kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090";
-      const grafana = "kps-grafana." + targetNamespace + ".svc.cluster.local:80";
-      const alertManager = "kps-kube-prometheus-stack-alertmanager." + targetNamespace + ".svc.cluster.local:9093";
-      const loki = "loki." + targetNamespace + ".svc.cluster.local:3100";
+      //const helmRepoUrl = config.helmRepoUrl;
+      const prometheusUrlHead = config.obsUrl.prometheusUrlHead;
+      const prometheusUrlTail = config.obsUrl.prometheusUrlTail;
+      const grafanaUrlHead = config.obsUrl.grafanaUrlHead;
+      const grafanaUrlTail = config.obsUrl.grafanaUrlTail;
+      const alertManagerUrlHead = config.obsUrl.alertManagerUrlHead;
+      const alertMangerUrlTail = config.obsUrl.alertManagerUrlTail;
+      const lokiUrlHead = config.obsUrl.lokiUrlHead;
+      const lokiUrlTail = config.obsUrl.lokiUrlTail;
+
+      const prometheus = prometheusUrlHead + targetNamespace + prometheusUrlTail;
+      const grafana = grafanaUrlHead + targetNamespace + grafanaUrlTail;
+      const alertManager = alertManagerUrlHead + targetNamespace + alertMangerUrlTail;
+      const loki = lokiUrlHead + targetNamespace + lokiUrlTail;
+
+      const resultKpsChart = await this.exporters.findAll({where: {exporterType: "HL"}});
+      const chartLength = resultKpsChart.length
+      var kpsChartName = "";
+      var kpsChartVersion = "";
+      var kpsChartRepoUrl = "";
+      var lokiChartName = "";
+      var lokiChartVersion = "";
+      var lokiChartRepoUrl = "";
+
+      for (let i=0; i<=chartLength; i++ ) {
+        if (resultKpsChart[i].exporterHelmChartName =="kube-prometheus-stack")
+        {
+            kpsChartName = resultKpsChart[i].exporterHelmChartName;
+            kpsChartVersion = resultKpsChart[i].exporterHelmChartVersion;
+            kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
+            
+        }
+        if (resultKpsChart[i].exporterHelmChartName =="loki-stack")
+        {
+            lokiChartName = resultKpsChart[i].exporterHelmChartName;
+            lokiChartVersion = resultKpsChart[i].exporterHelmChartVersion;
+            lokiChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
+        }
+      }
 
       const kpsSteps=  [{args: 
-                            {name: 'kps', 
-                            chart_name:'kube-prometheus-stack',
-                            repo_url:helmRepoUrl, 
-                            namespace: targetNamespace,
-                            chart_version:'35.0.3-nc',
-                            values:{}
-                            }
-                       }]
+        {name: 'kps', 
+        chart_name: kpsChartName,
+        repo_url: kpsChartRepoUrl, 
+        namespace: targetNamespace,
+        chart_version: kpsChartVersion,
+        values:{}
+        }
+    }]
 
       const kpsExecuteName = "KPS Helm Instllation";
       const kpsExecuteSummary = "KPS Helm Installation";
       const kpsTemplateUuid =   "20000000000000000000000000000001"  ;                        
       const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey); 
-      console.log ("########### helm chart");
+      console.log ("########### kps chart installation");
       console.log(executeKpsHelm);
 
       if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
 
       const lokiSteps=  [{args: 
                             {name: 'loki', 
-                            chart_name:'loki-stack',
-                            repo_url:helmRepoUrl, 
+                            chart_name: lokiChartName,
+                            repo_url: lokiChartRepoUrl, 
                             namespace: targetNamespace,
-                            chart_version:'2.6.4-nc',
+                            chart_version: lokiChartVersion,
                             values:{}
                             }
                         }]
@@ -456,8 +490,9 @@ class executorService {
       const lokiExecuteSummary = "Loki-Promtail Helm Installation";
       const lokiTemplateUuid =   "20000000000000000000000000000001"  ;                        
       const executeLokiHelm = this.postExecuteService(lokiExecuteName, lokiExecuteSummary, clusterUuid, lokiTemplateUuid, lokiSteps, customerAccountKey); 
-      console.log ("########### Loki chart");
+      console.log ("########### Loki chart installation");
       console.log(executeLokiHelm);              
+
       // update ResourceGroup - resourceGroupPrometheus
       const resourceGroup = {
         resourceGroupPrometheus: prometheus,
@@ -492,7 +527,6 @@ class executorService {
           console.log(error);
           throw new HttpException(500, "Submitted kps chart installation request but fail to schedule alert feeds ");
         }); //end of catch
-
 
      //schdule SyncMetricReceived    
      await this.scheduleSyncMetricReceived(clusterUuid

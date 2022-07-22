@@ -137,4 +137,14 @@ export default {
     baseUrl: process.env.NC_ALERTHUB_URL,
     authToken: process.env.NC_ALERTHUB_X_AUTH_TOKEN,
   },
+  obsUrl: {
+    prometheusUrlHead: process.env.NC_PROMETHEUS_URL_HEAD || 'http://kps-kube-prometheus-stack-prometheus.',
+    prometheusUrlTail: process.env.NC_PROMETHEUS_URL_TAIL || '.svc.cluster.local:9090',
+    grafanaUrlHead: process.env.NC_GRAFANA_URL_HEAD || 'http://kps-grafana.',
+    grafanaUrlTail: process.env.NC_GRAFANA_URL_TAIL || '.svc.cluster.local:80',
+    alertManagerUrlHead: process.env.NC_ALERTMANAGER_URL_HEAD || 'http://kps-kube-prometheus-stack-alertmanager.',
+    alertManagerUrlTail: process.env.NC_ALERTMANAGER_URL_TAIL || '.svc.cluster.local:9093',
+    lokiUrlHead: process.env.NC_LOKI_URL_HEAD || 'http://loki.',
+    lokiUrlTail: process.env.NC_GRAFANA_URL_TAIL || '.svc.cluster.local:3100',
+  }
 };
