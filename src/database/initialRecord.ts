@@ -170,7 +170,6 @@ class InitialRecordService {
       console.log(error);
     } 
 //insert/update Exporters
-
   let exportersDataList = [];
   let exportersListLength = exportersList.length;
   const responseExportersTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Exporters', exportersListLength);
@@ -207,7 +206,7 @@ class InitialRecordService {
       }
     );
     } catch (error) {
-      console.log(error);
+      console.log("bulk create error: ", error);
     } 
 
 

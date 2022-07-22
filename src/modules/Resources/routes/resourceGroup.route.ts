@@ -32,6 +32,15 @@ class ResourceGroupRoute implements Routes {
       createUserLogMiddleware,
       this.resourceGroupController.getResourceGroupByUuid,
     );
+
+    this.router.get(
+      '/resourceGroup/observability/uuid/:resourceGroupUuid',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceGroupController.getObservabilityResourcesByResourceGroupUuid,
+    );
+
+
     this.router.get(
       '/resourceGroup/CustomerAccountId/:customerAccountId',
       authMiddleware,

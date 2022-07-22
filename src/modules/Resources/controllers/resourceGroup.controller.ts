@@ -114,6 +114,22 @@ class ResourceGroupController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
+   public getObservabilityResourcesByResourceGroupUuid = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceGroupUuid = req.params.resourceGroupUuid;
+
+    try {
+      const resourceGroup = await this.resourceGroupService.getObservabilityResourcesByResourceGroupUuid(resourceGroupUuid);
+      res.status(200).json({ data: resourceGroup, message: `find observability resources of resourceGroup uuid(${resourceGroupUuid}) ` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
    public getResourceGroupByCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
 

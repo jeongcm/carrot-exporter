@@ -14,6 +14,8 @@ import AlertRuleService from '@/modules/Alert/services/alertRule.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import SubscriptionsService from '@/modules/Subscriptions/services/subscriptions.service';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
+import { Db } from 'mongodb';
+import sequelize from 'sequelize';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
@@ -359,20 +361,98 @@ class ResourceGroupService {
    * @param  {string} resourceGroupUuid
    */
   
-   public async getObservabilityResourcesByResourceGroupUuid (resourceGroupUuid: string, customerAccountKey: number): Promise<object>{
-
+   public async getObservabilityResourcesByResourceGroupUuid (resourceGroupUuid: string): Promise<object>{
+    
+    const appName = "app.kubernetes.io/name"
     if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid  must not be empty');
     console.log(resourceGroupUuid);
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
     if (!findResourceGroup) throw new HttpException(400, "ResourceGroup doesn't exist");
 
+    const resourceGroupKey = findResourceGroup.resourceGroupKey;
     const resourceGroupGrafana = findResourceGroup.resourceGroupGrafana;
     const resourceGroupPrometheus = findResourceGroup.resourceGroupPrometheus;
+
+    //1. Grafana
+    const grafanaServiceName = resourceGroupGrafana.substring(7, resourceGroupGrafana.indexOf('.'));
+    //search Service
+    const resultServiceSearch = await this.resource.findOne({ where: {resourceName:grafanaServiceName, resourceType: "SV", resourceGroupKey: resourceGroupKey, deletedAt: null} });
+    const grafanaName = resultServiceSearch.resourceLabels[appName];
+    const grafanaSvcName = resultServiceSearch.resourceName;
+    const grafanaSvcId = resultServiceSearch.resourceId;
     
-    const grafanaServiceName = resourceGroupGrafana.substring(7, resourceGroupPrometheus.indexOf('.')); 
+    //search PVC
+    const resultPvcSearch = await this.resource.findOne({ where: {
+        deletedAt: null, 
+        resourceType: "PC", 
+        resourceGroupKey: resourceGroupKey,
+        resourceLabels: {
+          '"app.kubernetes.io/name"': grafanaName
+        }
+    } })
+    const grafanaPvcName = resultPvcSearch.resourceName;
+    const grafanaPvcId = resultPvcSearch.resourceId;
+    
+    //search PV
+    const resultPvSearch =  await this.resource.findOne({ where: {
+      deletedAt: null, 
+      resourceType: "PV", 
+      resourceGroupKey: resourceGroupKey,
+      resourcePvClaimRef: {
+        name: grafanaPvcName
+      }
+    }})
+    const grafanaPvName = resultPvSearch.resourceName;
+    const grafanaPvId = resultPvSearch.resourceId;
+    
+    //2. Prometheus
+    const prometheusServiceName = resourceGroupPrometheus.substring(7, resourceGroupPrometheus.indexOf('.'));
+    //search Service
+    const resultPrometheusServiceSearch = await this.resource.findOne({ where: {resourceName:prometheusServiceName, resourceType: "SV", resourceGroupKey: resourceGroupKey, deletedAt: null} });
+    var prometheusName = resultPrometheusServiceSearch.resourceSpec["selector"];
+    prometheusName = prometheusName[appName]; 
+    const prometheusSvcName = resultPrometheusServiceSearch.resourceName;
+    const prometheusSvcId = resultPrometheusServiceSearch.resourceId;
+    
+    //search PVC
+    const resultPrometheusPvcSearch = await this.resource.findOne({ where: {
+        deletedAt: null, 
+        resourceType: "PC", 
+        resourceGroupKey: resourceGroupKey,
+        resourceLabels: {
+          '"app.kubernetes.io/name"': prometheusName
+        }
+    } })
+    const prometheusPvcName = resultPrometheusPvcSearch.resourceName;
+    const prometheusPvcId = resultPrometheusPvcSearch.resourceId;
+    
+    //search PV
+    const resultPrometheusPvSearch =  await this.resource.findOne({ where: {
+      deletedAt: null, 
+      resourceType: "PV", 
+      resourceGroupKey: resourceGroupKey,
+      resourcePvClaimRef: {
+        name: prometheusPvcName
+      }
+    }})
+    const prometheusPvName = resultPrometheusPvSearch.resourceName;
+    const prometheusPvId = resultPrometheusPvSearch.resourceId;
+    const result = {resourceGroupuuid: resourceGroupUuid,
+                    grafanaSvcName: grafanaSvcName,
+                    grafanaSvcId: grafanaSvcId,
+                    grafanaPvcName: grafanaPvcName,
+                    grafanaPvcId: grafanaPvcId,
+                    grafanaPvName: grafanaPvName,
+                    grafanaPvId: grafanaPvId,
+                    prometheusSvcName: prometheusSvcName,
+                    prometheusSvcId: prometheusSvcId,
+                    prometheusPvcName: prometheusPvcName,
+                    prometheusPvcId: prometheusPvcId,
+                    prometheusPvName: prometheusPvName,
+                    prometheusPvId: prometheusPvId
+                  }   
 
-
-    return;
+    return result;
    }
 }
 export default ResourceGroupService;
