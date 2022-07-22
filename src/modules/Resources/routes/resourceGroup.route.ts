@@ -40,7 +40,6 @@ class ResourceGroupRoute implements Routes {
       this.resourceGroupController.getObservabilityResourcesByResourceGroupUuid,
     );
 
-
     this.router.get(
       '/resourceGroup/CustomerAccountId/:customerAccountId',
       authMiddleware,
