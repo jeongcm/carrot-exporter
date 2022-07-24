@@ -51,20 +51,20 @@ class massUploaderService {
     for (let i = 0; i < sizeOfCurrentResource; i++) {
         currentResource[i] =  currentResourceFiltered[i].resourceTargetUuid;
     } 
-    console.log("********in db********************")
-    console.log(currentResource);
+    //console.log("********in db********************")
+    //console.log(currentResource);
     var newResourceReceived = new Array();
     for (let i = 0; i < sizeOfInput; i++) {
         newResourceReceived [i]=  resourceMassFeed.resource[i].resource_Target_Uuid;
     } 
-    console.log("********in msg********************")
-    console.log(newResourceReceived);
+    //console.log("********in msg********************")
+    //console.log(newResourceReceived);
 
     // filter only for the resource that is needed to be deleted softly. 
     const difference = currentResource.filter(o1 => !newResourceReceived.includes(o1));
     const lengthOfDifference = difference.length;
-    console.log("********in difference********************")
-    console.log(lengthOfDifference); 
+    //console.log("********in difference********************")
+    //console.log(lengthOfDifference); 
 
     // mass upload #2
     // query below will cover "insert" of new resources or "update" of existing resources.    
@@ -249,7 +249,7 @@ class massUploaderService {
         await mysqlConnection.query('COMMIT');
         
     } catch (err){
-        console.error(`Error occurred while creating resource: ${err.message}`, err);
+        //console.error(`Error occurred while creating resource: ${err.message}`, err);
         await mysqlConnection.query('ROLLBACK');
         await mysqlConnection.end();
         console.info('Rollback successful');
