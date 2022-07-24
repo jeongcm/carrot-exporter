@@ -30,6 +30,7 @@ export type AlertReceivedCreationAttributes = Optional<
   | 'alertReceivedEndpoint'
   | 'alertReceivedReason'
   | 'alertReceivedUid'
+  | 'alertReceivedHash'
 >;
 
 export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreationAttributes> implements IAlertReceived {
@@ -59,6 +60,7 @@ export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreat
   public alertReceivedEndpoint: string;
   public alertReceivedReason: string;
   public alertReceivedUid: string;
+  public alertReceivedHash: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -168,6 +170,10 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
       },
       alertReceivedUid: {
         type: DataTypes.STRING(100),
+        allowNull: true,
+      },
+      alertReceivedHash: {
+        type: DataTypes.STRING(256),
         allowNull: true,
       },
       alertReceivedLabels: {

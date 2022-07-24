@@ -28,6 +28,7 @@ export interface IAlertReceived {
   alertReceivedEndpoint: string;
   alertReceivedReason: string;
   alertReceivedUid: string;
+  alertReceivedHash: string;
 }
 
 export interface IAlertReceivedDetailed extends IAlertReceived {
