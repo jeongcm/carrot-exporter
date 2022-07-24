@@ -11,7 +11,7 @@
       "exporterExporterhubUrl": "https://exporterhub.wpcomstaging.com/exporter/mysql-exporter/"
     },
     {
-        "exporterName": "kube-prometheus-stack",
+        "exporterName": "kps",
         "exporterDescription": "kube-prometheus-stack",
         "exporterHelmChartName": "kube-prometheus-stack",
         "exporterHelmChartRepoUrl": "https://repo.nexclipper.io/chartrepo/nexclipper-dev",
@@ -22,7 +22,7 @@
         "exporterExporterhubUrl": ""
       },
     {
-        "exporterName": "loki-stack",
+        "exporterName": "loki",
         "exporterDescription": "loki-stack",
         "exporterHelmChartName": "loki-stack",
         "exporterHelmChartRepoUrl": "https://repo.nexclipper.io/chartrepo/nexclipper-dev",
