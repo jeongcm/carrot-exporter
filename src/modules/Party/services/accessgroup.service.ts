@@ -292,7 +292,7 @@ class AccessGroupService {
     logginedUserId: string,
     partyId: string,
     removingResourceData: AddResourceToAccessGroupDto,
-  ): Promise<[number]> {
+  ): Promise<number> {
     const party: IParty = await this.party.findOne({
       where: { partyId },
       attributes: ['partyKey'],
@@ -305,7 +305,7 @@ class AccessGroupService {
 
     const resourceKeyList = resourceAll.map(resource => resource.resourceKey);
 
-    const updated: [number] = await this.partyResource.destroy({
+    const updated: number = await this.partyResource.destroy({
       where: {
         partyKey: party.partyKey,
         resourceKey: { [Op.in]: resourceKeyList },

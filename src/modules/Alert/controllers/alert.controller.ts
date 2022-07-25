@@ -167,7 +167,7 @@ class AlertRuleController extends ControllerExtension {
   public getAlertReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const alertReceivedId: string = req.params.alertReceivedId;
-      const alertFound = await this.alertReceivedService.findAlertReceivedById(alertReceivedId);
+      const alertFound: any = await this.alertReceivedService.findAlertReceivedById(alertReceivedId);
       if (alertFound) {
         // TODO: we need to associate resourceGroup with alertRule through resourceGroupUuid later
         let resourceGroup = {};

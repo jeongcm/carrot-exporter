@@ -3,13 +3,11 @@ import ChannelController from '@/modules/Messaging/controllers/channel.controlle
 import { CreateChannelDto, RemoveChannelDto, UpdateChannelDto } from '@/modules/Messaging/dtos/channel.dto';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
-import AuthService from '@/modules/UserTenancy/services/auth.service';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 
 class ChannelsRoute implements Routes {
   public router = Router();
   public channelController = new ChannelController();
-  public authservice = new AuthService();
   constructor() {
     this.initializeRoutes();
   }

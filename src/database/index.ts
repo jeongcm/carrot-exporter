@@ -2,18 +2,10 @@ import Sequelize from 'sequelize';
 import { writeFileSync } from 'fs';
 import sequelizeErd from 'sequelize-erd';
 import { logger } from '@/common/utils/logger';
-import UserModel from '@/modules/UserTenancy/models/users.model';
-import AccessGroupModel from '@/modules/UserTenancy/models/accessGroup.model';
 import AlertRuleModel from '@/modules/Alert/models/alertRule.model';
 import AlertReceivedModel from '@/modules/Alert/models/alertReceived.model';
 import LogModel from '@/modules/Log/models/log.model';
-import TokenModel from '@/modules/UserTenancy/models/token.model';
-import ClusterModel from '@/modules/K8s/models/cluster.model';
-import AccessGroupChannelModel from '@/modules/UserTenancy/models/accessGroupChannel.model';
-import AccessGroupClusterModel from '@/modules/UserTenancy/models/accessGroupCluster.model';
-import AccessGroupMemberModel from '@/modules/UserTenancy/models/accessGroupMember.model';
 import ChannelModel from '@/modules/Messaging/models/channel.model';
-import TenancyModel from '@/modules/UserTenancy/models/tenancy.model';
 import CatalogPlanModel from '@/modules/ProductCatalog/models/catalogPlan.model';
 import CatalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
 import CatalogPlanProductPriceModel from '@/modules/ProductCatalog/models/catalogPlanProductPrice.model';
@@ -21,7 +13,6 @@ import IncidentModel from '@/modules/Incident/models/incident.model';
 import IncidentActionModel from '@/modules/Incident/models/incidentAction.model';
 import IncidentActionAttachmentModel from '@/modules/Incident/models/incidentActionAttachment.model';
 import IncidentAlertReceivedModel from '@/modules/Incident/models/incidentAlertReceived.model';
-import TenancyMemberModel from '@/modules/UserTenancy/models/tenancyMember.model';
 import CommonCodeModel from '@/modules/CommonCode/models/commonCode.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
@@ -68,7 +59,6 @@ import RolePartyModel from '@/modules/Role/models/roleParty.model';
 import ExecutorServiceModel from '@/modules/CommonService/models/exectuorService.model';
 import SudoryWebhookModel from '@/modules/CommonService/models/sudoryWebhook.model';
 import ExportersModel from '@/modules/Exporters/models/exporters.model';
-
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -118,22 +108,12 @@ sequelize.authenticate();
 const DB = {
   TableId: TableIdModel(sequelize),
   Messages: MessageModel(sequelize),
-
-  Users: UserModel(sequelize),
-  AccessGroup: AccessGroupModel(sequelize),
-  AccessGroupChannel: AccessGroupChannelModel(sequelize),
-  AccessGroupCluster: AccessGroupClusterModel(sequelize),
-  AccessGroupMember: AccessGroupMemberModel(sequelize),
-  Tenancies: TenancyModel(sequelize),
-  TenancyMembers: TenancyMemberModel(sequelize),
   Log: LogModel(sequelize),
-  Clusters: ClusterModel(sequelize),
   Channel: ChannelModel(sequelize),
   Incident: IncidentModel(sequelize),
   IncidentAction: IncidentActionModel(sequelize),
   IncidentActionAttachment: IncidentActionAttachmentModel(sequelize),
   IncidentAlertReceived: IncidentAlertReceivedModel(sequelize),
-  Tokens: TokenModel(sequelize),
   CatalogPlan: CatalogPlanModel(sequelize),
   CatalogPlanProduct: CatalogPlanProductModel(sequelize),
   CatalogPlanProductPrice: CatalogPlanProductPriceModel(sequelize),
@@ -144,8 +124,6 @@ const DB = {
   Api: ApiModel(sequelize),
   Party: PartyModel(sequelize),
   PartyChannel: PartyChannelModel(sequelize),
-
-  
   Resource: ResourceModel(sequelize),
   ResourceGroup: ResourceGroupModel(sequelize),
   PartyRelation: PartyRelationModel(sequelize),
@@ -186,16 +164,6 @@ const DB = {
 };
 
 //Different Relations among different tables
-
-DB.Tenancies.hasOne(DB.Users, { as: 'users', foreignKey: 'currentTenancyPk' });
-DB.Users.belongsTo(DB.Tenancies, { as: 'currentTenancy', foreignKey: 'currentTenancyPk' });
-
-DB.Users.hasMany(DB.TenancyMembers, { foreignKey: 'userPk' });
-DB.TenancyMembers.belongsTo(DB.Users, { foreignKey: 'userPk' });
-
-DB.Tenancies.hasMany(DB.TenancyMembers, { foreignKey: 'tenancyPk' });
-DB.TenancyMembers.belongsTo(DB.Tenancies, { foreignKey: 'tenancyPk' });
-
 DB.CustomerAccount.hasMany(DB.Incident, { foreignKey: 'customerAccountKey' });
 DB.Incident.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
 
@@ -225,21 +193,8 @@ DB.Party.hasMany(DB.PartyChannel, { foreignKey: 'partyKey' });
 DB.PartyChannel.belongsTo(DB.Channel, { foreignKey: 'channelKey' });
 DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 
-DB.AccessGroup.belongsToMany(DB.Users, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'members' });
-DB.Users.belongsToMany(DB.AccessGroup, { through: 'AccessGroupMember', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroup' });
-
-DB.AccessGroupMember.belongsTo(DB.Users, { foreignKey: 'userPk' });
-DB.AccessGroupMember.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
-
-DB.AccessGroup.belongsToMany(DB.Clusters, { through: 'AccessGroupCluster', sourceKey: 'pk', targetKey: 'pk', as: 'clusters' });
-DB.Clusters.belongsToMany(DB.AccessGroup, { through: 'AccessGroupCluster', sourceKey: 'pk', targetKey: 'pk', as: 'accessGroupClusters' });
-
-DB.AccessGroupCluster.belongsTo(DB.Clusters, { foreignKey: 'clusterPk' });
-DB.AccessGroupCluster.belongsTo(DB.AccessGroup, { foreignKey: 'accessGroupPk' });
-
 DB.CustomerAccount.hasMany(DB.ExecutorService, { foreignKey: 'customer_account_key' });
 DB.ExecutorService.belongsTo(DB.CustomerAccount, { foreignKey: 'customer_account_key' });
-
 
 DB.Incident.belongsToMany(DB.AlertReceived, {
   through: DB.IncidentAlertReceived,
@@ -455,7 +410,7 @@ DB.RoleParty.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
 //[[force: true]]  is used when changes made in database.
-//[[force: false]] there would be no database change even you modify the models. 
+//[[force: false]] there would be no database change even you modify the models.
 //                 Need to have a separate operation to apply database model change.
 
 DB.sequelize

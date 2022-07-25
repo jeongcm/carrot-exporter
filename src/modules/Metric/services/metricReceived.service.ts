@@ -105,7 +105,7 @@ class MetricReceivedService {
     return newMetricReceivedData;
   }
 
-  public async getMetricReceivedByResourceId(customerAccountKey, resourceId: string, metricReceivedName: string[]): Promise<IMetricReceived> {
+  public async getMetricReceivedByResourceId(customerAccountKey, resourceId: string, metricReceivedName: string[]): Promise<IResource> {
     if (isEmpty(resourceId)) throw new HttpException(400, 'resourceId required');
     if (isEmpty(metricReceivedName)) throw new HttpException(400, 'metricReceivedName[] required');
 
