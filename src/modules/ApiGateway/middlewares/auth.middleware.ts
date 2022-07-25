@@ -43,7 +43,7 @@ const authMiddleware = async (req, res: Response, next: NextFunction) => {
   }
 
   try {
-    if (req.isAuthenticated()) {
+    if (req.isAuthenticated && req.isAuthenticated()) {
       return next();
     }
 
