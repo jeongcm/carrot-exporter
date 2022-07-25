@@ -43,6 +43,10 @@ const authMiddleware = async (req, res: Response, next: NextFunction) => {
   }
 
   try {
+    if (req.isAuthenticated()) {
+      return next();
+    }
+
     const Authorization =
       req.cookies['X-AUTHORIZATION'] || (req.header('x-authorization') && req.header('x-authorization').split('Bearer ')[1]) || null;
     if (Authorization) {
