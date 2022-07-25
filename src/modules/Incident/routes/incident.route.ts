@@ -9,7 +9,6 @@ import {
   AddAlertReceivedToIncidentDto,
   DropAlertReceivedFromIncidentDto,
 } from '@/modules/Incident/dtos/incident.dto';
-import AuthService from '@/modules/UserTenancy/services/auth.service';
 import { CreateIncidentActionDto } from '@/modules/Incident/dtos/incidentAction.dto';
 import { CreateIncidentActionAttachmentDto } from '@/modules/Incident/dtos/incidentActionAttachment.dto';
 
@@ -21,7 +20,6 @@ import multer from 'multer';
 class IncidentRoute implements Routes {
   public router = Router();
   public incidentController = new IncidentController();
-  public authservice = new AuthService();
   public storage = multer.memoryStorage();
   public upload = multer({ storage: this.storage });
 

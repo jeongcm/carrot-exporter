@@ -100,7 +100,7 @@ class AlertReceivedService extends ServiceExtension {
     return null;
   }
 
-  public async getAllAlertReceivedMostRecent(customerAccountKey: number, query?: any[]): Promise<IAlertReceivedWithRule[]> {
+  public async getAllAlertReceivedMostRecent(customerAccountKey: number, query?: any[]): Promise<IAlertReceived[]> {
     if (query && !Array.isArray(query)) {
       this.throwError('EXCEPTION', 'incorrect query format');
     }
@@ -147,13 +147,18 @@ class AlertReceivedService extends ServiceExtension {
       WHERE rn = 1;
     `);
 
-    return results;
+    if (results) {
+      return results as IAlertReceived[];
+    }
+
+    return [];
+
   }
 
-  public async findAlertReceivedById(alertReceivedId: string): Promise<IAlertReceivedDetailed> {
+  public async findAlertReceivedById(alertReceivedId: string): Promise<IAlertReceived> {
     if (isEmpty(alertReceivedId)) throw new HttpException(400, 'Not a valid Alert Received Id');
 
-    const findAlertReceived: IAlertReceivedDetailed = await this.alertReceived.findOne({
+    const findAlertReceived: IAlertReceived = await this.alertReceived.findOne({
       where: { alertReceivedId, deletedAt: null },
       attributes: { exclude: ['customerAccountKey', 'alertRuleKey', 'alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
       include: [
