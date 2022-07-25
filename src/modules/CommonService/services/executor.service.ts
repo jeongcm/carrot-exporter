@@ -440,16 +440,17 @@ class executorService {
       var lokiChartName = "";
       var lokiChartVersion = "";
       var lokiChartRepoUrl = "";
+      
+      //console.log (resultKpsChart);
 
-      for (let i=0; i<=chartLength; i++ ) {
-        if (resultKpsChart[i].exporterHelmChartName =="kube-prometheus-stack")
+      for (let i=0; i<chartLength; i++ ) {
+        if (resultKpsChart[i].exporterHelmChartName === "kube-prometheus-stack")
         {
             kpsChartName = resultKpsChart[i].exporterHelmChartName;
             kpsChartVersion = resultKpsChart[i].exporterHelmChartVersion;
-            kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
-            
+            kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;    
         }
-        if (resultKpsChart[i].exporterHelmChartName =="loki-stack")
+        if (resultKpsChart[i].exporterHelmChartName === "loki-stack")
         {
             lokiChartName = resultKpsChart[i].exporterHelmChartName;
             lokiChartVersion = resultKpsChart[i].exporterHelmChartVersion;
@@ -1163,7 +1164,6 @@ class executorService {
             
         return cronJobKey; 
     }
-
 
    /**
    * @param {string} clusterUuid
