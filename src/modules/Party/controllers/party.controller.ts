@@ -162,6 +162,23 @@ class PartyController {
       next(error);
     }
   };
+
+  public requestPasswordReset = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const email: string = req.params.email;
+      console.log (email); 
+      const resultRequest = await this.partyService.requestPasswordReset(email);
+      res.status(200).json({ data: resultRequest, message: 'Sent Password reset email successuflly' });
+
+
+    } catch (error) {
+      next(error);
+    }
+  };
+
+
+  
+
 }
 
 export default PartyController;

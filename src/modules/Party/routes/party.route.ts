@@ -21,6 +21,7 @@ class partyRoute implements Routes {
   private initializeRoutes() {
     this.router.post('/login', systemAuthMiddleware, validationMiddleware(LoginDto, 'body'), createUserLogMiddleware, this.partyController.login);
     this.router.get('/logout', systemAuthMiddleware, createUserLogMiddleware, this.partyController.logout);
+    this.router.get('/password/reset/:email', systemAuthMiddleware, createUserLogMiddleware, this.partyController.requestPasswordReset);
 
     this.router.post(
       '/party/user',
@@ -29,9 +30,11 @@ class partyRoute implements Routes {
       createUserLogMiddleware,
       this.partyController.createUser,
     );
+
     this.router.get('/party/me', authMiddleware, createUserLogMiddleware, this.partyController.getCurrentUser);
     this.router.get('/party/user', authMiddleware, createUserLogMiddleware, this.partyController.getUsers);
     this.router.get('/party/user/:partyUserId', authMiddleware, createUserLogMiddleware, this.partyController.getUser);
+
     this.router.put(
       '/party/user/:partyUserId',
       authMiddleware,

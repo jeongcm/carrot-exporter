@@ -2,24 +2,28 @@ import DB from '@/database';
 
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+//import NodeMailer from 'nodemailer';
+//import Mg from 'nodemailer-mailgun-transport';
 
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
-
 import { PartyUserModel } from '../models/partyUser.model';
-
 import tableIdService from '@/modules/CommonService/services/tableId.service';
-
 import { IDataStoredInToken, IParty, IPartyUser, IPartyUserAPILog, IPartyUserResponse, ITokenData } from '@/common/interfaces/party.interface';
-
 import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
 import config from '@config/index';
 
 import { logger } from '@/common/utils/logger';
-
 import { ApiModel } from '@/modules/Api/models/api.models';
+import passwordValidator from 'password-validator'; 
+
+const nodeMailer = require('nodemailer');
+const mg = require('nodemailer-mailgun-transport');
+const handlebars = require('handlebars');
+const fs = require('fs');
+const path = require('path');
 
 /**
  * @memberof Party
@@ -34,6 +38,8 @@ class PartyService {
   public api = DB.Api;
 
   public tableIdService = new tableIdService();
+
+
 
   public async findPartyByEmail(email: string): Promise<IPartyUser> {
     if (isEmpty(email)) throw new HttpException(400, "User doen't exist");
@@ -222,6 +228,73 @@ class PartyService {
 
     return { cookie, findUser, token: tokenData.token };
   }
+
+  public async requestPasswordReset(email: string) {
+
+    //1. check email if exist. Send exception if there is no email account. 
+    if (isEmpty(email)) throw new HttpException(400, "No email address provided");
+    const findUser: IPartyUser = await this.partyUser.findOne({ where: { email: email } });
+    if (!findUser) throw new HttpException(401, `No user information found with the provided email address`);
+    
+    //2. create a token
+    const tokenData = this.createToken(findUser);
+
+    //3. send email with the token to user with the link to reset password
+    const auth = {
+      api_key: config.email.mailgun.apiKey,
+      domain: config.email.mailgun.domain,
+    };
+    const mailgunAuth = { auth };
+    const handlebars = require('handlebars');
+
+    const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
+    const url= 'http://localhost:5001/password/reset?token=' + tokenData.token;
+    const name= findUser.firstName;
+    const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/forgotPassword.hbs'), 'utf8'); 
+    const template = handlebars.compile(emailTemplateSource);
+    const htmlToSend = template({url, name});
+
+    const mailOptions = {
+      to: findUser.email,
+      from: "service@nexclipper.io",
+      subject: 'Password Reset - NexClipper',
+      html: htmlToSend
+    }
+    //console.log (mailOptions);
+
+    smtpTransport.sendMail(mailOptions, function(error, response) {
+      if (error) {
+        console.log("error", error);
+      } else {
+        console.log("Successfully sent email.");
+      }
+    })
+    const resultEmail = {
+      to: findUser.email,
+      from: "service@nexclipper.io",
+      subject: 'Password Reset - NexClipper',
+    };
+
+  return resultEmail;
+  }  
+
+  public async resetPassword(email: string, password: string): Promise<{object}> {
+  //update password
+
+  //1. validate the password rule
+
+
+  //0. validate email address
+
+  
+
+   
+  //2. update password in the party type.  
+
+    return;
+  }
+
+
 
   public createToken(user: IPartyUser): ITokenData {
     const dataStoredInToken: IDataStoredInToken = { partyUserKey: user.partyUserKey };
