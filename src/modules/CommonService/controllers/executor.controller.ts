@@ -3,6 +3,7 @@ import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.
 import { ExecutorDto, IExecutorClient, IExecutorClientCheck } from '@/modules/CommonService/dtos/executor.dto';
 import executorService from '../services/executor.service';
 import { HttpException } from '@/common/exceptions/HttpException';
+import config from '@config/index';
 
 class executorController {
   public executorService = new executorService();
@@ -289,8 +290,9 @@ class executorController {
       let templateUuid = req.body.templateUuid;
       let steps = req.body.steps;
       let customerAccountKey = req.customerAccountKey;
+      let subscribed_channel = req.body.webhook || config.sudoryApiDetail.channel_wehbook
 
-      const serviceOutput: any = await this.executorService.postExecuteService(name, summary, clusterUuid, templateUuid, steps, customerAccountKey);
+      const serviceOutput: any = await this.executorService.postExecuteService(name, summary, clusterUuid, templateUuid, steps, customerAccountKey, subscribed_channel);
       if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
       res.status(200).json({ Data: serviceOutput, message: `Execution Successful.` });
     } catch (error) {
