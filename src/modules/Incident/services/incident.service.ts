@@ -545,7 +545,10 @@ class IncidentService {
     attachmentId: string,
     actionAttachmentData: CreateIncidentActionAttachmentDto,
     logginedUserId: string,
-  ): Promise<IIncidentActionAttachmentResponse> {
+  ): Promise<any> {
+    // TODO: originally Promise<IIncidentActionAttachmentResponse>
+    // Has to make it any, because of the following error:
+    // Property 'incidentActionAttachmentPath' is missing in type '{ incidentActionAttachmentName: string; incidentActionAttachmentDescription: string; incidentActionAttachmentType: "PD" | "JS" | "IM" | "MO"; incidentActionAttachmentFilename: string; incidentActionAttachmentFileType: string; incidentActionAttachmentId: string; updatedBy: string; updatedAt: Date; }' but required in type 'IIncidentActionAttachmentResponse'.
     if (isEmpty(actionAttachmentData)) throw new HttpException(400, 'Incident must not be empty');
 
     try {
@@ -576,7 +579,7 @@ class IncidentService {
 
   public async getAlertByIncidentKey(customerAccountKey: number, incidentKey: number): Promise<any> {
     try {
-      const foundIncidentWithAlerts = await this.incident.findOne({
+      const foundIncidentWithAlerts: any = await this.incident.findOne({
         where: {
           incidentKey,
         },
@@ -667,6 +670,7 @@ class IncidentService {
       const alertReceivedKeyList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedKey);
 
       await this.incidentAlertReceived.update(
+        //@ts-expect-error
         { deletedBy: logginedUserId },
         {
           where: {

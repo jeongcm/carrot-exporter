@@ -14,7 +14,7 @@ import _ from 'lodash';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 class AlertRuleService {
   private tableIdService = new TableIdService();
-  private alertRule = DB.AlertRule;
+  public alertRule = DB.AlertRule;
   private alertReceived = DB.AlertReceived;
   private ruleGroupAlertRule = DB.RuleGroupAlertRule;
   private resourceGroup = DB.ResourceGroup;

@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 
-import AuthService from '@/modules/UserTenancy/services/auth.service';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
@@ -13,7 +12,6 @@ import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUser
 class partyRoute implements Routes {
   public router = Router();
   public partyController = new PartyController();
-  public authservice = new AuthService();
   constructor() {
     this.initializeRoutes();
   }

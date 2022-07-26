@@ -24,6 +24,7 @@ export default {
   maxApiBodySize: process.env.NC_MAX_API_BODY_SIZE || '50mb',
   logFormat: process.env.NC_LARI_LOG_FORMAT,
   helmRepoUrl: process.env.NC_LARI_HELM_REPO_URL,
+  resourceCron: process.env.NC_LARI_RESOURCE_CRON, 
   cors: {
     allowAnyOrigin: process.env.NC_LARI_CORS_ORIGIN === 'true' ? Boolean(process.env.NC_LARI_CORS_ORIGIN) : process.env.NC_LARI_CORS_ORIGIN,
     credentials: process.env.NC_LARI_CORS_CREDENTIALS === 'true',
@@ -121,6 +122,7 @@ export default {
     channel_metric: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC || 'nc_metric',
     channel_metric_received: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED || 'nc_metric_received',
     service_result_delete: process.env.SUDORY_SERVICE_RESULT_DELETE || '1',
+    channel_wehbook: process.env.SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK || 'webhook_test',
   },
   fileUpload: {
     DOBucket: `${process.env.NC_LARI_DO_BUCKET}`.replace('\n', ''),

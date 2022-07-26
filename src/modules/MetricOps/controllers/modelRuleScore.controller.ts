@@ -1,30 +1,18 @@
 import { NextFunction, Response } from 'express';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 
-import { IMetricMeta } from '@/common/interfaces/metricMeta.interface';
-import { IBillingAccount } from '@/common/interfaces/billingAccount.interface';
-import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
 import ModelRuleScoreService from '../services/modelRuleScore.service';
-import { IBayesianModel } from '@/common/interfaces/bayesianModel.interface';
-import { updateTenancyMemberDto } from '@/modules/UserTenancy/dtos/tenancyMember.dto';
-import { DetachRuleGroupDto, AttachRuleGroupDto } from '../dtos/modelRuleScore.dto';
+import { AttachRuleGroupDto } from '../dtos/modelRuleScore.dto';
 import { IModelRuleScore } from '@/common/interfaces/modelRuleScore.interface';
-import { logger } from '@/common/utils/logger';
 
 class ModelRuleGroupController {
-  public modelRuleScoreService= new ModelRuleScoreService();
+  public modelRuleScoreService = new ModelRuleScoreService();
 
   public attachRuleGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {
-        user: { partyId } = {},
-        systemId,
-      } = req;
+      const { user: { partyId } = {}, systemId } = req;
       const modelRuleScoreData: AttachRuleGroupDto = req.body;
-      const newRuleGroupAdded: IModelRuleScore = await this.modelRuleScoreService.attachRuleGroup(
-        modelRuleScoreData,
-        systemId || partyId,
-      );
+      const newRuleGroupAdded: IModelRuleScore = await this.modelRuleScoreService.attachRuleGroup(modelRuleScoreData, systemId || partyId);
       res.status(201).json({ data: newRuleGroupAdded, message: 'rule group added' });
     } catch (error) {
       next(error);
@@ -35,7 +23,7 @@ class ModelRuleGroupController {
       const {
         user: { partyId } = {},
         systemId,
-        params:{modelRuleScoreId= ""}
+        params: { modelRuleScoreId = '' },
       } = req;
       const modelRuleScoreData: AttachRuleGroupDto = req.body;
       const newRuleGroupAdded: IModelRuleScore = await this.modelRuleScoreService.updateAttachRuleGroup(
@@ -51,16 +39,8 @@ class ModelRuleGroupController {
 
   public detachRuleGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {
-        user: { partyId } = {},
-        body: { bayesianModelId, ruleGroupId } = {},
-        systemId
-      } = req;
-      const isDetached: any = await this.modelRuleScoreService.detachRuleGroup(
-        bayesianModelId,
-        ruleGroupId,
-        systemId||partyId
-      );
+      const { user: { partyId } = {}, body: { bayesianModelId, ruleGroupId } = {}, systemId } = req;
+      const isDetached: any = await this.modelRuleScoreService.detachRuleGroup(bayesianModelId, ruleGroupId, systemId || partyId);
       res.status(200).json({ message: 'Rule group detached successfully' });
     } catch (error) {
       next(error);
@@ -70,12 +50,9 @@ class ModelRuleGroupController {
   public getModelScoreByGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const {
-        params:{ruleGroupId = "", bayesianModelId= ""}
+        params: { ruleGroupId = '', bayesianModelId = '' },
       } = req;
-      const modelScoreDetail: IModelRuleScore = await this.modelRuleScoreService.getModelScoreByGroupId(
-        ruleGroupId,
-        bayesianModelId
-      );
+      const modelScoreDetail: IModelRuleScore = await this.modelRuleScoreService.getModelScoreByGroupId(ruleGroupId, bayesianModelId);
       res.status(200).json({ data: modelScoreDetail, message: 'findOne' });
     } catch (error) {
       next(error);
@@ -83,21 +60,17 @@ class ModelRuleGroupController {
   };
   public getAllModelsByGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      console.log("getAllModelsByGroupId")
+      console.log('getAllModelsByGroupId');
       const {
-        params:{ruleGroupId = ""}
+        params: { ruleGroupId = '' },
       } = req;
-     
-      const modelScoreDetail: IModelRuleScore = await this.modelRuleScoreService.getAllModelsByGroupId(
-        ruleGroupId
-      );
+
+      const modelScoreDetail: IModelRuleScore = await this.modelRuleScoreService.getAllModelsByGroupId(ruleGroupId);
       res.status(200).json({ data: modelScoreDetail, message: 'findOne' });
     } catch (error) {
       next(error);
     }
   };
-
- 
 }
 
 export default ModelRuleGroupController;

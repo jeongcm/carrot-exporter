@@ -186,13 +186,23 @@ class ResourceService {
       throw new HttpException(404, "ResourceGroup with resourceGroupUuid doesn't exist");
     }
 
+    let extraWhere = {};
+
+    if (resourceDetailData.resourceNamespace) {
+      extraWhere = {
+        resourceNamespace: resourceDetailData.resourceNamespace,
+      };
+    }
+
     const findResource: IResource = await this.resource.findOne({
       where: {
         resourceName: resourceDetailData.resourceName,
         resourceType: resourceDetailData.resourceType,
-        resourceNamespace: resourceDetailData.resourceNamespace,
         resourceGroupKey: findResourceGroup.resourceGroupKey,
         deletedAt: null,
+
+        // NOTE: Temporarily ignoring namespace due to ticket: http://147.182.254.250/redmine/issues/88
+        // ...extraWhere,
       },
       attributes: { exclude: ['deletedAt', 'resourceKey', 'resource_group_key'] },
     });
@@ -256,18 +266,19 @@ class ResourceService {
    * @param  {number} resourceGroupId
    */
 
-     public async getResourceInNamespaceByTypeResourceGroupId(resourceType: string, resourceGroupId: string): Promise<IResource[]> {
-      const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
-      const resourceGroupKey = resultResourceGroup.resourceGroupKey;
-      var returnResources = [];
-      const distinctiveNamespace = await this.resource.findAll(
-              {attributes: ['resourceNamespace'], group:['resourceNamespace'],
-               where: { resourceGroupKey: resourceGroupKey, deletedAt: null, resourceType: resourceType },
-      });
+  public async getResourceInNamespaceByTypeResourceGroupId(resourceType: string, resourceGroupId: string): Promise<IResource[]> {
+    const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+    const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+    const returnResources = [];
+    const distinctiveNamespace = await this.resource.findAll({
+      attributes: ['resourceNamespace'],
+      group: ['resourceNamespace'],
+      where: { resourceGroupKey: resourceGroupKey, deletedAt: null, resourceType: resourceType },
+    });
 
-      if (!distinctiveNamespace) {
-        throw new HttpException(404, `No namespace information with the resourceGroup: ${resourceGroupId}`);   
-      }
+    if (!distinctiveNamespace) {
+      throw new HttpException(404, `No namespace information with the resourceGroup: ${resourceGroupId}`);
+    }
 
     const allResources: IResource[] = await this.resource.findAll({
       where: {

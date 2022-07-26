@@ -4,12 +4,16 @@ import { HttpException } from '@/common/exceptions/HttpException';
 
 type TErrorTypes = 'NOT_FOUND' | 'EXCEPTION';
 
+export interface IServiceExtensionConstructor {
+  tableName?: string;
+}
+
 class ServiceExtension {
   private tableName;
   private tableIdService = new TableIdService();
 
-  constructor({ tableName }) {
-    this.tableName = tableName;
+  constructor(opts: IServiceExtensionConstructor) {
+    this.tableName = opts.tableName;
   }
 
   protected async createTableId() {

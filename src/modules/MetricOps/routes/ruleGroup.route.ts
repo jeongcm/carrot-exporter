@@ -6,7 +6,6 @@ https://www.notion.so/nexclipper/Alert-Feature-Design-dcdd6130e1bf4f05a8333a2b31
 */
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
-// import AuthService from '@/services/auth.service';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import { Router } from 'express';
 import RuleGroupController from '../controllers/ruleGroup.controller';

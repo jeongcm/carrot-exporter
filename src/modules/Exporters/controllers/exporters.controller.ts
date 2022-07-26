@@ -3,7 +3,8 @@ import { IExporters } from '@/common/interfaces/exporters.interface';
 import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
 import exportersService from '../services/exporters.service';
 import { HttpException } from '@/common/exceptions/HttpException';
-import exporterService from '@/modules/Exporters/services/exporters.service'
+import exporterService from '@/modules/Exporters/services/exporters.service';
+import { ExporterDto } from '@/modules/Exporters/dtos/exporters.dto';
 
 class exporterController {
   public exeporterService = new exporterService();
@@ -17,10 +18,9 @@ class exporterController {
     try {
       const exporterId = req.params.exporterId;
 
-      const getExporter : IExporters = await this.exeporterService.getExporter(exporterId);
+      const getExporter: IExporters = await this.exeporterService.getExporter(exporterId);
       if (!getExporter) {
-        return res.status(404).json({ Requested_exporterId: exporterId, message: `can't find exporter info of exporterId` });  
-      
+        return res.status(404).json({ Requested_exporterId: exporterId, message: `can't find exporter info of exporterId` });
       }
       res.status(200).json({ data: getExporter, message: `find exporter info of exporterId: ${exporterId}` });
     } catch (error) {
@@ -28,51 +28,47 @@ class exporterController {
     }
   }; // end of method
 
-   /**
+  /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-    public getExportersAll = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-      try {
-  
-        const getExporters : IExporters[] = await this.exeporterService.getExportersAll();
-        if (!getExporters) {
-          return res.status(404).json({ Data: getExporters, message: `can't find exporter info` });  
-        
-        }
-        res.status(200).json({ data: getExporters, message: `find exporter info ` });
-      } catch (error) {
-        next(error);
+  public getExportersAll = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const getExporters: IExporters[] = await this.exeporterService.getExportersAll();
+      if (!getExporters) {
+        return res.status(404).json({ Data: getExporters, message: `can't find exporter info` });
       }
-    }; // end of method
-   
+      res.status(200).json({ data: getExporters, message: `find exporter info ` });
+    } catch (error) {
+      next(error);
+    }
+  }; // end of method
 
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-   public createExporter = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public createExporter = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      let createdBy = req.user.partyId
-      let dataSetForExporter = { exporterName: req.body.exporterName,
-                                 exporterDescription: req.body.exporterDescription,
-                                 exporterHelmChartName: req.body.exporterHelmChartName,
-                                 exporterHelmChartVersion: req.body.exporterHelmChartVersion,
-                                 exporterHelmChartRepoUrl: req.body.exporterHelmChartRepoUrl,
-                                 exporterHelmChartValues: req.body.exporterHelmChartValues,
-                                 grafanaDashboard: req.body.grafanaDashboard
-      } 
+      const createdBy = req.user.partyId;
+      const dataSetForExporter: any = {
+        exporterName: req.body.exporterName,
+        exporterDescription: req.body.exporterDescription,
+        exporterHelmChartName: req.body.exporterHelmChartName,
+        exporterHelmChartVersion: req.body.exporterHelmChartVersion,
+        exporterHelmChartRepoUrl: req.body.exporterHelmChartRepoUrl,
+        exporterHelmChartValues: req.body.exporterHelmChartValues,
+        grafanaDashboard: req.body.grafanaDashboard,
+      };
 
-      const getExporter : IExporters = await this.exeporterService.createExporter(dataSetForExporter, createdBy);
+      const getExporter: IExporters = await this.exeporterService.createExporter(dataSetForExporter, createdBy);
       res.status(200).json({ data: getExporter, message: `create exporter info of exporterId: ${req.body}` });
     } catch (error) {
       next(error);
     }
   }; // end of method
-
-
 } // end of class
 
 export default exporterController;
