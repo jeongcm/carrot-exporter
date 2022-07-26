@@ -51,6 +51,23 @@ class AlerthubService {
     }
   }
 
+  public async getAlertTimelineByResourceGroupUuid(
+    customerAccountKey: number,
+    resourceGroupUuid: string,
+  ): Promise<IAlertTimeline[]> {
+    try {
+      const { data } = await axios.get(`${config.alerthub.baseUrl}/v1/alertTimelineByResGroupUuid/${customerAccountKey}/${resourceGroupUuid}`, {
+        headers: { x_auth_token: `${config.alerthub.authToken}` },
+      });
+
+      if (data.data && data.message === 'success') {
+        return data.data;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
 }
 
 export default AlerthubService;

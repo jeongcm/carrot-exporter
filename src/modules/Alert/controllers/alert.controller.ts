@@ -65,9 +65,7 @@ class AlertRuleController extends ControllerExtension {
   public getAllAlertReceivedByAlertHash = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const alertHash: string = req.params.alertHash;
-      const findAllAlertReceivedByHash: IAlertReceived[] = await this.alertReceivedService.getAllAlertReceivedByAlertHash(
-        alertHash
-      );
+      const findAllAlertReceivedByHash: IAlertReceived[] = await this.alertReceivedService.getAllAlertReceivedByAlertHash(alertHash);
       res.status(200).json({ data: findAllAlertReceivedByHash, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -283,6 +281,21 @@ class AlertRuleController extends ControllerExtension {
 
       const alertTimelines: IAlertTimeline[] = await this.alerthubService.getAlertNotiScheduledByAlertRuleKey(customerAccountKey, alertRuleKey);
 
+      return res.status(200).json({ data: alertTimelines, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAlertReceivedByResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {
+        params: { resourceGroupKey },
+      } = req;
+      const customerAccountKey = req.customerAccountKey;
+      const resourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, Number(resourceGroupKey));
+      const resourceGroupUuid = resourceGroup.resourceGroupUuid;
+      const alertTimelines: IAlertTimeline[] = await this.alerthubService.getAlertTimelineByResourceGroupUuid(customerAccountKey, resourceGroupUuid);
       return res.status(200).json({ data: alertTimelines, message: 'findAll' });
     } catch (error) {
       next(error);
