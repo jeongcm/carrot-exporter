@@ -218,8 +218,10 @@ class executorService {
         var clientUuid = "";
         var resourceJobKey = [];
         var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
+        const resourceCron = config.resourceCron; 
         const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
         executorServerUrl = executorServerUrl + sessionQueryParameter;
+        const subscribedChannelResource = config.sudoryApiDetail.channel_resource; 
         await axios(
         {
             method: 'get',
@@ -228,7 +230,8 @@ class executorService {
         }).then(async (res: any) => {
             if(!res.data[0]) {  
             console.log(`Executor/Sudory client not found yet from cluster: ${clusterUuid}`); 
-            return clientUuid;
+            throw new HttpException(400, `Executor/Sudory client not found yet from cluster: ${clusterUuid}`);
+            //return clientUuid;
             };
             const clientData = Object.assign({},res.data[0]); 
             clientUuid = clientData.uuid;
@@ -238,23 +241,65 @@ class executorService {
             throw new HttpException(500, "Unknown error while searching executor/sudory client");
         });
 
-        const newCrontab1 = " */10 * * * *";
-        const newCrontab2 = " */10 * * * *";
-        const newCrontab3 = " */10 * * * *";
-        const newCrontab4 = " */10 * * * *";
-        const newCrontab5 = " */10 * * * *";
-        const newCrontab6 = " */10 * * * *";
-        const newCrontab7 = " */10 * * * *";
-        const newCrontab8 = " */10 * * * *";
-        const newCrontab9 = " */10 * * * *";
-        const newCrontab10 = " */10 * * * *";
-        const newCrontab11 = " */10 * * * *";
-        const newCrontab12 = " */10 * * * *";
-        const newCrontab13 = " */10 * * * *";
-        const newCrontab14 = " */10 * * * *";
-        const newCrontab15 = " */10 * * * *";  
+        const newCrontab1 = resourceCron;
+        const newCrontab2 = resourceCron;
+        const newCrontab3 = resourceCron;
+        const newCrontab4 = resourceCron;
+        const newCrontab5 = resourceCron;
+        const newCrontab6 = resourceCron;
+        const newCrontab7 = resourceCron;
+        const newCrontab8 = resourceCron;
+        const newCrontab9 = resourceCron;
+        const newCrontab10 = resourceCron;
+        const newCrontab11 = resourceCron;
+        const newCrontab12 = resourceCron;
+        const newCrontab13 = resourceCron;
+        const newCrontab14 = resourceCron;
+        const newCrontab15 = resourceCron;  
+
+        const steps = [
+            {
+                args: {
+                        labels: {}
+                      }
+            }
+        ];
+
+    // instant call    
+        const resultNd = await this.postExecuteService("K8s interface for Node", "K8s interface for Node", clusterUuid, "00000000000000000000000000000010", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultNd) console.log (resultNd); 
+        const resultNS = await this.postExecuteService("K8s interface for Namespace", "K8s interface for Namespace", clusterUuid, "00000000000000000000000000000004", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultNS) console.log (resultNS);
+        const resultSV = await this.postExecuteService("K8s interface for Service", "K8s interface for Service", clusterUuid, "00000000000000000000000000000020", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultSV) console.log (resultSV);
+        const resultPD = await this.postExecuteService("K8s interface for Pod", "K8s interface for Pod", clusterUuid, "00000000000000000000000000000002", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultPD) console.log (resultPD);
+        const resultDP = await this.postExecuteService("K8s interface for Deployment", "K8s interface for Deployment", clusterUuid, "00000000000000000000000000001002", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultDP) console.log (resultDP);
+        const resultSS = await this.postExecuteService("K8s interface for StatefulSet", "K8s interface for StatefulSet", clusterUuid, "00000000000000000000000000001004", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultSS) console.log (resultSS);
+        const resultDS = await this.postExecuteService("K8s interface for DaemonSet", "K8s interface for DaemonSet", clusterUuid, "00000000000000000000000000001006", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultDS) console.log (resultDS);
+        const resultRS = await this.postExecuteService("K8s interface for ReplicaSet", "K8s interface for ReplicaSet", clusterUuid, "00000000000000000000000000001008", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultRS) console.log (resultRS);
+        const resultPC = await this.postExecuteService("K8s interface for PVC", "K8s interface for PVC", clusterUuid, "00000000000000000000000000000018", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultPC) console.log (resultPC);
+        const resultSE = await this.postExecuteService("K8s interface for Secret", "K8s interface for Secret", clusterUuid, "00000000000000000000000000000014", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultSE) console.log (resultSE);
+        const resultEP = await this.postExecuteService("K8s interface for Endpoint", "K8s interface for Endpoint", clusterUuid, "00000000000000000000000000000016", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultEP) console.log (resultEP);
+        const resultCM = await this.postExecuteService("K8s interface for Configmap", "K8s interface for Configmap", clusterUuid, "00000000000000000000000000000006", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultCM) console.log (resultCM);
+        const resultIG = await this.postExecuteService("K8s interface for Ingress", "K8s interface for Ingress", clusterUuid, "00000000000000000000000000002002", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultIG) console.log (resultIG);
+        const resultSC = await this.postExecuteService("K8s interface for Storage Class", "K8s interface for Storage Class", clusterUuid, "00000000000000000000000000003002", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultSC) console.log (resultSC);
+        const resultPV = await this.postExecuteService("K8s interface for PV", "K8s interface for PV", clusterUuid, "00000000000000000000000000000012", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultPV) console.log (resultPV);
+
 
     // scheduleResource - node
+        
         await this.scheduleResource(clusterUuid, customerAccountKey, "ND", newCrontab1
         ).then(async (res: any) =>{
             resourceJobKey.push({resourceType: "ND", cronKey: res});
@@ -405,9 +450,9 @@ class executorService {
             console.log(`confirmed the executor/sudory client installed but fail to submit resource IG schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
-
         const responseExecutorClientCheck = {resourceJobKey, clientUuid}; 
         return responseExecutorClientCheck;
+
     }  
 
   /**
@@ -471,7 +516,7 @@ class executorService {
       const kpsExecuteName = "KPS Helm Instllation";
       const kpsExecuteSummary = "KPS Helm Installation";
       const kpsTemplateUuid =   "20000000000000000000000000000001"  ;                        
-      const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey); 
+      const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey, ""); 
       console.log ("########### kps chart installation");
       console.log(executeKpsHelm);
 
@@ -490,7 +535,7 @@ class executorService {
       const lokiExecuteName = "Loki-Promtail Helm Instllation";
       const lokiExecuteSummary = "Loki-Promtail Helm Installation";
       const lokiTemplateUuid =   "20000000000000000000000000000001"  ;                        
-      const executeLokiHelm = this.postExecuteService(lokiExecuteName, lokiExecuteSummary, clusterUuid, lokiTemplateUuid, lokiSteps, customerAccountKey); 
+      const executeLokiHelm = this.postExecuteService(lokiExecuteName, lokiExecuteSummary, clusterUuid, lokiTemplateUuid, lokiSteps, customerAccountKey, ""); 
       console.log ("########### Loki chart installation");
       console.log(executeLokiHelm);              
 
@@ -546,12 +591,15 @@ class executorService {
    * @param {string} name
    * @param {string} summary
    * @param {Object} steps
+   * @param {string} subscribed_channel
    */
-    public async postExecuteService(name: string, summary: string, clusterUuid:string, templateUuid:string, steps:Object, customerAccountKey: number): Promise<object> {
+    public async postExecuteService(name: string, summary: string, clusterUuid:string, templateUuid:string, steps:Object, customerAccountKey: number, subscribed_channel: string): Promise<object> {
+        
         let on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         let sudoryBaseUrl = config.sudoryApiDetail.baseURL; 
         let sudoryPathService = config.sudoryApiDetail.pathService;
         let sudoryUrl = sudoryBaseUrl+sudoryPathService; 
+        let sudoryChannel = subscribed_channel; 
         let uuid = require('uuid');
         let executorServiceId = uuid.v1();
 
@@ -562,7 +610,7 @@ class executorService {
           steps: steps,
           summary: summary,
           on_completion: on_completion,
-          subscribed_channel: 'webhook_test',
+          subscribed_channel: sudoryChannel,
         };
         console.log(sudoryServiceData); 
         let serviceData = await axios(
@@ -593,7 +641,7 @@ class executorService {
               templateUuid: templateUuid,
               onCompletion: on_completion,
               steps: JSON.parse(JSON.stringify(steps)),
-              subscribed_channel: 'webhook_test',
+              subscribed_channel: sudoryChannel,
           }
           console.log("Data for DB insert: ");
           console.log(insertData);
@@ -1244,7 +1292,7 @@ class executorService {
         const nexclipperApiUrl = config.appUrl + ":" + config.appPort + "/executor/syncMetricReceived";
         const cronData = { name: "SyncMetricReceived",
         summary: "SyncMetricReceived",
-        cronTab: `*/10 * * * *`,
+        cronTab: `*/5 * * * *`,
         apiUrl: nexclipperApiUrl,
         reRunRequire: true,
         scheduleFrom: "",
@@ -1449,7 +1497,7 @@ class executorService {
             templateUuid = "10000000000000000000000000000001";  
             steps = [{args:{url: url, query: query}}];
         }
-        const postMetricRequest = await this.postExecuteService(name, summary, clusterUuid, templateUuid, steps, customerAccountKey );
+        const postMetricRequest = await this.postExecuteService(name, summary, clusterUuid, templateUuid, steps, customerAccountKey, "");
         return postMetricRequest;
     }
 

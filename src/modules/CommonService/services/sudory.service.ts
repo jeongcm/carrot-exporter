@@ -14,13 +14,14 @@ class sudoryService {
    * @param {string} summary
    * @param {Object} steps
    */
-   public async postSudoryService(name: string, summary: string, clusterUuid:string, templateUuid:string, steps:Object, customerAccountKey: number): Promise<object> {
+   public async postSudoryService(name: string, summary: string, clusterUuid:string, templateUuid:string, steps:Object, customerAccountKey: number, subscribed_channel: string): Promise<object> {
     let on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
     let sudoryBaseUrl = config.sudoryApiDetail.baseURL; 
     let sudoryPathService = config.sudoryApiDetail.pathService;
     let sudoryUrl = sudoryBaseUrl+sudoryPathService; 
     let uuid = require('uuid');
     let executorServiceId = uuid.v1();
+    let sudoryChannel = subscribed_channel;
 
     let sudoryServiceData = {
       cluster_uuid: clusterUuid,
@@ -29,7 +30,7 @@ class sudoryService {
       steps: steps,
       summary: summary,
       on_completion: on_completion,
-      subscribed_channel: 'webhook_test',
+      subscribed_channel: sudoryChannel,
     };
     console.log(sudoryServiceData); 
     let serviceData = await axios(
@@ -59,7 +60,7 @@ class sudoryService {
           templateUuid: templateUuid,
           onCompletion: on_completion,
           steps: JSON.parse(JSON.stringify(steps)),
-          subscribed_channel: 'webhook_test',
+          subscribed_channel: sudoryChannel,
       }
       console.log("Data for DB insert: ");
       console.log(insertData);

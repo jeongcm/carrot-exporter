@@ -111,7 +111,7 @@ export class ResourceQueryDTO {
 }
 
 export class ResourceDetailQueryDTO {
-  @IsNotEmpty()
+  @IsOptional()
   public resourceNamespace: string;
 
   @IsNotEmpty()

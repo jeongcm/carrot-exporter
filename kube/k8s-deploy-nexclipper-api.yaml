@@ -62,6 +62,8 @@ data:
   NODE_OPTIONS: "--max-old-space-size=8192"
   NC_ALERTHUB_URL: "http://nexclipper-notification.nc.svc.cluster.local:3039"
   NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
+  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "webhook_test"
+  NC_LARI_RESOURCE_CRON: "*/10 * * * *"
 ---
 apiVersion: apps/v1
 kind: Deployment

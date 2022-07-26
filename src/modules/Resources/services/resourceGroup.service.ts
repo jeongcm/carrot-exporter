@@ -14,8 +14,9 @@ import AlertRuleService from '@/modules/Alert/services/alertRule.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import SubscriptionsService from '@/modules/Subscriptions/services/subscriptions.service';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
-import { Db } from 'mongodb';
-import sequelize from 'sequelize';
+//import { Db } from 'mongodb';
+//import sequelize from 'sequelize';
+import config from '@config/index';;
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
@@ -348,7 +349,8 @@ class ResourceGroupService {
        namespace: 'sudoryclient',
       }
     }];
-    const resultUninstallSudoryClient = await this.sudoryService.postSudoryService(name, summary, resourceGroupUuid, templateUuid, steps, customerAccountKey )
+    const sudoryChannel = config.sudoryApiDetail.channel_wehbook; 
+    const resultUninstallSudoryClient = await this.sudoryService.postSudoryService(name, summary, resourceGroupUuid, templateUuid, steps, customerAccountKey, sudoryChannel); 
     console.log ("sudory");
     console.log (resultUninstallSudoryClient);
 
