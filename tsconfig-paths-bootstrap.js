@@ -1,9 +1,11 @@
 const tsConfig = require('./tsconfig.json');
 const tsConfigPaths = require('tsconfig-paths');
 
-let { baseUrl, paths } = tsConfig.compilerOptions;
+let { paths } = tsConfig.compilerOptions;
 for (path in paths) {
-  paths[path][0] = paths[path][0].replace('src', 'dist').replace('.ts', '.js');
+  paths[path][0] = `${paths[path][0].replace('src', 'dist').replace('.ts', '.js')}`;
 }
 
-tsConfigPaths.register({ baseUrl, paths });
+console.log(__dirname, paths);
+
+tsConfigPaths.register({ baseUrl: 'dist/src', paths });
