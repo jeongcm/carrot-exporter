@@ -9,13 +9,11 @@ import morgan from 'morgan';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import session from 'express-session';
-//import DB from '@/database';
-import { Routes } from '@/common/interfaces/routes.interface';
-import errorMiddleware from '@/common/middlewares/error.middleware';
-import { logger, stream } from '@/common/utils/logger';
+import { Routes } from '@common/interfaces/routes.interface';
+import errorMiddleware from '@common/middlewares/error.middleware';
+import { logger, stream } from '@common/utils/logger';
 import { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
-//import sqlInjection from 'sql-injection';
 
 class App {
 

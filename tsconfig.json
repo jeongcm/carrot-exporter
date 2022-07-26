@@ -40,6 +40,6 @@
       "@common/*": ["common/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.json", ".env", "src/configs/development.js", "src/common/monitoring/tracing.js"],
+  "include": ["src/**/*.ts", "src/**/*.json", ".env", "src/configs/development.js", "src/monitoring/tracing.js"],
   "exclude": ["node_modules"]
 }
