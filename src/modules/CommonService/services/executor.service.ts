@@ -1485,6 +1485,7 @@ class executorService {
         let startString = start.toISOString();
         let endString = new Date().toISOString();
         let query = stepQuery; 
+        let sudoryChannel = config.sudoryApiDetail.channel_wehbook; 
 
         const ResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupUuid: clusterUuid}}); 
         let url = ResourceGroup.resourceGroupPrometheus; 
@@ -1497,7 +1498,7 @@ class executorService {
             templateUuid = "10000000000000000000000000000001";  
             steps = [{args:{url: url, query: query}}];
         }
-        const postMetricRequest = await this.postExecuteService(name, summary, clusterUuid, templateUuid, steps, customerAccountKey, "");
+        const postMetricRequest = await this.postExecuteService(name, summary, clusterUuid, templateUuid, steps, customerAccountKey, sudoryChannel);
         return postMetricRequest;
     }
 

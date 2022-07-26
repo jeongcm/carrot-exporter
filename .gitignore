@@ -134,6 +134,7 @@ erd.svg
 # Sequelize migration
 migrations/
 config/
+dbscripts/
 
 
 log/
