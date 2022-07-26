@@ -290,7 +290,7 @@ class executorController {
       let templateUuid = req.body.templateUuid;
       let steps = req.body.steps;
       let customerAccountKey = req.customerAccountKey;
-      let subscribed_channel = req.body.webhook || config.sudoryApiDetail.channel_wehbook
+      let subscribed_channel = req.body.subscribed_channel || config.sudoryApiDetail.channel_wehbook
 
       const serviceOutput: any = await this.executorService.postExecuteService(name, summary, clusterUuid, templateUuid, steps, customerAccountKey, subscribed_channel);
       if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
