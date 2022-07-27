@@ -20,6 +20,8 @@ IExecutorService,
   | 'createdBy'
   | 'updatedBy'
   | 'deletedAt'
+  | 'status'
+  | 'statusDescription'
 >;
 
 export class ExecutorServiceModel extends Model<IExecutorService, ExecutorServiceUpdateAttributes> implements IExecutorService {
@@ -34,6 +36,8 @@ export class ExecutorServiceModel extends Model<IExecutorService, ExecutorServic
   public serviceUuid: string;
   public clusterUuid: string;
   public steps: JSON;
+  public status: number;
+  public statusDescription: string;
   
   public deletedAt: Date;
   public createdBy: string;
@@ -86,6 +90,14 @@ export default function (sequelize: Sequelize): typeof ExecutorServiceModel {
         type: DataTypes.INTEGER,
       },
       subscribedChannel: {
+        allowNull: true,
+        type: DataTypes.STRING(100),
+      },
+      status: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
+      },
+      statusDescription: {
         allowNull: true,
         type: DataTypes.STRING(100),
       },
