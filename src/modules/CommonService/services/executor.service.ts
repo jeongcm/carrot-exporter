@@ -1482,7 +1482,7 @@ class executorService {
      public async getSudoryWebhook(serviceUuid: string): Promise<object> {
 
         console.log(serviceUuid); 
-        const resultSudoryWebhook = await this.sudoryWebhook.findOne({where: { serviceUuid }}); 
+        const resultSudoryWebhook = await this.sudoryWebhook.findOne({where: { serviceUuid, status: 4 }}); 
         return resultSudoryWebhook;
     }
 
