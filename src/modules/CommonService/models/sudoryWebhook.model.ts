@@ -111,7 +111,7 @@ export default function (sequelize: Sequelize): typeof SudoryWebhookModel {
         type: DataTypes.STRING(100),
       },
       serviceResultType: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING(100),
       },
       statusDescription: {
@@ -119,15 +119,15 @@ export default function (sequelize: Sequelize): typeof SudoryWebhookModel {
         type: DataTypes.STRING(100),
       },
       assignedClientUuid: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.STRING(100),
       },
       stepCount: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
       stepPosition: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
     },

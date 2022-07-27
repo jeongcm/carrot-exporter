@@ -240,7 +240,9 @@ class executorController {
 
       const service_uuid = req.body.service_uuid;
       const status = req.body.status;
+      console.log(req.body); 
       const resultSudoryWebhook: object = await this.executorService.processSudoryWebhook(req.body);
+
       res.status(200).json({ data: resultSudoryWebhook, message: `Successfully process SudoryWebhook - service_uuid: ${service_uuid}, -status: ${status}` });
     } catch (error) {
       next(error);

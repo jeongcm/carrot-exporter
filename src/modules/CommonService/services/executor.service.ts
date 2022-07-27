@@ -1462,6 +1462,7 @@ class executorService {
             assignedClientUuid: DataSetFromSudory.assgined_client_uuid,
             templateUuid: DataSetFromSudory.template_uuid,
         }
+        console.log (insertData); 
         const resultSudoryWebhook = await this.sudoryWebhook.create(insertData); 
 
         const data = {updatedAt: new Date(), 
@@ -1471,7 +1472,7 @@ class executorService {
         }; 
         const query = {where: {serviceUuid:DataSetFromSudory.service_uuid}};
         const resultExecutorService = await this.executorService.update(data, query);
-
+        console.log (resultExecutorService); 
         return resultSudoryWebhook;
     }
 
