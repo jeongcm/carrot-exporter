@@ -1435,9 +1435,16 @@ class executorService {
      */
     public async processSudoryWebhook(DataSetFromSudory: SudoryWebhookDto): Promise<object> {
 
-        console.log("Data from Sudory: ", DataSetFromSudory); 
         const uuid = require('uuid');
         const sudoryWebhookId = uuid.v1();
+        var serviceResult;
+
+        if (DataSetFromSudory.result==="") {
+            serviceResult = "";
+        }
+        else {
+            serviceResult = JSON.parse(DataSetFromSudory.result);
+        }
 
         const insertData = {
             sudoryWebhookId: sudoryWebhookId,
@@ -1447,12 +1454,23 @@ class executorService {
             clusterUuid: DataSetFromSudory.cluster_uuid,
             status: DataSetFromSudory.status,
             serviceName: DataSetFromSudory.service_name,
-            serviceResult: JSON.parse(DataSetFromSudory.result),
+            serviceResult: serviceResult,
+            serviceResultType: DataSetFromSudory.result_type,
+            statusDescription: DataSetFromSudory.status_description,
+            stepCount: DataSetFromSudory.step_count,
+            stepPosition: DataSetFromSudory.step_position,
+            assignedClientUuid: DataSetFromSudory.assgined_client_uuid,
+            templateUuid: DataSetFromSudory.template_uuid,
         }
-        console.log("Data for DB insert: ");
-        console.log(insertData);
-
         const resultSudoryWebhook = await this.sudoryWebhook.create(insertData); 
+
+        const data = {updatedAt: new Date(), 
+                      updatedBy: "SYSTEM",
+                      status: DataSetFromSudory.status,
+                      statusDescription: DataSetFromSudory.status_description,
+        }; 
+        const query = {where: {serviceUuid:DataSetFromSudory.service_uuid}};
+        const resultExecutorService = await this.executorService.update(data, query);
 
         return resultSudoryWebhook;
     }
