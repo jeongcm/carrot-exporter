@@ -10,6 +10,8 @@ export interface IAlertReceived {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
+  alertReceivedUiFlag: number;
+  alertReceivedHash: string;
   alertReceivedName: string;
   alertReceivedValue: string;
   alertReceivedState: string;

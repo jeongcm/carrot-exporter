@@ -17,6 +17,12 @@ ISudoryWebhook,
   | 'createdBy'
   | 'updatedBy'
   | 'deletedAt'
+  | 'serviceResultType'
+  | 'statusDescription'
+  | 'stepCount'
+  | 'stepPosition'
+  | 'assignedClientUuid'
+  | 'templateUuid'
 >;
 
 
@@ -34,8 +40,14 @@ export class SudoryWebhookModel extends Model<ISudoryWebhook, SudoryWebhookUpdat
   public updatedBy: string;
   public updatedAt: Date;
 
-  public readonly createdAt!: Date;
+  public serviceResultType: string;
+  public statusDescription: string;
+  public stepCount: number;
+  public stepPosition: number;
+  public assignedClientUuid: string;
+  public templateUuid: string;
 
+  public readonly createdAt!: Date;
 }
 
 
@@ -93,6 +105,30 @@ export default function (sequelize: Sequelize): typeof SudoryWebhookModel {
       updatedAt: {
         allowNull: true,
         type: DataTypes.DATE(),
+      },
+      templateUuid: {
+        allowNull: false,
+        type: DataTypes.STRING(100),
+      },
+      serviceResultType: {
+        allowNull: true,
+        type: DataTypes.STRING(100),
+      },
+      statusDescription: {
+        allowNull: false,
+        type: DataTypes.STRING(100),
+      },
+      assignedClientUuid: {
+        allowNull: true,
+        type: DataTypes.STRING(100),
+      },
+      stepCount: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
+      },
+      stepPosition: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
       },
     },
     {
