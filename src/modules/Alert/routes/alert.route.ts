@@ -52,7 +52,7 @@ class AlertRoute implements Routes {
     this.router.get('/alertRule/:alertRuleId/alertTimeline', authMiddleware, this.alertController.getAlertTimelinesByAlertRuleId);
     this.router.get('/alertRule/:alertRuleId/alertNotiScheduled', authMiddleware, this.alertController.getAlertNotiScheduledByAlertRuleId);
 
-    this.router.get('/alertTimeline/:resourceGroupKey', authMiddleware, this.alertController.getAlertReceivedByResourceGroupId);
+    this.router.get('/alertTimeline/resource/:resourceId', authMiddleware, this.alertController.getAlertTimelineByResourceId);
     this.router.get('/alertTimeline/:alertTimelineId/alertReceived', authMiddleware, this.alertController.getAlertReceivedByAlertTimelineId);
   }
 }

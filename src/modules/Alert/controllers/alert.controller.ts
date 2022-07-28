@@ -10,11 +10,13 @@ import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 import { AlertReceivedDto } from '../dtos/alertReceived.dto';
 import ControllerExtension from '@/common/extentions/controller.extension';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
+import ResourceService from '@/modules/Resources/services/resource.service';
 
 class AlertRuleController extends ControllerExtension {
   public alertRuleService = new AlertRuleService();
   public alertReceivedService = new AlertReceivedService();
   public resourceGroupService = new ResourceGroupService();
+  public resourceService = new ResourceService();
   public alerthubService = new AlerthubService();
 
   public getAllAlertRules = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
@@ -287,15 +289,22 @@ class AlertRuleController extends ControllerExtension {
     }
   };
 
-  public getAlertReceivedByResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public getAlertTimelineByResourceId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const {
-        params: { resourceGroupKey },
+        params: { resourceId },
       } = req;
       const customerAccountKey = req.customerAccountKey;
-      const resourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, Number(resourceGroupKey));
-      const resourceGroupUuid = resourceGroup.resourceGroupUuid;
-      const alertTimelines: IAlertTimeline[] = await this.alerthubService.getAlertTimelineByResourceGroupUuid(customerAccountKey, resourceGroupUuid);
+      const resource  =await this.resourceService.getResourceById(resourceId);
+      const resourceGroupKey = Number(resource?.resourceGroupKey);
+      const resourceType= resource.resourceType;
+      const resourceName = resource.resourceName;
+      const resourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, resourceGroupKey);
+      const resourceGroupUuid = resourceGroup?.resourceGroupUuid;
+      const filteringData = {
+        resourceName,resourceType,resourceGroupUuid
+      }
+      const alertTimelines: IAlertTimeline[] = await this.alerthubService.getAlertTimelineByResourceDetail(customerAccountKey, filteringData);
       return res.status(200).json({ data: alertTimelines, message: 'findAll' });
     } catch (error) {
       next(error);
