@@ -9,14 +9,11 @@ import morgan from 'morgan';
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import session from 'express-session';
-//import DB from '@/database';
-import { Routes } from '@/common/interfaces/routes.interface';
-import errorMiddleware from '@/common/middlewares/error.middleware';
-import { logger, stream } from '@/common/utils/logger';
-import Passport from './modules/UserTenancy/provider/passport';
+import { Routes } from '@common/interfaces/routes.interface';
+import errorMiddleware from '@common/middlewares/error.middleware';
+import { logger, stream } from '@common/utils/logger';
 import { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
-//import sqlInjection from 'sql-injection';
 
 class App {
 
@@ -56,7 +53,6 @@ class App {
   }
 
   private initializeMiddlewares() {
-    
     this.app.use(morgan(config.logFormat, { stream }));
     this.app.use(cors({ origin: config.cors.allowAnyOrigin, credentials: config.cors.credentials }));
     //this.app.use(sqlInjection);
@@ -74,7 +70,7 @@ class App {
         resave: false,
       }),
     );
-    this.app = Passport.mountPackage(this.app);
+    // this.app = Passport.mountPackage(this.app);
   }
 
   private initializeRoutes(routes: Routes[]) {

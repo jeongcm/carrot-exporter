@@ -11,4 +11,10 @@ export interface ISudoryWebhook {
     serviceName: string;
     status: number;
     clusterUuid: string;
+    serviceResultType: string;
+    statusDescription: string;
+    stepCount: number;
+    stepPosition: number;
+    assignedClientUuid: string;
+    templateUuid: string;
 }

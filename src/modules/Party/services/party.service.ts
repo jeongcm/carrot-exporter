@@ -9,7 +9,6 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import { PartyUserModel } from '../models/partyUser.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
-import TokenService from '@/modules/UserTenancy/services/token.service';
 import { IDataStoredInToken, IParty, IPartyUser, IPartyUserAPILog, IPartyUserResponse, ITokenData } from '@/common/interfaces/party.interface';
 import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
@@ -19,6 +18,7 @@ import urlJoin from 'url-join';
 
 import { logger } from '@/common/utils/logger';
 import { ApiModel } from '@/modules/Api/models/api.models';
+import TokenService from '@/modules/Token/token.service';
 
 
 const nodeMailer = require('nodemailer');

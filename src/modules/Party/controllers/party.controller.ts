@@ -7,7 +7,6 @@ import { IParty, IPartyUserAPILog, IPartyUserResponse, IRequestWithSystem, IRequ
 import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
-import passport from '@/modules/UserTenancy/provider/passport';
 import { logger } from '@/common/utils/logger';
 
 class PartyController {

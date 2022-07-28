@@ -82,7 +82,7 @@ class MetricReceivedController {
         metricReceivedName = [metricReceivedName as string];
       }
 
-      const findMetricData: IMetricReceived[] = await this.metricReceivedService.getMetricReceivedByResourceId(
+      const findMetricData: any = await this.metricReceivedService.getMetricReceivedByResourceId(
         customerAccountKey,
         resourceId,
         metricReceivedName as string[],

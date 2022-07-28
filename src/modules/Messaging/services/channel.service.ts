@@ -14,7 +14,6 @@ import { Op } from 'sequelize';
  */
 class ChannelService {
   public channels = DB.Channel;
-  public accessGroupChannel = DB.AccessGroupChannel;
   public partyChannel = DB.PartyChannel;
   public tableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();

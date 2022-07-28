@@ -104,17 +104,14 @@ export class SudoryWebhookDto {
 
   @IsNotEmpty()
   public service_uuid: string;
-  
   public result: string;
-  public event_name: string;
   public service_name: string;
   public cluster_uuid: string;
   public status: number;
   public step_count: number;
   public step_position: number;
   public template_uuid: string;
-  public message: string;
   public assgined_client_uuid: string;
   public result_type: string;
-
+  public status_description: string;
 }

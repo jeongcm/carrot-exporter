@@ -1,12 +1,9 @@
 import { NextFunction, Response } from 'express';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 
-import { IMetricMeta } from '@/common/interfaces/metricMeta.interface';
-import { IBillingAccount } from '@/common/interfaces/billingAccount.interface';
 import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
 import BayesianModelService from '../services/bayesianModel.service';
 import { IBayesianDBModel, IBayesianModel } from '@/common/interfaces/bayesianModel.interface';
-import { updateTenancyMemberDto } from '@/modules/UserTenancy/dtos/tenancyMember.dto';
 
 class BayesianModelController {
   public bayesianModelService = new BayesianModelService();

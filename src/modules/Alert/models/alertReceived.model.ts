@@ -15,6 +15,8 @@ export type AlertReceivedCreationAttributes = Optional<
   | 'alertReceivedName'
   | 'alertReceivedValue'
   | 'alertReceivedState'
+  | 'alertReceivedHash'
+  | 'alertReceivedUiFlag'
   | 'alertReceivedNamespace'
   | 'alertReceivedSeverity'
   | 'alertReceivedDescription'
@@ -41,6 +43,8 @@ export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreat
   public updatedBy: string;
   public deletedAt: Date;
 
+  public alertReceivedHash: string;
+  public alertReceivedUiFlag: number;
   public alertReceivedName: string;
   public alertReceivedValue: string;
   public alertReceivedState: string;
@@ -169,6 +173,14 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
       alertReceivedUid: {
         type: DataTypes.STRING(100),
         allowNull: true,
+      },
+      alertReceivedHash: {
+        type: DataTypes.STRING(256),
+        allowNull: false,
+      },
+      alertReceivedUiFlag: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
       },
       alertReceivedLabels: {
         type: DataTypes.JSON,

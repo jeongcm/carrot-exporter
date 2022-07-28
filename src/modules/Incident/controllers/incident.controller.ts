@@ -22,8 +22,6 @@ class IncidentController {
   public incidentService = new IncidentService();
   public partyService = new PartyService();
 
-  public users = DB.Users;
-
   public createIncident = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
     const incidentData: CreateIncidentDto = req.body;

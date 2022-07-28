@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IResource } from '@common/interfaces/resource.interface';
-import { ResourceType, ResourceTypeLevel1, ResourceTypeLevel2, ResourceTypeLevel3, ResourceTypeLevel4 } from 'common/types'
+import { ResourceType, ResourceTypeLevel1, ResourceTypeLevel2, ResourceTypeLevel3, ResourceTypeLevel4 } from 'common/types';
 
 export type ResourceCreationAttributes = Optional<
   IResource,
@@ -68,7 +68,7 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceName: string;
   public resourceDescription: string;
   public resourceInstance: string;
-  public resourceSpec: JSON;
+  public resourceSpec: any;
   public resourceType: ResourceType;
   public resourceLevel1: ResourceTypeLevel1;
   public resourceLevel2: ResourceTypeLevel2;
@@ -78,42 +78,41 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceRbac: Boolean;
   public resourceAnomalyMonitor: Boolean;
   public resourceActive: Boolean;
-  public resourceStatus: JSON;
+  public resourceStatus: any;
   public resourceStatusUpdatedAt: Date;
   public customerAccountKey: number;
   public parentResourceId: string;
   public resourceNamespace: string;
   public resourcePodPhase: string;
-  public resourcePodContainer: JSON;
-  public resourcePodVolume: JSON;
+  public resourcePodContainer: any;
+  public resourcePodVolume: any;
   public resourceReplicas: number;
-  public resourceStsVolumeClaimTemplates: JSON;
-  public resourcePvcStorage: JSON;
+  public resourceStsVolumeClaimTemplates: any;
+  public resourcePvcStorage: any;
   public resourcePvcVolumeName: string;
   public resourcePvcStorageClassName: string;
   public resourcePvcVolumeMode: string;
-  public resourceEndpoint: JSON;
-  public resourceConfigmapData: JSON;
+  public resourceEndpoint: any;
+  public resourceConfigmapData: any;
   public resourceIngressClass: string;
-  public resourceIngressRules: JSON;
+  public resourceIngressRules: any;
   public resourcePvStorage: string;
-  public resourcePvClaimRef: JSON;
+  public resourcePvClaimRef: any;
   public resourcePvStorageClassName: string;
   public resourcePvVolumeMode: string;
   public resourceScProvisioner: string;
   public resourceScReclaimPolicy: string;
   public resourceScAllowVolumeExpansion: Boolean;
   public resourceScVolumeBindingMode: string;
-  public resourceMatchLabels: JSON;
-  public resourceLabels: JSON;
-  public resourceAnnotations: JSON;
+  public resourceMatchLabels: any;
+  public resourceLabels: any;
+  public resourceAnnotations: any;
   public resourceTargetUuid: string;
   public resourceTargetCreatedAt: Date;
-  public resourceOwnerReferences: JSON;
+  public resourceOwnerReferences: any;
   public updatedAt: Date;
 
   public readonly createdAt!: Date;
-  
 }
 
 export default function (sequelize: Sequelize): typeof ResourceModel {
@@ -166,7 +165,34 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-            args: [['K8', 'ND', 'PD', 'NS', 'SV', 'OP', 'PD', 'PM', 'PJ', 'VM', 'CT', 'DP', 'SS', 'DS', 'RS', 'PV', 'PC', 'SE','EP','CM','IG','SC', 'JO', 'CJ' ]],
+            args: [
+              [
+                'K8',
+                'ND',
+                'PD',
+                'NS',
+                'SV',
+                'OP',
+                'PD',
+                'PM',
+                'PJ',
+                'VM',
+                'CT',
+                'DP',
+                'SS',
+                'DS',
+                'RS',
+                'PV',
+                'PC',
+                'SE',
+                'EP',
+                'CM',
+                'IG',
+                'SC',
+                'JO',
+                'CJ',
+              ],
+            ],
             msg: 'Resource Type must be of type K8, ND, PD, NS, SV, OP, PD, PM, PJ, VM or CT',
           },
         },
@@ -335,7 +361,6 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       resourceOwnerReferences: {
         type: DataTypes.JSON,
       },
-
     },
     {
       indexes: [
