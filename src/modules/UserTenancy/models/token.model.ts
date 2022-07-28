@@ -1,11 +1,12 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IToken } from '@/common/interfaces/token.interface';
 
-export type TenancyCreationAttributes = Optional<IToken, 'userPk' | 'token' | 'expiryTime' | 'maximumLimit' | 'createdAt' | 'updatedAt'>;
+export type TenancyCreationAttributes = Optional<IToken, 'tokenKey'|'tokenId' | 'token' | 'expiryTime' | 'maximumLimit' | 'createdAt' | 'updatedAt'>;
 
 export class TokenModel extends Model<IToken> implements IToken {
-  public pk: number;
-  public userPk: number;
+  public tokenKey: number;
+  public tokenId: string;
+  public partyUserKey: number;
   public token: string;
   public maximumLimit: number;
   public expiryTime: number;
@@ -17,13 +18,18 @@ export default function (sequelize: Sequelize): typeof TokenModel {
   try {
     TokenModel.init(
       {
-        pk: {
+        tokenKey: {
           type: DataTypes.BIGINT,
           autoIncrement: true,
           allowNull: false,
           primaryKey: true,
         },
-        userPk: {
+        tokenId: {
+          allowNull: false,
+          type: DataTypes.STRING(16),
+          unique: true
+        },
+        partyUserKey: {
           allowNull: true,
           type: DataTypes.BIGINT,
         },
@@ -34,12 +40,12 @@ export default function (sequelize: Sequelize): typeof TokenModel {
         maximumLimit: {
           allowNull: true,
           type: DataTypes.INTEGER,
-          defaultValue: 1,
+          defaultValue: 4,
         },
         expiryTime: {
           allowNull: true,
           type: DataTypes.BIGINT,
-          defaultValue: Date.now() + 36000000,
+          defaultValue: Date.now() + 3600000,
         },
         createdAt: {
           allowNull: true,

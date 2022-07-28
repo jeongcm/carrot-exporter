@@ -9,15 +9,17 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import { PartyUserModel } from '../models/partyUser.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
+import TokenService from '@/modules/UserTenancy/services/token.service';
 import { IDataStoredInToken, IParty, IPartyUser, IPartyUserAPILog, IPartyUserResponse, ITokenData } from '@/common/interfaces/party.interface';
 import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 
 import config from '@config/index';
+import urlJoin from 'url-join';
 
 import { logger } from '@/common/utils/logger';
 import { ApiModel } from '@/modules/Api/models/api.models';
-import passwordValidator from 'password-validator'; 
+
 
 const nodeMailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
@@ -38,6 +40,7 @@ class PartyService {
   public api = DB.Api;
 
   public tableIdService = new tableIdService();
+  public tokenService = new TokenService();
 
 
 
@@ -178,7 +181,7 @@ class PartyService {
           { where: { partyUserId: updateUserId }, transaction: t },
         );
       });
-    } catch (error) {}
+    } catch (error) { }
 
     return await this.getUser(customerAccountKey, updateUserId);
   }
@@ -235,63 +238,80 @@ class PartyService {
     if (isEmpty(email)) throw new HttpException(400, "No email address provided");
     const findUser: IPartyUser = await this.partyUser.findOne({ where: { email: email } });
     if (!findUser) throw new HttpException(401, `No user information found with the provided email address`);
-    
+
     //2. create a token
     const tokenData = this.createToken(findUser);
+    const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('Tokens');
+    //create token detail in Tokens table
+    const obj = {
+      partyUserKey: findUser.partyUserKey,
+      tokenId: responseTableIdData.tableIdFinalIssued,
+      token: tokenData.token
+    };
+    const tokenResult = await this.tokenService.createTokenDetail(obj);
 
     //3. send email with the token to user with the link to reset password
-    const auth = {
-      api_key: config.email.mailgun.apiKey,
-      domain: config.email.mailgun.domain,
-    };
-    const mailgunAuth = { auth };
-    const handlebars = require('handlebars');
-
-    const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
-    const url= 'http://localhost:5001/password/reset?token=' + tokenData.token;
-    const name= findUser.firstName;
-    const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/forgotPassword.hbs'), 'utf8'); 
+    const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/forgotPassword.hbs'), 'utf8');
     const template = handlebars.compile(emailTemplateSource);
-    const htmlToSend = template({url, name});
-
+    let name = findUser.firstName
+    const url = urlJoin(config.email.passwordReset.resetPageURL, `reset/password/?token=${tokenData.token}&email=${findUser.email}`);
+    const htmlToSend = template({ url, name });
     const mailOptions = {
       to: findUser.email,
       from: "service@nexclipper.io",
       subject: 'Password Reset - NexClipper',
       html: htmlToSend
     }
-    //console.log (mailOptions);
-
-    smtpTransport.sendMail(mailOptions, function(error, response) {
-      if (error) {
-        console.log("error", error);
-      } else {
-        console.log("Successfully sent email.");
-      }
-    })
+    const a = await sendMail(findUser, mailOptions)
     const resultEmail = {
       to: findUser.email,
       from: "service@nexclipper.io",
-      subject: 'Password Reset - NexClipper',
+      subject: 'Password Reset - NexClipper'
     };
 
-  return resultEmail;
-  }  
+    return resultEmail;
+  }
 
-  public async resetPassword(email: string, password: string): Promise<{object}> {
-  //update password
+  public async resetPassword(email: string, password: string, resetToken: any): Promise<{ cookie: string; findUser: IPartyUser; token: string }> {
+    //check for token 
+    const token = await this.tokenService.findTokenDetail(resetToken);
+    if (!token) {
+      throw new HttpException(401, `Invalid token`);
+    }
+    if (token.expiryTime - Date.now() < 0) {
+      throw new HttpException( 400, 'Token has been expired, Please try resetting again' );
+    }
+    //0. validate email address
+    if (isEmpty(email)) throw new HttpException(400, "No email address provided");
+    const findUser: IPartyUser = await this.partyUser.findOne({ where: { email: email } });
+    if (!findUser) throw new HttpException(401, `No user information found with the provided email address`);
 
-  //1. validate the password rule
+    //1. validate the password rule
+    let hashedPassword;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+    await this.partyUser.update({ password: hashedPassword }, { where: { email } });
 
-
-  //0. validate email address
-
-  
-
-   
-  //2. update password in the party type.  
-
-    return;
+    //2.send mail of password reset
+    const emailTemplateSource = fs.readFileSync(path.join(__dirname,  '../../Messaging/templates/emails/email-body/passwordReset.hbs'), 'utf8');
+    const template = handlebars.compile(emailTemplateSource);
+    let name = findUser.firstName
+    const url = urlJoin(config.email.passwordReset.resetPageURL, 'login');
+    const htmlToSend = template({ url, name });
+    const mailOptions = {
+      to: findUser.email,
+      from: "service@nexclipper.io",
+      subject: 'Password Reset - NexClipper',
+      html: htmlToSend
+    }
+    const a = await sendMail(findUser, mailOptions);
+    const loginData =  {
+      "userId": findUser.userId,
+      "password": password
+    }
+    const loggedIn = await this.login(loginData);
+    return loggedIn;
   }
 
 
@@ -306,6 +326,27 @@ class PartyService {
 
   public createCookie(tokenData: ITokenData): string {
     return `X-AUTHORIZATION=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
+  }
+}
+
+const sendMail = async (user: any, mailOptions: any) => {
+  try {
+    const auth = {
+      api_key: config.email.mailgun.apiKey,
+      domain: config.email.mailgun.domain,
+    };
+    const mailgunAuth = { auth };
+    const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
+
+    smtpTransport.sendMail(mailOptions, function (error, response) {
+      if (error && Object.keys(error).length) {
+        logger.error(`Error while sending mail`, error)
+      } else {
+        logger.info(`Successfully sent email.`)
+      }
+    });
+  } catch (err) {
+    return { message: 'Error while sending mail', error: err };
   }
 }
 

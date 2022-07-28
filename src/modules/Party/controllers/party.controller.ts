@@ -7,6 +7,8 @@ import { IParty, IPartyUserAPILog, IPartyUserResponse, IRequestWithSystem, IRequ
 import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+import passport from '@/modules/UserTenancy/provider/passport';
+import { logger } from '@/common/utils/logger';
 
 class PartyController {
   public partyService = new PartyService();
@@ -168,6 +170,18 @@ class PartyController {
       const email: string = req.params.email;
       console.log (email); 
       const resultRequest = await this.partyService.requestPasswordReset(email);
+      res.status(200).json({ data: resultRequest, message: ' Password reset email sent successfully' });
+
+
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public resetPassword = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {body:{email, password}, query:{reset_token}} = req;
+      const resultRequest = await this.partyService.resetPassword(email, password, reset_token);
       res.status(200).json({ data: resultRequest, message: 'Sent Password reset email successuflly' });
 
 
