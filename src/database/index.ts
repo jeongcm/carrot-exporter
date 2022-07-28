@@ -59,6 +59,7 @@ import RolePartyModel from '@/modules/Role/models/roleParty.model';
 import ExecutorServiceModel from '@/modules/CommonService/models/exectuorService.model';
 import SudoryWebhookModel from '@/modules/CommonService/models/sudoryWebhook.model';
 import ExportersModel from '@/modules/Exporters/models/exporters.model';
+import TokenModel from '@/modules/Token/token.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -159,6 +160,7 @@ const DB = {
   SudoryWebhook: SudoryWebhookModel(sequelize),
   ExecutorService: ExecutorServiceModel(sequelize),
   Exporters: ExportersModel(sequelize),
+  Tokens: TokenModel(sequelize),
 
   sequelize, // connection instance (RAW queries)
 };
