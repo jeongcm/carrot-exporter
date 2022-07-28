@@ -11,7 +11,8 @@ class BayesianModelController {
   public getAllBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const bayesianModelList: IBayesianDBModel[] = await this.bayesianModelService.findAllBayesianModel(customerAccountKey);
+      const bayesianModelClusterId = req?.query?.clusterId
+      const bayesianModelList: IBayesianDBModel[] = await this.bayesianModelService.findAllBayesianModel(customerAccountKey, bayesianModelClusterId);
       res.status(200).json({ data: bayesianModelList, message: 'findAll' });
     } catch (error) {
       next(error);

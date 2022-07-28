@@ -25,9 +25,20 @@ class BayesianModelServices {
    * @returns Promise<IBayesianModel[]>
    * @author Shrishti Raj
    */
-  public async findAllBayesianModel(customerAccountKey: number): Promise<IBayesianDBModel[]> {
+  public async findAllBayesianModel(customerAccountKey: number, bayesianModelClusterId?:any): Promise<IBayesianDBModel[]> {
+    
+    let whereCondition = {};
+    whereCondition = {customerAccountKey: customerAccountKey, deletedAt: null};
+    
+    if(bayesianModelClusterId){
+      const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: bayesianModelClusterId } });
+      if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
+      const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+      whereCondition = {...whereCondition, resourceGroupKey}
+    }
+    
     const bayesianModelList: IBayesianDBModel[] = await this.bayesianModel.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null },
+      where: whereCondition,
       include: {
         model: ResourceGroupModel,
         attributes: ['resourceGroupName', 'resourceGroupId']
