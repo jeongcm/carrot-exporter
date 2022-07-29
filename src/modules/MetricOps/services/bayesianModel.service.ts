@@ -1,4 +1,4 @@
-import { IBayesianModel, IBayesianDBModel } from '@/common/interfaces/bayesianModel.interface';
+import { IBayesianModel, IBayesianDBModel, IBayesianJoinDBModel } from '@/common/interfaces/bayesianModel.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import DB from '@/database';
 import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
@@ -143,10 +143,29 @@ class BayesianModelServices {
 
     return findBayesianModel;
   }
+
   /**
-   * find BayesianModel by Id
+   * find BayesianModel by Key
    *
-   * @param  {string} BayesianModelId
+   * @param  {string} BayesianModelKey
+   * @returns Promise<IBayesianModel>
+   * @author Jerry Lee
+   */
+   public async findBayesianModelByKey(bayesianModelKey: number): Promise<IBayesianDBModel> {
+    if (!bayesianModelKey) throw new HttpException(409, 'BayesianModel Id Not found');
+
+    const findBayesianModel: IBayesianDBModel = await this.bayesianModel.findOne({
+      where: { bayesianModelKey, deletedAt: null },
+
+    });
+
+    return findBayesianModel;
+  }
+
+  /**
+   * find BayesianModel by ResourceType
+   *
+   * @param  {string} ResourceType
    * @returns Promise<IBayesianModel>
    * @author Shrishti Raj
    */

@@ -128,7 +128,7 @@ class AnomalyMonitoringTargetService {
      * @returns Promise<IAnomalyMonitoringTarget>
      * @author Jerry Lee
      */
-     public async findMonitoringTargetsByResourceKeys(resourceKey: string): Promise<IAnomalyMonitoringTarget> {
+     public async findMonitoringTargetsByResourceKeys(resourceKey: number): Promise<IAnomalyMonitoringTarget> {
         
         const findSubscribedProduct: ISubscribedProduct = await this.subscribedProduct.findOne({
             where: { deletedAt: null,  resourceKey: resourceKey} },

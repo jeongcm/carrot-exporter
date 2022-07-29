@@ -132,6 +132,30 @@ class ModelRuleScoreService {
         return findData;
     }
 
+        /**
+     * get score of rule group by Bayesian model key
+     *
+     * @param  bayesianModelId
+     * @returns Promise<IModelRuleScore>
+     * @author Jerry Lee
+     */
+         public async getModelScoreByBayesianModelKey(
+            bayesianModelKey: number,
+        ): Promise<IModelRuleScore[]> {
+            const findData = await this.modelRuleScore.findAll(
+                {
+                    where:
+                    {
+                        bayesianModelKey: bayesianModelKey,
+                        deletedAt:null
+                    }
+                }
+            )
+
+            if (!findData) throw new HttpException(400, "Model Rule Score  doesn't exist");
+            return findData;
+        }
+
     /**
      * get all bayesinaModel attach to rulegroup
      *
