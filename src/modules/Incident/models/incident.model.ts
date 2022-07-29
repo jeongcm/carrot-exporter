@@ -56,7 +56,7 @@ export default function (sequelize: Sequelize): typeof IncidentModel {
       },
       assigneeKey: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       customerAccountKey: {
         type: DataTypes.INTEGER,

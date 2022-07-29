@@ -2,6 +2,7 @@ import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateIncidentDto {
   @IsString()
+  @IsOptional()
   public assigneeId: string;
 
   @IsString()

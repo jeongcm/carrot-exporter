@@ -25,11 +25,11 @@ class IncidentController {
   public createIncident = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
     const incidentData: CreateIncidentDto = req.body;
-
-    const assignee = await this.partyService.getUser(customerAccountKey, incidentData.assigneeId);
-
-    if (!assignee) {
-      res.status(404).json({ message: `assignee user id(${incidentData.assigneeId}) not found` });
+    if(incidentData.assigneeId){
+      const assignee = await this.partyService.getUser(customerAccountKey, incidentData.assigneeId);
+          if (!assignee) {
+            res.status(404).json({ message: `assignee user id(${incidentData.assigneeId}) not found` });
+          }
     }
 
     try {
