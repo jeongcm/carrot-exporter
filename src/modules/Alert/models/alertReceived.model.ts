@@ -32,6 +32,7 @@ export type AlertReceivedCreationAttributes = Optional<
   | 'alertReceivedEndpoint'
   | 'alertReceivedReason'
   | 'alertReceivedUid'
+  | 'alertReceivedHash'
 >;
 
 export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreationAttributes> implements IAlertReceived {
