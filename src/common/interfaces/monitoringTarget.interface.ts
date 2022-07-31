@@ -12,5 +12,6 @@ export interface IAnomalyMonitoringTarget {
     anomalyMonitoringTargetName : string;
     anomalyMonitoringTargetDescription  : string;
     anomalyMonitoringTargetStatus  : string;
+    customerAccountKey: number
 
 }

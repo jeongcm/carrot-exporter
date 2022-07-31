@@ -60,6 +60,7 @@ import ExecutorServiceModel from '@/modules/CommonService/models/exectuorService
 import SudoryWebhookModel from '@/modules/CommonService/models/sudoryWebhook.model';
 import ExportersModel from '@/modules/Exporters/models/exporters.model';
 import TokenModel from '@/modules/Token/token.model';
+import EvaluationModel from '@/modules/MetricOps/models/evaluate.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -161,6 +162,8 @@ const DB = {
   ExecutorService: ExecutorServiceModel(sequelize),
   Exporters: ExportersModel(sequelize),
   Tokens: TokenModel(sequelize),
+  Evaluation: EvaluationModel(sequelize),
+
 
   sequelize, // connection instance (RAW queries)
 };
@@ -324,6 +327,9 @@ DB.RuleGroup.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 
 DB.ResourceGroup.hasOne(DB.BayesianModel, { foreignKey: 'resource_group_key' });
 DB.BayesianModel.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
+
+DB.AnomalyMonitoringTarget.hasMany(DB.Evaluation, {  foreignKey: 'anomalyMonitoringTargetKey' });
+DB.Evaluation.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetKey' });
 
 DB.Party.belongsToMany(DB.Resource, {
   through: {

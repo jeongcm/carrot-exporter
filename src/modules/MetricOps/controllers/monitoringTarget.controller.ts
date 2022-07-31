@@ -43,7 +43,7 @@ class AnomalyMonitoringTargetController {
         params: {anomalyMonitoringTargetId } = {}
       } = req;
       const AnomalyMonitoringTargetData: UpdateMonitoringTargetDto = req.body;
-      const customerAccountKey: number = req.customerAccountKey;
+      //const customerAccountKey: number = req.customerAccountKey;
       const updatedTargetData: IAnomalyMonitoringTarget = await this.anomalyMonitoringTargetService.updateMonitoringTarget(
         anomalyMonitoringTargetId,
         AnomalyMonitoringTargetData,
@@ -73,7 +73,7 @@ class AnomalyMonitoringTargetController {
   public getMonitoringTargetByResourceKey = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
 
-      const resourceKey = req.params.resourceKey;
+      const resourceKey = parseInt(req.params.resourceKey);
       const monitoringTargetData: IAnomalyMonitoringTarget = await this.anomalyMonitoringTargetService.findMonitoringTargetsByResourceKeys(
         resourceKey
       );
