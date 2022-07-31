@@ -16,12 +16,20 @@ class EvaluateRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post(
-      '/evaluate',
+      '/evaluate/resource/',
       authMiddleware,
       //createUserLogMiddleware,
       //validationMiddleware(CreateBayesianModelDto, 'body'),
       this.evaluateController.evaluateMonitoringTarget,
     );
+
+    this.router.post(
+      '/evaluate/customer/',
+      authMiddleware,
+      //createUserLogMiddleware,
+      //validationMiddleware(CreateBayesianModelDto, 'body'),
+      this.evaluateController.initiateEvaluationProcess,
+    );    
 
   }
 }

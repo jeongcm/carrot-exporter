@@ -97,6 +97,7 @@ export default function (sequelize: Sequelize): typeof IncidentModel {
       },
       incidentDueDate: {
         type: DataTypes.DATE,
+        allowNull: true,
       },
       incidentPinned: {
         type: DataTypes.BOOLEAN,

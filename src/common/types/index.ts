@@ -23,3 +23,6 @@ export type ResourceTypeLevel2 = 'ND' | 'NS' | 'PJ';
 export type ResourceTypeLevel3 = 'PD' | 'SV' | 'PM';
 
 export type ResourceTypeLevel4 = 'CT' | 'VM';
+
+export type incidentStatus = 'OP' | 'IP' | 'RS' | 'CL';
+export type incidentSeverity = 'UR' | 'HI' | 'ME' | 'LO';

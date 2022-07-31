@@ -15,6 +15,8 @@ import MonitoringTargetService from '@/modules/MetricOps/services/monitoringTarg
 import BayesianModelService from '@/modules/MetricOps/services/bayesianModel.service';
 import ModelRuleScoreService from '@/modules/MetricOps/services/modelRuleScore.service';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
+import {incidentSeverity, incidentStatus} from '@/common/types/index'
+import { IEvaluation } from '@/common/interfaces/evaluate.interface';
 
 const { Op } = require('sequelize');
 
@@ -145,11 +147,11 @@ class EvaluateServices {
         }
         
         returnResponse = {...revBayesianModel2,firedAlerts, inputAlerts};
-        console.log (returnResponse);  
 
         // 4. Save the request map to the db
         const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('Evaluation');
         const evaluationId: string = responseTableIdData.tableIdFinalIssued;
+        console.log (evaluationId); 
         let createEvaluation = {
             evaluationId: evaluationId,
             createdAt: new Date(),
@@ -157,11 +159,9 @@ class EvaluateServices {
             requestedAt: new Date(),
             evaluationRequest: returnResponse
         }
-        const resultEvaluationRequest = await this.evaluation.create(createEvaluation);
 
-        console.log (inputAlerts);
-
-
+        const resultEvaluationRequest: IEvaluation = await this.evaluation.create(createEvaluation);
+    
         // 5. Call NexClipper BN
         bnData = {
             evaluationId: evaluationId,
@@ -222,11 +222,13 @@ class EvaluateServices {
         }
 
         // 6. Save the results to the database
-        const resultEvaluationResult =  await this.evaluation.update(updateData, updateWhere);   
+        const resultEvaluationResult  =  await this.evaluation.update(updateData, updateWhere);
+        console.log (resultEvaluationResult); 
+        const resultEvaluation: IEvaluation = await this.evaluation.findOne({where: {evaluationId}}); 
 
         // 7. Return the evaluation result back to caller
     
-        return resultEvaluationResult;
+        return resultEvaluation;
     };
 
     public async initiateEvaluationProcess(customerAccountId: string): Promise<any>{
@@ -242,30 +244,45 @@ class EvaluateServices {
 
         //3. call evaluateMonitorintTarget
 
+        let resultReturn = {};
         for (let i=0; i<resultMonitoringTarget.length; i++)
         {
             let resourceKey = resultMonitoringTarget[i].resourceKey;
-            let resultEvaluation = await this.evaluateMonitoringTarget(resourceKey);
+            let resultEvaluation: IEvaluation = await this.evaluateMonitoringTarget(resourceKey);
             let evaluationResultStatus = resultEvaluation.evaluationResultStatus; 
             if (evaluationResultStatus==="AN")
                 {
         //4. if any anomaly, create incident ticket
                     let incidentData = {
                         incidentName: "MetricOps: ",
-                        incidentDescription: "",
-                        incidentStatus: "OP",
-                        incidentSeverity: "UR",
+                        incidentDescription: "MetricOps ",
+                        incidentStatus: "OP" as incidentStatus,
+                        incidentSeverity: "UR" as incidentSeverity,
+                        incidentDueDate: null,
+                        assigneeId: "",
                     };
-                    //const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey,"SYSTEM" ,incidentData);                         
-
+                    let resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey,"SYSTEM",incidentData);
+                    let incidentId = resultIncidentCreate.incidentId; 
+                    let firedAlerts = resultEvaluation.evaluationRequest.map(x=>x.firedAlerts.alertReceivedId); 
+                    console.log (`incident id: ${incidentId}`);
+                    console.log (`firedAlerts: ${firedAlerts}`);
         //5. attach the alerts (from the result) to the incident tickets
-    
+                    let resultIncidentAlertAttach = await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, firedAlerts, "SYSTEM"); 
+
         //6. execute any resolution actions if there are actions under rule group more than a threshhold
 
         //7. save the actions to incident actions
+
+
+        //8. create a message for return
+        resultReturn = {
+            evaluationId: resultEvaluation.evaluationId,
+            evaluationResultStatus: resultEvaluation.evaluationResultStatus,
+            incidentId: incidentId
+        };
                 }
         }    
-     return;   
+     return resultReturn;   
     }
 
 }

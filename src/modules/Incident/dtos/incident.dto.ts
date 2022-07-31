@@ -23,7 +23,6 @@ export class CreateIncidentDto {
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   public incidentDueDate: Date;
 }
 
@@ -44,17 +43,14 @@ export class UpdateIncidentDto {
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   public incidentStatus: 'OP' | 'IP' | 'RS' | 'CL';
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   public incidentSeverity: 'UR' | 'HI' | 'ME' | 'LO';
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
   public incidentDueDate: Date;
 }
 
