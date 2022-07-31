@@ -64,6 +64,8 @@ data:
   NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
   SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "webhook_test"
   NC_LARI_RESOURCE_CRON: "*/10 * * * *"
+  NC_BN_URL: "http://nexclipper-bn.nc.svc.cluster.local:3000"
+  NC_BN_NODE_BASE: "/predict_incident/"
 ---
 apiVersion: apps/v1
 kind: Deployment
