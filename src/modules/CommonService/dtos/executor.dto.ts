@@ -11,7 +11,7 @@ export class ExecutorDto {
   
     @IsString()
     @IsNotEmpty()
-    public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR' | 'OR' | 'OT';
+    public resourceGroupProvider: string;
   
     @IsString()
     @IsNotEmpty()
