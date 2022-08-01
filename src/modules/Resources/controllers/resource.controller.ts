@@ -168,6 +168,31 @@ class ResourceController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
+  public getResourceByTypeResourceGroupIdForMetricOps = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceType: string[] = req.query.resourceType as string[];
+    const resourceQuery: any = {
+      ...req.query,
+      excludeFailed: req.query.excludeFailed === 'true',
+    };
+    const resourceGroupId: string = req.params.resourceGroupId;
+
+    try {
+      const resource: IResource[] = await this.resourceService.getResourceByTypeResourceGroupIdForMetricOps(
+        resourceType,
+        resourceGroupId,
+        resourceQuery,
+      );
+      res.status(200).json({ data: resource, message: `find resources with resourceGroup(${resourceGroupId}) and resoruceType ${resourceType}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
   public getResourceInNamespaceByTypeResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const resourceType: string = req.params.resourceType;
     const resourceGroupId: string = req.params.resourceGroupId;

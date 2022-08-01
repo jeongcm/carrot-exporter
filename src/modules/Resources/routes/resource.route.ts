@@ -34,12 +34,21 @@ class ResourceRoute implements Routes {
       createUserLogMiddleware,
       this.resourceController.getResourceByTypeCustomerAccountId,
     );
+
     this.router.get(
       '/resource/resourceGroup/:resourceGroupId',
       validationMiddleware(ResourceQueryDTO, 'query'),
       authMiddleware,
       createUserLogMiddleware,
       this.resourceController.getResourceByTypeResourceGroupId,
+    );
+
+    this.router.get(
+      '/resource/resourceGroup/:resourceGroupId/metricOps',
+      validationMiddleware(ResourceQueryDTO, 'query'),
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceController.getResourceByTypeResourceGroupIdForMetricOps,
     );
     this.router.get(
       '/resource/resourceGroup/:resourceGroupId/resourceType/:resourceType',
