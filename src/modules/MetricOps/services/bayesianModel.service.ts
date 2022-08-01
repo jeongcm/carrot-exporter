@@ -1,4 +1,4 @@
-import { IBayesianModel, IBayesianDBModel } from '@/common/interfaces/bayesianModel.interface';
+import { IBayesianModel, IBayesianDBModel, IBayesianJoinDBModel } from '@/common/interfaces/bayesianModel.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import DB from '@/database';
 import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
@@ -25,9 +25,20 @@ class BayesianModelServices {
    * @returns Promise<IBayesianModel[]>
    * @author Shrishti Raj
    */
-  public async findAllBayesianModel(customerAccountKey: number): Promise<IBayesianDBModel[]> {
+  public async findAllBayesianModel(customerAccountKey: number, bayesianModelClusterId?:any): Promise<IBayesianDBModel[]> {
+    
+    let whereCondition = {};
+    whereCondition = {customerAccountKey: customerAccountKey, deletedAt: null};
+    
+    if(bayesianModelClusterId){
+      const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: bayesianModelClusterId } });
+      if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
+      const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+      whereCondition = {...whereCondition, resourceGroupKey}
+    }
+    
     const bayesianModelList: IBayesianDBModel[] = await this.bayesianModel.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null },
+      where: whereCondition,
       include: {
         model: ResourceGroupModel,
         attributes: ['resourceGroupName', 'resourceGroupId']
@@ -143,10 +154,29 @@ class BayesianModelServices {
 
     return findBayesianModel;
   }
+
   /**
-   * find BayesianModel by Id
+   * find BayesianModel by Key
    *
-   * @param  {string} BayesianModelId
+   * @param  {string} BayesianModelKey
+   * @returns Promise<IBayesianModel>
+   * @author Jerry Lee
+   */
+   public async findBayesianModelByKey(bayesianModelKey: number): Promise<IBayesianDBModel> {
+    if (!bayesianModelKey) throw new HttpException(409, 'BayesianModel Id Not found');
+
+    const findBayesianModel: IBayesianDBModel = await this.bayesianModel.findOne({
+      where: { bayesianModelKey, deletedAt: null },
+
+    });
+
+    return findBayesianModel;
+  }
+
+  /**
+   * find BayesianModel by ResourceType
+   *
+   * @param  {string} ResourceType
    * @returns Promise<IBayesianModel>
    * @author Shrishti Raj
    */

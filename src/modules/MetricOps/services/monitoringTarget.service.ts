@@ -88,6 +88,7 @@ class AnomalyMonitoringTargetService {
             bayesianModelKey: bayesianModelDetails.bayesianModelKey,
             anomalyMonitoringTargetStatus, 
             resourceKey:resourceDetail.resourceKey,
+            customerAccountKey: customerAccountKey,
             subscribedProductKey: subscribedProductDetail.subscribedProductKey
         };
         const newresolutionAction: IAnomalyMonitoringTarget = await this.AnomalyMonitoringTarget.create(anomalyMonitoringTarget);
@@ -128,7 +129,7 @@ class AnomalyMonitoringTargetService {
      * @returns Promise<IAnomalyMonitoringTarget>
      * @author Jerry Lee
      */
-     public async findMonitoringTargetsByResourceKeys(resourceKey: string): Promise<IAnomalyMonitoringTarget> {
+     public async findMonitoringTargetsByResourceKeys(resourceKey: number): Promise<IAnomalyMonitoringTarget> {
         
         const findSubscribedProduct: ISubscribedProduct = await this.subscribedProduct.findOne({
             where: { deletedAt: null,  resourceKey: resourceKey} },
@@ -139,6 +140,23 @@ class AnomalyMonitoringTargetService {
             where: {deletedAt: null, subscribedProductKey: findSubscribedProduct.subscribedProductKey},
         });
         if (!findMonitoringTarget) throw new HttpException(409, 'AnomalyMonitoringTarget Id Not found');
+
+        return findMonitoringTarget;
+    }
+
+    /**
+     * find AnomalyMonitoringTarget by customerKey
+     *
+     * @param  {string} customerAccountKey
+     * @returns Promise<IAnomalyMonitoringTarget[]>
+     * @author Jerry Lee
+     */
+     public async findMonitoringTargetsByCustomerAccountKey(customerAccountKey: number): Promise<IAnomalyMonitoringTarget[]> {
+        
+        const findMonitoringTarget: IAnomalyMonitoringTarget[] = await this.AnomalyMonitoringTarget.findAll({
+            where: {deletedAt: null, customerAccountKey: customerAccountKey},
+        });
+        if (!findMonitoringTarget) throw new HttpException(409, `no anomaly monitoring target under customerAccount ${customerAccountKey}`);
 
         return findMonitoringTarget;
     }

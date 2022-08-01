@@ -61,17 +61,28 @@ class IncidentService {
     try {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
-      const assignee = await this.partyService.getUserKey(customerAccountKey, incidentData.assigneeId);
+      if (incidentData.assigneeId) {
+        const assignee = await this.partyService.getUserKey(customerAccountKey, incidentData.assigneeId);
 
-      const createIncidentData: any = await this.incident.create({
-        ...incidentData,
-        assigneeKey: assignee.partyKey,
-        customerAccountKey,
-        createdBy: logginedUserId,
-        incidentId: responseTableIdData.tableIdFinalIssued,
-      });
+        const createIncidentData: any = await this.incident.create({
+          ...incidentData,
+          assigneeKey: assignee.partyKey,
+          customerAccountKey,
+          createdBy: logginedUserId,
+          incidentId: responseTableIdData.tableIdFinalIssued,
+        });
 
-      return createIncidentData;
+        return createIncidentData;
+      } else {
+        const createIncidentData: any = await this.incident.create({
+          ...incidentData,
+          customerAccountKey,
+          createdBy: logginedUserId,
+          incidentId: responseTableIdData.tableIdFinalIssued,
+        });
+
+        return createIncidentData;
+      }
     } catch (error) {
       throw error;
     }
@@ -477,7 +488,7 @@ class IncidentService {
         });
         return createdActionAttachment;
       } else {
-        console.log(uploadedFilePath)
+        console.log(uploadedFilePath);
         throw new HttpException(500, uploadedFilePath.data);
       }
     } catch (error) {
