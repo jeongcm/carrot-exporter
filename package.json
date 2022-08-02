@@ -1,8 +1,8 @@
 {
-  "name": "nexclipper-node",
-  "version": "0.0.1",
+  "name": "nexclipper-api",
+  "version": "0.9.0",
   "description": "TypeScript + Sequelize + MySQL + Express API Server",
-  "author": "",
+  "author": "NexClipper Inc.",
   "license": "ISC",
   "scripts": {
     "start": "cross-env NODE_ENV=production node -r ./tsconfig-paths-bootstrap.js -r ./dist/src/monitoring/tracing.js ./dist/src/server.js",

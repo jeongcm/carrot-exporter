@@ -35,8 +35,8 @@ data:
   NC_LARI_LOG_FORMAT: combined
   NC_LARI_CORS_ORIGIN: "true"
   NC_LARI_CORS_CREDENTIALS: "true"
-  NC_LARI_EMAIL_PASSWORD_RESET_PAGE_URL: http://nexclipper-node:5001/reset
-  NC_LARI_EMAIL_VERIFICATION_PAGE_URL: http://nexclipper-node:5001/verify
+  NC_LARI_EMAIL_PASSWORD_RESET_PAGE_URL: http://nexclipper-api:5001/reset
+  NC_LARI_EMAIL_VERIFICATION_PAGE_URL: http://nexclipper-api:5001/verify
   NC_LARI_SYSTEM_NAME: SYSTEM
   NC_LARI_SYSTEM_CUSTOMERACCOUNT_NAME: NEXCLIPPER_INC
   NC_LARI_SYSTEM_CUSTOMERACCOUNT_DESCRIPTION: Internal_Account
@@ -48,7 +48,7 @@ data:
   NC_LARI_SYSTEM_PARTYUSER_PASSWORD: Password@123!
   NC_LARI_SYSTEM_PARTYUSER_EMAIL: system@nexclipper.io
   SUDORY_X_AUTH_TOKEN: "SUDORY"
-  SUDORY_BASE_URL: "http://146.190.1.148:8099"
+  SUDORY_BASE_URL: "http://nexclipper-sudory-server.sudory.svc.cluster.local:8099"
   SUDORY_PATH_CREATECLUSTER: "/server/cluster"
   SUDORY_PATH_CREATETOKEN: "/server/cluster_token"
   SUDORY_PATH_SESSION: "/server/session"
@@ -60,7 +60,6 @@ data:
   SUDORY_SERVICE_RESULT_DELETE: "1"
   NC_CRON_URL: "http://nexclipper-cron.nc.svc.cluster.local:5001"
   NC_CRON_X_AUTH_TOKEN: "CRON"
-  NC_LARI_MONGO_URL: "mongodb://nc_api:nc_api@ncmongodb.mongodb.svc.cluster.local:27017/nc_api"
   NC_LARI_VM_ADDRESS: "http://vm-victoria-metrics-single-server.vm.svc.cluster.local:8428"
   NC_LARI_VM_API: "/api/v1/import?extra_label=clusterUuid="
   NC_LARI_DO_BUCKET: "nc-api-prd-storage"
