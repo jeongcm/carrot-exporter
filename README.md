@@ -1,4 +1,4 @@
-# nexclipper-node
+# nexclipper-api
 
 Nexclipper back-end
 
