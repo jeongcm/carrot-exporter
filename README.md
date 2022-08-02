@@ -9,13 +9,13 @@ Nexclipper back-end
 ### Clone the repo.
 
 ```bash
-git clone https://github.com/NexClipper/nexclipper-node.git
+git clone https://github.com/NexClipper/nexclipper-api.git
 ```
 
 ### Goto the cloned project folder.
 
 ```shell
-cd nexclipper-node
+cd nexclipper-api
 ```
 
 <br /><br />
