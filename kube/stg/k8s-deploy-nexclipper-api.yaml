@@ -66,6 +66,14 @@ data:
   NC_LARI_DO_DEFAULT_REGION: "sgp1"
   NC_LARI_DO_ENDPOINT: "sgp1.digitaloceanspaces.com"
   NODE_OPTIONS: "--max-old-space-size=8192"
+  NC_ALERTHUB_URL: "http://nexclipper-notification.nc.svc.cluster.local:3039"
+  NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
+  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "webhook_test"
+  NC_LARI_RESOURCE_CRON: "*/10 * * * *"
+  NC_BN_URL: "http://nexclipper-bn.nc.svc.cluster.local:3000"
+  NC_BN_NODE_BASE: "/predict_incident/"
+  NC_BN_NODE_THRESHOLD: "80"
+
 
 ---
 apiVersion: apps/v1

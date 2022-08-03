@@ -152,5 +152,6 @@ export default {
   ncBnApiDetail: {
     ncBnUrl: process.env.NC_BN_URL,
     ncBnNodePath: process.env.NC_BN_NODE_PATH,
+    ncBnNodeThreshold: process.env.NC_BN_NODE_THRESHOLD,
   }
 };

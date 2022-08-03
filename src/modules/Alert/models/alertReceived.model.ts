@@ -193,6 +193,28 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
       },
     },
     {
+      indexes: [
+        {
+          unique: false,
+          fields: ['alertReceivedHash'],
+        },
+        {
+          unique: false,
+          fields: ['createdAt'],
+        },
+        {
+          unique: false,
+          fields: ['deletedAt'],
+        },
+        {
+          unique: false,
+          fields: ['alertReceivedUiFlag'],
+        },
+        {
+          unique: false,
+          fields: ['alertReceivedActiveAt'],
+        },
+      ],
       tableName: 'AlertReceived',
       modelName: 'AlertReceived',
       sequelize,

@@ -74,6 +74,7 @@ data:
   NC_LARI_RESOURCE_CRON: "*/10 * * * *"
   NC_BN_URL: "http://nexclipper-bn.nc.svc.cluster.local:3000"
   NC_BN_NODE_BASE: "/predict_incident/"
+  NC_BN_NODE_THRESHOLD: "80"
 ---
 apiVersion: apps/v1
 kind: Deployment

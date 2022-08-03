@@ -49,9 +49,6 @@ class EvaluateServices {
         var returnResponse = {};
         var bnData = {};
 
-        const version = require('project-version');
-        console.log ("version: ", version); 
-
         // 1. Confirm resource as AnomalyTarget
         const resultMonitoringTarget = await this.monitoringTargetService.findMonitoringTargetsByResourceKeys(resourceKey);
         if (!resultMonitoringTarget) throw new HttpException(400, `Can't find anomaly target - ${resourceKey}`)
@@ -107,7 +104,8 @@ class EvaluateServices {
         };
 
         let revBayesianModel2 = { ...revBayesianModel, ruleGroupAlertRule}; 
-        
+        console.log (revBayesianModel2);
+
         // 3. Find firing alerts received
         let firedAlerts = [];
         let inputAlerts = {};
@@ -123,6 +121,13 @@ class EvaluateServices {
                 if (resultAlertReceived.length===0) {
                     firedAlerts = [];
                     console.log ("no firing alert");   
+                    returnResponse = {
+                        evaluationId: "",
+                        evaluationResultStatus: "NF",
+                        resourceName: resourceName,
+                        resourceId: resourceId,
+                    };
+                    return returnResponse;
                 }
                 else {
                     for(let i=0; i< resultAlertReceived.length; i++){
@@ -137,20 +142,25 @@ class EvaluateServices {
                         severity = severity.replace(/^./, severity[0].toUpperCase()); 
                         let duration = resultAlertRule.alertRuleDuration;
                         let alertName2 = alertName + severity + "_" + duration;
-                        //let alertName2 = alertName;
-
-                        //inputAlerts[i] = {[alertName2]: 1}
                         inputAlerts[alertName2] = 1;
                     }
                 }
             break;
             case "SV":
                 firedAlerts = []; 
+                console.log ("no firing alert");   
+                returnResponse = {
+                    evaluationId: "",
+                    evaluationResultStatus: "NF",
+                    resourceName: resourceName,
+                    resourceId: resourceId,
+                };
+                return returnResponse;
             break;
         }
-        
-        returnResponse = {...revBayesianModel2,firedAlerts, inputAlerts};
 
+        returnResponse = {...revBayesianModel2,firedAlerts, inputAlerts};
+ 
         // 4. Save the request map to the db
         const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('Evaluation');
         const evaluationId: string = responseTableIdData.tableIdFinalIssued;
@@ -164,14 +174,14 @@ class EvaluateServices {
         }
 
         const resultEvaluationRequest: IEvaluation = await this.evaluation.create(createEvaluation);
-    
+        console.log ("created evaluation request: ", resultEvaluationRequest.evaluationId);
+
         // 5. Call NexClipper BN
         bnData = {
             evaluationId: evaluationId,
             bayesianModelId: bayesianModelId,
             inputAlerts: inputAlerts,
         }
-        console.log (bnData); 
 
         var url = "";
         var evaluationResult;
@@ -183,14 +193,15 @@ class EvaluateServices {
             {
               method: 'post',
               url: url,
+              data: bnData,
 //              headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
             }).then(async (res: any) => {
-              const statusCode = res.data.status;
-              if (statusCode !=4) {
+              const statusCode = res.status;
+              if (statusCode !=200) {
                   console.log("result is not ready");
-                  return;
+                  return res;
               }    
-              evaluationResult = JSON.parse(res.data);
+              evaluationResult = res.data;
               console.log(`got evaluation result -- ${evaluationResult}`);
       
             }).catch(error => {
@@ -206,19 +217,27 @@ class EvaluateServices {
                     where: { evaluationId: evaluationId },
                 }
               const resultEvaluationResult = this.evaluation.update(updateError, updateErrorWhere);
-            
               throw new HttpException(500, `Unknown error to fetch the result of evaluation: ${evaluationId}`);
             });
+
+        const predictedScore = evaluationResult.predicted_score;
+        var evaluationResultStatus = "";
+        if (predictedScore >= config.ncBnApiDetail.ncBnNodeThreshold){
+            evaluationResultStatus="AN" 
+        }
+        else {
+            evaluationResultStatus="OK"     
+        };
 
         const updateData = {
             evaluationResult: evaluationResult,
             //hardcoded for testing. need to read evalatuon result once Shawn's API is ready
-            evaluationResultStatus: "AN",
+            evaluationResultStatus: evaluationResultStatus,
             evaluationStaus: "SC",
             evaluated_at: new Date(),
             updated_at: new Date(),
             updated_by: "SYSTEM"
-        }
+        };
         
         const updateWhere = {
             where: { evaluationId: evaluationId },
@@ -229,6 +248,12 @@ class EvaluateServices {
         console.log (resultEvaluationResult); 
         const resultEvaluation: IEvaluation = await this.evaluation.findOne({where: {evaluationId}}); 
 
+        returnResponse = {
+            evaluationId: evaluationId,
+            resourceName: resourceName,
+            resourceId: resourceId,
+            evaluationResultStatus: evaluationResultStatus,
+        };
         // 7. Return the evaluation result back to caller
     
         return resultEvaluation;
@@ -248,10 +273,11 @@ class EvaluateServices {
         //3. call evaluateMonitorintTarget
 
         let resultReturn = {};
+        let resultEvaluation = {};
         for (let i=0; i<resultMonitoringTarget.length; i++)
         {
             let resourceKey = resultMonitoringTarget[i].resourceKey;
-            let resultEvaluation: IEvaluation = await this.evaluateMonitoringTarget(resourceKey);
+            let resultEvaluation = await this.evaluateMonitoringTarget(resourceKey);
             let evaluationResultStatus = resultEvaluation.evaluationResultStatus; 
             if (evaluationResultStatus==="AN")
                 {
@@ -271,19 +297,26 @@ class EvaluateServices {
                     console.log (`firedAlerts: ${firedAlerts}`);
         //5. attach the alerts (from the result) to the incident tickets
                     let resultIncidentAlertAttach = await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, firedAlerts, "SYSTEM"); 
-
+                    console.log ("incident ticket is created: ", incidentId, "Alert Attached - ", firedAlerts );
         //6. execute any resolution actions if there are actions under rule group more than a threshhold
 
         //7. save the actions to incident actions
 
-
         //8. create a message for return
-        resultReturn = {
-            evaluationId: resultEvaluation.evaluationId,
-            evaluationResultStatus: resultEvaluation.evaluationResultStatus,
-            incidentId: incidentId
-        };
+                    resultEvaluation = {
+                        evaluationId: resultEvaluation.evaluationId,
+                        evaluationResultStatus: resultEvaluation.evaluationResultStatus,
+                        incidentId: incidentId
+                    };
                 }
+            else {
+                resultEvaluation = {
+                    evaluationId: resultEvaluation.evaluationId,
+                    evaluationResultStatus: resultEvaluation.evaluationResultStatus,
+                    incidentId: ""
+                };
+            };
+        resultReturn = {...resultReturn, resultEvaluation};    
         }    
      return resultReturn;   
     }
