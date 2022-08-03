@@ -1,4 +1,5 @@
 require('dotenv/config');
+import config from '@config/index';
 
 const process = require('process');
 
@@ -28,7 +29,7 @@ const sdk = new opentelemetry.NodeSDK({
 });
 */
 
-if (process.env.NC_TURN_OFF_TELEMETRY != 'true') {
+if (config.oT.oTTraceLogTurnOff != 'true') {
   const { BasicTracerProvider, ConsoleSpanExporter, SimpleSpanProcessor } = require('@opentelemetry/tracing');
 
   const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
