@@ -100,7 +100,7 @@ spec:
         vault.hashicorp.com/agent-inject-template-nc-mailgun: |
           {{- with secret "kv/common/mailgun" -}}
           NC_LARI_MAILGUN_API_KEY={{ .Data.data.apiKey }}
-          {{- end -}}
+          {{- end -}}  
       labels:
         app: ${APP_IMAGE_NAME}
     spec:
