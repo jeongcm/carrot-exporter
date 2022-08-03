@@ -121,6 +121,7 @@ spec:
               secretKeyRef:
                 name: nc-mailgun-apikey
                 key: apiKey      
+
         ports:
         - containerPort: 5001
 ---
