@@ -24,7 +24,7 @@ data:
   NC_LARI_DB_CONFIG_POOL_MAX: "5"
   NC_LARI_EMAIL_DEFAULT_FROM: info@nexclipper.io
   NC_LARI_MAILGUN_API_KEY: ""
-  NC_LARI_MAILGUN_DOMAIN: ""
+  NC_LARI_MAILGUN_DOMAIN: "mg.nexclipper.io"
   NC_LARI_SOCIALKEY_GOOGLE_CLIENT_ID: "1234"
   NC_LARI_SOCIALKEY_GOOGLE_CLIENT_SECRET: "1234"
   NC_LARI_SOCIALKEY_GOOGLE_CALLBACK_URL: ""
@@ -123,6 +123,12 @@ spec:
               secretKeyRef:
                 name: nc-do-keys
                 key: do-secret-key
+          - name: NC_LARI_MAILGUN_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: nc-mailgun-apikey
+                key: apiKey      
+      
         ports:
         - containerPort: 5001
 ---
