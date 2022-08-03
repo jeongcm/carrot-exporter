@@ -14,6 +14,7 @@ COPY ./tsconfig-paths-bootstrap.js ${WORKDIR}
 
 COPY docker-entrypoint.sh ${WORKDIR}
 
+
 RUN chmod +x  ${WORKDIR}docker-entrypoint.sh
 RUN npm ci
 
