@@ -49,6 +49,9 @@ class EvaluateServices {
         var returnResponse = {};
         var bnData = {};
 
+        const version = require('project-version');
+        console.log ("version: ", version); 
+
         // 1. Confirm resource as AnomalyTarget
         const resultMonitoringTarget = await this.monitoringTargetService.findMonitoringTargetsByResourceKeys(resourceKey);
         if (!resultMonitoringTarget) throw new HttpException(400, `Can't find anomaly target - ${resourceKey}`)

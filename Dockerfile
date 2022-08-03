@@ -19,8 +19,7 @@ RUN chmod +x  ${WORKDIR}docker-entrypoint.sh
 RUN npm ci
 
 RUN apk update && apk add jq
-RUN jq .version ${WORKDIR}/package.json -r > /root/version.txt
-RUN export version=$(cat /root/version.txt)
+RUN jq .version ${WORKDIR}/package.json -r > ${WORKDIR}/version.txt
 
 COPY . ${WORKDIR}
 
