@@ -153,5 +153,8 @@ export default {
     ncBnUrl: process.env.NC_BN_URL,
     ncBnNodePath: process.env.NC_BN_NODE_PATH,
     ncBnNodeThreshold: process.env.NC_BN_NODE_THRESHOLD,
+  },
+  oT: {
+    oTTraceLogTurnOff: process.env.NC_TURN_OFF_TELEMETRY,
   }
 };
