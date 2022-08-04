@@ -14,7 +14,8 @@ import errorMiddleware from '@common/middlewares/error.middleware';
 import { logger, stream } from '@common/utils/logger';
 import { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
-
+import Passport from './modules/SocialLogin/providers/passport';
+import passport from 'passport';
 class App {
 
   public port: number;
@@ -68,9 +69,12 @@ class App {
         secret: 'secrettexthere',
         saveUninitialized: false,
         resave: false,
+        cookie: { secure: true }
       }),
     );
-    // this.app = Passport.mountPackage(this.app);
+    this.app.use(passport.initialize())
+    this.app.use(passport.session())
+    this.app = Passport.mountPackage(this.app);
   }
 
   private initializeRoutes(routes: Routes[]) {

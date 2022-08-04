@@ -122,28 +122,29 @@ class PartyService {
             parentPartyId: createPartyUserData?.parentPartyId,
             partyType: 'US',
             customerAccountKey,
-            createdBy: systemId,
+            createdBy: systemId || 'SYSTEM',
           },
           { transaction: t },
         );
-
+        logger.info(`createPartyUserData===============${JSON.stringify(createPartyUserData)}`)
         const createdPartyUser: IPartyUser = await this.partyUser.create(
           {
             partyUserId: responseTableIdData.tableIdFinalIssued,
             partyKey: createdParty.partyKey,
-            createdBy: systemId,
+            createdBy: systemId || "SYSTEM",
             firstName: createPartyUserData.firstName,
             lastName: createPartyUserData.lastName,
             userId: createPartyUserData.userId,
             mobile: createPartyUserData?.mobile,
             password: hashedPassword,
             email: createPartyUserData.email,
+            socialProviderId:createPartyUserData?.socialProviderId,
             isEmailValidated: false,
             partyUserStatus: createPartyUserData.partyUserStatus,
           },
           { transaction: t },
         );
-
+        logger.info(`createdPartyUser===============${JSON.stringify(createdPartyUser)}`)
         return {
           partyId: responseTableIdData.tableIdFinalIssued,
           partyName: createPartyUserData.partyName,

@@ -66,6 +66,7 @@ export interface IPartyUser {
   token: string;
   lastAccessAt: Date;
   partyUserStatus: string;
+  socialProviderId: string;
 }
 
 export interface IPartyResource {

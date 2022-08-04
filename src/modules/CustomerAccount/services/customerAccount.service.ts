@@ -13,6 +13,7 @@ import { AddressModel } from '@/modules/Address/models/address.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IParty } from '@/common/interfaces/party.interface';
+import { logger } from '@/common/utils/logger';
 
 /**
  * @memberof CustomerAccount
@@ -29,15 +30,15 @@ class CustomerAccountService {
 
     try {
       const tableIdTableName = 'CustomerAccount';
-
+      logger.info(`customerAccountData===============${JSON.stringify(customerAccountData)}====${systemId}`)
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
       const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create({
         ...customerAccountData,
         customerAccountId: responseTableIdData.tableIdFinalIssued,
-        createdBy: systemId,
+        createdBy: systemId || 'SYSTEM',
       });
-
+      logger.info(`createdCustomerAccount===============${createdCustomerAccount}, ${systemId}`)
       return createdCustomerAccount;
     } catch (error) {
       console.log('error', error);

@@ -31,6 +31,10 @@ export class CreateUserDto {
 
   @IsString()
   @IsOptional()
+  public socialProviderId: string;
+
+  @IsString()
+  @IsOptional()
   public password: string;
 
   @IsEmail()
