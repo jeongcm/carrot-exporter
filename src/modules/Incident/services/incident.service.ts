@@ -236,16 +236,16 @@ class IncidentService {
    */
   public async getIncidentCounts(customerAccountKey: number): Promise<IIncidentCounts> {
     const openAmount = await this.incident.count({
-      where: { deletedAt: null, incidentStatus: 'OP', customerAccountKey },
+      where: { deletedAt: null, incidentStatus: '0O', customerAccountKey },
     });
     const inprogressAmount = await this.incident.count({
-      where: { deletedAt: null, incidentStatus: 'IP', customerAccountKey },
+      where: { deletedAt: null, incidentStatus: '1I', customerAccountKey },
     });
     const resolvedAmount = await this.incident.count({
-      where: { deletedAt: null, incidentStatus: 'RS', customerAccountKey },
+      where: { deletedAt: null, incidentStatus: '2R', customerAccountKey },
     });
     const closedAmount = await this.incident.count({
-      where: { deletedAt: null, incidentStatus: 'CL', customerAccountKey },
+      where: { deletedAt: null, incidentStatus: '3C', customerAccountKey },
     });
 
     const incidentCounts: IIncidentCounts = {
