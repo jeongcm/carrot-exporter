@@ -39,10 +39,13 @@ class ResourceService {
     }
 
     try {
+      //const tableIdTableName = 'Resource';
+      //const responseTableIdData: IResponseIssueTableIdDto = await this.TableIdService.issueTableId(tableIdTableName);
       const uuid = require('uuid');
       const apiId = uuid.v1();
 
       const createResource: IResource = await this.resource.create({
+        //resourceId: responseTableIdData.tableIdFinalIssued,
         resourceId: apiId,
         createdBy: currentUserId,
         customerAccountKey: customerAccountKey,
@@ -85,12 +88,6 @@ class ResourceService {
     const allResource: IResource[] = await this.resource.findAll({
       where: { deletedAt: null, customerAccountKey, resourceRbac: true },
       attributes: { exclude: ['deletedAt'] },
-      include: [
-        {
-          model: this.resourceGroup,
-          attributes: ['resourceGroupId', 'resourceGroupName'],
-        },
-      ],
     });
 
     return allResource;

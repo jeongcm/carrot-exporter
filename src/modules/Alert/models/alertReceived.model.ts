@@ -193,6 +193,30 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
       },
     },
     {
+      /* issue on setting up index
+      indexes: [
+        {
+          unique: false,
+          fields: ['alert_received_hash'],
+        },
+        {
+          unique: false,
+          fields: ['created_at'],
+        },
+        {
+          unique: false,
+          fields: ['deleted_at'],
+        },
+        {
+          unique: false,
+          fields: ['alert_received_ui_flag'],
+        },
+        {
+          unique: false,
+          fields: ['alert_received_active_at'],
+        },
+      ],
+      */
       tableName: 'AlertReceived',
       modelName: 'AlertReceived',
       sequelize,

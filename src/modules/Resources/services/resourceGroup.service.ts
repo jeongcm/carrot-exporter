@@ -349,7 +349,7 @@ class ResourceGroupService {
        namespace: 'sudoryclient',
       }
     }];
-    const sudoryChannel = config.sudoryApiDetail.channel_wehbook; 
+    const sudoryChannel = config.sudoryApiDetail.channel_webhook; 
     const resultUninstallSudoryClient = await this.sudoryService.postSudoryService(name, summary, resourceGroupUuid, templateUuid, steps, customerAccountKey, sudoryChannel); 
     console.log ("sudory");
     console.log (resultUninstallSudoryClient);

@@ -21,12 +21,10 @@ class AccessGroupService {
   public party = DB.Party;
   public partyUser = DB.PartyUser;
   public partyRelation = DB.PartyRelation;
-  public partyChannel = DB.PartyChannel;
   public resource = DB.Resource;
   public partyResource = DB.PartyResource;
   public partyUserLogs = DB.PartyUserLogs;
   private resourceGroup = DB.ResourceGroup;
-  private channel = DB.Channel;
   public api = DB.Api;
 
   public tableIdService = new tableIdService();
@@ -306,7 +304,7 @@ class AccessGroupService {
     for (const resource of resourceAll) {
       const { resourceKey } = resource;
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyResource');
-      console.log(responseTableIdData.tableIdFinalIssued);
+
       insertDataList.push({
         partyResourceId: responseTableIdData.tableIdFinalIssued,
         partyKey: party.partyKey,
@@ -329,12 +327,6 @@ class AccessGroupService {
       include: {
         model: ResourceModel,
         attributes: { exclude: ['resourceKey', 'customerAccountKey', 'resourceGroupKey'] },
-        include: [
-          {
-            model: this.resourceGroup,
-            attributes: ['resourceGroupId', 'resourceGroupName'],
-          },
-        ],
       },
     });
 
