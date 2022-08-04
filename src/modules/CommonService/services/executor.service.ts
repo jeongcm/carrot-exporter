@@ -1446,6 +1446,9 @@ class executorService {
             serviceResult = JSON.parse(DataSetFromSudory.result);
         }
 
+        console.log ("##sudorywebhook##"); 
+        console.log (serviceResult); 
+
         const insertData = {
             sudoryWebhookId: sudoryWebhookId,
             createdAt: new Date(),
@@ -1459,7 +1462,7 @@ class executorService {
             statusDescription: DataSetFromSudory.status_description,
             stepCount: DataSetFromSudory.step_count,
             stepPosition: DataSetFromSudory.step_position,
-            assignedClientUuid: DataSetFromSudory.assgined_client_uuid,
+            //assignedClientUuid: DataSetFromSudory.assgined_client_uuid,
             templateUuid: DataSetFromSudory.template_uuid,
         }
         console.log (insertData); 
