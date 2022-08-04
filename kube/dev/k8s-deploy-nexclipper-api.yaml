@@ -70,7 +70,7 @@ data:
   NODE_OPTIONS: "--max-old-space-size=8192"
   NC_ALERTHUB_URL: "http://nexclipper-notification.nc.svc.cluster.local:3039"
   NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
-  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "webhook_test"
+  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "3f59a2ca86a44b3985ce58838fcd353d"
   NC_LARI_RESOURCE_CRON: "*/10 * * * *"
   NC_BN_URL: "http://nexclipper-bn.nc.svc.cluster.local:3000"
   NC_BN_NODE_BASE: "/predict_incident/"

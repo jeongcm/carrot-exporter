@@ -1504,7 +1504,7 @@ class executorService {
         let startString = start.toISOString();
         let endString = new Date().toISOString();
         let query = stepQuery; 
-        let sudoryChannel = config.sudoryApiDetail.channel_wehbook; 
+        let sudoryChannel = config.sudoryApiDetail.channel_webhook; 
 
         const ResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupUuid: clusterUuid}}); 
         let url = ResourceGroup.resourceGroupPrometheus; 
