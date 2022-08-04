@@ -1,8 +1,8 @@
 {
-  "name": "nexclipper-node",
-  "version": "0.0.1",
+  "name": "nexclipper-api",
+  "version": "0.9.1",
   "description": "TypeScript + Sequelize + MySQL + Express API Server",
-  "author": "",
+  "author": "NexClipper Inc.",
   "license": "ISC",
   "scripts": {
     "start": "cross-env NODE_ENV=production node -r ./tsconfig-paths-bootstrap.js -r ./dist/src/monitoring/tracing.js ./dist/src/server.js",
@@ -64,7 +64,9 @@
     "passport-github": "^1.1.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth": "^2.0.0",
+    "password-validator": "^5.3.0",
     "pm2": "^5.2.0",
+    "project-version": "^2.0.0",
     "pug": "3.0.2",
     "sequelize": "^6.19.0",
     "sql-injection": "^0.0.7",

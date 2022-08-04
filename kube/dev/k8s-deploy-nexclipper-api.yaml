@@ -1,4 +1,14 @@
 apiVersion: v1
+kind: Namespace
+metadata:
+  name:  nc
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name:  ${APP_IMAGE_NAME}
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ${APP_IMAGE_NAME}-configmap
@@ -15,8 +25,7 @@ data:
   NC_LARI_DB_CONFIG_POOL_MIN: "1"
   NC_LARI_DB_CONFIG_POOL_MAX: "5"
   NC_LARI_EMAIL_DEFAULT_FROM: info@nexclipper.io
-  NC_LARI_MAILGUN_API_KEY: ""
-  NC_LARI_MAILGUN_DOMAIN: ""
+  NC_LARI_MAILGUN_DOMAIN: mg.nexclipper.io
   NC_LARI_SOCIALKEY_GOOGLE_CLIENT_ID: "1234"
   NC_LARI_SOCIALKEY_GOOGLE_CLIENT_SECRET: "1234"
   NC_LARI_SOCIALKEY_GOOGLE_CALLBACK_URL: ""
@@ -27,8 +36,8 @@ data:
   NC_LARI_LOG_FORMAT: combined
   NC_LARI_CORS_ORIGIN: "true"
   NC_LARI_CORS_CREDENTIALS: "true"
-  NC_LARI_EMAIL_PASSWORD_RESET_PAGE_URL: http://nexclipper-node:5001/reset
-  NC_LARI_EMAIL_VERIFICATION_PAGE_URL: http://nexclipper-node:5001/verify
+  NC_LARI_EMAIL_PASSWORD_RESET_PAGE_URL: http://nexclipper-api:5001/reset
+  NC_LARI_EMAIL_VERIFICATION_PAGE_URL: http://nexclipper-api:5001/verify
   NC_LARI_SYSTEM_NAME: SYSTEM
   NC_LARI_SYSTEM_CUSTOMERACCOUNT_NAME: NEXCLIPPER_INC
   NC_LARI_SYSTEM_CUSTOMERACCOUNT_DESCRIPTION: Internal_Account
@@ -39,7 +48,6 @@ data:
   NC_LARI_SYSTEM_PARTYUSER_USERID: system@nexclipper.io
   NC_LARI_SYSTEM_PARTYUSER_PASSWORD: Password@123!
   NC_LARI_SYSTEM_PARTYUSER_EMAIL: system@nexclipper.io
-  NC_LARI_HELM_REPO_URL: https://repo.nexclipper.io/chartrepo/nexclipper-dev
   SUDORY_X_AUTH_TOKEN: "SUDORY"
   SUDORY_BASE_URL: "http://146.190.1.148:8099"
   SUDORY_PATH_CREATECLUSTER: "/server/cluster"
@@ -62,8 +70,12 @@ data:
   NODE_OPTIONS: "--max-old-space-size=8192"
   NC_ALERTHUB_URL: "http://nexclipper-notification.nc.svc.cluster.local:3039"
   NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
-  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "webhook_test"
+  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "3f59a2ca86a44b3985ce58838fcd353d"
   NC_LARI_RESOURCE_CRON: "*/10 * * * *"
+  NC_BN_URL: "http://nexclipper-bn.nc.svc.cluster.local:3000"
+  NC_BN_NODE_BASE: "/predict_incident/"
+  NC_BN_NODE_THRESHOLD: "80"
+  NC_TURN_OFF_TELEMETRY: "false"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -106,6 +118,12 @@ spec:
               secretKeyRef:
                 name: nc-do-keys
                 key: do-secret-key
+          - name: NC_LARI_MAILGUN_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: nc-mailgun-apikey
+                key: apiKey      
+
         ports:
         - containerPort: 5001
 ---

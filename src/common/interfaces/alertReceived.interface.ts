@@ -11,7 +11,6 @@ export interface IAlertReceived {
   updatedAt: Date;
   deletedAt: Date;
   alertReceivedUiFlag: number;
-  alertReceivedHash: string;
   alertReceivedName: string;
   alertReceivedValue: string;
   alertReceivedState: string;
@@ -30,6 +29,7 @@ export interface IAlertReceived {
   alertReceivedEndpoint: string;
   alertReceivedReason: string;
   alertReceivedUid: string;
+  alertReceivedHash: string;
 }
 
 export interface IAlertReceivedDetailed extends IAlertReceived {

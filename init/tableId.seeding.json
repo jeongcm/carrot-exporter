@@ -468,6 +468,26 @@
     "tableIdSequenceDigit": 8,
     "tableIdIssuedSequence": 1,
     "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "Tokens",
+    "tableIdHeader": "TK",
+    "tableMonth": 4,
+    "tableYear": 5,
+    "tableDay": 3,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
+  },
+  {
+    "tableIdTableName": "Evaluation",
+    "tableIdHeader": "EV",
+    "tableMonth": 4,
+    "tableYear": 5,
+    "tableDay": 3,
+    "tableIdSequenceDigit": 8,
+    "tableIdIssuedSequence": 1,
+    "createdBy": "SYSTEM"
   }
 
 ]

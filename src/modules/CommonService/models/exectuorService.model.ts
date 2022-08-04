@@ -99,7 +99,7 @@ export default function (sequelize: Sequelize): typeof ExecutorServiceModel {
       },
       statusDescription: {
         allowNull: true,
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(500),
       },
       steps: {
         allowNull: true,

@@ -1,6 +1,7 @@
 export interface IToken {
-  pk: number;
-  userPk: number;
+  tokenKey: number;
+  tokenId: string;
+  partyUserKey: number;
   token: string;
   maximumLimit: number;
   expiryTime: number;

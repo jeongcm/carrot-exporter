@@ -231,7 +231,7 @@ class ResourceService {
    * @param  {number} resourceGroupId
    * @param  {any} query
    */
-  public async getResourceByTypeResourceGroupId(resourceType: string[], resourceGroupId: string, query?: any): Promise<IResource[]> {
+   public async getResourceByTypeResourceGroupIdForMetricOps(resourceType: string[], resourceGroupId: string, query?: any): Promise<IResource[]> {
     const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
     let resourceKeys = [];
@@ -254,6 +254,29 @@ class ResourceService {
         resourceGroupKey: resourceGroupKey,
         [Op.and]: [...resourceQuery],
         resourceKey: { [Op.notIn]: resourceKeys },
+      },
+      include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
+    });
+
+    return allResources;
+  }
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} resourceGroupId
+   * @param  {any} query
+   */
+  public async getResourceByTypeResourceGroupId(resourceType: string[], resourceGroupId: string, query?: any): Promise<IResource[]> {
+    const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+    const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+    const resourceQuery = this.getResourceQuery(query);
+
+    const allResources: IResource[] = await this.resource.findAll({
+      where: {
+        deletedAt: null,
+        resourceType,
+        resourceGroupKey: resourceGroupKey,
+        [Op.and]: [...resourceQuery],
       },
       include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
     });

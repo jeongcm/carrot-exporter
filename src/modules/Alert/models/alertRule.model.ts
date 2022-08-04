@@ -124,7 +124,7 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
         allowNull: false,
       },
       alertRuleRunbook: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(500),
         allowNull: false,
       },
       alertRuleHealth: {
@@ -136,7 +136,7 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
         allowNull: true,
       },
       alertRuleLastEvaluation: {
-        type: DataTypes.DOUBLE,
+        type: DataTypes.DATE(),
         allowNull: true,
       },
       resourceGroupUuid: {
@@ -145,6 +145,7 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
       },
     },
     {
+
       tableName: 'AlertRule',
       modelName: 'AlertRule',
       sequelize,

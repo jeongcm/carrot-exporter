@@ -37,7 +37,7 @@ export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreat
   public resourceGroupAlertManager: string;
   public resourceGroupLoki: string;
   public resourceGroupGrafana: string;
-  public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR' | 'OR' | 'OT';
+  public resourceGroupProvider: string;
   public resourceGroupUuid: string;
   public updatedAt: Date;
 
@@ -100,12 +100,6 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
       },
       resourceGroupProvider: {
         type: DataTypes.STRING(2),
-        validate: {
-          isIn: {
-            args: [['AW', 'GC', 'DO', 'AZ', 'PR', 'OR', 'OT']],
-            msg: 'resourceGroupProvider must be of type AW, GC, DO, AZ, PR, OR or OT',
-          },
-        },
       },
       resourceGroupUuid: {
         allowNull: false,

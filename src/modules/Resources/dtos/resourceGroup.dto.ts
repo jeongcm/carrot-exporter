@@ -11,7 +11,7 @@ export class ResourceGroupDto {
 
   @IsString()
   @IsNotEmpty()
-  public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR' | 'OR' | 'OT';
+  public resourceGroupProvider: string;
 
   @IsString()
   @IsNotEmpty()
@@ -35,7 +35,7 @@ export class ResourceGroupExecutorDto {
 
   @IsString()
   @IsNotEmpty()
-  public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR' | 'OR' | 'OT';
+  public resourceGroupProvider: string;
 
   @IsString()
   @IsNotEmpty()

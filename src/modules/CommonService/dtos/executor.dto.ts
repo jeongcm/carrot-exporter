@@ -11,7 +11,7 @@ export class ExecutorDto {
   
     @IsString()
     @IsNotEmpty()
-    public resourceGroupProvider: 'AW' | 'GC' | 'DO' | 'AZ' | 'PR' | 'OR' | 'OT';
+    public resourceGroupProvider: string;
   
     @IsString()
     @IsNotEmpty()
@@ -102,7 +102,6 @@ export interface IExecutorClientCheck {
 
 export class SudoryWebhookDto {
 
-  @IsNotEmpty()
   public service_uuid: string;
   public result: string;
   public service_name: string;
@@ -111,7 +110,7 @@ export class SudoryWebhookDto {
   public step_count: number;
   public step_position: number;
   public template_uuid: string;
-  public assgined_client_uuid: string;
+  //public assgined_client_uuid: string;
   public result_type: string;
   public status_description: string;
 }
