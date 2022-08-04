@@ -65,6 +65,7 @@ class k8sService extends ServiceExtension {
 
   private processK8sDetailServices(detail: any, resource: IResource) {
     detail.totalServices += 1;
+
   }
 
   private processK8sDetailPv(detail: any, resource: IResource) {
@@ -135,7 +136,9 @@ class k8sService extends ServiceExtension {
           detail.conditions[type].value += 1;
         }
       });
+
     }
+
   }
 
 }
