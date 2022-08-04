@@ -25,6 +25,8 @@ class AccessGroupService {
   public partyResource = DB.PartyResource;
   public partyUserLogs = DB.PartyUserLogs;
   private resourceGroup = DB.ResourceGroup;
+  private partyChannel = DB.PartyChannel;
+  private channel = DB.Channel;
   public api = DB.Api;
 
   public tableIdService = new tableIdService();
