@@ -127,6 +127,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
       nsNodes[namespace].edges.push({
         id: edgeId,
         type: 'straight',
+        // animated: true,
         style: {
           stroke: `var(--experimental-blue)`,
           ...style,
