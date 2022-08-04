@@ -21,10 +21,12 @@ class AccessGroupService {
   public party = DB.Party;
   public partyUser = DB.PartyUser;
   public partyRelation = DB.PartyRelation;
+  public partyChannel = DB.PartyChannel;
   public resource = DB.Resource;
   public partyResource = DB.PartyResource;
   public partyUserLogs = DB.PartyUserLogs;
   private resourceGroup = DB.ResourceGroup;
+  private channel = DB.Channel;
   public api = DB.Api;
 
   public tableIdService = new tableIdService();
@@ -67,6 +69,56 @@ class AccessGroupService {
     const accessGroups: IParty[] = await this.party.findAll({
       where: { customerAccountKey, partyType: 'AG', deletedAt: null },
       attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey'] },
+      include: [
+        {
+          model: this.resource,
+          as: 'resource',
+          attributes: ['resourceName', 'resourceType', 'resourceId'],
+          where: {
+            deletedAt: null,
+          },
+          include: [
+            {
+              model: this.resourceGroup,
+              attributes: ['resourceGroupName', 'resourceGroupId'],
+            },
+          ],
+        },
+        {
+          model: this.partyRelation,
+          as: 'partyParent',
+          attributes: ['partyRelationType'],
+          where: {
+            deletedAt: null,
+          },
+          include: [
+            {
+              model: this.party,
+              as: 'partyChild',
+              attributes: ['partyName', 'partyId'],
+              where: {
+                deletedAt: null,
+              },
+            },
+          ],
+        },
+        {
+          model: this.partyChannel,
+          attributes: ['PartychannelId'],
+          where: {
+            deletedAt: null,
+          },
+          include: [
+            {
+              model: this.channel,
+              attributes: ['channelName', 'channelId', 'channelType'],
+              where: {
+                deletedAt: null,
+              },
+            },
+          ],
+        },
+      ],
     });
 
     return accessGroups;
@@ -251,7 +303,7 @@ class AccessGroupService {
     for (const resource of resourceAll) {
       const { resourceKey } = resource;
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('PartyResource');
-
+      console.log(responseTableIdData.tableIdFinalIssued);
       insertDataList.push({
         partyResourceId: responseTableIdData.tableIdFinalIssued,
         partyKey: party.partyKey,
@@ -274,6 +326,12 @@ class AccessGroupService {
       include: {
         model: ResourceModel,
         attributes: { exclude: ['resourceKey', 'customerAccountKey', 'resourceGroupKey'] },
+        include: [
+          {
+            model: this.resourceGroup,
+            attributes: ['resourceGroupId', 'resourceGroupName'],
+          },
+        ],
       },
     });
 
