@@ -122,7 +122,7 @@ export default {
     channel_metric: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC || 'nc_metric',
     channel_metric_received: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED || 'nc_metric_received',
     service_result_delete: process.env.SUDORY_SERVICE_RESULT_DELETE || '1',
-    channel_wehbook: process.env.SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK || 'webhook_test',
+    channel_webhook: process.env.SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK,
   },
   fileUpload: {
     DOBucket: `${process.env.NC_LARI_DO_BUCKET}`.replace('\n', ''),
