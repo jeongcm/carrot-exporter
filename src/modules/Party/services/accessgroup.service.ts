@@ -73,6 +73,7 @@ class AccessGroupService {
         {
           model: this.resource,
           as: 'resource',
+          required: false,
           attributes: ['resourceName', 'resourceType', 'resourceId'],
           where: {
             deletedAt: null,
@@ -87,6 +88,7 @@ class AccessGroupService {
         {
           model: this.partyRelation,
           as: 'partyParent',
+          required: false,
           attributes: ['partyRelationType'],
           where: {
             deletedAt: null,
@@ -105,6 +107,7 @@ class AccessGroupService {
         {
           model: this.partyChannel,
           attributes: ['PartychannelId'],
+          required: false,
           where: {
             deletedAt: null,
           },
