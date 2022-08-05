@@ -1,10 +1,13 @@
 import { Router } from 'express';
-import  passport from 'passport';
+import passport from 'passport';
+import config from '@config/index';
+import jwt from 'jsonwebtoken';
 import { Routes } from '@/common/interfaces/routes.interface';
 import { SocialLoginEnum } from '@/common/enums';
 import SocialLoginController from '../controllers/socialLogin.controller';
 import systemAuthMiddleware from '@/modules/ApiGateway/middlewares/systemAuth.middleware';
 import { logger } from '@/common/utils/logger';
+import { IDataStoredInToken } from '@/common/interfaces/party.interface';
 
 class SocialLoginRoutes implements Routes {
   public router = Router();
@@ -23,7 +26,7 @@ class SocialLoginRoutes implements Routes {
           user: req.user,
           //   cookies: req.cookies
         });
-      }else{
+      } else {
         res.status(200).json({
           success: true,
           message: "successfull",
@@ -39,30 +42,36 @@ class SocialLoginRoutes implements Routes {
         message: "failure",
       });
     });
-    
+
     this.router.get("/logout", (req, res) => {
       req.logout();
       res.redirect(this.CLIENT_URL);
     });
-    
+
     this.router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
-    
+
     this.router.get(
       "/auth/google/callback",
       passport.authenticate("google", {
         // successRedirect: this.CLIENT_URL,
         // failureRedirect: "/login/failed",
-      }), (req, res)=>{
+      }), (req, res) => {
         logger.info(`req-----------${JSON.stringify(req.user)}`);
         logger.info(`res-----------${(res)}`);
+        let user: {} = req.user || {};
+        var userString = JSON.stringify(req.user)
+        logger.info(`res-----------${(userString)}`);
+        userString = JSON.parse(userString);
+        const dataStoredInToken: IDataStoredInToken = { partyUserKey: userString.partyUserKey };
+        const secretKey: string = config.auth.jwtSecretKey;
+        const expiresIn: number = config.auth.authTokenExpirySecond ; // 60 * 60;
+
+        jwt.sign(dataStoredInToken, secretKey, { expiresIn }, (err, token) => {
+          logger.info(`token-----------${(token)}`);
+          res.redirect(`http://localhost:3000/login?user=${JSON.stringify(req.user)}&access_token=${token}`)
+          
+      });
         // res.redirect(this.CLIENT_URL)
-        res.status(200).json({
-          success: true,
-          message: "successfull",
-          user:req.user,
-          //   cookies: req.cookies
-        });
-        res.redirect("./login")
       }
     );
     // Google Auth: END
@@ -70,7 +79,7 @@ class SocialLoginRoutes implements Routes {
     // Github Auth: START
     this.router.get('/auth/github', systemAuthMiddleware, passport.authenticate('github', { scope: ['user:email'] }));
     this.router.get(
-      '/auth/github/callback',systemAuthMiddleware,
+      '/auth/github/callback', systemAuthMiddleware,
       passport.authenticate('github', { failureRedirect: '/login' }),
       SocialLoginController.loginSuccessCallback(SocialLoginEnum.GITHUB),
     );
