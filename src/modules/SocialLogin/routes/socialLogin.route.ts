@@ -15,7 +15,7 @@ class SocialLoginRoutes implements Routes {
 
   private initializeRoutes() {
     this.router.get("/auth/login/success", (req, res) => {
-      logger.info(`req.user=======================${req.user}`)
+      logger.info(`req.user=======================${JSON.stringify(req.user)}`)
       if (req.user) {
         res.status(200).json({
           success: true,
@@ -50,9 +50,18 @@ class SocialLoginRoutes implements Routes {
     this.router.get(
       "/auth/google/callback",
       passport.authenticate("google", {
-        successRedirect: this.CLIENT_URL,
+        // successRedirect: this.CLIENT_URL,
         failureRedirect: "/login/failed",
-      })
+      }), (req, res)=>{
+        logger.info(`req-----------${JSON.stringify(req.user)}`);
+        logger.info(`res-----------${JSON.stringify(res)}`);
+        res.status(200).json({
+          success: true,
+          message: "successfull",
+          user: JSON.stringify(res),
+          //   cookies: req.cookies
+        });
+      }
     );
     // Google Auth: END
 

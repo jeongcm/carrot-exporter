@@ -73,8 +73,6 @@ class App {
         maxAge: 24 * 60 * 60 * 100 
       }),
     );
-    this.app.use(passport.initialize())
-    this.app.use(passport.session())
     this.app = Passport.mountPackage(this.app);
   }
 

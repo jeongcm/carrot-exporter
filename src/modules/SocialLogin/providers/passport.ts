@@ -10,6 +10,7 @@
 //  //  import LocalStrategy from '../services/strategies/Local';
  import GoogleStrategy from '../services/google.service';
  import GithubStrategy from '../services/github.service';
+import { logger } from '@/common/utils/logger';
 //  //  import TwitterStrategy from '../services/strategies/Twitter';
  
 //  //  import User from '../models/User';
@@ -21,12 +22,15 @@
      _express = _express.use(passport.initialize());
      _express = _express.use(passport.session());
  
-     passport.serializeUser<any, any>((user, done) => {
+     passport.serializeUser<any, any>((user:any, done: any) => {
+       logger.info(`user in serialize`, user)
        done(null, user);
      });
  
-     passport.deserializeUser<any, any>((id, done) => {
-       const user = DB.PartyUser.findOne({ where: { partyUserId:id } });
+     passport.deserializeUser<any, any>((id:string, done: any) => {
+       logger.info(`id in deserialize`, id)
+       const user = DB.PartyUser.findOne({ where: { socialProviderId:id } });
+       logger.info(`user in deserialize`, user)
        done(null, user);
      });
  
