@@ -38,7 +38,6 @@ class AnomalyMonitoringTargetService {
         return monitoringTargetList;
     }
 
-
     /**
      * Create a new AnomalyMonitoringTarget
      *
@@ -51,11 +50,7 @@ class AnomalyMonitoringTargetService {
         systemId: string,
         customerAccountKey:number
     ): Promise<IAnomalyMonitoringTarget> {
-
-
         if (isEmpty(targetData)) throw new HttpException(400, 'AnomalyMonitoringTarget Data cannot be blank');
-
-
         const anomalyMonitoringTargetId =  await this.getTableId("AnomalyMonitoringTarget");
         const { anomalyMonitoringTargetDescription, anomalyMonitoringTargetName, anomalyMonitoringTargetStatus, bayesianModelId, resourceId } = targetData;
         const resourceDetail = await this.resource.findOne({where:{resourceId}});
@@ -95,6 +90,15 @@ class AnomalyMonitoringTargetService {
         return newresolutionAction;
     }
 
+    /**
+     * Create a new AnomalyMonitoringTarget
+     *
+     * @param  {updateMonitoringTargetDto} targetData
+     * @param  {anomalyMonitoringTargetId} string
+     * @param  {partyId} string
+     * @returns Promise<IAnomalyMonitoringTarget>
+     * @author Shrishti Raj
+     */
     public async updateMonitoringTarget(anomalyMonitoringTargetId:string, monitoringTargetData:UpdateMonitoringTargetDto, partyId:string):Promise<IAnomalyMonitoringTarget>{
         if (isEmpty(monitoringTargetData)) throw new HttpException(400, 'monitoringTarget can not be blank');
         const targetdata = await this.findMonitoringTargetById(anomalyMonitoringTargetId);
@@ -103,6 +107,39 @@ class AnomalyMonitoringTargetService {
         await this.AnomalyMonitoringTarget.update(updateObj, {where:{anomalyMonitoringTargetId}});
         return await this.findMonitoringTargetById(anomalyMonitoringTargetId)
     }
+
+    /**
+     * Remove a monitoring target
+     *
+     * @param  {anomalyMonitoringTargetId} string
+     * @param  {partyId} string
+     * @returns Promise<object>
+     * @author Jerry Lee
+     */
+     public async removeMonitoringTarget(anomalyMonitoringTargetId:string, partyId:string):Promise<object>{
+        let result = {};
+        if (isEmpty(anomalyMonitoringTargetId)) throw new HttpException(400, 'monitoringTargetId can not be blank');
+        
+        const resultAnomalyMonitoringTarget = await this.findMonitoringTargetById(anomalyMonitoringTargetId);
+        if (isEmpty(resultAnomalyMonitoringTarget)) throw new HttpException(400, 'targetdata not found');
+        
+        const updateAMT = {updatedBy:partyId, updatedAt:new Date(), deletedAt: new Date(), anomalyMonitoringTargetStatus: "CA"};
+        const updatetAnomalyMonitoringTaret = await this.AnomalyMonitoringTarget.update(updateAMT, {where:{anomalyMonitoringTargetId}});
+        let subscribedProductKey = resultAnomalyMonitoringTarget.subscribedProductKey; 
+
+        const updateSP = {updatedBy:partyId, updatedAt:new Date(), deletedAt: new Date(), subscribedProductTo: new Date()}
+        const updateSubscribedProduct = await this.subscribedProduct.update(updateSP, {where:{subscribedProductKey}}); 
+
+        result = {
+                    anomalyMonitoringTargetId: anomalyMonitoringTargetId,
+                    resourceKey:  resultAnomalyMonitoringTarget.resourceKey,
+                    anomalyMonitoringTargetStatus: "CA",
+                    subscribedProductKey: subscribedProductKey, 
+                    subscribedProductTo: Date(),
+        }
+        return result; 
+    }    
+
 
     /**
      * find AnomalyMonitoringTarget by Id

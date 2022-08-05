@@ -210,6 +210,7 @@ class EvaluateServices {
                 evaluationResult: "",
                 resourceName: resourceName,
                 resourceId: resourceId,
+                bayesianModelId: bayesianModelId
             };
             console.log ("total elaps: ", (elaps1+elaps2+elaps3+elaps4+elaps5+elaps6));
             return returnResponse;
@@ -298,6 +299,7 @@ class EvaluateServices {
             evaluationResultStatus: evaluationResultStatus,
             evaluationRequest:  resultEvaluation.evaluationRequest,
             evaluationResult: evaluationResult,
+            bayesianModelId: bayesianModelId,
         };
         // 7. Return the evaluation result back to caller
 
@@ -359,7 +361,8 @@ class EvaluateServices {
                         evaluationResult: resultEvaluation.evaluationResult,
                         resourceId: resultEvaluation.resourceId,
                         resourceName: resultEvaluation.resourceName,
-                        incidentId: incidentId
+                        incidentId: incidentId, 
+                        bayesianModelId: resultEvaluation.bayesianModelId
                     };
                 }
             else {
@@ -370,6 +373,7 @@ class EvaluateServices {
                     resourceName: resultEvaluation.resourceName,
                     incidentId: "",
                     evaluationResult: resultEvaluation.evaluationResult,
+                    bayesianModelId: resultEvaluation.bayesianModelId
                 };
             };
             resultReturn[i] = resultEvaluation;

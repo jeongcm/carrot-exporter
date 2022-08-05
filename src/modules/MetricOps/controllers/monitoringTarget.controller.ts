@@ -82,6 +82,22 @@ class AnomalyMonitoringTargetController {
       next(error);
     }
   };
+
+  public removeMonitoringTargetById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {
+        user: { partyId },
+        params: { anomalyMonitoringTargetId }
+      } = req;
+      const monitoringTargetData = await this.anomalyMonitoringTargetService.removeMonitoringTarget(
+        anomalyMonitoringTargetId,
+        partyId
+      );
+      res.status(200).json({ data: monitoringTargetData, message: 'Remove target successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AnomalyMonitoringTargetController;
