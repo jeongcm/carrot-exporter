@@ -7,6 +7,8 @@ import { isEmpty } from '@/common/utils/util';
 import { HttpException } from '@/common/exceptions/HttpException';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import AnomalyMonitoringTargetService from '@/modules/MetricOps/services/monitoringTarget.service'; 
+import ModelRuleScoreService from '@/modules/MetricOps/services/modelRuleScore.service'; 
+import RuleGroupService from '@/modules/MetricOps/services/ruleGroup.service'; 
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { BayesianModelTable } from '../models/bayesianModel.model';
@@ -15,14 +17,22 @@ import { RuleGroupAlertRuleModel } from '../models/ruleGroupAlertRule.model';
 import { RuleGroupModel } from '../models/ruleGroup.model';
 import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
 import { logger } from '@/common/utils/logger';
+import sequelize, { Sequelize } from 'sequelize';
 
 
 class BayesianModelServices {
   public bayesianModel = DB.BayesianModel;
+  public modelRuleScore = DB.ModelRuleScore;
+  public subscribedProduct = DB.SubscribedProduct;
+  public monitoringTarget = DB.AnomalyMonitoringTarget;
   public resourceGroup = DB.ResourceGroup;
   public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
   public anomalyMonitoringTargetService = new AnomalyMonitoringTargetService();
+  public modelRuleScoreService = new ModelRuleScoreService(); 
+  public ruleGroupService = new RuleGroupService();
+
+
 
   /**
    * Find all BayesianModel List
@@ -282,46 +292,56 @@ class BayesianModelServices {
    */
      public async deleteBayesianModel(
       bayesianModelId: string,
-      systemId: string,
-    ): Promise<IBayesianDBModel> {
+      partyId: string,
+    ): Promise<object> {
+
+      //an entire function needs to be re-written using transaction.. 
+
       //1. validate the model existance
       const findBayesianModel: IBayesianDBModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
       if (!findBayesianModel) throw new HttpException(409, "BayesianModel doesn't exist");
       let bayesianModelKey = findBayesianModel.bayesianModelKey; 
 
-      //2. Remove anomaly monitoring target
+      //2. Remove anomaly monitoring targets
       const findTarget: IAnomalyMonitoringTarget[] = await this.anomalyMonitoringTargetService.findMonitoringTargetByModelKey(bayesianModelKey)
       if (!findTarget) throw new HttpException(409, "Monitoring target doesn't exist");
 
-
+      let removedTargetData = {}; 
       for (let i=0; i<findTarget.length; i++){
-        let targetKey = findTarget[i].anomalyMonitoringTargetKey;
-        const removeTarget = await this.anomalyMonitoringTargetService.
-
+        let targetId = findTarget[i].anomalyMonitoringTargetId;
+        const removeTarget = await this.anomalyMonitoringTargetService.removeMonitoringTarget(targetId, partyId); 
+        if (!removeTarget) throw new HttpException(505, "Fail to remove monitoring target");
+        removedTargetData[i] = {removeTarget}; 
       }
 
+      //3. update the relation between model and rule group
+      const resultRuleGroup = await this.ruleGroupService.getRuleGroupByModelId(bayesianModelId); 
+      if (resultRuleGroup) {
+        for (let i=0; i<resultRuleGroup.length; i++)
+        {
+          let ruleGroupId = resultRuleGroup[i].ruleGroupId;
+          await this.modelRuleScoreService.detachRuleGroup(ruleGroupId, bayesianModelId, partyId);
+        }
+      };
 
-
-      let resourceGroupKey;
-      if (bayesianModelClusterId) {
-        const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: bayesianModelClusterId } });
-        if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
-        resourceGroupKey = resultResourceGroup.resourceGroupKey;
-      }
-  
+      //4 delete bayesianmodel
       const currentDate = new Date();
       const updatedModelData = {
-        bayesianModelName,
-        bayesianModelDescription,
-        bayesianModelResourceType,
-        bayesianModelScoreCard,
-        resourceGroupKey,
-        updatedBy: systemId,
+        deletedAt: currentDate,
+        updatedBy: partyId,
         updatedAt: currentDate
       };
       await this.bayesianModel.update(updatedModelData, { where: { bayesianModelId } });
-  
-      return this.findBayesianModelById(bayesianModelId);
+      let returnResult = {
+        bayesianModelId: bayesianModelId,
+        removedTargetData: removedTargetData,
+      };
+
+      //5 interface to delete the model in ML engine
+
+      
+
+      return returnResult;
     }
 }
 

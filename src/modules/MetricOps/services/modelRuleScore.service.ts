@@ -182,6 +182,33 @@ class ModelRuleScoreService {
         return findData;
     }
 
+    /**
+     * get all ruleGroups attached under model
+     *
+     * @param  {string} bayesianModelId
+     * @returns Promise<IModelRuleScore>
+     * @author Jerry Lee
+     */
+     public async getAllRuleGroupsByModelId(
+        bayesianModelId: string
+    ): Promise<any> {
+        const findBayesianModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
+
+        let bayesianModelKey = findBayesianModel.bayesianModelKey;
+        const findData = await this.modelRuleScore.findAll(
+            {
+                where:
+                {
+                    bayesianModelKey: bayesianModelKey,
+                    deletedAt: null,
+                }, 
+                include: [{ model: BayesianModelTable }]
+            }
+        )
+        if (!findData) return {message:"No rule group under the Bayesian Model"} ;
+        return findData;
+    }
+
 
 }
 

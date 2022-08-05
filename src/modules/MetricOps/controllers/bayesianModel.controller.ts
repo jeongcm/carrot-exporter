@@ -19,20 +19,20 @@ class BayesianModelController {
     }
   };
 
-  // public deleteBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-  //   try {
-  //     const billingAccountId: string = req.params.billingAccountId;
-  //     const customerAccountKey = req.customerAccountKey;
-  //     const deletedFlag = await this.billingAccountService.deleteBillingAccount(customerAccountKey, billingAccountId);
-  //     if (deletedFlag) {
-  //       res.status(200).json({ data: deletedFlag, message: 'deleted' });
-  //     } else {
-  //       res.status(204).json({ data: deletedFlag, message: 'No Content' });
-  //     }
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
+   public deleteBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+     try {
+       const bayesianModelId: string = req.params.bayesianModelId;
+       const partyId = req.user.partyId;
+       const deletedFlag = await this.bayesianModelService.deleteBayesianModel(bayesianModelId, partyId);
+       if (deletedFlag) {
+         res.status(200).json({ data: deletedFlag, message: 'deleted' });
+       } else {
+         res.status(204).json({ data: deletedFlag, message: 'No Content' });
+       }
+     } catch (error) {
+       next(error);
+     }
+   };
 
   public createBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {

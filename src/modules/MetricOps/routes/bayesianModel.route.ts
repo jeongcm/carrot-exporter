@@ -73,6 +73,11 @@ class BayesianModelRoute implements Routes {
       authMiddleware,
       this.modelRuleScoreController.getAllModelsByGroupId,
     );
+    this.router.delete(
+      '/bayesianModels/:baysianModelId',
+      authMiddleware,
+      this.bayesianModelController.deleteBayesianModel,
+    );
   }
 }
 
