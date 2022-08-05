@@ -117,10 +117,28 @@ class AnomalyMonitoringTargetService {
             where: { anomalyMonitoringTargetId, deletedAt: null },
             include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}, {model:BayesianModelTable}]
         });
-        if (!anomalyMonitoringTargetId) throw new HttpException(409, 'AnomalyMonitoringTarget Id Not found');
+        if (!findMonitoringTarget) throw new HttpException(409, 'AnomalyMonitoringTarget Id Not found');
 
         return findMonitoringTarget;
     }
+
+    /**
+     * find AnomalyMonitoringTarget by BayesianModelKey
+     *
+     * @param  {number} bayesianModelKey
+     * @returns Promise<IAnomalyMonitoringTarget>
+     * @author Shrishti Raj
+     */
+     public async findMonitoringTargetByModelKey(bayesianModelKey: number): Promise<IAnomalyMonitoringTarget[]> {
+
+        const findMonitoringTarget: IAnomalyMonitoringTarget[] = await this.AnomalyMonitoringTarget.findAll({
+            where: { bayesianModelKey, deletedAt: null },
+            include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}, {model:BayesianModelTable}]
+        });
+        if (!findMonitoringTarget) throw new HttpException(409, `no monitoring taregt under bayesianmodel key - ${bayesianModelKey}`);
+
+        return findMonitoringTarget;
+    }    
 
     /**
      * find AnomalyMonitoringTarget by resourceKey

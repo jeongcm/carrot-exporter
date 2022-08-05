@@ -1,10 +1,12 @@
 import { IBayesianModel, IBayesianDBModel, IBayesianJoinDBModel } from '@/common/interfaces/bayesianModel.interface';
+import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import DB from '@/database';
 import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
 import { isEmpty } from '@/common/utils/util';
 import { HttpException } from '@/common/exceptions/HttpException';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+import AnomalyMonitoringTargetService from '@/modules/MetricOps/services/monitoringTarget.service'; 
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { BayesianModelTable } from '../models/bayesianModel.model';
@@ -14,11 +16,14 @@ import { RuleGroupModel } from '../models/ruleGroup.model';
 import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
 import { logger } from '@/common/utils/logger';
 
+
 class BayesianModelServices {
   public bayesianModel = DB.BayesianModel;
   public resourceGroup = DB.ResourceGroup;
   public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
+  public anomalyMonitoringTargetService = new AnomalyMonitoringTargetService();
+
   /**
    * Find all BayesianModel List
    *
@@ -229,6 +234,14 @@ class BayesianModelServices {
     return resultAllBayesianModel;
   }
 
+  /**
+   * updateBaysianModel
+   *
+   * @param  {string} bayesianModelId
+   * @param {UpdateBayesianModelDto} bayesianModelData
+   * @returns Promise<IBayesianDBModel>
+   * @author Shrishti Raj
+   */
   public async updateBayesianModel(
     bayesianModelId: string,
     bayesianModelData: UpdateBayesianModelDto,
@@ -259,6 +272,57 @@ class BayesianModelServices {
 
     return this.findBayesianModelById(bayesianModelId);
   }
+
+   /**
+   * delete BaysianModel
+   *
+   * @param  {string} bayesianModelId
+   * @returns Promise<IBayesianDBModel>
+   * @author Jerry Lee
+   */
+     public async deleteBayesianModel(
+      bayesianModelId: string,
+      systemId: string,
+    ): Promise<IBayesianDBModel> {
+      //1. validate the model existance
+      const findBayesianModel: IBayesianDBModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
+      if (!findBayesianModel) throw new HttpException(409, "BayesianModel doesn't exist");
+      let bayesianModelKey = findBayesianModel.bayesianModelKey; 
+
+      //2. Remove anomaly monitoring target
+      const findTarget: IAnomalyMonitoringTarget[] = await this.anomalyMonitoringTargetService.findMonitoringTargetByModelKey(bayesianModelKey)
+      if (!findTarget) throw new HttpException(409, "Monitoring target doesn't exist");
+
+
+      for (let i=0; i<findTarget.length; i++){
+        let targetKey = findTarget[i].anomalyMonitoringTargetKey;
+        const removeTarget = await this.anomalyMonitoringTargetService.
+
+      }
+
+
+
+      let resourceGroupKey;
+      if (bayesianModelClusterId) {
+        const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: bayesianModelClusterId } });
+        if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
+        resourceGroupKey = resultResourceGroup.resourceGroupKey;
+      }
+  
+      const currentDate = new Date();
+      const updatedModelData = {
+        bayesianModelName,
+        bayesianModelDescription,
+        bayesianModelResourceType,
+        bayesianModelScoreCard,
+        resourceGroupKey,
+        updatedBy: systemId,
+        updatedAt: currentDate
+      };
+      await this.bayesianModel.update(updatedModelData, { where: { bayesianModelId } });
+  
+      return this.findBayesianModelById(bayesianModelId);
+    }
 }
 
 export default BayesianModelServices;
