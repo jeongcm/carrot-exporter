@@ -67,9 +67,10 @@ class App {
     this.app.use(
       session({
         secret: 'secrettexthere',
-        saveUninitialized: false,
-        resave: false,
-        cookie: { secure: true }
+        saveUninitialized: true,
+        resave: true,
+        // cookie: { secure: true },
+        maxAge: 24 * 60 * 60 * 100 
       }),
     );
     this.app.use(passport.initialize())

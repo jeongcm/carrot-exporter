@@ -79,7 +79,7 @@ class Google {
                             const existingEmailUser = await this.partyUser.findOne({ where: { email: profile.emails[0].value } });
                             if (existingEmailUser) {
                                 logger.info(`existingUser22222222=============================${existingEmailUser}`)
-                                return done(400, { msg: 'There is already an account using this email address. Sing in to that accoount and link it with Google manually from Account Settings.' })
+                                return done(null, existingEmailUser)
                                 // req.flash('error', {
                                 //     msg: 'There is already an account using this email address. Sing in to that accoount and link it with Google manually from Account Settings.',
                                 // });
