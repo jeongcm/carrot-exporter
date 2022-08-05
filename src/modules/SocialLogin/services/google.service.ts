@@ -24,10 +24,10 @@ class Google {
                 async (req, accessToken, refreshToken, profile, done) => {
                     try {
                         const existingUser = await this.partyUser.findOne({ where: { socialProviderId: profile.id } });
-                        logger.info(`===============${JSON.stringify({...existingUser, accessToken})}, accesss ===== ${accessToken}, rdredshhh== ${refreshToken}`)
+                        logger.info(`===============${JSON.stringify(existingUser)}, accesss ===== ${accessToken}, rdredshhh== ${refreshToken}`)
                         if (existingUser) {
-                            const data = {...existingUser, accessToken}
-                             done(null, data);
+                            // existingUser['accesstoken'] = accessToken;
+                             done(null, {...existingUser, accessToken});
                         } else {
                             logger.info(`party===============${JSON.stringify(profile)}`)
                             const customerAccount = await this.customerAccountService.createCustomerAccount({
@@ -51,10 +51,10 @@ class Google {
                                 customerAccountId,
                                 partyUserStatus: 'AC',
                                 socialProviderId: profile.id,
-                            }, customerAccount.customerAccountKey, req?.systemId)
-
+                            }, customerAccount.customerAccountKey, req?.systemId);
+                            // newPartyUser['accesstoken'] = accessToken
                             logger.info(`newPartyUser===============${JSON.stringify(newPartyUser)}`)
-                             done(null, {...newPartyUser,accessToken, refreshToken});
+                             done(null, {...newPartyUser, accessToken});
                         }
                     } catch (err) {
                         return done(err);
