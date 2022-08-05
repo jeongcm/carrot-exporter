@@ -21,8 +21,9 @@ class BayesianModelController {
 
    public deleteBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
      try {
-       const bayesianModelId: string = req.params.bayesianModelId;
+       const bayesianModelId: string = req.params.baysianModelId;
        const partyId = req.user.partyId;
+       console.log (bayesianModelId); 
        const deletedFlag = await this.bayesianModelService.deleteBayesianModel(bayesianModelId, partyId);
        if (deletedFlag) {
          res.status(200).json({ data: deletedFlag, message: 'deleted' });
@@ -61,7 +62,6 @@ class BayesianModelController {
         params: { bayesianModelId } = {}
       } = req;
       const bayesianModelData: UpdateBayesianModelDto = req.body;
-      const customerAccountKey: number = req.customerAccountKey;
       const updateBayesianModelData: IBayesianDBModel = await this.bayesianModelService.updateBayesianModel(
         bayesianModelId,
         bayesianModelData,
@@ -76,7 +76,6 @@ class BayesianModelController {
   public getBayesianModelById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const {
-        user: { partyId },
         params: { bayesianModelId }
       } = req;
       const bayesianModelData: IBayesianDBModel = await this.bayesianModelService.findBayesianModelById(
@@ -90,7 +89,6 @@ class BayesianModelController {
   public getBayesianModelByResourceType = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const {
-        user: { partyId },
         params: { resourceType }
       } = req;
       console.log("resourceType in params")

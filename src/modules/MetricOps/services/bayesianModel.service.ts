@@ -314,13 +314,19 @@ class BayesianModelServices {
         removedTargetData[i] = {removeTarget}; 
       }
 
-      //3. update the relation between model and rule group
-      const resultRuleGroup = await this.ruleGroupService.getRuleGroupByModelId(bayesianModelId); 
+      //3. dettach rule group from Bayesian model
+      let detachedRuleGroups = {}
+      const resultRuleGroup = await this.ruleGroupService.getRuleGroupAttachedByModelId(bayesianModelId); 
+    
       if (resultRuleGroup) {
         for (let i=0; i<resultRuleGroup.length; i++)
         {
           let ruleGroupId = resultRuleGroup[i].ruleGroupId;
-          await this.modelRuleScoreService.detachRuleGroup(ruleGroupId, bayesianModelId, partyId);
+          const resultUpdateModelRuleScore = await this.modelRuleScoreService.detachRuleGroup(ruleGroupId, bayesianModelId, partyId);
+          detachedRuleGroups[i] = {
+            ruleGroupId: ruleGroupId,
+            ruleGroupName: resultRuleGroup[i].ruleGroupName,
+          };
         }
       };
 
@@ -335,6 +341,7 @@ class BayesianModelServices {
       let returnResult = {
         bayesianModelId: bayesianModelId,
         removedTargetData: removedTargetData,
+        detachedRuleGroups: detachedRuleGroups,
       };
 
       //5 interface to delete the model in ML engine
