@@ -30,7 +30,6 @@ class CustomerAccountService {
 
     try {
       const tableIdTableName = 'CustomerAccount';
-      logger.info(`customerAccountData===============${JSON.stringify(customerAccountData)}====${systemId}`)
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
       const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create({
@@ -38,7 +37,6 @@ class CustomerAccountService {
         customerAccountId: responseTableIdData.tableIdFinalIssued,
         createdBy: systemId || 'SYSTEM',
       });
-      logger.info(`createdCustomerAccount===============${createdCustomerAccount}, ${systemId}`)
       return createdCustomerAccount;
     } catch (error) {
       console.log('error', error);

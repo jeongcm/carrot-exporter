@@ -3,11 +3,7 @@ import passport from 'passport';
 import config from '@config/index';
 import jwt from 'jsonwebtoken';
 import { Routes } from '@/common/interfaces/routes.interface';
-import { SocialLoginEnum } from '@/common/enums';
-import SocialLoginController from '../controllers/socialLogin.controller';
-import systemAuthMiddleware from '@/modules/ApiGateway/middlewares/systemAuth.middleware';
 import { IDataStoredInToken } from '@/common/interfaces/party.interface';
-import { logger } from '@/common/utils/logger';
 
 class SocialLoginRoutes implements Routes {
   public router = Router();

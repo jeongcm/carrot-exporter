@@ -126,7 +126,6 @@ class PartyService {
           },
           { transaction: t },
         );
-        logger.info(`createPartyUserData===============${JSON.stringify(createPartyUserData)}`)
         const createdPartyUser: IPartyUser = await this.partyUser.create(
           {
             partyUserId: responseTableIdData.tableIdFinalIssued,
@@ -144,7 +143,6 @@ class PartyService {
           },
           { transaction: t },
         );
-        logger.info(`createdPartyUser===============${JSON.stringify(createdPartyUser)}`)
         return {
           partyId: responseTableIdData.tableIdFinalIssued,
           partyName: createPartyUserData.partyName,
