@@ -9,7 +9,6 @@ import CustomerAccountService from '@/modules/CustomerAccount/services/customerA
 
 class Google {
     static partyUser = DB.PartyUser;
-    static tableIdService = new TableIdService();
     static partyService = new PartyService();
     static customerAccountService = new CustomerAccountService();
     public static init(_passport: any): any {
@@ -24,19 +23,15 @@ class Google {
                 async (req, accessToken, refreshToken, profile, done) => {
                     try {
                         const existingUser = await this.partyUser.findOne({ where: { socialProviderId: profile.id } });
-                        logger.info(`===============${JSON.stringify(existingUser)}, accesss ===== ${accessToken}, rdredshhh== ${refreshToken}`)
                         if (existingUser) {
                             done(null, existingUser);
                         } else {
-                            logger.info(`party===============${JSON.stringify(profile)}`)
                             const customerAccount = await this.customerAccountService.createCustomerAccount({
                                 customerAccountName: profile.displayName,
                                 customerAccountDescription: '',
                                 parentCustomerAccountId: '',
                                 customerAccountType: 'IA'
                             }, req.systemId);
-                            logger.info(`customerAccount===============${JSON.stringify(customerAccount)}`)
-                            const customerAccountId: number = customerAccount.customerAccountKey || null;
                             const newPartyUser = await this.partyService.createUser({
                                 email: profile.emails[0].value,
                                 partyName: profile.displayName,
@@ -47,13 +42,9 @@ class Google {
                                 userId: profile.emails[0].value,
                                 mobile: '',
                                 password: '',
-                                customerAccountId,
-                                partyUserStatus: 'AC',
-                                // token:accessToken,
-                                socialProviderId: profile.id,
-                            }, customerAccount.customerAccountKey, req?.systemId);
-                            // newPartyUser['accesstoken'] = accessToken
-                            logger.info(`newPartyUser===============${JSON.stringify(newPartyUser)}`)
+                                customerAccountId:customerAccount.customerAccountId,
+                                partyUserStatus: 'AC'
+                            }, customerAccount.customerAccountKey, '', profile.id);
                             done(null, newPartyUser);
                         }
                     } catch (err) {

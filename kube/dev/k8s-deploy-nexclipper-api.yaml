@@ -16,6 +16,7 @@ metadata:
     app: ${APP_IMAGE_NAME}
 data:
   NC_LARI_PORT: "5001"
+  NC_LARI_URL: "http://nexclipper-api.nc.svc.cluster.local"
   NC_LARI_ENV: development
   NC_LARI_DB_CONFIG_PORT: "3306"
   NC_LARI_DB_CONFIG_HOST: "ncdb-mariadb-primary.mariadb.svc.cluster.local"
@@ -24,7 +25,6 @@ data:
   NC_LARI_DB_CONFIG_POOL_MIN: "1"
   NC_LARI_DB_CONFIG_POOL_MAX: "5"
   NC_LARI_EMAIL_DEFAULT_FROM: info@nexclipper.io
-  NC_LARI_MAILGUN_API_KEY: e78d29f59093f5dd1ea91f5681b73855-835621cf-a60fa4f2
   NC_LARI_MAILGUN_DOMAIN: mg.nexclipper.io
   NC_LARI_SOCIALKEY_GOOGLE_CLIENT_ID: "1234"
   NC_LARI_SOCIALKEY_GOOGLE_CLIENT_SECRET: "1234"
@@ -70,10 +70,12 @@ data:
   NODE_OPTIONS: "--max-old-space-size=8192"
   NC_ALERTHUB_URL: "http://nexclipper-notification.nc.svc.cluster.local:3039"
   NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
-  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "webhook_test"
+  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "3f59a2ca86a44b3985ce58838fcd353d"
   NC_LARI_RESOURCE_CRON: "*/10 * * * *"
   NC_BN_URL: "http://nexclipper-bn.nc.svc.cluster.local:3000"
   NC_BN_NODE_BASE: "/predict_incident/"
+  NC_BN_NODE_THRESHOLD: "80"
+  NC_TURN_OFF_TELEMETRY: "false"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -116,6 +118,12 @@ spec:
               secretKeyRef:
                 name: nc-do-keys
                 key: do-secret-key
+          - name: NC_LARI_MAILGUN_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: nc-mailgun-apikey
+                key: apiKey      
+
         ports:
         - containerPort: 5001
 ---

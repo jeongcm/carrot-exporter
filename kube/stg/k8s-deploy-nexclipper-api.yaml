@@ -16,6 +16,7 @@ metadata:
     app: ${APP_IMAGE_NAME}
 data:
   NC_LARI_PORT: "5001"
+  NC_LARI_URL: "http://nexclipper-api.nc.svc.cluster.local"
   NC_LARI_ENV: development
   NC_LARI_DB_CONFIG_PORT: "3306"
   NC_LARI_DB_CONFIG_HOST: "ncdb.prd.nexclipper.local"
@@ -24,7 +25,7 @@ data:
   NC_LARI_DB_CONFIG_POOL_MAX: "5"
   NC_LARI_EMAIL_DEFAULT_FROM: info@nexclipper.io
   NC_LARI_MAILGUN_API_KEY: ""
-  NC_LARI_MAILGUN_DOMAIN: ""
+  NC_LARI_MAILGUN_DOMAIN: "mg.nexclipper.io"
   NC_LARI_SOCIALKEY_GOOGLE_CLIENT_ID: "1234"
   NC_LARI_SOCIALKEY_GOOGLE_CLIENT_SECRET: "1234"
   NC_LARI_SOCIALKEY_GOOGLE_CALLBACK_URL: ""
@@ -48,7 +49,7 @@ data:
   NC_LARI_SYSTEM_PARTYUSER_PASSWORD: Password@123!
   NC_LARI_SYSTEM_PARTYUSER_EMAIL: system@nexclipper.io
   SUDORY_X_AUTH_TOKEN: "SUDORY"
-  SUDORY_BASE_URL: "http://nexclipper-sudory-server.sudory.svc.cluster.local:8099"
+  SUDORY_BASE_URL: "http://a05575fbc8661459ab7d35dc431d3d2e-998310490.eu-central-1.elb.amazonaws.com:8099"
   SUDORY_PATH_CREATECLUSTER: "/server/cluster"
   SUDORY_PATH_CREATETOKEN: "/server/cluster_token"
   SUDORY_PATH_SESSION: "/server/session"
@@ -66,6 +67,15 @@ data:
   NC_LARI_DO_DEFAULT_REGION: "sgp1"
   NC_LARI_DO_ENDPOINT: "sgp1.digitaloceanspaces.com"
   NODE_OPTIONS: "--max-old-space-size=8192"
+  NC_ALERTHUB_URL: "http://nexclipper-notification.nc.svc.cluster.local:3039"
+  NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
+  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "482b889fd74848c9adae018c7a95de85"
+  NC_LARI_RESOURCE_CRON: "*/10 * * * *"
+  NC_BN_URL: "http://nexclipper-bn.nc.svc.cluster.local:3000"
+  NC_BN_NODE_BASE: "/predict_incident/"
+  NC_BN_NODE_THRESHOLD: "80"
+  NC_TURN_OFF_TELEMETRY: "true"
+
 
 ---
 apiVersion: apps/v1
@@ -88,6 +98,11 @@ spec:
           NC_LARI_DB_CONFIG_USER={{ .Data.data.username }}
           NC_LARI_DB_CONFIG_PASSWORD={{ .Data.data.password }}
           {{- end -}}
+        vault.hashicorp.com/agent-inject-secret-nc-mailgun: 'kv/common/mailgun'
+        vault.hashicorp.com/agent-inject-template-nc-mailgun: |
+          {{- with secret "kv/common/mailgun" -}}
+          NC_LARI_MAILGUN_API_KEY={{ .Data.data.apiKey }}
+          {{- end -}}  
       labels:
         app: ${APP_IMAGE_NAME}
     spec:
@@ -115,6 +130,12 @@ spec:
               secretKeyRef:
                 name: nc-do-keys
                 key: do-secret-key
+          - name: NC_LARI_MAILGUN_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: nc-mailgun-apikey
+                key: apiKey      
+      
         ports:
         - containerPort: 5001
 ---

@@ -20,6 +20,10 @@ class RuleGroupService {
   public bayesianModel = DB.BayesianModel;
   public resourceGroup = DB.ResourceGroup;
 
+
+/*  this is a function to get RuleGroup for new group add. 
+
+*/
   public async getRuleGroupByModelId(bayesianModelId?: string): Promise<IRuleGroup[]> {
     if (bayesianModelId) {
       const bayesianModelDetail = await this.bayesianModel.findOne({ where: { bayesianModelId } })
@@ -30,6 +34,25 @@ class RuleGroupService {
         include: [{ model: ModelRuleScoreTable, attributes: ["bayesianModelKey"], include: [{ model: BayesianModelTable, required: false }] }],
         attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
       });
+      return allRuleGroup;
+    } else {
+      return await this.getRuleGroup()
+    }
+  }
+
+  public async getRuleGroupAttachedByModelId(bayesianModelId?: string): Promise<IRuleGroup[]> {
+    if (bayesianModelId) {
+      const bayesianModelDetail = await this.bayesianModel.findOne({ where: { bayesianModelId } })
+      const bayesianModelRuleGroup = await this.modelRuleScore.findAll({ where: { deletedAt: null, bayesianModelKey: bayesianModelDetail.bayesianModelKey } });
+      const resourceGroupKey = bayesianModelDetail.resourceGroupKey
+      //const ruleGroupKeys = pluck(bayesianModelRuleGroup, 'ruleGroupKey');
+      const ruleGroupKeys = bayesianModelRuleGroup.map (x=> x.ruleGroupKey); 
+      const allRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({
+        where: { deletedAt: null, 
+                 ruleGroupKey:  ruleGroupKeys , 
+                 resourceGroupKey: resourceGroupKey },
+      });
+      
       return allRuleGroup;
     } else {
       return await this.getRuleGroup()

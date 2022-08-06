@@ -7,14 +7,10 @@
  import passport from 'passport';
  import DB from '@/database';
  
-//  //  import LocalStrategy from '../services/strategies/Local';
  import GoogleStrategy from '../services/google.service';
  import GithubStrategy from '../services/github.service';
 import { logger } from '@/common/utils/logger';
-//  //  import TwitterStrategy from '../services/strategies/Twitter';
- 
-//  //  import User from '../models/User';
-//  //  import Log from '../middlewares/Log';
+
  
  class Passport {
      

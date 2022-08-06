@@ -98,7 +98,7 @@ class PartyService {
     return party.partyKey;
   }
 
-  public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string): Promise<IPartyUserResponse> {
+  public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string, socialProviderId?:string): Promise<IPartyUserResponse> {
     const tableIdTableName = 'PartyUser';
 
     //const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
@@ -138,7 +138,7 @@ class PartyService {
             mobile: createPartyUserData?.mobile,
             password: hashedPassword,
             email: createPartyUserData.email,
-            socialProviderId:createPartyUserData?.socialProviderId,
+            socialProviderId:socialProviderId,
             isEmailValidated: false,
             partyUserStatus: createPartyUserData.partyUserStatus,
           },

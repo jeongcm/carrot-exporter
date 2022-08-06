@@ -12,7 +12,7 @@ export type EventStatus = 'CLOSED' | 'HIDDEN' | 'OPEN' | 'REFERENCED';
 
 export type EventFrom = 'LARI' | 'PROMETHEUS';
 
-export type NotificationStatus = "CR" | "SM";
+export type NotificationStatus = 'CR' | 'SM';
 
 export type ResourceType = 'K8' | 'ND' | 'DP' | 'NS' | 'SV' | 'OP' | 'PD' | 'PM' | 'PJ' | 'VM' | 'CT';
 
@@ -24,5 +24,5 @@ export type ResourceTypeLevel3 = 'PD' | 'SV' | 'PM';
 
 export type ResourceTypeLevel4 = 'CT' | 'VM';
 
-export type incidentStatus = 'OP' | 'IP' | 'RS' | 'CL';
-export type incidentSeverity = 'UR' | 'HI' | 'ME' | 'LO';
+export type incidentStatus = '0O' | '1I' | '2R' | '3C';
+export type incidentSeverity = '0U' | '1H' | '2M' | '3L';

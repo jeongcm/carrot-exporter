@@ -15,11 +15,11 @@ export class CreateIncidentDto {
 
   @IsString()
   @IsNotEmpty()
-  public incidentStatus: 'OP' | 'IP' | 'RS' | 'CL';
+  public incidentStatus: '0O' | '1I' | '2R' | '3C';
 
   @IsString()
   @IsNotEmpty()
-  public incidentSeverity: 'UR' | 'HI' | 'ME' | 'LO';
+  public incidentSeverity: '0U' | '1H' | '2M' | '3L';
 
   @IsOptional()
   @IsString()
@@ -43,11 +43,11 @@ export class UpdateIncidentDto {
 
   @IsOptional()
   @IsString()
-  public incidentStatus: 'OP' | 'IP' | 'RS' | 'CL';
+  public incidentStatus: '0O' | '1I' | '2R' | '3C';
 
   @IsOptional()
   @IsString()
-  public incidentSeverity: 'UR' | 'HI' | 'ME' | 'LO';
+  public incidentSeverity: '0U' | '1H' | '2M' | '3L';
 
   @IsOptional()
   @IsString()
@@ -57,7 +57,7 @@ export class UpdateIncidentDto {
 export class UpdateIncidentStatusDto {
   @IsString()
   @IsNotEmpty()
-  public incidentStatus: 'OP' | 'IP' | 'RS' | 'CL';
+  public incidentStatus: '0O' | '1I' | '2R' | '3C';
 }
 
 export class AddAlertReceivedToIncidentDto {

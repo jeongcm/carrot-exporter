@@ -62,9 +62,7 @@ class TableIdService {
 
     const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: systemPartyId };
 
-    console.log('---------');
-    console.log(tableIdTableName);
-    console.log('---------');
+
 
     await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
 

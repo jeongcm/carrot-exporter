@@ -45,13 +45,15 @@ class EvaluateServices {
      */
     public async evaluateMonitoringTarget(resourceKey: number): Promise<any> {
 
+        const step0 = new Date().getTime(); 
+        console.log ("step0 - ", step0);
+
         var bayesianModel = {};
         var returnResponse = {};
         var bnData = {};
+        var evaluationResultStatus ="";
 
-        const version = require('project-version');
-        console.log ("version: ", version); 
-
+        
         // 1. Confirm resource as AnomalyTarget
         const resultMonitoringTarget = await this.monitoringTargetService.findMonitoringTargetsByResourceKeys(resourceKey);
         if (!resultMonitoringTarget) throw new HttpException(400, `Can't find anomaly target - ${resourceKey}`)
@@ -61,6 +63,10 @@ class EvaluateServices {
         const resourceType = resultResource.resourceType;
         const resourceName = resultResource.resourceName;
         const resourceId = resultResource.resourceId;
+
+        const step1 = new Date().getTime();
+        const elaps1 = (((step1-step0)/1000)); 
+        console.log ("step1 -", elaps1 );
 
         // 2. Pull model to find alert rules
         const bayesianModelKey = resultMonitoringTarget.bayesianModelKey;
@@ -80,6 +86,10 @@ class EvaluateServices {
                  deletedAt: null
         }};
 
+        const step2 = new Date().getTime();
+        const elaps2 = (((step2-step1)/1000)); 
+        console.log ("step2 -", elaps2 );
+
         var ruleGroup = [];
         const resultRuleGroup = await this.ruleGroup.findAll(ruleGroupQuery);
         for (let i=0; i<resultRuleGroup.length; i++){
@@ -95,6 +105,10 @@ class EvaluateServices {
                             }; 
         let revBayesianModel = {bayesianModel, resourceInfo, ruleGroup}; 
 
+        const step3 = new Date().getTime();
+        const elaps3 = (((step3-step2)/1000)); 
+        console.log ("step3 -", elaps3 );
+
         var ruleGroupAlertRule = [];
         const resultRuleGroupList = await this.ruleGroupAlertRule.findAll(ruleGroupQuery); 
         const alertRuleKey = resultRuleGroupList.map(x => x.alertRuleKey);
@@ -107,7 +121,12 @@ class EvaluateServices {
         };
 
         let revBayesianModel2 = { ...revBayesianModel, ruleGroupAlertRule}; 
-        
+
+        const step4 = new Date().getTime();
+        const elaps4 = (((step4-step3)/1000)); 
+        console.log ("step4 -", elaps4 );
+
+
         // 3. Find firing alerts received
         let firedAlerts = [];
         let inputAlerts = {};
@@ -122,7 +141,8 @@ class EvaluateServices {
                 const resultAlertReceived: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQuery);    
                 if (resultAlertReceived.length===0) {
                     firedAlerts = [];
-                    console.log ("no firing alert");   
+                    //console.log ("no firing alert"); 
+                    evaluationResultStatus = "NF";  
                 }
                 else {
                     for(let i=0; i< resultAlertReceived.length; i++){
@@ -137,41 +157,70 @@ class EvaluateServices {
                         severity = severity.replace(/^./, severity[0].toUpperCase()); 
                         let duration = resultAlertRule.alertRuleDuration;
                         let alertName2 = alertName + severity + "_" + duration;
-                        //let alertName2 = alertName;
-
-                        //inputAlerts[i] = {[alertName2]: 1}
                         inputAlerts[alertName2] = 1;
                     }
                 }
             break;
             case "SV":
                 firedAlerts = []; 
+                //console.log ("no service alert"); 
+                evaluationResultStatus = "NF";     
             break;
         }
-        
+
         returnResponse = {...revBayesianModel2,firedAlerts, inputAlerts};
 
+        const step5 = new Date().getTime();
+        const elaps5 = (((step5-step4)/1000)); 
+        console.log ("step5 -", elaps5 );
+ 
         // 4. Save the request map to the db
-        const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('Evaluation');
-        const evaluationId: string = responseTableIdData.tableIdFinalIssued;
-        console.log (evaluationId); 
+        //use uuid instead of tableid due to performance reason
+        //const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId('Evaluation');
+        //const evaluationId: string = responseTableIdData.tableIdFinalIssued;
+        //console.log (evaluationId);
+        const uuid = require('uuid');
+        const evaluationId = uuid.v1();
+
+        const step51 = new Date().getTime();
+        const elaps51 = (((step51-step5)/1000)); 
+        console.log ("step5.1 -", elaps51 );
+
         let createEvaluation = {
             evaluationId: evaluationId,
             createdAt: new Date(),
             createdBy: "SYSTEM",
             requestedAt: new Date(),
-            evaluationRequest: returnResponse
+            evaluationRequest: returnResponse,
+            evaluationResultStatus: evaluationResultStatus,
         }
 
         const resultEvaluationRequest: IEvaluation = await this.evaluation.create(createEvaluation);
-    
+        //console.log ("created evaluation request: ", resultEvaluationRequest.evaluationId);
+
+        const step6 = new Date().getTime();
+        const elaps6 = (((step6-step5)/1000)); 
+        console.log ("step6 -", elaps6 );
+
+        if (evaluationResultStatus==="NF")
+        {
+            returnResponse = {
+                evaluationId: evaluationId,
+                evaluationResultStatus: evaluationResultStatus,
+                evaluationResult: "",
+                resourceName: resourceName,
+                resourceId: resourceId,
+            };
+            console.log ("total elaps: ", (elaps1+elaps2+elaps3+elaps4+elaps5+elaps6));
+            return returnResponse;
+        };
+
         // 5. Call NexClipper BN
         bnData = {
             evaluationId: evaluationId,
             bayesianModelId: bayesianModelId,
             inputAlerts: inputAlerts,
         }
-        console.log (bnData); 
 
         var url = "";
         var evaluationResult;
@@ -183,15 +232,16 @@ class EvaluateServices {
             {
               method: 'post',
               url: url,
+              data: bnData,
 //              headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
             }).then(async (res: any) => {
-              const statusCode = res.data.status;
-              if (statusCode !=4) {
-                  console.log("result is not ready");
-                  return;
+              const statusCode = res.status;
+              if (statusCode !=200) {
+                  //console.log("result is not ready");
+                  return res;
               }    
-              evaluationResult = JSON.parse(res.data);
-              console.log(`got evaluation result -- ${evaluationResult}`);
+              evaluationResult = res.data;
+              //console.log(`got evaluation result -- ${evaluationResult}`);
       
             }).catch(error => {
               console.log(error);
@@ -206,19 +256,32 @@ class EvaluateServices {
                     where: { evaluationId: evaluationId },
                 }
               const resultEvaluationResult = this.evaluation.update(updateError, updateErrorWhere);
-            
               throw new HttpException(500, `Unknown error to fetch the result of evaluation: ${evaluationId}`);
             });
+
+            const step7 = new Date().getTime();
+            const elaps7 = (((step7-step6)/1000)); 
+            console.log ("step7 -", elaps7 );
+        
+
+        const predictedScore = evaluationResult.predicted_score;
+        var evaluationResultStatus = "";
+        if (predictedScore >= config.ncBnApiDetail.ncBnNodeThreshold){
+            evaluationResultStatus="AN" 
+        }
+        else {
+            evaluationResultStatus="OK"     
+        };
 
         const updateData = {
             evaluationResult: evaluationResult,
             //hardcoded for testing. need to read evalatuon result once Shawn's API is ready
-            evaluationResultStatus: "AN",
+            evaluationResultStatus: evaluationResultStatus,
             evaluationStaus: "SC",
             evaluated_at: new Date(),
             updated_at: new Date(),
             updated_by: "SYSTEM"
-        }
+        };
         
         const updateWhere = {
             where: { evaluationId: evaluationId },
@@ -226,12 +289,24 @@ class EvaluateServices {
 
         // 6. Save the results to the database
         const resultEvaluationResult  =  await this.evaluation.update(updateData, updateWhere);
-        console.log (resultEvaluationResult); 
         const resultEvaluation: IEvaluation = await this.evaluation.findOne({where: {evaluationId}}); 
 
+        returnResponse = {
+            evaluationId: evaluationId,
+            resourceName: resourceName,
+            resourceId: resourceId,
+            evaluationResultStatus: evaluationResultStatus,
+            evaluationRequest:  resultEvaluation.evaluationRequest,
+            evaluationResult: evaluationResult,
+        };
         // 7. Return the evaluation result back to caller
-    
-        return resultEvaluation;
+
+        const step8 = new Date().getTime();
+        const elaps8 = (((step8-step7)/1000)); 
+        console.log ("step8 -", elaps8 );
+        console.log ("total elaps: ", (elaps1+elaps2+elaps3+elaps4+elaps5+elaps6+elaps7+elaps8));
+
+        return returnResponse;
     };
 
     public async initiateEvaluationProcess(customerAccountId: string): Promise<any>{
@@ -248,10 +323,11 @@ class EvaluateServices {
         //3. call evaluateMonitorintTarget
 
         let resultReturn = {};
+        let resultEvaluation = {};
         for (let i=0; i<resultMonitoringTarget.length; i++)
         {
             let resourceKey = resultMonitoringTarget[i].resourceKey;
-            let resultEvaluation: IEvaluation = await this.evaluateMonitoringTarget(resourceKey);
+            let resultEvaluation = await this.evaluateMonitoringTarget(resourceKey);
             let evaluationResultStatus = resultEvaluation.evaluationResultStatus; 
             if (evaluationResultStatus==="AN")
                 {
@@ -271,19 +347,32 @@ class EvaluateServices {
                     console.log (`firedAlerts: ${firedAlerts}`);
         //5. attach the alerts (from the result) to the incident tickets
                     let resultIncidentAlertAttach = await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, firedAlerts, "SYSTEM"); 
-
+                    console.log ("incident ticket is created: ", incidentId, "Alert Attached - ", firedAlerts );
         //6. execute any resolution actions if there are actions under rule group more than a threshhold
 
         //7. save the actions to incident actions
 
-
         //8. create a message for return
-        resultReturn = {
-            evaluationId: resultEvaluation.evaluationId,
-            evaluationResultStatus: resultEvaluation.evaluationResultStatus,
-            incidentId: incidentId
-        };
+                    resultEvaluation = {
+                        evaluationId: resultEvaluation.evaluationId,
+                        evaluationResultStatus: resultEvaluation.evaluationResultStatus,
+                        evaluationResult: resultEvaluation.evaluationResult,
+                        resourceId: resultEvaluation.resourceId,
+                        resourceName: resultEvaluation.resourceName,
+                        incidentId: incidentId
+                    };
                 }
+            else {
+                resultEvaluation = {
+                    evaluationId: resultEvaluation.evaluationId,
+                    evaluationResultStatus: resultEvaluation.evaluationResultStatus,
+                    resourceId: resultEvaluation.resourceId,
+                    resourceName: resultEvaluation.resourceName,
+                    incidentId: "",
+                    evaluationResult: resultEvaluation.evaluationResult,
+                };
+            };
+            resultReturn[i] = resultEvaluation;
         }    
      return resultReturn;   
     }
