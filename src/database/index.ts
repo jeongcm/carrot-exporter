@@ -38,6 +38,7 @@ import SubscribedProductModel from '@/modules/Subscriptions/models/subscribedPro
 import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
 import invitationModel from '@/modules/Party/models/invitation.model';
 import MetricMetaModel from '@/modules/Metric/models/metricMeta.model';
+import ChartModel from '@/modules/Metric/models/chart.model';
 
 import metricReceivedModel from '@/modules/Metric/models/metricReceived.model';
 import discountModel from '@/modules/Billing/models/discount.model';
@@ -61,6 +62,7 @@ import SudoryWebhookModel from '@/modules/CommonService/models/sudoryWebhook.mod
 import ExportersModel from '@/modules/Exporters/models/exporters.model';
 import TokenModel from '@/modules/Token/token.model';
 import EvaluationModel from '@/modules/MetricOps/models/evaluate.model';
+
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -141,6 +143,7 @@ const DB = {
   AlertRule: AlertRuleModel(sequelize),
   Invitation: invitationModel(sequelize),
   MetricMeta: MetricMetaModel(sequelize),
+  Chart: ChartModel(sequelize),
   MetricReceived: metricReceivedModel(sequelize),
   Discount: discountModel(sequelize),
   Coupon: couponModel(sequelize),
@@ -163,8 +166,6 @@ const DB = {
   Exporters: ExportersModel(sequelize),
   Tokens: TokenModel(sequelize),
   Evaluation: EvaluationModel(sequelize),
-
-
   sequelize, // connection instance (RAW queries)
 };
 
@@ -180,6 +181,9 @@ DB.ResourceGroup.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey
 
 DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resource_group_key' });
 DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
+
+DB.ResourceGroup.hasMany(DB.Chart, { foreignKey: 'resource_group_key' });
+DB.Chart.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 
 DB.Discount.hasMany(DB.Coupon, { foreignKey: 'discountKey' });
 DB.Coupon.belongsTo(DB.Discount, { foreignKey: 'discountKey' });

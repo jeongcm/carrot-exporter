@@ -14,6 +14,7 @@ export interface IMetricQueryBodyQuery {
   start?: string;
   end?: string;
   step?: string;
+  promql?: string;
   resourceGroupId?: string;
   resourceGroupUuid?: string;
 }
@@ -123,13 +124,20 @@ class MetricService extends ServiceExtension {
   }
 
   private getPromQlFromQuery(query: IMetricQueryBodyQuery, resource?: IResource, resourceGroup?: IResourceGroup) {
-    const { type } = query;
+    const { type, promql: customPromQl, start, end } = query;
     const clusterUuid = resourceGroup.resourceGroupUuid;
     let labelString = '';
     let ranged = false;
 
     let promQl = '';
     switch (type) {
+      case 'CUSTOM':
+        if (start && end) {
+          ranged = true;
+        }
+        promQl = customPromQl;
+        break;
+
       case 'NODE_CPU_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,

@@ -86,8 +86,18 @@ class ResourceService {
    */
   public async getAllResourcesRbac(customerAccountKey: number): Promise<IResource[]> {
     const allResource: IResource[] = await this.resource.findAll({
-      where: { deletedAt: null, customerAccountKey, resourceRbac: true },
+      where: {
+        deletedAt: null,
+        customerAccountKey,
+        resourceRbac: true,
+      },
       attributes: { exclude: ['deletedAt'] },
+      include: [
+        {
+          model: this.resourceGroup,
+          attributes: ['resourceGroupName', 'resourceGroupId'],
+        },
+      ],
     });
 
     return allResource;
