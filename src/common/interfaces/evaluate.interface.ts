@@ -13,5 +13,8 @@ export interface IEvaluation {
     evaluationRequest: any,
     evaluationResult: any,
     anomalyMonitoringTargetKey: number;
+    customerAccountKey: number;
+    bayesianModelKey: number;
+    resourceGroupKey: number;
   }
   

@@ -24,11 +24,27 @@ class EvaluateRoute implements Routes {
     );
 
     this.router.post(
-      '/evaluate/customer/',
+      '/evaluate/customerAccount/',
       authMiddleware,
       //createUserLogMiddleware,
       //validationMiddleware(CreateBayesianModelDto, 'body'),
       this.evaluateController.initiateEvaluationProcess,
+    );    
+
+    this.router.get(
+      '/evaluate/:evaluationId',
+      authMiddleware,
+      //createUserLogMiddleware,
+      //validationMiddleware(CreateBayesianModelDto, 'body'),
+      this.evaluateController.getEvaluationHistoryById,
+    );    
+
+    this.router.get(
+      '/evaluate/customerAccount/:customerAccountId',
+      authMiddleware,
+      //createUserLogMiddleware,
+      //validationMiddleware(CreateBayesianModelDto, 'body'),
+      this.evaluateController.getEvaluationHistoryAll,
     );    
 
   }

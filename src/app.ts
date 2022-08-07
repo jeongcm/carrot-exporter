@@ -14,6 +14,9 @@ import errorMiddleware from '@common/middlewares/error.middleware';
 import { logger, stream } from '@common/utils/logger';
 import { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
+import Passport from './modules/SocialLogin/providers/passport';
+import passport from 'passport';
+import { request } from 'http';
 
 class App {
 
@@ -66,11 +69,13 @@ class App {
     this.app.use(
       session({
         secret: 'secrettexthere',
-        saveUninitialized: false,
-        resave: false,
+        saveUninitialized: true,
+        resave: true,
+        // cookie: { secure: true },
+        maxAge: 24 * 60 * 60 * 100 
       }),
     );
-    // this.app = Passport.mountPackage(this.app);
+    this.app = Passport.mountPackage(this.app);
   }
 
   private initializeRoutes(routes: Routes[]) {
@@ -104,7 +109,16 @@ class App {
       res.send = c => {
         logger.info(`url is ${req.url}`);
         logger.info(`Status code is ${res.statusCode}`);
-        logger.info(`Request Body is ${JSON.stringify(req.body || {})}`);
+
+        if ("password" in req.body){
+          var req_new_body = req.body;
+          req_new_body.password = "********";
+          logger.info(`Request Body is ${JSON.stringify(req_new_body || {})}`);
+        }
+        else{
+          logger.info(`Request Body is ${JSON.stringify(req.body || {})}`);
+        }
+
         logger.info(`Response Body is ${c}`);
         res.send = send;
         return res.send(c);

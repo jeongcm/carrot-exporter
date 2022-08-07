@@ -10,10 +10,8 @@ export interface IIncident {
   deletedAt: Date;
   incidentName: string;
   incidentDescription: string;
-  incidentStatus: 'OP' | 'IP' | 'RS' | 'CL';
-  incidentSeverity: 'UR' | 'HI' | 'ME' | 'LO';
+  incidentStatus: '0O' | '1I' | '2R' | '3C';
+  incidentSeverity: '0U' | '1H' | '2M' | '3L';
   incidentDueDate: Date;
   incidentPinned: boolean;
 }
-// incidentStatus: 'OPEN' | 'IN_PROGRESS' | 'RESOLVED' | 'CLOSED';
-// incidentSeverity: 'URGENT' | 'HIGH' | 'MEDIUM' | 'LOW';

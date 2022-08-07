@@ -54,6 +54,7 @@ import RolePartyRoute from './modules/Role/routes/roleParty.route';
 import SchedulerRoute from './modules/Scheduler/routes/scheduler.route';
 import ExportersRoute from './modules/Exporters/routes/exporters.route';
 import EvaluateRoute from './modules/MetricOps/routes/evaluate.route';
+import SocialLoginRoutes from './modules/SocialLogin/routes/socialLogin.route';
 
 const app = new App([
   new IndexRoute(),
@@ -107,6 +108,7 @@ const app = new App([
   new SchedulerRoute(),
   new ExportersRoute(),
   new EvaluateRoute(),
+  new SocialLoginRoutes()
 ]);
 
 app.listen();

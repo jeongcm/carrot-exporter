@@ -95,6 +95,46 @@ class AnomalyMonitoringTargetService {
         return newresolutionAction;
     }
 
+    /**
+     * Remove a monitoring target
+     *
+     * @param  {anomalyMonitoringTargetId} string
+     * @param  {partyId} string
+     * @returns Promise<object>
+     * @author Jerry Lee
+     */
+     public async removeMonitoringTarget(anomalyMonitoringTargetId:string, partyId:string):Promise<object>{
+        let result = {};
+        try{
+        
+            if (isEmpty(anomalyMonitoringTargetId)) throw new HttpException(400, 'monitoringTargetId can not be blank');
+            
+            const resultAnomalyMonitoringTarget = await this.findMonitoringTargetById(anomalyMonitoringTargetId);
+            if (isEmpty(resultAnomalyMonitoringTarget)) throw new HttpException(400, 'targetdata not found');
+            
+            const updateAMT = {updatedBy:partyId, updatedAt:new Date(), deletedAt: new Date(), anomalyMonitoringTargetStatus: "CA"};
+            const updatetAnomalyMonitoringTaret = await this.AnomalyMonitoringTarget.update(updateAMT, {where:{anomalyMonitoringTargetId}});
+            let subscribedProductKey = resultAnomalyMonitoringTarget.subscribedProductKey; 
+
+            const updateSP = {updatedBy:partyId, updatedAt:new Date(), deletedAt: new Date(), subscribedProductTo: new Date()}
+            const updateSubscribedProduct = await this.subscribedProduct.update(updateSP, {where:{subscribedProductKey}}); 
+
+            result = {
+                        anomalyMonitoringTargetId: anomalyMonitoringTargetId,
+                        resourceKey:  resultAnomalyMonitoringTarget.resourceKey,
+                        anomalyMonitoringTargetStatus: "CA",
+                        subscribedProductKey: subscribedProductKey, 
+                        subscribedProductTo: Date(),
+            }}
+        catch (error){
+            console.log (error);
+        }
+        return result; 
+    }    
+
+
+
+
     public async updateMonitoringTarget(anomalyMonitoringTargetId:string, monitoringTargetData:UpdateMonitoringTargetDto, partyId:string):Promise<IAnomalyMonitoringTarget>{
         if (isEmpty(monitoringTargetData)) throw new HttpException(400, 'monitoringTarget can not be blank');
         const targetdata = await this.findMonitoringTargetById(anomalyMonitoringTargetId);
@@ -117,10 +157,28 @@ class AnomalyMonitoringTargetService {
             where: { anomalyMonitoringTargetId, deletedAt: null },
             include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}, {model:BayesianModelTable}]
         });
-        if (!anomalyMonitoringTargetId) throw new HttpException(409, 'AnomalyMonitoringTarget Id Not found');
+        if (!findMonitoringTarget) throw new HttpException(409, 'AnomalyMonitoringTarget Id Not found');
 
         return findMonitoringTarget;
     }
+
+    /**
+     * find AnomalyMonitoringTarget by BayesianModelKey
+     *
+     * @param  {number} bayesianModelKey
+     * @returns Promise<IAnomalyMonitoringTarget>
+     * @author Shrishti Raj
+     */
+     public async findMonitoringTargetByModelKey(bayesianModelKey: number): Promise<IAnomalyMonitoringTarget[]> {
+
+        const findMonitoringTarget: IAnomalyMonitoringTarget[] = await this.AnomalyMonitoringTarget.findAll({
+            where: { bayesianModelKey, deletedAt: null },
+            include:[{model:ResourceModel ,include:[{model:ResourceGroupModel}]}, {model:BayesianModelTable}]
+        });
+        if (!findMonitoringTarget) throw new HttpException(409, `no monitoring taregt under bayesianmodel key - ${bayesianModelKey}`);
+
+        return findMonitoringTarget;
+    }    
 
     /**
      * find AnomalyMonitoringTarget by resourceKey

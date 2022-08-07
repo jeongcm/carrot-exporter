@@ -33,17 +33,17 @@ class AlertReceivedService extends ServiceExtension {
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
-      include: [
-        {
-          model: this.alertRule,
-          as: 'alertRule',
-          include: [
-            {
-              model: this.resourceGroup,
-            },
-          ],
-        },
-      ],
+      // include: [
+      //   {
+      //     model: this.alertRule,
+      //     as: 'alertRule',
+      //     include: [
+      //       {
+      //         model: this.resourceGroup,
+      //       },
+      //     ],
+      //   },
+      // ],
     });
     return allAlertReceived;
   }
@@ -161,7 +161,6 @@ class AlertReceivedService extends ServiceExtension {
     }
 
     return [];
-
   }
 
   public async findAlertReceivedById(alertReceivedId: string): Promise<IAlertReceived> {
