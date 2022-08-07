@@ -1,7 +1,6 @@
 import { IBayesianDBModel } from '@/common/interfaces/bayesianModel.interface';
 import { IModelRuleScore } from '@/common/interfaces/modelRuleScore.interface';
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
-import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IResource } from '@/common/interfaces/resource.interface';
 import { IIncident } from '@/common/interfaces/incident.interface';
 import DB from '@/database';
@@ -17,6 +16,8 @@ import ModelRuleScoreService from '@/modules/MetricOps/services/modelRuleScore.s
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 import {incidentSeverity, incidentStatus} from '@/common/types/index'
 import { IEvaluation } from '@/common/interfaces/evaluate.interface';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
 
 const { Op } = require('sequelize');
 
@@ -39,7 +40,7 @@ class EvaluateServices {
     /**
      * Evaluate anomaly using resourceKey
      *
-     * @param  {string} resourceKey
+     * @param  {number} resourceKey
      * @returns Promise<object>
      * @author Jerry Lee
      */
@@ -57,6 +58,8 @@ class EvaluateServices {
         // 1. Confirm resource as AnomalyTarget
         const resultMonitoringTarget = await this.monitoringTargetService.findMonitoringTargetsByResourceKeys(resourceKey);
         if (!resultMonitoringTarget) throw new HttpException(400, `Can't find anomaly target - ${resourceKey}`)
+        const anomalyMonitoringTargetKey = resultMonitoringTarget.anomalyMonitoringTargetKey; 
+        const customerAccountKey = resultMonitoringTarget.customerAccountKey;
 
         const resultResource: IResource = await this.resource.findOne({where: {resourceKey}}); 
         if (!resultResource) throw new HttpException(400, `Can't find resource - ${resourceKey}`)
@@ -72,8 +75,11 @@ class EvaluateServices {
         const bayesianModelKey = resultMonitoringTarget.bayesianModelKey;
         const resultBayesianModel: IBayesianDBModel = await this.bayesianModelService.findBayesianModelByKey(bayesianModelKey);  
         const bayesianModelId = resultBayesianModel.bayesianModelId; 
+        const resourceGroupKey = resultBayesianModel.resourceGroupKey; 
 
-        bayesianModel = {bayesianModleKey:  resultBayesianModel.bayesianModelKey, 
+    
+
+        bayesianModel = {bayesianModleKey:  bayesianModelKey, 
                          bayesianModleId:  bayesianModelId, 
                          bayesianModelName: resultBayesianModel.bayesianModelName
                         }
@@ -193,6 +199,10 @@ class EvaluateServices {
             requestedAt: new Date(),
             evaluationRequest: returnResponse,
             evaluationResultStatus: evaluationResultStatus,
+            anomalyMonitoringTargetKey: anomalyMonitoringTargetKey,
+            customerAccountKey: customerAccountKey,
+            bayesianModelKey: bayesianModelKey,
+            resourceGroupKey: resourceGroupKey,
         }
 
         const resultEvaluationRequest: IEvaluation = await this.evaluation.create(createEvaluation);
@@ -309,6 +319,13 @@ class EvaluateServices {
         return returnResponse;
     };
 
+    /**
+     * Trigger evaluation process by customerAccountId
+     *
+     * @param  {string} customerAccountId
+     * @returns Promise<object>
+     * @author Jerry Lee
+     */
     public async initiateEvaluationProcess(customerAccountId: string): Promise<any>{
 
         //1. validate customerAccountid
@@ -375,6 +392,61 @@ class EvaluateServices {
             resultReturn[i] = resultEvaluation;
         }    
      return resultReturn;   
+    }
+
+     /**
+     * Get evaluation result by customerAccountId
+     *
+     * @param  {string} customerAccountId
+     * @returns Promise<IEvaluation[]>
+     * @author Jerry Lee
+     */ 
+    public async getEvaluationHistoryAll(customerAccountId: string): Promise<IEvaluation[]> {
+        //1. validate CustomerAccount
+        const resultCustomerAccount: ICustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
+        if (!resultCustomerAccount) throw new HttpException(400, `Can't find customer Account - ${customerAccountId}`); 
+        const customerAccountKey = resultCustomerAccount.customerAccountKey;
+        //2. pull evaluation history
+        const queryCondition = {
+            where:
+            {
+              deletedAt: null,
+              customerAccountKey: customerAccountKey,
+            },
+            include: 
+            [{
+              model: ResourceGroupModel,
+              attributes: ['resourceGroupName', 'resourceGroupId']
+            }]
+        };
+        const resultEvaluation: IEvaluation[] = await this.evaluation.findAll(queryCondition); 
+
+        return resultEvaluation;
+    }
+
+     /**
+     * Get evaluation result by Id
+     *
+     * @param  {string} evaluationId
+     * @returns Promise<IEvaluation>
+     * @author Jerry Lee
+     */
+    public async getEvaluationHistoryById(evaluationId: string): Promise<IEvaluation> {
+        const queryCondition = {
+            where:
+            {
+              deletedAt: null,
+              evaluationId: evaluationId,
+            },
+            include: 
+            [{
+              model: ResourceGroupModel,
+              attributes: ['resourceGroupName', 'resourceGroupId']
+            }]
+        };
+        const resultEvaluation: IEvaluation = await this.evaluation.findOne(queryCondition); 
+        if (!resultEvaluation) throw new HttpException(400, `Can't find Evaluation result - ${evaluationId}`); 
+        return resultEvaluation;
     }
 
 }

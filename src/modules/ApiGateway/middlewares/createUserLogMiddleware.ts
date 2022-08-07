@@ -15,26 +15,33 @@ import { IApi } from '@/common/interfaces/api.interface';
  */
 
 const createUserLogMiddleware = async (req, res: Response, next: NextFunction) => {
-  const tableIdService = new TableIdService();
 
-  const partyUserId = req?.user?.partyId ? req?.user?.partyId : req?.systemId;
-  const apiEndPoint1 = req.method;
-  const apiEndPoint2 = req?.route?.path;
+  try{
+      const tableIdService = new TableIdService();
 
-  const findPartyUser: IPartyUser = await DB.PartyUser.findOne({
-    where: {
-      partyUserId,
-    },
-  });
+      const partyUserId = req?.user?.partyId ? req?.user?.partyId : req?.systemId;
+      const apiEndPoint1 = req.method;
+      const apiEndPoint2 = req?.route?.path;
+      console.log (partyUserId); 
 
-  const apiFound: IApi = await DB.Api.findOne({
-    where: {
-      apiEndPoint1,
-      apiEndPoint2,
-    },
-  });
+      const findPartyUser: IPartyUser = await DB.PartyUser.findOne({
+        where: {
+          partyUserId,
+        },
+      });
 
-  next();
+      const apiFound: IApi = await DB.Api.findOne({
+        where: {
+          apiEndPoint1,
+          apiEndPoint2,
+        },
+      });
+
+      return next();
+    } catch (error) {
+      return next(error);
+    }    
+
 
 /*
   try {

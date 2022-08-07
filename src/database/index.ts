@@ -53,7 +53,7 @@ import RuleGroupModel from '@/modules/MetricOps/models/ruleGroup.model';
 import ruleGroupAlertRuleModel from '@/modules/MetricOps/models/ruleGroupAlertRule.model';
 import RuleGroupResolutionActionModel from '@/modules/MetricOps/models/RuleGroupResolutionAction.model';
 import ModelRuleScoreModel from '@/modules/MetricOps/models/modelRuleScore.model';
-import AnomalyMonitoringTargetTable from '@/modules/MetricOps/models/monitoringTarget.model';
+import AnomalyMonitoringTargetModel from '@/modules/MetricOps/models/monitoringTarget.model';
 import RoleModel from '@/modules/Role/models/role.model';
 import RolePartyModel from '@/modules/Role/models/roleParty.model';
 import ExecutorServiceModel from '@/modules/CommonService/models/exectuorService.model';
@@ -155,7 +155,7 @@ const DB = {
   RuleGroupAlertRule: ruleGroupAlertRuleModel(sequelize),
   RuleGroupResolutionAction: RuleGroupResolutionActionModel(sequelize),
   ModelRuleScore: ModelRuleScoreModel(sequelize),
-  AnomalyMonitoringTarget: AnomalyMonitoringTargetTable(sequelize),
+  AnomalyMonitoringTarget: AnomalyMonitoringTargetModel(sequelize),
   Role: RoleModel(sequelize),
   RoleParty: RolePartyModel(sequelize),
   SudoryWebhook: SudoryWebhookModel(sequelize),
@@ -415,6 +415,16 @@ DB.Role.hasMany(DB.RoleParty, { foreignKey: 'roleKey' });
 DB.Party.hasMany(DB.RoleParty, { foreignKey: 'partyKey' });
 DB.RoleParty.belongsTo(DB.Role, { foreignKey: 'roleKey' });
 DB.RoleParty.belongsTo(DB.Party, { foreignKey: 'partyKey' });
+
+DB.CustomerAccount.hasMany(DB.Evaluation, { foreignKey: 'customerAccountKey' });
+DB.Evaluation.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.BayesianModel.hasMany(DB.Evaluation, { foreignKey: 'bayesianModelKey' });
+DB.Evaluation.belongsTo(DB.BayesianModel, { foreignKey: 'bayesianModelKey' });
+
+DB.ResourceGroup.hasMany(DB.Evaluation, { foreignKey: 'bayesianModelKey' });
+DB.Evaluation.belongsTo(DB.ResourceGroup, { foreignKey: 'bayesianModelKey' });
+
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

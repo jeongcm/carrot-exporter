@@ -28,6 +28,26 @@ class EvaluateController {
       }
     };  
 
+    public getEvaluationHistoryById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+        const evaluationId = req.params.evaluationId;
+        const evalatiaonResult = await this.evaluateService.getEvaluationHistoryById(evaluationId);
+        res.status(200).json({ data: evalatiaonResult, message: `Evaluation result by Id - ${evaluationId}` });
+      } catch (error) {
+        next(error);
+      }
+    };  
+
+    public getEvaluationHistoryAll = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+        const customerAccountId = req.params.customerAccountId;
+        const evalatiaonResult = await this.evaluateService.getEvaluationHistoryAll(customerAccountId);
+        res.status(200).json({ data: evalatiaonResult, message: `Evaluation result by customerAccountId - ${customerAccountId}` });
+      } catch (error) {
+        next(error);
+      }
+    };  
+
 }
 
 export default EvaluateController;

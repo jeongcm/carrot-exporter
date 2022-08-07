@@ -17,6 +17,9 @@ IEvaluation,
   | 'evaluationResultStatus'
   | 'evaluationStatus'
   | 'anomalyMonitoringTargetKey'
+  | 'customerAccountKey'
+  | 'bayesianModelKey'
+  | 'resourceGroupKey'
 >;
 
 export class EvaluationModel extends Model<IEvaluation, EvaluationAttribute> implements IEvaluation {
@@ -34,6 +37,9 @@ export class EvaluationModel extends Model<IEvaluation, EvaluationAttribute> imp
   public evaluationResult:JSON
   public readonly createdAt!: Date;
   public anomalyMonitoringTargetKey: number;
+  public customerAccountKey: number;
+  public bayesianModelKey: number;
+  public resourceGroupKey: number;
   
 }
 
@@ -87,6 +93,15 @@ export default function (sequelize: Sequelize): typeof EvaluationModel {
         type: DataTypes.STRING(2),
       },
       anomalyMonitoringTargetKey: {
+        type: DataTypes.INTEGER,
+      },
+      customerAccountKey: {
+        type: DataTypes.INTEGER,
+      },
+      bayesianModelKey: {
+        type: DataTypes.INTEGER,
+      },
+      resourceGroupKey: {
         type: DataTypes.INTEGER,
       },
     },
