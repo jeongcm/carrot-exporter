@@ -237,8 +237,8 @@ DB.AlertRule.hasMany(DB.AlertReceived, { foreignKey: 'alertRuleKey' });
 DB.AlertReceived.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey', as: 'alertRule' });
 
 //jerry, strange erorr, Sequelize genereates wrong fk. commented out as a workaround.  7/27/22
-//DB.ResourceGroup.hasMany(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
-//DB.AlertRule.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
+DB.ResourceGroup.hasMany(DB.AlertRule, { foreignKey: 'resourceGroupUuid' });
+DB.AlertRule.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupUuid' });
 
 DB.CustomerAccount.hasMany(DB.AlertReceived, { foreignKey: 'customerAccountKey' });
 DB.AlertReceived.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
