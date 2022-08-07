@@ -40,6 +40,7 @@ export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttribute
   public mobile: string;
   public password: string;
   public email: string;
+  public socialProviderId: string;
   public partyUserStatus: "DR" | "AC" | "IN";
   public isEmailValidated: boolean;
   public emailValidatedAt: Date;
@@ -107,6 +108,10 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       email: {
         type: DataTypes.STRING(50),
         allowNull: false,
+      },
+      socialProviderId: {
+        allowNull: true,
+        type: DataTypes.STRING(45),
       },
       partyUserStatus: {
         type: DataTypes.STRING(2),

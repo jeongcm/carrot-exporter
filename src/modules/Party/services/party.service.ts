@@ -98,7 +98,7 @@ class PartyService {
     return party.partyKey;
   }
 
-  public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string): Promise<IPartyUserResponse> {
+  public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string, socialProviderId?:string): Promise<IPartyUserResponse> {
     const tableIdTableName = 'PartyUser';
 
     //const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
@@ -122,28 +122,27 @@ class PartyService {
             parentPartyId: createPartyUserData?.parentPartyId,
             partyType: 'US',
             customerAccountKey,
-            createdBy: systemId,
+            createdBy: systemId || 'SYSTEM',
           },
           { transaction: t },
         );
-
         const createdPartyUser: IPartyUser = await this.partyUser.create(
           {
             partyUserId: responseTableIdData.tableIdFinalIssued,
             partyKey: createdParty.partyKey,
-            createdBy: systemId,
+            createdBy: systemId || "SYSTEM",
             firstName: createPartyUserData.firstName,
             lastName: createPartyUserData.lastName,
             userId: createPartyUserData.userId,
             mobile: createPartyUserData?.mobile,
             password: hashedPassword,
             email: createPartyUserData.email,
+            socialProviderId:socialProviderId,
             isEmailValidated: false,
             partyUserStatus: createPartyUserData.partyUserStatus,
           },
           { transaction: t },
         );
-
         return {
           partyId: responseTableIdData.tableIdFinalIssued,
           partyName: createPartyUserData.partyName,

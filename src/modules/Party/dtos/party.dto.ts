@@ -29,6 +29,7 @@ export class CreateUserDto {
   @IsOptional()
   public mobile: string;
 
+
   @IsString()
   @IsOptional()
   public password: string;
