@@ -112,6 +112,12 @@ class IncidentService {
             },
           ],
         },
+        {
+          as: 'createdByDetail',
+          model: PartyUserModel,
+          attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
+          association: DB.PartyUser.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
+        },
       ],
     });
     return allIncidents;
