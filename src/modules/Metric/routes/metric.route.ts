@@ -9,6 +9,7 @@ import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import { MetricMetaDto } from '../dtos/metricMeta.dto';
+import ChartController from '../controllers/chart.controller';
 import MetricController from '../controllers/metric.controller';
 import MetricMetaController from '../controllers/metricMeta.controller';
 import MetricReceivedController from '../controllers/metricReceived.controller';
@@ -18,6 +19,7 @@ class MetricRoute implements Routes {
   public metricController = new MetricController();
   public metricMetaController = new MetricMetaController();
   public metricReceivedController = new MetricReceivedController();
+  private chartController = new ChartController();
 
   constructor() {
     this.initializeRoutes();
@@ -25,6 +27,10 @@ class MetricRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post('/metric', authMiddleware, this.metricController.getMetric);
+
+    this.router.get('/chart', authMiddleware, this.chartController.getAllCharts);
+    this.router.get('/chart/:resourceGroupId', authMiddleware, this.chartController.getResourceGroupChart);
+    this.router.put('/chart/:resourceGroupId', authMiddleware, this.chartController.upsertResourceGroupChart);
 
     this.router.post('/metric/meta', authMiddleware, validationMiddleware(MetricMetaDto, 'body'), this.metricMetaController.createMetricMeta);
     this.router.get('/metric/meta', authMiddleware, this.metricMetaController.getMetricMeta);
