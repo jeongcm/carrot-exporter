@@ -486,7 +486,9 @@ class executorService {
       var lokiChartVersion = "";
       var lokiChartRepoUrl = "";
       
-      //console.log (resultKpsChart);
+      const resultResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);   
+      if (!resultResourceGroup) throw new HttpException(404, `can't find cluster - clusterUuid: ${clusterUuid}`);
+      const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;   
 
       for (let i=0; i<chartLength; i++ ) {
         if (resultKpsChart[i].exporterHelmChartName === "kube-prometheus-stack")
@@ -509,9 +511,17 @@ class executorService {
         repo_url: kpsChartRepoUrl, 
         namespace: targetNamespace,
         chart_version: kpsChartVersion,
-        values:{}
+        values:{
+                'prometheus-node-exporter':{
+                    hostRootFsmount: {},
+                }
+               },
         }
-    }]
+        }];
+        
+        if (resourceGroupProvider=='DD'){
+            kpsSteps[0].args.values['prometheus-node-exporter'].hostRootFsmount=false;
+        };
 
       const kpsExecuteName = "KPS Helm Instllation";
       const kpsExecuteSummary = "KPS Helm Installation";
