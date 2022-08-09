@@ -84,6 +84,10 @@ export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
   public partyUserStatus: string;
+
+  @IsString()
+  @IsOptional()
+  public customerAccountId: string;
 }
 
 export class CreateAccessGroupDto {

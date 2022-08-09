@@ -108,6 +108,8 @@ class PartyController {
     try {
       const updatedUser: IParty = await this.partyService.updateUser(customerAccountKey, logginedUserId, updateUserId, updateUserData);
 
+      
+
       res.status(200).json({ data: updatedUser, message: 'updated' });
     } catch (error) {
       next(error);
@@ -179,8 +181,8 @@ class PartyController {
 
   public resetPassword = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {body:{email, password}, query:{reset_token}} = req;
-      const resultRequest = await this.partyService.resetPassword(email, password, reset_token);
+      const {body:{email, password, oldPassword = ''}, query:{reset_token = ''}} = req;
+      const resultRequest = await this.partyService.resetPassword(email, password, reset_token, oldPassword);
       res.status(200).json({ data: resultRequest, message: 'Sent Password reset email successuflly' });
 
 

@@ -19,6 +19,7 @@ import urlJoin from 'url-join';
 import { logger } from '@/common/utils/logger';
 import { ApiModel } from '@/modules/Api/models/api.models';
 import TokenService from '@/modules/Token/token.service';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
 
 const nodeMailer = require('nodemailer');
@@ -37,6 +38,7 @@ class PartyService {
   public resource = DB.Resource;
   public partyResource = DB.PartyResource;
   public partyUserLogs = DB.PartyUserLogs;
+  public customerAccount = DB.CustomerAccount;
   public api = DB.Api;
 
   public tableIdService = new tableIdService();
@@ -98,7 +100,7 @@ class PartyService {
     return party.partyKey;
   }
 
-  public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string, socialProviderId?:string): Promise<IPartyUserResponse> {
+  public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string, socialProviderId?: string): Promise<IPartyUserResponse> {
     const tableIdTableName = 'PartyUser';
 
     //const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
@@ -137,7 +139,7 @@ class PartyService {
             mobile: createPartyUserData?.mobile,
             password: hashedPassword,
             email: createPartyUserData.email,
-            socialProviderId:socialProviderId,
+            socialProviderId: socialProviderId,
             isEmailValidated: false,
             partyUserStatus: createPartyUserData.partyUserStatus,
           },
@@ -166,20 +168,26 @@ class PartyService {
   }
 
   public async updateUser(customerAccountKey: number, logginedUserId: string, updateUserId: string, updateUserData: UpdateUserDto): Promise<IParty> {
-    const { partyName, partyDescription, parentPartyId, firstName, lastName, mobile, email } = updateUserData;
-
+    const { partyName, partyDescription, parentPartyId, firstName, lastName, mobile, email, customerAccountId } = updateUserData;
+    let updatedPartyObj = {};
+    let customerAccountDetail: ICustomerAccount;
     try {
+      if (customerAccountId) {
+        customerAccountDetail = await this.customerAccount.findOne({ where: { customerAccountId } });
+        if (isEmpty(customerAccountDetail)) throw new HttpException(400, "customerAccount doesn't exist");
+        updatedPartyObj = { partyName, partyDescription, parentPartyId, updatedBy: logginedUserId, customerAccountKey: customerAccountDetail?.customerAccountKey }
+      } else {
+        updatedPartyObj = { partyName, partyDescription, parentPartyId, updatedBy: logginedUserId }
+      }
       await DB.sequelize.transaction(async t => {
-        await this.party.update(
-          { partyName, partyDescription, parentPartyId, updatedBy: logginedUserId },
-          { where: { customerAccountKey, partyId: updateUserId, partyType: 'US' }, transaction: t },
-        );
+        await this.party.update(updatedPartyObj,{ where: { partyId: updateUserId, partyType: 'US' }, transaction: t });
 
         await this.partyUser.update(
           { firstName, lastName, mobile, email, updatedBy: logginedUserId },
           { where: { partyUserId: updateUserId }, transaction: t },
         );
       });
+      return this.getUser(customerAccountDetail?.customerAccountKey, updateUserId)
     } catch (error) { }
 
     return await this.getUser(customerAccountKey, updateUserId);
@@ -247,8 +255,7 @@ class PartyService {
       tokenId: responseTableIdData.tableIdFinalIssued,
       token: tokenData.token
     };
-    const tokenResult = await this.tokenService.createTokenDetail(obj);
-
+    const tokenResult = await this.tokenService.createTokenDetail(obj)
     //3. send email with the token to user with the link to reset password
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/forgotPassword.hbs'), 'utf8');
     const template = handlebars.compile(emailTemplateSource);
@@ -271,19 +278,28 @@ class PartyService {
     return resultEmail;
   }
 
-  public async resetPassword(email: string, password: string, resetToken: any): Promise<{ cookie: string; findUser: IPartyUser; token: string }> {
-    //check for token 
-    const token = await this.tokenService.findTokenDetail(resetToken);
-    if (!token) {
-      throw new HttpException(401, `Invalid token`);
-    }
-    if (token.expiryTime - Date.now() < 0) {
-      throw new HttpException( 400, 'Token has been expired, Please try resetting again' );
+  public async resetPassword(email: string, password: string, resetToken?: any, oldPassword?: any): Promise<{ cookie: string; findUser: IPartyUser; token: string }> {
+
+    if (resetToken) {
+      //check for token 
+      const token = await this.tokenService.findTokenDetail(resetToken);
+      if (!token) {
+        throw new HttpException(401, `Invalid token`);
+      }
+      if (token.expiryTime - Date.now() < 0) {
+        throw new HttpException(400, 'Token has been expired, Please try resetting again');
+      }
     }
     //0. validate email address
     if (isEmpty(email)) throw new HttpException(400, "No email address provided");
     const findUser: IPartyUser = await this.partyUser.findOne({ where: { email: email } });
     if (!findUser) throw new HttpException(401, `No user information found with the provided email address`);
+    if (oldPassword) {
+      const oldHashedPassword = await bcrypt.compare(oldPassword, findUser.password);
+      if (!oldHashedPassword) {
+        throw new HttpException(500, `Old password entered is wrong .Please check`);
+      };
+    }
 
     //1. validate the password rule
     let hashedPassword;
@@ -293,7 +309,7 @@ class PartyService {
     await this.partyUser.update({ password: hashedPassword }, { where: { email } });
 
     //2.send mail of password reset
-    const emailTemplateSource = fs.readFileSync(path.join(__dirname,  '../../Messaging/templates/emails/email-body/passwordReset.hbs'), 'utf8');
+    const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/passwordReset.hbs'), 'utf8');
     const template = handlebars.compile(emailTemplateSource);
     let name = findUser.firstName
     const url = urlJoin(config.email.passwordReset.resetPageURL, 'login');
@@ -305,7 +321,7 @@ class PartyService {
       html: htmlToSend
     }
     const a = await sendMail(findUser, mailOptions);
-    const loginData =  {
+    const loginData = {
       "userId": findUser.userId,
       "password": password
     }
