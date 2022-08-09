@@ -163,11 +163,18 @@ class AlertReceivedService extends ServiceExtension {
     return [];
   }
 
-  public async findAlertReceivedById(alertReceivedId: string): Promise<IAlertReceived> {
+  public async findAlertReceivedById(alertReceivedId: string, includeDeleted?: boolean): Promise<IAlertReceived> {
     if (isEmpty(alertReceivedId)) throw new HttpException(400, 'Not a valid Alert Received Id');
 
+    let whereClause = {
+      alertReceivedId,
+      deletedAt: null,
+    };
+    if (includeDeleted) {
+      delete whereClause['deletedAt'];
+    }
     const findAlertReceived: IAlertReceived = await this.alertReceived.findOne({
-      where: { alertReceivedId, deletedAt: null },
+      where: { ...whereClause },
       attributes: { exclude: ['customerAccountKey', 'alertRuleKey', 'alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
       include: [
         {
