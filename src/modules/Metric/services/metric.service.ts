@@ -74,6 +74,10 @@ class MetricService extends ServiceExtension {
             }
           }
 
+          if (!resourceGroup && !resource) {
+            return this.throwError('NOT_FOUND', `no resourceGroup nor resource found! Please make sure to pass resourceGroupId or resourceGroupUuid or resourceId`);
+          }
+
           const promQl = this.getPromQlFromQuery(query, resource, resourceGroup);
 
           if (!promQl.promQl) {
@@ -135,7 +139,13 @@ class MetricService extends ServiceExtension {
         if (start && end) {
           ranged = true;
         }
-        promQl = `(${customPromQl}) AND {clusterUuid="${clusterUuid}"}`;
+
+        if (customPromQl.indexOf(`sum(`) > -1 || customPromQl.indexOf('SUM(') > -1) {
+          promQl = customPromQl.replace('sum(', `sum({clusterUuid="${clusterUuid}"} AND `).replace('SUM(', `SUM({clusterUuid="${clusterUuid}"} AND `);
+        } else {
+          promQl = `(${customPromQl}) AND {clusterUuid="${clusterUuid}"}`;
+        }
+
         break;
 
       case 'NODE_CPU_PERCENTAGE':
