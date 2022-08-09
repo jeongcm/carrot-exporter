@@ -513,14 +513,14 @@ class executorService {
         chart_version: kpsChartVersion,
         values:{
                 'prometheus-node-exporter':{
-                    hostRootFsmount: {},
+                    hostRootFsMount: {},
                 }
                },
         }
         }];
         
         if (resourceGroupProvider=='DD'){
-            kpsSteps[0].args.values['prometheus-node-exporter'].hostRootFsmount=false;
+            kpsSteps[0].args.values['prometheus-node-exporter'].hostRootFsMount=false;
         };
 
       const kpsExecuteName = "KPS Helm Instllation";
