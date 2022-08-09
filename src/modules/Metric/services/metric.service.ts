@@ -135,7 +135,7 @@ class MetricService extends ServiceExtension {
         if (start && end) {
           ranged = true;
         }
-        promQl = customPromQl;
+        promQl = `(${customPromQl}) AND {clusterUuid="${clusterUuid}"}`;
         break;
 
       case 'NODE_CPU_PERCENTAGE':
