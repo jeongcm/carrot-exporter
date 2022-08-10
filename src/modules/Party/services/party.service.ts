@@ -168,26 +168,20 @@ class PartyService {
   }
 
   public async updateUser(customerAccountKey: number, logginedUserId: string, updateUserId: string, updateUserData: UpdateUserDto): Promise<IParty> {
-    const { partyName, partyDescription, parentPartyId, firstName, lastName, mobile, email, customerAccountId } = updateUserData;
-    let updatedPartyObj = {};
-    let customerAccountDetail: ICustomerAccount;
+    const { partyName, partyDescription, parentPartyId, firstName, lastName, mobile, email } = updateUserData;
     try {
-      if (customerAccountId) {
-        customerAccountDetail = await this.customerAccount.findOne({ where: { customerAccountId } });
-        if (isEmpty(customerAccountDetail)) throw new HttpException(400, "customerAccount doesn't exist");
-        updatedPartyObj = { partyName, partyDescription, parentPartyId, updatedBy: logginedUserId, customerAccountKey: customerAccountDetail?.customerAccountKey }
-      } else {
-        updatedPartyObj = { partyName, partyDescription, parentPartyId, updatedBy: logginedUserId }
-      }
       await DB.sequelize.transaction(async t => {
-        await this.party.update(updatedPartyObj,{ where: { partyId: updateUserId, partyType: 'US' }, transaction: t });
+        await this.party.update(
+          { partyName, partyDescription, parentPartyId, updatedBy: logginedUserId },
+          { where: { customerAccountKey, partyId: updateUserId, partyType: 'US' }, transaction: t },
+        );
 
         await this.partyUser.update(
           { firstName, lastName, mobile, email, updatedBy: logginedUserId },
           { where: { partyUserId: updateUserId }, transaction: t },
         );
       });
-      return this.getUser(customerAccountDetail?.customerAccountKey, updateUserId)
+      return this.getUser(customerAccountKey, updateUserId)
     } catch (error) { }
 
     return await this.getUser(customerAccountKey, updateUserId);
@@ -352,7 +346,6 @@ const sendMail = async (user: any, mailOptions: any) => {
     };
     const mailgunAuth = { auth };
     const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
-
     smtpTransport.sendMail(mailOptions, function (error, response) {
       if (error && Object.keys(error).length) {
         logger.error(`Error while sending mail`, error)
