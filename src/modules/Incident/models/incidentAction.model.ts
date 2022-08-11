@@ -27,7 +27,7 @@ export class IncidentActionModel extends Model<IIncidentAction, IIncidentActionC
 
   public incidentActionName: string;
   public incidentActionDescription: string;
-  public incidentActionStatus: 'EX' | 'RC';
+  public incidentActionStatus: 'EX' | 'RC' | 'PL' | 'RS' ;
   public incidentActionExecutedAt: Date;
 
   public readonly createdAt!: Date;

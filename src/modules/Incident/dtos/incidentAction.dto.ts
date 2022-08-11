@@ -11,5 +11,5 @@ export class CreateIncidentActionDto {
 
   @IsString()
   @IsNotEmpty()
-  public incidentActionStatus: 'EX' | 'RC';
+  public incidentActionStatus: 'EX' | 'RC' | 'PL' | 'RS';
 }

@@ -9,7 +9,7 @@ export interface IIncidentAction {
   deletedAt: Date;
   incidentActionName: string;
   incidentActionDescription: string;
-  incidentActionStatus: 'EX' | 'RC';
+  incidentActionStatus: 'EX' | 'RC' | 'PL' | 'RS';
   incidentActionExecutedAt: Date;
 }
 // incidentActionStatus: 'Executed' | 'Recommended';
