@@ -1328,7 +1328,7 @@ class executorService {
    */
     public async syncMetricReceived(clusterUuid: string): Promise<object> {
         
-        let distinctJobList;
+        //let distinctJobList =[];
         let targetJobDbAll;
         let targetJobDb = [];
         let targetJobCron = [];
@@ -1349,19 +1349,24 @@ class executorService {
             throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);   
         }
         let prometheus = responseResourceGroup.resourceGroupPrometheus;
+        
         //pull metric target
-        distinctJobList = await this.MetricMetaService.getDistinctJobOfMetricMetabyUuid(clusterUuid); 
-        if (!distinctJobList) {
+        targetJobDb = await this.MetricMetaService.getDistinctJobOfMetricMetabyUuid(clusterUuid); 
+        if (!targetJobDb) {
             throw new HttpException(404, `No metric Job information with the clusterUuid: ${clusterUuid}`);   
         }
         console.log ("######## target job from db");
+        console.log (targetJobDb);
+       
+        /* improvement/541 don't need to create job array 
         targetJobDbAll = JSON.parse(JSON.stringify(distinctJobList));
         targetJobDb = targetJobDbAll.map(function (obj) {return obj.metricMetaTargetJob})
         console.log (targetJobDb);
+        */
 
         //pull active metric-received job from nc-cron
        const resultFromCron = await this.schedulerService.getSchedulerByClusterId(clusterUuid);
-       console.log ("######## target job from scheduler");
+       //console.log ("######## target job from scheduler");
        let newList = [];
        resultFromCron.map((data)=>{
             const {scheduleApiBody} = data;
@@ -1385,6 +1390,7 @@ class executorService {
        let newTargetJob = targetJobDb.filter(x => !targetJobCron.includes(x));
        console.log ("filter result for new  "); 
        console.log (newTargetJob);
+
 
        // call scheduleMetricReceived() with loop
        for (let n=0; n<Object.keys(newTargetJob).length; n++) {
@@ -1439,6 +1445,7 @@ class executorService {
         }
         cronJobKey.concat(cronJobKey_new);
         cronJobKey.concat(cronJobKey_cancel);
+        
         return cronJobKey;
     }    
     

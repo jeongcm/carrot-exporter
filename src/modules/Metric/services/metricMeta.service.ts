@@ -25,13 +25,24 @@ class MetricMetaService {
     return allMetricMeta;
   }
 
-  public async getDistinctJobOfMetricMetabyUuid(resource_group_uuid: string): Promise<object> {
+  public async getDistinctJobOfMetricMetabyUuid(resource_group_uuid: string): Promise<any> {
+    /* 
+    // improvement/541 - perform distinct job using nodejs script not from DB
     const distinctJobMetricMeta = await this.metricMeta.findAll(
-//      {attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('metricMetaTargetJob')), 'metricMetaTargetJob']],
+    //      {attributes: [[Sequelize.fn('DISTINCT', Sequelize.col('metricMetaTargetJob')), 'metricMetaTargetJob']],
       {attributes: ['metricMetaTargetJob'], group:['metricMetaTargetJob'],
        where: { resourceGroupUuid: resource_group_uuid, deletedAt: null },
     });
-    
+    */
+
+    const resultMetricMeta = await this.metricMeta.findAll(
+      {attributes: ['metricMetaTargetJob'],
+      where: { resourceGroupUuid: resource_group_uuid, deletedAt: null },
+    });
+    const jobMetricMeta = resultMetricMeta.map(x=>x.metricMetaTargetJob);
+    //improvement/541 - perform distinct job using nodejs script not from DB
+    const distinctJobMetricMeta = Array.from(new Set(jobMetricMeta));
+
     return distinctJobMetricMeta;
   }
 

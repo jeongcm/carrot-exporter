@@ -337,7 +337,7 @@ class EvaluateServices {
         const resultMonitoringTarget: IAnomalyMonitoringTarget[] = await this.monitoringTargetService.findMonitoringTargetsByCustomerAccountKey(customerAccountKey);
         if (!resultMonitoringTarget) throw new HttpException(401, `Can't find AnomalyTarget - ${customerAccountId}`)
 
-        //3. call evaluateMonitorintTarget
+        //3. call evaluateMonitorintTarget (ML)
 
         let resultReturn = {};
         let resultEvaluation = {};
@@ -369,7 +369,9 @@ class EvaluateServices {
 
         //7. save the actions to incident actions
 
-        //8. create a message for return
+        //8. send email to access group user.             
+
+        //9. create a message for return
                     resultEvaluation = {
                         evaluationId: resultEvaluation.evaluationId,
                         evaluationResultStatus: resultEvaluation.evaluationResultStatus,
