@@ -43,11 +43,11 @@ export class UpdateIncidentDto {
 
   @IsOptional()
   @IsString()
-  public incidentStatus: '0O' | '1I' | '2R' | '3C';
+  public incidentStatus: '3O' | '2I' | '1R' | '0C';
 
   @IsOptional()
   @IsString()
-  public incidentSeverity: '0U' | '1H' | '2M' | '3L';
+  public incidentSeverity: '3U' | '2H' | '1M' | '0L';
 
   @IsOptional()
   @IsString()
