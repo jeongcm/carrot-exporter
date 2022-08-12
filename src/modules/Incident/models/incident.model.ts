@@ -31,8 +31,8 @@ export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> 
 
   public incidentName: string;
   public incidentDescription: string;
-  public incidentStatus: '0O' | '1I' | '2R' | '3C';
-  public incidentSeverity: '0U' | '1H' | '2M' | '3L';
+  public incidentStatus: '3O' | '2I' | '1R' | '0C';
+  public incidentSeverity: '3U' | '2H' | '1M' | '0L';
   public incidentDueDate: Date;
   public incidentPinned: boolean;
 
