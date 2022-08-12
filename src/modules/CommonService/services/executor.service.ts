@@ -1423,7 +1423,7 @@ class executorService {
         const nexclipperApiUrl = config.appUrl + ":" + config.appPort + "/executor/syncMetricMeta";
         const cronData = { name: "SyncMetricMeta",
         summary: "SyncMetricMeta",
-        cronTab: `*/5 * * * *`,
+        cronTab: `30 */5 * * * *`,  //Every min offset 30 sec`,
         apiUrl: nexclipperApiUrl,
         reRunRequire: true,
         scheduleFrom: "",
@@ -1515,7 +1515,7 @@ class executorService {
             let metricSummary = targetJob;
             let cronData = { name: metricName,
                         summary: metricSummary,
-                        cronTab: "30 0-59 * * * *",  //Every min offset 30 sec
+                        cronTab: "*/5 * * * *",
                         apiUrl: executorServerUrl,
                         clusterId: clusterUuid,
                         //accountId: customerAccountData.customerAccountId,
