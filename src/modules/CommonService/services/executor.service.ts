@@ -618,7 +618,7 @@ class executorService {
 
      //schdule SyncMetricMeta
      let cronTabforMetricMeta = config.metricCron;     
-     await this.scheduleSyncAlerts(clusterUuid, cronTabforMetricMeta
+     await this.scheduleSyncMetricMeta(clusterUuid, cronTabforMetricMeta
         ).then(async (res: any) =>{
             console.log(`Submitted MetricMeta sync schedule reqeust on ${clusterUuid} cluster successfully`);
           }).catch(error => {
