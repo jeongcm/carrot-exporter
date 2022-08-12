@@ -1515,7 +1515,7 @@ class executorService {
             let metricSummary = targetJob;
             let cronData = { name: metricName,
                         summary: metricSummary,
-                        cronTab: "*/5 * * * *",
+                        cronTab: "30 0-59 * * * *",  //Every min offset 30 sec
                         apiUrl: executorServerUrl,
                         clusterId: clusterUuid,
                         //accountId: customerAccountData.customerAccountId,
