@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsObject } from 'class-validator';
+import { IsString, IsNotEmpty, IsObject, IsOptional } from 'class-validator';
 
 export class ExecutorDto {
     @IsString()
@@ -32,6 +32,10 @@ export class ExecutorDto {
     @IsString()
     @IsNotEmpty()
     public clusterUuid: string;
+
+    @IsString()
+    @IsOptional()
+    public cronTab: string;
   
   }
 

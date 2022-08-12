@@ -24,7 +24,9 @@ export default {
   maxApiBodySize: process.env.NC_MAX_API_BODY_SIZE || '50mb',
   logFormat: process.env.NC_LARI_LOG_FORMAT,
   helmRepoUrl: process.env.NC_LARI_HELM_REPO_URL,
-  resourceCron: process.env.NC_LARI_RESOURCE_CRON,
+  resourceCron: process.env.NC_LARI_RESOURCE_CRON || `*/10 * * * *`,
+  alertCron: process.env.NC_LARI_ALERT_CRON || `* * * * *`,
+  metricCron: process.env.NC_LARI_METRIC_CRON || `*/5 * * * *`,
   frontenAppUrl: process.env.NC_LARI_FRONTEND_URL,
   cors: {
     allowAnyOrigin: process.env.NC_LARI_CORS_ORIGIN === 'true' ? Boolean(process.env.NC_LARI_CORS_ORIGIN) : process.env.NC_LARI_CORS_ORIGIN,
