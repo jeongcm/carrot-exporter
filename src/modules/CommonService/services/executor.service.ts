@@ -212,8 +212,39 @@ class executorService {
   }
 
   /**
-   * @param  {string} clusterUuid
+   * @param {string} clusterUuid
+   * @param {number} customerAccountKey
    */
+   public async checkExecutorClientOnly(clusterUuid: string, customerAccountKey: number): Promise<Object> {
+    var clientData = {};
+    var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
+    const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
+    executorServerUrl = executorServerUrl + sessionQueryParameter;
+    await axios(
+    {
+        method: 'get',
+        url: `${executorServerUrl}`,
+        headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
+    }).then(async (res: any) => {
+        if(!res.data[0]) {  
+        console.log(`Executor/Sudory client not found yet from cluster: ${clusterUuid}`); 
+        throw new HttpException(400, `Executor/Sudory client not found yet from cluster: ${clusterUuid}`);
+        };
+        clientData = Object.assign({},res.data[0]); 
+        
+        console.log(`Successful to check Sudory client on ${clusterUuid}`);
+    }).catch(error => {
+        console.log(error);
+        throw new HttpException(500, `Unknown error while searching executor/sudory client - ${clusterUuid}`);
+    });
+    return clientData;
+  }
+
+
+  /**
+   * @param {string} clusterUuid
+   * @param {number} customerAccountKey
+  */
    public async checkExecutorClient(clusterUuid: string, customerAccountKey: number): Promise<IExecutorClientCheck> {
         var clientUuid = "";
         var resourceJobKey = [];
@@ -1780,7 +1811,7 @@ class executorService {
       }
        
        return cronJobKey;
-       }    
+    }    
 
    /**
    * @param {string} clusterUuid

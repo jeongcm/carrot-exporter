@@ -55,6 +55,7 @@ import SchedulerRoute from './modules/Scheduler/routes/scheduler.route';
 import ExportersRoute from './modules/Exporters/routes/exporters.route';
 import EvaluateRoute from './modules/MetricOps/routes/evaluate.route';
 import SocialLoginRoutes from './modules/SocialLogin/routes/socialLogin.route';
+import HealthRoute from './modules/CommonService/routes/health.route';
 
 const app = new App([
   new IndexRoute(),
@@ -108,7 +109,8 @@ const app = new App([
   new SchedulerRoute(),
   new ExportersRoute(),
   new EvaluateRoute(),
-  new SocialLoginRoutes()
+  new SocialLoginRoutes(),
+  new HealthRoute(),
 ]);
 
 app.listen();
