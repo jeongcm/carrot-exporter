@@ -62,7 +62,7 @@ class ExecutorRoute implements Routes {
       this.executorController.scheduleMetricReceived,
     );
     this.router.post(
-      '/executor/schedule/metric',
+      '/executor/schedule/metricMeta',
       authMiddleware,
       validationMiddleware(ExecutorUuidDto, 'body'),
       //      createUserLogMiddleware,
@@ -83,11 +83,53 @@ class ExecutorRoute implements Routes {
       this.executorController.syncMetricReceived,
     );
     this.router.post(
+      '/executor/syncResources',
+      systemAuthMiddleware,
+      //validationMiddleware(ExecutorUuidDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.syncResources,
+    );
+    this.router.post(
+      '/executor/syncAlerts',
+      systemAuthMiddleware,
+      //validationMiddleware(ExecutorUuidDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.syncAlerts,
+    );
+    this.router.post(
+      '/executor/syncMetricMeta',
+      systemAuthMiddleware,
+      //validationMiddleware(ExecutorUuidDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.syncMetricMeta,
+    );
+    this.router.post(
       '/executor/schedule/syncMetricReceived',
       authMiddleware,
       validationMiddleware(ExecutorUuidDto, 'body'),
       //      createUserLogMiddleware,
       this.executorController.scheduleSyncMetricReceived,
+    );
+    this.router.post(
+      '/executor/schedule/syncResources',
+      authMiddleware,
+      validationMiddleware(ExecutorUuidDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.scheduleSyncResources,
+    );
+    this.router.post(
+      '/executor/schedule/syncAlerts',
+      authMiddleware,
+      validationMiddleware(ExecutorUuidDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.scheduleSyncAlerts,
+    );
+    this.router.post(
+      '/executor/schedule/syncMetricMeta',
+      authMiddleware,
+      validationMiddleware(ExecutorUuidDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.scheduleSyncMetricMeta,
     );
     this.router.post(
       '/executor/sudorywebhook',
