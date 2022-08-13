@@ -1155,6 +1155,8 @@ class executorService {
 
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+        let subscribed_channel = config.sudoryApiDetail.channel_alert;
+
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
         var cronJobKey;
@@ -1187,7 +1189,7 @@ class executorService {
                             name: "Get Alert Rules & Alert Received",
                             template_uuid: "10000000000000000000000000000004",
                             summary: "Get Alert Rules & Alert Received",
-                            subscribed_channel: "nc_alert",
+                            subscribed_channel: subscribed_channel,
                             on_completion: on_completion,
                             steps: [
                                     {
@@ -1745,7 +1747,8 @@ class executorService {
            throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);   
        }
        let customerAccountData = await this.customerAccountService.getCustomerAccountByKey(responseResourceGroup.customerAccountKey);
-   
+       let prometheus = responseResourceGroup.resourceGroupPrometheus;
+
        console.log ("######## target job from db");
        console.log (targetJobDb);
       
@@ -1797,9 +1800,9 @@ class executorService {
                            on_completion: on_completion,
                            steps: [
                                    {
-                                       args: {
-                                               labels: {},
-                                           }
+                                        args: {
+                                                url: prometheus
+                                              }
                                    }
                            ]
                        }
