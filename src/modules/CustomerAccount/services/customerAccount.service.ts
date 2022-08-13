@@ -33,6 +33,7 @@ class CustomerAccountService {
         createdBy: systemId || 'SYSTEM',
       });
 
+      /* blocked due to Maximum call stack size exceeded error
       //schdule Heathcheck of customer Account clusters //improvement/547
       let cronTabforHealth = config.healthCron;     
       await this.healthService.scheduleCheckHealthByCustomerAccountId(customerAccountId, cronTabforHealth
@@ -42,7 +43,7 @@ class CustomerAccountService {
           console.log(error);
           throw new HttpException(500, `create CustomerAccount but fail to schedule health check service - ${customerAccountId}`);
         }); //end of catch  
-            
+      */      
       return createdCustomerAccount;
     } catch (error) {
       console.log('error', error);
