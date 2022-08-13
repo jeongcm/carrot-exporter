@@ -6,13 +6,11 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
 import { IExecutorClient, ExecutorResultDto, ExecutorResourceListDto, IExecutorClientCheck, SudoryWebhookDto } from '@/modules/CommonService/dtos/executor.dto';
 
-//import TableIdService from '@/modules/CommonService/services/tableId.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-//import { isBreakOrContinueStatement } from 'typescript';
-//import { template } from 'lodash';
 import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
+
 import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
@@ -22,6 +20,7 @@ class executorService {
     public resourceGroupService = new ResourceGroupService();
     public MetricMetaService = new MetricMetaService();
     public schedulerService = new SchedulerService();
+    
     public sudoryWebhook = DB.SudoryWebhook; 
     public executorService = DB.ExecutorService; 
     public resourceGroup = DB.ResourceGroup;
@@ -212,8 +211,39 @@ class executorService {
   }
 
   /**
-   * @param  {string} clusterUuid
+   * @param {string} clusterUuid
+   * @param {number} customerAccountKey
    */
+   public async checkExecutorClientOnly(clusterUuid: string, customerAccountKey: number): Promise<Object> {
+    var clientData = {};
+    var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
+    const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
+    executorServerUrl = executorServerUrl + sessionQueryParameter;
+    await axios(
+    {
+        method: 'get',
+        url: `${executorServerUrl}`,
+        headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
+    }).then(async (res: any) => {
+        if(!res.data[0]) {  
+        console.log(`Executor/Sudory client not found yet from cluster: ${clusterUuid}`); 
+        throw new HttpException(400, `Executor/Sudory client not found yet from cluster: ${clusterUuid}`);
+        };
+        clientData = Object.assign({},res.data[0]); 
+        
+        console.log(`Successful to check Sudory client on ${clusterUuid}`);
+    }).catch(error => {
+        console.log(error);
+        throw new HttpException(500, `Unknown error while searching executor/sudory client - ${clusterUuid}`);
+    });
+    return clientData;
+  }
+
+
+  /**
+   * @param {string} clusterUuid
+   * @param {number} customerAccountKey
+  */
    public async checkExecutorClient(clusterUuid: string, customerAccountKey: number): Promise<IExecutorClientCheck> {
         var clientUuid = "";
         var resourceJobKey = [];
@@ -595,7 +625,6 @@ class executorService {
             throw new HttpException(500, "Submitted kps chart installation request but fail to schedule metric-received sync");
           }); //end of catch
 
-
      //schdule SyncResource
      let cronTabforResource = config.resourceCron;     
      await this.scheduleSyncResources(clusterUuid, cronTabforResource
@@ -625,7 +654,7 @@ class executorService {
             console.log(error);
             throw new HttpException(500, "Submitted kps chart installation request but fail to schedule metric meta sync");
           }); //end of catch
-
+          
     return serviceUuid;
     }          
 
@@ -1124,6 +1153,8 @@ class executorService {
 
         const on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+        let subscribed_channel = config.sudoryApiDetail.channel_alert;
+
         //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090"; 
         var cronData;
         var cronJobKey;
@@ -1156,7 +1187,7 @@ class executorService {
                             name: "Get Alert Rules & Alert Received",
                             template_uuid: "10000000000000000000000000000004",
                             summary: "Get Alert Rules & Alert Received",
-                            subscribed_channel: "nc_alert",
+                            subscribed_channel: subscribed_channel,
                             on_completion: on_completion,
                             steps: [
                                     {
@@ -1714,7 +1745,8 @@ class executorService {
            throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);   
        }
        let customerAccountData = await this.customerAccountService.getCustomerAccountByKey(responseResourceGroup.customerAccountKey);
-   
+       let prometheus = responseResourceGroup.resourceGroupPrometheus;
+
        console.log ("######## target job from db");
        console.log (targetJobDb);
       
@@ -1766,9 +1798,9 @@ class executorService {
                            on_completion: on_completion,
                            steps: [
                                    {
-                                       args: {
-                                               labels: {},
-                                           }
+                                        args: {
+                                                url: prometheus
+                                              }
                                    }
                            ]
                        }
@@ -1780,7 +1812,7 @@ class executorService {
       }
        
        return cronJobKey;
-       }    
+    }    
 
    /**
    * @param {string} clusterUuid
