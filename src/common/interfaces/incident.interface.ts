@@ -10,8 +10,8 @@ export interface IIncident {
   deletedAt: Date;
   incidentName: string;
   incidentDescription: string;
-  incidentStatus: '0O' | '1I' | '2R' | '3C';
-  incidentSeverity: '0U' | '1H' | '2M' | '3L';
+  incidentStatus: '3O' | '2I' | '1R' | '0C';
+  incidentSeverity: '3U' | '2H' | '1M' | '0L';
   incidentDueDate: Date;
   incidentPinned: boolean;
 }
