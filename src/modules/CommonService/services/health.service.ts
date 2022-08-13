@@ -5,17 +5,18 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 
 //import TableIdService from '@/modules/CommonService/services/tableId.service';
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+//import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import ExecutorService from '@/modules/CommonService/services/executor.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 
 class healthService {
     //    public tableIdService = new TableIdService();
-        public customerAccountService = new CustomerAccountService();
+    //    public customerAccountService = new CustomerAccountService();
         public resourceGroupService = new ResourceGroupService();
         public executorService = new ExecutorService();
         public schedulerService = new SchedulerService();
+        public customerAccount = DB.CustomerAccount;
 
    /**
    * @param {string} customerAccountId
@@ -24,7 +25,14 @@ class healthService {
 
        //1. validateCustomerAccountId
        
-        let customerAccountData = await this.customerAccountService.getCustomerAccountById(customerAccountId);
+        let queryCustomer = {
+            where:
+            {deleted_at: null,
+             customerAccountId: customerAccountId,
+            }
+        };
+        let customerAccountData = await this.customerAccount.findOne(queryCustomer);
+        //let customerAccountData = await this.customerAccountService.getCustomerAccountById(customerAccountId);
         if (!customerAccountData) {
             throw new HttpException(404, `Can't find customerAccount information: ${customerAccountId}`);   
         }

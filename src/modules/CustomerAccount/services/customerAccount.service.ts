@@ -8,7 +8,7 @@ import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface'
 import { AddressModel } from '@/modules/Address/models/address.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
-import HealthService from '@/modules/CommonService/services/health.service';
+//import HealthService from '@/modules/CommonService/services/health.service';
 /**
  * @memberof CustomerAccount
  */
@@ -18,7 +18,7 @@ class CustomerAccountService {
   public customerAccountAdress = DB.CustomerAccountAddress;
   public party = DB.Party;
   public tableIdService = new tableIdService();
-  public healthService = new HealthService();
+  //public healthService = new HealthService();
 
   public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, systemId: string): Promise<ICustomerAccount> {
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
