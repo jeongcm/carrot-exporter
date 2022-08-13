@@ -92,11 +92,11 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
     max: pool.max,
   },
   logQueryParameters: config.nodeEnv === 'development',
-  logging: (query, time) => {
+  //logging: (query, time) => {
     // TODO: find a better way to leave a log
     // logger.info(time + 'ms' + ' ' + query);
-  },
-  //logging: console.log,
+  //},
+  logging: console.log,
   benchmark: true,
   retry: {
     match: [/Deadlock/i],
