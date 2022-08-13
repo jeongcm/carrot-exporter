@@ -19,9 +19,8 @@ class healthService {
 
    /**
    * @param {string} customerAccountId
-   * @param {string} cronTab
    */
-    public async checkHealthByCustomerAccountId(customerAccountId: string, cronTab: string): Promise<object> {
+    public async checkHealthByCustomerAccountId(customerAccountId: string): Promise<object> {
 
        //1. validateCustomerAccountId
        
@@ -118,7 +117,31 @@ class healthService {
         return clusterStatus;
     }    
 
+   /**
+   * @param {string} customerAccountId
+   * @param {string} cronTab
+   */
+    public async scheduleCheckHealthByCustomerAccountId(customerAccountId: string, cronTab: string): Promise<object> {
 
+        const nexclipperApiUrl = config.appUrl + ":" + config.appPort + "/health/customerAccount";
+        const cronData = { name: "checkHeathByCustomerAccountId",
+        summary: "checkHeathByCustomerAccountId",
+        cronTab: cronTab,
+        apiUrl: nexclipperApiUrl,
+        reRunRequire: true,
+        scheduleFrom: "",
+        scheduleTo: "",
+        clusterId: "",
+        apiBody:
+            {
+                customerAccountId: customerAccountId,
+                cronTab: cronTab
+            }
+      };
+      const resultSchedule = await this.schedulerService.createScheduler(cronData, customerAccountId); 
+      console.log (resultSchedule); 
+      return resultSchedule; 
+    }
 
     }
     export default healthService;

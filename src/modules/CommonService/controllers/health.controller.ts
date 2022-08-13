@@ -16,9 +16,8 @@ class healthController {
   public checkHealthByCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountId = req.body.customerAccountId;
-      const cronTab = req.body.cronTab || config.healthCron;
-
-      const healthServiceResult = await this.healthService.checkHealthByCustomerAccountId(customerAccountId,cronTab);
+  
+      const healthServiceResult = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
       res.status(200).json({ data: healthServiceResult, message: `Healthcheck finished successfuly - customerAccountId -  ${customerAccountId}` });
     } catch (error) {
       next(error);

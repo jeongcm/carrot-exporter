@@ -6,13 +6,11 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
 import { IExecutorClient, ExecutorResultDto, ExecutorResourceListDto, IExecutorClientCheck, SudoryWebhookDto } from '@/modules/CommonService/dtos/executor.dto';
 
-//import TableIdService from '@/modules/CommonService/services/tableId.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-//import { isBreakOrContinueStatement } from 'typescript';
-//import { template } from 'lodash';
 import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
+
 import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
@@ -22,6 +20,7 @@ class executorService {
     public resourceGroupService = new ResourceGroupService();
     public MetricMetaService = new MetricMetaService();
     public schedulerService = new SchedulerService();
+    
     public sudoryWebhook = DB.SudoryWebhook; 
     public executorService = DB.ExecutorService; 
     public resourceGroup = DB.ResourceGroup;
@@ -626,7 +625,6 @@ class executorService {
             throw new HttpException(500, "Submitted kps chart installation request but fail to schedule metric-received sync");
           }); //end of catch
 
-
      //schdule SyncResource
      let cronTabforResource = config.resourceCron;     
      await this.scheduleSyncResources(clusterUuid, cronTabforResource
@@ -656,7 +654,7 @@ class executorService {
             console.log(error);
             throw new HttpException(500, "Submitted kps chart installation request but fail to schedule metric meta sync");
           }); //end of catch
-
+          
     return serviceUuid;
     }          
 
