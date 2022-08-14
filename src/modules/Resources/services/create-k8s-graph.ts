@@ -1,4 +1,5 @@
 import each from 'lodash/each';
+import { logger } from '@common/utils/logger';
 
 export const REQUIRED_RESOURCE_TYPES = ['NS', 'SS', 'DS', 'RS', 'DP', 'PD', 'SV', 'VM', 'SC', 'CM', 'PV', 'EP', 'PC'];
 
@@ -57,7 +58,8 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
     const nodeId = createNodeId(resource);
     let { resourceNamespace: namespace } = resource;
 
-    if (resource.resourceType === 'PV') {
+    // We injected resourceNamespace for PV as same as the target resource to make it the same namespace
+    if (resource.resourceType === 'PV' && !resource.resourceNamespace) {
       namespace = resource.resourcePvClaimRef?.namespace;
     }
 
@@ -118,25 +120,6 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
 
   const existingEdgeIds: string[] = [];
 
-  const addEdge = (namespace: string, edge: any) => {
-    const edgeId = `${edge.source}__${edge.target}`;
-    if (resourcePerNodeId[edge.target] && existingEdgeIds.indexOf(edgeId) === -1) {
-      existingEdgeIds.push(edgeId);
-      const style = edge.style || {};
-      delete edge.style;
-      nsNodes[namespace].edges.push({
-        id: edgeId,
-        type: 'straight',
-        // animated: true,
-        style: {
-          stroke: `var(--experimental-blue)`,
-          ...style,
-        },
-        ...edge,
-      });
-    }
-  };
-
   // STEP 2: Link them by creating edges
   (resources || []).map((resource: any, index: number) => {
     const { resourceType, _nodeId, resourceNamespace = 'default' } = resource;
@@ -149,10 +132,19 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
               const { targetRef } = address;
               if (targetRef) {
                 const target = `${targetRef.namespace}.${targetRef.uid}`;
-                addEdge(resourceNamespace, {
-                  source: _nodeId,
-                  target,
-                });
+
+                logger.info('EP target: ' + target + ' EP: ' + _nodeId);
+
+                addEdge(
+                  resourceNamespace,
+                  {
+                    source: _nodeId,
+                    target,
+                  },
+                  nsNodes,
+                  existingEdgeIds,
+                  resourcePerNodeId,
+                );
               }
             });
           });
@@ -162,25 +154,37 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
       case 'SV':
         const target = `${resource.resourceNamespace}.EP.${resource.resourceName}`;
         if (resourcePerNodeId[target]) {
-          addEdge(resource.resourceNamespace, {
-            source: _nodeId,
-            target,
-          });
+          addEdge(
+            resource.resourceNamespace,
+            {
+              source: _nodeId,
+              target,
+            },
+            nsNodes,
+            existingEdgeIds,
+            resourcePerNodeId,
+          );
         }
         break;
 
       case 'DS':
-      case 'RS':
       case 'SS':
+      case 'RS':
         (resource.resourceOwnerReferences || []).map((owner: any) => {
           const type = TYPE_PER_NAME[(owner.kind || '').toLowerCase()];
           const uid = owner.uid;
           const target = `${resourceNamespace}.${uid}`;
 
-          addEdge(resourceNamespace, {
-            source: _nodeId,
-            target,
-          });
+          addEdge(
+            resourceNamespace,
+            {
+              source: _nodeId,
+              target,
+            },
+            nsNodes,
+            existingEdgeIds,
+            resourcePerNodeId,
+          );
         });
         break;
 
@@ -188,27 +192,41 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
         if (resource.resourcePvClaimRef) {
           const claim = resource.resourcePvClaimRef;
           const target = `${claim.namespace}.PC.${claim.name}`;
-          addEdge(claim.namespace, {
-            source: _nodeId,
-            target,
-            style: {
-              strokeDasharray: 2.5,
-              strokeWidth: 2,
+          addEdge(
+            claim.namespace,
+            {
+              source: _nodeId,
+              target,
+              style: {
+                strokeDasharray: 2.5,
+                strokeWidth: 2,
+              },
             },
-          });
+            nsNodes,
+            existingEdgeIds,
+            resourcePerNodeId,
+          );
         }
         break;
 
       case 'PD':
+        logger.info('PD: ' + _nodeId);
+
         (resource.resourceOwnerReferences || []).map((owner: any) => {
           const type = TYPE_PER_NAME[(owner.kind || '').toLowerCase()];
           const uid = owner.uid;
           const target = `${resourceNamespace}.${uid}`;
 
-          addEdge(resourceNamespace, {
-            source: _nodeId,
-            target,
-          });
+          addEdge(
+            resourceNamespace,
+            {
+              source: _nodeId,
+              target,
+            },
+            nsNodes,
+            existingEdgeIds,
+            resourcePerNodeId,
+          );
         });
 
         (resource.resourcePodVolume || []).forEach((volume: any) => {
@@ -222,10 +240,16 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
           }
           const edgeId = `${_nodeId}:${target}`;
 
-          addEdge(resourceNamespace, {
-            source: _nodeId,
-            target,
-          });
+          addEdge(
+            resourceNamespace,
+            {
+              source: _nodeId,
+              target,
+            },
+            nsNodes,
+            existingEdgeIds,
+            resourcePerNodeId,
+          );
         });
 
         (resource.resourcePodContainer || []).forEach((container: any) => {
@@ -237,10 +261,16 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
               target = `${resourceNamespace}.SE.${env.valueFrom.secretKeyRef.name}`;
             }
 
-            addEdge(resourceNamespace, {
-              source: _nodeId,
-              target,
-            });
+            addEdge(
+              resourceNamespace,
+              {
+                source: _nodeId,
+                target,
+              },
+              nsNodes,
+              existingEdgeIds,
+              resourcePerNodeId,
+            );
           });
         });
         break;
@@ -280,6 +310,29 @@ export const createNodeId: any = (resource: any) => {
     default:
       return `${resourceNamespace}.${resource.resourceTargetUuid}`;
   }
+};
+
+const addEdge = (namespace: string, edge: any, nsNodes: any, existingEdgeIds: string[], resourcePerNodeId: any) => {
+  const edgeId = `${edge.source}__${edge.target}`;
+  if (resourcePerNodeId[edge.target] && existingEdgeIds.indexOf(edgeId) === -1) {
+    existingEdgeIds.push(edgeId);
+
+    const style = edge.style || {};
+    delete edge.style;
+    nsNodes[namespace].edges.push({
+      id: edgeId,
+      type: 'straight',
+      // animated: true,
+      style: {
+        stroke: `var(--experimental-blue)`,
+        ...style,
+      },
+      ...edge,
+    });
+
+  }
+
+  return nsNodes;
 };
 
 export default createK8sGraph;

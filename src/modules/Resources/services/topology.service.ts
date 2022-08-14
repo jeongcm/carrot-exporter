@@ -159,13 +159,13 @@ class TopologyService extends ServiceExtension {
 
   public async getRelatedResources(resourceKey: number, customerAccountKey?: number): Promise<IRelatedResourceResultDto> {
     const customerAccountKeyWhereInsert: any = customerAccountKey ? { customerAccountKey } : {};
-    
+
     const targetResource: IResource = await this.resource.findOne({
       where: { resourceKey, ...customerAccountKeyWhereInsert, deletedAt: null },
     });
-    
+
     if (!targetResource) {
-      this.throwError('EXCEPTION', 'no resource found'); 
+      this.throwError('EXCEPTION', 'no resource found');
       //return this.throwError('EXCEPTION', 'no resource found');
     }
 
@@ -181,14 +181,23 @@ class TopologyService extends ServiceExtension {
           {
             resourceNamespace,
           },
+          {
+            resourceType: 'PV',
+          },
         ],
       },
+      raw: true,
     });
-    
-    ;
-     
-    const { nodes } = await createK8sGraph(resourcesInSameNs, {});
-     
+
+    const { nodes } = await createK8sGraph(
+      resourcesInSameNs.map((resource: IResource) => {
+        return {
+          ...resource,
+          resourceNamespace,
+        };
+      }),
+      {},
+    );
 
     if (!nodes || nodes.length === 0) {
       return {
@@ -198,7 +207,7 @@ class TopologyService extends ServiceExtension {
         flat: [],
       };
     }
-    
+
     const result = filterRelatedGraph(nodes, targetResource);
 
     return {
@@ -207,8 +216,6 @@ class TopologyService extends ServiceExtension {
       flat: result.flat,
     };
   }
-
-
 }
 
 export default TopologyService;
