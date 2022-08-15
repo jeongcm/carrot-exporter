@@ -2,8 +2,8 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
-import BayesianModelController  from '../controllers/bayesianModel.controller';
-import ModelRuleScoreController  from '../controllers/modelRuleScore.controller';
+import BayesianModelController from '../controllers/bayesianModel.controller';
+import ModelRuleScoreController from '../controllers/modelRuleScore.controller';
 import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
 import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
 import { AttachRuleGroupDto, DetachRuleGroupDto, UpdateAttachRuleGroupDto } from '../dtos/modelRuleScore.dto';
@@ -24,9 +24,14 @@ class BayesianModelRoute implements Routes {
       validationMiddleware(CreateBayesianModelDto, 'body'),
       this.bayesianModelController.createBayesianModel,
     );
-    this.router.get('/bayesianModels', authMiddleware, createUserLogMiddleware,  this.bayesianModelController.getAllBayesianModel);
-    this.router.get('/bayesianModels/:resourceType', authMiddleware, createUserLogMiddleware,  this.bayesianModelController.getBayesianModelByResourceType);
-    this.router.get('/bayesianModel/:bayesianModelId', authMiddleware, createUserLogMiddleware,  this.bayesianModelController.getBayesianModelById);
+    this.router.get('/bayesianModels', authMiddleware, createUserLogMiddleware, this.bayesianModelController.getAllBayesianModel);
+    this.router.get(
+      '/bayesianModels/:resourceType',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.bayesianModelController.getBayesianModelByResourceType,
+    );
+    this.router.get('/bayesianModel/:bayesianModelId', authMiddleware, createUserLogMiddleware, this.bayesianModelController.getBayesianModelById);
     this.router.put(
       '/bayesianModel/:bayesianModelId',
       authMiddleware,
@@ -68,16 +73,8 @@ class BayesianModelRoute implements Routes {
       createUserLogMiddleware,
       this.modelRuleScoreController.getModelScoreByGroupId,
     );
-    this.router.get(
-      '/bayesianModels/ruleGroup/:ruleGroupId',
-      authMiddleware,
-      this.modelRuleScoreController.getAllModelsByGroupId,
-    );
-    this.router.delete(
-      '/bayesianModels/:baysianModelId',
-      authMiddleware,
-      this.bayesianModelController.deleteBayesianModel,
-    );
+    this.router.get('/bayesianModels/ruleGroup/:ruleGroupId', authMiddleware, this.modelRuleScoreController.getAllModelsByGroupId);
+    this.router.delete('/bayesianModels/:baysianModelId', authMiddleware, this.bayesianModelController.deleteBayesianModel);
   }
 }
 

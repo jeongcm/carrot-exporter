@@ -2,7 +2,7 @@ import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IResolutionAction } from '@/common/interfaces/resolutionAction.interface';
 
 export type ResolutionActionAttributes = Optional<
-IResolutionAction,
+  IResolutionAction,
   | 'resolutionActionKey'
   | 'resolutionActionId'
   | 'createdBy'
@@ -15,7 +15,6 @@ IResolutionAction,
   | 'sudoryTemplateKey'
   | 'resolutionActionTemplateSteps'
 >;
-
 export class ResolutionActionModel extends Model<IResolutionAction, ResolutionActionAttributes> implements IResolutionAction {
   public resolutionActionKey: number;
   public resolutionActionId: string;
@@ -25,7 +24,7 @@ export class ResolutionActionModel extends Model<IResolutionAction, ResolutionAc
   public resolutionActionName: string;
   public resolutionActionDescription: string;
   public sudoryTemplateKey: number;
-  public resolutionActionTemplateSteps:JSON;
+  public resolutionActionTemplateSteps: JSON;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -34,7 +33,7 @@ export class ResolutionActionModel extends Model<IResolutionAction, ResolutionAc
 export default function (sequelize: Sequelize): typeof ResolutionActionModel {
   ResolutionActionModel.init(
     {
-        resolutionActionKey: {
+      resolutionActionKey: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
@@ -43,7 +42,7 @@ export default function (sequelize: Sequelize): typeof ResolutionActionModel {
       resolutionActionId: {
         allowNull: false,
         type: DataTypes.STRING(16),
-        unique: true
+        unique: true,
       },
       createdBy: {
         allowNull: false,
@@ -51,7 +50,7 @@ export default function (sequelize: Sequelize): typeof ResolutionActionModel {
       },
       updatedBy: {
         type: DataTypes.STRING(16),
-        allowNull:true
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,
@@ -59,27 +58,27 @@ export default function (sequelize: Sequelize): typeof ResolutionActionModel {
       },
       updatedAt: {
         type: DataTypes.DATE,
-        allowNull:true
+        allowNull: true,
       },
       deletedAt: {
         type: DataTypes.DATE,
-        allowNull:true
+        allowNull: true,
       },
       resolutionActionName: {
         type: DataTypes.STRING(100),
-        allowNull:false
+        allowNull: false,
       },
       resolutionActionDescription: {
         type: DataTypes.STRING(500),
-        allowNull:false
+        allowNull: false,
       },
       resolutionActionTemplateSteps: {
-        type: DataTypes.JSON
+        type: DataTypes.JSON,
       },
       sudoryTemplateKey: {
         type: DataTypes.INTEGER,
-        allowNull:false
-      }
+        allowNull: false,
+      },
     },
     {
       tableName: 'ResolutionAction',

@@ -63,7 +63,6 @@ import ExportersModel from '@/modules/Exporters/models/exporters.model';
 import TokenModel from '@/modules/Token/token.model';
 import EvaluationModel from '@/modules/MetricOps/models/evaluate.model';
 
-
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
 const user = config.db.mariadb.user;
@@ -101,9 +100,9 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   retry: {
     match: [/Deadlock/i],
     max: 3, // Maximum rety 3 times
-//    backoffBase: 1000, // Initial backoff duration in ms. Default: 100,
-//    backoffExponent: 1.5, // Exponent to increase backoff each try. Default: 1.1
-//    timeout: 50000,
+    //    backoffBase: 1000, // Initial backoff duration in ms. Default: 100,
+    //    backoffExponent: 1.5, // Exponent to increase backoff each try. Default: 1.1
+    //    timeout: 50000,
   },
 });
 
@@ -317,13 +316,13 @@ DB.ModelRuleScore.belongsTo(DB.RuleGroup, { foreignKey: 'rule_group_key' });
 DB.BayesianModel.hasMany(DB.ModelRuleScore, { foreignKey: 'bayesian_model_key' });
 DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
-DB.SudoryTemplate.hasMany(DB.ResolutionAction, {  foreignKey: 'sudory_template_key' });
-DB.ResolutionAction.belongsTo(DB.SudoryTemplate, { as:"sudoryTemplate", foreignKey: 'sudory_template_key' });
+DB.SudoryTemplate.hasMany(DB.ResolutionAction, { foreignKey: 'sudory_template_key' });
+DB.ResolutionAction.belongsTo(DB.SudoryTemplate, { as: 'sudoryTemplate', foreignKey: 'sudory_template_key' });
 
-DB.BayesianModel.hasMany(DB.ModelRuleScore, {  foreignKey: 'bayesian_model_key' });
+DB.BayesianModel.hasMany(DB.ModelRuleScore, { foreignKey: 'bayesian_model_key' });
 DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
-DB.BayesianModel.hasMany(DB.AnomalyMonitoringTarget, {  foreignKey: 'bayesian_model_key' });
+DB.BayesianModel.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'bayesian_model_key' });
 DB.AnomalyMonitoringTarget.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
 DB.ResourceGroup.hasOne(DB.RuleGroup, { foreignKey: 'resource_group_key' });
@@ -332,7 +331,7 @@ DB.RuleGroup.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 DB.ResourceGroup.hasOne(DB.BayesianModel, { foreignKey: 'resource_group_key' });
 DB.BayesianModel.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 
-DB.AnomalyMonitoringTarget.hasMany(DB.Evaluation, {  foreignKey: 'anomalyMonitoringTargetKey' });
+DB.AnomalyMonitoringTarget.hasMany(DB.Evaluation, { foreignKey: 'anomalyMonitoringTargetKey' });
 DB.Evaluation.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetKey' });
 
 DB.Party.belongsToMany(DB.Resource, {
@@ -428,7 +427,6 @@ DB.Evaluation.belongsTo(DB.BayesianModel, { foreignKey: 'bayesianModelKey' });
 
 DB.ResourceGroup.hasMany(DB.Evaluation, { foreignKey: 'bayesianModelKey' });
 DB.Evaluation.belongsTo(DB.ResourceGroup, { foreignKey: 'bayesianModelKey' });
-
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
