@@ -1426,7 +1426,7 @@ class executorService {
         const nexclipperApiUrl = config.appUrl + ":" + config.appPort + "/executor/syncAlerts";
         const cronData = { name: "SyncAlerts",
         summary: "SyncAlerts",
-        cronTab: `*/5 * * * *`,
+        cronTab: "*/5 * * * *",
         apiUrl: nexclipperApiUrl,
         reRunRequire: true,
         scheduleFrom: "",

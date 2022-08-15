@@ -11,7 +11,7 @@ class BayesianModelController {
   public getAllBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const bayesianModelClusterId = req?.query?.clusterId
+      const bayesianModelClusterId = req?.query?.clusterId;
       const bayesianModelList: IBayesianDBModel[] = await this.bayesianModelService.findAllBayesianModel(customerAccountKey, bayesianModelClusterId);
       res.status(200).json({ data: bayesianModelList, message: 'findAll' });
     } catch (error) {
@@ -19,30 +19,26 @@ class BayesianModelController {
     }
   };
 
-   public deleteBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-     try {
-       const bayesianModelId: string = req.params.baysianModelId;
-       const partyId = req.user.partyId;
-       console.log (bayesianModelId); 
-       const deletedFlag = await this.bayesianModelService.deleteBayesianModel(bayesianModelId, partyId);
-       if (deletedFlag) {
-         res.status(200).json({ data: deletedFlag, message: 'deleted' });
-       } else {
-         res.status(204).json({ data: deletedFlag, message: 'No Content' });
-       }
-     } catch (error) {
-       next(error);
-     }
-   };
+  public deleteBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const bayesianModelId: string = req.params.baysianModelId;
+      const partyId = req.user.partyId;
+      console.log(bayesianModelId);
+      const deletedFlag = await this.bayesianModelService.deleteBayesianModel(bayesianModelId, partyId);
+      if (deletedFlag) {
+        res.status(200).json({ data: deletedFlag, message: 'deleted' });
+      } else {
+        res.status(204).json({ data: deletedFlag, message: 'No Content' });
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
 
   public createBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {
-        user: { partyId } = {},
-        systemId,
-        customerAccountKey
-      } = req;
-      console.log("customerAccountKey", customerAccountKey)
+      const { user: { partyId } = {}, systemId, customerAccountKey } = req;
+      console.log('customerAccountKey', customerAccountKey);
       const bayesianModelData: CreateBayesianModelDto = req.body;
       const newBayesianModel: IBayesianModel = await this.bayesianModelService.createBayesianModel(
         bayesianModelData,
@@ -57,10 +53,7 @@ class BayesianModelController {
 
   public updateBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {
-        user: { partyId } = {},
-        params: { bayesianModelId } = {}
-      } = req;
+      const { user: { partyId } = {}, params: { bayesianModelId } = {} } = req;
       const bayesianModelData: UpdateBayesianModelDto = req.body;
       const updateBayesianModelData: IBayesianDBModel = await this.bayesianModelService.updateBayesianModel(
         bayesianModelId,
@@ -76,11 +69,9 @@ class BayesianModelController {
   public getBayesianModelById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const {
-        params: { bayesianModelId }
+        params: { bayesianModelId },
       } = req;
-      const bayesianModelData: IBayesianDBModel = await this.bayesianModelService.findBayesianModelById(
-        bayesianModelId
-      );
+      const bayesianModelData: IBayesianDBModel = await this.bayesianModelService.findBayesianModelById(bayesianModelId);
       res.status(200).json({ data: bayesianModelData, message: 'find' });
     } catch (error) {
       next(error);
@@ -89,18 +80,15 @@ class BayesianModelController {
   public getBayesianModelByResourceType = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const {
-        params: { resourceType }
+        params: { resourceType },
       } = req;
-      console.log("resourceType in params")
-      const bayesianModelData: IBayesianModel[] = await this.bayesianModelService.findBayesianModelByResourceType(
-        resourceType
-      );
+      console.log('resourceType in params');
+      const bayesianModelData: IBayesianModel[] = await this.bayesianModelService.findBayesianModelByResourceType(resourceType);
       res.status(200).json({ data: bayesianModelData, message: 'find', resourceType });
     } catch (error) {
       next(error);
     }
   };
 }
-
 
 export default BayesianModelController;
