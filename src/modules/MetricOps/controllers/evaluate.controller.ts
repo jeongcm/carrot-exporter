@@ -4,6 +4,7 @@ import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
 import EvaluateService from '../services/evaluate.service';
 import { IBayesianDBModel, IBayesianModel } from '@/common/interfaces/bayesianModel.interface';
+import { logger } from '@/common/utils/logger';
 
 class EvaluateController {
   public evaluateService = new EvaluateService();
@@ -43,6 +44,16 @@ class EvaluateController {
       const customerAccountId = req.params.customerAccountId;
       const evalatiaonResult = await this.evaluateService.getEvaluationHistoryAll(customerAccountId);
       res.status(200).json({ data: evalatiaonResult, message: `Evaluation result by customerAccountId - ${customerAccountId}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getEvaluationHistoryByTargetId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const anomalyMonitoringTargetId = req.params.anomalyMonitoringTargetId;
+      const evalatiaonResult = await this.evaluateService.getEvaluationHistoryByTargetId(anomalyMonitoringTargetId);
+      res.status(200).json({ data: evalatiaonResult, message: `Evaluation result by anomalyMonitoringTargetId - ${anomalyMonitoringTargetId}` });
     } catch (error) {
       next(error);
     }

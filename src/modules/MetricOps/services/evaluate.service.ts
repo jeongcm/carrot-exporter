@@ -20,6 +20,7 @@ import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface'
 import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
 import { BayesianModelTable } from '../models/bayesianModel.model';
 import { AnomalyMonitoringTargetTable } from '../models/monitoringTarget.model';
+import { logger } from '@/common/utils/logger';
 
 const { Op } = require('sequelize');
 
@@ -31,13 +32,13 @@ class EvaluateServices {
   public alertRule = DB.AlertRule;
   public alertReceived = DB.AlertReceived;
   public evaluation = DB.Evaluation;
+  public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
   public customerAccountService = new CustomerAccountService();
   public monitoringTargetService = new MonitoringTargetService();
   public bayesianModelService = new BayesianModelService();
   public modelRuleScoreService = new ModelRuleScoreService();
   public tableIdService = new TableIdService();
   public incidentService = new IncidentService();
-  public AnomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
 
   /**
    * Evaluate anomaly using resourceKey
@@ -50,9 +51,9 @@ class EvaluateServices {
     const step0 = new Date().getTime();
     console.log('step0 - ', step0);
 
-    var bayesianModel = {};
-    var returnResponse = {};
-    var bnData = {};
+    let bayesianModel = {};
+    let returnResponse = {};
+    let bnData = {};
     var evaluationResultStatus = '';
 
     // 1. Confirm resource as AnomalyTarget
@@ -94,7 +95,7 @@ class EvaluateServices {
     const elaps2 = (step2 - step1) / 1000;
     console.log('step2 -', elaps2);
 
-    var ruleGroup = [];
+    const ruleGroup = [];
     const resultRuleGroup = await this.ruleGroup.findAll(ruleGroupQuery);
     for (let i = 0; i < resultRuleGroup.length; i++) {
       ruleGroup[i] = {
@@ -103,14 +104,14 @@ class EvaluateServices {
         ruleGroupName: resultRuleGroup[i].ruleGroupName,
       };
     }
-    let resourceInfo = { resourceKey: resourceKey, resourceId: resourceId, resourceName: resourceName, resourceType: resourceType };
-    let revBayesianModel = { bayesianModel, resourceInfo, ruleGroup };
+    const resourceInfo = { resourceKey: resourceKey, resourceId: resourceId, resourceName: resourceName, resourceType: resourceType };
+    const revBayesianModel = { bayesianModel, resourceInfo, ruleGroup };
 
     const step3 = new Date().getTime();
     const elaps3 = (step3 - step2) / 1000;
     console.log('step3 -', elaps3);
 
-    var ruleGroupAlertRule = [];
+    const ruleGroupAlertRule = [];
     const resultRuleGroupList = await this.ruleGroupAlertRule.findAll(ruleGroupQuery);
     const alertRuleKey = resultRuleGroupList.map(x => x.alertRuleKey);
 
@@ -121,7 +122,7 @@ class EvaluateServices {
       };
     }
 
-    let revBayesianModel2 = { ...revBayesianModel, ruleGroupAlertRule };
+    const revBayesianModel2 = { ...revBayesianModel, ruleGroupAlertRule };
 
     const step4 = new Date().getTime();
     const elaps4 = (step4 - step3) / 1000;
@@ -129,7 +130,7 @@ class EvaluateServices {
 
     // 3. Find firing alerts received
     let firedAlerts = [];
-    let inputAlerts = {};
+    const inputAlerts = {};
     switch (resourceType) {
       case 'ND':
         const alertRuleQuery = {
@@ -142,19 +143,19 @@ class EvaluateServices {
           evaluationResultStatus = 'NF';
         } else {
           for (let i = 0; i < resultAlertReceived.length; i++) {
-            let alertRuleKey = resultAlertReceived[i].alertRuleKey;
+            const alertRuleKey = resultAlertReceived[i].alertRuleKey;
             firedAlerts[i] = {
               alertRuleKey: resultAlertReceived[i].alertRuleKey,
               alertReceivedKey: resultAlertReceived[i].alertReceivedKey,
               alertReceivedId: resultAlertReceived[i].alertReceivedId,
               alertReceivedName: resultAlertReceived[i].alertReceivedName,
             };
-            let resultAlertRule = await this.alertRule.findOne({ where: { alertRuleKey } });
-            let alertName = resultAlertReceived[i].alertReceivedName;
+            const resultAlertRule = await this.alertRule.findOne({ where: { alertRuleKey } });
+            const alertName = resultAlertReceived[i].alertReceivedName;
             let severity = resultAlertRule.alertRuleSeverity;
             severity = severity.replace(/^./, severity[0].toUpperCase());
-            let duration = resultAlertRule.alertRuleDuration;
-            let alertName2 = alertName + severity + '_' + duration;
+            const duration = resultAlertRule.alertRuleDuration;
+            const alertName2 = alertName + severity + '_' + duration;
             inputAlerts[alertName2] = 1;
           }
         }
@@ -184,7 +185,7 @@ class EvaluateServices {
     const elaps51 = (step51 - step5) / 1000;
     console.log('step5.1 -', elaps51);
 
-    let createEvaluation = {
+    const createEvaluation = {
       evaluationId: evaluationId,
       createdAt: new Date(),
       createdBy: 'SYSTEM',
@@ -223,8 +224,8 @@ class EvaluateServices {
       inputAlerts: inputAlerts,
     };
 
-    var url = '';
-    var evaluationResult;
+    let url = '';
+    let evaluationResult;
     if (resourceType == 'ND') {
       url = config.ncBnApiDetail.ncBnUrl + config.ncBnApiDetail.ncBnNodePath;
     }
@@ -329,15 +330,14 @@ class EvaluateServices {
 
     //3. call evaluateMonitorintTarget (ML)
 
-    let resultReturn = {};
-    let resultEvaluation = {};
+    const resultReturn = {};
     for (let i = 0; i < resultMonitoringTarget.length; i++) {
-      let resourceKey = resultMonitoringTarget[i].resourceKey;
+      const resourceKey = resultMonitoringTarget[i].resourceKey;
       let resultEvaluation = await this.evaluateMonitoringTarget(resourceKey);
-      let evaluationResultStatus = resultEvaluation.evaluationResultStatus;
+      const evaluationResultStatus = resultEvaluation.evaluationResultStatus;
       if (evaluationResultStatus === 'AN') {
         //4. if any anomaly, create incident ticket
-        let incidentData = {
+        const incidentData = {
           incidentName: 'MetricOps: ',
           incidentDescription: 'MetricOps ',
           incidentStatus: 'OP' as incidentStatus,
@@ -345,13 +345,13 @@ class EvaluateServices {
           incidentDueDate: null,
           assigneeId: '',
         };
-        let resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, 'SYSTEM', incidentData);
-        let incidentId = resultIncidentCreate.incidentId;
-        let firedAlerts = resultEvaluation.evaluationRequest.map(x => x.firedAlerts.alertReceivedId);
+        const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, 'SYSTEM', incidentData);
+        const incidentId = resultIncidentCreate.incidentId;
+        const firedAlerts = resultEvaluation.evaluationRequest.map(x => x.firedAlerts.alertReceivedId);
         console.log(`incident id: ${incidentId}`);
         console.log(`firedAlerts: ${firedAlerts}`);
         //5. attach the alerts (from the result) to the incident tickets
-        let resultIncidentAlertAttach = await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, firedAlerts, 'SYSTEM');
+        await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, firedAlerts, 'SYSTEM');
         console.log('incident ticket is created: ', incidentId, 'Alert Attached - ', firedAlerts);
         //6. execute any resolution actions if there are actions under rule group more than a threshhold
 
@@ -413,6 +413,32 @@ class EvaluateServices {
     };
     const resultEvaluation: IEvaluation[] = await this.evaluation.findAll(queryCondition);
 
+    return resultEvaluation;
+  }
+
+  /**
+   * Get evaluation result by anomalyMonitoringTargetId
+   *
+   * @param  {string} anomalyMonitoringTargetId
+   * @returns Promise<IEvaluation[]>
+   * @author Shrishti Raj
+   */
+  public async getEvaluationHistoryByTargetId(anomalyMonitoringTargetId: string): Promise<IEvaluation[]> {
+    //1. validate AnomalyMonitoringTarget
+    const resultAnomalyMonitoringTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.findOne({
+      where: { anomalyMonitoringTargetId },
+    });
+    if (!resultAnomalyMonitoringTarget) throw new HttpException(400, `Can't find Anomaly Target - ${anomalyMonitoringTargetId}`);
+    const anomalyMonitoringTargetKey = resultAnomalyMonitoringTarget.anomalyMonitoringTargetKey;
+
+    //2. pull evaluation history
+    const queryCondition = {
+      where: {
+        deletedAt: null,
+        anomalyMonitoringTargetKey,
+      },
+    };
+    const resultEvaluation: IEvaluation[] = await this.evaluation.findAll(queryCondition);
     return resultEvaluation;
   }
 
