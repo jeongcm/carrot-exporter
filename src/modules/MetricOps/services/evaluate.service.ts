@@ -196,6 +196,7 @@ class EvaluateServices {
       customerAccountKey: customerAccountKey,
       bayesianModelKey: bayesianModelKey,
       resourceGroupKey: resourceGroupKey,
+      evaluationStatus: 'RQ',
     };
 
     const resultEvaluationRequest: IEvaluation = await this.evaluation.create(createEvaluation);
@@ -277,7 +278,7 @@ class EvaluateServices {
       evaluationResult: evaluationResult,
       //hardcoded for testing. need to read evalatuon result once Shawn's API is ready
       evaluationResultStatus: evaluationResultStatus,
-      evaluationStaus: 'SC',
+      evaluationStaus: 'EX',
       evaluated_at: new Date(),
       updated_at: new Date(),
       updated_by: 'SYSTEM',
@@ -308,7 +309,6 @@ class EvaluateServices {
 
     return returnResponse;
   }
-
   /**
    * Trigger evaluation process by customerAccountId
    *

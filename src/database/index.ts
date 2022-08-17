@@ -35,7 +35,7 @@ import InitialRecordService from './initialRecord';
 
 import SubscriptionModel from '@/modules/Subscriptions/models/subscriptions.model';
 import SubscribedProductModel from '@/modules/Subscriptions/models/subscribedProduct.model';
-import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscritpionHistory.model';
+import SubscriptionHistoryModel from '@/modules/Subscriptions/models/subscriptionHistory.model';
 import invitationModel from '@/modules/Party/models/invitation.model';
 import MetricMetaModel from '@/modules/Metric/models/metricMeta.model';
 import ChartModel from '@/modules/Metric/models/chart.model';

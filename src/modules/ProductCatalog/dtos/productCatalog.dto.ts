@@ -49,11 +49,12 @@ export class CreateCatalogPlanProductDto {
     
     @IsString()
     @IsNotEmpty()
-    public catalogPlanProductType: 'ON' | 'MN' | 'MS' | 'MC';
-    //   ON (ObservabilityNode)
-    // - MN (MetricOps Node)
-    // - MS (MetricOps Service)
-    // - MC (MetricOps Cluster);
+    public catalogPlanProductType: 'ND' | 'VM' | 'MN' | 'MS' | 'VM';
+    //   ND (Observability Kubernetes Node)
+    //   VM (Observability Openstack VM)
+    //   MN (MetricOps Kubernetes Node)
+    //   MS (MetricOps Kubernetes Service);
+    //   MV (MetricOps Openstack VM);
 
     @IsString()
     @IsNotEmpty()
