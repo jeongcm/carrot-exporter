@@ -53,7 +53,6 @@ class EvaluateServices {
         var returnResponse = {};
         var bnData = {};
         var evaluationResultStatus ="";
-
         
         // 1. Confirm resource as AnomalyTarget
         const resultMonitoringTarget = await this.monitoringTargetService.findMonitoringTargetsByResourceKeys(resourceKey);
@@ -77,8 +76,6 @@ class EvaluateServices {
         const bayesianModelId = resultBayesianModel.bayesianModelId; 
         const resourceGroupKey = resultBayesianModel.resourceGroupKey; 
 
-    
-
         bayesianModel = {bayesianModleKey:  bayesianModelKey, 
                          bayesianModleId:  bayesianModelId, 
                          bayesianModelName: resultBayesianModel.bayesianModelName
@@ -101,7 +98,7 @@ class EvaluateServices {
         for (let i=0; i<resultRuleGroup.length; i++){
             ruleGroup[i] = {ruleGroupId: resultRuleGroup[i].ruleGroupId, 
                             ruleGroupKey: resultRuleGroup[i].ruleGroupKey,
-                            ruleGroupName: resultRuleGroup[i].ruleGroupName
+                            ruleGroupName: resultRuleGroup[i].ruleGroupName,
                            }
         };
         let resourceInfo = {resourceKey: resourceKey,
@@ -203,6 +200,7 @@ class EvaluateServices {
             customerAccountKey: customerAccountKey,
             bayesianModelKey: bayesianModelKey,
             resourceGroupKey: resourceGroupKey,
+            evaluationStatus: "RQ",
         }
 
         const resultEvaluationRequest: IEvaluation = await this.evaluation.create(createEvaluation);
@@ -287,7 +285,7 @@ class EvaluateServices {
             evaluationResult: evaluationResult,
             //hardcoded for testing. need to read evalatuon result once Shawn's API is ready
             evaluationResultStatus: evaluationResultStatus,
-            evaluationStaus: "SC",
+            evaluationStaus: "EX",
             evaluated_at: new Date(),
             updated_at: new Date(),
             updated_by: "SYSTEM"
