@@ -6,22 +6,28 @@ import PartyService from '@/modules/Party/services/party.service';
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import ResourceService from '@/modules/Resources/services/resource.service';
+import SystemSubscriptionService from '@/modules/CommonService/services/systemSubscription.service';
 import axios from 'axios';
 import * as _ from 'lodash';
 import { IResource } from '@/common/interfaces/resource.interface';
 import config from '@config/index';
 import { CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
 import catalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
+import {CreateUserDto} from '@/modules/Party/dtos/party.dto'
+
 class SystemSubscriptionController {
 
   public customerAccountService = new CustomerAccountService();
   public partyService = new PartyService();
-  public subscriptionService = new SubscriptionService();
+  
   public resourceService = new ResourceService();
+  public systemSubscriptionService = new SystemSubscriptionService();
+
   public createSystemSubscription = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { body: { eventType }, user: { partyId } = {}, systemId } = req;
       let createdResponse;
+      const createdBy = systemId || partyId;
       switch (eventType) {
         case "CustomerCreated":
           const { body: { Customer: { firstName, lastName, id, primaryEmail, primaryPhone, companyName } } } = req;
@@ -29,30 +35,28 @@ class SystemSubscriptionController {
             customerAccountName: companyName || `${firstName} ${lastName}`,
             customerAccountDescription: null,
             parentCustomerAccountId: null,
-            customerAccountType: null
+            customerAccountType: null,
           };
-          const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, systemId || partyId);
-          const partyData =
-          {
-            partyName: companyName || `${firstName} ${lastName}`,
-            partyDescription: null,
-            parentPartyId: null,
-            partyType: 'US',
-            customerAccountKey:createdCustomerAccount.customerAccountKey,
-            createdBy: systemId || partyId,
-            firstName,
-            lastName,
-            userId: id,
-            password: null,
-            email: primaryEmail,
-            mobile: primaryPhone,
-            partyUserStatus: "DR",
-            customerAccountId: createdCustomerAccount.customerAccountId
-          };
-          await this.partyService.createUser(partyData, createdCustomerAccount.customerAccountKey, systemId || partyId);
-          createdResponse = createdCustomerAccount
           
+          const partyData: CreateUserDto =
+          {
+            partyName: companyName || `${firstName} ${lastName}` as string,
+            partyDescription: "",
+            parentPartyId: "",
+            firstName: firstName as string,
+            lastName: lastName as string,
+            userId: id as string,
+            password: "",
+            email: primaryEmail as string,
+            mobile: primaryPhone as string,
+            partyUserStatus: "",
+            customerAccountId: "",
+          };
+          
+          const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy)
+          createdResponse = responseCustomerAccount;
           break;
+
         case "SubscriptionCreated":
           const { body: { Subscription: { catalogPlanId, subscriptionStatus, subscriptionTerminatedAt , subscriptionCommitmentType= 'AC', subscriptionActivatedAt, subscriptionConsent, customerAccountKey } } } = req;
 
@@ -63,22 +67,22 @@ class SystemSubscriptionController {
             subscriptionTerminatedAt,
             subscriptionCommitmentType  ,
             catalogPlanId
+          }
 
-          }
-          const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, systemId, customerAccountKey);
-          createdResponse = newSubscription
+          const responseSubscription = await this.systemSubscriptionService.createSubscription(subscriptionData, createdBy, customerAccountKey); 
+          createdResponse = responseSubscription;
           break;
-          default:
-            break;
-            
-          }
           
-          return res.status(200).json({ data:createdResponse });
+        default:
+          break;
+      }
           
-        } catch (error) {
-      console.log("errror", error)
-      next(error);
-    }
+      return res.status(200).json({ data:createdResponse });
+          
+      } catch (error) {
+        console.log("errror", error)
+        next(error);
+    } // end of try
   };
 }
 

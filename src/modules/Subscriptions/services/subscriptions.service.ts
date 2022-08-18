@@ -40,7 +40,7 @@ class SubscriptionService {
   }
 
 
-  public async createSubscription(data: CreateSubscriptionDto, userId: string, systemId: string, customerAccountKey: number): Promise<ISubscriptions> {
+  public async createSubscription(data: CreateSubscriptionDto, createdBy: string, customerAccountKey: number): Promise<ISubscriptions> {
 
     const subscriptionId = await this.getTableId('Subscription');
     const catalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: data.catalogPlanId } })
@@ -49,7 +49,7 @@ class SubscriptionService {
       subscriptionId,
       catalogPlanKey: catalogPlan.catalogPlanKey,
       customerAccountKey,
-      createdBy: userId || systemId,
+      createdBy,
     }
     const newSubscription: ISubscriptions = await this.subscription.create(createObj);
     delete newSubscription.subscriptionKey;

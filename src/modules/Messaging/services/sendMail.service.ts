@@ -2,7 +2,7 @@ import config from '@config/index';
 import urlJoin from 'url-join';
 
 // RYAN: please keep it our convention by using import
-const nodemailer = require('nodemailer');
+const nodeMailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
 const handlebars = require('handlebars');
 const fs = require('fs');
@@ -17,7 +17,7 @@ class MailService {
   public sendMail = (req, res) => {
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/verifyEmail.hbs'), 'utf8');
     const mailgunAuth = { auth };
-    const smtpTransport = nodemailer.createTransport(mg(mailgunAuth));
+    const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
     const template = handlebars.compile(emailTemplateSource);
     const { email, username } = req.body;
     const token = crypto.randomBytes(48).toString('base64').slice(0, 48);
@@ -39,5 +39,27 @@ class MailService {
       }
     });
   };
+
+  public sendMailGeneral = (mailOptions: any) => {
+    try {
+      const auth = {
+        api_key: config.email.mailgun.apiKey,
+        domain: config.email.mailgun.domain,
+      };
+      const mailgunAuth = { auth };
+      const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
+      
+      smtpTransport.sendMail(mailOptions, function (error, response) {
+        if (error && Object.keys(error).length) {
+          return response.status(400).json({ mesaage: 'Error while sending mail' });
+        } else {
+          return response.status(200).json({ mesaage: 'Successfully sent email.' });
+        }
+      });
+    } catch (err) {
+      return { message: 'Error while sending mail', error: err };
+    }
+  }
+
 }
 export default MailService;

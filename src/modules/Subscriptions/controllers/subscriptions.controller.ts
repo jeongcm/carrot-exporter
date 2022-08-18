@@ -27,7 +27,7 @@ class SubscriptionController {
       const { user: { partyId } = {}, systemId, customerAccountKey } = req;
       console.log("########0000");
       console.log(customerAccountKey); 
-      const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, systemId, customerAccountKey);
+      const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId || systemId, customerAccountKey);
       res.status(201).json({ data: newSubscription, message: 'success' });
     } catch (error) {
       next(error);
