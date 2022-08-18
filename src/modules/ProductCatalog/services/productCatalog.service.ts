@@ -23,7 +23,9 @@ class ProductCatlogService {
     const catalogPlans: ICatalogPlan[] = await this.catalogPlan.findAll(
       { where: { deletedAt: null },
       include:[
-        {model: CatalogPlanProductModel}
+        {
+          model: CatalogPlanProductModel
+        }
       ] });
     return catalogPlans;
   }
@@ -61,7 +63,10 @@ class ProductCatlogService {
         deletedAt: null,
       },
       include:[
-        {model: CatalogPlanProductModel}
+        {model: CatalogPlanProductModel,
+         where: {deletedAt: null}
+        },
+        
       ]
     });
     if (!findCatalogPlan) throw new HttpException(409, 'Catalog Plan Not found');
@@ -106,7 +111,8 @@ class ProductCatlogService {
       {
         where:
         {
-          catalogPlanKey
+          catalogPlanKey,
+          deletedAt: null
         }
         , attributes: { exclude: ['catalogPlanProductKey', 'deletedAt'] }
       });
@@ -156,7 +162,8 @@ class ProductCatlogService {
     if (isEmpty(catalogPlanProductId)) throw new HttpException(400, 'Not a valid catalog Plan');
     const findCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
       where: {
-        catalogPlanProductId
+        catalogPlanProductId,
+        deletedAt: null
       }
     });
     if (!findCatalogPlanProduct) throw new HttpException(409, `Catalog Plan product  Not found `);

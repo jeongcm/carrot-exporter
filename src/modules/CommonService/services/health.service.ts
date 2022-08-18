@@ -3,10 +3,12 @@ import axios from 'axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { ISudoryClient } from '@/modules/CommonService/dtos/sudory.dto';
 
 //import TableIdService from '@/modules/CommonService/services/tableId.service';
 //import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
+import SudoryService from '@/modules/CommonService/services/sudory.service';
 import ExecutorService from '@/modules/CommonService/services/executor.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 
@@ -14,6 +16,7 @@ class healthService {
     //    public tableIdService = new TableIdService();
     //    public customerAccountService = new CustomerAccountService();
         public resourceGroupService = new ResourceGroupService();
+        public sudoryService = new SudoryService();
         public executorService = new ExecutorService();
         public schedulerService = new SchedulerService();
         public customerAccount = DB.CustomerAccount;
@@ -58,8 +61,8 @@ class healthService {
         for (let i=0; i<responseResourceGroup.length; i++){
         //4. check sudoryclient
             let clusterUuid = responseResourceGroup[i].resourceGroupUuid; 
-            let resultExecutorClient = await this.executorService.checkExecutorClientOnly(clusterUuid, customerAccountKey); 
-            if (!resultExecutorClient) {
+            let resultExecutorClient:ISudoryClient  = await this.sudoryService.checkSudoryClient(clusterUuid);
+            if (!resultExecutorClient || resultExecutorClient.validClient==false) {
                 clusterStatus[i] = {
                                 resourceGroupUuid: clusterUuid,
                                 sudoryClient: false, 
