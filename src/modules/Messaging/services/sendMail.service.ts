@@ -1,8 +1,9 @@
 import config from '@config/index';
 import urlJoin from 'url-join';
-import messageModel from '../models/message.model';
-import {SendMail} from '@/modules/Messaging/dtos/sendMail.dto'
-import DB from '@/database';
+//import messageModel from '../models/message.model';
+//import {SendMail} from '@/modules/Messaging/dtos/sendMail.dto'
+//import DB from '@/database';
+import NotificationService from'@modules/Notification/services/notification.service'
 
 // RYAN: please keep it our convention by using import
 const nodeMailer = require('nodemailer');
@@ -11,13 +12,13 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-
 const auth = {
   api_key: config.email.mailgun.apiKey,
   domain: config.email.mailgun.domain,
 };
 class MailService {
-  public messages = DB.Messages;
+  public notificationService = new NotificationService();
+
   public sendMail = (req, res) => {
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/verifyEmail.hbs'), 'utf8');
     const mailgunAuth = { auth };
@@ -44,7 +45,7 @@ class MailService {
     });
   };
 
-  public sendMailGeneral(mailOptions: any){
+  public sendMailGeneral(mailOptions: any, customerAccountKey){
     var msg = {};
     console.log ("sending mail");
     try {
@@ -55,19 +56,18 @@ class MailService {
       const mailgunAuth = { auth };
       const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
 
+      
       smtpTransport.sendMail(mailOptions, function (error, response) {
         if (error && Object.keys(error).length) {
           console.log (error);
 
-
         } else {
           msg = {response: "success", details: response.Message};
-          
-          this.mesaages.create()
-
-
+      
         }
       });
+
+      //const resultNotifiction = this.notificationService.createNotification(notiData,createdBy,customerAccountKey)
 
     } catch (err) {
       console.log (err);

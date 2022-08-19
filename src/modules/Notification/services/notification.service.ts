@@ -44,10 +44,14 @@ class NotificationService {
   ): Promise<Notification> {
     if (isEmpty(notificationData)) throw new HttpException(400, 'Notification Data cannot be blank');
 
-    const messageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
-    const tempMessageKey: number = messageData.messageKey;
+    var tempMessageKey; 
+    if (notificationData.messageId !="")
+      {   
+        const messageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
+        tempMessageKey = messageData.messageKey;
+      }  
 
-    const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(partyKey);
+      const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(partyKey);
 
     const tableIdName: string = 'Notification';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
@@ -58,10 +62,9 @@ class NotificationService {
       notificationId: tempNotificationId,
       partyChannelKey: partyChannelKey,
       partyKey: partyKey,
-      messageKey: tempMessageKey,
+      messageKey: tempMessageKey || null,
       createdBy: systemId,
       createdAt: currentDate,
-      updatedAt: currentDate,
       notificationStatutsUpdatedAt: currentDate,
       customerAccountKey,
     };
