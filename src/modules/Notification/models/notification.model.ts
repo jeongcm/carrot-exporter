@@ -5,7 +5,6 @@ export type NotificationCreationAttributes = Optional<
   Notification,
   | 'notificationKey'
   | 'notificationId'
-  | 'partyChannelKey'
   | 'partyKey'
   | 'messageKey'
   | 'createdBy'
@@ -15,13 +14,13 @@ export type NotificationCreationAttributes = Optional<
   | 'deletedAt'
   | 'notificationStatus'
   | 'notificationStatutsUpdatedAt'
+  | 'notificationJson'
   | 'customerAccountKey'
 >;
 
 export class NotificationModel extends Model<Notification, NotificationCreationAttributes> implements Notification {
   public notificationKey: number;
   public notificationId: string;
-  public partyChannelKey: number;
   public partyKey: number;
   public messageKey: number;
   public createdBy: string;
@@ -30,9 +29,11 @@ export class NotificationModel extends Model<Notification, NotificationCreationA
   public notificationStatus: string;
   public notificationStatutsUpdatedAt: Date;
   public customerAccountKey: number;
+  public updatedAt: Date;
+  public notificationJson: JSON;
 
   public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  
 }
 
 export default function (sequelize: Sequelize): typeof NotificationModel {
@@ -48,16 +49,12 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
         allowNull: false,
         type: DataTypes.STRING(16),
       },
-      partyChannelKey: {
-        allowNull: false,
-        type: DataTypes.INTEGER,
-      },
       partyKey: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
       messageKey: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.INTEGER,
       },
       createdBy: {
@@ -84,10 +81,14 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-            args: [['CR', 'SM', null]],
-            msg: " notificationStatus must be of type  ['CR', 'SM'] SM: Sent, CR: Created",
+            args: [['CR', 'ST', null]],
+            msg: " notificationStatus must be of type  ['CR', 'ST'] SM: Sent, CR: Created",
           },
         },
+      },
+      notificationJson:{
+        allowNull: true,
+        type: DataTypes.JSON,
       },
       notificationStatutsUpdatedAt: {
         allowNull: true,

@@ -9,11 +9,12 @@ import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.
 import SendMailService from '@/modules/Messaging/services/sendMail.service'
 
 import { IPartyUserResponse, IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
-import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import {CreateCustomerAccountDto} from '@/modules/CustomerAccount/dtos/customerAccount.dto'
 import {CreateSubscriptionDto} from '@/modules/Subscriptions/dtos/subscriptions.dto'
 import {CreateUserDto} from '@/modules/Party/dtos/party.dto'
+import {SendMail} from '@/modules/Messaging/dtos/sendMail.dto'
 import urlJoin from 'url-join';
 
 const nodeMailer = require('nodemailer');
@@ -53,7 +54,9 @@ class systemSubscriptionService {
     } = partyData; 
 
     //1. create a customer account
-    const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, partyId);
+    const CustomerAccountDataNew = {...customerAccountData,
+                                    customerAccountType: "CO" as customerAccountType}
+    const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(CustomerAccountDataNew, partyId);
 
     //2. create a party user
 
@@ -66,7 +69,7 @@ class systemSubscriptionService {
         firstName,
         lastName,
         userId,
-        password,
+        password: config.defaultPassword,
         email,
         mobile,
         partyUserStatus: "DR",
@@ -75,11 +78,10 @@ class systemSubscriptionService {
 
     const createdPartyUser: IPartyUserResponse = await this.partyService.createUser(partyDataNew, createdCustomerAccount.customerAccountKey, partyId);
     
-
     //3. fusebill interface
 
 
-    //4. customer email 
+    //4. send email to customer
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'), 'utf8');
     const template = handlebars.compile(emailTemplateSource);
     let name = createdPartyUser.firstName
@@ -90,8 +92,14 @@ class systemSubscriptionService {
       subject: 'Welcome Onboard - NexClipper',
       html: htmlToSend
     }
-    const resultMailSent = await this.sendMailService.sendMailGeneral(mailOptions);
+    const resultMailSent:SendMail = await this.sendMailService.sendMailGeneral(mailOptions);
     console.log (resultMailSent);
+    let emailSent: boolean;
+    if (resultMailSent.response==="success") emailSent = true;
+    else emailSent = false;
+    
+
+    //4.1 save the history to db. 
 
     //5. return message
     returnResult = {customerAccountId: createdCustomerAccount.customerAccountId,
@@ -101,7 +109,8 @@ class systemSubscriptionService {
         lastName:  createdPartyUser.lastName, 
         userId:  createdPartyUser.userId, 
         email:  createdPartyUser.email, 
-        mobile:  createdPartyUser.mobile, 
+        mobile:  createdPartyUser.mobile,
+        emailSent: emailSent,
 }
 
     return returnResult;

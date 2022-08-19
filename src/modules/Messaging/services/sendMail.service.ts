@@ -1,5 +1,8 @@
 import config from '@config/index';
 import urlJoin from 'url-join';
+import messageModel from '../models/message.model';
+import {SendMail} from '@/modules/Messaging/dtos/sendMail.dto'
+import DB from '@/database';
 
 // RYAN: please keep it our convention by using import
 const nodeMailer = require('nodemailer');
@@ -14,6 +17,7 @@ const auth = {
   domain: config.email.mailgun.domain,
 };
 class MailService {
+  public messages = DB.Messages;
   public sendMail = (req, res) => {
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/verifyEmail.hbs'), 'utf8');
     const mailgunAuth = { auth };
@@ -40,7 +44,9 @@ class MailService {
     });
   };
 
-  public sendMailGeneral = (mailOptions: any) => {
+  public sendMailGeneral(mailOptions: any){
+    var msg = {};
+    console.log ("sending mail");
     try {
       const auth = {
         api_key: config.email.mailgun.apiKey,
@@ -48,16 +54,23 @@ class MailService {
       };
       const mailgunAuth = { auth };
       const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
-      
+
       smtpTransport.sendMail(mailOptions, function (error, response) {
         if (error && Object.keys(error).length) {
-          return response.status(400).json({ mesaage: 'Error while sending mail' });
+          console.log (error);
+
+
         } else {
-          return response.status(200).json({ mesaage: 'Successfully sent email.' });
+          msg = {response: "success", details: response.Message};
+          
+          this.mesaages.create()
+
+
         }
       });
+
     } catch (err) {
-      return { message: 'Error while sending mail', error: err };
+      console.log (err);
     }
   }
 
