@@ -425,8 +425,8 @@ DB.Evaluation.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' }
 DB.BayesianModel.hasMany(DB.Evaluation, { foreignKey: 'bayesianModelKey' });
 DB.Evaluation.belongsTo(DB.BayesianModel, { foreignKey: 'bayesianModelKey' });
 
-DB.ResourceGroup.hasMany(DB.Evaluation, { foreignKey: 'bayesianModelKey' });
-DB.Evaluation.belongsTo(DB.ResourceGroup, { foreignKey: 'bayesianModelKey' });
+DB.ResourceGroup.hasMany(DB.Evaluation, { foreignKey: 'resourceGroupKey' });
+DB.Evaluation.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
