@@ -23,6 +23,7 @@ export type PartyUserCreationAttributes = Optional<
   | 'token'
   | 'lastAccessAt'
   | 'partyUserStatus'
+  | 'timezone'
 >;
 
 export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttributes> implements IPartyUser {
@@ -41,11 +42,12 @@ export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttribute
   public password: string;
   public email: string;
   public socialProviderId: string;
-  public partyUserStatus: "DR" | "AC" | "IN";
+  public partyUserStatus: 'DR' | 'AC' | 'IN';
   public isEmailValidated: boolean;
   public emailValidatedAt: Date;
   public token: string;
   public lastAccessAt: Date;
+  public timezone: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -116,13 +118,13 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       partyUserStatus: {
         type: DataTypes.STRING(2),
         allowNull: true,
-        defaultValue: "AC",
+        defaultValue: 'AC',
         validate: {
           isIn: {
-              args: [['DR' , 'AC' , 'IN']],   // DRAFT, ACTIVE, INACTIVE
-              msg: " subscriptionStatus must be of type  ['DR' | 'AC' | 'IN']"
-          }
-      }
+            args: [['DR', 'AC', 'IN']], // DRAFT, ACTIVE, INACTIVE
+            msg: " subscriptionStatus must be of type  ['DR' | 'AC' | 'IN']",
+          },
+        },
       },
       isEmailValidated: {
         type: DataTypes.BOOLEAN,
@@ -137,6 +139,9 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       },
       lastAccessAt: {
         type: DataTypes.DATE,
+      },
+      timezone: {
+        type: DataTypes.STRING(100),
       },
     },
     {
