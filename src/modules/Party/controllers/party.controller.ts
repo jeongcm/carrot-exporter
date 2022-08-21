@@ -59,11 +59,11 @@ class PartyController {
       if (!account) {
         return res.status(500).json({ ok: false, message: 'NO_ACCOUNT' });
       }
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       return res.status(200).json({
         user,
         account,
-        timezone,
+        browserTimezone,
         message: 'success',
       });
     } catch (error) {
