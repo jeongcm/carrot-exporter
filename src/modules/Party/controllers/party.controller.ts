@@ -109,8 +109,6 @@ class PartyController {
     try {
       const updatedUser: IParty = await this.partyService.updateUser(customerAccountKey, logginedUserId, updateUserId, updateUserData);
 
-      
-
       res.status(200).json({ data: updatedUser, message: 'updated' });
     } catch (error) {
       next(error);
@@ -170,11 +168,9 @@ class PartyController {
   public requestPasswordReset = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const email: string = req.params.email;
-      console.log (email); 
+      console.log(email);
       const resultRequest = await this.partyService.requestPasswordReset(email);
       res.status(200).json({ data: resultRequest, message: ' Password reset email sent successfully' });
-
-
     } catch (error) {
       next(error);
     }
@@ -182,19 +178,16 @@ class PartyController {
 
   public resetPassword = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {body:{email, password, oldPassword = ''}, query:{reset_token = ''}} = req;
+      const {
+        body: { email, password, oldPassword = '' },
+        query: { reset_token = '' },
+      } = req;
       const resultRequest = await this.partyService.resetPassword(email, password, reset_token, oldPassword);
       res.status(200).json({ data: resultRequest, message: 'Sent Password reset email successuflly' });
-
-
     } catch (error) {
       next(error);
     }
   };
-
-
-  
-
 }
 
 export default PartyController;
