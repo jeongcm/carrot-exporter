@@ -92,7 +92,7 @@ class healthService {
             if (syncMetricReceivedFiltered.length===0) {
                 clusterStatus[i].syncMetricReceived = false;
                 //call scheduleSyncMetricReceived
-                let resultScheduleSyncMetricReceived = await this.executorService.scheduleSyncMetricReceived(clusterUuid);
+                let resultScheduleSyncMetricReceived = await this.executorService.scheduleSyncMetricReceived(clusterUuid, config.metricReceivedCron);
                 if (resultScheduleSyncMetricReceived) clusterStatus[i].syncMetricReceivedAction = true; 
             }
             else {
