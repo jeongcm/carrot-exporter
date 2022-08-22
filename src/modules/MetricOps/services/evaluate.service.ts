@@ -235,7 +235,7 @@ class EvaluateServices {
       method: 'post',
       url: url,
       data: bnData,
-      //              headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
+      //headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
     })
       .then(async (res: any) => {
         const statusCode = res.status;
