@@ -587,7 +587,8 @@ class executorService {
         }); //end of catch
 
      //schdule SyncMetricReceived    
-     await this.scheduleSyncMetricReceived(clusterUuid
+     let cronTabforMetricReceived = config.metricReceivedCron;
+     await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived
         ).then(async (res: any) =>{
             console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
           }).catch(error => {
@@ -1334,13 +1335,14 @@ class executorService {
 
    /**
    * @param {string} clusterUuid
+   * @param {string} cronTab
    */
-    public async scheduleSyncMetricReceived(clusterUuid: string): Promise<object> {
+    public async scheduleSyncMetricReceived(clusterUuid: string, cronTab: string): Promise<object> {
 
         const nexclipperApiUrl = config.appUrl + ":" + config.appPort + "/executor/syncMetricReceived";
         const cronData = { name: "SyncMetricReceived",
         summary: "SyncMetricReceived",
-        cronTab: `*/5 * * * *`,
+        cronTab: cronTab,
         apiUrl: nexclipperApiUrl,
         reRunRequire: true,
         scheduleFrom: "",
@@ -1444,8 +1446,9 @@ class executorService {
     }
    /**
    * @param {string} clusterUuid
+   * @param {string} cronTab
    */
-    public async syncMetricReceived(clusterUuid: string): Promise<object> {
+    public async syncMetricReceived(clusterUuid: string, cronTab: string): Promise<object> {
         
         //let distinctJobList =[];
         let targetJobDbAll;
@@ -1516,7 +1519,7 @@ class executorService {
             let metricSummary = targetJob;
             let cronData = { name: metricName,
                         summary: metricSummary,
-                        cronTab: "*/5 * * * *",
+                        cronTab: cronTab,
                         apiUrl: executorServerUrl,
                         clusterId: clusterUuid,
                         //accountId: customerAccountData.customerAccountId,

@@ -27,6 +27,7 @@ export default {
   resourceCron: process.env.NC_LARI_RESOURCE_CRON || `*/10 * * * *`,
   alertCron: process.env.NC_LARI_ALERT_CRON || `* * * * *`,
   metricCron: process.env.NC_LARI_METRIC_CRON || `*/5 * * * *`,
+  metricReceivedCron: process.env.NC_LARI_METRIC_RECEIVED_CRON || `*/5 * * * *`,
   healthCron: process.env.NC_LARI_HEALTH_CRON || "*/5 * * * *",
   frontenAppUrl: process.env.NC_LARI_FRONTEND_URL,
   cors: {
