@@ -200,10 +200,11 @@ class executorController {
      public scheduleSyncMetricReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
       try {
         const clusterUuid = req.body.clusterUuid;
+        const cronTab = req.body.cronTab || config.metricReceivedCron;
         //const targetNamespace = req.body.targetNamespace;
         //const customerAccountKey = req.customerAccountKey;
   
-        const cronJobKey: object = await this.executorService.scheduleSyncMetricReceived(clusterUuid);
+        const cronJobKey: object = await this.executorService.scheduleSyncMetricReceived(clusterUuid, cronTab);
         res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule metric received sync jobs` });
       } catch (error) {
         next(error);
@@ -356,8 +357,9 @@ class executorController {
    public syncMetricReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterUuid = req.body.clusterUuid;
+      const cronTab = req.body.cronTab || config.metricReceivedCron;
       
-      const serviceOutput: any = await this.executorService.syncMetricReceived(clusterUuid);
+      const serviceOutput: any = await this.executorService.syncMetricReceived(clusterUuid, cronTab );
       if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
       res.status(200).json({ Data: serviceOutput, message: `Sync metric Successful.` });
     } catch (error) {

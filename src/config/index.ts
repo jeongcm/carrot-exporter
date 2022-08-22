@@ -27,6 +27,7 @@ export default {
   resourceCron: process.env.NC_LARI_RESOURCE_CRON || `*/10 * * * *`,
   alertCron: process.env.NC_LARI_ALERT_CRON || `* * * * *`,
   metricCron: process.env.NC_LARI_METRIC_CRON || `*/5 * * * *`,
+  metricReceivedCron: process.env.NC_LARI_METRIC_RECEIVED_CRON || `*/5 * * * *`,
   healthCron: process.env.NC_LARI_HEALTH_CRON || "*/5 * * * *",
   frontenAppUrl: process.env.NC_LARI_FRONTEND_URL,
   cors: {
@@ -157,6 +158,7 @@ export default {
     ncBnUrl: process.env.NC_BN_URL,
     ncBnNodePath: process.env.NC_BN_NODE_PATH,
     ncBnNodeThreshold: process.env.NC_BN_NODE_THRESHOLD,
+    ncBnRefreshModelPath: process.env.NC_BN_REFRESH_MODEL_PATH,
   },
   oT: {
     oTTraceLogTurnOff: process.env.NC_TURN_OFF_TELEMETRY,

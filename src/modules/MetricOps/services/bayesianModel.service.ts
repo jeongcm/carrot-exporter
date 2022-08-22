@@ -2,6 +2,7 @@ import { IBayesianModel, IBayesianDBModel, IBayesianJoinDBModel } from '@/common
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import DB from '@/database';
+import axios from 'axios';
 import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
 import { isEmpty } from '@/common/utils/util';
 import { HttpException } from '@/common/exceptions/HttpException';
@@ -18,6 +19,8 @@ import { RuleGroupModel } from '../models/ruleGroup.model';
 import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
 import { logger } from '@/common/utils/logger';
 import { ResourceModel } from '@/modules/Resources/models/resource.model';
+import config from '@config/index';
+import { AlertRuleModel } from '@/modules/Alert/models/alertRule.model';
 
 class BayesianModelServices {
   public bayesianModel = DB.BayesianModel;
@@ -25,6 +28,7 @@ class BayesianModelServices {
   public subscribedProduct = DB.SubscribedProduct;
   public monitoringTarget = DB.AnomalyMonitoringTarget;
   public resourceGroup = DB.ResourceGroup;
+  public ruleGroupAlertRule = DB.RuleGroupAlertRule;
   public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
   public anomalyMonitoringTargetService = new AnomalyMonitoringTargetService();
@@ -103,6 +107,7 @@ class BayesianModelServices {
       //bayesianModelResourceType,
       bayesianModelScoreCard,
       //resourceGroupKey,
+      version,
     } = newBayesianModel;
 
     const returnNewBaysianModel = {
@@ -120,7 +125,9 @@ class BayesianModelServices {
       bayesianModelResourceType,
       bayesianModelScoreCard,
       bayesianModelClusterId,
+      version,
     };
+
     return returnNewBaysianModel;
   }
 
@@ -251,8 +258,9 @@ class BayesianModelServices {
   public async updateBayesianModel(bayesianModelId: string, bayesianModelData: UpdateBayesianModelDto, systemId: string): Promise<IBayesianDBModel> {
     if (isEmpty(UpdateBayesianModelDto)) throw new HttpException(400, 'BayesianModel Data cannot be blank');
     const findBayesianModel: IBayesianDBModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
+    const bayesianModelKey = findBayesianModel.bayesianModelKey; 
     if (!findBayesianModel) throw new HttpException(409, "BayesianModel doesn't exist");
-    const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, bayesianModelScoreCard, bayesianModelClusterId } =
+    const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, bayesianModelScoreCard, bayesianModelClusterId, version } =
       bayesianModelData;
     let resourceGroupKey;
     if (bayesianModelClusterId) {
@@ -270,9 +278,69 @@ class BayesianModelServices {
       resourceGroupKey,
       updatedBy: systemId,
       updatedAt: currentDate,
+      version,
     };
     await this.bayesianModel.update(updatedModelData, { where: { bayesianModelId } });
 
+    //interface with nexclipper-bn 
+    //http://localhost:3000/refresh_model/
+
+    const searchModel = 
+    {where: {
+      bayesianModelKey,
+      deletedAt: null,
+      },
+    include: [
+      {
+        model: RuleGroupAlertRuleModel,
+        where: {deletedAt: null},
+      },
+      {
+        model: AlertRuleModel,
+        where: {deletedAt: null},
+      },
+      ],
+    };
+ 
+    const resultModelSearch = await this.modelRuleScore.findAll(searchModel)
+    console.log ("resultModelSearch -----")
+    console.log (resultModelSearch); 
+    /*
+    const bnData = {
+      bayesianModelId: bayesianModelId,
+      version: version,
+      alerts: {},
+      alert_groups: [],
+      final_stage: [bayesianModelName],
+      mappingFrom: {},
+      mappingTo: {},
+      cptInfo: [{cptName: "", ruleGroupName: "", alertList:[], cptValue0: [], cptValue1:[]}],
+    };
+
+    let url = '';
+    let evaluationResult;
+    url = config.ncBnApiDetail.ncBnUrl + config.ncBnApiDetail.ncBnRefreshModelPath;
+
+    await axios({
+      method: 'post',
+      url: url,
+      data: bnData,
+      //headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
+    })
+      .then(async (res: any) => {
+        const statusCode = res.status;
+        if (statusCode != 200) {
+          //console.log("result is not ready");
+          return res;
+        }
+        evaluationResult = res.data;
+        //console.log(`got evaluation result -- ${evaluationResult}`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, `Unknown error to interface model data with nexclipper-bn: ${bayesianModelId}`);
+      });
+    */
     return this.findBayesianModelById(bayesianModelId);
   }
 

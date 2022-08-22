@@ -67,6 +67,7 @@ export interface IPartyUser {
   lastAccessAt: Date;
   partyUserStatus: string;
   socialProviderId: string;
+  timezone: string;
 }
 
 export interface IPartyResource {
