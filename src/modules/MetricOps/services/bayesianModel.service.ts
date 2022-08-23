@@ -165,7 +165,7 @@ class BayesianModelServices {
         },
         {
           model: AnomalyMonitoringTargetTable,
-          include: [{ model: ResourceModel, include: [{ model: ResourceGroupModel }] }]
+          include: [{ model: ResourceModel, include: [{ model: ResourceGroupModel }] }],
         },
       ],
     });
@@ -258,7 +258,7 @@ class BayesianModelServices {
   public async updateBayesianModel(bayesianModelId: string, bayesianModelData: UpdateBayesianModelDto, systemId: string): Promise<IBayesianDBModel> {
     if (isEmpty(UpdateBayesianModelDto)) throw new HttpException(400, 'BayesianModel Data cannot be blank');
     const findBayesianModel: IBayesianDBModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
-    const bayesianModelKey = findBayesianModel.bayesianModelKey; 
+    const bayesianModelKey = findBayesianModel.bayesianModelKey;
     if (!findBayesianModel) throw new HttpException(409, "BayesianModel doesn't exist");
     const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, bayesianModelScoreCard, bayesianModelClusterId, version } =
       bayesianModelData;
@@ -282,29 +282,29 @@ class BayesianModelServices {
     };
     await this.bayesianModel.update(updatedModelData, { where: { bayesianModelId } });
 
-    //interface with nexclipper-bn 
+    //interface with nexclipper-bn
     //http://localhost:3000/refresh_model/
 
-    const searchModel = 
-    {where: {
-      bayesianModelKey,
-      deletedAt: null,
-      },
-    include: [
-      {
-        model: RuleGroupAlertRuleModel,
-        where: {deletedAt: null},
-      },
-      {
-        model: AlertRuleModel,
-        where: {deletedAt: null},
-      },
-      ],
-    };
- 
-    const resultModelSearch = await this.modelRuleScore.findAll(searchModel)
-    console.log ("resultModelSearch -----")
-    console.log (resultModelSearch); 
+    // const searchModel = {
+    //   where: {
+    //     bayesianModelKey,
+    //     deletedAt: null,
+    //   },
+    //   include: [
+    //     {
+    //       model: RuleGroupAlertRuleModel,
+    //       where: { deletedAt: null },
+    //     },
+    //     {
+    //       model: AlertRuleModel,
+    //       where: { deletedAt: null },
+    //     },
+    //   ],
+    // };
+
+    // const resultModelSearch = await this.modelRuleScore.findAll(searchModel);
+    // console.log('resultModelSearch -----');
+    // console.log(resultModelSearch);
     /*
     const bnData = {
       bayesianModelId: bayesianModelId,
