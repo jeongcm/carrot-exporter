@@ -32,7 +32,7 @@ class AlertReceivedService extends ServiceExtension {
   }
 
   public async getAllAlertReceived(customerAccountKey: number): Promise<object> {
-    /* sequelize join doesn't work with ResourceGroup.... 
+    /* sequelize join doesn't work with ResourceGroup.... Sequelize bug. can't use "include" bugfix/149
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
