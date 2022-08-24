@@ -59,7 +59,7 @@ class SchedulerService {
 
   public async getSchedulerByClusterId(clusterId: string): Promise<any> {
     const schedulerServerUrl = config.ncCronApiDetail.baseURL + '/scheduler/cluster/' + clusterId;
-    console.log(schedulerServerUrl); 
+    //console.log(schedulerServerUrl); 
     let result = [];
     
     await axios({
@@ -72,7 +72,7 @@ class SchedulerService {
 
         if (statusCode === 200) {
           result = res?.data?.data;
-          console.log(res.data)
+          //console.log(res.data)
         }
       })
       .catch(error => {
@@ -109,7 +109,7 @@ class SchedulerService {
   }
 
   public async getSchedulerByScheduleNameByClusterId(scheduleName: string, clusterId: string): Promise<any> {
-    const schedulerServerUrl = config.ncCronApiDetail.baseURL + '/scheduleName/' + scheduleName + '/clusterId/' + clusterId;
+    const schedulerServerUrl = config.ncCronApiDetail.baseURL + '/scheduler/scheduleName/' + scheduleName + '/cluster/' + clusterId;
 
     let result = [];
 
@@ -127,33 +127,7 @@ class SchedulerService {
       })
       .catch(error => {
         console.log(error);
-        throw new HttpException(500, `Unknown error to fetch the result of schedule Name ${scheduleName}`);
-      });
-
-    return result;
-  }
-
-
-  public async getAllSchedulerByAccountId(accountId: string): Promise<any> {
-    const schedulerServerUrl = config.ncCronApiDetail.baseURL + '/scheduler/account/all/' + accountId;
-
-    let result = [];
-
-    await axios({
-      method: 'get',
-      url: `${schedulerServerUrl}`,
-      headers: { x_auth_token: `${config.ncCronApiDetail.authToken}` },
-    })
-      .then(async (res: any) => {
-        const statusCode = res.status;
-
-        if (statusCode === 200) {
-          result = res?.data?.data;
-        }
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, `Unknown error to fetch the result of scheduler of accountId: ${accountId}`);
+        throw new HttpException(error.status, `Unknown error to fetch the result of schedule Name ${scheduleName}`);
       });
 
     return result;

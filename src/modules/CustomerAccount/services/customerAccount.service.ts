@@ -1,20 +1,14 @@
 import DB from '@/database';
+import config from '@config/index';
 
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
-
 import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/customerAccount.dto';
-
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
-
-import { CustomerAccountModel } from '../models/customerAccount.model';
-import { CustomerAccountAddressModel } from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 import { AddressModel } from '@/modules/Address/models/address.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
-import { IParty } from '@/common/interfaces/party.interface';
-import { logger } from '@/common/utils/logger';
-
+//import HealthService from '@/modules/CommonService/services/health.service';
 /**
  * @memberof CustomerAccount
  */
@@ -24,6 +18,7 @@ class CustomerAccountService {
   public customerAccountAdress = DB.CustomerAccountAddress;
   public party = DB.Party;
   public tableIdService = new tableIdService();
+  //public healthService = new HealthService();
 
   public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, systemId: string): Promise<ICustomerAccount> {
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
@@ -31,12 +26,24 @@ class CustomerAccountService {
     try {
       const tableIdTableName = 'CustomerAccount';
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
-
+      const customerAccountId = responseTableIdData.tableIdFinalIssued;
       const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create({
         ...customerAccountData,
-        customerAccountId: responseTableIdData.tableIdFinalIssued,
+        customerAccountId: customerAccountId,
         createdBy: systemId || 'SYSTEM',
       });
+
+      /* blocked due to Maximum call stack size exceeded error
+      //schdule Heathcheck of customer Account clusters //improvement/547
+      let cronTabforHealth = config.healthCron;     
+      await this.healthService.scheduleCheckHealthByCustomerAccountId(customerAccountId, cronTabforHealth
+        ).then(async (res: any) =>{
+          console.log(`Submitted Health  schedule reqeust on ${customerAccountId} cluster successfully`);
+        }).catch(error => {
+          console.log(error);
+          throw new HttpException(500, `create CustomerAccount but fail to schedule health check service - ${customerAccountId}`);
+        }); //end of catch  
+      */      
       return createdCustomerAccount;
     } catch (error) {
       console.log('error', error);

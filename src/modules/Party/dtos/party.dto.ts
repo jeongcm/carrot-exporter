@@ -45,6 +45,10 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   public partyUserStatus: string;
+
+  @IsString()
+  @IsOptional()
+  public timezone: string;
 }
 
 export class UpdateUserDto {
@@ -84,6 +88,14 @@ export class UpdateUserDto {
   @IsString()
   @IsNotEmpty()
   public partyUserStatus: string;
+
+  @IsString()
+  @IsOptional()
+  public customerAccountId: string;
+
+  @IsString()
+  @IsOptional()
+  public timezone: string;
 }
 
 export class CreateAccessGroupDto {

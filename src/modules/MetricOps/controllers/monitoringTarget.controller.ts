@@ -16,14 +16,9 @@ class AnomalyMonitoringTargetController {
     }
   };
 
-
   public createMonitoringTarget = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {
-        user: { partyId } = {},
-        systemId,
-        customerAccountKey
-      } = req;
+      const { user: { partyId } = {}, systemId, customerAccountKey } = req;
       const monitoringTargetData: CreateMonitoringTargetDto = req.body;
       const newMonitoringData: IAnomalyMonitoringTarget = await this.anomalyMonitoringTargetService.createMonitoringTarget(
         monitoringTargetData,
@@ -38,10 +33,7 @@ class AnomalyMonitoringTargetController {
 
   public updateMonitoringTarget = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {
-        user: { partyId } = {},
-        params: {anomalyMonitoringTargetId } = {}
-      } = req;
+      const { user: { partyId } = {}, params: { anomalyMonitoringTargetId } = {} } = req;
       const AnomalyMonitoringTargetData: UpdateMonitoringTargetDto = req.body;
       //const customerAccountKey: number = req.customerAccountKey;
       const updatedTargetData: IAnomalyMonitoringTarget = await this.anomalyMonitoringTargetService.updateMonitoringTarget(
@@ -59,10 +51,10 @@ class AnomalyMonitoringTargetController {
     try {
       const {
         user: { partyId },
-        params: { anomalyMonitoringTargetId }
+        params: { anomalyMonitoringTargetId },
       } = req;
       const monitoringTargetData: IAnomalyMonitoringTarget = await this.anomalyMonitoringTargetService.findMonitoringTargetById(
-        anomalyMonitoringTargetId
+        anomalyMonitoringTargetId,
       );
       res.status(200).json({ data: monitoringTargetData, message: 'find' });
     } catch (error) {
@@ -72,10 +64,9 @@ class AnomalyMonitoringTargetController {
 
   public getMonitoringTargetByResourceKey = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-
       const resourceKey = parseInt(req.params.resourceKey);
       const monitoringTargetData: IAnomalyMonitoringTarget = await this.anomalyMonitoringTargetService.findMonitoringTargetsByResourceKeys(
-        resourceKey
+        resourceKey,
       );
       res.status(200).json({ data: monitoringTargetData, message: 'find' });
     } catch (error) {

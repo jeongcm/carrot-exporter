@@ -13,6 +13,7 @@ export interface IBayesianModel {
     bayesianModelResourceType: string;
     bayesianModelScoreCard:JSON
     bayesianModelClusterId: string;
+    version: string;
   }
 
   export interface IBayesianDBModel {
@@ -30,6 +31,7 @@ export interface IBayesianModel {
     bayesianModelResourceType: string;
     bayesianModelScoreCard:JSON
     resourceGroupKey: number;
+    version: string;
   }  
 
   export interface IBayesianJoinDBModel {
@@ -47,6 +49,7 @@ export interface IBayesianModel {
     bayesianModelResourceType: string;
     bayesianModelScoreCard:JSON
     resourceGroupKey: number;
+    version: string;
     ModelRuleScores: JSON;
     ResourceGroup: JSON;
   }  

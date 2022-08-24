@@ -38,6 +38,7 @@ class Github {
                   }, req.systemId);
                   const newPartyUser = await this.partyService.createUser({
                       email: "",
+                      timezone: "",
                       partyName: profile.displayName || profile.username,
                       partyDescription: '',
                       parentPartyId: '',

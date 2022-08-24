@@ -200,16 +200,67 @@ class executorController {
      public scheduleSyncMetricReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
       try {
         const clusterUuid = req.body.clusterUuid;
+        const cronTab = req.body.cronTab || config.metricReceivedCron;
         //const targetNamespace = req.body.targetNamespace;
         //const customerAccountKey = req.customerAccountKey;
   
-        const cronJobKey: object = await this.executorService.scheduleSyncMetricReceived(clusterUuid);
+        const cronJobKey: object = await this.executorService.scheduleSyncMetricReceived(clusterUuid, cronTab);
         res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule metric received sync jobs` });
       } catch (error) {
         next(error);
       }
     };
+  
+   /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+     public scheduleSyncResources = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+        const clusterUuid = req.body.clusterUuid;
+        const cronTab = req.body.cronTab || config.resourceCron;
+  
+        const cronJobKey: object = await this.executorService.scheduleSyncResources(clusterUuid, cronTab);
+        res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule resource sync jobs` });
+      } catch (error) {
+        next(error);
+      }
+    };
 
+   /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+    public scheduleSyncAlerts = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+        const clusterUuid = req.body.clusterUuid;
+        const cronTab = req.body.cronTab || config.alertCron;
+  
+        const cronJobKey: object = await this.executorService.scheduleSyncAlerts(clusterUuid, cronTab);
+        res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule alert sync jobs` });
+      } catch (error) {
+        next(error);
+      }
+    };
+
+   /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+    public scheduleSyncMetricMeta = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+        const clusterUuid = req.body.clusterUuid;
+        const cronTab = req.body.cronTab || config.metricCron;
+  
+        const cronJobKey: object = await this.executorService.scheduleSyncMetricMeta(clusterUuid, cronTab);
+        res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule MetricMeta sync jobs` });
+      } catch (error) {
+        next(error);
+      }
+    };
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
@@ -306,14 +357,70 @@ class executorController {
    public syncMetricReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterUuid = req.body.clusterUuid;
+      const cronTab = req.body.cronTab || config.metricReceivedCron;
       
-      const serviceOutput: any = await this.executorService.syncMetricReceived(clusterUuid);
+      const serviceOutput: any = await this.executorService.syncMetricReceived(clusterUuid, cronTab );
       if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
       res.status(200).json({ Data: serviceOutput, message: `Sync metric Successful.` });
     } catch (error) {
       next(error);
     }
   };
+
+   /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+    public syncResources = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+        const clusterUuid = req.body.clusterUuid;
+        const cronTab = req.body.cronTab || config.resourceCron; 
+        
+        const serviceOutput: any = await this.executorService.syncResources(clusterUuid, cronTab);
+        if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
+        res.status(200).json({ Data: serviceOutput, message: `Sync resource Successful. ${clusterUuid}, ${cronTab}` });
+      } catch (error) {
+        next(error);
+      }
+    }; 
+
+   /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+    public syncAlerts = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+        const clusterUuid = req.body.clusterUuid;
+        const cronTab = req.body.cronTab || config.alertCron; 
+        
+        const serviceOutput: any = await this.executorService.syncAlerts(clusterUuid, cronTab);
+        if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
+        res.status(200).json({ Data: serviceOutput, message: `Sync Alert Successful. ${clusterUuid}, ${cronTab}` });
+      } catch (error) {
+        next(error);
+      }
+    };     
+
+   /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+    public syncMetricMeta = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+        const clusterUuid = req.body.clusterUuid;
+        const cronTab = req.body.cronTab || config.metricCron; 
+        
+        const serviceOutput: any = await this.executorService.syncMetricMeta(clusterUuid, cronTab);
+        if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
+        res.status(200).json({ Data: serviceOutput, message: `Sync MetricMeta Successful. ${clusterUuid}, ${cronTab}` });
+      } catch (error) {
+        next(error);
+      }
+    };     
+
 
   /**
    * @param  {IRequestWithUser} req

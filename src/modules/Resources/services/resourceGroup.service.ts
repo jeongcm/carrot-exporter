@@ -264,26 +264,20 @@ class ResourceGroupService {
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
     if (!findResourceGroup) throw new HttpException(400, "*ResourceGroup doesn't exist");
 
-    // 1. AlertRule, AlertReceived
-    const resultAlertRule = await this.alertRuleService.deleteAlertRuleByResourceGroupUuid(resourceGroupUuid);
-    console.log ("alert")
-    console.log (resultAlertRule); 
 
-    // 2. MetricMeta, MetricReceived
+    // 1. MetricMeta, MetricReceived
 //    const resultMetricMeta = await this.metricMetaService.deleteMetricMetaByResourceGroupUuid(resourceGroupUuid);
 //    console.log (resultMetricMeta);
 
     const deleteData = { deletedAt: new Date() };
     const findMetricMeta: IMetricMeta = await this.metricMeta.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
-    console.log ("metric")
+
     if (findMetricMeta) {
       const resultDeleteMetricReceived = await this.metricReceived.update(deleteData, {where: {metricMetaKey: findMetricMeta.metricMetaKey}} );
       const resultDeleteMetricMeta = await this.metricMeta.update(deleteData, {where: {resourceGroupUuid: resourceGroupUuid}});
-      console.log (findMetricMeta); 
-      console.log (resultDeleteMetricReceived);
-      console.log (resultDeleteMetricMeta);
+      console.log ("metric deleted - ", resourceGroupUuid ); 
     }
-    // 3. Resource, PartyResource, SubscribedProduct, AnomalyMonitoringTarget
+    // 2. Resource, PartyResource, SubscribedProduct, AnomalyMonitoringTarget
 //    const resultResource = await this.resourceSerivce.deleteResourceByResourceGroupUuid(resourceGroupUuid, findResourceGroup.resourceGroupKey);
 //    console.log (resultResource);
 
@@ -307,7 +301,7 @@ class ResourceGroupService {
         resourceKey: { [Op.in]: resourceKey },
       },
     };
-    console.log ("Resource");
+    
     const deleteResultPartyResource = await this.partyResource.update({deletedAt: new Date()}, queryIn); 
     const deleteResultSubscribedProduct = await this.subscribedProduct.update({deletedAt: new Date()}, queryIn); 
     const deleteResultAnomalyTarget = await this.anomalyTarget.update({deletedAt: new Date()}, queryIn); 
@@ -318,28 +312,22 @@ class ResourceGroupService {
     };
 
     const deleteResultResource = await this.resource.update(updatedResource, query);
+    console.log ("Resource deleted - ", resourceGroupUuid);
 
-    console.log (deleteResultPartyResource); 
-    console.log (deleteResultSubscribedProduct); 
-    console.log (deleteResultAnomalyTarget); 
-    console.log (deleteResultResource);
-
-    // 4. ResourceGroup
+    // 3. ResourceGroup
     const resultResourceGroup = await this.resourceGroup.update({deletedAt: new Date()}, { where: {resourceGroupUuid: resourceGroupUuid} });
     if (!resultResourceGroup) throw new HttpException(500, `Issue on deleting ResourceGroup ${resourceGroupUuid}`);
-    console.log ("ResourceGroup");
-    console.log (resultResourceGroup); 
+    console.log ("ResourceGroup deleted- ", resourceGroupUuid);
     
 
-    // 5. Billing
+    // 4. Billing
 
 
-    // 6. scheduler
+    // 5. scheduler
     const resultCancelScheduler = await this.schedulerService.cancelCronScheduleByResourceGroupUuid(resourceGroupUuid); 
-    console.log ("Scheduler"); 
-    console.log (resultCancelScheduler);
+    console.log ("Scheduler - cancalled - ", resourceGroupUuid); 
 
-    // 7. sudoryclient?
+    // 6. sudoryclient?
 
     const name = "sudory uninstall";
     const summary = "sudory uninstall";
@@ -351,10 +339,16 @@ class ResourceGroupService {
     }];
     const sudoryChannel = config.sudoryApiDetail.channel_webhook; 
     const resultUninstallSudoryClient = await this.sudoryService.postSudoryService(name, summary, resourceGroupUuid, templateUuid, steps, customerAccountKey, sudoryChannel); 
-    console.log ("sudory");
-    console.log (resultUninstallSudoryClient);
+    console.log ("sudory client - uninstalled - ", resourceGroupUuid);
 
-    // 8. Customer Notification
+    
+    // 7. Customer Notification
+
+
+    // 8. AlertRule, AlertReceived
+    const resultAlertRule = await this.alertRuleService.deleteAlertRuleByResourceGroupUuid(resourceGroupUuid);
+    console.log ("alert deleted - ", resourceGroupUuid);
+
 
     return resultResourceGroup;
   }
