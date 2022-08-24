@@ -71,7 +71,7 @@ class healthService {
                 let sudoryName = "sudory_client_rebounce";
                 let sudorySummary = "sudory_client_summary";
                 let templateUuid = "99990000000000000000000000000001";
-                let steps = {};
+                let steps = [{"Args": {}}];
                 let subscribed_channel = config.sudoryApiDetail.channel_webhook;
                 const resultSuodryCall = this.executorService.postExecuteService(sudoryName, sudorySummary, clusterUuid, templateUuid, steps, customerAccountKey, subscribed_channel);
                 console.log (resultSuodryCall); 
