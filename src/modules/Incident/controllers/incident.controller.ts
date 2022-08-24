@@ -335,6 +335,30 @@ class IncidentController {
     }
   };
 
+  public deleteIncidentActionAttachment = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const incidentId = req.params.incidentId;
+    const attachmentId = req.params.attachmentId;
+    const logginedUserId = req.user.partyId;
+
+    try {
+      const incidentActionAttachments = await this.incidentService.deleteIncidentActionAttachment(
+        customerAccountKey,
+        attachmentId,
+        logginedUserId
+      );
+
+      if (incidentActionAttachments) {
+        res.status(200).json({ data: incidentActionAttachments, message: `Incident's Attachment having id(${attachmentId})'s deleted successfully.` });
+      } else {
+        res.status(404).json({ message: `Attachment id(${attachmentId})'s not found` });
+      }
+    } catch (error) {
+      res.status(404).json({ message: error });
+      next(error);
+    }
+  };
+
   public getAttachmentById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
     const attachmentId = req.params.attachmentId;
