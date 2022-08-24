@@ -6,8 +6,10 @@ import { AlertReceivedDto } from '../dtos/alertReceived.dto';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import AlertRuleService from './alertRule.service';
 import { AlertRuleModel } from '@/modules/Alert/models/alertRule.model';
+import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
 import ServiceExtension from '@/common/extentions/service.extension';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
+import sequelize from 'sequelize';
 
 const { Op } = require('sequelize');
 
@@ -29,23 +31,55 @@ class AlertReceivedService extends ServiceExtension {
     });
   }
 
-  public async getAllAlertReceived(customerAccountKey: number): Promise<IAlertReceived[]> {
+  public async getAllAlertReceived(customerAccountKey: number): Promise<object> {
+    /* sequelize join doesn't work with ResourceGroup.... 
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
-      // include: [
-      //   {
-      //     model: this.alertRule,
-      //     as: 'alertRule',
-      //     include: [
-      //       {
-      //         model: this.resourceGroup,
-      //       },
-      //     ],
-      //   },
-      // ],
+       include: [
+         {
+           model: AlertRuleModel,
+           as: 'alertRule',
+           required: true,
+           where: { deletedAt: null},
+           include: [
+           {
+               model: ResourceGroupModel,
+               required: true,
+               //where: {deletedAt: null},
+             },
+           ],
+         },
+       ],
     });
-    return allAlertReceived;
+    */
+    const sql=`SELECT 
+                A.customer_account_key as customerAccountKey,
+                A.alert_received_id as alertReceivedId, 
+                A.alert_received_state as alertReceivedState,
+                A.alert_received_value as alertReceivedValue,
+                A.alert_received_name as alertReceivedName,
+                A.alert_received_severity as alertReceivedSeverity,
+                A.alert_received_active_at as alertReceivedActiveAt,
+                A.alert_received_summary alertReceivedSummary,
+                A.alert_received_description alertReceivedDescription,
+                A.created_at as createdAt,
+                A.updated_at as updatedAt,
+                B.alert_rule_id as alertRuleId,
+                B.alert_rule_name as alertRuleName,
+                C.resource_group_id as resourceGroupId,
+                C.resource_group_uuid as resourceGroupUuid,
+                C.resource_group_name as resourceGroupName
+              FROM AlertReceived A, AlertRule B, ResourceGroup C
+              WHERE A.customer_account_key = ${customerAccountKey}
+                and A.alert_rule_key = B.alert_rule_key
+                and B.resource_group_uuid = C.resource_group_uuid
+                and A.deleted_at is null 
+                and B.deleted_at is null 
+                and C.deleted_at is null`; 
+    const [result, metadata] = await DB.sequelize.query(sql); 
+    //return allAlertReceived;
+    return result;
   }
 
   private getWhereClauseFrom(query: any[], op: 'AND' | 'OR') {
