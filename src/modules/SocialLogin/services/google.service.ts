@@ -34,6 +34,7 @@ class Google {
                             }, req.systemId);
                             const newPartyUser = await this.partyService.createUser({
                                 email: profile.emails[0].value,
+                                timezone: "",
                                 partyName: profile.displayName,
                                 partyDescription: '',
                                 parentPartyId: '',

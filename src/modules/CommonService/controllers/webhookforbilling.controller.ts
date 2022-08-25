@@ -47,6 +47,7 @@ class webhookForBillingController {
             email: primaryEmail,
             mobile: primaryPhone,
             partyUserStatus: "DR",
+            timezone: "",
             customerAccountId: createdCustomerAccount.customerAccountId
           };
           await this.partyService.createUser(partyData, createdCustomerAccount.customerAccountKey, systemId || partyId);

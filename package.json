@@ -1,6 +1,6 @@
 {
   "name": "nexclipper-api",
-  "version": "0.9.6",
+  "version": "0.9.9",
   "description": "TypeScript + Sequelize + MySQL + Express API Server",
   "author": "NexClipper Inc.",
   "license": "ISC",
@@ -52,6 +52,7 @@
     "jsonwebtoken": "^8.5.1",
     "log-timestamp": "^0.3.0",
     "mariadb": "^3.0.0",
+    "moment-timezone": "^0.5.34",
     "mongodb": "^4.6.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.4",

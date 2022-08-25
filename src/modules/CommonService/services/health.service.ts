@@ -67,8 +67,14 @@ class healthService {
                                 resourceGroupUuid: clusterUuid,
                                 sudoryClient: false, 
                 }
-        // To Do - 4.1 send notification to NexClipper Ops
-
+        // To Do - 4.1 call sudory api to restart sudory client
+                let sudoryName = "sudory_client_rebounce";
+                let sudorySummary = "sudory_client_summary";
+                let templateUuid = "99990000000000000000000000000001";
+                let steps = [{"Args": {}}];
+                let subscribed_channel = config.sudoryApiDetail.channel_webhook;
+                const resultSuodryCall = this.executorService.postExecuteService(sudoryName, sudorySummary, clusterUuid, templateUuid, steps, customerAccountKey, subscribed_channel);
+                console.log (resultSuodryCall); 
             }
             else {
                 clusterStatus[i] = {
@@ -92,7 +98,7 @@ class healthService {
             if (syncMetricReceivedFiltered.length===0) {
                 clusterStatus[i].syncMetricReceived = false;
                 //call scheduleSyncMetricReceived
-                let resultScheduleSyncMetricReceived = await this.executorService.scheduleSyncMetricReceived(clusterUuid);
+                let resultScheduleSyncMetricReceived = await this.executorService.scheduleSyncMetricReceived(clusterUuid, config.metricReceivedCron);
                 if (resultScheduleSyncMetricReceived) clusterStatus[i].syncMetricReceivedAction = true; 
             }
             else {

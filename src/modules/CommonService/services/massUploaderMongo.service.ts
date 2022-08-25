@@ -19,11 +19,12 @@ class massUploaderMongoService {
     public resourceGroupService = new ResourceGroupService();
 
     public async massUploadResourceMongo(resourceMassFeed: any): Promise<object> {
-
+        var returnResult;
+        /*
         //Mongodb access - need to change to make this configurable
         const mongoUrl = config.db.mongodb.url;
         const client = new MongoClient(mongoUrl); 
-        var returnResult;
+        
         var customerAccountKey;
         var resourceGroupKey;
         var resourceGroupUuid;
@@ -62,10 +63,10 @@ class massUploaderMongoService {
             await client.connect();            
             const database = client.db("nc_api");
             const resource = database.collection("resource");
-            const queryN = {resource_Active: true, resource_Type: resource_Type, resource_Group_Uuid: resourceGroupUuid, resource_Target_Uuid: {$nin: resourceTargetUuidLocal}};
+            const queryN = {resourceActive: true, resourceType: resource_Type, resourceGroupUuid: resourceGroupUuid, resourceTargetUuid: {$nin: resourceTargetUuidLocal}};
 
         //change resource= -  resource_Active = false if there is no matched "resource_Target_Uuid" in the database
-            const result_delete = await resource.updateMany(queryN, {$set: {resource_Active: false, deleted_At: deleted_At}});
+            const result_delete = await resource.updateMany(queryN, {$set: {resourceActive: false, deletedAt: deleted_At}});
             const deletedInfo = {deletedCount: result_delete.modifiedCount}; 
 
             //console.log (deletedInfo); 
@@ -121,6 +122,7 @@ class massUploaderMongoService {
         finally{
             await client.close(); 
         }
+        */
         return returnResult;
     } // end of massUploadResourceMongo method      
 

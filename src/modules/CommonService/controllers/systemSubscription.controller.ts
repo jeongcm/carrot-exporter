@@ -40,17 +40,22 @@ class SystemSubscriptionController {
           
           const partyData: CreateUserDto =
           {
-            partyName: companyName || `${firstName} ${lastName}` as string,
-            partyDescription: "",
-            parentPartyId: "",
-            firstName: firstName as string,
-            lastName: lastName as string,
-            userId: id as string,
-            password: "",
-            email: primaryEmail as string,
-            mobile: primaryPhone as string,
-            partyUserStatus: "",
-            customerAccountId: "",
+            partyName: companyName || `${firstName} ${lastName}`,
+            partyDescription: null,
+            parentPartyId: null,
+            partyType: 'US',
+            customerAccountKey:createdCustomerAccount.customerAccountKey,
+            createdBy: systemId || partyId,
+            firstName,
+            lastName,
+            userId: id,
+            password: null,
+            email: primaryEmail,
+            mobile: primaryPhone,
+            partyUserStatus: "DR",
+            timezone:"",
+            customerAccountId: createdCustomerAccount.customerAccountId
+
           };
           
           const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy)

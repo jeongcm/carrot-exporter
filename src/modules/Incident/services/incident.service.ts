@@ -596,6 +596,7 @@ class IncidentService {
 
   public async getAlertByIncidentKey(customerAccountKey: number, incidentKey: number): Promise<any> {
     try {
+      /* sequelize join doesn't work with ResourceGroup.... Sequelize bug. can't use "include" bugfix/149
       const foundIncidentWithAlerts: any = await this.incident.findOne({
         where: {
           incidentKey,
@@ -614,6 +615,36 @@ class IncidentService {
       }
 
       return foundIncidentWithAlerts?.alertReceived;
+    */
+      const sql=`SELECT 
+                  A.alert_received_id as alertReceivedId, 
+                  A.alert_received_state as alertReceivedState,
+                  A.alert_received_value as alertReceivedValue,
+                  A.alert_received_name as alertReceivedName,
+                  A.alert_received_severity as alertReceivedSeverity,
+                  A.alert_received_active_at as alertReceivedActiveAt,
+                  A.alert_received_summary alertReceivedSummary,
+                  A.alert_received_description alertReceivedDescription,
+                  A.created_at as createdAt,
+                  A.updated_at as updatedAt,
+                  B.alert_rule_id as alertRuleId,
+                  B.alert_rule_name as alertRuleName,
+                  C.resource_group_id as resourceGroupId,
+                  C.resource_group_uuid as resourceGroupUuid,
+                  C.resource_group_name as resourceGroupName
+                FROM AlertReceived A, AlertRule B, ResourceGroup C, IncidentAlertReceived D
+                WHERE D.incident_key = ${incidentKey}
+                  and A.alert_rule_key = B.alert_rule_key
+                  and B.resource_group_uuid = C.resource_group_uuid
+                  and A.deleted_at is null 
+                  and B.deleted_at is null 
+                  and C.deleted_at is null
+                  and D.deleted_at is null
+                  and A.alert_received_key = D.alert_received_key`
+        ; 
+    
+      const [result, metadata] = await DB.sequelize.query(sql); 
+      return result;
     } catch (error) {
       throw error;
     }

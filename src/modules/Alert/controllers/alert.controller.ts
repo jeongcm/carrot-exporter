@@ -86,7 +86,7 @@ class AlertRuleController extends ControllerExtension {
   public getAllAlertReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const findAllAlertReceived: IAlertReceived[] = await this.alertReceivedService.getAllAlertReceived(
+      const findAllAlertReceived = await this.alertReceivedService.getAllAlertReceived(
         customerAccountKey,
         // {
         //   query: {

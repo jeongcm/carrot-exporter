@@ -104,6 +104,7 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
       resourceGroupUuid: {
         allowNull: false,
         type: DataTypes.STRING(100),
+        unique: true,
       },
       resourceGroupPrometheus: {
         allowNull: true,

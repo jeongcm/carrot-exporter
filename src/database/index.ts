@@ -91,10 +91,12 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
     max: pool.max,
   },
   logQueryParameters: config.nodeEnv === 'development',
+  
   logging: (query, time) => {
     // TODO: find a better way to leave a log
     // logger.info(time + 'ms' + ' ' + query);
   },
+  
   //logging: console.log,
   benchmark: true,
   retry: {
@@ -425,8 +427,8 @@ DB.Evaluation.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' }
 DB.BayesianModel.hasMany(DB.Evaluation, { foreignKey: 'bayesianModelKey' });
 DB.Evaluation.belongsTo(DB.BayesianModel, { foreignKey: 'bayesianModelKey' });
 
-DB.ResourceGroup.hasMany(DB.Evaluation, { foreignKey: 'bayesianModelKey' });
-DB.Evaluation.belongsTo(DB.ResourceGroup, { foreignKey: 'bayesianModelKey' });
+DB.ResourceGroup.hasMany(DB.Evaluation, { foreignKey: 'resourceGroupKey' });
+DB.Evaluation.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

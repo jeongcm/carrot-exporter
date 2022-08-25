@@ -19,6 +19,9 @@ export class CreateBayesianModelDto {
   @IsString()
   @IsNotEmpty()
   public bayesianModelClusterId: string;
+
+  @IsOptional()
+  public version:string;
  
 }
 export class UpdateBayesianModelDto {
@@ -40,7 +43,9 @@ export class UpdateBayesianModelDto {
 
 
   @IsOptional()
-  public bayesianModelScoreCard:JSON
+  public bayesianModelScoreCard:JSON;
 
+  @IsOptional()
+  public version:string;
 
 }
