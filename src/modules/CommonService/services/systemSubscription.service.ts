@@ -14,7 +14,7 @@ import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import {CreateCustomerAccountDto} from '@/modules/CustomerAccount/dtos/customerAccount.dto'
 import {CreateSubscriptionDto} from '@/modules/Subscriptions/dtos/subscriptions.dto'
 import {CreateUserDto} from '@/modules/Party/dtos/party.dto'
-import {SendMail} from '@/modules/Messaging/dtos/sendMail.dto'
+//import {SendMail} from '@/modules/Messaging/dtos/sendMail.dto'
 import urlJoin from 'url-join';
 
 const nodeMailer = require('nodemailer');
