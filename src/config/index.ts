@@ -29,6 +29,7 @@ export default {
   metricCron: process.env.NC_LARI_METRIC_CRON || `*/5 * * * *`,
   metricReceivedCron: process.env.NC_LARI_METRIC_RECEIVED_CRON || `*/5 * * * *`,
   healthCron: process.env.NC_LARI_HEALTH_CRON || "*/5 * * * *",
+  defaultPassword: process.env.NC_LARI_DEFAULT_PASSWORD || "WOt7u7OGxr",
   frontenAppUrl: process.env.NC_LARI_FRONTEND_URL,
   cors: {
     allowAnyOrigin: process.env.NC_LARI_CORS_ORIGIN === 'true' ? Boolean(process.env.NC_LARI_CORS_ORIGIN) : process.env.NC_LARI_CORS_ORIGIN,

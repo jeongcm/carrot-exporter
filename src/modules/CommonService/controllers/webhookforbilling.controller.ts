@@ -79,7 +79,7 @@ class webhookForBillingController {
             catalogPlanId: planCode
 
           }
-          const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, systemId, customerAccountKey);
+          const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, systemId || partyId, customerAccountKey);
           const productDetails = fusebillResponse.subscriptionProducts.filter((data) => { return data.customFields });
           const { key, value } = productDetails[0].customFields[0];
           const { productStatus, productCode } = productDetails[0].planProduct;
