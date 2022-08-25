@@ -45,7 +45,7 @@ class MailService {
     });
   };
 
-  public sendMailGeneral(mailOptions: any, customerAccountKey){
+  public sendMailGeneral(mailOptions: any){
     var msg = {};
     console.log ("sending mail");
     try {
@@ -66,8 +66,6 @@ class MailService {
       
         }
       });
-
-      //const resultNotifiction = this.notificationService.createNotification(notiData,createdBy,customerAccountKey)
 
     } catch (err) {
       console.log (err);

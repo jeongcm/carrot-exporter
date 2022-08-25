@@ -43,9 +43,9 @@ class SystemSubscriptionController {
             partyName: companyName || `${firstName} ${lastName}`,
             partyDescription: null,
             parentPartyId: null,
-            partyType: 'US',
-            customerAccountKey:createdCustomerAccount.customerAccountKey,
-            createdBy: systemId || partyId,
+            //partyType: 'US',
+            //customerAccountKey:createdCustomerAccount.customerAccountKey,
+            //createdBy: createdBy,
             firstName,
             lastName,
             userId: id,
@@ -53,9 +53,8 @@ class SystemSubscriptionController {
             email: primaryEmail,
             mobile: primaryPhone,
             partyUserStatus: "DR",
-            timezone:"",
-            customerAccountId: createdCustomerAccount.customerAccountId
-
+            timezone: "",
+            customerAccountId: "",
           };
           
           const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy)

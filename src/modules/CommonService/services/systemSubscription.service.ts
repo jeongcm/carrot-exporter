@@ -23,8 +23,6 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
 
-
-
 class systemSubscriptionService {
 
     public executorService = DB.ExecutorService; 
@@ -59,7 +57,7 @@ class systemSubscriptionService {
     const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(CustomerAccountDataNew, partyId);
 
     //2. create a party user
-
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const partyDataNew = {
         partyName,
         partyDescription,
@@ -73,13 +71,12 @@ class systemSubscriptionService {
         email,
         mobile,
         partyUserStatus: "DR",
+        timezone: timeZone, 
         customerAccountId: createdCustomerAccount.customerAccountId
     };
-
     const createdPartyUser: IPartyUserResponse = await this.partyService.createUser(partyDataNew, createdCustomerAccount.customerAccountKey, partyId);
     
     //3. fusebill interface
-
 
     //4. send email to customer
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'), 'utf8');
@@ -92,14 +89,13 @@ class systemSubscriptionService {
       subject: 'Welcome Onboard - NexClipper',
       html: htmlToSend
     }
-    const resultMailSent:SendMail = await this.sendMailService.sendMailGeneral(mailOptions);
-    console.log (resultMailSent);
-    let emailSent: boolean;
-    if (resultMailSent.response==="success") emailSent = true;
-    else emailSent = false;
-    
+    let emailSent: boolean = false;
+    await this.sendMailService.sendMailGeneral(mailOptions);
+    emailSent = true;
 
     //4.1 save the history to db. 
+
+
 
     //5. return message
     returnResult = {customerAccountId: createdCustomerAccount.customerAccountId,
