@@ -45,7 +45,7 @@ class MailService {
     });
   };
 
-  public sendMailGeneral(mailOptions: any, customerAccountKey){
+  public sendMailGeneral(mailOptions: any){
     var msg = {};
     console.log ("sending mail");
     try {

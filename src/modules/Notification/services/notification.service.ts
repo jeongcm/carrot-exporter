@@ -42,6 +42,7 @@ class NotificationService {
     customerAccountKey: number,
     systemId: string,
   ): Promise<Notification> {
+
     if (isEmpty(notificationData)) throw new HttpException(400, 'Notification Data cannot be blank');
 
     var tempMessageKey; 
@@ -51,8 +52,6 @@ class NotificationService {
         tempMessageKey = messageData.messageKey;
       }  
 
-      const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(partyKey);
-
     const tableIdName: string = 'Notification';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const tempNotificationId: string = responseTableIdData.tableIdFinalIssued;
@@ -60,7 +59,6 @@ class NotificationService {
     const currentDate = new Date();
     const newNotification = {
       notificationId: tempNotificationId,
-      partyChannelKey: partyChannelKey,
       partyKey: partyKey,
       messageKey: tempMessageKey || null,
       createdBy: systemId,

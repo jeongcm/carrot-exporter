@@ -59,7 +59,7 @@ class systemSubscriptionService {
     const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(CustomerAccountDataNew, partyId);
 
     //2. create a party user
-
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const partyDataNew = {
         partyName,
         partyDescription,
@@ -73,6 +73,7 @@ class systemSubscriptionService {
         email,
         mobile,
         partyUserStatus: "DR",
+        timezone: timeZone,
         customerAccountId: createdCustomerAccount.customerAccountId
     };
 
@@ -92,11 +93,9 @@ class systemSubscriptionService {
       subject: 'Welcome Onboard - NexClipper',
       html: htmlToSend
     }
-    const resultMailSent:SendMail = await this.sendMailService.sendMailGeneral(mailOptions);
-    console.log (resultMailSent);
-    let emailSent: boolean;
-    if (resultMailSent.response==="success") emailSent = true;
-    else emailSent = false;
+    let emailSent: boolean = false;
+    await this.sendMailService.sendMailGeneral(mailOptions);
+    emailSent = true;
     
 
     //4.1 save the history to db. 
