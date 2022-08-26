@@ -5,7 +5,6 @@ export type AlertNotificationCreationAttributes = Optional<
   AlertNotification,
   | 'alertNotificationKey'
   | 'alertNotificationId'
-  | 'partyChannelKey'
   | 'partyKey'
   | 'templateKey'
   | 'contentJson'
@@ -53,10 +52,6 @@ export default function (sequelize: Sequelize): typeof AlertNotificationModel {
       alertNotificationId: {
         allowNull: false,
         type: DataTypes.STRING(16),
-      },
-      partyChannelKey: {
-        allowNull: false,
-        type: DataTypes.INTEGER,
       },
       partyKey: {
         allowNull: false,

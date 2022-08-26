@@ -6,7 +6,6 @@ export type NotificationCreationAttributes = Optional<
   | 'notificationKey'
   | 'notificationId'
   | 'partyKey'
-  | 'messageKey'
   | 'createdBy'
   | 'updatedBy'
   | 'createdAt'
@@ -14,7 +13,10 @@ export type NotificationCreationAttributes = Optional<
   | 'deletedAt'
   | 'notificationStatus'
   | 'notificationStatutsUpdatedAt'
-  | 'notificationJson'
+  | 'notificationMessage'
+  | 'notificationChannelType'
+  | 'notificationType'
+  | 'notificationChannel'
   | 'customerAccountKey'
 >;
 
@@ -22,7 +24,6 @@ export class NotificationModel extends Model<Notification, NotificationCreationA
   public notificationKey: number;
   public notificationId: string;
   public partyKey: number;
-  public messageKey: number;
   public createdBy: string;
   public updatedBy: string;
   public deletedAt: Date;
@@ -30,7 +31,10 @@ export class NotificationModel extends Model<Notification, NotificationCreationA
   public notificationStatutsUpdatedAt: Date;
   public customerAccountKey: number;
   public updatedAt: Date;
-  public notificationJson: JSON;
+  public notificationChannelType: string;
+  public notificationType: string;
+  public notificationChannel: string;
+  public notificationMessage: JSON;
 
   public readonly createdAt!: Date;
   
@@ -53,10 +57,6 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      messageKey: {
-        allowNull: true,
-        type: DataTypes.INTEGER,
-      },
       createdBy: {
         type: DataTypes.STRING(16),
       },
@@ -76,17 +76,23 @@ export default function (sequelize: Sequelize): typeof NotificationModel {
         allowNull: true,
         type: DataTypes.DATE,
       },
+      notificationChannel: {
+        allowNull: true,
+        type: DataTypes.STRING(50),
+      },  
+      notificationChannelType: {
+        allowNull: true,
+        type: DataTypes.STRING(50),
+      }, 
+      notificationType: {
+        allowNull: true,
+        type: DataTypes.STRING(50),
+      },  
       notificationStatus: {
         allowNull: true,
         type: DataTypes.STRING(2),
-        validate: {
-          isIn: {
-            args: [['CR', 'ST', null]],
-            msg: " notificationStatus must be of type  ['CR', 'ST'] SM: Sent, CR: Created",
-          },
-        },
       },
-      notificationJson:{
+      notificationMessage:{
         allowNull: true,
         type: DataTypes.JSON,
       },

@@ -2,20 +2,19 @@ import DB from '@/database';
 import axios from 'axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
+import bcrypt from 'bcrypt';
 
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
-import PartyService from '@/modules/Party/services/party.service';
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import SendMailService from '@/modules/Messaging/services/sendMail.service'
+import tableIdService from '@/modules/CommonService/services/tableId.service';
 
-import { IPartyUserResponse, IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
+import { Notification } from '@/common/interfaces/notification.interface';
 import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { IPartyUser, IParty } from '@/common/interfaces/party.interface';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import {CreateCustomerAccountDto} from '@/modules/CustomerAccount/dtos/customerAccount.dto'
 import {CreateSubscriptionDto} from '@/modules/Subscriptions/dtos/subscriptions.dto'
 import {CreateUserDto} from '@/modules/Party/dtos/party.dto'
-import {SendMail} from '@/modules/Messaging/dtos/sendMail.dto'
-import urlJoin from 'url-join';
 
 const nodeMailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
@@ -23,21 +22,32 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
 
+
+
 class systemSubscriptionService {
 
     public executorService = DB.ExecutorService; 
-    public customerAccountService = new CustomerAccountService();
-    public partyService = new PartyService();
+    public customerAccount = DB.CustomerAccount; 
+    public party = DB.Party; 
+    public partyUser = DB.PartyUser; 
+    public notification = DB.Notification; 
     public subscriptionService = new SubscriptionService();
     public sendMailService = new SendMailService();
+    public tableIdService = new tableIdService();
 
   /**
    * @param {CreateCustomerAccountDto} customerAccountData
    * @param {Object} partyData
    * @param {string} partyId
    */
-   public async createCustomerAccount(customerAccountData:CreateCustomerAccountDto, partyData: CreateUserDto, partyId: string): Promise<object> {
+   public async createCustomerAccount(customerAccountData:CreateCustomerAccountDto, partyData: CreateUserDto, createdBy: string): Promise<object> {
+
+    //0. Data Prep
     var returnResult = {};
+    const currentDate = new Date();
+    const CustomerAccountDataNew = {...customerAccountData,
+      customerAccountType: "CO" as customerAccountType}
+
     const 
     {
       partyName,
@@ -46,68 +56,129 @@ class systemSubscriptionService {
       firstName,
       lastName,
       userId,
-      password,
       email,
       mobile,
     } = partyData; 
-
-    //1. create a customer account
-    const CustomerAccountDataNew = {...customerAccountData,
-                                    customerAccountType: "CO" as customerAccountType}
-    const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(CustomerAccountDataNew, partyId);
-
-    //2. create a party user
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const partyDataNew = {
-        partyName,
-        partyDescription,
-        parentPartyId,
-        partyType: 'US',
-        createdBy: partyId,
-        firstName,
-        lastName,
-        userId,
-        password: config.defaultPassword,
-        email,
-        mobile,
-        partyUserStatus: "DR",
-        timezone: timeZone, 
-        customerAccountId: createdCustomerAccount.customerAccountId
-    };
-    const createdPartyUser: IPartyUserResponse = await this.partyService.createUser(partyDataNew, createdCustomerAccount.customerAccountKey, partyId);
+    console.log ("partyData", partyData);
+    let tableIdTableName = 'CustomerAccount';
+    let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+    let customerAccountId = responseTableIdData.tableIdFinalIssued;
+    let timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     
-    //3. fusebill interface
+    tableIdTableName = 'Party';
+    responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+    let partyId = responseTableIdData.tableIdFinalIssued;
 
-    //4. send email to customer
-    const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'), 'utf8');
-    const template = handlebars.compile(emailTemplateSource);
-    let name = createdPartyUser.firstName
-    const htmlToSend = template({ name });
-    const mailOptions = {
-      to: createdPartyUser.email,
-      from: "service@nexclipper.io",
-      subject: 'Welcome Onboard - NexClipper',
-      html: htmlToSend
+    try {
+        return await DB.sequelize.transaction(async t => {
+          //1. create a customer account
+          const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create({
+            ...CustomerAccountDataNew,
+            customerAccountId: customerAccountId,
+            createdBy: partyId,
+          }, {transaction: t});
+          const customerAccountKey = createdCustomerAccount.customerAccountKey;
+          console.log ("1. createdCustomerAccount", createdCustomerAccount);
+
+          //2. create a party user
+    
+          const createdParty: IParty = await this.party.create(
+            {
+              partyId: partyId,
+              partyName: partyName,
+              partyDescription: partyDescription,
+              parentPartyId: parentPartyId,
+              partyType: 'US',
+              customerAccountKey,
+              createdBy: createdBy,
+              createdAt: currentDate,
+            },
+            { transaction: t },
+          );
+          console.log ("2. createdParty", createdParty);
+
+          let partyKey = createdParty.partyKey;
+          //let hashedPassword = await bcrypt.hash(password, 10);
+          let password = config.defaultPassword;
+
+          const createdPartyUser: IPartyUser = await this.partyUser.create(
+            {
+              partyUserId: partyId,
+              partyKey: createdParty.partyKey,
+              createdBy: createdBy,
+              firstName: firstName,
+              lastName: lastName,
+              userId: userId,
+              mobile: mobile,
+              password: password,
+              email: email,
+              timezone: timeZone,
+              isEmailValidated: false,
+              partyUserStatus: "AC",
+            },
+            { transaction: t },
+          );
+          console.log ("3. createdPartyUser", createdPartyUser);  
+          //3. fusebill interface
+
+          //4. prep sending email to customer
+          const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'), 'utf8');
+          const template = handlebars.compile(emailTemplateSource);
+          let name = createdPartyUser.firstName
+          const htmlToSend = template({ name });
+          const mailOptions = {
+            to: createdPartyUser.email,
+            from: "service@nexclipper.io",
+            subject: 'Welcome Onboard - NexClipper',
+            html: htmlToSend
+          }
+          
+          const notificationMessage = JSON.parse(JSON.stringify(mailOptions)); 
+          
+          //5 create notification history
+          tableIdTableName = 'Notification';
+          responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+          let notificationId = responseTableIdData.tableIdFinalIssued;
+          
+          const newNotification = {
+            notificationId: notificationId,
+            partyKey: partyKey,
+            createdBy: createdBy,
+            createdAt: currentDate,
+            notificationStatutsUpdatedAt: currentDate,
+            customerAccountKey,
+            notificationChannelType: "email",
+            notificationType: "newCustomerAccount",
+            notificationChannel: createdPartyUser.email,
+            notificationMessage: notificationMessage,
+            notificationStatus: "ST",
+            }  
+      
+          const createNotificationData: Notification = await this.notification.create(newNotification, {transaction: t});
+          console.log ("5. createNotificationData", createNotificationData);  
+
+          //4.1 send email to customer
+          let emailSent: boolean = false;
+          await this.sendMailService.sendMailGeneral(mailOptions);
+          emailSent = true;
+          console.log ("success!!!!!");  
+          //6. return message
+          return {customerAccountId: createdCustomerAccount.customerAccountId,
+              customerAccountName: createdCustomerAccount.customerAccountName,
+              customerAccountType: createdCustomerAccount.customerAccountType,
+              firstName:  createdPartyUser.firstName, 
+              lastName:  createdPartyUser.lastName, 
+              userId:  createdPartyUser.userId, 
+              email:  createdPartyUser.email, 
+              mobile:  createdPartyUser.mobile,
+              emailSent: emailSent,
+              notificationId: notificationId,
+              }
+      });           
+    } catch(err){
+      console.log (err); 
+      throw new HttpException(500, "Unknown error while creating account");
     }
-    let emailSent: boolean = false;
-    await this.sendMailService.sendMailGeneral(mailOptions);
-    emailSent = true;
-
-    //4.1 save the history to db. 
-
-
-
-    //5. return message
-    returnResult = {customerAccountId: createdCustomerAccount.customerAccountId,
-        customerAccountName: createdCustomerAccount.customerAccountName,
-        customerAccountType: createdCustomerAccount.customerAccountType,
-        firstName:  createdPartyUser.firstName, 
-        lastName:  createdPartyUser.lastName, 
-        userId:  createdPartyUser.userId, 
-        email:  createdPartyUser.email, 
-        mobile:  createdPartyUser.mobile,
-        emailSent: emailSent,
-}
 
     return returnResult;
 }

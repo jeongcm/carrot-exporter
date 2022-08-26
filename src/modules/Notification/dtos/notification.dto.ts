@@ -1,17 +1,15 @@
 import { IsString, IsEmail, IsNotEmpty, IsAlpha, IsOptional, IsJSON, IsObject, IsDate } from 'class-validator';
 
 export class CreateNotificationDto {
-  @IsString()
-  @IsNotEmpty()
-  public messageId: string;
+  notificationChannelType: string;
+  notificationType: string;
+  notificationChannel: string;
+  notificationMessage: JSON;
+  notificationStatus: string;
 }
 
 export class UpdateNotificationDto {
 
-  @IsString()
-  @IsNotEmpty()
-  public messageId: string;
-  
   @IsString()
   @IsNotEmpty()
   public notificationStatus: string;
