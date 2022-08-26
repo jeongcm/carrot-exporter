@@ -120,6 +120,32 @@ class systemSubscriptionService {
           );
           console.log ("3. createdPartyUser", createdPartyUser);  
           //3. fusebill interface
+          const fuseBillCreateCustomer = {
+            firstName: firstName,
+            lastName: lastName,
+            companyName: partyName,
+            primaryEmail: email,
+            primaryPhone: mobile,
+            reference: customerAccountId,
+          };
+          let fuseBillInterface:boolean =   false; 
+          let headers = {Authorization: `Basic ${config.Fulsebill.apiKey}`}; 
+          console.log (headers); 
+          await axios({
+            method: 'post',
+            url: config.Fulsebill.createCustomerUrl,
+            data: fuseBillCreateCustomer,
+            headers: headers,
+          })
+            .then(async (res: any) => {
+              console.log(`got interface result -- ${res}`);
+              
+              fuseBillInterface = true;
+            })
+            .catch(error => {
+              //console.log(error);
+              console.log (error.response.data.Errors);
+            });
 
           //4. prep sending email to customer
           const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'), 'utf8');
@@ -173,6 +199,7 @@ class systemSubscriptionService {
               mobile:  createdPartyUser.mobile,
               emailSent: emailSent,
               notificationId: notificationId,
+              fuseBillInterface: fuseBillInterface,
               }
       });           
     } catch(err){
