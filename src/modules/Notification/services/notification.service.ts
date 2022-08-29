@@ -40,7 +40,7 @@ class NotificationService {
    */
   public async createNotification(
     notificationData: CreateNotificationDto,
-    partyId: string,
+    partyKey: number,
     customerAccountKey: number,
     systemId: string,
   ): Promise<Notification> {
@@ -50,9 +50,6 @@ class NotificationService {
     const tableIdName: string = 'Notification';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const tempNotificationId: string = responseTableIdData.tableIdFinalIssued;
-
-    const resultParty = await this.party.findOne ({where: {partyId}});
-    const partyKey = resultParty.partyKey;
 
     const currentDate = new Date();
     const newNotification = {

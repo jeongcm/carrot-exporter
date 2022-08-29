@@ -176,7 +176,7 @@ class systemSubscriptionService {
             notificationChannel: createdPartyUser.email,
             notificationMessage: notificationMessage,
             notificationStatus: "ST",
-            }  
+            }
       
           const createNotificationData: Notification = await this.notification.create(newNotification, {transaction: t});
 
