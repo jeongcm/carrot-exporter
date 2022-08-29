@@ -163,5 +163,9 @@ export default {
   },
   oT: {
     oTTraceLogTurnOff: process.env.NC_TURN_OFF_TELEMETRY,
+  },
+  Fulsebill: {
+    apiKey: process.env.FUSEBILL_API_KEY,
+    createCustomerUrl: process.env.FUSEBILL_API_CREATE_CUSTOMER_URL,
   }
 };

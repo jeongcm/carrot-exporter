@@ -67,8 +67,6 @@ class MailService {
         }
       });
 
-      //const resultNotifiction = this.notificationService.createNotification(notiData,createdBy,customerAccountKey)
-
     } catch (err) {
       console.log (err);
     }

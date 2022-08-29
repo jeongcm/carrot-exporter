@@ -47,8 +47,8 @@ export interface IPartyRelation {
 }
 
 export interface IPartyUser {
-  partyUserKey: number;
   partyUserId: string;
+  partyUserKey: number;
   partyKey: number;
   createdBy: string;
   updatedBy: string;
@@ -107,6 +107,7 @@ export interface IPartyUserResponse {
   userId: string;
   mobile: string;
   email: string;
+  timezone: string;
   isEmailValidated: boolean;
 }
 

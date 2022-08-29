@@ -43,18 +43,16 @@ class SystemSubscriptionController {
             partyName: companyName || `${firstName} ${lastName}`,
             partyDescription: null,
             parentPartyId: null,
-            //partyType: 'US',
-            //customerAccountKey:createdCustomerAccount.customerAccountKey,
-            //createdBy: systemId || partyId,
             firstName,
             lastName,
             userId: id,
-            password: null,
+            password: "",
             email: primaryEmail,
             mobile: primaryPhone,
             partyUserStatus: "DR",
-            customerAccountId: "",
             timezone: "",
+            customerAccountId: "",
+
           };
           
           const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy)
