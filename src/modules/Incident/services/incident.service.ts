@@ -483,22 +483,19 @@ class IncidentService {
         actionAttachmentData.incidentActionAttachmentFileType,
         incidentActionAttachmentFile,
       );
-
       if (uploadedFilePath.status === 'ok') {
         const createdActionAttachment: IIncidentActionAttachment = await this.incidentActionAttachment.create({
           ...actionAttachmentData,
           createdBy: logginedUserId,
           incidentActionKey,
           incidentActionAttachmentId: responseTableIdData.tableIdFinalIssued,
-          incidentActionAttachmentPath: uploadedFilePath.data.key,
+          incidentActionAttachmentPath: uploadedFilePath.data.Key,
         });
         return createdActionAttachment;
       } else {
-        console.log(uploadedFilePath);
         throw new HttpException(500, uploadedFilePath.data);
       }
     } catch (error) {
-      console.log(error);
       throw new HttpException(400, 'Not able to attach this attachment.');
     }
   }
@@ -532,12 +529,29 @@ class IncidentService {
     } catch (error) {}
   }
 
+  public async deleteIncidentActionAttachment(customerAccountKey: number, attachmentId: string, logginedUserId: string): Promise<[number]> {
+    try {
+      const deletedIncidentActionAttachments: [number] = await this.incidentActionAttachment.update(
+        { deletedAt: new Date(), updatedBy: logginedUserId },
+        { where: { incidentActionAttachmentId: attachmentId } },
+      );
+      const deletedAttachment: IIncidentActionAttachment = await this.incidentActionAttachment.findOne({
+        where: { incidentActionAttachmentId: attachmentId },
+      });
+      if (deletedAttachment) {
+        const uploadedFilePath = await this.fileUploadService.delete({ query: { fileName: deletedAttachment.incidentActionAttachmentPath } });
+      }
+
+      return deletedIncidentActionAttachments;
+    } catch (error) {}
+  }
+
   public async getIncidentAttachmentByIncidentId(customerAccountKey: number, incidentId: string): Promise<IIncidentActionAttachment[]> {
     const { incidentKey } = await this.getIncidentKey(customerAccountKey, incidentId);
     const incidentActionKeys = await this.getIncidentActionKeysByIncidentId(incidentKey);
     const incidentActionKeysList = incidentActionKeys.map(incidentActionKeysX => incidentActionKeysX.incidentActionKey);
     const incidentActionAttachments: IIncidentActionAttachment[] = await this.incidentActionAttachment.findAll({
-      where: { incidentActionKey: { [Op.in]: incidentActionKeysList } },
+      where: { deletedAt: null, incidentActionKey: { [Op.in]: incidentActionKeysList } },
     });
 
     return incidentActionAttachments;

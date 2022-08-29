@@ -89,7 +89,6 @@ class fileUploadService {
     };
     const result = await space.deleteObject(downloadParameters, function (error, data) {
       if (error) {
-        console.error(error.code);
         throw new HttpException(500, error.message);
       }
       return data;
