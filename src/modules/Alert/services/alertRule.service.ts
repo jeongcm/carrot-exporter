@@ -11,7 +11,6 @@ dayjs.extend(utc);
 
 const { Op } = require('sequelize');
 import _ from 'lodash';
-import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 class AlertRuleService {
   private tableIdService = new TableIdService();
   public alertRule = DB.AlertRule;
@@ -99,6 +98,17 @@ class AlertRuleService {
     if (!findAlertRule) throw new HttpException(404, 'NOT_FOUND');
 
     return findAlertRule.alertRuleKey;
+  }
+
+  public async findAlertRuleKeyByIds(alertRuleIds: string[], customerAccountKey:number ): Promise<IAlertRule[]> {
+    if (isEmpty(alertRuleIds)) throw new HttpException(400, 'Not a valid Alert Rule');
+    const findAlertRule: IAlertRule[] = await this.alertRule.findAll({
+      where: { alertRuleId: {[Op.or]: alertRuleIds}, customerAccountKey:2, },
+      attributes: { exclude: ['customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy','createdAt', 'updatedAt','alertRuleName','alertRuleGroup','alertRuleState', 'alertRuleQuery','alertRuleDuration', 'alertRuleSeverity' , 'alertRuleDescription','alertRuleSummary','alertRuleRunbook','alertRuleHealth' ,'alertRuleEvaluationTime','alertRuleLastEvaluation',    ] },
+    });
+    if (!findAlertRule) throw new HttpException(404, 'NOT_FOUND');
+
+    return findAlertRule;
   }
 
   public async getAlertRuleByKey(alertRuleKey: number): Promise<IAlertRule> {

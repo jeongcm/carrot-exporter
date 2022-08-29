@@ -52,6 +52,7 @@ class SystemSubscriptionController {
             partyUserStatus: "DR",
             timezone: "",
             customerAccountId: "",
+
           };
           
           const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy)
