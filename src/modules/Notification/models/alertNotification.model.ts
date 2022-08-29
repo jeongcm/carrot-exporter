@@ -23,7 +23,6 @@ export type AlertNotificationCreationAttributes = Optional<
 export class AlertNotificationModel extends Model<AlertNotification, AlertNotificationCreationAttributes> implements AlertNotification {
   public alertNotificationKey: number;
   public alertNotificationId: string;
-  public partyChannelKey: number;
   public partyKey: number;
   public templateKey: number; // <--- to implment in the future. For now hard coded
   public contentJson: any;

@@ -44,6 +44,7 @@ class NotificationService {
     customerAccountKey: number,
     systemId: string,
   ): Promise<Notification> {
+
     if (isEmpty(notificationData)) throw new HttpException(400, 'Notification Data cannot be blank');
 
 

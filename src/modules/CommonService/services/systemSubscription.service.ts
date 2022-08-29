@@ -15,8 +15,10 @@ import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import {CreateCustomerAccountDto} from '@/modules/CustomerAccount/dtos/customerAccount.dto'
 import {CreateSubscriptionDto} from '@/modules/Subscriptions/dtos/subscriptions.dto'
 import {CreateUserDto} from '@/modules/Party/dtos/party.dto'
+
 import { PartyModel } from '@/modules/Party/models/party.model';
 import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
+import urlJoin from 'url-join';
 
 const nodeMailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
@@ -62,7 +64,6 @@ class systemSubscriptionService {
       mobile,
       adminYn,
     } = partyData; 
-    
     let tableIdTableName = 'CustomerAccount';
     let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
     let customerAccountId = responseTableIdData.tableIdFinalIssued;
@@ -81,6 +82,7 @@ class systemSubscriptionService {
             createdBy: partyId,
           }, {transaction: t});
           const customerAccountKey = createdCustomerAccount.customerAccountKey;
+
 
           //2. create a party & party user
           const createdParty: IParty = await this.party.create(
