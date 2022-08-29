@@ -43,6 +43,7 @@ class Google {
                                 userId: profile.emails[0].value,
                                 mobile: '',
                                 password: '',
+                                adminYn: false,
                                 customerAccountId:customerAccount.customerAccountId,
                                 partyUserStatus: 'AC'
                             }, customerAccount.customerAccountKey, '', profile.id);

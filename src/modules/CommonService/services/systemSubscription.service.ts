@@ -15,6 +15,8 @@ import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import {CreateCustomerAccountDto} from '@/modules/CustomerAccount/dtos/customerAccount.dto'
 import {CreateSubscriptionDto} from '@/modules/Subscriptions/dtos/subscriptions.dto'
 import {CreateUserDto} from '@/modules/Party/dtos/party.dto'
+import { PartyModel } from '@/modules/Party/models/party.model';
+import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 
 const nodeMailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
@@ -22,15 +24,15 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
 
-
-
 class systemSubscriptionService {
 
     public executorService = DB.ExecutorService; 
     public customerAccount = DB.CustomerAccount; 
     public party = DB.Party; 
     public partyUser = DB.PartyUser; 
-    public notification = DB.Notification; 
+    public notification = DB.Notification;
+    public catalogPlan = DB.CatalogPlan;
+    public subscription = DB.Subscription; 
     public subscriptionService = new SubscriptionService();
     public sendMailService = new SendMailService();
     public tableIdService = new tableIdService();
@@ -38,7 +40,7 @@ class systemSubscriptionService {
   /**
    * @param {CreateCustomerAccountDto} customerAccountData
    * @param {Object} partyData
-   * @param {string} partyId
+   * @param {string} createdBy
    */
    public async createCustomerAccount(customerAccountData:CreateCustomerAccountDto, partyData: CreateUserDto, createdBy: string): Promise<object> {
 
@@ -58,8 +60,9 @@ class systemSubscriptionService {
       userId,
       email,
       mobile,
+      adminYn,
     } = partyData; 
-    console.log ("partyData", partyData);
+    
     let tableIdTableName = 'CustomerAccount';
     let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
     let customerAccountId = responseTableIdData.tableIdFinalIssued;
@@ -78,10 +81,8 @@ class systemSubscriptionService {
             createdBy: partyId,
           }, {transaction: t});
           const customerAccountKey = createdCustomerAccount.customerAccountKey;
-          console.log ("1. createdCustomerAccount", createdCustomerAccount);
 
-          //2. create a party user
-    
+          //2. create a party & party user
           const createdParty: IParty = await this.party.create(
             {
               partyId: partyId,
@@ -95,12 +96,10 @@ class systemSubscriptionService {
             },
             { transaction: t },
           );
-          console.log ("2. createdParty", createdParty);
 
           let partyKey = createdParty.partyKey;
           //let hashedPassword = await bcrypt.hash(password, 10);
           let password = config.defaultPassword;
-
           const createdPartyUser: IPartyUser = await this.partyUser.create(
             {
               partyUserId: partyId,
@@ -115,10 +114,11 @@ class systemSubscriptionService {
               timezone: timeZone,
               isEmailValidated: false,
               partyUserStatus: "AC",
+              adminYn: true,
             },
             { transaction: t },
           );
-          console.log ("3. createdPartyUser", createdPartyUser);  
+
           //3. fusebill interface
           const fuseBillCreateCustomer = {
             firstName: firstName,
@@ -130,7 +130,7 @@ class systemSubscriptionService {
           };
           let fuseBillInterface:boolean =   false; 
           let headers = {Authorization: `Basic ${config.Fulsebill.apiKey}`}; 
-          console.log (headers); 
+
           await axios({
             method: 'post',
             url: config.Fulsebill.createCustomerUrl,
@@ -139,7 +139,6 @@ class systemSubscriptionService {
           })
             .then(async (res: any) => {
               console.log(`got interface result -- ${res}`);
-              
               fuseBillInterface = true;
             })
             .catch(error => {
@@ -158,7 +157,6 @@ class systemSubscriptionService {
             subject: 'Welcome Onboard - NexClipper',
             html: htmlToSend
           }
-          
           const notificationMessage = JSON.parse(JSON.stringify(mailOptions)); 
           
           //5 create notification history
@@ -181,7 +179,6 @@ class systemSubscriptionService {
             }  
       
           const createNotificationData: Notification = await this.notification.create(newNotification, {transaction: t});
-          console.log ("5. createNotificationData", createNotificationData);  
 
           //4.1 send email to customer
           let emailSent: boolean = false;
@@ -190,6 +187,7 @@ class systemSubscriptionService {
           console.log ("success!!!!!");  
           //6. return message
           return {customerAccountId: createdCustomerAccount.customerAccountId,
+              customerAccountKey: createdCustomerAccount.customerAccountKey,
               customerAccountName: createdCustomerAccount.customerAccountName,
               customerAccountType: createdCustomerAccount.customerAccountType,
               firstName:  createdPartyUser.firstName, 
@@ -211,21 +209,90 @@ class systemSubscriptionService {
 }
 
   /**
-   * @param {CreateCustomerAccountDto} CreateSubscriptionDto
-   * @param {string} partyId
+   * @param {CreateSubscriptionDto} subscriptionData
+   * @param {string} createdBy
    * @param {number} customerAccountKey;
    */
-   public async createSubscription(subscriptionData:CreateSubscriptionDto, partyId: string, customerAccountKey: number): Promise<object> { 
+   public async createSubscription(subscriptionData:CreateSubscriptionDto, createdBy: string, customerAccountKey: number): Promise<object> { 
+    //0. prep data. 
+    const custPartyQuery = {where: {customerAccountKey, deletedAt: null},
+            include: [
+              {
+                model: PartyModel,
+                where: { deletedAt: null},
+                include: [
+                {
+                    model: PartyUserModel,
+                    where: {deletedAt: null, adminYn: true},
+                }
+              ]}]
+    };
+    const resultCustomerAccount = await this.customerAccount.findOne(custPartyQuery);
+    console.log (resultCustomerAccount);
+    
+    let tableIdTableName = 'Subscription';
+    let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+    let subscriptionId = responseTableIdData.tableIdFinalIssued;
+
+    const catalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: subscriptionData.catalogPlanId } })
+    const createObj = {
+                ...subscriptionData,
+                subscriptionId,
+                catalogPlanKey: catalogPlan.catalogPlanKey,
+                customerAccountKey,
+                createdBy,
+              }
 
     //1.create subscription
-        const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, customerAccountKey);
+    try {
+      return await DB.sequelize.transaction(async t => {
+        const newSubscription: ISubscriptions = await this.subscription.create(createObj,{ transaction: t },);
+              //delete newSubscription.subscriptionKey;
+    
     //2. call fusebill api
 
     //3. send notification to customer
+    /*
+              const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'), 'utf8');
+              const template = handlebars.compile(emailTemplateSource);
+              let name = resultCustomerAccount.customerAccountName;
+              const htmlToSend = template({ name });
+              const mailOptions = {
+                to: createdPartyUser.email,
+                from: "service@nexclipper.io",
+                subject: 'Welcome Onboard - NexClipper',
+                html: htmlToSend
+              }
+              const notificationMessage = JSON.parse(JSON.stringify(mailOptions)); 
+              
+              //5 create notification history
+              tableIdTableName = 'Notification';
+              responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+              let notificationId = responseTableIdData.tableIdFinalIssued;
+              
+              const newNotification = {
+                notificationId: notificationId,
+                partyKey: partyKey,
+                createdBy: createdBy,
+                createdAt: currentDate,
+                notificationStatutsUpdatedAt: currentDate,
+                customerAccountKey,
+                notificationChannelType: "email",
+                notificationType: "newCustomerAccount",
+                notificationChannel: createdPartyUser.email,
+                notificationMessage: notificationMessage,
+                notificationStatus: "ST",
+                }  
+          
+              const createNotificationData: Notification = await this.notification.create(newNotification, {transaction: t});
+     */         
         return newSubscription;
-
-   }
-
+    });
+   } catch(err){
+    console.log (err); 
+    throw new HttpException(500, "Unknown error while creating account");
+  }
+}
 
  /**
    * @param {string} clusterUuid

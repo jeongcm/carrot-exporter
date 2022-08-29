@@ -48,7 +48,8 @@ class Github {
                       mobile: '',
                       password: '',
                       customerAccountId:customerAccount.customerAccountId,
-                      partyUserStatus: 'AC'
+                      partyUserStatus: 'AC',
+                      adminYn: false,
                   }, customerAccount.customerAccountKey, '', profile.id);
                   done(null, newPartyUser);
               }

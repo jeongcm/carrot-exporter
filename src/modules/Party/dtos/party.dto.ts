@@ -49,6 +49,10 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   public timezone: string;
+
+  @IsOptional()
+  public adminYn: boolean;
+
 }
 
 export class UpdateUserDto {
@@ -96,6 +100,9 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   public timezone: string;
+
+  @IsOptional()
+  public adminYn: boolean;
 }
 
 export class CreateAccessGroupDto {

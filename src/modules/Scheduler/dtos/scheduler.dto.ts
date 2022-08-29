@@ -14,7 +14,6 @@ export class SchedulerDto {
   public apiUrl: string;
 
   @IsObject()
-  @IsNotEmpty()
   public apiBody: object;
 
   @IsString()
