@@ -38,6 +38,7 @@ class IncidentRoute implements Routes {
     this.router.get('/incidents', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidents);
     this.router.get('/incidents/counts', authMiddleware, createUserLogMiddleware, this.incidentController.getIncidentCounts);
     this.router.get('/incidents/attachments/:attachmentId', authMiddleware, createUserLogMiddleware, this.incidentController.getAttachmentById);
+    this.router.delete('/incidents/attachments/:attachmentId', authMiddleware, createUserLogMiddleware, this.incidentController.deleteIncidentActionAttachment);
     this.router.get('/incidents/:incidentId', authMiddleware, createUserLogMiddleware, this.incidentController.getIncident);
     this.router.put(
       '/incidents/:incidentId',
@@ -87,6 +88,7 @@ class IncidentRoute implements Routes {
       createUserLogMiddleware,
       this.incidentController.getIncidentActionAttachment,
     );
+    
 
     this.router.put(
       '/incidents/:incidentId/actions/:actionId/attachment/:attachmentId',

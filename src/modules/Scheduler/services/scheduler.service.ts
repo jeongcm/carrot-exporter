@@ -156,7 +156,7 @@ class SchedulerService {
       })
       .catch(error => {
         console.log(error);
-        return error;
+        throw new HttpException(500, 'Error to run on scheduler api');
       });
 
     return schedulerCreateResponse;
