@@ -110,6 +110,7 @@ export default {
   },
   fuseBillApiDetail: {
     apiKey: process.env.FUSEBILL_API_KEY,
+
     baseURL: process.env.FUSEBILL_BASE_URL || 'https://secure.fusebill.com/v1/',
     createCustomerUrl: process.env.FUSEBILL_API_CREATE_CUSTOMER_URL || 'https://secure.fusebill.com/v1/customers',
   },

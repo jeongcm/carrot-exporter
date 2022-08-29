@@ -8,16 +8,14 @@ import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.
 import SendMailService from '@/modules/Messaging/services/sendMail.service'
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 
+import NotificationService from '@/modules/Notification/services/notification.service'
 import { Notification } from '@/common/interfaces/notification.interface';
-import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { IPartyUser, IParty } from '@/common/interfaces/party.interface';
+import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import {CreateCustomerAccountDto} from '@/modules/CustomerAccount/dtos/customerAccount.dto'
 import {CreateSubscriptionDto} from '@/modules/Subscriptions/dtos/subscriptions.dto'
 import {CreateUserDto} from '@/modules/Party/dtos/party.dto'
-
-import { PartyModel } from '@/modules/Party/models/party.model';
-import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 import urlJoin from 'url-join';
 
 const nodeMailer = require('nodemailer');
@@ -26,17 +24,18 @@ const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
 
+
+
 class systemSubscriptionService {
 
     public executorService = DB.ExecutorService; 
+    public notificationService = new NotificationService();
+    public subscriptionService = new SubscriptionService();
+    public sendMailService = new SendMailService();
     public customerAccount = DB.CustomerAccount; 
     public party = DB.Party; 
     public partyUser = DB.PartyUser; 
     public notification = DB.Notification;
-    public catalogPlan = DB.CatalogPlan;
-    public subscription = DB.Subscription; 
-    public subscriptionService = new SubscriptionService();
-    public sendMailService = new SendMailService();
     public tableIdService = new tableIdService();
 
   /**
@@ -51,24 +50,23 @@ class systemSubscriptionService {
     const currentDate = new Date();
     const CustomerAccountDataNew = {...customerAccountData,
       customerAccountType: "CO" as customerAccountType}
-
     const 
-    {
-      partyName,
-      partyDescription,
-      parentPartyId,
-      firstName,
-      lastName,
-      userId,
-      email,
-      mobile,
-      adminYn,
-    } = partyData; 
+      {
+        partyName,
+        partyDescription,
+        parentPartyId,
+        firstName,
+        lastName,
+        userId,
+        email,
+        mobile,
+      } = partyData; 
+
     let tableIdTableName = 'CustomerAccount';
     let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
     let customerAccountId = responseTableIdData.tableIdFinalIssued;
     let timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    
+
     tableIdTableName = 'Party';
     responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
     let partyId = responseTableIdData.tableIdFinalIssued;
@@ -82,7 +80,7 @@ class systemSubscriptionService {
             createdBy: partyId,
           }, {transaction: t});
           const customerAccountKey = createdCustomerAccount.customerAccountKey;
-
+          console.log ("1. createdCustomerAccount", createdCustomerAccount);
 
           //2. create a party & party user
           const createdParty: IParty = await this.party.create(
@@ -202,99 +200,30 @@ class systemSubscriptionService {
               fuseBillInterface: fuseBillInterface,
               }
       });           
+
     } catch(err){
       console.log (err); 
       throw new HttpException(500, "Unknown error while creating account");
     }
 
-    return returnResult;
-}
+   }
 
   /**
-   * @param {CreateSubscriptionDto} subscriptionData
-   * @param {string} createdBy
+   * @param {CreateCustomerAccountDto} CreateSubscriptionDto
+   * @param {string} partyId
    * @param {number} customerAccountKey;
    */
-   public async createSubscription(subscriptionData:CreateSubscriptionDto, createdBy: string, customerAccountKey: number): Promise<object> { 
-    //0. prep data. 
-    const custPartyQuery = {where: {customerAccountKey, deletedAt: null},
-            include: [
-              {
-                model: PartyModel,
-                where: { deletedAt: null},
-                include: [
-                {
-                    model: PartyUserModel,
-                    where: {deletedAt: null, adminYn: true},
-                }
-              ]}]
-    };
-    const resultCustomerAccount = await this.customerAccount.findOne(custPartyQuery);
-    console.log (resultCustomerAccount);
-    
-    let tableIdTableName = 'Subscription';
-    let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
-    let subscriptionId = responseTableIdData.tableIdFinalIssued;
-
-    const catalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: subscriptionData.catalogPlanId } })
-    const createObj = {
-                ...subscriptionData,
-                subscriptionId,
-                catalogPlanKey: catalogPlan.catalogPlanKey,
-                customerAccountKey,
-                createdBy,
-              }
+   public async createSubscription(subscriptionData:CreateSubscriptionDto, partyId: string, customerAccountKey: number): Promise<object> { 
 
     //1.create subscription
-    try {
-      return await DB.sequelize.transaction(async t => {
-        const newSubscription: ISubscriptions = await this.subscription.create(createObj,{ transaction: t },);
-              //delete newSubscription.subscriptionKey;
-    
+        const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, customerAccountKey);
     //2. call fusebill api
 
     //3. send notification to customer
-    /*
-              const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'), 'utf8');
-              const template = handlebars.compile(emailTemplateSource);
-              let name = resultCustomerAccount.customerAccountName;
-              const htmlToSend = template({ name });
-              const mailOptions = {
-                to: createdPartyUser.email,
-                from: "service@nexclipper.io",
-                subject: 'Welcome Onboard - NexClipper',
-                html: htmlToSend
-              }
-              const notificationMessage = JSON.parse(JSON.stringify(mailOptions)); 
-              
-              //5 create notification history
-              tableIdTableName = 'Notification';
-              responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
-              let notificationId = responseTableIdData.tableIdFinalIssued;
-              
-              const newNotification = {
-                notificationId: notificationId,
-                partyKey: partyKey,
-                createdBy: createdBy,
-                createdAt: currentDate,
-                notificationStatutsUpdatedAt: currentDate,
-                customerAccountKey,
-                notificationChannelType: "email",
-                notificationType: "newCustomerAccount",
-                notificationChannel: createdPartyUser.email,
-                notificationMessage: notificationMessage,
-                notificationStatus: "ST",
-                }  
-          
-              const createNotificationData: Notification = await this.notification.create(newNotification, {transaction: t});
-     */         
         return newSubscription;
-    });
-   } catch(err){
-    console.log (err); 
-    throw new HttpException(500, "Unknown error while creating account");
-  }
-}
+
+   }
+
 
  /**
    * @param {string} clusterUuid
