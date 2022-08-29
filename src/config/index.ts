@@ -110,7 +110,8 @@ export default {
   },
   fuseBillApiDetail: {
     apiKey: process.env.FUSEBILL_API_KEY,
-    baseURL: process.env.FUSEBILL_BASE_URL,
+    baseURL: process.env.FUSEBILL_BASE_URL || 'https://secure.fusebill.com/v1/',
+    createCustomerUrl: process.env.FUSEBILL_API_CREATE_CUSTOMER_URL || 'https://secure.fusebill.com/v1/customers',
   },
   ncCronApiDetail: {
     baseURL: process.env.NC_CRON_URL || 'http://localhost:5010',
@@ -164,8 +165,4 @@ export default {
   oT: {
     oTTraceLogTurnOff: process.env.NC_TURN_OFF_TELEMETRY,
   },
-  Fulsebill: {
-    apiKey: process.env.FUSEBILL_API_KEY,
-    createCustomerUrl: process.env.FUSEBILL_API_CREATE_CUSTOMER_URL,
-  }
 };

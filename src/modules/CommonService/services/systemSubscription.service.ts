@@ -131,11 +131,11 @@ class systemSubscriptionService {
             reference: customerAccountId,
           };
           let fuseBillInterface:boolean =   false; 
-          let headers = {Authorization: `Basic ${config.Fulsebill.apiKey}`}; 
+          let headers = {Authorization: `Basic ${config.fuseBillApiDetail.apiKey}`}; 
 
           await axios({
             method: 'post',
-            url: config.Fulsebill.createCustomerUrl,
+            url: config.fuseBillApiDetail.createCustomerUrl,
             data: fuseBillCreateCustomer,
             headers: headers,
           })
