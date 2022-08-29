@@ -43,6 +43,9 @@ class SystemSubscriptionController {
             partyName: companyName || `${firstName} ${lastName}`,
             partyDescription: null,
             parentPartyId: null,
+            //partyType: 'US',
+            //customerAccountKey:createdCustomerAccount.customerAccountKey,
+            //createdBy: systemId || partyId,
             firstName,
             lastName,
             userId: id,
@@ -50,8 +53,8 @@ class SystemSubscriptionController {
             email: primaryEmail,
             mobile: primaryPhone,
             partyUserStatus: "DR",
-            timezone: "",
             customerAccountId: "",
+            timezone: "",
             adminYn: false,
           };
           
@@ -60,9 +63,7 @@ class SystemSubscriptionController {
           break;
 
         case "SubscriptionCreated":
-          const { body: { Subscription: { catalogPlanId, subscriptionStatus, subscriptionTerminatedAt , 
-                                          subscriptionCommitmentType= 'AC', subscriptionActivatedAt, 
-                                          subscriptionConsent, customerAccountKey } } } = req;
+          const { body: { Subscription: { catalogPlanId, subscriptionStatus, subscriptionTerminatedAt , subscriptionCommitmentType= 'AC', subscriptionActivatedAt, subscriptionConsent, customerAccountKey } } } = req;
 
           const subscriptionData = {
             subscriptionStatus,
@@ -73,10 +74,9 @@ class SystemSubscriptionController {
             catalogPlanId
           }
 
-          console.log (req);
           const responseSubscription = await this.systemSubscriptionService.createSubscription(subscriptionData, createdBy, customerAccountKey); 
           createdResponse = responseSubscription;
-          break;
+          break; 
           
         default:
           break;
