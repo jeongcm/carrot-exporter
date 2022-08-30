@@ -2,6 +2,7 @@ import axios from 'axios';
 import ServiceExtension from '@/common/extentions/service.extension';
 import config from 'config';
 import { isEmpty } from 'lodash';
+import { logger } from '@/common/utils/logger';
 
 class VictoriaMetricService extends ServiceExtension {
   private victoriaEndpoint = config.victoriaMetrics.NC_LARI_VM_ADDRESS;
@@ -20,7 +21,7 @@ class VictoriaMetricService extends ServiceExtension {
       url = `${url}&step=${step}`;
     }
 
-    console.log('Calling Victoria Metric: ', url);
+    logger.info(`Calling Victoria Metric: ${url}`);
 
     try {
       const result = await axios({
