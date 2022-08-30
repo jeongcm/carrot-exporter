@@ -73,7 +73,7 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
   AlertReceivedModel.init(
     {
       alertReceivedKey: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         autoIncrement: true,
         allowNull: false,
         primaryKey: true,

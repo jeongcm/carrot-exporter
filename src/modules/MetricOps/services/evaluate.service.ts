@@ -355,9 +355,9 @@ class EvaluateServices {
         console.log('incident ticket is created: ', incidentId, 'Alert Attached - ', firedAlerts);
         //6. execute any resolution actions if there are actions under rule group more than a threshhold
 
-        //7. save the actions to incident actions
-
-        //8. send email to access group user.
+        //7. send email/.... to access group user.
+             
+        //8. save the communicaiton result to notification table
 
         //9. create a message for return
         resultEvaluation = {

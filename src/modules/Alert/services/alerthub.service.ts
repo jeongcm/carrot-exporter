@@ -58,6 +58,8 @@ class AlerthubService {
 
   public async getAlertTimelineByResourceDetail(customerAccountKey: number, filteringData: any): Promise<IAlertTimeline[]> {
     try {
+      const start = Date.now();
+      
       const { resourceType, resourceName, resourceGroupUuid } = filteringData;
       const { data } = await axios.get(
         `${config.alerthub.baseUrl}/v1/alertTimelineByResGroupUuid/${customerAccountKey}/${resourceGroupUuid}?resourceType=${resourceType}&resourceName=${resourceName}`,
@@ -65,7 +67,7 @@ class AlerthubService {
           headers: { x_auth_token: `${config.alerthub.authToken}` },
         },
       );
-
+      console.log(`Sequelize time: `, Date.now() - start, 'ms');  
       if (data.data && data.message === 'success') {
         return data.data;
       }
