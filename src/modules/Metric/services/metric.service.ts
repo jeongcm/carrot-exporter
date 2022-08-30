@@ -163,7 +163,7 @@ class MetricService extends ServiceExtension {
         )`;
         */
 
-        promQl = `avg(rate(node_cpu_seconds_total{job="node-exporter", __LABEL_PLACE_HOLDER__}[${step}])) by (node, cpu)`;
+        promQl = `avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[${step}])) by (node, cpu)`;
         break;
       case 'NODE_MEMORY_USAGE':
         labelString += getSelectorLabels({
