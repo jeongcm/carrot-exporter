@@ -128,7 +128,7 @@ class MetricService extends ServiceExtension {
   }
 
   private getPromQlFromQuery(query: IMetricQueryBodyQuery, resource?: IResource, resourceGroup?: IResourceGroup) {
-    const { type, promql: customPromQl, start, end } = query;
+    const { type, promql: customPromQl, start, end, step } = query;
     const clusterUuid = resourceGroup.resourceGroupUuid;
     let labelString = '';
     let ranged = false;
@@ -155,11 +155,15 @@ class MetricService extends ServiceExtension {
         });
         ranged = true;
 
+        /*
         promQl = `(
-          (1 - sum without (mode) (rate(node_cpu_seconds_total{job="node-exporter", mode=~"idle|iowait|steal", __LABEL_PLACE_HOLDER__}[5m])))
+          (1 - sum without (mode) (rate(node_cpu_seconds_total{job="node-exporter", mode=~"idle|iowait|steal", __LABEL_PLACE_HOLDER__}[${step}])))
         / ignoring(cpu) group_left
           count without (cpu, mode) (node_cpu_seconds_total{job="node-exporter", mode="idle", __LABEL_PLACE_HOLDER__})
         )`;
+        */
+
+        promQl = `avg(rate(node_cpu_seconds_total{job="node-exporter", __LABEL_PLACE_HOLDER__}[${step}])) by (node, cpu)`;
         break;
       case 'NODE_MEMORY_USAGE':
         labelString += getSelectorLabels({
@@ -214,7 +218,7 @@ class MetricService extends ServiceExtension {
         });
         ranged = true;
 
-        promQl = `rate(node_network_receive_bytes_total{job="node-exporter", device!="lo", __LABEL_PLACE_HOLDER__}[5m])`;
+        promQl = `rate(node_network_receive_bytes_total{job="node-exporter", device!="lo", __LABEL_PLACE_HOLDER__}[${step}])`;
         break;
       case 'NODE_NETWORK_TRAFFIC_TX':
         labelString += getSelectorLabels({
@@ -223,7 +227,7 @@ class MetricService extends ServiceExtension {
         });
         ranged = true;
 
-        promQl = `rate(node_network_transmit_bytes_total{job="node-exporter", device!="lo", __LABEL_PLACE_HOLDER__}[5m])`;
+        promQl = `rate(node_network_transmit_bytes_total{job="node-exporter", device!="lo", __LABEL_PLACE_HOLDER__}[${step}])`;
         break;
       case 'POD_CPU':
         labelString += getSelectorLabels({
@@ -233,7 +237,7 @@ class MetricService extends ServiceExtension {
         });
         ranged = true;
 
-        promQl = `sum by(pod) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[5m] ) )`;
+        promQl = `sum by(pod) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )`;
         break;
       case 'POD_MEMORY':
         labelString += getSelectorLabels({
@@ -252,7 +256,7 @@ class MetricService extends ServiceExtension {
         });
         ranged = true;
 
-        promQl = `sort_desc(sum by (pod) (rate (container_network_receive_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[5m])))`;
+        promQl = `sort_desc(sum by (pod) (rate (container_network_receive_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[${step}])))`;
         break;
       case 'POD_NETWORK_TX':
         labelString += getSelectorLabels({
@@ -261,7 +265,7 @@ class MetricService extends ServiceExtension {
         });
         ranged = true;
 
-        promQl = `sort_desc(sum by (pod) (rate (container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[5m])))`;
+        promQl = `sort_desc(sum by (pod) (rate (container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[${step}])))`;
         break;
 
       case 'PV_SPACE_USAGE_CAPACITY':
