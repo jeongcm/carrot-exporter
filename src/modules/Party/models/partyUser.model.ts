@@ -24,6 +24,7 @@ export type PartyUserCreationAttributes = Optional<
   | 'lastAccessAt'
   | 'partyUserStatus'
   | 'timezone'
+  | 'adminYn'
 >;
 
 export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttributes> implements IPartyUser {
@@ -48,9 +49,11 @@ export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttribute
   public token: string;
   public lastAccessAt: Date;
   public timezone: string;
+  public adminYn: boolean;
+  public updatedAt: Date;
 
   public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  
 }
 
 export default function (sequelize: Sequelize): typeof PartyUserModel {
@@ -114,6 +117,11 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       socialProviderId: {
         allowNull: true,
         type: DataTypes.STRING(45),
+      },
+      adminYn: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
       },
       partyUserStatus: {
         type: DataTypes.STRING(2),

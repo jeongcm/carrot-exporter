@@ -10,8 +10,10 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import PartyChannelService from '@/modules/Party/services/partychannel.service';
 import MessageServices from '@/modules/Messaging/services/message.service';
 import { IMessage } from '@/common/interfaces/message.interface';
+
 class NotificationService {
   public notificaion = DB.Notification;
+  public party = DB.Party; 
   public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
   public partyChannelService = new PartyChannelService();
@@ -42,12 +44,9 @@ class NotificationService {
     customerAccountKey: number,
     systemId: string,
   ): Promise<Notification> {
+
     if (isEmpty(notificationData)) throw new HttpException(400, 'Notification Data cannot be blank');
 
-    const messageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
-    const tempMessageKey: number = messageData.messageKey;
-
-    const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(partyKey);
 
     const tableIdName: string = 'Notification';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
@@ -56,15 +55,14 @@ class NotificationService {
     const currentDate = new Date();
     const newNotification = {
       notificationId: tempNotificationId,
-      partyChannelKey: partyChannelKey,
       partyKey: partyKey,
-      messageKey: tempMessageKey,
       createdBy: systemId,
       createdAt: currentDate,
-      updatedAt: currentDate,
       notificationStatutsUpdatedAt: currentDate,
       customerAccountKey,
-    };
+      ...notificationData,
+      }  
+
     const createNotificationData: Notification = await this.notificaion.create(newNotification);
     return createNotificationData;
   }
@@ -98,17 +96,10 @@ class NotificationService {
     const findNotification: Notification = await this.notificaion.findOne({ where: { notificationId: notificationId } });
     if (!findNotification) throw new HttpException(409, "Notification doesn't exist");
 
-    const messageData: IMessage = await this.messageServices.findMessage(notificationData.messageId);
-    const tempMessageKey: number = messageData.messageKey;
-    if (!tempMessageKey) {
-      throw new HttpException(409, 'MessageKey Not Found');
-    }
-    const partyChannelKey: number = await this.partyChannelService.getPartyChannelKey(partyKey);
     const currentDate = new Date();
     const updatedChannelData = {
       ...notificationData,
       notificationId: notificationId,
-      partyChannelKey: partyChannelKey,
       partyKey: partyKey,
       updatedBy: systemId,
       updatedAt: currentDate,

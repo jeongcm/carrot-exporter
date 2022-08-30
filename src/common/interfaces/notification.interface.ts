@@ -1,9 +1,7 @@
 export interface Notification {
   notificationKey: number;
   notificationId: string;
-  partyChannelKey: number;
   partyKey: number;
-  messageKey: number;
   createdBy: string;
   updatedBy: string;
   createdAt: Date;
@@ -12,12 +10,15 @@ export interface Notification {
   notificationStatus: string;
   notificationStatutsUpdatedAt: Date;
   customerAccountKey: number;
+  notificationChannelType: string;
+  notificationType: string;
+  notificationChannel: string;
+  notificationMessage: JSON;
 }
 
 export interface AlertNotification {
   alertNotificationKey: number;
   alertNotificationId: string;
-  partyChannelKey: number;
   partyKey: number;
   templateKey: number;
   contentJson: any;

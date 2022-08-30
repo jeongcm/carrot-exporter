@@ -34,6 +34,7 @@ class ProductCatalogController {
   public getCatalogPlanById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const catalogPlanId = req.params.catalogPlanId;
+      
       const catalogPlan: ICatalogPlan = await this.productCatalogService.findCatalogPlan(catalogPlanId);
       res.status(200).json({ data: catalogPlan, message: 'finOne' });
     } catch (error) {

@@ -48,6 +48,7 @@ class webhookForBillingController {
             mobile: primaryPhone,
             partyUserStatus: "DR",
             timezone: "",
+            adminYn: false,
             customerAccountId: createdCustomerAccount.customerAccountId
           };
           await this.partyService.createUser(partyData, createdCustomerAccount.customerAccountKey, systemId || partyId);
@@ -79,7 +80,7 @@ class webhookForBillingController {
             catalogPlanId: planCode
 
           }
-          const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, systemId, customerAccountKey);
+          const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, systemId || partyId, customerAccountKey);
           const productDetails = fusebillResponse.subscriptionProducts.filter((data) => { return data.customFields });
           const { key, value } = productDetails[0].customFields[0];
           const { productStatus, productCode } = productDetails[0].planProduct;

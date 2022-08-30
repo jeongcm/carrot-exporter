@@ -371,6 +371,7 @@ class ResourceGroupService {
 
     //1. Grafana
     const grafanaServiceName = resourceGroupGrafana.substring(7, resourceGroupGrafana.indexOf('.'));
+
     //search Service
     const resultServiceSearch = await this.resource.findOne({ where: {resourceName:grafanaServiceName, resourceType: "SV", resourceGroupKey: resourceGroupKey, deletedAt: null} });
     const grafanaName = resultServiceSearch.resourceLabels[appName];
@@ -386,21 +387,28 @@ class ResourceGroupService {
           '"app.kubernetes.io/name"': grafanaName
         }
     } })
-    const grafanaPvcName = resultPvcSearch.resourceName;
-    const grafanaPvcId = resultPvcSearch.resourceId;
     
-    //search PV
-    const resultPvSearch =  await this.resource.findOne({ where: {
-      deletedAt: null, 
-      resourceType: "PV", 
-      resourceGroupKey: resourceGroupKey,
-      resourcePvClaimRef: {
-        name: grafanaPvcName
-      }
-    }})
-    const grafanaPvName = resultPvSearch.resourceName;
-    const grafanaPvId = resultPvSearch.resourceId;
-    
+    let grafanaPvcName;
+    let grafanaPvcId;
+    let grafanaPvName;
+    let grafanaPvId; 
+
+    if (resultPvcSearch) {
+      grafanaPvcName = resultPvcSearch.resourceName;
+      grafanaPvcId = resultPvcSearch.resourceId;
+      
+      //search PV
+      const resultPvSearch =  await this.resource.findOne({ where: {
+        deletedAt: null, 
+        resourceType: "PV", 
+        resourceGroupKey: resourceGroupKey,
+        resourcePvClaimRef: {
+          name: grafanaPvcName
+        }
+      }})
+      grafanaPvName = resultPvSearch.resourceName;
+      grafanaPvId = resultPvSearch.resourceId;
+    }
     //2. Prometheus
     const prometheusServiceName = resourceGroupPrometheus.substring(7, resourceGroupPrometheus.indexOf('.'));
     //search Service
@@ -419,33 +427,41 @@ class ResourceGroupService {
           '"app.kubernetes.io/name"': prometheusName
         }
     } })
-    const prometheusPvcName = resultPrometheusPvcSearch.resourceName;
-    const prometheusPvcId = resultPrometheusPvcSearch.resourceId;
-    
-    //search PV
-    const resultPrometheusPvSearch =  await this.resource.findOne({ where: {
-      deletedAt: null, 
-      resourceType: "PV", 
-      resourceGroupKey: resourceGroupKey,
-      resourcePvClaimRef: {
-        name: prometheusPvcName
-      }
-    }})
-    const prometheusPvName = resultPrometheusPvSearch.resourceName;
-    const prometheusPvId = resultPrometheusPvSearch.resourceId;
+    console.log (resultPrometheusPvcSearch);
+    let prometheusPvcName;  
+    let prometheusPvcId; 
+    let prometheusPvName; 
+    let prometheusPvId;
+
+    if (resultPrometheusPvcSearch) {
+        prometheusPvcName = resultPrometheusPvcSearch.resourceName;
+        prometheusPvcId = resultPrometheusPvcSearch.resourceId;
+        
+        //search PV
+        const resultPrometheusPvSearch =  await this.resource.findOne({ where: {
+          deletedAt: null, 
+          resourceType: "PV", 
+          resourceGroupKey: resourceGroupKey,
+          resourcePvClaimRef: {
+            name: prometheusPvcName
+          }
+        }})
+        prometheusPvName = resultPrometheusPvSearch.resourceName;
+        prometheusPvId = resultPrometheusPvSearch.resourceId;
+    }
     const result = {resourceGroupuuid: resourceGroupUuid,
                     grafanaSvcName: grafanaSvcName,
                     grafanaSvcId: grafanaSvcId,
-                    grafanaPvcName: grafanaPvcName,
-                    grafanaPvcId: grafanaPvcId,
-                    grafanaPvName: grafanaPvName,
-                    grafanaPvId: grafanaPvId,
-                    prometheusSvcName: prometheusSvcName,
-                    prometheusSvcId: prometheusSvcId,
-                    prometheusPvcName: prometheusPvcName,
-                    prometheusPvcId: prometheusPvcId,
-                    prometheusPvName: prometheusPvName,
-                    prometheusPvId: prometheusPvId
+                    grafanaPvcName: grafanaPvcName || "",
+                    grafanaPvcId: grafanaPvcId || "",
+                    grafanaPvName: grafanaPvName || "",
+                    grafanaPvId: grafanaPvId || "",
+                    prometheusSvcName: prometheusSvcName || "",
+                    prometheusSvcId: prometheusSvcId || "",
+                    prometheusPvcName: prometheusPvcName || "",
+                    prometheusPvcId: prometheusPvcId || "",
+                    prometheusPvName: prometheusPvName || "",
+                    prometheusPvId: prometheusPvId || "",
                   }   
 
     return result;

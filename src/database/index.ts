@@ -279,14 +279,8 @@ DB.Invitation.belongsTo(DB.Messages, { foreignKey: 'messageKey' });
 DB.Party.hasMany(DB.PartyChannel, { foreignKey: 'partyKey' });
 DB.PartyChannel.belongsTo(DB.Party, { foreignKey: 'partyKey' });
 
-DB.PartyChannel.hasMany(DB.Notification, { foreignKey: 'partyChannelKey' });
-DB.Notification.belongsTo(DB.PartyChannel, { foreignKey: 'partyChannelKey' });
-
 DB.Party.hasMany(DB.Notification, { foreignKey: 'partyKey' });
 DB.Notification.belongsTo(DB.Party, { foreignKey: 'partyKey' });
-
-DB.Messages.hasOne(DB.Notification, { foreignKey: 'messageKey' });
-DB.Notification.belongsTo(DB.Messages, { foreignKey: 'messageKey' });
 
 DB.CustomerAccount.hasMany(DB.Notification, { foreignKey: 'customerAccountKey' });
 DB.Notification.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });

@@ -6,6 +6,8 @@ import { IParty, IPartyRelation, IPartyResponse, IRequestWithUser } from '@/comm
 import { UpdateUserDto, CreateAccessGroupDto, AddUserAccessGroupDto, AddResourceToAccessGroupDto } from '@/modules/Party/dtos/party.dto';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
+import { textChangeRangeIsUnchanged } from 'typescript';
+import config from '@config/index';
 
 class SchedulerController {
   public schedulerService = new SchedulerService();
@@ -81,11 +83,13 @@ class SchedulerController {
   public createScheduler = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
     const createSchedulerData = req.body;
-
+    //improvement/599, in case of "" of apiUrl, fill Sudory base url. 
+    const apiUrl =  req.body.apiUrl || config.sudoryApiDetail.baseURL;
     const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
-
+    delete createSchedulerData.apiUrl; 
+    const newCreateSchedulerData = {...createSchedulerData, apiUrl};
     try {
-      const createSchedulerResult = await this.schedulerService.createScheduler(createSchedulerData, customerAccountId);
+      const createSchedulerResult = await this.schedulerService.createScheduler(newCreateSchedulerData, customerAccountId);
       res.status(200).json({ data: createSchedulerResult, message: `created scheduler` });
     } catch (error) {
       next(error);

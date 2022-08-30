@@ -36,3 +36,14 @@ export interface IAlertReceivedDetailed extends IAlertReceived {
   resourceGroup: IResourceGroup;
   alertRule: IAlertRule;
 }
+
+export interface IAlertRuleId {
+  alertRuleId: string;
+}
+
+export interface IAlertRuleSettingData {
+  alertNotiSettingEnabled: boolean;
+  alertNotiSettingSilentFrom: Date;
+  alertNotiSettingSilentUnti: Date;
+  alertRuleId: number
+}

@@ -140,6 +140,7 @@ export default function (sequelize: Sequelize): typeof MetricMetaModel {
       },
       resourceGroupUuid: {
         type: DataTypes.STRING(100),
+        unique: true,
         allowNull: false,
       },
           },
