@@ -221,13 +221,14 @@ class executorService {
    * @param {number} customerAccountKey
    * @param {string} sudoryNamespace
   */
-   public async checkExecutorClient(clusterUuid: string, sudoryNamespace: string, customerAccountKey: number): Promise<IExecutorClientCheck> {
-        var clientUuid = "";
+   public async checkExecutorClient(clusterUuid: string, sudoryNamespace: string, customerAccountKey: number): Promise<object> {
+        var clientTrueFalse = false;
         var resourceJobKey = [];
-        var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
+        //improvement/713, Aug30 2022
+        var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession + "/cluster/" + clusterUuid + "/alive";
         const resourceCron = config.resourceCron; 
-        const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
-        executorServerUrl = executorServerUrl + sessionQueryParameter;
+        //const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
+        //executorServerUrl = executorServerUrl + sessionQueryParameter;
         const subscribedChannelResource = config.sudoryApiDetail.channel_resource; 
         await axios(
         {
@@ -235,19 +236,13 @@ class executorService {
             url: `${executorServerUrl}`,
             headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
         }).then(async (res: any) => {
-            if(!res.data[0]) {  
-            console.log(`Executor/Sudory client not found yet from cluster: ${clusterUuid}`); 
-            throw new HttpException(400, `Executor/Sudory client not found yet from cluster: ${clusterUuid}`);
-            //return clientUuid;
-            };
-            const clientData = Object.assign({},res.data[0]); 
-            clientUuid = clientData.uuid;
-            console.log(`Successful to run API to search Executor/Sudory client ${clientUuid}`);
+            if (res.data == true) clientTrueFalse=true;
+            console.log(`Successful to run API to search Executor/Sudory client`);
         }).catch(error => {
-            console.log(error);
-            throw new HttpException(500, "Unknown error while searching executor/sudory client");
+            //console.log(error);
+            throw new HttpException(500, `Sudory Server Error - ${JSON.stringify(error.response.data)} `);
         });
-        
+      
         //sudory namespace save...
         const resourceGroupSet = {resourceGroupSudoryNamespace: sudoryNamespace, }; 
         await this.resourceGroup.update(resourceGroupSet, 
@@ -462,7 +457,7 @@ class executorService {
             console.log(`confirmed the executor/sudory client installed but fail to submit resource IG schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
 
-        const responseExecutorClientCheck = {resourceJobKey, clientUuid}; 
+        const responseExecutorClientCheck = {clusterUuid, clientTrueFalse}; 
         return responseExecutorClientCheck;
 
     }  

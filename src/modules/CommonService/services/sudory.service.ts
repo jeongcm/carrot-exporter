@@ -79,44 +79,25 @@ class sudoryService {
     var clientData;
     var clientUuid = "";
     var expirationTime;
-    var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
+    var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession + "/cluster/" + clusterUuid + "/alive";
     var resultReturn;
-    var validClient:boolean;
-    const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
-    executorServerUrl = executorServerUrl + sessionQueryParameter;
+    var validClient:boolean = false;
+    //const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
+    //executorServerUrl = executorServerUrl + sessionQueryParameter;
     
     await axios(
-    {
-        method: 'get',
-        url: `${executorServerUrl}`,
-        headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
-    }).then(async (res: any) => {
-        if(!res.data[0]) {  
-          console.log(`Executor/Sudory client not found yet from cluster: ${clusterUuid}`); 
-          resultReturn = {
-            clientUuid: "notfound",
-            validClient: false,
-          };
-          return resultReturn;
-        };
-        clientData = Object.assign({},res.data[0]); 
-        clientUuid = clientData.uuid;
-        expirationTime = new Date(clientData.expiration_time);
-        let currentTime = new Date();
-        if (expirationTime> currentTime)
-          validClient = true;
-        else validClient = false;
-
-        resultReturn = {
-          clientUuid: clientUuid,
-          validClient: validClient,
-        };
-        console.log (resultReturn)
-        console.log(`Successful to run API to search Executor/Sudory client ${clientUuid}`);
-    }).catch(error => {
-        console.log(error);
-        throw new HttpException(500, "Unknown error while searching executor/sudory client");
-    });
+      {
+          method: 'get',
+          url: `${executorServerUrl}`,
+          headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
+      }).then(async (res: any) => {
+          if (res.data == true) validClient=true;
+          console.log(`Successful to run API to search Executor/Sudory client`);
+          resultReturn = {clusterUuid, validClient};
+      }).catch(error => {
+          //console.log(error);
+          throw new HttpException(500, `Sudory Server Error - ${JSON.stringify(error.response.data)} `);
+      });
 
     return resultReturn;
 
