@@ -37,6 +37,8 @@ class ResourceGroupController {
         resourceGroupPlatform,
         resourceGroupUuid,
         resourceGroupPrometheus,
+        resourceGroupSudoryNamespace,
+        resourceGroupKpsLokiNamespace
       } = createResourceGroupData;
 
       const response = {
@@ -52,6 +54,8 @@ class ResourceGroupController {
         resourceGroupPlatform,
         resourceGroupUuid,
         resourceGroupPrometheus,
+        resourceGroupSudoryNamespace,
+        resourceGroupKpsLokiNamespace,
       };
 
       res.status(201).json({ data: response, message: 'created' });
@@ -195,9 +199,10 @@ class ResourceGroupController {
  public deleteResourceGroupByResourceGroupUuid = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
   try {
     const resourceGroupUuid = req.params.resourceGroupUuid;
+    const deleteOption = req.params.deleteOption; // "1" - regular delete || "2" - delete including kps/Loki 
     const customerAccountKey = req.customerAccountKey; 
 
-    const resultDeleteResourceGroup = await this.resourceGroupService.deleteResourceGroupByResourceGroupUuid(resourceGroupUuid, customerAccountKey);
+    const resultDeleteResourceGroup = await this.resourceGroupService.deleteResourceGroupByResourceGroupUuid(resourceGroupUuid, customerAccountKey, deleteOption);
     res.status(200).json({ data: resultDeleteResourceGroup, message: `resourceGroup Deleted - ${resourceGroupUuid}` });
   } catch (error) {
     next(error);

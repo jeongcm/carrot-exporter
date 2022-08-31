@@ -20,6 +20,8 @@ export type ResourceGroupCreationAttributes = Optional<
   | 'resourceGroupGrafana'
   | 'resourceGroupLoki'
   | 'resourceGroupUuid'
+  | 'resourceGroupSudoryNamespace'
+  | 'resourceGroupKpsLokiNamespace'
 >;
 
 export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreationAttributes> implements IResourceGroup {
@@ -40,6 +42,9 @@ export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreat
   public resourceGroupProvider: string;
   public resourceGroupUuid: string;
   public updatedAt: Date;
+  public resourceGroupSudoryNamespace: string;
+  public resourceGroupKpsLokiNamespace: string;
+
 
   public readonly createdAt!: Date;
   
@@ -121,6 +126,14 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
       resourceGroupLoki: {
         allowNull: true,
         type: DataTypes.STRING(200),
+      },
+      resourceGroupSudoryNamespace: {
+        allowNull: true,
+        type: DataTypes.STRING(100),
+      },
+      resourceGroupKpsLokiNamespace: {
+        allowNull: true,
+        type: DataTypes.STRING(100),
       },
     },
     {

@@ -59,6 +59,8 @@ data:
   SUDORY_SUBSCRIBED_CHANNEL_METRIC: "nc_metric"
   SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED: "nc_metric_received"
   SUDORY_SERVICE_RESULT_DELETE: "1"
+  SUDORY_REPO_NAME: "nex-dev"
+  SUDORY_REPO_URL: "https://repo.nexclipper.io/chartrepo/nexclipper-dev"
   NC_CRON_URL: "http://nexclipper-cron.nc.svc.cluster.local:5001"
   NC_CRON_X_AUTH_TOKEN: "CRON"
   NC_LARI_VM_ADDRESS: "http://vm-victoria-metrics-single-server.vm.svc.cluster.local:8428"

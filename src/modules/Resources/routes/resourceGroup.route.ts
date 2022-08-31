@@ -47,7 +47,7 @@ class ResourceGroupRoute implements Routes {
       this.resourceGroupController.getResourceGroupByCustomerAccountId,
     );
     this.router.delete(
-      '/resourceGroup/uuid/:resourceGroupUuid',
+      '/resourceGroup/uuid/:resourceGroupUuid/:deleteOption',
       authMiddleware,
       createUserLogMiddleware,
       this.resourceGroupController.deleteResourceGroupByResourceGroupUuid,
