@@ -127,10 +127,14 @@ class executorService {
     const executorServerClusterUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateCluster;
     const executorServerTokenUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateToken;
     const executorServerBaseUrl = config.sudoryApiDetail.baseURL;
+    const executorRepoName = config.sudoryApiDetail.repoName;
+    const executorRepoUrl = config.sudoryApiDetail.repoUrl;
     const customerAccountId = requestExecutorClient.customerAccountId;
     const resourceGroupName = requestExecutorClient.resourceGroupName;
     const resourceGroupProvider = requestExecutorClient.resourceGroupProvider;
     const resourceGroupPlatform = requestExecutorClient.resourceGroupPlatform;
+    const resourceGroupSudoryNamespace = requestExecutorClient.resourceGroupSudoryNamespace || "";
+    const resourceGroupKpsLokiNamespace = requestExecutorClient.resourceGroupKpsLokiNamespace || "";
 
     const customerAccountData = await this.customerAccountService.getCustomerAccountById(customerAccountId);
     if (!customerAccountData) {
@@ -182,7 +186,7 @@ class executorService {
     token = sudoryCreateTokenResponse.token;
     
     const executorClient:IExecutorClient = 
-      {"clusterUuid": clusterUuid, "token": token, "exectuorServerUrl":executorServerBaseUrl }; 
+      {"clusterUuid": clusterUuid, "token": token, "exectuorServerUrl":executorServerBaseUrl, "repoName": executorRepoName, "repoUrl": executorRepoUrl }; 
 
     const resourceGroup =
       { resourceGroupName: resourceGroupName,
@@ -190,7 +194,9 @@ class executorService {
         resourceGroupProvider: resourceGroupProvider,
         resourceGroupPlatform: resourceGroupPlatform,
         resourceGroupUuid: clusterUuid,
-        resourceGroupPrometheus: ""
+        resourceGroupPrometheus: "",
+        resourceGroupSudoryNamespace: resourceGroupSudoryNamespace,
+        resourceGroupKpsLokiNamespace: resourceGroupKpsLokiNamespace,
       }; 
 
     try {  
@@ -213,8 +219,9 @@ class executorService {
   /**
    * @param {string} clusterUuid
    * @param {number} customerAccountKey
+   * @param {string} sudoryNamespace
   */
-   public async checkExecutorClient(clusterUuid: string, customerAccountKey: number): Promise<IExecutorClientCheck> {
+   public async checkExecutorClient(clusterUuid: string, sudoryNamespace: string, customerAccountKey: number): Promise<IExecutorClientCheck> {
         var clientUuid = "";
         var resourceJobKey = [];
         var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
@@ -240,6 +247,11 @@ class executorService {
             console.log(error);
             throw new HttpException(500, "Unknown error while searching executor/sudory client");
         });
+        
+        //sudory namespace save...
+        const resourceGroupSet = {resourceGroupSudoryNamespace: sudoryNamespace, }; 
+        await this.resourceGroup.update(resourceGroupSet, 
+                                         {where: {resourceGroupUuid: clusterUuid}}); 
 
         const newCrontab1 = resourceCron;
         const newCrontab2 = resourceCron;
@@ -556,7 +568,8 @@ class executorService {
         resourceGroupPrometheus: prometheus,
         resourceGroupGrafana: grafana,
         resourceGroupAlertManager: alertManager,
-        resourceGroupLoki: loki
+        resourceGroupLoki: loki,
+        resourceGroupKpsLokiNamespace: targetNamespace,
       }; 
       // get system user id
 

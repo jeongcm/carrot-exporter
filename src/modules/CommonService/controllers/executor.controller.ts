@@ -80,9 +80,10 @@ class executorController {
   public checkExecutorClient = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterUuid = req.params.clusterUuid;
+      const sudoryNamespace = req.params.sudoryNamespace;
       const customerAccountKey = req.customerAccountKey;
 
-      const clientResponse: IExecutorClientCheck = await this.executorService.checkExecutorClient(clusterUuid, customerAccountKey);
+      const clientResponse: IExecutorClientCheck = await this.executorService.checkExecutorClient(clusterUuid, sudoryNamespace, customerAccountKey);
 
       if (clientResponse) {
         res

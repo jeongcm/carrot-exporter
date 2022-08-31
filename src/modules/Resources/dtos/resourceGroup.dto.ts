@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty } from 'class-validator';
+import { isString } from 'lodash';
 
 export class ResourceGroupDto {
   @IsString()
@@ -22,6 +23,12 @@ export class ResourceGroupDto {
 
   @IsString()
   public resourceGroupPrometheus: string;
+
+  @IsString()
+  public resourceGroupSudoryNamespace: string;
+
+  @IsString()
+  public resourceGroupKpsLokiNamespace: string;
 }
 
 export class ResourceGroupExecutorDto {
@@ -40,6 +47,12 @@ export class ResourceGroupExecutorDto {
   @IsString()
   @IsNotEmpty()
   public resourceGroupPlatform: 'OS' | 'K8';
+
+  @IsString()
+  public resourceGroupSudoryNamespace: string;
+
+  @IsString()
+  public resourceGroupKpsLokiNamespace: string;
 }
 
 export class ResourceGroupKpsDto {

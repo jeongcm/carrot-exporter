@@ -130,6 +130,8 @@ export default {
     channel_metric_received: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED || 'nc_metric_received',
     service_result_delete: process.env.SUDORY_SERVICE_RESULT_DELETE || '1',
     channel_webhook: process.env.SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK,
+    repoName: process.env.SUDORY_REPO_NAME || 'nex-dev',
+    repoUrl: process.env.SUDORY_REPO_URL || 'https://repo.nexclipper.io/chartrepo/nexclipper-dev',
   },
   fileUpload: {
     DOBucket: `${process.env.NC_LARI_DO_BUCKET}`.replace('\n', ''),
