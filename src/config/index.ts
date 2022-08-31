@@ -156,7 +156,7 @@ export default {
     alertManagerUrlHead: process.env.NC_ALERTMANAGER_URL_HEAD || 'http://kps-kube-prometheus-stack-alertmanager.',
     alertManagerUrlTail: process.env.NC_ALERTMANAGER_URL_TAIL || '.svc.cluster.local:9093',
     lokiUrlHead: process.env.NC_LOKI_URL_HEAD || 'http://loki.',
-    lokiUrlTail: process.env.NC_GRAFANA_URL_TAIL || '.svc.cluster.local:3100',
+    lokiUrlTail: process.env.NC_LOKI_URL_TAIL || '.svc.cluster.local:3100',
   },
   ncBnApiDetail: {
     ncBnUrl: process.env.NC_BN_URL,

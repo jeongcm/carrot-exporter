@@ -83,6 +83,14 @@ data:
   NC_BN_REFRESH_MODEL_PATH: "/refresh_model/"
   NC_TURN_OFF_TELEMETRY: "true"
   NC_LARI_DEFAULT_PASSWORD: "WOt7u7OGxr"
+  NC_PROMETHEUS_URL_HEAD: "http://kps-kube-prometheus-stack-prometheus."
+  NC_PROMETHEUS_URL_TAIL: ".svc.cluster.local:9090"
+  NC_GRAFANA_URL_HEAD: "http://kps-grafana."
+  NC_GRAFANA_URL_TAIL: ".svc.cluster.local:80"
+  NC_ALERTMANAGER_URL_HEAD: "http://kps-kube-prometheus-stack-alertmanager."
+  NC_ALERTMANAGER_URL_TAIL: ".svc.cluster.local:9093"
+  NC_LOKI_URL_HEAD: "http://loki."
+  NC_LOKI_URL_TAIL: ".svc.cluster.local:3100"
 
 
 ---
