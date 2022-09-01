@@ -1,9 +1,8 @@
-import axios from 'axios';
 import ServiceExtension from '@/common/extentions/service.extension';
 import config from 'config';
 import { isEmpty } from 'lodash';
 import { logger } from '@/common/utils/logger';
-
+import axios from 'common/httpClient/axios';
 class VictoriaMetricService extends ServiceExtension {
   private victoriaEndpoint = config.victoriaMetrics.NC_LARI_VM_ADDRESS;
 
@@ -58,6 +57,7 @@ class VictoriaMetricService extends ServiceExtension {
     } catch (e) {
       this.throwError('EXCEPTION', 'failed to call victoria metric server');
     }
-  }}
+  }
+}
 
 export default VictoriaMetricService;
