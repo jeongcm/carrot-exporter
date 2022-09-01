@@ -270,33 +270,35 @@ class ResourceGroupService {
     const kpsLokiNamespace = findResourceGroup.resourceGroupKpsLokiNamespace; 
     const sudoryNamespace = findResourceGroup.resourceGroupSudoryNamespace;
 
+    if (deleteOption=="2") {
+      //0-1. Prometheus / KPS 
+      const nameKps = "KPS uninstall";
+      const summaryKps = "KPS uninstall";
+      const templateUuidKps = '20000000000000000000000000000002'; 
+      const stepsKps = [{args: 
+        {name: 'kps', 
+        namespace: kpsLokiNamespace,
+        }
+      }];
+      const resultUninstallKps = await this.sudoryService.postSudoryService(nameKps, summaryKps, resourceGroupUuid, templateUuidKps, stepsKps, customerAccountKey, sudoryChannel); 
+      console.log ("kps client - uninstalled - ", resourceGroupUuid);
+
+      //0-2. Loki 
+      const nameLoki = "Loki uninstall";
+      const summaryLoki = "Loki uninstall";
+      const templateUuidLoki = '20000000000000000000000000000002'; 
+      const stepsLoki = [{args: 
+        {name: 'loki', 
+        namespace: kpsLokiNamespace,
+        }
+      }];
+      const resultUninstallLoki = await this.sudoryService.postSudoryService(nameLoki, summaryLoki, resourceGroupUuid, templateUuidLoki, stepsLoki, customerAccountKey, sudoryChannel); 
+      console.log ("Loki client - uninstalled - ", resourceGroupUuid);
+    }        
+
     try {
       return await DB.sequelize.transaction(async t => {
-        if (deleteOption=="2") {
-          //0-1. Prometheus / KPS 
-          const nameKps = "KPS uninstall";
-          const summaryKps = "KPS uninstall";
-          const templateUuidKps = '20000000000000000000000000000002'; 
-          const stepsKps = [{args: 
-            {name: 'kps', 
-            namespace: kpsLokiNamespace,
-            }
-          }];
-          const resultUninstallKps = await this.sudoryService.postSudoryService(nameKps, summaryKps, resourceGroupUuid, templateUuidKps, stepsKps, customerAccountKey, sudoryChannel); 
-          console.log ("kps client - uninstalled - ", resourceGroupUuid);
 
-          //0-2. Loki 
-          const nameLoki = "Loki uninstall";
-          const summaryLoki = "Loki uninstall";
-          const templateUuidLoki = '20000000000000000000000000000002'; 
-          const stepsLoki = [{args: 
-            {name: 'loki', 
-            namespace: kpsLokiNamespace,
-            }
-          }];
-          const resultUninstallLoki = await this.sudoryService.postSudoryService(nameKps, summaryKps, resourceGroupUuid, templateUuidKps, stepsKps, customerAccountKey, sudoryChannel); 
-          console.log ("Loki client - uninstalled - ", resourceGroupUuid);
-        }    
         // 1. MetricMeta, MetricReceived
       const deleteData = { deletedAt: new Date() };
       const findMetricMeta: IMetricMeta = await this.metricMeta.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
