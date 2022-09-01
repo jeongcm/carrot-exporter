@@ -2,7 +2,7 @@ import { IBayesianModel, IBayesianDBModel, IBayesianJoinDBModel } from '@/common
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import DB from '@/database';
-import axios from 'axios';
+
 import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
 import { isEmpty } from '@/common/utils/util';
 import { HttpException } from '@/common/exceptions/HttpException';

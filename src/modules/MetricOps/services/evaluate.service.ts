@@ -4,7 +4,8 @@ import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.i
 import { IResource } from '@/common/interfaces/resource.interface';
 import { IIncident } from '@/common/interfaces/incident.interface';
 import DB from '@/database';
-import axios from 'axios';
+import axios from 'common/httpClient/axios';
+
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
@@ -356,7 +357,7 @@ class EvaluateServices {
         //6. execute any resolution actions if there are actions under rule group more than a threshhold
 
         //7. send email/.... to access group user.
-             
+
         //8. save the communicaiton result to notification table
 
         //9. create a message for return
