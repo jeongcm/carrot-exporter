@@ -432,7 +432,6 @@ DB.ResourceEvent.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey
 DB.Resource.hasMany(DB.ResourceEvent, { foreignKey: 'resourceKey' });
 DB.ResourceEvent.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
 
-
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
 //[[force: true]]  is used when changes made in database.

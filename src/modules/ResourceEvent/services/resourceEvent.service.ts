@@ -56,7 +56,7 @@ class ResourceService {
         const resourceGroupKey = responseResourceGroup.resourceGroupKey;
 
         //2. prepare for sql
-        const query1 = `INSERT INTO ResourceEvent (
+        const query1 = `INSERT IGNORE INTO ResourceEvent (
             resource_event_id, 
             created_by, 
             created_at, 

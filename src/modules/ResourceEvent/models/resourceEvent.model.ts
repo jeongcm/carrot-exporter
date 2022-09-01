@@ -96,7 +96,7 @@ export default function (sequelize: Sequelize): typeof ResourceEventModel {
       },
       resourceEventName: {
         allowNull: false,
-        type: DataTypes.STRING(500),
+        type: DataTypes.STRING(100),
         unique: true,
       },
       resourceEventDescription: {
