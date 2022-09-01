@@ -15,6 +15,8 @@ class VictoriaMetricService extends ServiceExtension {
     if (isEmpty(start)) return this.throwError('EXCEPTION', 'start time is missing');
     if (isEmpty(end)) return this.throwError('EXCEPTION', 'end time is missing');
 
+    const startTime: number = Date.now();
+
     let url = `${this.victoriaEndpoint}/api/v1/query_range?query=${promQl}&start=${start}&end=${end}`;
     if (step) {
       url = `${url}&step=${step}`;
@@ -29,6 +31,7 @@ class VictoriaMetricService extends ServiceExtension {
       });
 
       if (result && result.data && result.data.data) {
+        result.data.data.queryRunTime = Date.now() - startTime;
         return result.data.data;
       } else {
         return null;
