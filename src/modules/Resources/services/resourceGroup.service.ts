@@ -114,7 +114,7 @@ class ResourceGroupService {
    */
   public async getResourceGroupById(resourceGroupId: string): Promise<IResourceGroup> {
     const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-      where: { resourceGroupId },
+      where: { resourceGroupId, deletedAt: null },
       attributes: { exclude: ['deletedAt'] },
     });
 
@@ -127,7 +127,7 @@ class ResourceGroupService {
    */
   public async getResourceGroupByUuid(resourceGroupUuid: string): Promise<IResourceGroup> {
     const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-      where: { resourceGroupUuid },
+      where: { resourceGroupUuid, deletedAt: null },
       //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
     });
     return resourceGroup;
@@ -135,7 +135,7 @@ class ResourceGroupService {
 
   public async getUserResourceGroupByUuid(customerAccountKey: number, resourceGroupUuid: string): Promise<IResourceGroup> {
     const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-      where: { resourceGroupUuid, customerAccountKey },
+      where: { resourceGroupUuid, customerAccountKey, deletedAt: null },
       //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
     });
     return resourceGroup;
@@ -143,7 +143,7 @@ class ResourceGroupService {
 
   public async getUserResourceGroupByKey(customerAccountKey: number, resourceGroupKey: number): Promise<IResourceGroup> {
     const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-      where: { resourceGroupKey, customerAccountKey },
+      where: { resourceGroupKey, customerAccountKey, deletedAt: null },
       //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
     });
     return resourceGroup;
@@ -207,7 +207,7 @@ class ResourceGroupService {
   public async updateResourceGroupById(resourceGroupId: string, resourceGroupData: ResourceGroupDto, currentUserId: string): Promise<IResourceGroup> {
     if (isEmpty(resourceGroupData)) throw new HttpException(400, 'ResourceGroup  must not be empty');
 
-    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: resourceGroupId } });
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: resourceGroupId, deletedAt: null } });
 
     if (!findResourceGroup) throw new HttpException(400, "ResourceGroup  doesn't exist");
 
@@ -230,7 +230,7 @@ class ResourceGroupService {
    public async updateResourceGroupByUuid(resourceGroupUuid: string, resourceGroupData: object, currentUserId: string): Promise<IResourceGroup> {
     if (isEmpty(resourceGroupData)) throw new HttpException(400, 'ResourceGroup  must not be empty');
 
-    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid } });
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
     if (!findResourceGroup) throw new HttpException(400, "ResourceGroup  doesn't exist");
 
     const updatedResourceGroup = {
@@ -249,7 +249,7 @@ class ResourceGroupService {
    */
   public async getResourceGroupUuidByCustomerAcc(customerAccountKey: number): Promise<string> {
     const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-      where: { customerAccountKey },
+      where: { customerAccountKey, deletedAt: null },
       attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
     });
     return resourceGroup.resourceGroupUuid;
