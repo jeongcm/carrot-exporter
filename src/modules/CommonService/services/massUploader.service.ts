@@ -18,14 +18,12 @@ class massUploaderService {
   public resourceService = new resourceService(); 
 
   public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<string> {
-    const uuid = require('uuid');
-    const apiId = uuid.v1();
 
-    const targetTable = 'Resource';
     const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const sizeOfInput = resourceMassFeed.resource.length;
-    // process bulk id for Resource table
-    /*
+    
+    /* process bulk id for Resource table
+    const targetTable = 'Resource';
     const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk(targetTable, sizeOfInput);
     const resource_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
     var resource_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
@@ -43,9 +41,6 @@ class massUploaderService {
     // update resource deactivated if there is no matched resoure in NC database. 
     const currentResourceFiltered: IResourceTargetUuid[] = await this.resourceService.getResourceForMass(resourceType, resourceGroupKey, customerAccountKey); 
     const sizeOfCurrentResource =  currentResourceFiltered.length;
-    
-    //const maxRetry = config.deadLock.retries; 
-    //var retrycount = 0;
 
     var currentResource = new Array();
     for (let i = 0; i < sizeOfCurrentResource; i++) {
@@ -179,7 +174,6 @@ class massUploaderService {
         let resource_ingress_rules = JSON.stringify(resourceMassFeed.resource[i].resource_Ingress_Rules); 
         let resource_pv_claim_ref = JSON.stringify(resourceMassFeed.resource[i].resource_Pv_Claim_Ref); 
         let resource_spec = JSON.stringify(resourceMassFeed.resource[i].resource_Spec); 
-
 
         query2[i] = [
             //1st line
