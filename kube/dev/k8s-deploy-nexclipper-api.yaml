@@ -73,7 +73,7 @@ data:
   NC_ALERTHUB_URL: "http://nexclipper-notification.nc.svc.cluster.local:3039"
   NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
   SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "3f59a2ca86a44b3985ce58838fcd353d"
-  NC_LARI_RESOURCE_CRON: "*/10 * * * *"
+  NC_LARI_RESOURCE_CRON: "* * * * *"
   NC_LARI_ALERT_CRON: "* * * * *"
   NC_LARI_METRIC_CRON: "*/5 * * * *"
   NC_LARI_HEALTH_CRON: "*/5 * * * *"

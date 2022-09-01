@@ -303,6 +303,8 @@ class executorService {
         if (!resultSC) console.log (resultSC);
         const resultPV = await this.postExecuteService("K8s interface for PV", "K8s interface for PV", clusterUuid, "00000000000000000000000000000012", steps, customerAccountKey, subscribedChannelResource); 
         if (!resultPV) console.log (resultPV);
+        const resultEV = await this.postExecuteService("K8s interface for Event", "K8s interface for Event", clusterUuid, "00000000000000000000000000000008", steps, customerAccountKey, subscribedChannelResource); 
+        if (!resultEV) console.log (resultPV);
 
 
     // scheduleResource - node
@@ -456,6 +458,16 @@ class executorService {
             console.log(error);
             console.log(`confirmed the executor/sudory client installed but fail to submit resource IG schedule request for clsuter:${clusterUuid}`);
         }); //end of catch        
+
+    // scheduleResource - Event
+        await this.scheduleResource(clusterUuid, customerAccountKey, "EV", newCrontab15
+        ).then(async (res: any) =>{
+            resourceJobKey.push({resourceType: "EV", cronKey: res});            
+            console.log(`Submitted resource Event schedule reqeust on ${clusterUuid} cluster successfully`);
+        }).catch(error => {
+            console.log(error);
+            console.log(`confirmed the executor/sudory client installed but fail to submit resource Event schedule request for clsuter:${clusterUuid}`);
+        }); //end of catch            
 
         const responseExecutorClientCheck = {clusterUuid, clientTrueFalse}; 
         return responseExecutorClientCheck;
@@ -740,6 +752,7 @@ class executorService {
     const templateIngress = "00000000000000000000000000002002";
     const templatePv = "00000000000000000000000000000012"; 
     const templateStorageClass = "00000000000000000000000000003002";
+    const templateEvent = "00000000000000000000000000000008";
     //const templateJob = "00000000000000000000000000003002";
     //const templateCronJob = "00000000000000000000000000003002";
 
@@ -1028,6 +1041,18 @@ class executorService {
             
         break;    
 
+        case "EV":  //event
+            service_name = "k8s event list request" 
+            service_summary = "k8s event list request" 
+            template_uuid = templateEvent; 
+            if(!labels){
+                argsData = {labels:{}};
+            } else {
+                argsData = {labels:labels};
+            }
+            
+        break;    
+
         default:
     }
     
@@ -1218,7 +1243,8 @@ class executorService {
          {resourceName: "Configmap", resourceType: "CM", template_uuid:  "00000000000000000000000000000006"}, //configmap
          {resourceName: "Ingress", resourceType: "IG", template_uuid:  "00000000000000000000000000002002"}, //ingress
          {resourceName: "PV", resourceType: "PV", template_uuid:  "00000000000000000000000000000012"},  //pv
-         {resourceName: "Storage Class", resourceType: "SC", template_uuid:  "00000000000000000000000000003002"}  //storageclass
+         {resourceName: "Storage Class", resourceType: "SC", template_uuid:  "00000000000000000000000000003002"},  //storageclass
+         {resourceName: "Event", resourceType: "EV", template_uuid:  "00000000000000000000000000000008"},  //storageclass
         //template_uuid: "00000000000000000000000000003002",
         //template_uuid: "00000000000000000000000000003002";
         ];
@@ -1605,6 +1631,7 @@ class executorService {
         'K8s interface for Node',
         'K8s interface for Service',
         'K8s interface for Storage Class',
+        'K8s interface for Event',
     ];
 
     const resource_template = [
@@ -1622,7 +1649,8 @@ class executorService {
         {resourceName: "Configmap", resourceType: "CM", template_uuid:  "00000000000000000000000000000006", jobName: "K8s interface for Configmap"}, //configmap
         {resourceName: "Ingress", resourceType: "IG", template_uuid:  "00000000000000000000000000002002", jobName: "K8s interface for Ingress"}, //ingress
         {resourceName: "PV", resourceType: "PV", template_uuid:  "00000000000000000000000000000012", jobName: "K8s interface for PV"},  //pv
-        {resourceName: "Storage Class", resourceType: "SC", template_uuid:  "00000000000000000000000000003002", jobName: "K8s interface for Storage Class"}  //storageclass
+        {resourceName: "Storage Class", resourceType: "SC", template_uuid:  "00000000000000000000000000003002", jobName: "K8s interface for Storage Class"},  //storageclass
+        {resourceName: "Event", resourceType: "EV", template_uuid:  "00000000000000000000000000000008", jobName: "K8s interface for Event"},  //event
        //template_uuid: "00000000000000000000000000003002",
        //template_uuid: "00000000000000000000000000003002";
        ];
