@@ -82,6 +82,9 @@ export default {
       callbackURL: process.env.NC_LARI_SOCIALKEY_GOOGLE_CALLBACK_URL,
     },
   },
+  logger: {
+    silenceResponse: process.env.NC_LARI_LOG_SILENCE_RESPONSE ? process.env.NC_LARI_LOG_SILENCE_RESPONSE === 'true' : false,
+  },
   initialRecord: {
     customerAccount: {
       customerAccountName: process.env.NC_LARI_SYSTEM_CUSTOMERACCOUNT_NAME.replace(/_/gi, ' '),
