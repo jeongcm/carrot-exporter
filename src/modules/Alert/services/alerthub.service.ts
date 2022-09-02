@@ -25,11 +25,13 @@ class AlerthubService {
     endAt?: string,
   ): Promise<IAlertTimeline[]> {
     try {
+      const start = Date.now();
       const { data } = await axios.get(`${config.alerthub.baseUrl}/v1/alertTimeline/${customerAccountKey}/${alertRuleKey}`, {
         headers: { x_auth_token: `${config.alerthub.authToken}` },
       });
 
       if (data.data && data.message === 'success') {
+        data.data.queryRunTime = Date.now() - start;
         return data.data;
       }
     } catch (e) {
@@ -44,11 +46,13 @@ class AlerthubService {
     endAt?: string,
   ): Promise<IAlertTimeline[]> {
     try {
+      const start = Date.now();
       const { data } = await axios.get(`${config.alerthub.baseUrl}/v1/alertNotiScheduled/${customerAccountKey}/${alertRuleKey}`, {
         headers: { x_auth_token: `${config.alerthub.authToken}` },
       });
 
       if (data.data && data.message === 'success') {
+        data.data.queryRunTime = Date.now() - start;
         return data.data;
       }
     } catch (e) {
@@ -69,6 +73,7 @@ class AlerthubService {
       );
       console.log(`Sequelize time: `, Date.now() - start, 'ms');
       if (data.data && data.message === 'success') {
+        data.data.queryRunTime = Date.now() - start;
         return data.data;
       }
     } catch (e) {
