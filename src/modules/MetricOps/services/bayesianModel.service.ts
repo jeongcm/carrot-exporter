@@ -283,7 +283,9 @@ class BayesianModelServices {
       version,
     };
     await this.bayesianModel.update(updatedModelData, { where: { bayesianModelId } });
-    await this.metricOpsUtilService.updateBayesianNetwork(bayesianModelKey);
+    if (bayesianModelScoreCard && Object.keys(bayesianModelScoreCard).length) {
+      await this.metricOpsUtilService.updateBayesianNetwork(bayesianModelKey);
+    }
     return this.findBayesianModelById(bayesianModelId);
   }
 

@@ -11,6 +11,7 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import IncidentService from '@/modules/Incident/services/incident.service';
 import MonitoringTargetService from '@/modules/MetricOps/services/monitoringTarget.service';
+import ResolutionActionService from '@/modules/MetricOps/services/resolutionAction.service';
 import BayesianModelService from '@/modules/MetricOps/services/bayesianModel.service';
 import ModelRuleScoreService from '@/modules/MetricOps/services/modelRuleScore.service';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
@@ -35,6 +36,7 @@ class EvaluateServices {
   public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
   public customerAccountService = new CustomerAccountService();
   public monitoringTargetService = new MonitoringTargetService();
+  public resolutionActionService = new ResolutionActionService();
   public bayesianModelService = new BayesianModelService();
   public modelRuleScoreService = new ModelRuleScoreService();
   public tableIdService = new TableIdService();
@@ -199,7 +201,7 @@ class EvaluateServices {
       evaluationStatus: 'RQ',
     };
 
-    const resultEvaluationRequest: IEvaluation = await this.evaluation.create(createEvaluation);
+    await this.evaluation.create(createEvaluation);
     //console.log ("created evaluation request: ", resultEvaluationRequest.evaluationId);
 
     const step6 = new Date().getTime();
@@ -258,7 +260,7 @@ class EvaluateServices {
         const updateErrorWhere = {
           where: { evaluationId: evaluationId },
         };
-        const resultEvaluationResult = this.evaluation.update(updateError, updateErrorWhere);
+        this.evaluation.update(updateError, updateErrorWhere);
         throw new HttpException(500, `Unknown error to fetch the result of evaluation: ${evaluationId}`);
       });
 
@@ -289,7 +291,7 @@ class EvaluateServices {
     };
 
     // 6. Save the results to the database
-    const resultEvaluationResult = await this.evaluation.update(updateData, updateWhere);
+    await this.evaluation.update(updateData, updateWhere);
     const resultEvaluation: IEvaluation = await this.evaluation.findOne({ where: { evaluationId } });
 
     returnResponse = {
@@ -354,7 +356,8 @@ class EvaluateServices {
         await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, firedAlerts, 'SYSTEM');
         console.log('incident ticket is created: ', incidentId, 'Alert Attached - ', firedAlerts);
         //6. execute any resolution actions if there are actions under rule group more than a threshhold
-
+        const ruleGroup = resultEvaluation.evaluationRequest;
+        this.resolutionActionService.getResolutionActionByRuleGroupId();
         //7. save the actions to incident actions
 
         //8. send email to access group user.
