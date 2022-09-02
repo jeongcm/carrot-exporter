@@ -30,9 +30,9 @@ class ResourceService {
             {resourceName: "Namespace", resourceType: "NS", template_uuid:  "00000000000000000000000000000004"}, //namespace
             {resourceName: "Pod", resourceType: "PD", template_uuid:  "00000000000000000000000000000002"}, //pod
             {resourceName: "Deployment", resourceType: "DP", template_uuid:  "00000000000000000000000000001002"}, //deployment
-            {resourceName: "Statefulset", resourceType: "SS", template_uuid:  "00000000000000000000000000001004"}, //statefulset
+            {resourceName: "StatefulSet", resourceType: "SS", template_uuid:  "00000000000000000000000000001004"}, //statefulset
             {resourceName: "Daemonset", resourceType: "DS", template_uuid:  "00000000000000000000000000001006"}, //daemonset
-            {resourceName: "Replicaset", resourceType: "RS", template_uuid:  "00000000000000000000000000001008"}, //replicaset
+            {resourceName: "ReplicaSet", resourceType: "RS", template_uuid:  "00000000000000000000000000001008"}, //replicaset
             {resourceName: "PVC", resourceType: "PC", template_uuid:  "00000000000000000000000000000018"}, //pvc
             {resourceName: "Secret", resourceType: "SE", template_uuid:  "00000000000000000000000000000014"},  //secret
             {resourceName: "Endpoint", resourceType: "EP", template_uuid:  "00000000000000000000000000000016"}, //endpoint
@@ -92,14 +92,15 @@ class ResourceService {
             let resource_event_target_created_at = new Date(resourceEventData.resource[i].resource_Target_Created_At);
             
             let selectedTemplate = resource_template.find( template => {
-                return template.resourceType === resourceEventData.resource[i].resource_event_involved_object_kind;
+                return template.resourceName === resourceEventData.resource[i].resource_event_involved_object_kind;
             });
+            
             let resourceKey = null;
             if (selectedTemplate) {
                 let resourceSearch:IResource = await this.resource.findOne(
                     {where: 
                         {resourceName: resourceEventData.resource[i].resource_event_involved_object_name,
-                        resourceType: selectedTemplate.resourceName,
+                        resourceType: selectedTemplate.resourceType,
                         resourceGroupKey: resourceGroupKey,
                         }
                     }
