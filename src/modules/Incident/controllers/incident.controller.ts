@@ -105,8 +105,9 @@ class IncidentController {
     try {
       const logginedUserId = req.user.partyId;
 
-      await this.incidentService.deleteIncidentById(customerAccountKey, incidentId, logginedUserId);
-      res.status(204).json({ message: `delete incident id(${incidentId})` });
+      let data = await this.incidentService.deleteIncidentById(customerAccountKey, incidentId, logginedUserId);
+      // res.status(204).json({ message: `delete incident id(${incidentId})` });
+      res.status(200).json({ message: data });
     } catch (error) {
       next(error);
     }

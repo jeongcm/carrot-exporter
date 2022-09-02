@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 import { HttpException } from '@common/exceptions/HttpException';
 import config from '@config/index';
+import { logger } from '@/common/utils/logger';
 
 let space = new AWS.S3({
   endpoint: config.fileUpload.DOEndPoint,
@@ -63,7 +64,7 @@ class fileUploadService {
       return {
         status: 'error',
         data: err,
-      }
+      };
     }
   }
 
@@ -88,6 +89,26 @@ class fileUploadService {
       Key: req.query.fileName,
     };
     const result = await space.deleteObject(downloadParameters, function (error, data) {
+      if (error) {
+        throw new HttpException(500, error.message);
+      }
+      return data;
+    });
+    return result;
+  }
+
+  public async deleteAll(req: any): Promise<any> {
+    let downloadParameters = {
+      Bucket: BucketName,
+      Delete: {
+        Objects: req.query.fileNames.map(fileNamesX => {
+          return {
+            Key: fileNamesX,
+          };
+        }),
+      },
+    };
+    const result = await space.deleteObjects(downloadParameters, function (error, data) {
       if (error) {
         throw new HttpException(500, error.message);
       }
