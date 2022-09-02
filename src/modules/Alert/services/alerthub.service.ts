@@ -5,7 +5,7 @@ import DB from '@/database';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import axios from 'axios';
+import axios from 'common/httpClient/axios';
 import config from 'config';
 import AlertRuleService from './alertRule.service';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
@@ -59,7 +59,7 @@ class AlerthubService {
   public async getAlertTimelineByResourceDetail(customerAccountKey: number, filteringData: any): Promise<IAlertTimeline[]> {
     try {
       const start = Date.now();
-      
+
       const { resourceType, resourceName, resourceGroupUuid } = filteringData;
       const { data } = await axios.get(
         `${config.alerthub.baseUrl}/v1/alertTimelineByResGroupUuid/${customerAccountKey}/${resourceGroupUuid}?resourceType=${resourceType}&resourceName=${resourceName}`,
@@ -67,7 +67,7 @@ class AlerthubService {
           headers: { x_auth_token: `${config.alerthub.authToken}` },
         },
       );
-      console.log(`Sequelize time: `, Date.now() - start, 'ms');  
+      console.log(`Sequelize time: `, Date.now() - start, 'ms');
       if (data.data && data.message === 'success') {
         return data.data;
       }

@@ -1,5 +1,5 @@
 import DB from '@/database';
-import axios from 'axios';
+import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import bcrypt from 'bcrypt';
@@ -28,13 +28,13 @@ const path = require('path');
 
 class systemSubscriptionService {
 
-    public executorService = DB.ExecutorService; 
+    public executorService = DB.ExecutorService;
     public notificationService = new NotificationService();
     public subscriptionService = new SubscriptionService();
     public sendMailService = new SendMailService();
-    public customerAccount = DB.CustomerAccount; 
-    public party = DB.Party; 
-    public partyUser = DB.PartyUser; 
+    public customerAccount = DB.CustomerAccount;
+    public party = DB.Party;
+    public partyUser = DB.PartyUser;
     public notification = DB.Notification;
     public tableIdService = new tableIdService();
 
@@ -50,7 +50,7 @@ class systemSubscriptionService {
     const currentDate = new Date();
     const CustomerAccountDataNew = {...customerAccountData,
       customerAccountType: "CO" as customerAccountType}
-    const 
+    const
       {
         partyName,
         partyDescription,
@@ -60,7 +60,7 @@ class systemSubscriptionService {
         userId,
         email,
         mobile,
-      } = partyData; 
+      } = partyData;
 
     let tableIdTableName = 'CustomerAccount';
     let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
@@ -128,8 +128,8 @@ class systemSubscriptionService {
             primaryPhone: mobile,
             reference: customerAccountId,
           };
-          let fuseBillInterface:boolean =   false; 
-          let headers = {Authorization: `Basic ${config.fuseBillApiDetail.apiKey}`}; 
+          let fuseBillInterface:boolean =   false;
+          let headers = {Authorization: `Basic ${config.fuseBillApiDetail.apiKey}`};
 
           await axios({
             method: 'post',
@@ -157,13 +157,13 @@ class systemSubscriptionService {
             subject: 'Welcome Onboard - NexClipper',
             html: htmlToSend
           }
-          const notificationMessage = JSON.parse(JSON.stringify(mailOptions)); 
-          
+          const notificationMessage = JSON.parse(JSON.stringify(mailOptions));
+
           //5 create notification history
           tableIdTableName = 'Notification';
           responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
           let notificationId = responseTableIdData.tableIdFinalIssued;
-          
+
           const newNotification = {
             notificationId: notificationId,
             partyKey: partyKey,
@@ -177,32 +177,32 @@ class systemSubscriptionService {
             notificationMessage: notificationMessage,
             notificationStatus: "ST",
             }
-      
+
           const createNotificationData: Notification = await this.notification.create(newNotification, {transaction: t});
 
           //4.1 send email to customer
           let emailSent: boolean = false;
           await this.sendMailService.sendMailGeneral(mailOptions);
           emailSent = true;
-          console.log ("success!!!!!");  
+          console.log ("success!!!!!");
           //6. return message
           return {customerAccountId: createdCustomerAccount.customerAccountId,
               customerAccountKey: createdCustomerAccount.customerAccountKey,
               customerAccountName: createdCustomerAccount.customerAccountName,
               customerAccountType: createdCustomerAccount.customerAccountType,
-              firstName:  createdPartyUser.firstName, 
-              lastName:  createdPartyUser.lastName, 
-              userId:  createdPartyUser.userId, 
-              email:  createdPartyUser.email, 
+              firstName:  createdPartyUser.firstName,
+              lastName:  createdPartyUser.lastName,
+              userId:  createdPartyUser.userId,
+              email:  createdPartyUser.email,
               mobile:  createdPartyUser.mobile,
               emailSent: emailSent,
               notificationId: notificationId,
               fuseBillInterface: fuseBillInterface,
               }
-      });           
+      });
 
     } catch(err){
-      console.log (err); 
+      console.log (err);
       throw new HttpException(500, "Unknown error while creating account");
     }
 
@@ -213,7 +213,7 @@ class systemSubscriptionService {
    * @param {string} partyId
    * @param {number} customerAccountKey;
    */
-   public async createSubscription(subscriptionData:CreateSubscriptionDto, partyId: string, customerAccountKey: number): Promise<object> { 
+   public async createSubscription(subscriptionData:CreateSubscriptionDto, partyId: string, customerAccountKey: number): Promise<object> {
 
     //1.create subscription
         const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, customerAccountKey);
@@ -235,24 +235,24 @@ class systemSubscriptionService {
     var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
     var resultReturn;
     var validClient:boolean;
-    const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
+    const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`;
     executorServerUrl = executorServerUrl + sessionQueryParameter;
-    
+
     await axios(
     {
         method: 'get',
         url: `${executorServerUrl}`,
         headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
     }).then(async (res: any) => {
-        if(!res.data[0]) {  
-          console.log(`Executor/Sudory client not found yet from cluster: ${clusterUuid}`); 
+        if(!res.data[0]) {
+          console.log(`Executor/Sudory client not found yet from cluster: ${clusterUuid}`);
           resultReturn = {
             clientUuid: "notfound",
             validClient: false,
           };
           return resultReturn;
         };
-        clientData = Object.assign({},res.data[0]); 
+        clientData = Object.assign({},res.data[0]);
         clientUuid = clientData.uuid;
         expirationTime = new Date(clientData.expiration_time);
         let currentTime = new Date();

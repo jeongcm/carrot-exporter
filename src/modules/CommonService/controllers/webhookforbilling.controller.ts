@@ -6,7 +6,7 @@ import PartyService from '@/modules/Party/services/party.service';
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import ResourceService from '@/modules/Resources/services/resource.service';
-import axios from 'axios';
+import axios from 'common/httpClient/axios';
 import * as _ from 'lodash';
 import { IResource } from '@/common/interfaces/resource.interface';
 import config from '@config/index';
@@ -100,11 +100,11 @@ class webhookForBillingController {
               "catalogPlanProductType": "ON",
               "resourceId": resource.resourceId,
               subscribedProductStatus: st
-  
+
             })
           })
-          
-        await this.subscriptionService.createBulkSubscribedProduct(subscribedProduct, partyId, systemId, customerAccountKey, productCode);   
+
+        await this.subscriptionService.createBulkSubscribedProduct(subscribedProduct, partyId, systemId, customerAccountKey, productCode);
         break;
         case "SubscriptionUpdated":
           await this.subscriptionService.updateSubscription(subscriptionExtSubscriptionId, subscriptionData, partyId, systemId);

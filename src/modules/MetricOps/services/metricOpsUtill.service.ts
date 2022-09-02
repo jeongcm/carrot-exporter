@@ -3,8 +3,8 @@ import CustomerAccountService from '@/modules/CustomerAccount/services/customerA
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { logger } from '@/common/utils/logger';
 import config from '@config/index';
-import axios from 'axios';
 import pluck from 'lodash/map';
+import axios from 'common/httpClient/axios';
 
 class MetricOpsUtilService {
   public modelRuleScore = DB.ModelRuleScore;
