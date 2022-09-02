@@ -72,7 +72,7 @@ class App {
         saveUninitialized: true,
         resave: true,
         // cookie: { secure: true },
-        maxAge: 24 * 60 * 60 * 100 
+        maxAge: 24 * 60 * 60 * 100
       }),
     );
     this.app = Passport.mountPackage(this.app);
@@ -119,7 +119,9 @@ class App {
           logger.info(`Request Body is ${JSON.stringify(req.body || {})}`);
         }
 
-        logger.info(`Response Body is ${c}`);
+        if (config.logger.silenceResponse !== true) {
+          logger.info(`Response Body is ${c}`);
+        }
         res.send = send;
         return res.send(c);
       };
