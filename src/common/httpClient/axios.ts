@@ -9,14 +9,14 @@ const newAxios = axios.create({
   //keepAlive pools and reuses TCP connections, so it's faster
   httpAgent: new http.Agent({
     // TODO: make it configurable
-    maxSockets: 100,
-    maxFreeSockets: 10,
+    maxSockets: 1000,
+    maxFreeSockets: 100,
     keepAlive: true,
   }),
   httpsAgent: new https.Agent({
     // TODO: make it configurable
-    maxSockets: 100,
-    maxFreeSockets: 10,
+    maxSockets: 1000,
+    maxFreeSockets: 100,
     keepAlive: true,
   }),
 });
