@@ -71,7 +71,7 @@ class AlerthubService {
           headers: { x_auth_token: `${config.alerthub.authToken}` },
         },
       );
-      console.log(`Sequelize time: `, Date.now() - start, 'ms');
+      console.log(`Axios response time: `, Date.now() - start, 'ms');
       if (data.data && data.message === 'success') {
         data.data.queryRunTime = Date.now() - start;
         return data.data;

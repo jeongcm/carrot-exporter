@@ -343,7 +343,14 @@ class AlertRuleController extends ControllerExtension {
       const filteringData = {
         resourceName,resourceType,resourceGroupUuid
       }
-      const alertTimelines: IAlertTimeline[] = await this.alerthubService.getAlertTimelineByResourceDetail(customerAccountKey, filteringData);
+      const start = Date.now();
+      const alertTimelines: any = await this.alerthubService.getAlertTimelineByResourceDetail(customerAccountKey, filteringData);
+
+      const ctrlResTime = Date.now() - start;
+      console.log(`Controller response time: `, ctrlResTime, 'ms');
+
+      alertTimelines.ctrlResTime = ctrlResTime;
+
       return res.status(200).json({ data: alertTimelines, message: 'findAll' });
     } catch (error) {
       next(error);
