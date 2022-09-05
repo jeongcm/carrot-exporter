@@ -57,6 +57,7 @@ import EvaluateRoute from './modules/MetricOps/routes/evaluate.route';
 import SocialLoginRoutes from './modules/SocialLogin/routes/socialLogin.route';
 import HealthRoute from './modules/CommonService/routes/health.route';
 import SudoryRoute from './modules/CommonService/routes/sudory.route';
+import ResourceEventRoute from './modules/ResourceEvent/routes/resourceEvent.route';
 
 const app = new App([
   new IndexRoute(),
@@ -113,6 +114,7 @@ const app = new App([
   new SocialLoginRoutes(),
   new HealthRoute(),
   new SudoryRoute(),
+  new ResourceEventRoute(),
 ]);
 
 app.listen();

@@ -24,12 +24,24 @@ class AccessGroupController {
       next(error);
     }
   };
-
+  
   public getAccessGroups = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
 
     try {
       const accessGroups: IParty[] = await this.accessGroupService.getAccessGroups(customerAccountKey);
+
+      res.status(200).json({ data: accessGroups, message: 'success' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAccessGroupsByChannel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const channelId = req.params.channelId;
+    try {
+      const accessGroups: IParty[] = await this.accessGroupService.getAccessGroupsByChannel(customerAccountKey,channelId);
 
       res.status(200).json({ data: accessGroups, message: 'success' });
     } catch (error) {

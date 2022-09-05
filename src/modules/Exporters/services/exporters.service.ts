@@ -1,6 +1,4 @@
 import DB from '@/database';
-import axios from 'axios';
-import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ExporterDto } from '@/modules/Exporters/dtos/exporters.dto';

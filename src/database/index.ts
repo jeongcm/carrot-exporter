@@ -62,6 +62,7 @@ import SudoryWebhookModel from '@/modules/CommonService/models/sudoryWebhook.mod
 import ExportersModel from '@/modules/Exporters/models/exporters.model';
 import TokenModel from '@/modules/Token/token.model';
 import EvaluationModel from '@/modules/MetricOps/models/evaluate.model';
+import ResourceEventModel from '@/modules/ResourceEvent/models/resourceEvent.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -167,6 +168,7 @@ const DB = {
   Exporters: ExportersModel(sequelize),
   Tokens: TokenModel(sequelize),
   Evaluation: EvaluationModel(sequelize),
+  ResourceEvent: ResourceEventModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -423,6 +425,12 @@ DB.Evaluation.belongsTo(DB.BayesianModel, { foreignKey: 'bayesianModelKey' });
 
 DB.ResourceGroup.hasMany(DB.Evaluation, { foreignKey: 'resourceGroupKey' });
 DB.Evaluation.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
+
+DB.CustomerAccount.hasMany(DB.ResourceEvent, { foreignKey: 'customerAccountKey' });
+DB.ResourceEvent.belongsTo(DB.CustomerAccount, { foreignKey: 'customerAccountKey' });
+
+DB.Resource.hasMany(DB.ResourceEvent, { foreignKey: 'resourceKey' });
+DB.ResourceEvent.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

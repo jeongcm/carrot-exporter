@@ -82,6 +82,9 @@ export default {
       callbackURL: process.env.NC_LARI_SOCIALKEY_GOOGLE_CALLBACK_URL,
     },
   },
+  logger: {
+    silenceResponse: process.env.NC_LARI_LOG_SILENCE_RESPONSE ? process.env.NC_LARI_LOG_SILENCE_RESPONSE === 'true' : false,
+  },
   initialRecord: {
     customerAccount: {
       customerAccountName: process.env.NC_LARI_SYSTEM_CUSTOMERACCOUNT_NAME.replace(/_/gi, ' '),
@@ -130,6 +133,8 @@ export default {
     channel_metric_received: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED || 'nc_metric_received',
     service_result_delete: process.env.SUDORY_SERVICE_RESULT_DELETE || '1',
     channel_webhook: process.env.SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK,
+    repoName: process.env.SUDORY_REPO_NAME || 'nex-dev',
+    repoUrl: process.env.SUDORY_REPO_URL || 'https://repo.nexclipper.io/chartrepo/nexclipper-dev',
   },
   fileUpload: {
     DOBucket: `${process.env.NC_LARI_DO_BUCKET}`.replace('\n', ''),
@@ -154,7 +159,7 @@ export default {
     alertManagerUrlHead: process.env.NC_ALERTMANAGER_URL_HEAD || 'http://kps-kube-prometheus-stack-alertmanager.',
     alertManagerUrlTail: process.env.NC_ALERTMANAGER_URL_TAIL || '.svc.cluster.local:9093',
     lokiUrlHead: process.env.NC_LOKI_URL_HEAD || 'http://loki.',
-    lokiUrlTail: process.env.NC_GRAFANA_URL_TAIL || '.svc.cluster.local:3100',
+    lokiUrlTail: process.env.NC_LOKI_URL_TAIL || '.svc.cluster.local:3100',
   },
   ncBnApiDetail: {
     ncBnUrl: process.env.NC_BN_URL,

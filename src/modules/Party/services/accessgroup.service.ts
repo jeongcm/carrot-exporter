@@ -7,10 +7,11 @@ import { PartyUserModel } from '../models/partyUser.model';
 
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 
-import { IParty, IPartyRelation, IPartyResource, IPartyResponse } from '@/common/interfaces/party.interface';
+import { IParty, IPartyRelation, IPartyResource, IPartyResponse, PartyChannel } from '@/common/interfaces/party.interface';
 
 import { CreateAccessGroupDto, AddUserAccessGroupDto, AddResourceToAccessGroupDto } from '@/modules/Party/dtos/party.dto';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import { HttpException } from '@/common/exceptions/HttpException';
 
 import { ResourceModel } from '@/modules/Resources/models/resource.model';
 
@@ -123,7 +124,29 @@ class AccessGroupService {
         },
       ],
     });
+    return accessGroups;
+  }
 
+  public async getAccessGroupsByChannel(customerAccountKey: number, channelId: string): Promise<IParty[]> {
+    const currentChannel = await this.channel.findOne({ where: { channelId: channelId, deletedAt: null } });
+    if (!currentChannel) throw new HttpException(400, 'Channel Id must be valid or not empty');
+
+    const currentChannelKey = currentChannel.channelKey;
+
+    const partyChannels: PartyChannel[] = await this.partyChannel.findAll({
+      where: { channelKey: currentChannelKey, deletedAt: null },
+      attributes: ['partyKey'],
+    });
+
+    const accessGroups: IParty[] = await this.party.findAll({
+      where: {
+        customerAccountKey,
+        partyType: 'AG',
+        deletedAt: null,
+        partyKey: { [Op.in]: partyChannels.map(partyChannelsX => partyChannelsX.partyKey) },
+      },
+      attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey','createdBy', 'updatedBy', 'parentPartyId', 'partyType'] },
+    });
     return accessGroups;
   }
 

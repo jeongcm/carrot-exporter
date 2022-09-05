@@ -96,6 +96,17 @@ export interface IRequestMassUploader {
                 resoruce_Status_Updated_At: Date,
                 resource_Description: string,
                 resource_Owner_References: string,
-            
+                resource_event_involved_object_kind: string;
+                resource_event_involved_object_name: string;
+                resource_event_involved_object_namespace: string;
+                resource_event_reason: string;
+                resource_event_message: string;
+                resource_event_source_component: string;
+                resource_event_source_host: string;
+                resource_event_first_timestamp: Date;
+                resource_event_last_timestamp: Date;
+                resource_event_count: number;
+                resource_event_type: string;
+              
             }[],
 }

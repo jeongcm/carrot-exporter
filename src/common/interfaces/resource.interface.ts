@@ -52,6 +52,17 @@ export interface IResource {
   parentResourceId: string;
   resourceNamespace: string;
   resourceOwnerReferences: any;
+  resourceEventInvolvedObjectKind: string;
+  resourceEventInvolvedObjectName: string;
+  resourceEventInvolvedObjectNamespace: string;
+  resourceEventReason: string;
+  resourceEventMessage: string;
+  resourceEventSourceComponent: string;
+  resourceEventSourceHost: string;
+  resourceEventFirstTimestamp: Date;
+  resourceEventLastTimestamp: Date;
+  resourceEventCount: number;
+  resourceEventType: string;
 }
 
 export interface IResourceTargetUuid {

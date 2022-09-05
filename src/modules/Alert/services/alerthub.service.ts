@@ -5,7 +5,7 @@ import DB from '@/database';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import axios from 'axios';
+import axios from 'common/httpClient/axios';
 import config from 'config';
 import AlertRuleService from './alertRule.service';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
@@ -25,11 +25,13 @@ class AlerthubService {
     endAt?: string,
   ): Promise<IAlertTimeline[]> {
     try {
+      const start = Date.now();
       const { data } = await axios.get(`${config.alerthub.baseUrl}/v1/alertTimeline/${customerAccountKey}/${alertRuleKey}`, {
         headers: { x_auth_token: `${config.alerthub.authToken}` },
       });
 
       if (data.data && data.message === 'success') {
+        data.data.queryRunTime = Date.now() - start;
         return data.data;
       }
     } catch (e) {
@@ -44,11 +46,13 @@ class AlerthubService {
     endAt?: string,
   ): Promise<IAlertTimeline[]> {
     try {
+      const start = Date.now();
       const { data } = await axios.get(`${config.alerthub.baseUrl}/v1/alertNotiScheduled/${customerAccountKey}/${alertRuleKey}`, {
         headers: { x_auth_token: `${config.alerthub.authToken}` },
       });
 
       if (data.data && data.message === 'success') {
+        data.data.queryRunTime = Date.now() - start;
         return data.data;
       }
     } catch (e) {
@@ -59,7 +63,7 @@ class AlerthubService {
   public async getAlertTimelineByResourceDetail(customerAccountKey: number, filteringData: any): Promise<IAlertTimeline[]> {
     try {
       const start = Date.now();
-      
+
       const { resourceType, resourceName, resourceGroupUuid } = filteringData;
       const { data } = await axios.get(
         `${config.alerthub.baseUrl}/v1/alertTimelineByResGroupUuid/${customerAccountKey}/${resourceGroupUuid}?resourceType=${resourceType}&resourceName=${resourceName}`,
@@ -67,8 +71,9 @@ class AlerthubService {
           headers: { x_auth_token: `${config.alerthub.authToken}` },
         },
       );
-      console.log(`Sequelize time: `, Date.now() - start, 'ms');  
+      console.log(`Axios response time: `, Date.now() - start, 'ms');
       if (data.data && data.message === 'success') {
+        data.data.queryRunTime = Date.now() - start;
         return data.data;
       }
     } catch (e) {

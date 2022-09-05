@@ -80,14 +80,15 @@ class executorController {
   public checkExecutorClient = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterUuid = req.params.clusterUuid;
+      const sudoryNamespace = req.params.sudoryNamespace;
       const customerAccountKey = req.customerAccountKey;
 
-      const clientResponse: IExecutorClientCheck = await this.executorService.checkExecutorClient(clusterUuid, customerAccountKey);
+      const clientResponse = await this.executorService.checkExecutorClient(clusterUuid, sudoryNamespace, customerAccountKey);
 
       if (clientResponse) {
         res
           .status(200)
-          .json({ data: clientResponse, message: `Success to confirm Executor/Sudory client: clientUuid: ${clientResponse.clientUuid}` });
+          .json({ data: clientResponse, message: `Success to confirm Executor/Sudory client` });
       } else {
         res.status(404).json({ data: clientResponse, message: `Executor/Sudory client not found` });
       }
@@ -306,15 +307,8 @@ class executorController {
    */
   public getSudoryWebhook = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      //for development purpose only START
-
-      // let sampleData = {"resultType":"vector","result":[{"metric":{"container":"mariadb","cpu":"total","endpoint":"https-metrics","id":"/kubepods/besteffort/pod5cffe7b5-dd05-4f40-b470-42c57d56487f/eae1992806da2a7690d033efb2bb69d84cebab7e0ca4cde25b921fc0ea6ca2fd","image":"sha256:e9bfcbefa4a9e6328f0436a331b01a36944d4b7e182e1ed2594148d634631df4","instance":"10.124.0.26:10250","job":"kubelet","metrics_path":"/metrics/cadvisor","name":"eae1992806da2a7690d033efb2bb69d84cebab7e0ca4cde25b921fc0ea6ca2fd","namespace":"mariadb","node":"new-node-cairz","pod":"ncdb-mariadb-primary-0","service":"kps-kube-prometheus-stack-kubelet"},"value":[1654711718.113,"0.006002854706304252"]},{"metric":{"cpu":"total","endpoint":"https-metrics","id":"/kubepods/besteffort/pod5cffe7b5-dd05-4f40-b470-42c57d56487f","instance":"10.124.0.26:10250","job":"kubelet","metrics_path":"/metrics/cadvisor","namespace":"mariadb","node":"new-node-cairz","pod":"ncdb-mariadb-primary-0","service":"kps-kube-prometheus-stack-kubelet"},"value":[1654711718.113,"0.0061209236775169665"]},{"metric":{"cpu":"total","endpoint":"https-metrics","id":"/kubepods/besteffort/pod5cffe7b5-dd05-4f40-b470-42c57d56487f/92bb23bf985148a082370cfe41769a1803b274d349e7aef0754054d17ca9468f","image":"k8s.gcr.io/pause:3.2","instance":"10.124.0.26:10250","job":"kubelet","metrics_path":"/metrics/cadvisor","name":"92bb23bf985148a082370cfe41769a1803b274d349e7aef0754054d17ca9468f","namespace":"mariadb","node":"new-node-cairz","pod":"ncdb-mariadb-primary-0","service":"kps-kube-prometheus-stack-kubelet"},"value":[1654711718.113,"0"]}]};
-      // res.status(200).json({ data: sampleData, message: `Successfully provide SudoryWebhook result` });
-
-      //for development purpose only END
-
-
       const serviceUuid = req.params.serviceUuid;
+      console.log (serviceUuid); 
       const resultSudoryWebhook: object = await this.executorService.getSudoryWebhook(serviceUuid);
       if (!resultSudoryWebhook) {
         res.status(404).json({ data: resultSudoryWebhook, message: `no sudoryWebhook result` });

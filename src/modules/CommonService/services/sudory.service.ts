@@ -1,12 +1,12 @@
 import DB from '@/database';
-import axios from 'axios';
+import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { ISudoryClient } from '@/modules/CommonService/dtos/sudory.dto';
 
 class sudoryService {
 
-    public executorService = DB.ExecutorService; 
+    public executorService = DB.ExecutorService;
 
   /**
    * @param {string} clusterUuid
@@ -17,9 +17,9 @@ class sudoryService {
    */
    public async postSudoryService(name: string, summary: string, clusterUuid:string, templateUuid:string, steps:Object, customerAccountKey: number, subscribed_channel: string): Promise<object> {
     let on_completion=parseInt(config.sudoryApiDetail.service_result_delete);
-    let sudoryBaseUrl = config.sudoryApiDetail.baseURL; 
+    let sudoryBaseUrl = config.sudoryApiDetail.baseURL;
     let sudoryPathService = config.sudoryApiDetail.pathService;
-    let sudoryUrl = sudoryBaseUrl+sudoryPathService; 
+    let sudoryUrl = sudoryBaseUrl+sudoryPathService;
     let uuid = require('uuid');
     let executorServiceId = uuid.v1();
     let sudoryChannel = subscribed_channel;
@@ -33,7 +33,7 @@ class sudoryService {
       on_completion: on_completion,
       subscribed_channel: sudoryChannel,
     };
-    console.log(sudoryServiceData); 
+    console.log(sudoryServiceData);
     let serviceData = await axios(
       {
         method: 'post',
@@ -66,7 +66,7 @@ class sudoryService {
       console.log("Data for DB insert: ");
       console.log(insertData);
 
-      const resultSudoryService = await this.executorService.create(insertData); 
+      const resultSudoryService = await this.executorService.create(insertData);
 
     console.log(resultSudoryService)
     return resultSudoryService;
@@ -79,44 +79,25 @@ class sudoryService {
     var clientData;
     var clientUuid = "";
     var expirationTime;
-    var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession;
+    var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession + "/cluster/" + clusterUuid + "/alive";
     var resultReturn;
-    var validClient:boolean;
-    const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`; 
-    executorServerUrl = executorServerUrl + sessionQueryParameter;
-    
-    await axios(
-    {
-        method: 'get',
-        url: `${executorServerUrl}`,
-        headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
-    }).then(async (res: any) => {
-        if(!res.data[0]) {  
-          console.log(`Executor/Sudory client not found yet from cluster: ${clusterUuid}`); 
-          resultReturn = {
-            clientUuid: "notfound",
-            validClient: false,
-          };
-          return resultReturn;
-        };
-        clientData = Object.assign({},res.data[0]); 
-        clientUuid = clientData.uuid;
-        expirationTime = new Date(clientData.expiration_time);
-        let currentTime = new Date();
-        if (expirationTime> currentTime)
-          validClient = true;
-        else validClient = false;
+    var validClient:boolean = false;
+    //const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`;
+    //executorServerUrl = executorServerUrl + sessionQueryParameter;
 
-        resultReturn = {
-          clientUuid: clientUuid,
-          validClient: validClient,
-        };
-        console.log (resultReturn)
-        console.log(`Successful to run API to search Executor/Sudory client ${clientUuid}`);
-    }).catch(error => {
-        console.log(error);
-        throw new HttpException(500, "Unknown error while searching executor/sudory client");
-    });
+    await axios(
+      {
+          method: 'get',
+          url: `${executorServerUrl}`,
+          headers: { 'x_auth_token': `${config.sudoryApiDetail.authToken}` }
+      }).then(async (res: any) => {
+          if (res.data == true) validClient=true;
+          console.log(`Successful to run API to search Executor/Sudory client`);
+          resultReturn = {clusterUuid, validClient};
+      }).catch(error => {
+          //console.log(error);
+          throw new HttpException(500, `Sudory Server Error - ${JSON.stringify(error.response.data)} `);
+      });
 
     return resultReturn;
 

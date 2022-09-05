@@ -7,4 +7,5 @@ export interface IIncidentAlertReceived {
   updatedBy: string;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt: Date;
 }
