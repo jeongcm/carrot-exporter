@@ -263,6 +263,7 @@ class AlertReceivedService extends ServiceExtension {
 
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null, ...query },
+      order: [['createdAt', 'DESC']],
       attributes: { exclude: ['alertReceivedKey', 'alertRuleKey', 'customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy'] },
     });
     return allAlertReceived;
