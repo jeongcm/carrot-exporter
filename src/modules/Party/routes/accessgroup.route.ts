@@ -31,8 +31,9 @@ class accessgroupRoute implements Routes {
       validationMiddleware(CreateAccessGroupDto, 'body'),
       createUserLogMiddleware,
       this.accessGroupController.updateAccessGroup,
-    );
-
+      );
+      
+    this.router.get('/party/accessgroup/channel/:channelId', authMiddleware, createUserLogMiddleware, this.accessGroupController.getAccessGroupsByChannel);
     this.router.post(
       '/party/accessgroup/:partyId/users',
       authMiddleware,

@@ -29,6 +29,7 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachment.dto';
 import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
+import { logger } from '@/common/utils/logger';
 
 /**
  * @memberof Incident
@@ -207,7 +208,7 @@ class IncidentService {
    * @returns Promise<[number, IncidentModel[]]>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async deleteIncidentById(customerAccountKey: number, incidentId: string, logginedUserId: string): Promise<[number]> {
+  public async deleteIncidentById(customerAccountKey: number, incidentId: string, logginedUserId: string): Promise<any> {
     try {
       return await DB.sequelize.transaction(async t => {
         const deletedIncident: [number] = await this.incident.update(
@@ -215,16 +216,62 @@ class IncidentService {
           { where: { customerAccountKey, incidentId }, transaction: t },
         );
 
-        // FIXME : Should update the incidentAlertReceived table too.
-        // await this.incidentRelAlert.destroy({ where: { incidentPk: id } });
-
         const { incidentKey } = await this.getIncidentKey(customerAccountKey, incidentId);
 
-        await this.incidentAction.update({ deletedAt: new Date(), updatedBy: logginedUserId }, { where: { incidentKey }, transaction: t });
+        const deletedIncidentAction: [number] = await this.incidentAction.update(
+          { deletedAt: new Date(), updatedBy: logginedUserId },
+          { where: { incidentKey }, transaction: t },
+        );
 
-        return deletedIncident;
+        const deletedIncidentAlertReceived: [number] = await this.incidentAlertReceived.update(
+          { deletedAt: new Date(), updatedBy: logginedUserId },
+          { where: { incidentKey }, transaction: t },
+        );
+
+        const incidentActionAttachment: IIncidentActionAttachment[] = await this.incidentActionAttachment.findAll({
+          include: [
+            {
+              model: IncidentActionModel,
+              where: {
+                incidentKey: incidentKey,
+              },
+            },
+          ],
+        });
+        let incidentActionAttachmentKeys = [];
+        let incidentActionAttachmentFilePaths = [];
+
+        incidentActionAttachment.forEach(incidentActionAttachmentX => {
+          incidentActionAttachmentKeys.push(incidentActionAttachmentX.incidentActionAttachmentKey);
+          incidentActionAttachmentFilePaths.push(incidentActionAttachmentX.incidentActionAttachmentPath);
+        });
+
+        const deletedIncidentActionAttachments: [number] = await this.incidentActionAttachment.update(
+          { deletedAt: new Date(), updatedBy: logginedUserId },
+          {
+            where: { incidentActionAttachmentKey: { [Op.in]: incidentActionAttachmentKeys } },
+            transaction: t,
+          },
+        );
+
+        if (incidentActionAttachmentFilePaths.length > 0) {
+          await this.fileUploadService.deleteAll({
+            query: { fileNames: incidentActionAttachmentFilePaths },
+          });
+        }
+
+        return {
+          count: {
+            incident: deletedIncident,
+            incidentAction: deletedIncidentAction,
+            incidentAlertReceived: deletedIncidentAlertReceived,
+            incidentActionAttachments: deletedIncidentActionAttachments,
+          },
+        };
       });
-    } catch (error) {}
+    } catch (error) {
+      logger.info(JSON.stringify(error));
+    }
   }
 
   /**
@@ -318,7 +365,9 @@ class IncidentService {
       });
 
       return createdActionData;
-    } catch (error) {}
+    } catch (error) {
+      throw new HttpException(500, error);
+    }
   }
 
   /**
@@ -630,7 +679,7 @@ class IncidentService {
 
       return foundIncidentWithAlerts?.alertReceived;
     */
-      const sql=`SELECT 
+      const sql = `SELECT 
                   A.alert_received_id as alertReceivedId, 
                   A.alert_received_state as alertReceivedState,
                   A.alert_received_value as alertReceivedValue,
@@ -654,10 +703,8 @@ class IncidentService {
                   and B.deleted_at is null 
                   and C.deleted_at is null
                   and D.deleted_at is null
-                  and A.alert_received_key = D.alert_received_key`
-        ; 
-    
-      const [result, metadata] = await DB.sequelize.query(sql); 
+                  and A.alert_received_key = D.alert_received_key`;
+      const [result, metadata] = await DB.sequelize.query(sql);
       return result;
     } catch (error) {
       throw error;
