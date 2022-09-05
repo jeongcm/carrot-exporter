@@ -230,12 +230,9 @@ class AlertRuleService {
         },
       };
 
-      console.log(alertRuleKey);
       const deleteAlertReceived = await this.alertReceived.update({ deletedAt: new Date() }, queryIn);
       const deleteAlertRule = await this.alertRule.update({ deletedAt: new Date() }, { where: { resourceGroupUuid: resourceGroupUuid } });
 
-      console.log(deleteAlertReceived);
-      console.log(deleteAlertRule);
     }
     return;
   }

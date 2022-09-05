@@ -1,7 +1,7 @@
 import { SlackMessage } from '@/common/interfaces/slack.interface';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
-import axios from 'axios';
+import axios from 'common/httpClient/axios';
 
 class SlackService {
   public async sendSlack(slackData: SlackMessage, slackHook: string): Promise<any> {

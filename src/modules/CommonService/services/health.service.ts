@@ -1,5 +1,5 @@
 import DB from '@/database';
-import axios from 'axios';
+import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
@@ -27,7 +27,7 @@ class healthService {
     public async checkHealthByCustomerAccountId(customerAccountId: string): Promise<object> {
 
        //1. validateCustomerAccountId
-       
+
         let queryCustomer = {
             where:
             {deleted_at: null,
@@ -37,14 +37,14 @@ class healthService {
         let customerAccountData = await this.customerAccount.findOne(queryCustomer);
         //let customerAccountData = await this.customerAccountService.getCustomerAccountById(customerAccountId);
         if (!customerAccountData) {
-            throw new HttpException(404, `Can't find customerAccount information: ${customerAccountId}`);   
+            throw new HttpException(404, `Can't find customerAccount information: ${customerAccountId}`);
         }
         let customerAccountKey = customerAccountData.customerAccountKey;
 
         //2. pull resourceGroupAll
         let responseResourceGroup: IResourceGroup[] =  await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId);
         if (!responseResourceGroup) {
-            throw new HttpException(404, `No ResourceGroup with the customerAccountId: ${customerAccountId}`);   
+            throw new HttpException(404, `No ResourceGroup with the customerAccountId: ${customerAccountId}`);
         }
 
         //3. check sync services - resources, alerts, metricMeta, metricReceived
@@ -60,12 +60,12 @@ class healthService {
         var clusterStatus = [];
         for (let i=0; i<responseResourceGroup.length; i++){
         //4. check sudoryclient
-            let clusterUuid = responseResourceGroup[i].resourceGroupUuid; 
+            let clusterUuid = responseResourceGroup[i].resourceGroupUuid;
             let resultExecutorClient:ISudoryClient  = await this.sudoryService.checkSudoryClient(clusterUuid);
             if (!resultExecutorClient || resultExecutorClient.validClient==false) {
                 clusterStatus[i] = {
                                 resourceGroupUuid: clusterUuid,
-                                sudoryClient: false, 
+                                sudoryClient: false,
                 }
         // To Do - 4.1 call sudory api to restart sudory client
                 let sudoryName = "sudory_client_rebounce";
@@ -74,12 +74,12 @@ class healthService {
                 let steps = [{"Args": {}}];
                 let subscribed_channel = config.sudoryApiDetail.channel_webhook;
                 const resultSuodryCall = this.executorService.postExecuteService(sudoryName, sudorySummary, clusterUuid, templateUuid, steps, customerAccountKey, subscribed_channel);
-                console.log (resultSuodryCall); 
+                console.log (resultSuodryCall);
             }
             else {
                 clusterStatus[i] = {
                     resourceGroupUuid: clusterUuid,
-                    sudoryClient: true, 
+                    sudoryClient: true,
                 }
             }
 
@@ -88,7 +88,7 @@ class healthService {
                 clusterStatus[i].syncMetricMeta = false;
                 //call scheduleSyncMetricMeta
                 let resultScheduleSyncMetricMeta = await this.executorService.scheduleSyncMetricMeta(clusterUuid, config.metricCron);
-                if (resultScheduleSyncMetricMeta) clusterStatus[i].syncMetricMetaAction = true; 
+                if (resultScheduleSyncMetricMeta) clusterStatus[i].syncMetricMetaAction = true;
             }
             else {
                 clusterStatus[i].syncMetricMeta = true;
@@ -99,7 +99,7 @@ class healthService {
                 clusterStatus[i].syncMetricReceived = false;
                 //call scheduleSyncMetricReceived
                 let resultScheduleSyncMetricReceived = await this.executorService.scheduleSyncMetricReceived(clusterUuid, config.metricReceivedCron);
-                if (resultScheduleSyncMetricReceived) clusterStatus[i].syncMetricReceivedAction = true; 
+                if (resultScheduleSyncMetricReceived) clusterStatus[i].syncMetricReceivedAction = true;
             }
             else {
                 clusterStatus[i].syncMetricReceived = true;
@@ -110,7 +110,7 @@ class healthService {
                 clusterStatus[i].syncAlerts = false;
                 //call scheduleSyncAlerts
                 let resultScheduleSyncAlerts = await this.executorService.scheduleSyncAlerts(clusterUuid,config.alertCron);
-                if (resultScheduleSyncAlerts) clusterStatus[i].syncAlertsAction = true; 
+                if (resultScheduleSyncAlerts) clusterStatus[i].syncAlertsAction = true;
             }
             else {
                 clusterStatus[i].syncAlerts = true;
@@ -120,8 +120,8 @@ class healthService {
             if (syncResourcesFiltered.length===0) {
                 clusterStatus[i].syncResources = false;
                 //call scheduleSyncResources
-                let resultScheduleSyncResources = await this.executorService.scheduleSyncResources(clusterUuid, config.resourceCron); 
-                if (resultScheduleSyncResources) clusterStatus[i].syncResourcesAction = true; 
+                let resultScheduleSyncResources = await this.executorService.scheduleSyncResources(clusterUuid, config.resourceCron);
+                if (resultScheduleSyncResources) clusterStatus[i].syncResourcesAction = true;
             }
             else {
                 clusterStatus[i].syncResources = true;
@@ -130,9 +130,9 @@ class healthService {
         } // end of for
 
 
-       
+
         return clusterStatus;
-    }    
+    }
 
    /**
    * @param {string} customerAccountId
@@ -155,9 +155,9 @@ class healthService {
                 cronTab: cronTab
             }
       };
-      const resultSchedule = await this.schedulerService.createScheduler(cronData, customerAccountId); 
-      console.log (resultSchedule); 
-      return resultSchedule; 
+      const resultSchedule = await this.schedulerService.createScheduler(cronData, customerAccountId);
+      console.log (resultSchedule);
+      return resultSchedule;
     }
 
     }

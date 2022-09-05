@@ -56,6 +56,17 @@ export type ResourceCreationAttributes = Optional<
   | 'resourceTargetCreatedAt'
   | 'resourceTargetUuid'
   | 'resourceOwnerReferences'
+  | 'resourceEventInvolvedObjectKind'
+  | 'resourceEventInvolvedObjectName'
+  | 'resourceEventInvolvedObjectNamespace'
+  | 'resourceEventReason'
+  | 'resourceEventMessage'
+  | 'resourceEventSourceComponent'
+  | 'resourceEventSourceHost'
+  | 'resourceEventFirstTimestamp'
+  | 'resourceEventLastTimestamp'
+  | 'resourceEventCount'
+  | 'resourceEventType'
 >;
 
 export class ResourceModel extends Model<IResource, ResourceCreationAttributes> implements IResource {
@@ -110,6 +121,18 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceTargetUuid: string;
   public resourceTargetCreatedAt: Date;
   public resourceOwnerReferences: any;
+  public resourceEventInvolvedObjectKind: string;
+  public resourceEventInvolvedObjectName: string;
+  public resourceEventInvolvedObjectNamespace: string;
+  public resourceEventReason: string;
+  public resourceEventMessage: string;
+  public resourceEventSourceComponent: string;
+  public resourceEventSourceHost: string;
+  public resourceEventFirstTimestamp: Date;
+  public resourceEventLastTimestamp: Date;
+  public resourceEventCount: number;
+  public resourceEventType: string;
+
   public updatedAt: Date;
 
   public readonly createdAt!: Date;
@@ -191,6 +214,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
                 'SC',
                 'JO',
                 'CJ',
+                'EV',
               ],
             ],
             msg: 'Resource Type must be of type K8, ND, PD, NS, SV, OP, PD, PM, PJ, VM or CT',
@@ -212,7 +236,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         allowNull: true,
         validate: {
           isIn: {
-            args: [['', 'ND', 'NS', 'PJ', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ']],
+            args: [['', 'ND', 'NS', 'PJ', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV',]],
             msg: 'Resource level2 must be of type ND, NS, PJ or empty.',
           },
         },
@@ -361,6 +385,39 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       resourceOwnerReferences: {
         type: DataTypes.JSON,
       },
+      resourceEventInvolvedObjectKind: {
+        type: DataTypes.STRING(50),
+      },
+      resourceEventInvolvedObjectName: {
+        type: DataTypes.STRING(100),
+      },
+      resourceEventInvolvedObjectNamespace: {
+        type: DataTypes.STRING(100),
+      },
+      resourceEventReason: {
+        type: DataTypes.STRING(100),
+      },
+      resourceEventMessage: {
+        type: DataTypes.STRING(500),
+      },
+      resourceEventSourceComponent: {
+        type: DataTypes.STRING(50),
+      },
+      resourceEventSourceHost: {
+        type: DataTypes.STRING(100),
+      },
+      resourceEventFirstTimestamp: {
+        type: DataTypes.DATE,
+      },
+      resourceEventLastTimestamp: {
+        type: DataTypes.DATE,
+      },
+      resourceEventCount: {
+        type: DataTypes.INTEGER,
+      },
+      resourceEventType: {
+        type: DataTypes.STRING(50),
+      }
     },
     {
       indexes: [

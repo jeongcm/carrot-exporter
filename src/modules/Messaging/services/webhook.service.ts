@@ -1,7 +1,7 @@
 import { webhookMessage } from '@/common/interfaces/webhook.interface';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
-import axios from 'axios';
+import axios from 'common/httpClient/axios';
 
 class WebhookService {
   public async sendWebhook(webhookData: webhookMessage, webhook: string): Promise<any> {

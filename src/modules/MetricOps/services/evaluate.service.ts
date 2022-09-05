@@ -4,7 +4,8 @@ import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.i
 import { IResource } from '@/common/interfaces/resource.interface';
 import { IIncident } from '@/common/interfaces/incident.interface';
 import DB from '@/database';
-import axios from 'axios';
+import axios from 'common/httpClient/axios';
+
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
@@ -336,7 +337,7 @@ class EvaluateServices {
     for (let i = 0; i < resultMonitoringTarget.length; i++) {
       const resourceKey = resultMonitoringTarget[i].resourceKey;
       let resultEvaluation = await this.evaluateMonitoringTarget(resourceKey);
-      const evaluationResultStatus = resultEvaluation.evaluationResultStatus;
+      const { evaluationRequest, evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName } = resultEvaluation;
       if (evaluationResultStatus === 'AN') {
         //4. if any anomaly, create incident ticket
         const incidentData = {
@@ -349,36 +350,43 @@ class EvaluateServices {
         };
         const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, 'SYSTEM', incidentData);
         const incidentId = resultIncidentCreate.incidentId;
-        const firedAlerts = resultEvaluation.evaluationRequest.map(x => x.firedAlerts.alertReceivedId);
+        const firedAlerts = evaluationRequest.map(x => x.firedAlerts.alertReceivedId);
         console.log(`incident id: ${incidentId}`);
         console.log(`firedAlerts: ${firedAlerts}`);
         //5. attach the alerts (from the result) to the incident tickets
         await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, firedAlerts, 'SYSTEM');
         console.log('incident ticket is created: ', incidentId, 'Alert Attached - ', firedAlerts);
         //6. execute any resolution actions if there are actions under rule group more than a threshhold
-        const ruleGroup = resultEvaluation.evaluationRequest;
+        const threshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
+        const ruleGroup = [];
+        Object.entries(evaluationResult.alert_group_score).filter(([key, value]) => {
+          const ruleValue = Number(value) * 100;
+          if (ruleValue <= threshold) {
+            ruleGroup.push(key);
+          }
+        });
         this.resolutionActionService.getResolutionActionByRuleGroupId();
         //7. save the actions to incident actions
 
-        //8. send email to access group user.
+        //8. save the communicaiton result to notification table
 
         //9. create a message for return
         resultEvaluation = {
-          evaluationId: resultEvaluation.evaluationId,
-          evaluationResultStatus: resultEvaluation.evaluationResultStatus,
-          evaluationResult: resultEvaluation.evaluationResult,
-          resourceId: resultEvaluation.resourceId,
-          resourceName: resultEvaluation.resourceName,
-          incidentId: incidentId,
+          evaluationId,
+          evaluationResultStatus,
+          evaluationResult,
+          resourceId,
+          resourceName,
+          incidentId,
         };
       } else {
         resultEvaluation = {
-          evaluationId: resultEvaluation.evaluationId,
-          evaluationResultStatus: resultEvaluation.evaluationResultStatus,
-          resourceId: resultEvaluation.resourceId,
-          resourceName: resultEvaluation.resourceName,
+          evaluationId,
+          evaluationResultStatus,
+          resourceId,
+          resourceName,
           incidentId: '',
-          evaluationResult: resultEvaluation.evaluationResult,
+          evaluationResult,
         };
       }
       resultReturn[i] = resultEvaluation;

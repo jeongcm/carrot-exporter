@@ -18,14 +18,12 @@ class massUploaderService {
   public resourceService = new resourceService(); 
 
   public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<string> {
-    const uuid = require('uuid');
-    const apiId = uuid.v1();
 
-    const targetTable = 'Resource';
     const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const sizeOfInput = resourceMassFeed.resource.length;
-    // process bulk id for Resource table
-    /*
+    
+    /* process bulk id for Resource table
+    const targetTable = 'Resource';
     const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk(targetTable, sizeOfInput);
     const resource_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
     var resource_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
@@ -43,9 +41,6 @@ class massUploaderService {
     // update resource deactivated if there is no matched resoure in NC database. 
     const currentResourceFiltered: IResourceTargetUuid[] = await this.resourceService.getResourceForMass(resourceType, resourceGroupKey, customerAccountKey); 
     const sizeOfCurrentResource =  currentResourceFiltered.length;
-    
-    //const maxRetry = config.deadLock.retries; 
-    //var retrycount = 0;
 
     var currentResource = new Array();
     for (let i = 0; i < sizeOfCurrentResource; i++) {
@@ -77,7 +72,19 @@ class massUploaderService {
                       resource_pv_storage, resource_pv_claim_ref, resource_pv_storage_class_name, resource_pv_volume_mode,
                       resource_sc_provisioner, resource_sc_reclaim_policy, resource_sc_allow_volume_expansion, resource_sc_volume_binding_mode,
                       resource_rbac, resource_anomaly_monitor, resource_active, 
-                      customer_account_key, resource_group_key ) VALUES ?
+                      customer_account_key, resource_group_key,
+                      resource_event_involved_object_kind, 
+                      resource_event_involved_object_name,
+                      resource_event_involved_object_namespace,
+                      resource_event_reason,
+                      resource_event_message,
+                      resource_event_source_component,
+                      resource_event_source_host,
+                      resource_event_first_timestamp,
+                      resource_event_last_timestamp,
+                      resource_event_count,
+                      resource_event_type
+                      ) VALUES ?
                       ON DUPLICATE KEY UPDATE 
                       resource_active=VALUES(resource_active),
                       resource_name=VALUES(resource_name),
@@ -123,7 +130,18 @@ class massUploaderService {
                       resource_group_key=VALUES(resource_group_key),
                       resource_status_updated_at=VALUES(created_at),
                       updated_at=VALUES(created_at),
-                      updated_by=VALUES(created_by)        
+                      updated_by=VALUES(created_by),
+                      resource_event_involved_object_kind=VALUES(resource_event_involved_object_kind), 
+                      resource_event_involved_object_name=VALUES(resource_event_involved_object_name),
+                      resource_event_involved_object_namespace=VALUES(resource_event_involved_object_namespace),
+                      resource_event_reason=VALUES(resource_event_reason),
+                      resource_event_message=VALUES(resource_event_message),
+                      resource_event_source_component=VALUES(resource_event_source_component),
+                      resource_event_source_host=VALUES(resource_event_source_host),
+                      resource_event_first_timestamp=VALUES(resource_event_first_timestamp),
+                      resource_event_last_timestamp=VALUES(resource_event_last_timestamp),
+                      resource_event_count=VALUES(resource_event_count),
+                      resource_event_type=VALUES(resource_event_type)
                       `;
     var query2 = new Array();
     for (let i = 0; i < sizeOfInput; i++) {
@@ -138,6 +156,9 @@ class massUploaderService {
         let uuid = require('uuid');
         let apiId = uuid.v1();
         let resource_Target_Created_At = new Date(resourceMassFeed.resource[i].resource_Target_Created_At);
+        let resource_event_first_timestamp = new Date(resourceMassFeed.resource[i].resource_event_first_timestamp);
+        let resource_event_last_timestamp = new Date(resourceMassFeed.resource[i].resource_event_last_timestamp);   
+
         //let resource_id = resource_id_prefix + resource_id_postfix;
         let resource_id = apiId;
         let resource_lables = JSON.stringify(resourceMassFeed.resource[i].resource_Labels);
@@ -168,7 +189,7 @@ class massUploaderService {
             resource_lables,
             resource_annotations,
             resource_owner_references,
-            resourceMassFeed.resource[i].resource_Description || 'some description',
+            resourceMassFeed.resource[i].resource_Description || 'No description provided',
             resource_status,
             //3rd line
             resource_spec,
@@ -209,7 +230,18 @@ class massUploaderService {
             resourceMassFeed.resource[i].resource_Anomaly_Monitor,
             resourceMassFeed.resource[i].resource_Active,
             customerAccountKey, //customer_Account_Key
-            resourceGroupKey //resource_Group_Kep 17 total columns
+            resourceGroupKey, //resource_Group_Kep 17 total columns
+            resourceMassFeed.resource[i].resource_event_involved_object_kind, 
+            resourceMassFeed.resource[i].resource_event_involved_object_name,
+            resourceMassFeed.resource[i].resource_event_involved_object_namespace,
+            resourceMassFeed.resource[i].resource_event_reason,
+            resourceMassFeed.resource[i].resource_event_message,
+            resourceMassFeed.resource[i].resource_event_source_component,
+            resourceMassFeed.resource[i].resource_event_source_host,
+            resource_event_first_timestamp,
+            resource_event_last_timestamp,
+            resourceMassFeed.resource[i].resource_event_count,
+            resourceMassFeed.resource[i].resource_event_type,
         ];
         //resource_Target_Created_At = null;
     }

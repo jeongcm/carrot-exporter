@@ -1,8 +1,8 @@
-import axios from 'axios';
 import ServiceExtension from '@/common/extentions/service.extension';
 import config from 'config';
 import { isEmpty } from 'lodash';
-
+import { logger } from '@/common/utils/logger';
+import axios from 'common/httpClient/axios';
 class VictoriaMetricService extends ServiceExtension {
   private victoriaEndpoint = config.victoriaMetrics.NC_LARI_VM_ADDRESS;
 
@@ -15,12 +15,14 @@ class VictoriaMetricService extends ServiceExtension {
     if (isEmpty(start)) return this.throwError('EXCEPTION', 'start time is missing');
     if (isEmpty(end)) return this.throwError('EXCEPTION', 'end time is missing');
 
+    const startTime: number = Date.now();
+
     let url = `${this.victoriaEndpoint}/api/v1/query_range?query=${promQl}&start=${start}&end=${end}`;
     if (step) {
       url = `${url}&step=${step}`;
     }
 
-    console.log('Calling Victoria Metric: ', url);
+    logger.info(`Calling Victoria Metric: ${url}`);
 
     try {
       const result = await axios({
@@ -29,6 +31,7 @@ class VictoriaMetricService extends ServiceExtension {
       });
 
       if (result && result.data && result.data.data) {
+        result.data.data.queryRunTime = Date.now() - startTime;
         return result.data.data;
       } else {
         return null;
@@ -57,6 +60,7 @@ class VictoriaMetricService extends ServiceExtension {
     } catch (e) {
       this.throwError('EXCEPTION', 'failed to call victoria metric server');
     }
-  }}
+  }
+}
 
 export default VictoriaMetricService;

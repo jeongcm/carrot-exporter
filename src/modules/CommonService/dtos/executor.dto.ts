@@ -16,6 +16,14 @@ export class ExecutorDto {
     @IsString()
     @IsNotEmpty()
     public resourceGroupPlatform: 'OS' | 'K8';
+
+    @IsString()
+    @IsOptional()
+    public resourceGroupSudoryNamespace: string;
+  
+    @IsString()
+    @IsOptional()
+    public resourceGroupKpsLokiNamespace: string;
   }
   
   export class ExecutorKpsDto {
@@ -44,6 +52,8 @@ export class ExecutorDto {
     exectuorServerUrl: string;
     clusterUuid: string;
     token: string;
+    repoName: string;
+    repoUrl: string;
   }
 
   export class ExecutorResourceListDto {

@@ -7,7 +7,6 @@ import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import SystemSubscriptionService from '@/modules/CommonService/services/systemSubscription.service';
-import axios from 'axios';
 import * as _ from 'lodash';
 import { IResource } from '@/common/interfaces/resource.interface';
 import config from '@config/index';
@@ -19,7 +18,7 @@ class SystemSubscriptionController {
 
   public customerAccountService = new CustomerAccountService();
   public partyService = new PartyService();
-  
+
   public resourceService = new ResourceService();
   public systemSubscriptionService = new SystemSubscriptionService();
 
@@ -37,7 +36,7 @@ class SystemSubscriptionController {
             parentCustomerAccountId: null,
             customerAccountType: null,
           };
-          
+
           const partyData: CreateUserDto =
           {
             partyName: companyName || `${firstName} ${lastName}`,
@@ -49,14 +48,15 @@ class SystemSubscriptionController {
             firstName,
             lastName,
             userId: id,
-            password: null,
+            password: "",
             email: primaryEmail,
             mobile: primaryPhone,
             partyUserStatus: "DR",
             customerAccountId: "",
             timezone: "",
+            adminYn: false,
           };
-          
+
           const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy)
           createdResponse = responseCustomerAccount;
           break;
@@ -73,16 +73,16 @@ class SystemSubscriptionController {
             catalogPlanId
           }
 
-          const responseSubscription = await this.systemSubscriptionService.createSubscription(subscriptionData, createdBy, customerAccountKey); 
+          const responseSubscription = await this.systemSubscriptionService.createSubscription(subscriptionData, createdBy, customerAccountKey);
           createdResponse = responseSubscription;
           break;
-          
+
         default:
           break;
       }
-          
+
       return res.status(200).json({ data:createdResponse });
-          
+
       } catch (error) {
         console.log("errror", error)
         next(error);

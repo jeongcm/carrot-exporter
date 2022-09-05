@@ -80,14 +80,15 @@ class executorController {
   public checkExecutorClient = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterUuid = req.params.clusterUuid;
+      const sudoryNamespace = req.params.sudoryNamespace;
       const customerAccountKey = req.customerAccountKey;
 
-      const clientResponse: IExecutorClientCheck = await this.executorService.checkExecutorClient(clusterUuid, customerAccountKey);
+      const clientResponse = await this.executorService.checkExecutorClient(clusterUuid, sudoryNamespace, customerAccountKey);
 
       if (clientResponse) {
         res
           .status(200)
-          .json({ data: clientResponse, message: `Success to confirm Executor/Sudory client: clientUuid: ${clientResponse.clientUuid}` });
+          .json({ data: clientResponse, message: `Success to confirm Executor/Sudory client` });
       } else {
         res.status(404).json({ data: clientResponse, message: `Executor/Sudory client not found` });
       }

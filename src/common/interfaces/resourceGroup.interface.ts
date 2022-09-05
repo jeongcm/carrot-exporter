@@ -1,3 +1,5 @@
+import { stringList } from "aws-sdk/clients/datapipeline";
+
 export interface IResourceGroup {
   resourceGroupKey: number;
   resourceGroupId: string;
@@ -16,6 +18,8 @@ export interface IResourceGroup {
   resourceGroupGrafana: string;
   resourceGroupAlertManager: string;
   resourceGroupLoki: string;
+  resourceGroupSudoryNamespace: string;
+  resourceGroupKpsLokiNamespace: string;
 }
 
 export interface IResourceGroupUi {
@@ -36,5 +40,7 @@ export interface IResourceGroupUi {
   resourceGroupGrafana: string;
   resourceGroupAlertManager: string;
   resourceGroupLoki: string;
+  resourceGroupSudoryNamespace: string;
+  resourceGroupKpsLokiNamespace: string;
   numberofNode: number;
 }

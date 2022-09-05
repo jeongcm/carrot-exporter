@@ -82,6 +82,9 @@ export default {
       callbackURL: process.env.NC_LARI_SOCIALKEY_GOOGLE_CALLBACK_URL,
     },
   },
+  logger: {
+    silenceResponse: process.env.NC_LARI_LOG_SILENCE_RESPONSE ? process.env.NC_LARI_LOG_SILENCE_RESPONSE === 'true' : false,
+  },
   initialRecord: {
     customerAccount: {
       customerAccountName: process.env.NC_LARI_SYSTEM_CUSTOMERACCOUNT_NAME.replace(/_/gi, ' '),
@@ -110,7 +113,8 @@ export default {
   },
   fuseBillApiDetail: {
     apiKey: process.env.FUSEBILL_API_KEY,
-    baseURL: process.env.FUSEBILL_BASE_URL,
+    baseURL: process.env.FUSEBILL_BASE_URL || 'https://secure.fusebill.com/v1/',
+    createCustomerUrl: process.env.FUSEBILL_API_CREATE_CUSTOMER_URL || 'https://secure.fusebill.com/v1/customers',
   },
   ncCronApiDetail: {
     baseURL: process.env.NC_CRON_URL || 'http://localhost:5010',
@@ -129,6 +133,8 @@ export default {
     channel_metric_received: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED || 'nc_metric_received',
     service_result_delete: process.env.SUDORY_SERVICE_RESULT_DELETE || '1',
     channel_webhook: process.env.SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK,
+    repoName: process.env.SUDORY_REPO_NAME || 'nex-dev',
+    repoUrl: process.env.SUDORY_REPO_URL || 'https://repo.nexclipper.io/chartrepo/nexclipper-dev',
   },
   fileUpload: {
     DOBucket: `${process.env.NC_LARI_DO_BUCKET}`.replace('\n', ''),
@@ -153,15 +159,16 @@ export default {
     alertManagerUrlHead: process.env.NC_ALERTMANAGER_URL_HEAD || 'http://kps-kube-prometheus-stack-alertmanager.',
     alertManagerUrlTail: process.env.NC_ALERTMANAGER_URL_TAIL || '.svc.cluster.local:9093',
     lokiUrlHead: process.env.NC_LOKI_URL_HEAD || 'http://loki.',
-    lokiUrlTail: process.env.NC_GRAFANA_URL_TAIL || '.svc.cluster.local:3100',
+    lokiUrlTail: process.env.NC_LOKI_URL_TAIL || '.svc.cluster.local:3100',
   },
   ncBnApiDetail: {
     ncBnUrl: process.env.NC_BN_URL,
     ncBnNodePath: process.env.NC_BN_NODE_PATH,
     ncBnNodeThreshold: process.env.NC_BN_NODE_THRESHOLD,
     ncBnRefreshModelPath: process.env.NC_BN_REFRESH_MODEL_PATH,
+    sudorySubscribedChannelWebhook : process.env.SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK
   },
   oT: {
     oTTraceLogTurnOff: process.env.NC_TURN_OFF_TELEMETRY,
-  }
+  },
 };

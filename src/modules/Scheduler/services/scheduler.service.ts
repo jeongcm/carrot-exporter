@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { SchedulerDto } from '../dtos/scheduler.dto';
@@ -59,9 +59,9 @@ class SchedulerService {
 
   public async getSchedulerByClusterId(clusterId: string): Promise<any> {
     const schedulerServerUrl = config.ncCronApiDetail.baseURL + '/scheduler/cluster/' + clusterId;
-    //console.log(schedulerServerUrl); 
+    //console.log(schedulerServerUrl);
     let result = [];
-    
+
     await axios({
       method: 'get',
       url: `${schedulerServerUrl}`,
@@ -156,7 +156,7 @@ class SchedulerService {
       })
       .catch(error => {
         console.log(error);
-        return error;
+        throw new HttpException(500, 'Error to run on scheduler api');
       });
 
     return schedulerCreateResponse;
@@ -210,7 +210,7 @@ class SchedulerService {
       });
 
     return result;
-  } 
+  }
 
 }
 

@@ -10,11 +10,9 @@ export class SchedulerDto {
   public summary: string;
 
   @IsString()
-  @IsNotEmpty()
   public apiUrl: string;
 
   @IsObject()
-  @IsNotEmpty()
   public apiBody: object;
 
   @IsString()
