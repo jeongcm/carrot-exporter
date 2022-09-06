@@ -29,6 +29,7 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachment.dto';
 import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
+
 import { logger } from '@/common/utils/logger';
 
 /**
@@ -56,32 +57,43 @@ class IncidentService {
    */
   public async createIncident(customerAccountKey: number, logginedUserId: string, incidentData: CreateIncidentDto): Promise<IIncident> {
     if (isEmpty(incidentData)) throw new HttpException(400, 'Incident must not be empty');
+    const incidentTable = 'Incident';
+    const incidentKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentTable);
+    const incidentActionTable = 'IncidentAction';
+    const incidentActionKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentActionTable);
 
-    const tableIdTableName = 'Incident';
+    var assigneeKey = null; 
     try {
-      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
-
-      if (incidentData.assigneeId) {
-        const assignee = await this.partyService.getUserKey(customerAccountKey, incidentData.assigneeId);
-
-        const createIncidentData: any = await this.incident.create({
-          ...incidentData,
-          assigneeKey: assignee.partyKey,
-          customerAccountKey,
-          createdBy: logginedUserId,
-          incidentId: responseTableIdData.tableIdFinalIssued,
-        });
+      return await DB.sequelize.transaction(async t => {
         
+        if (incidentData.assigneeId) {
+          const assignee = await this.partyService.getUserKey(customerAccountKey, incidentData.assigneeId);
+          assigneeKey = assignee.partyKey;
+        }
+
+        const createIncidentData: any = await this.incident.create(
+          {
+            ...incidentData,
+            customerAccountKey,
+            createdBy: logginedUserId,
+            incidentId: incidentKey.tableIdFinalIssued,
+            assigneeKey: assigneeKey,
+          }, {transaction: t}
+        );
+
+       const createIncidentAction: any = await this.incidentAction.create(
+          {
+            incidentActionId: incidentActionKey.tableIdFinalIssued,
+            incidentActionName: "Incident Created",
+            incidentActionDescription: "Incident Created",
+            incidentActionStatus: "EX",
+            createdBy: logginedUserId,
+            incidentKey: createIncidentData.incidentKey,
+          }, {transaction: t}
+       ); 
+
         return createIncidentData;
-      } else {
-        const createIncidentData: any = await this.incident.create({
-          ...incidentData,
-          customerAccountKey,
-          createdBy: logginedUserId,
-          incidentId: responseTableIdData.tableIdFinalIssued,
-        });
-        return createIncidentData;
-      }
+      });
     } catch (error) {
       throw error;
     }
@@ -183,15 +195,61 @@ class IncidentService {
     incidentData: CreateIncidentDto,
     logginedUserId: string,
   ): Promise<IIncident> {
-    try {
-      const assignee = await this.partyService.getUserKey(customerAccountKey, incidentData?.assigneeId);
 
-      await this.incident.update(
-        { ...incidentData, updatedBy: logginedUserId, assigneeKey: assignee?.partyKey },
-        { where: { customerAccountKey, incidentId } },
-      );
+    const incidentActionTable = 'IncidentAction';
+    const incidentActionKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentActionTable);
+
+    const incidentCode = [
+      { code: '3O', name: 'OPEN'}, //incidentStatus
+      { code: '2I', name: 'IN PROGRESS'}, // incidentStatus
+      { code: '1R', name: 'RESOLVED'}, // incidentStatus
+      { code: '0C', name: 'CLOSED'}, // incidentStatus
+      { code: '3U', name: 'URGENT'}, // incidentSeveriy
+      { code: '2H', name: 'HIGH'}, // incidentSeveriy
+      { code: '1M', name: 'MEDIUM'}, // incidentSeveriy
+      { code: '0L', name: 'LOW'}, // incidentSeveriy
+    ];
+
+    const incidentStatus = incidentCode.find(codeTable => {
+      return codeTable.code === incidentData.incidentStatus;
+    });
+    const incidentSeverity = incidentCode.find(codeTable => {
+      return codeTable.code === incidentData.incidentSeverity;
+    });
+
+    const assignee = await this.partyService.getUserKey(customerAccountKey, incidentData?.assigneeId);
+    const findIncident = await this.incident.findOne ({where: {incidentId}});
+    if (!findIncident) throw new HttpException(404, `Can't find incident data - ${incidentId}`);
+
+    const actionDescription = {
+      Name: incidentData.incidentName,
+      Description: incidentData.incidentDescription,
+      "Due Date": incidentData.incidentDueDate || "Not yet setup",
+      Status: incidentStatus.name,
+      Severity: incidentSeverity.name,
+      Assignee: assignee?.partyName,
+    }
+
+    try {
+      return await DB.sequelize.transaction(async t => {
+
+        await this.incident.update(
+          { ...incidentData, updatedBy: logginedUserId, assigneeKey: assignee?.partyKey },
+          { where: { customerAccountKey, incidentId}, transaction: t});
+
+        const createIncidentAction: any = await this.incidentAction.create(
+          {
+            incidentActionId: incidentActionKey.tableIdFinalIssued,
+            incidentActionName: "Incident Update",
+            incidentActionDescription: `Incident Update - ${JSON.stringify(actionDescription)}`,
+            incidentActionStatus: "EX",
+            createdBy: logginedUserId,
+            incidentKey: findIncident.incidentKey,
+          }, {transaction: t}
+        ); 
 
       return this.getIncidentById(customerAccountKey, incidentId);
+      });    
     } catch (error) {
       throw error;
     }
@@ -577,19 +635,37 @@ class IncidentService {
   }
 
   public async deleteIncidentActionAttachment(customerAccountKey: number, attachmentId: string, logginedUserId: string): Promise<[number]> {
-    try {
-      const deletedIncidentActionAttachments: [number] = await this.incidentActionAttachment.update(
-        { deletedAt: new Date(), updatedBy: logginedUserId },
-        { where: { incidentActionAttachmentId: attachmentId } },
-      );
-      const deletedAttachment: IIncidentActionAttachment = await this.incidentActionAttachment.findOne({
-        where: { incidentActionAttachmentId: attachmentId },
-      });
-      if (deletedAttachment) {
-        const uploadedFilePath = await this.fileUploadService.delete({ query: { fileName: deletedAttachment.incidentActionAttachmentPath } });
-      }
+    const deletedAttachment = await this.incidentActionAttachment.findOne({where: { incidentActionAttachmentId: attachmentId }});
+    if (!deletedAttachment) throw new HttpException(400, `Can't find incident attachment - ${attachmentId}`);
 
-      return deletedIncidentActionAttachments;
+    const findIncidentAction = await this.incidentAction.findOne({where: {incidentActionKey: deletedAttachment.incidentActionKey}})
+    if (!findIncidentAction) throw new HttpException(400, `Can't find incident Action - ${deletedAttachment.incidentActionKey}`);
+  
+    const incidentKey = findIncidentAction.incidentKey;
+
+    const incidentActionTable = 'IncidentAction';
+    const incidentActionKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentActionTable);
+
+    try {
+      return await DB.sequelize.transaction(async t => {
+        const deletedIncidentActionAttachments: [number] = await this.incidentActionAttachment.update(
+          { deletedAt: new Date(), updatedBy: logginedUserId },
+          { where: { incidentActionAttachmentId: attachmentId }, transaction: t },
+        );
+        const createIncidentAction: any = await this.incidentAction.create(
+          {
+            incidentActionId: incidentActionKey.tableIdFinalIssued,
+            incidentActionName: `Incident Attachment Removed - ${deletedAttachment.incidentActionAttachmentName}`,
+            incidentActionDescription: `Incident Attachment Removed - ${deletedAttachment.incidentActionAttachmentFileType}`,
+            incidentActionStatus: "EX",
+            createdBy: logginedUserId,
+            incidentKey: incidentKey,
+          }, {transaction: t}
+        );
+        console.log (createIncidentAction); 
+        const uploadedFilePath = await this.fileUploadService.delete({ query: { fileName: deletedAttachment.incidentActionAttachmentPath } });  
+        return deletedIncidentActionAttachments;
+      });  
     } catch (error) {}
   }
 
@@ -715,39 +791,50 @@ class IncidentService {
     logginedUserId: string,
   ): Promise<any> {
     if (isEmpty(addAlertReceivedData)) throw new HttpException(400, 'AlertReceivedIds not be empty');
+    const incidentActionTable = 'IncidentAction';
+    const incidentActionKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentActionTable);
 
     const tableIdTableName = 'IncidentAlertReceived';
     try {
-      const { incidentKey = undefined } = await this.getIncidentKey(customerAccountKey, incidentId);
-
-      const { alertReceivedIds } = addAlertReceivedData;
-      const alertReceivedDetails = await this.alertReceived.findAll({
-        where: { alertReceivedId: { [Op.in]: alertReceivedIds } },
-        attributes: ['alertReceivedKey'],
-      });
-
-      if (!alertReceivedDetails.length) {
-        return 'alertReceivedId error';
-      }
-
-      const alertReceivedKeyList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedKey);
-
-      const insertDataList = [];
-
-      for (const alertReceivedKey of alertReceivedKeyList) {
-        const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
-
-        insertDataList.push({
-          incidentAlertReceivedId: responseTableIdData.tableIdFinalIssued,
-          incidentKey,
-          alertReceivedKey,
-          createdBy: logginedUserId,
+      return await DB.sequelize.transaction(async t => {
+        const { incidentKey = undefined } = await this.getIncidentKey(customerAccountKey, incidentId);
+        const { alertReceivedIds } = addAlertReceivedData;
+        const alertReceivedDetails = await this.alertReceived.findAll({
+          where: { alertReceivedId: { [Op.in]: alertReceivedIds } },
         });
-      }
-      console.log ("insertDataList----------------");
-      console.log (insertDataList);
 
-      return await this.incidentAlertReceived.bulkCreate(insertDataList, { returning: true });
+        if (!alertReceivedDetails.length) {
+          return 'alertReceivedId error';
+        }
+
+        const alertReceivedKeyList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedKey);
+        const alertReceivedIdList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedId);
+        const insertDataList = [];
+
+        for (const alertReceivedKey of alertReceivedKeyList) {
+          const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+          insertDataList.push({
+            incidentAlertReceivedId: responseTableIdData.tableIdFinalIssued,
+            incidentKey,
+            alertReceivedKey,
+            createdBy: logginedUserId,
+          });
+        }
+        const incidentAlertReceived = await this.incidentAlertReceived.bulkCreate(insertDataList, { returning: true, transaction: t });
+
+        const createIncidentAction: any = await this.incidentAction.create(
+          {
+            incidentActionId: incidentActionKey.tableIdFinalIssued,
+            incidentActionName: "Incident Alert Attached",
+            incidentActionDescription: `Incident Alert Attached - ${JSON.stringify(alertReceivedIdList)}`,
+            incidentActionStatus: "EX",
+            createdBy: logginedUserId,
+            incidentKey: incidentKey,
+          }, {transaction: t}
+       ); 
+
+      return incidentAlertReceived;
+      });
     } catch (error) {
       throw error;
     }
@@ -759,40 +846,59 @@ class IncidentService {
     dropAlertReceivedData: DropAlertReceivedFromIncidentDto,
     logginedUserId: string,
   ): Promise<any> {
+
+    const incidentActionTable = 'IncidentAction';
+    const incidentActionKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentActionTable);
     try {
-      const { incidentKey = undefined } = await this.getIncidentKey(customerAccountKey, incidentId);
+      return await DB.sequelize.transaction(async t => {
+        const { incidentKey = undefined } = await this.getIncidentKey(customerAccountKey, incidentId);
 
-      const { alertReceivedIds } = dropAlertReceivedData;
+        const { alertReceivedIds } = dropAlertReceivedData;
 
-      const alertReceivedDetails = await this.alertReceived.findAll({
-        where: { alertReceivedId: { [Op.in]: alertReceivedIds } },
-        attributes: ['alertReceivedKey'],
-      });
+        const alertReceivedDetails = await this.alertReceived.findAll({
+          where: { alertReceivedId: { [Op.in]: alertReceivedIds } },
+        });
 
-      if (!alertReceivedDetails.length) {
-        return 'alertReceivedId error';
-      }
+        if (!alertReceivedDetails.length) {
+          return 'alertReceivedId error';
+        }
 
-      const alertReceivedKeyList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedKey);
-
-      await this.incidentAlertReceived.update(
-        //@ts-expect-error
-        { deletedBy: logginedUserId },
-        {
-          where: {
+        const alertReceivedKeyList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedKey);
+        const alertReceivedIdList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedId);
+  /*
+        await this.incidentAlertReceived.update(
+          //@ts-expect-error
+          { deletedBy: logginedUserId },
+          {
+            where: {
+              incidentKey,
+              alertReceivedKey: { [Op.in]: alertReceivedKeyList },
+            },
+          },
+        );
+  */
+        const result = await this.incidentAlertReceived.destroy(
+          {where: {
             incidentKey,
             alertReceivedKey: { [Op.in]: alertReceivedKeyList },
+          }, transaction: t
           },
-        },
-      );
-      const result = await this.incidentAlertReceived.destroy({
-        where: {
-          incidentKey,
-          alertReceivedKey: { [Op.in]: alertReceivedKeyList },
-        },
-      });
+        );
 
-      return result > 0 ? 'deleted' : false;
+        const createIncidentAction: any = await this.incidentAction.create(
+          {
+            incidentActionId: incidentActionKey.tableIdFinalIssued,
+            incidentActionName: "Incident Alert Removed",
+            incidentActionDescription: `Incident Alert Removed - ${JSON.stringify(alertReceivedIdList)}`,
+            incidentActionStatus: "EX",
+            createdBy: logginedUserId,
+            incidentKey: incidentKey,
+          }, {transaction: t}
+       ); 
+
+        return result > 0 ? 'deleted' : false;
+      });  
+      
     } catch (error) {
       throw error;
     }
