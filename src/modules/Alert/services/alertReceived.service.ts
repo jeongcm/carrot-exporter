@@ -259,10 +259,10 @@ class AlertReceivedService extends ServiceExtension {
     }
 
     // TODO: to add more criteria to identify a group of alerts
-    const query = { alertReceivedName: alertFound.alertReceivedName };
+    const query = { alertRuleKey: alertFound.alertRuleKey };
 
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null, ...query },
+      where: { customerAccountKey: customerAccountKey, ...query },
       order: [['createdAt', 'DESC']],
       attributes: { exclude: ['alertReceivedKey', 'alertRuleKey', 'customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy'] },
     });
