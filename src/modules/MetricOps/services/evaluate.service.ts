@@ -215,7 +215,7 @@ class EvaluateServices {
       evaluationStatus: 'RQ',
     };
 
-    await this.evaluation.create(createEvaluation);
+    const resultEvaluationRequest: IEvaluation = await this.evaluation.create(createEvaluation);
     //console.log ("created evaluation request: ", resultEvaluationRequest.evaluationId);
 
     const step6 = new Date().getTime();
@@ -275,7 +275,7 @@ class EvaluateServices {
         const updateErrorWhere = {
           where: { evaluationId: evaluationId },
         };
-        this.evaluation.update(updateError, updateErrorWhere);
+        const resultEvaluationResult = this.evaluation.update(updateError, updateErrorWhere);
         throw new HttpException(500, `Unknown error to fetch the result of evaluation: ${evaluationId}`);
       });
 
@@ -286,7 +286,7 @@ class EvaluateServices {
     const predictedScore = evaluationResult.predicted_score;
     console.log('predictedScore: ', predictedScore);
     console.log('threshold: ', config.ncBnApiDetail.ncBnNodeThreshold);
-    var evaluationResultStatus = '';
+    let evaluationResultStatus = '';
     if (predictedScore >= config.ncBnApiDetail.ncBnNodeThreshold) {
       evaluationResultStatus = 'AN';
     } else {
@@ -308,7 +308,7 @@ class EvaluateServices {
     };
 
     // 6. Save the results to the database
-    await this.evaluation.update(updateData, updateWhere);
+    const resultEvaluationResult = await this.evaluation.update(updateData, updateWhere);
     const resultEvaluation: IEvaluation = await this.evaluation.findOne({ where: { evaluationId } });
 
     returnResponse = {
@@ -401,7 +401,7 @@ class EvaluateServices {
         logger.info(`ruleGroup===================, ${ruleGroup}`);
         evaluationRequest.ruleGroup.map(async (grp: any) => {
           if (ruleGroup.indexOf(grp.ruleGroupName) !== -1) {
-            // getResolutionActionByRuleGroupId 
+            // getResolutionActionByRuleGroupId
             const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(grp.ruleGroupId);
             resolutionActions.map(async (resolutionAction: any) => {
               const start = new Date();
