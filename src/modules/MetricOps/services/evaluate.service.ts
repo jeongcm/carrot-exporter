@@ -286,8 +286,8 @@ class EvaluateServices {
     const predictedScore = evaluationResult.predicted_score;
     console.log('predictedScore: ', predictedScore);
     console.log('threshold: ', config.ncBnApiDetail.ncBnNodeThreshold);
-    let evaluationResultStatus = '';
-    if (predictedScore >= config.ncBnApiDetail.ncBnNodeThreshold) {
+    var evaluationResultStatus = '';
+    if (predictedScore * 100 >= Number(config.ncBnApiDetail.ncBnNodeThreshold)) {
       evaluationResultStatus = 'AN';
     } else {
       evaluationResultStatus = 'OK';
