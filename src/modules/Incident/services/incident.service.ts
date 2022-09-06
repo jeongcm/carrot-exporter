@@ -58,7 +58,6 @@ class IncidentService {
     if (isEmpty(incidentData)) throw new HttpException(400, 'Incident must not be empty');
 
     const tableIdTableName = 'Incident';
-
     try {
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
 
@@ -72,7 +71,7 @@ class IncidentService {
           createdBy: logginedUserId,
           incidentId: responseTableIdData.tableIdFinalIssued,
         });
-
+        
         return createIncidentData;
       } else {
         const createIncidentData: any = await this.incident.create({
@@ -81,7 +80,6 @@ class IncidentService {
           createdBy: logginedUserId,
           incidentId: responseTableIdData.tableIdFinalIssued,
         });
-
         return createIncidentData;
       }
     } catch (error) {
@@ -699,7 +697,6 @@ class IncidentService {
                 WHERE D.incident_key = ${incidentKey}
                   and A.alert_rule_key = B.alert_rule_key
                   and B.resource_group_uuid = C.resource_group_uuid
-                  and A.deleted_at is null 
                   and B.deleted_at is null 
                   and C.deleted_at is null
                   and D.deleted_at is null
@@ -720,12 +717,10 @@ class IncidentService {
     if (isEmpty(addAlertReceivedData)) throw new HttpException(400, 'AlertReceivedIds not be empty');
 
     const tableIdTableName = 'IncidentAlertReceived';
-
     try {
       const { incidentKey = undefined } = await this.getIncidentKey(customerAccountKey, incidentId);
 
       const { alertReceivedIds } = addAlertReceivedData;
-
       const alertReceivedDetails = await this.alertReceived.findAll({
         where: { alertReceivedId: { [Op.in]: alertReceivedIds } },
         attributes: ['alertReceivedKey'],
@@ -749,6 +744,8 @@ class IncidentService {
           createdBy: logginedUserId,
         });
       }
+      console.log ("insertDataList----------------");
+      console.log (insertDataList);
 
       return await this.incidentAlertReceived.bulkCreate(insertDataList, { returning: true });
     } catch (error) {
