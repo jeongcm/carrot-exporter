@@ -23,6 +23,9 @@ import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.mod
 import { BayesianModelTable } from '../models/bayesianModel.model';
 import { AnomalyMonitoringTargetTable } from '../models/monitoringTarget.model';
 import { logger } from '@/common/utils/logger';
+import { IResolutionAction } from '@/common/interfaces/resolutionAction.interface';
+import executorService from '@/modules/CommonService/services/executor.service';
+import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 
 const { Op } = require('sequelize');
 
@@ -42,6 +45,8 @@ class EvaluateServices {
   public modelRuleScoreService = new ModelRuleScoreService();
   public tableIdService = new TableIdService();
   public incidentService = new IncidentService();
+  public executorService = new executorService();
+  public resourceGroupService = new ResourceGroupService();
 
   /**
    * Evaluate anomaly using resourceKey
@@ -319,7 +324,7 @@ class EvaluateServices {
    * @returns Promise<object>
    * @author Jerry Lee
    */
-  public async initiateEvaluationProcess(customerAccountId: string): Promise<any> {
+  public async initiateEvaluationProcess(customerAccountId: string, logginedUserId: string): Promise<any> {
     //1. validate customerAccountid
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
     if (!resultCustomerAccount) throw new HttpException(400, `Can't find customerAccount - ${customerAccountId}`);
@@ -333,11 +338,13 @@ class EvaluateServices {
 
     //3. call evaluateMonitorintTarget (ML)
 
+    const clusterUuid = await this.resourceGroupService.getResourceGroupUuidByCustomerAcc(customerAccountKey);
     const resultReturn = {};
     for (let i = 0; i < resultMonitoringTarget.length; i++) {
       const resourceKey = resultMonitoringTarget[i].resourceKey;
       let resultEvaluation = await this.evaluateMonitoringTarget(resourceKey);
       const { evaluationRequest, evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName } = resultEvaluation;
+      logger.info(`evaluationResultStatus------${evaluationResultStatus}`);
       if (evaluationResultStatus === 'AN') {
         //4. if any anomaly, create incident ticket
         const incidentData = {
@@ -365,8 +372,53 @@ class EvaluateServices {
             ruleGroup.push(key);
           }
         });
-        this.resolutionActionService.getResolutionActionByRuleGroupId();
-        //7. save the actions to incident actions
+        evaluationRequest.ruleGroup.map(async (grp: any) => {
+          if (ruleGroup.indexOf(grp.ruleGroupName) !== -1) {
+            const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(grp.ruleGroupId);
+            resolutionActions.map(async (resolutionAction: any) => {
+              const actionData = {
+                incidentActionName: `METRICOPS-${resolutionAction?.resolutionActionName}`,
+                incidentActionDescription: `INC-`,
+                incidentActionStatus: 'EX',
+              };
+              const start = new Date();
+              const subscribed_channel = config.sudoryApiDetail.channel_webhook;
+              const end = new Date();
+              start.setHours(start.getHours() - 1);
+              //7. save the actions to incident actions
+
+              const incidenAction = await this.incidentService.createIncidentAction(customerAccountKey, incidentId, actionData, logginedUserId);
+              const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
+              const steps = `${resolutionAction.sudoryTemplate.resolutionActionTemplateSteps}`;
+              logger.info(`steps------${steps}, start---------${start}, --------${end}`);
+              const serviceOutput: any = await this.executorService.postExecuteService(
+                `METRICOPS-${resolutionAction?.resolutionActionName}`,
+                `INC-${incidenAction.incidentActionId}`,
+                clusterUuid,
+                templateUuid,
+                steps,
+                customerAccountKey,
+                subscribed_channel,
+              );
+              const { name, service_uuid, cluster_uuid, template_uuid } = serviceOutput;
+              const DataSetFromSudory = {
+                service_uuid,
+                service_name: `${name}  INC-${incidenAction.incidentActionId}`,
+                cluster_uuid,
+                template_uuid,
+                result: '',
+                status: 1,
+                step_count: null,
+                step_position: null,
+                result_type: '',
+                status_description: '',
+              };
+              await this.executorService.processSudoryWebhook(DataSetFromSudory);
+              logger.info(`serviceOutput------${serviceOutput}`);
+            });
+          }
+        });
+
 
         //8. save the communicaiton result to notification table
 
@@ -378,6 +430,7 @@ class EvaluateServices {
           resourceId,
           resourceName,
           incidentId,
+          ruleGroup,
         };
       } else {
         resultEvaluation = {

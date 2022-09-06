@@ -134,6 +134,7 @@ class ResolutionActionService {
       }
       const allResolutionAction: IResolutionAction[] = await this.resolutionAction.findAll({
         where: whereCondition,
+        include: [{ model: SudoryTemplateModel, as: 'sudoryTemplate' }],
       });
       return allResolutionAction;
     } catch (error) {
