@@ -22,6 +22,9 @@ import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.mod
 import { BayesianModelTable } from '../models/bayesianModel.model';
 import { AnomalyMonitoringTargetTable } from '../models/monitoringTarget.model';
 import { logger } from '@/common/utils/logger';
+import { IPartyUser } from '@/common/interfaces/party.interface';
+import { DiagConsoleLogger } from '@opentelemetry/api';
+import { arrayBuffer } from 'stream/consumers';
 
 const { Op } = require('sequelize');
 
@@ -40,6 +43,7 @@ class EvaluateServices {
   public modelRuleScoreService = new ModelRuleScoreService();
   public tableIdService = new TableIdService();
   public incidentService = new IncidentService();
+  public partyUser = DB.PartyUser;
 
   /**
    * Evaluate anomaly using resourceKey
@@ -150,6 +154,9 @@ class EvaluateServices {
               alertReceivedKey: resultAlertReceived[i].alertReceivedKey,
               alertReceivedId: resultAlertReceived[i].alertReceivedId,
               alertReceivedName: resultAlertReceived[i].alertReceivedName,
+              alertReceivedNode: resultAlertReceived[i].alertReceivedNode,
+              alertReceivedService: resultAlertReceived[i].alertReceivedService,
+              alertReceivedPod: resultAlertReceived[i].alertReceivedPod,
             };
             const resultAlertRule = await this.alertRule.findOne({ where: { alertRuleKey } });
             const alertName = resultAlertReceived[i].alertReceivedName;
@@ -225,13 +232,13 @@ class EvaluateServices {
       bayesianModelId: bayesianModelId,
       inputAlerts: inputAlerts,
     };
-
+    
     let url = '';
     let evaluationResult;
     if (resourceType == 'ND') {
       url = config.ncBnApiDetail.ncBnUrl + config.ncBnApiDetail.ncBnNodePath;
     }
-
+    console.log (bnData);
     await axios({
       method: 'post',
       url: url,
@@ -245,6 +252,7 @@ class EvaluateServices {
           return res;
         }
         evaluationResult = res.data;
+        console.log (res.data);
         //console.log(`got evaluation result -- ${evaluationResult}`);
       })
       .catch(error => {
@@ -268,6 +276,8 @@ class EvaluateServices {
     console.log('step7 -', elaps7);
 
     const predictedScore = evaluationResult.predicted_score;
+    console.log ("predictedScore: ", predictedScore);
+    console.log ("threshold: ", config.ncBnApiDetail.ncBnNodeThreshold)
     var evaluationResultStatus = '';
     if (predictedScore >= config.ncBnApiDetail.ncBnNodeThreshold) {
       evaluationResultStatus = 'AN';
@@ -318,6 +328,13 @@ class EvaluateServices {
    * @author Jerry Lee
    */
   public async initiateEvaluationProcess(customerAccountId: string): Promise<any> {
+    //0.pre
+    const userId = config.initialRecord.partyUser.userId;
+
+    const systemUser: IPartyUser = await this.partyUser.findOne ({where: {userId}});
+    if (!systemUser) throw new HttpException(400, `Can't find system account - ${systemUser}`);
+    const UserId = systemUser.partyUserId;
+    console.log ("STEP1");
     //1. validate customerAccountid
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
     if (!resultCustomerAccount) throw new HttpException(400, `Can't find customerAccount - ${customerAccountId}`);
@@ -334,26 +351,31 @@ class EvaluateServices {
     const resultReturn = {};
     for (let i = 0; i < resultMonitoringTarget.length; i++) {
       const resourceKey = resultMonitoringTarget[i].resourceKey;
+
       let resultEvaluation = await this.evaluateMonitoringTarget(resourceKey);
       const evaluationResultStatus = resultEvaluation.evaluationResultStatus;
+      
       if (evaluationResultStatus === 'AN') {
+        
         //4. if any anomaly, create incident ticket
         const incidentData = {
-          incidentName: 'MetricOps: ',
-          incidentDescription: 'MetricOps ',
+          incidentName: `MetricOps: ${JSON.stringify(resultEvaluation.evaluationRequest.bayesianModel.bayesianModelName)}`,
+          incidentDescription: `MetricOps: evaluation Id ${JSON.stringify(resultEvaluation.evaluationResult.evaluation_id)}`,
           incidentStatus: 'OP' as incidentStatus,
           incidentSeverity: 'UR' as incidentSeverity,
           incidentDueDate: null,
           assigneeId: '',
         };
-        const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, 'SYSTEM', incidentData);
+        const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, UserId, incidentData);
         const incidentId = resultIncidentCreate.incidentId;
-        const firedAlerts = resultEvaluation.evaluationRequest.map(x => x.firedAlerts.alertReceivedId);
-        console.log(`incident id: ${incidentId}`);
-        console.log(`firedAlerts: ${firedAlerts}`);
+        const firedAlerts =resultEvaluation.evaluationRequest.firedAlerts;
+
+        const firedAlertList = firedAlerts.map(a=>a.alertReceivedId);
+        const alertReceivedIds = {"alertReceivedIds": firedAlertList}
+
         //5. attach the alerts (from the result) to the incident tickets
-        await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, firedAlerts, 'SYSTEM');
-        console.log('incident ticket is created: ', incidentId, 'Alert Attached - ', firedAlerts);
+        await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, alertReceivedIds, UserId);
+        console.log('incident ticket is created: ', incidentId, 'Alert Attached - ', alertReceivedIds);
         //6. execute any resolution actions if there are actions under rule group more than a threshhold
 
         //7. send email/.... to access group user.

@@ -94,7 +94,7 @@ class ResourceService {
             let selectedTemplate = resource_template.find( template => {
                 return template.resourceName === resourceEventData.resource[i].resource_event_involved_object_kind;
             });
-            
+
             let resourceKey = null;
             if (selectedTemplate) {
                 let resourceSearch:IResource = await this.resource.findOne(
@@ -115,7 +115,7 @@ class ResourceService {
                 resourceEventData.resource[i].resource_Name, 
                 resourceEventData.resource[i].resource_Namespace,
                 resourceEventData.resource[i].resource_Description || 'No description provided',
-                resourceEventData.resource[i].resource_Type, 
+                resourceEventData.resource[i].resource_event_type, 
                 resource_event_target_created_at,
                 resourceEventData.resource[i].resource_Target_Uuid, 
                 resourceEventData.resource[i].resource_event_involved_object_kind, 

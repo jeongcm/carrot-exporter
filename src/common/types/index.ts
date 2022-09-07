@@ -24,6 +24,6 @@ export type ResourceTypeLevel3 = 'PD' | 'SV' | 'PM';
 
 export type ResourceTypeLevel4 = 'CT' | 'VM';
 
-export type incidentStatus = '3O' | '2I' | '1R' | '0C';
+export type incidentStatus = '3O' | '2I' | '1R' | '0C';  //30 Open, 2I In Progress, 1R Resolved, 0C Closed
 
-export type incidentSeverity = '3U' | '2H' | '1M' | '0L';
+export type incidentSeverity = '3U' | '2H' | '1M' | '0L';  //3U Urgent, 2H High, 1M Medium, 0L Low

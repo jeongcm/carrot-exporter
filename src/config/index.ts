@@ -95,7 +95,7 @@ export default {
       partyDescription: process.env.NC_LARI_SYSTEM_PARTY_DESCRIPTION.replace(/_/gi, ' '),
     },
     partyUser: {
-      firstName: process.env.NC_LARI_SYSTEM_PARTYUSER_FIRSTNAME,
+      firstName: process.env.NC_LARI_SYSTEM_PARTYUSER_FIRSTNAME || 'SYSTEM',
       lastName: process.env.NC_LARI_SYSTEM_PARTYUSER_LASTNAME,
       userId: process.env.NC_LARI_SYSTEM_PARTYUSER_USERID,
       password: process.env.NC_LARI_SYSTEM_PARTYUSER_PASSWORD,

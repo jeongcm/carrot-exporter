@@ -230,9 +230,12 @@ class executorService {
     const resourceJobKey = [];
     //improvement/713, Aug30 2022
     const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession + '/cluster/' + clusterUuid + '/alive';
+
     const resourceCron = config.resourceCron;
     //const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`;
     //executorServerUrl = executorServerUrl + sessionQueryParameter;
+    console.log ("bug/736");
+    console.log (executorServerUrl);
     const subscribedChannelResource = config.sudoryApiDetail.channel_resource;
     await axios({
       method: 'get',

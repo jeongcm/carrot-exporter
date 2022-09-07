@@ -89,7 +89,6 @@ class IncidentRoute implements Routes {
       this.incidentController.getIncidentActionAttachment,
     );
     
-
     this.router.put(
       '/incidents/:incidentId/actions/:actionId/attachment/:attachmentId',
       authMiddleware,
