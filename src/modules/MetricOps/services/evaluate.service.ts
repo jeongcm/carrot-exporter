@@ -12,6 +12,7 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import IncidentService from '@/modules/Incident/services/incident.service';
 import MonitoringTargetService from '@/modules/MetricOps/services/monitoringTarget.service';
+import ResolutionActionService from '@/modules/MetricOps/services/resolutionAction.service';
 import BayesianModelService from '@/modules/MetricOps/services/bayesianModel.service';
 import ModelRuleScoreService from '@/modules/MetricOps/services/modelRuleScore.service';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
@@ -22,9 +23,14 @@ import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.mod
 import { BayesianModelTable } from '../models/bayesianModel.model';
 import { AnomalyMonitoringTargetTable } from '../models/monitoringTarget.model';
 import { logger } from '@/common/utils/logger';
+
+import { IResolutionAction } from '@/common/interfaces/resolutionAction.interface';
+import executorService from '@/modules/CommonService/services/executor.service';
+import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import { IPartyUser } from '@/common/interfaces/party.interface';
 import { DiagConsoleLogger } from '@opentelemetry/api';
 import { arrayBuffer } from 'stream/consumers';
+import LogController from '@/modules/Log/controllers/log.controller';
 
 const { Op } = require('sequelize');
 
@@ -39,10 +45,13 @@ class EvaluateServices {
   public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
   public customerAccountService = new CustomerAccountService();
   public monitoringTargetService = new MonitoringTargetService();
+  public resolutionActionService = new ResolutionActionService();
   public bayesianModelService = new BayesianModelService();
   public modelRuleScoreService = new ModelRuleScoreService();
   public tableIdService = new TableIdService();
   public incidentService = new IncidentService();
+  public executorService = new executorService();
+  public resourceGroupService = new ResourceGroupService();
   public partyUser = DB.PartyUser;
 
   /**
@@ -232,13 +241,13 @@ class EvaluateServices {
       bayesianModelId: bayesianModelId,
       inputAlerts: inputAlerts,
     };
-    
+
     let url = '';
     let evaluationResult;
     if (resourceType == 'ND') {
       url = config.ncBnApiDetail.ncBnUrl + config.ncBnApiDetail.ncBnNodePath;
     }
-    console.log (bnData);
+    console.log(bnData);
     await axios({
       method: 'post',
       url: url,
@@ -252,7 +261,7 @@ class EvaluateServices {
           return res;
         }
         evaluationResult = res.data;
-        console.log (res.data);
+        console.log(res.data);
         //console.log(`got evaluation result -- ${evaluationResult}`);
       })
       .catch(error => {
@@ -276,10 +285,10 @@ class EvaluateServices {
     console.log('step7 -', elaps7);
 
     const predictedScore = evaluationResult.predicted_score;
-    console.log ("predictedScore: ", predictedScore);
-    console.log ("threshold: ", config.ncBnApiDetail.ncBnNodeThreshold)
+    console.log('predictedScore: ', predictedScore);
+    console.log('threshold: ', config.ncBnApiDetail.ncBnNodeThreshold);
     var evaluationResultStatus = '';
-    if (predictedScore >= config.ncBnApiDetail.ncBnNodeThreshold) {
+    if (predictedScore * 100 >= Number(config.ncBnApiDetail.ncBnNodeThreshold)) {
       evaluationResultStatus = 'AN';
     } else {
       evaluationResultStatus = 'OK';
@@ -327,14 +336,16 @@ class EvaluateServices {
    * @returns Promise<object>
    * @author Jerry Lee
    */
-  public async initiateEvaluationProcess(customerAccountId: string): Promise<any> {
+
+  public async initiateEvaluationProcess(customerAccountId: string, logginedUserId: string): Promise<any> {
     //0.pre
     const userId = config.initialRecord.partyUser.userId;
 
-    const systemUser: IPartyUser = await this.partyUser.findOne ({where: {userId}});
+    const systemUser: IPartyUser = await this.partyUser.findOne({ where: { userId } });
     if (!systemUser) throw new HttpException(400, `Can't find system account - ${systemUser}`);
     const UserId = systemUser.partyUserId;
-    console.log ("STEP1");
+    console.log('STEP1');
+
     //1. validate customerAccountid
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
     if (!resultCustomerAccount) throw new HttpException(400, `Can't find customerAccount - ${customerAccountId}`);
@@ -348,15 +359,16 @@ class EvaluateServices {
 
     //3. call evaluateMonitorintTarget (ML)
 
+    const clusterUuid = await this.resourceGroupService.getResourceGroupUuidByCustomerAcc(customerAccountKey);
     const resultReturn = {};
     for (let i = 0; i < resultMonitoringTarget.length; i++) {
       const resourceKey = resultMonitoringTarget[i].resourceKey;
 
       let resultEvaluation = await this.evaluateMonitoringTarget(resourceKey);
-      const evaluationResultStatus = resultEvaluation.evaluationResultStatus;
-      
+      const { evaluationRequest, evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName } = resultEvaluation;
+      logger.info(`evaluationResultStatus------${evaluationResultStatus}`);
+
       if (evaluationResultStatus === 'AN') {
-        
         //4. if any anomaly, create incident ticket
         const incidentData = {
           incidentName: `MetricOps: ${JSON.stringify(resultEvaluation.evaluationRequest.bayesianModel.bayesianModelName)}`,
@@ -368,37 +380,74 @@ class EvaluateServices {
         };
         const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, UserId, incidentData);
         const incidentId = resultIncidentCreate.incidentId;
-        const firedAlerts =resultEvaluation.evaluationRequest.firedAlerts;
 
-        const firedAlertList = firedAlerts.map(a=>a.alertReceivedId);
-        const alertReceivedIds = {"alertReceivedIds": firedAlertList}
+        const firedAlerts = resultEvaluation.evaluationRequest.firedAlerts;
+
+        const firedAlertList = firedAlerts.map(a => a.alertReceivedId);
+        const alertReceivedIds = { alertReceivedIds: firedAlertList };
 
         //5. attach the alerts (from the result) to the incident tickets
         await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, alertReceivedIds, UserId);
+        logger.info(`incident ticket is created: ', ${incidentId}, 'Alert Attached - ', ${alertReceivedIds}`);
         console.log('incident ticket is created: ', incidentId, 'Alert Attached - ', alertReceivedIds);
         //6. execute any resolution actions if there are actions under rule group more than a threshhold
-
-        //7. send email/.... to access group user.
+        const threshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
+        const ruleGroup = [];
+        Object.entries(evaluationResult.alert_group_score).filter(([key, value]) => {
+          const ruleValue = Number(value) * 100;
+          if (ruleValue <= threshold) {
+            ruleGroup.push(key);
+          }
+        });
+        logger.info(`ruleGroup===================, ${ruleGroup}`);
+        evaluationRequest.ruleGroup.map(async (grp: any) => {
+          if (ruleGroup.indexOf(grp.ruleGroupName) !== -1) {
+            // getResolutionActionByRuleGroupId
+            const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(grp.ruleGroupId);
+            resolutionActions.map(async (resolutionAction: any) => {
+              //7. postExecuteService to sudory server
+              const currentDate = new Date();
+              const start = new Date(currentDate.setHours(currentDate.getHours() - 1)).toDateString();
+              const subscribed_channel = config.sudoryApiDetail.channel_webhook;
+              const end = currentDate.toDateString();
+              const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
+              const resourceReplace = resolutionAction.resolutionActionTemplateSteps.replace('${resourceName}', resourceName);
+              const startReplace = resourceReplace.replace('${start}', start);
+              const steps = startReplace.replace('${end}', end);
+              const serviceOutput: any = await this.executorService.postExecuteService(
+                `METRICOPS-${resolutionAction?.resolutionActionName}`,
+                `INC-${incidentId}`,
+                clusterUuid,
+                templateUuid,
+                steps,
+                customerAccountKey,
+                subscribed_channel,
+              );
+              logger.info(`serviceOutput------${serviceOutput}`);
+            });
+          }
+        });
 
         //8. save the communicaiton result to notification table
 
         //9. create a message for return
         resultEvaluation = {
-          evaluationId: resultEvaluation.evaluationId,
-          evaluationResultStatus: resultEvaluation.evaluationResultStatus,
-          evaluationResult: resultEvaluation.evaluationResult,
-          resourceId: resultEvaluation.resourceId,
-          resourceName: resultEvaluation.resourceName,
-          incidentId: incidentId,
+          evaluationId,
+          evaluationResultStatus,
+          evaluationResult,
+          resourceId,
+          resourceName,
+          incidentId,
+          ruleGroup,
         };
       } else {
         resultEvaluation = {
-          evaluationId: resultEvaluation.evaluationId,
-          evaluationResultStatus: resultEvaluation.evaluationResultStatus,
-          resourceId: resultEvaluation.resourceId,
-          resourceName: resultEvaluation.resourceName,
+          evaluationId,
+          evaluationResultStatus,
+          resourceId,
+          resourceName,
           incidentId: '',
-          evaluationResult: resultEvaluation.evaluationResult,
+          evaluationResult,
         };
       }
       resultReturn[i] = resultEvaluation;

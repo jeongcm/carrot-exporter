@@ -26,8 +26,8 @@ class ResolutionActionService {
    */
   public async findAllResolutionAction(): Promise<IResolutionAction[]> {
     const resolutionActionList: IResolutionAction[] = await this.resolutionAction.findAll({
-      where: {deletedAt: null },include:[{model:SudoryTemplateModel , as:"sudoryTemplate"}]
-      
+      where: { deletedAt: null },
+      include: [{ model: SudoryTemplateModel, as: 'sudoryTemplate' }],
     });
     return resolutionActionList;
   }
@@ -39,21 +39,15 @@ class ResolutionActionService {
    * @returns Promise<IResolutionAction>
    * @author Shrishti Raj
    */
-  public async createResolutionAction(
-    resolutionActionData: CreateResolutionActionDto,
-    systemId: string,
-  ): Promise<IResolutionAction> {
-
-
+  public async createResolutionAction(resolutionActionData: CreateResolutionActionDto, systemId: string): Promise<IResolutionAction> {
     if (isEmpty(resolutionActionData)) throw new HttpException(400, 'resolutionAction Data cannot be blank');
 
-
-    const tableIdName: string = 'ResolutionAction';
+    const tableIdName = 'ResolutionAction';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const resolutionActionId: string = responseTableIdData.tableIdFinalIssued;
-    const {resolutionActionName, resolutionActionDescription, sudoryTemplateId, resolutionActionTemplateSteps} = resolutionActionData;
-    const sudoryTemplateDetails = await this.sudoryTemplate.findOne({where:{sudoryTemplateId:sudoryTemplateId}});
-    if(!sudoryTemplateDetails)  throw new HttpException(400, 'SudoryTemplate is not found');
+    const { resolutionActionName, resolutionActionDescription, sudoryTemplateId, resolutionActionTemplateSteps } = resolutionActionData;
+    const sudoryTemplateDetails = await this.sudoryTemplate.findOne({ where: { sudoryTemplateId: sudoryTemplateId } });
+    if (!sudoryTemplateDetails) throw new HttpException(400, 'SudoryTemplate is not found');
     const currentDate = new Date();
     const resolutionAction = {
       resolutionActionId: resolutionActionId,
@@ -61,12 +55,12 @@ class ResolutionActionService {
       createdAt: currentDate,
       updatedAt: currentDate,
       resolutionActionName,
-      resolutionActionDescription, 
+      resolutionActionDescription,
       resolutionActionTemplateSteps,
-      sudoryTemplateKey: sudoryTemplateDetails.sudoryTemplateKey
+      sudoryTemplateKey: sudoryTemplateDetails.sudoryTemplateKey,
     };
     const newresolutionAction: IResolutionAction = await this.resolutionAction.create(resolutionAction);
-    console.log("newresolutionAction", newresolutionAction)
+    console.log('newresolutionAction', newresolutionAction);
     return newresolutionAction;
   }
 
@@ -82,19 +76,18 @@ class ResolutionActionService {
 
     const findResolutionAction: IResolutionAction = await this.resolutionAction.findOne({
       where: { resolutionActionId, deletedAt: null },
-      include:[{model:SudoryTemplateModel , as:"sudoryTemplate"}]
+      include: [{ model: SudoryTemplateModel, as: 'sudoryTemplate' }],
     });
     if (!resolutionActionId) throw new HttpException(409, 'resolutionAction Id Not found');
 
     return findResolutionAction;
   }
 
-
   /**
-   * 
-   * @param {string} resolutionActionId 
-   * @param {object} resolutionActionData 
-   * @param {string} systemId 
+   *
+   * @param {string} resolutionActionId
+   * @param {object} resolutionActionData
+   * @param {string} systemId
    * @returns  Promise<IResolutionAction>
    */
   public async updateResolutionAction(
@@ -110,7 +103,7 @@ class ResolutionActionService {
     const updatedChannelData = {
       ...resolutionActionData,
       updatedBy: systemId,
-      updatedAt: currentDate
+      updatedAt: currentDate,
     };
     await this.resolutionAction.update(updatedChannelData, { where: { resolutionActionId } });
 
@@ -121,30 +114,31 @@ class ResolutionActionService {
     try {
       const ruleGroupDetail: any = await this.ruleGroup.findOne({ where: { ruleGroupId } });
       const ruleGroupResolutionAction = await this.ruleGroupResolutionAction.findAll({
-        where: { deletedAt: { [Op.eq]: null }, ruleGroupKey: ruleGroupDetail.ruleGroupKey }, attributes: ["resolutionActionKey"]
+        where: { deletedAt: { [Op.eq]: null }, ruleGroupKey: ruleGroupDetail.ruleGroupKey },
+        attributes: ['resolutionActionKey'],
       });
       let resolutionActionKeys: any[];
       if (ruleGroupResolutionAction) {
-        resolutionActionKeys = _.map(ruleGroupResolutionAction, "resolutionActionKey")
+        resolutionActionKeys = _.map(ruleGroupResolutionAction, 'resolutionActionKey');
       }
-      console.log("resolutionActionKeys==============\n\n", resolutionActionKeys)
       let whereCondition = {};
-      if(resolutionActionKeys.length){
-        whereCondition =  {
+      if (resolutionActionKeys.length) {
+        whereCondition = {
           deletedAt: null,
-          resolutionActionKey: { [Op.notIn]: resolutionActionKeys }
-        }
-      }else{
-        whereCondition =  {
-          deletedAt: null
-        }
+          resolutionActionKey: { [Op.notIn]: resolutionActionKeys },
+        };
+      } else {
+        whereCondition = {
+          deletedAt: null,
+        };
       }
       const allResolutionAction: IResolutionAction[] = await this.resolutionAction.findAll({
-        where:whereCondition,
+        where: whereCondition,
+        include: [{ model: SudoryTemplateModel, as: 'sudoryTemplate' }],
       });
       return allResolutionAction;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return [];
     }
   }
