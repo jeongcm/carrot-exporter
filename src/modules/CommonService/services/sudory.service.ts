@@ -76,12 +76,10 @@ class sudoryService {
    * @param {string} clusterUuid
   */
   public async checkSudoryClient(clusterUuid: string): Promise<ISudoryClient> {
-    var clientData;
-    var clientUuid = "";
-    var expirationTime;
-    var executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession + "/cluster/" + clusterUuid + "/alive";
-    var resultReturn;
-    var validClient:boolean = false;
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession + "/cluster/" + clusterUuid + "/alive";
+    console.log (executorServerUrl);
+    let resultReturn;
+    let validClient:boolean = false;
     //const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`;
     //executorServerUrl = executorServerUrl + sessionQueryParameter;
 
