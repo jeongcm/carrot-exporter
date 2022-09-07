@@ -166,7 +166,6 @@ export default {
     ncBnNodePath: process.env.NC_BN_NODE_PATH,
     ncBnNodeThreshold: process.env.NC_BN_NODE_THRESHOLD,
     ncBnRefreshModelPath: process.env.NC_BN_REFRESH_MODEL_PATH,
-    sudorySubscribedChannelWebhook : process.env.SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK,
   },
   oT: {
     oTTraceLogTurnOff: process.env.NC_TURN_OFF_TELEMETRY,
