@@ -149,10 +149,12 @@ class BayesianModelServices {
       include: [
         {
           model: ModelRuleScoreTable,
+          where: {deletedAt: null},
           attributes: ['bayesianModelKey'],
           include: [
             {
               model: RuleGroupModel,
+              where: {deletedAt: null},
               include: [
                 {
                   model: RuleGroupAlertRuleModel,
@@ -163,10 +165,12 @@ class BayesianModelServices {
         },
         {
           model: ResourceGroupModel,
+          where: {deletedAt: null},
           attributes: ['resourceGroupName', 'resourceGroupId'],
         },
         {
           model: AnomalyMonitoringTargetTable,
+          where: {deletedAt: null},
           include: [{ model: ResourceModel, include: [{ model: ResourceGroupModel }] }],
         },
       ],
