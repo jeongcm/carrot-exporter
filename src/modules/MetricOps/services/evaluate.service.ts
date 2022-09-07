@@ -30,6 +30,7 @@ import ResourceGroupService from '@/modules/Resources/services/resourceGroup.ser
 import { IPartyUser } from '@/common/interfaces/party.interface';
 import { DiagConsoleLogger } from '@opentelemetry/api';
 import { arrayBuffer } from 'stream/consumers';
+import LogController from '@/modules/Log/controllers/log.controller';
 
 const { Op } = require('sequelize');
 
@@ -404,15 +405,15 @@ class EvaluateServices {
             // getResolutionActionByRuleGroupId
             const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(grp.ruleGroupId);
             resolutionActions.map(async (resolutionAction: any) => {
-              const start = new Date();
-              const subscribed_channel = config.sudoryApiDetail.channel_webhook;
-              const end = new Date();
-              start.setHours(start.getHours() - 1);
               //7. postExecuteService to sudory server
-
+              const currentDate = new Date();
+              const start = new Date(currentDate.setHours(currentDate.getHours() - 1)).toDateString();
+              const subscribed_channel = config.sudoryApiDetail.channel_webhook;
+              const end = currentDate.toDateString();
               const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
-              const steps = `${resolutionAction.sudoryTemplate.resolutionActionTemplateSteps}`;
-              logger.info(`steps------${steps}, start---------${start}, --------${end}`);
+              const resourceReplace = resolutionAction.resolutionActionTemplateSteps.replace('${resourceName}', resourceName);
+              const startReplace = resourceReplace.replace('${start}', start);
+              const steps = startReplace.replace('${end}', end);
               const serviceOutput: any = await this.executorService.postExecuteService(
                 `METRICOPS-${resolutionAction?.resolutionActionName}`,
                 `INC-${incidentId}`,
