@@ -158,6 +158,7 @@ class BayesianModelServices {
               include: [
                 {
                   model: RuleGroupAlertRuleModel,
+                  where: {deletedAt: null},
                 },
               ],
             },
@@ -170,8 +171,11 @@ class BayesianModelServices {
         },
         {
           model: AnomalyMonitoringTargetTable,
-          where: {deletedAt: null},
-          include: [{ model: ResourceModel, include: [{ model: ResourceGroupModel }] }],
+          
+          include: [{ model: ResourceModel,
+                      where: {deletedAt: null},              
+                      include: [{ model: ResourceGroupModel }] 
+                   }],
         },
       ],
     });
