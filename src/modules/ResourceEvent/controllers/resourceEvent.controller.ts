@@ -35,7 +35,7 @@ class resourceEventController{
           return res.sendStatus(500);
         }
   
-        res.status(200).json({ data: resourceEvent, message: `ResourceEvents - pull events successfully ${resourceGroupUuid}, offset ${offset}, limit ${offset}` });
+        res.status(200).json({ data: resourceEvent, message: `ResourceEvents - pull events successfully ${resourceGroupUuid}, offset ${offset}, limit ${limit}` });
       } catch (error) {
         next(error);
       }

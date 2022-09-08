@@ -264,8 +264,8 @@ class ResourceGroupService {
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
     if (!findResourceGroup) throw new HttpException(400, "*ResourceGroup doesn't exist");
     const sudoryChannel = config.sudoryApiDetail.channel_webhook;
-    const kpsLokiNamespace = findResourceGroup.resourceGroupKpsLokiNamespace;
-    const sudoryNamespace = findResourceGroup.resourceGroupSudoryNamespace;
+    const kpsLokiNamespace = findResourceGroup.resourceGroupKpsLokiNamespace || "monitor";
+    const sudoryNamespace = findResourceGroup.resourceGroupSudoryNamespace || "sudoryclient";
 
     if (deleteOption == '2') {
       //0-1. Prometheus / KPS
