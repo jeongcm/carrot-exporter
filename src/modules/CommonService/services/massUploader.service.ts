@@ -73,17 +73,6 @@ class massUploaderService {
                       resource_sc_provisioner, resource_sc_reclaim_policy, resource_sc_allow_volume_expansion, resource_sc_volume_binding_mode,
                       resource_rbac, resource_anomaly_monitor, resource_active, 
                       customer_account_key, resource_group_key,
-                      resource_event_involved_object_kind, 
-                      resource_event_involved_object_name,
-                      resource_event_involved_object_namespace,
-                      resource_event_reason,
-                      resource_event_message,
-                      resource_event_source_component,
-                      resource_event_source_host,
-                      resource_event_first_timestamp,
-                      resource_event_last_timestamp,
-                      resource_event_count,
-                      resource_event_type
                       ) VALUES ?
                       ON DUPLICATE KEY UPDATE 
                       resource_active=VALUES(resource_active),
@@ -131,17 +120,6 @@ class massUploaderService {
                       resource_status_updated_at=VALUES(created_at),
                       updated_at=VALUES(created_at),
                       updated_by=VALUES(created_by),
-                      resource_event_involved_object_kind=VALUES(resource_event_involved_object_kind), 
-                      resource_event_involved_object_name=VALUES(resource_event_involved_object_name),
-                      resource_event_involved_object_namespace=VALUES(resource_event_involved_object_namespace),
-                      resource_event_reason=VALUES(resource_event_reason),
-                      resource_event_message=VALUES(resource_event_message),
-                      resource_event_source_component=VALUES(resource_event_source_component),
-                      resource_event_source_host=VALUES(resource_event_source_host),
-                      resource_event_first_timestamp=VALUES(resource_event_first_timestamp),
-                      resource_event_last_timestamp=VALUES(resource_event_last_timestamp),
-                      resource_event_count=VALUES(resource_event_count),
-                      resource_event_type=VALUES(resource_event_type)
                       `;
     var query2 = new Array();
     for (let i = 0; i < sizeOfInput; i++) {
@@ -231,17 +209,6 @@ class massUploaderService {
             resourceMassFeed.resource[i].resource_Active,
             customerAccountKey, //customer_Account_Key
             resourceGroupKey, //resource_Group_Kep 17 total columns
-            resourceMassFeed.resource[i].resource_event_involved_object_kind, 
-            resourceMassFeed.resource[i].resource_event_involved_object_name,
-            resourceMassFeed.resource[i].resource_event_involved_object_namespace,
-            resourceMassFeed.resource[i].resource_event_reason,
-            resourceMassFeed.resource[i].resource_event_message,
-            resourceMassFeed.resource[i].resource_event_source_component,
-            resourceMassFeed.resource[i].resource_event_source_host,
-            resource_event_first_timestamp,
-            resource_event_last_timestamp,
-            resourceMassFeed.resource[i].resource_event_count,
-            resourceMassFeed.resource[i].resource_event_type,
         ];
         //resource_Target_Created_At = null;
     }
