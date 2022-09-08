@@ -31,7 +31,6 @@ class healthService {
       where: { deleted_at: null, customerAccountId: customerAccountId },
     };
     const customerAccountData = await this.customerAccount.findOne(queryCustomer);
-    //let customerAccountData = await this.customerAccountService.getCustomerAccountById(customerAccountId);
     if (!customerAccountData) {
       throw new HttpException(404, `Can't find customerAccount information: ${customerAccountId}`);
     }

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import ResourceEventController from '@/modules/ResourceEvent/controllers/resourceEvent.controller';
+import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 //import AuthService from '@/modules/UserTenancy/services/auth.service';
 //import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 
@@ -15,6 +16,14 @@ class resourceEventRoute implements Routes {
   private initializeRoutes() {
     // this.router.post('/tableId', authMiddleware, this.tableIdController.issueTableId);
     this.router.post('/resourceEventMass', this.resourceEventController.massUploadForResource);
+    this.router.get('/resourceEvent/resourceGroup/:resourceGroupUuid/:offset/:limit', 
+      authMiddleware, 
+      //createUserLogMiddleware, 
+      this.resourceEventController.getResourceEventByResourceGroupUuid);
+    this.router.get('/resourceEvent/resource/:resourceId', 
+      authMiddleware, 
+      //createUserLogMiddleware,
+      this.resourceEventController.getResourceEventByResourceId);
   }
 }
 
