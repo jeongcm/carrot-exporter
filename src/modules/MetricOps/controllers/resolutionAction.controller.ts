@@ -35,12 +35,8 @@ class ResolutionActionController {
 
   public createResolutionAction = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {
-        user: { partyId } = {},
-        systemId,
-        customerAccountKey
-      } = req;
-      console.log("customerAccountKey", customerAccountKey)
+      const { user: { partyId } = {}, systemId, customerAccountKey } = req;
+      console.log('customerAccountKey', customerAccountKey);
       const resolutionActionData: CreateResolutionActionDto = req.body;
       const newResolutionAction: IResolutionAction = await this.resolutionActionService.createResolutionAction(
         resolutionActionData,
@@ -54,10 +50,7 @@ class ResolutionActionController {
 
   public updateResolutionAction = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {
-        user: { partyId } = {},
-        params: { resolutionActionId } = {}
-      } = req;
+      const { user: { partyId } = {}, params: { resolutionActionId } = {} } = req;
       const resolutionActionData: UpdateResolutionActionDto = req.body;
       const updateResolutionActionData: IResolutionAction = await this.resolutionActionService.updateResolutionAction(
         resolutionActionId,
@@ -74,11 +67,9 @@ class ResolutionActionController {
     try {
       const {
         user: { partyId },
-        params: { resolutionActionId }
+        params: { resolutionActionId },
       } = req;
-      const resolutionActionData: IResolutionAction = await this.resolutionActionService.findResolutionActionById(
-        resolutionActionId
-      );
+      const resolutionActionData: IResolutionAction = await this.resolutionActionService.findResolutionActionById(resolutionActionId);
       res.status(200).json({ data: resolutionActionData, message: 'find' });
     } catch (error) {
       next(error);
@@ -86,11 +77,13 @@ class ResolutionActionController {
   };
   public getResolutionActionByRuleGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {params:{ruleGroupId}} = req;
-      const resolutionActionList :IResolutionAction[]  = await this.resolutionActionService.getResolutionActionByRuleGroupId(ruleGroupId);
+      const {
+        params: { ruleGroupId },
+      } = req;
+      const resolutionActionList: IResolutionAction[] = await this.resolutionActionService.getResolutionActionByRuleGroupId(ruleGroupId);
       return res.status(200).json({ data: resolutionActionList, message: 'findAll' });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       next(error);
     }
   };

@@ -149,13 +149,16 @@ class BayesianModelServices {
       include: [
         {
           model: ModelRuleScoreTable,
+          where: {deletedAt: null},
           attributes: ['bayesianModelKey'],
           include: [
             {
               model: RuleGroupModel,
+              where: {deletedAt: null},
               include: [
                 {
                   model: RuleGroupAlertRuleModel,
+                  where: {deletedAt: null},
                 },
               ],
             },
@@ -163,11 +166,16 @@ class BayesianModelServices {
         },
         {
           model: ResourceGroupModel,
+          where: {deletedAt: null},
           attributes: ['resourceGroupName', 'resourceGroupId'],
         },
         {
           model: AnomalyMonitoringTargetTable,
-          include: [{ model: ResourceModel, include: [{ model: ResourceGroupModel }] }],
+          
+          include: [{ model: ResourceModel,
+                      where: {deletedAt: null},              
+                      include: [{ model: ResourceGroupModel }] 
+                   }],
         },
       ],
     });
@@ -283,7 +291,9 @@ class BayesianModelServices {
       version,
     };
     await this.bayesianModel.update(updatedModelData, { where: { bayesianModelId } });
-    await this.metricOpsUtilService.updateBayesianNetwork(bayesianModelKey);
+    if (bayesianModelScoreCard && Object.keys(bayesianModelScoreCard).length) {
+      await this.metricOpsUtilService.updateBayesianNetwork(bayesianModelKey);
+    }
     return this.findBayesianModelById(bayesianModelId);
   }
 

@@ -24,6 +24,7 @@ export type ResourceEventCreationAttributes = Optional<
   | 'resourceEventCount'
   | 'customerAccountKey'
   | 'resourceGroupUuid'
+  | 'resourceGroupKey'
   | 'resourceKey'
   | 'createdBy'
   | 'updatedBy'
@@ -56,7 +57,8 @@ export class ResourceEventModel extends Model<IResourceEvent, ResourceEventCreat
   public resourceEventCount: number;
   public customerAccountKey: number;
   public resourceGroupUuid: string;
-  public resourceKey: number
+  public resourceKey: number;
+  public resourceGroupKey: number
 
   public updatedAt: Date;
 
@@ -118,6 +120,10 @@ export default function (sequelize: Sequelize): typeof ResourceEventModel {
       resourceGroupUuid: {
         allowNull: true,
         type: DataTypes.STRING(100),
+      },
+      resourceGroupKey: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
       },
       resourceKey: {
         allowNull: true,
