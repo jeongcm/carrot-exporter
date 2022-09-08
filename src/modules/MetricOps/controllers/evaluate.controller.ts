@@ -23,7 +23,7 @@ class EvaluateController {
     try {
       const customerAccountId = req.body.customerAccountId;
       const logginedUserId = req.user.partyId;
-      const evalatiaonResult = await this.evaluateService.initiateEvaluationProcess(customerAccountId, logginedUserId);
+      const evalatiaonResult = await this.evaluateService.initiateEvaluationProcess(customerAccountId);
       res.status(200).json({ data: evalatiaonResult, message: `Evaluation complate - ${customerAccountId}` });
     } catch (error) {
       next(error);

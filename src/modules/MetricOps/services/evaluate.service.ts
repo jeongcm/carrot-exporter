@@ -337,7 +337,7 @@ class EvaluateServices {
    * @author Jerry Lee
    */
 
-  public async initiateEvaluationProcess(customerAccountId: string, logginedUserId: string): Promise<any> {
+  public async initiateEvaluationProcess(customerAccountId: string): Promise<any> {
     //0.pre
     const userId = config.initialRecord.partyUser.userId;
 
@@ -378,8 +378,11 @@ class EvaluateServices {
           incidentDueDate: null,
           assigneeId: '',
         };
+        console.log (incidentData);
+        
         const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, UserId, incidentData);
         const incidentId = resultIncidentCreate.incidentId;
+        console.log ("incidentId", incidentId);
 
         const firedAlerts = resultEvaluation.evaluationRequest.firedAlerts;
 
@@ -390,16 +393,18 @@ class EvaluateServices {
         await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, alertReceivedIds, UserId);
         logger.info(`incident ticket is created: ', ${incidentId}, 'Alert Attached - ', ${alertReceivedIds}`);
         console.log('incident ticket is created: ', incidentId, 'Alert Attached - ', alertReceivedIds);
+
         //6. execute any resolution actions if there are actions under rule group more than a threshhold
         const threshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
         const ruleGroup = [];
         Object.entries(evaluationResult.alert_group_score).filter(([key, value]) => {
           const ruleValue = Number(value) * 100;
-          if (ruleValue <= threshold) {
+          if (ruleValue >= threshold) {
             ruleGroup.push(key);
           }
         });
         logger.info(`ruleGroup===================, ${ruleGroup}`);
+        
         evaluationRequest.ruleGroup.map(async (grp: any) => {
           if (ruleGroup.indexOf(grp.ruleGroupName) !== -1) {
             // getResolutionActionByRuleGroupId

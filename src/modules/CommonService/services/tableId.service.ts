@@ -27,21 +27,23 @@ class TableIdService {
     if (!getTableId) throw new HttpException(409, "Can't find a matched tableId record");
 
     const currentDate = new Date();
-    const currentDay = currentDate.getDate() + getTableId.tableDay;
+    console.log ("#######");
+    const currentDay = currentDate.getUTCDate() + getTableId.tableDay;
 
     let currentDayText = currentDay.toString();
+    console.log ("currentDayText", currentDayText);
     if (currentDayText.length == 1) {
       currentDayText = "0"+ currentDayText;
     }
 
-    const currentMonth = currentDate.getMonth() + 1 + getTableId.tableMonth;
+    const currentMonth = currentDate.getUTCMonth() + 1 + getTableId.tableMonth;
 
     let currentMonthText = currentMonth.toString();
     if (currentMonthText.length == 1) {
       currentMonthText = "0"+ currentMonthText;
     }
 
-    const currentFullYear = currentDate.getFullYear() + getTableId.tableYear;
+    const currentFullYear = currentDate.getUTCFullYear() + getTableId.tableYear;
     const currentYearText = currentFullYear.toString();
     const currentYear = currentYearText.substring(2, 4);
 
