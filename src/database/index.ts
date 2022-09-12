@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
-import { writeFileSync } from 'fs';
-import sequelizeErd from 'sequelize-erd';
-import { logger } from '@/common/utils/logger';
+//import { writeFileSync } from 'fs';
+//import sequelizeErd from 'sequelize-erd';
+//import { logger } from '@/common/utils/logger';
 import AlertRuleModel from '@/modules/Alert/models/alertRule.model';
 import AlertReceivedModel from '@/modules/Alert/models/alertReceived.model';
 import LogModel from '@/modules/Log/models/log.model';
@@ -79,7 +79,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   dialect: 'mariadb',
   timezone: '+00:00',
   dialectOptions: {
-    autoJsonMap: false,
+    autoJsonMap: true, //don't change this option. It'll return string for JSON DB column if it set as FALSE
   },
   define: {
     charset: 'utf8mb4',
@@ -92,12 +92,11 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
     max: pool.max,
   },
   logQueryParameters: config.nodeEnv === 'development',
-  
+
   logging: (query, time) => {
     // TODO: find a better way to leave a log
     // logger.info(time + 'ms' + ' ' + query);
   },
-  
   //logging: console.log,
   benchmark: true,
   retry: {

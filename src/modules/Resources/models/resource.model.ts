@@ -214,7 +214,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         allowNull: true,
         validate: {
           isIn: {
-            args: [['', 'ND', 'NS', 'PJ', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV',]],
+            args: [['', 'ND', 'NS', 'PJ', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV']],
             msg: 'Resource level2 must be of type ND, NS, PJ or empty.',
           },
         },
@@ -363,7 +363,6 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       resourceOwnerReferences: {
         type: DataTypes.JSON,
       },
-
     },
     {
       indexes: [
