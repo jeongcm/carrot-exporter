@@ -16,6 +16,7 @@ import SudoryService from '@/modules/CommonService/services/sudory.service';
 //import { Db } from 'mongodb';
 //import sequelize from 'sequelize';
 import config from '@config/index';
+import axios from '@/common/httpClient/axios';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
@@ -377,7 +378,7 @@ class ResourceGroupService {
         const resultCancelScheduler = await this.schedulerService.cancelCronScheduleByResourceGroupUuid(resourceGroupUuid);
         console.log('Scheduler - cancalled - ', resourceGroupUuid);
 
-        //6. sudoryclient?
+        //6-1. sudoryclient?
 
         const name = 'sudory uninstall';
         const summary = 'sudory uninstall';
@@ -394,6 +395,23 @@ class ResourceGroupService {
           sudoryChannel,
         );
         console.log('sudory client - uninstalled - ', resourceGroupUuid);
+
+        //6-2. sudoryserver?
+        const executeServerClusterUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateCluster + '/' + resourceGroupUuid;
+        await axios({
+          method: 'delete',
+          url: `${executeServerClusterUrl}`,
+          //data: sudoryCreateCluster,
+          headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
+        })
+          .then(async (res: any) => {
+            const sudoryDeleteClusterResponse = res.data;
+            console.log('success to delete sudory cluster', sudoryDeleteClusterResponse);
+          })
+          .catch(error => {
+            console.log('error to delete sudory clusgter', error);
+            return error;
+          });
 
         //7. AlertRule, AlertReceived
         const findAlertRule: IAlertRule[] = await this.alertRule.findAll({ where: { resourceGroupUuid: resourceGroupUuid } });

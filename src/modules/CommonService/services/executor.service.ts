@@ -31,7 +31,7 @@ class executorService {
    */
   public async checkExecutorResourceResponse(serviceUuid: string): Promise<ExecutorResultDto> {
     const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService + '/' + serviceUuid + '/result';
-    var serviceUuid = '';
+
     let clusterUuid = '';
     let name = '';
     const result = [];
@@ -48,7 +48,7 @@ class executorService {
           console.log('result is not ready');
           return;
         }
-        serviceUuid = res.data.uuid;
+        //serviceUuid = res.data.uuid;
         clusterUuid = res.data.cluster_uuid;
         name = res.data.name;
         status = 'Ready';
@@ -80,7 +80,7 @@ class executorService {
    */
   public async checkExecutorResponse(serviceUuid: string): Promise<ExecutorResultDto> {
     const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService + '/' + serviceUuid + '/result';
-    var serviceUuid = '';
+
     let clusterUuid = '';
     let name = '';
     let result = [];
@@ -97,7 +97,7 @@ class executorService {
           console.log('result is not ready');
           return;
         }
-        serviceUuid = res.data.uuid;
+        //serviceUuid = res.data.uuid;
         clusterUuid = res.data.cluster_uuid;
         name = res.data.name;
         result = JSON.parse(res.data.result);
@@ -234,8 +234,8 @@ class executorService {
     const resourceCron = config.resourceCron;
     //const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`;
     //executorServerUrl = executorServerUrl + sessionQueryParameter;
-    console.log ("bug/736");
-    console.log (executorServerUrl);
+    console.log('bug/736');
+    console.log(executorServerUrl);
     const subscribedChannelResource = config.sudoryApiDetail.channel_resource;
     await axios({
       method: 'get',
