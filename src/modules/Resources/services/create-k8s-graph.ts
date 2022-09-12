@@ -181,9 +181,10 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
                 resourceOwnerReferences = [];
               }
             }
+          } else {
+            resourceOwnerReferences = resource.resourceOwnerReferences;
           }
           const owner = resourceOwnerReferences;
-          const type = TYPE_PER_NAME[(owner.kind || '').toLowerCase()];
           const uid = owner.uid;
           const target = `${resourceNamespace}.${uid}`;
 
@@ -233,6 +234,8 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
                 resourceOwnerReferences = [];
               }
             }
+          } else {
+            resourceOwnerReferences = resource.resourceOwnerReferences;
           }
           const owner = resourceOwnerReferences;
 
