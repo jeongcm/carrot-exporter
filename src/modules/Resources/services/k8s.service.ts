@@ -59,13 +59,10 @@ class k8sService extends ServiceExtension {
     return detail;
   }
 
-  public async getResourceRelationByKey(resourceKey: number, customerAccountKey: number) {
-
-  }
+  //public async getResourceRelationByKey(resourceKey: number, customerAccountKey: number) {}
 
   private processK8sDetailServices(detail: any, resource: IResource) {
     detail.totalServices += 1;
-
   }
 
   private processK8sDetailPv(detail: any, resource: IResource) {
@@ -121,7 +118,7 @@ class k8sService extends ServiceExtension {
         detail.conditions = {};
       }
 
-      (resourceStatus.conditions || []).map((condition: any)=>{
+      (resourceStatus.conditions || []).map((condition: any) => {
         const type = condition?.type;
 
         if (!detail.conditions[type]) {
@@ -136,11 +133,8 @@ class k8sService extends ServiceExtension {
           detail.conditions[type].value += 1;
         }
       });
-
     }
-
   }
-
 }
 
 export default k8sService;
