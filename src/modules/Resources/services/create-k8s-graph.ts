@@ -329,7 +329,6 @@ const addEdge = (namespace: string, edge: any, nsNodes: any, existingEdgeIds: st
       },
       ...edge,
     });
-
   }
 
   return nsNodes;

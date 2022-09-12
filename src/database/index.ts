@@ -79,7 +79,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   dialect: 'mariadb',
   timezone: '+00:00',
   dialectOptions: {
-    autoJsonMap: false,
+    autoJsonMap: true,
   },
   define: {
     charset: 'utf8mb4',
@@ -92,12 +92,12 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
     max: pool.max,
   },
   logQueryParameters: config.nodeEnv === 'development',
-  
+
   logging: (query, time) => {
     // TODO: find a better way to leave a log
     // logger.info(time + 'ms' + ' ' + query);
   },
-  
+
   //logging: console.log,
   benchmark: true,
   retry: {
