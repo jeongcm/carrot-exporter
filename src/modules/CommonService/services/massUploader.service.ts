@@ -74,7 +74,7 @@ class massUploaderService {
                       resource_pv_storage, resource_pv_claim_ref, resource_pv_storage_class_name, resource_pv_volume_mode,
                       resource_sc_provisioner, resource_sc_reclaim_policy, resource_sc_allow_volume_expansion, resource_sc_volume_binding_mode,
                       resource_rbac, resource_anomaly_monitor, resource_active, 
-                      customer_account_key, resource_group_key,
+                      customer_account_key, resource_group_key
                       ) VALUES ?
                       ON DUPLICATE KEY UPDATE 
                       resource_active=VALUES(resource_active),
@@ -121,7 +121,7 @@ class massUploaderService {
                       resource_group_key=VALUES(resource_group_key),
                       resource_status_updated_at=VALUES(created_at),
                       updated_at=VALUES(created_at),
-                      updated_by=VALUES(created_by),
+                      updated_by=VALUES(created_by)
                       `;
     const query2 = [];
     for (let i = 0; i < sizeOfInput; i++) {
