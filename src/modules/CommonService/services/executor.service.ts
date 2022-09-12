@@ -2086,7 +2086,7 @@ class executorService {
     if (DataSetFromSudory.result === '') {
       serviceResult = '';
     } else {
-      if (typeof DataSetFromSudory.result === 'string') {
+      if (DataSetFromSudory.status === 8) {
         serviceResult = JSON.parse(JSON.stringify(DataSetFromSudory.result));
       } else {
         serviceResult = JSON.parse(DataSetFromSudory.result);
