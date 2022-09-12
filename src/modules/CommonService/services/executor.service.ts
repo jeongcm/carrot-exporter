@@ -2086,7 +2086,7 @@ class executorService {
     if (DataSetFromSudory.result === '') {
       serviceResult = '';
     } else {
-      serviceResult = JSON.parse(DataSetFromSudory.result);
+      serviceResult = JSON.stringify(DataSetFromSudory.result);
     }
 
     console.log('##sudorywebhook##');
