@@ -259,27 +259,30 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
           });
         }
 
-        (resource.resourcePodContainer || []).forEach((container: any) => {
-          let target = '';
-          (container.env || []).forEach((env: any) => {
-            if (env.valueFrom?.configMapKeyRef) {
-              target = `${resourceNamespace}.CM.${env.valueFrom.configMapKeyRef.name}`;
-            } else if (env.valueFrom?.secretKeyRef) {
-              target = `${resourceNamespace}.SE.${env.valueFrom.secretKeyRef.name}`;
-            }
+        if (resource.resourcePodContainer && Array.isArray(resource.resourcePodContainer)) {
+          resource.resourcePodContainer.forEach((container: any) => {
+            let target = '';
+            (container.env || []).forEach((env: any) => {
+              if (env.valueFrom?.configMapKeyRef) {
+                target = `${resourceNamespace}.CM.${env.valueFrom.configMapKeyRef.name}`;
+              } else if (env.valueFrom?.secretKeyRef) {
+                target = `${resourceNamespace}.SE.${env.valueFrom.secretKeyRef.name}`;
+              }
 
-            addEdge(
-              resourceNamespace,
-              {
-                source: _nodeId,
-                target,
-              },
-              nsNodes,
-              existingEdgeIds,
-              resourcePerNodeId,
-            );
+              addEdge(
+                resourceNamespace,
+                {
+                  source: _nodeId,
+                  target,
+                },
+                nsNodes,
+                existingEdgeIds,
+                resourcePerNodeId,
+              );
+            });
           });
-        });
+        }
+
         break;
     }
   });
