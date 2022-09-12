@@ -20,6 +20,7 @@ export interface IResourceEvent {
      customerAccountKey: number, 
      resourceGroupUuid: string,
      resourceKey: number, 
+     resourceGroupKey: number,
      createdBy: string,
      updatedBy: string,
      createdAt: Date,

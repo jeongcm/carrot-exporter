@@ -10,14 +10,17 @@ import { isEmpty } from '@/common/utils/util';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
+import ResourceService from '@/modules/Resources/services/resource.service';
+
 import { Op } from 'sequelize';
 import { ResourceEventModel } from '../models/resourceEvent.model';
 
-class ResourceService {
+class ResourceEventService {
     public resource = DB.Resource;
     public resourceEvent = DB.ResourceEvent;
     public customerAccountService = new CustomerAccountService();
     public resourceGroupService = new ResourceGroupService();
+    public resourceService = new ResourceService();
 
     public async createResourceEventMass(resourceEventData: IRequestMassUploader): Promise<string> {
         console.log (resourceEventData);
@@ -66,7 +69,6 @@ class ResourceService {
             resource_event_type,
             resource_event_target_created_at,
             resource_event_target_uuid,
-
             resource_event_involved_object_kind, 
             resource_event_involved_object_name,
             resource_event_involved_object_namespace,
@@ -79,6 +81,7 @@ class ResourceService {
             resource_event_count,
             customer_account_key,
             resource_group_uuid,
+            resource_group_key,
             resource_key
             ) VALUES ?
             `;
@@ -129,7 +132,8 @@ class ResourceService {
                 resource_event_last_timestamp,
                 resourceEventData.resource[i].resource_event_count,
                 customerAccountKey, //customer_Account_Key
-                resourceGroupKey, //resource_Group_Kep 17 total columns
+                resourceGroupUuid, //resource_Group_uuid 17 total columns
+                resourceGroupKey,
                 resourceKey,
             ];
             
@@ -161,7 +165,37 @@ class ResourceService {
         await mysqlConnection.end();
         return "successful DB update ";
 
-    }    
+    }
+
+    public async getResourceEventByResourceGroupUuid(resourceGroupUuid: string, limit: number, offset: number): Promise<IResourceEvent[]>{
+
+        console.log (limit);
+        console.log (offset);
+
+        const resultResourceEvent: IResourceEvent[] = await this.resourceEvent.findAll(
+            {limit: limit, offset: offset, 
+             where: {resourceGroupUuid},
+             order: [['createdAt', 'DESC']]
+            }
+            );
+        return resultResourceEvent;
+    }
+
+    public async getResourceEventByResourceId(resourceId: string): Promise<IResourceEvent[]>{
+        const resultResource: IResource = await this.resourceService.getResourceById(resourceId);
+        if (!resultResource) throw new HttpException(400, `No resource with Resource Id - ${resourceId}`);
+
+        const resultResourceEvent: IResourceEvent[] = await this.resourceEvent.findAll(
+            {
+             where: {resourceKey: resultResource.resourceKey},
+             order: [['createdAt', 'DESC']]
+            }
+            );
+        return resultResourceEvent;
+    }
+
+
+
 } //end of class
 
-export default ResourceService;
+export default ResourceEventService;
