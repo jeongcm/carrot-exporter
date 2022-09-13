@@ -15,7 +15,7 @@ export interface IMetricQueryBodyQuery {
   end?: string;
   step?: string;
   promql?: string;
-  resourceGroupId?: string;
+  resourceGroupId?: string | string[];
   resourceGroupUuid?: string;
 }
 
@@ -79,7 +79,7 @@ class MetricService extends ServiceExtension {
             }
             resourceGroups = await this.resourceGroupService.getResourceGroupByIds(idsToUse);
             if (!resourceGroups) {
-              return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupId.join(', ')})`);
+              return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${idsToUse.join(', ')})`);
             }
           }
 
