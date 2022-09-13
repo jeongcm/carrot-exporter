@@ -12,10 +12,9 @@ import { IResource } from '@/common/interfaces/resource.interface';
 import config from '@config/index';
 import { CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
 import catalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
-import {CreateUserDto} from '@/modules/Party/dtos/party.dto'
+import { CreateUserDto } from '@/modules/Party/dtos/party.dto';
 
 class SystemSubscriptionController {
-
   public customerAccountService = new CustomerAccountService();
   public partyService = new PartyService();
 
@@ -24,12 +23,20 @@ class SystemSubscriptionController {
 
   public createSystemSubscription = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const { body: { eventType }, user: { partyId } = {}, systemId } = req;
+      const {
+        body: { eventType },
+        user: { partyId } = {},
+        systemId,
+      } = req;
       let createdResponse;
       const createdBy = systemId || partyId;
       switch (eventType) {
-        case "CustomerCreated":
-          const { body: { Customer: { firstName, lastName, id, primaryEmail, primaryPhone, companyName } } } = req;
+        case 'CustomerCreated':
+          const {
+            body: {
+              Customer: { firstName, lastName, id, primaryEmail, primaryPhone, companyName },
+            },
+          } = req;
           const customerAccountData = {
             customerAccountName: companyName || `${firstName} ${lastName}`,
             customerAccountDescription: null,
@@ -37,8 +44,7 @@ class SystemSubscriptionController {
             customerAccountType: null,
           };
 
-          const partyData: CreateUserDto =
-          {
+          const partyData: CreateUserDto = {
             partyName: companyName || `${firstName} ${lastName}`,
             partyDescription: null,
             parentPartyId: null,
@@ -48,30 +54,42 @@ class SystemSubscriptionController {
             firstName,
             lastName,
             userId: id,
-            password: "",
+            password: '',
             email: primaryEmail,
             mobile: primaryPhone,
-            partyUserStatus: "DR",
-            customerAccountId: "",
-            timezone: "",
+            partyUserStatus: 'DR',
+            customerAccountId: '',
+            timezone: '',
             adminYn: false,
           };
 
-          const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy)
+          const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy);
           createdResponse = responseCustomerAccount;
           break;
 
-        case "SubscriptionCreated":
-          const { body: { Subscription: { catalogPlanId, subscriptionStatus, subscriptionTerminatedAt , subscriptionCommitmentType= 'AC', subscriptionActivatedAt, subscriptionConsent, customerAccountKey } } } = req;
+        case 'SubscriptionCreated':
+          const {
+            body: {
+              Subscription: {
+                catalogPlanId,
+                subscriptionStatus,
+                subscriptionTerminatedAt,
+                subscriptionCommitmentType = 'AC',
+                subscriptionActivatedAt,
+                subscriptionConsent,
+                customerAccountKey,
+              },
+            },
+          } = req;
 
           const subscriptionData = {
             subscriptionStatus,
             subscriptionConsent,
             subscriptionActivatedAt,
             subscriptionTerminatedAt,
-            subscriptionCommitmentType  ,
-            catalogPlanId
-          }
+            subscriptionCommitmentType,
+            catalogPlanId,
+          };
 
           const responseSubscription = await this.systemSubscriptionService.createSubscription(subscriptionData, createdBy, customerAccountKey);
           createdResponse = responseSubscription;
@@ -81,11 +99,10 @@ class SystemSubscriptionController {
           break;
       }
 
-      return res.status(200).json({ data:createdResponse });
-
-      } catch (error) {
-        console.log("errror", error)
-        next(error);
+      return res.status(200).json({ data: createdResponse });
+    } catch (error) {
+      console.log('errror', error);
+      next(error);
     } // end of try
   };
 }
