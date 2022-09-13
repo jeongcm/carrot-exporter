@@ -111,6 +111,7 @@ export interface IPartyUserResponse {
   email: string;
   timezone: string;
   isEmailValidated: boolean;
+  language: string;
 }
 
 export interface IPartyResponse {
