@@ -17,7 +17,7 @@ class VictoriaMetricService extends ServiceExtension {
 
     const startTime: number = Date.now();
 
-    let url = `${this.victoriaEndpoint}/api/v1/query_range?query=${promQl}&start=${start}&end=${end}`;
+    let url = `${this.victoriaEndpoint}/api/v1/query_range?query=${encodeURIComponent(promQl)}&start=${start}&end=${end}`;
     if (step) {
       url = `${url}&step=${step}`;
     }
@@ -41,10 +41,15 @@ class VictoriaMetricService extends ServiceExtension {
     }
   }
 
-  public async query(promQl) {
+  public async query(promQl, step) {
     if (isEmpty(promQl)) return this.throwError('EXCEPTION', 'promQL is missing');
 
-    const url = `${this.victoriaEndpoint}/api/v1/query?query=${promQl}`;
+    let stepStr = '';
+    if (step) {
+      stepStr = `&step=${step}`;
+    }
+
+    const url = `${this.victoriaEndpoint}/api/v1/query?query=${encodeURIComponent(promQl)}${stepStr}`;
 
     try {
       const result = await axios({
@@ -58,6 +63,7 @@ class VictoriaMetricService extends ServiceExtension {
         return null;
       }
     } catch (e) {
+      console.log(e);
       this.throwError('EXCEPTION', 'failed to call victoria metric server');
     }
   }

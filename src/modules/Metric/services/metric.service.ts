@@ -49,7 +49,7 @@ class MetricService extends ServiceExtension {
           }
 
           let resource: IResource = null;
-          let resourceGroup: IResourceGroup = null;
+          let resourceGroups: IResourceGroup[] = null;
           if (resourceId) {
             resource = await this.resourceService.getUserResourceById(customerAccountKey, resourceId);
 
@@ -57,28 +57,40 @@ class MetricService extends ServiceExtension {
               return this.throwError(`NOT_FOUND`, `No resource found with resourceId (${resourceId})`);
             }
 
-            resourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, resource.resourceGroupKey);
+            const resourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, resource.resourceGroupKey);
 
             if (!resourceGroup) {
               return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupUuid})`);
             }
+
+            resourceGroups = [resourceGroup];
           } else if (resourceGroupUuid) {
-            resourceGroup = await this.resourceGroupService.getUserResourceGroupByUuid(customerAccountKey, resourceGroupUuid);
+            const resourceGroup = await this.resourceGroupService.getUserResourceGroupByUuid(customerAccountKey, resourceGroupUuid);
             if (!resourceGroup) {
               return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupUuid})`);
             }
+            resourceGroups = [resourceGroup];
           } else if (resourceGroupId) {
-            resourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
-            if (!resourceGroup) {
-              return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupId})`);
+            let idsToUse: string[] = [];
+            if (Array.isArray(resourceGroupId)) {
+              idsToUse = resourceGroupId;
+            } else {
+              idsToUse = [resourceGroupId];
+            }
+            resourceGroups = await this.resourceGroupService.getResourceGroupByIds(idsToUse);
+            if (!resourceGroups) {
+              return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupId.join(', ')})`);
             }
           }
 
-          if (!resourceGroup && !resource) {
-            return this.throwError('NOT_FOUND', `no resourceGroup nor resource found! Please make sure to pass resourceGroupId or resourceGroupUuid or resourceId`);
+          if (!resourceGroups && !resource) {
+            return this.throwError(
+              'NOT_FOUND',
+              `no resourceGroup nor resource found! Please make sure to pass resourceGroupId or resourceGroupUuid or resourceId`,
+            );
           }
 
-          const promQl = this.getPromQlFromQuery(query, resource, resourceGroup);
+          const promQl = this.getPromQlFromQuery(query, resource, resourceGroups);
 
           if (!promQl.promQl) {
             return this.throwError(`EXCEPTION`, `Invalid type ${type}`);
@@ -96,7 +108,7 @@ class MetricService extends ServiceExtension {
             if (start && end) {
               data = await this.victoriaMetricService.queryRange(`${promQl.promQl}`, `${start}`, `${end}`, step);
             } else {
-              data = await this.victoriaMetricService.query(`${promQl.promQl}`);
+              data = await this.victoriaMetricService.query(`${promQl.promQl}`, step);
             }
 
             results[name] = {
@@ -117,7 +129,7 @@ class MetricService extends ServiceExtension {
       return this.throwError('EXCEPTION', e);
     }
 
-    const resultInOrder = {}
+    const resultInOrder = {};
 
     queryBody.query.forEach((query: IMetricQueryBodyQuery) => {
       const { name } = query;
@@ -127,9 +139,9 @@ class MetricService extends ServiceExtension {
     return resultInOrder;
   }
 
-  private getPromQlFromQuery(query: IMetricQueryBodyQuery, resource?: IResource, resourceGroup?: IResourceGroup) {
+  private getPromQlFromQuery(query: IMetricQueryBodyQuery, resource?: IResource, resourceGroups?: IResourceGroup[]) {
     const { type, promql: customPromQl, start, end, step } = query;
-    const clusterUuid = resourceGroup.resourceGroupUuid;
+    const clusterUuid = resourceGroups.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupUuid);
     let labelString = '';
     let ranged = false;
 
@@ -403,7 +415,6 @@ class MetricService extends ServiceExtension {
         break;
       // NS_: end
 
-
       case 'NS_RUNNING_PVCS_USED_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -477,6 +488,41 @@ class MetricService extends ServiceExtension {
           namespace: resource?.resourceType === 'NS' ? resource.resourceName : undefined,
         });
         promQl = `count((kube_persistentvolumeclaim_status_phase{__LABEL_PLACE_HOLDER__, phase="Lost"}==1)) or vector(0)`;
+        break;
+
+      // Node Ranking
+      case 'K8S_CLUSTER_NODE_MEMORY_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `sort_desc(
+          (1 - (node_memory_MemAvailable_bytes{__LABEL_PLACE_HOLDER__} / (node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__})))* 100
+        )`;
+        break;
+      case 'K8S_CLUSTER_NODE_CPU_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `sort_desc(
+          (1 - avg(rate(node_cpu_seconds_total{__LABEL_PLACE_HOLDER__,mode="idle"}[1m])) by (node)) * 100
+        )`;
+        break;
+      case 'K8S_CLUSTER_NODE_DISK_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `sort_desc(
+(node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__,fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}) * 100
+/ (node_filesystem_avail_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"} + (node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__, job="node-exporter", fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}))
+)`;
+        break;
+      case 'K8S_CLUSTER_NODE_RXTX_TOTAL_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `sort_desc(
+          increase(sum by (node) (node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m] + node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))
+        )`;
         break;
     }
 
