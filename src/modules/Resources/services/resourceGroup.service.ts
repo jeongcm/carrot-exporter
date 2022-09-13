@@ -121,6 +121,19 @@ class ResourceGroupService {
   }
 
   /**
+   * @param  {string[]} resourceGroupIds
+   * @returns Promise
+   */
+  public async getResourceGroupByIds(resourceGroupId: string[]): Promise<IResourceGroup[]> {
+    const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: { resourceGroupId, deletedAt: null },
+      attributes: { exclude: ['deletedAt'] },
+    });
+
+    return resourceGroups;
+  }
+
+  /**
    * @param  {string} resourceGroupUuid
    * @returns Promise
    */

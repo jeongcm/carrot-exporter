@@ -12,7 +12,7 @@ const getSelectorLabels = (labels: any) => {
     let valueStr = '';
     if (Array.isArray(value)) {
       if (value.length > 1) {
-        equation = '~=';
+        equation = '=~';
         valueStr = value.join('|');
       } else if (value.length === 1) {
         equation = '=';
