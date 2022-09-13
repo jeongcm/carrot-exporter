@@ -521,7 +521,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
         promQl = `sort_desc(
-          increase(sum by (node) (node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m] + node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))
+          sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))
         )`;
         break;
     }
