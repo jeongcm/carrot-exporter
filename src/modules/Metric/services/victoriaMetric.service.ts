@@ -37,7 +37,7 @@ class VictoriaMetricService extends ServiceExtension {
         return null;
       }
     } catch (e) {
-      this.throwError('EXCEPTION', 'failed to call victoria metric server');
+      this.throwError('EXCEPTION', e.response?.data);
     }
   }
 
@@ -63,8 +63,8 @@ class VictoriaMetricService extends ServiceExtension {
         return null;
       }
     } catch (e) {
-      console.log(e);
-      this.throwError('EXCEPTION', 'failed to call victoria metric server');
+      console.log(e.response?.data)
+      this.throwError('EXCEPTION', e);
     }
   }
 }
