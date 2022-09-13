@@ -69,6 +69,7 @@ export interface IPartyUser {
   socialProviderId: string;
   timezone: string;
   adminYn: boolean;
+  language: string;
 }
 
 export interface IPartyResource {
