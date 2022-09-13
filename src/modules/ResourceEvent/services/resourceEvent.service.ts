@@ -5,15 +5,15 @@ import { IResource } from '@/common/interfaces/resource.interface';
 import { IRequestMassUploader } from '@/common/interfaces/massUploader.interface';
 //import { ResourceEventDto } from '../dtos/resourceEvent.dto';
 import { HttpException } from '@/common/exceptions/HttpException';
-import { isEmpty } from '@/common/utils/util';
+//import { isEmpty } from '@/common/utils/util';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 
-import { Op } from 'sequelize';
-import { ResourceEventModel } from '../models/resourceEvent.model';
+//import { Op } from 'sequelize';
+//import { ResourceEventModel } from '../models/resourceEvent.model';
 
 class ResourceEventService {
   public resource = DB.Resource;
@@ -185,6 +185,14 @@ class ResourceEventService {
       where: { resourceKey: resultResource.resourceKey },
       order: [['createdAt', 'DESC']],
     });
+    return resultResourceEvent;
+  }
+
+  public async getResourceEventById(resourceEventId: string): Promise<IResourceEvent> {
+    const resultResourceEvent: IResourceEvent = await this.resourceEvent.findOne({
+      where: { resourceEventId },
+    });
+    if (!resultResourceEvent) throw new HttpException(400, `No Kubernetes event with ResourceEvent Id - ${resourceEventId}`);
     return resultResourceEvent;
   }
 } //end of class

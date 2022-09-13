@@ -27,6 +27,12 @@ class resourceEventRoute implements Routes {
       //createUserLogMiddleware,
       this.resourceEventController.getResourceEventByResourceId,
     );
+    this.router.get(
+      '/resourceEvent/:resourceEventId',
+      authMiddleware,
+      //createUserLogMiddleware,
+      this.resourceEventController.getResourceEventById,
+    );
   }
 }
 

@@ -56,6 +56,22 @@ class resourceEventController {
       next(error);
     }
   };
+
+  public getResourceEventById = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
+    try {
+      const resourceEventId = req.params.resourceEventId;
+
+      const resourceEvent = await this.resourceEventService.getResourceEventById(resourceEventId);
+
+      if (!resourceEvent) {
+        return res.sendStatus(500);
+      }
+
+      res.status(200).json({ data: resourceEvent, message: `ResourceEvent - pull event successfully ${resourceEventId}` });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default resourceEventController;
