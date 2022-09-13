@@ -19,8 +19,8 @@ import urlJoin from 'url-join';
 import { logger } from '@/common/utils/logger';
 import { ApiModel } from '@/modules/Api/models/api.models';
 import TokenService from '@/modules/Token/token.service';
-import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
-import moment from 'moment-timezone';
+//import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+//import moment from 'moment-timezone';
 
 const nodeMailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
@@ -111,8 +111,8 @@ class PartyService {
     //  return;
     //}
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const tz = moment.tz.guess();
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    //const tz = moment.tz.guess();
 
     try {
       return await DB.sequelize.transaction(async t => {
@@ -177,7 +177,7 @@ class PartyService {
   }
 
   public async updateUser(customerAccountKey: number, logginedUserId: string, updateUserId: string, updateUserData: UpdateUserDto): Promise<IParty> {
-    const { partyName, partyDescription, parentPartyId, firstName, lastName, mobile, email, timezone } = updateUserData;
+    const { partyName, partyDescription, parentPartyId, firstName, lastName, mobile, email, timezone, language } = updateUserData;
     try {
       await DB.sequelize.transaction(async t => {
         await this.party.update(
@@ -186,7 +186,7 @@ class PartyService {
         );
 
         await this.partyUser.update(
-          { firstName, lastName, mobile, email, timezone, updatedBy: logginedUserId },
+          { firstName, lastName, mobile, email, timezone, updatedBy: logginedUserId, language },
           { where: { partyUserId: updateUserId }, transaction: t },
         );
       });

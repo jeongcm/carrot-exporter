@@ -1,4 +1,4 @@
-import { PartyModel } from './party.model';
+//import { PartyModel } from './party.model';
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IPartyUser } from '@/common/interfaces/party.interface';
 
