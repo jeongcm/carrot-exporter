@@ -3,7 +3,13 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import { ISubscribedProduct, ISubscriptions } from '@/common/interfaces/subscription.interface';
 import { ICatalogPlanProduct } from '@/common/interfaces/productCatalog.interface';
-import { CreateSubscribedProductDto, CreateSubscriptionDto, CreateSubscriptionHistoryDto, UpdateSubscribedProductto, UpdateSubscriptionDto } from '../dtos/subscriptions.dto';
+import {
+  CreateSubscribedProductDto,
+  CreateSubscriptionDto,
+  CreateSubscriptionHistoryDto,
+  UpdateSubscribedProductto,
+  UpdateSubscriptionDto,
+} from '../dtos/subscriptions.dto';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { CatalogPlanModel } from '@/modules/ProductCatalog/models/catalogPlan.model';
@@ -19,47 +25,44 @@ class SubscriptionService {
   public resource = DB.Resource;
   public tableIdService = new tableIdService();
 
-
   /**
    * @function {findSubscriptions} find the all catalog Data
-   * @returns 
+   * @returns
    */
-  public async findSubscriptions(customerAccountKey:number): Promise<ISubscriptions[]> {
-    const allSubscriptions: ISubscriptions[] = await this.subscription.findAll({ where: { 
-      deletedAt: null,
-      customerAccountKey
-    }, 
-     include:[
-      {
-        model: SubscribedProductModel,
-        attributes:{exclude:["subscribedProductKey", "deletedAt"]}
-      }
-    ]
-   });
+  public async findSubscriptions(customerAccountKey: number): Promise<ISubscriptions[]> {
+    const allSubscriptions: ISubscriptions[] = await this.subscription.findAll({
+      where: {
+        deletedAt: null,
+        customerAccountKey,
+      },
+      include: [
+        {
+          model: SubscribedProductModel,
+          attributes: { exclude: ['subscribedProductKey', 'deletedAt'] },
+        },
+      ],
+    });
     return allSubscriptions;
   }
 
-
   public async createSubscription(data: CreateSubscriptionDto, createdBy: string, customerAccountKey: number): Promise<ISubscriptions> {
-
     const subscriptionId = await this.getTableId('Subscription');
-    const catalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: data.catalogPlanId } })
+    const catalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: data.catalogPlanId } });
     const createObj = {
       ...data,
       subscriptionId,
       catalogPlanKey: catalogPlan.catalogPlanKey,
       customerAccountKey,
       createdBy,
-    }
+    };
     const newSubscription: ISubscriptions = await this.subscription.create(createObj);
     delete newSubscription.subscriptionKey;
     return newSubscription;
   }
 
-
   /**
    * {findCatalogPlan} find the catalog plan by its catalogPlanId
-   * @param {string} id 
+   * @param {string} id
    * @returns {object} catalog plan object
    */
 
@@ -74,16 +77,20 @@ class SubscriptionService {
       include: [
         {
           model: CatalogPlanModel,
-          attributes: { exclude: ["catalogPlanKey", "deletedAt"] }
-        }
-      ]
+          attributes: { exclude: ['catalogPlanKey', 'deletedAt'] },
+        },
+      ],
     });
     if (!subscriptionDetail) throw new HttpException(409, 'No Subscription is found');
     return subscriptionDetail;
   }
 
-
-  public async updateSubscription(subscriptionId: string, subscriptionData: UpdateSubscriptionDto, userId: string, systemId: string): Promise<ISubscriptions> {
+  public async updateSubscription(
+    subscriptionId: string,
+    subscriptionData: UpdateSubscriptionDto,
+    userId: string,
+    systemId: string,
+  ): Promise<ISubscriptions> {
     if (isEmpty(subscriptionData)) throw new HttpException(400, 'Subscription Data cannot be blank');
     const subscriptionDetail: ISubscriptions = await this.findSubscriptionById(subscriptionId);
     if (!subscriptionDetail) {
@@ -99,7 +106,7 @@ class SubscriptionService {
 
     const updateData: ISubscriptions = await this.subscription.findOne({
       where: { subscriptionId },
-      attributes: { exclude: ["subscriptionKey", "deletedAt"] }
+      attributes: { exclude: ['subscriptionKey', 'deletedAt'] },
     });
 
     return updateData;
@@ -108,153 +115,163 @@ class SubscriptionService {
   public findSubscriptionById = async (subscriptionId: string) => {
     const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { subscriptionId } });
     return subscriptionDetail;
-  }
+  };
 
   public createSubscriptionHistory = async (requestedData: UpdateSubscriptionDto, subscriptionId: string, partyId: string, systemId: string) => {
     try {
-
       const subscriptionHistoryId = await this.getTableId('SubscriptionHistory');
       const subscriptionDetail: ISubscriptions = await this.findSubscriptionById(subscriptionId);
       const { subscriptionStatus: subscriptionNewStatus = null, subscriptionCommitmentType: subscriptionNewCommitment = null } = requestedData;
-      const { subscriptionStatus: subscriptionOldStatus = null, subscriptionCommitmentType: subscriptionOldCommitment = null, subscriptionKey } = subscriptionDetail;
-      const createObj = { subscriptionKey, subscriptionHistoryId, createdBy: partyId||systemId, updatedBy:partyId||systemId};
-      let newObj = {}
+      const {
+        subscriptionStatus: subscriptionOldStatus = null,
+        subscriptionCommitmentType: subscriptionOldCommitment = null,
+        subscriptionKey,
+      } = subscriptionDetail;
+      const createObj = { subscriptionKey, subscriptionHistoryId, createdBy: partyId || systemId, updatedBy: partyId || systemId };
+      let newObj = {};
       if (subscriptionNewStatus && subscriptionNewCommitment) {
         newObj = {
           ...createObj,
           subscriptionOldStatus,
           subscriptionNewStatus,
           subscriptionChangedAt: new Date(),
-          subscriptionStatusChangeReason: "BD",
+          subscriptionStatusChangeReason: 'BD',
           subscriptionOldCommitment,
           subscriptionNewCommitment,
-          subscriptionCommitmentChangeReason: "EA"
-
-        }
+          subscriptionCommitmentChangeReason: 'EA',
+        };
       } else if (subscriptionNewCommitment) {
         newObj = {
           ...createObj,
           subscriptionChangedAt: new Date(),
           subscriptionOldCommitment,
           subscriptionNewCommitment,
-          subscriptionCommitmentChangeReason: "EA",
-
-        }
+          subscriptionCommitmentChangeReason: 'EA',
+        };
       } else if (subscriptionNewStatus) {
         newObj = {
           ...createObj,
           subscriptionOldStatus,
           subscriptionNewStatus,
           subscriptionChangedAt: new Date(),
-          subscriptionStatusChangeReason: "BD"
-
-        }
+          subscriptionStatusChangeReason: 'BD',
+        };
       }
       await this.subscriptionHistory.create(newObj);
     } catch (err) {
       throw new HttpException(400, err);
     }
-  }
+  };
 
-  public createSubscribedProduct =async (productData:CreateSubscribedProductDto, partyId:string, systemId:string, customerAccountKey:number, productCode?:string) => {
-    const {subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId} = productData
-    const subscribedProductId = await this.getTableId('SubscribedProduct')
+  public createSubscribedProduct = async (
+    productData: CreateSubscribedProductDto,
+    partyId: string,
+    systemId: string,
+    customerAccountKey: number,
+    productCode?: string,
+  ) => {
+    const { subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId } = productData;
+    const subscribedProductId = await this.getTableId('SubscribedProduct');
     const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { customerAccountKey } });
-    if(!subscriptionDetail){
-      return {error:true , message:"Subscription not found"};
+    if (!subscriptionDetail) {
+      return { error: true, message: 'Subscription not found' };
     }
-    let fuseBillProduct
-    const resourceDetail= await this.resource.findOne({where:{resourceId}});
-    if(!resourceDetail){
-      return {error:true , message:"Resource not found"};
+    let fuseBillProduct;
+    const resourceDetail = await this.resource.findOne({ where: { resourceId } });
+    if (!resourceDetail) {
+      return { error: true, message: 'Resource not found' };
     }
-    const catalogPlanProductDetails : ICatalogPlanProduct =  await  this.catalogPlanProduct.findOne(
-      {where:
-        {
-          catalogPlanKey: subscriptionDetail.catalogPlanKey,
-          catalogPlanProductType: productData.catalogPlanProductType
-        }
+    const catalogPlanProductDetails: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
+      where: {
+        catalogPlanKey: subscriptionDetail.catalogPlanKey,
+        catalogPlanProductType: productData.catalogPlanProductType,
+      },
+    });
+    if (productCode) {
+      fuseBillProduct = await this.catalogPlanProduct.findOne({
+        where: {
+          catalogPlanProductId: productCode,
+        },
       });
-    if(productCode){
-      fuseBillProduct  =  await  this.catalogPlanProduct.findOne(
-        {where:
-          {
-            catalogPlanProductId: productCode,
-          }
-        });
     }
     const createObj = {
       subscribedProductId,
-      resourceKey:resourceDetail.resourceKey,
+      resourceKey: resourceDetail.resourceKey,
       customerAccountKey,
-      subscriptionKey:subscriptionDetail.subscriptionKey,
-      catalogPlanProductKey:catalogPlanProductDetails?.catalogPlanProductKey || fuseBillProduct.catalogPlanProductKey,
+      subscriptionKey: subscriptionDetail.subscriptionKey,
+      catalogPlanProductKey: catalogPlanProductDetails?.catalogPlanProductKey || fuseBillProduct.catalogPlanProductKey,
       subscribedProductStatus,
-      subscribedProductFrom, 
+      subscribedProductFrom,
       subscribedProductTo,
-      createdBy:partyId||systemId
-    }
-    const newObj = await this.subscribedProduct.create(createObj)
-    return {data:newObj, message:"success"};
-  }
+      createdBy: partyId || systemId,
+    };
+    const newObj = await this.subscribedProduct.create(createObj);
+    return { data: newObj, message: 'success' };
+  };
 
-
-  public createBulkSubscribedProduct =async (productData:CreateSubscribedProductDto[], partyId:string, systemId:string, customerAccountKey:number, productCode?:string) => {
-    let createObj = []
-    productData.map(async (data:CreateSubscribedProductDto)=>{
-      const {subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId} = data
-    const subscribedProductId = await this.getTableId('SubscribedProduct')
-    const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { customerAccountKey } });
-    if(!subscriptionDetail){
-      return {error:true , message:"Subscription not found"};
-    }
-    let fuseBillProduct
-    const resourceDetail= await this.resource.findOne({where:{resourceId}});
-    if(!resourceDetail){
-      return {error:true , message:"Resource not found"};
-    }
-    const catalogPlanProductDetails : ICatalogPlanProduct =  await  this.catalogPlanProduct.findOne(
-      {where:
-        {
-          catalogPlanKey:subscriptionDetail.catalogPlanKey,
-          catalogPlanProductType:data.catalogPlanProductType
-        }
+  public createBulkSubscribedProduct = async (
+    productData: CreateSubscribedProductDto[],
+    partyId: string,
+    systemId: string,
+    customerAccountKey: number,
+    productCode?: string,
+  ) => {
+    let createObj = [];
+    productData.map(async (data: CreateSubscribedProductDto) => {
+      const { subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId } = data;
+      const subscribedProductId = await this.getTableId('SubscribedProduct');
+      const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { customerAccountKey } });
+      if (!subscriptionDetail) {
+        return { error: true, message: 'Subscription not found' };
+      }
+      let fuseBillProduct;
+      const resourceDetail = await this.resource.findOne({ where: { resourceId } });
+      if (!resourceDetail) {
+        return { error: true, message: 'Resource not found' };
+      }
+      const catalogPlanProductDetails: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
+        where: {
+          catalogPlanKey: subscriptionDetail.catalogPlanKey,
+          catalogPlanProductType: data.catalogPlanProductType,
+        },
       });
-    if(productCode){
-      fuseBillProduct  =  await  this.catalogPlanProduct.findOne(
-        {where:
-          {
-            catalogPlanProductId:productCode,
-          }
+      if (productCode) {
+        fuseBillProduct = await this.catalogPlanProduct.findOne({
+          where: {
+            catalogPlanProductId: productCode,
+          },
         });
-    }
+      }
 
-    createObj.push({
-      subscribedProductId,
-      resourceKey:resourceDetail.resourceKey,
-      customerAccountKey,
-      subscriptionKey:subscriptionDetail.subscriptionKey,
-      catalogPlanProductKey:catalogPlanProductDetails?.catalogPlanProductKey || fuseBillProduct.catalogPlanProductKey,
-      subscribedProductStatus,
-      subscribedProductFrom, 
-      subscribedProductTo,
-      createdBy:partyId||systemId
-    })
-  })
-    const newObj = await this.subscribedProduct.bulkCreate(createObj)
-    return {data:newObj, message:"success"};
-  }
+      createObj.push({
+        subscribedProductId,
+        resourceKey: resourceDetail.resourceKey,
+        customerAccountKey,
+        subscriptionKey: subscriptionDetail.subscriptionKey,
+        catalogPlanProductKey: catalogPlanProductDetails?.catalogPlanProductKey || fuseBillProduct.catalogPlanProductKey,
+        subscribedProductStatus,
+        subscribedProductFrom,
+        subscribedProductTo,
+        createdBy: partyId || systemId,
+      });
+    });
+    const newObj = await this.subscribedProduct.bulkCreate(createObj);
+    return { data: newObj, message: 'success' };
+  };
 
-  public findSubscribedProduct =async (subscribedProductId:string) => {
-    const productDetails = await this.subscribedProduct.findOne({where:{subscribedProductId}, attributes:{exclude:['subscribedProductKey', 'deletedAt', 'subscription_key']}})
+  public findSubscribedProduct = async (subscribedProductId: string) => {
+    const productDetails = await this.subscribedProduct.findOne({
+      where: { subscribedProductId },
+      attributes: { exclude: ['subscribedProductKey', 'deletedAt', 'subscription_key'] },
+    });
     return productDetails;
-  }
+  };
 
-  public updateSubscribedProduct =async (subscribedProductId:string, productData:UpdateSubscribedProductto, userId:string,systemId: string) => {
+  public updateSubscribedProduct = async (subscribedProductId: string, productData: UpdateSubscribedProductto, userId: string, systemId: string) => {
     if (isEmpty(productData)) throw new HttpException(400, 'Subscribe product Data cannot be blank');
-    const productDetail: ISubscribedProduct = await this.subscribedProduct.findOne({where:{subscribedProductId}});
+    const productDetail: ISubscribedProduct = await this.subscribedProduct.findOne({ where: { subscribedProductId } });
     if (!productDetail) {
-      return {error:true , message:"Subscription not found"};
+      return { error: true, message: 'Subscription not found' };
     }
     const updateObj = {
       ...productData,
@@ -266,20 +283,17 @@ class SubscriptionService {
 
     const updateData: ISubscribedProduct = await this.subscribedProduct.findOne({
       where: { subscribedProductId },
-      attributes: { exclude: ["subscribedProductKey", "deletedAt"] }
+      attributes: { exclude: ['subscribedProductKey', 'deletedAt'] },
     });
 
-    return {data: updateData , message:"success"};
-  }
-
+    return { data: updateData, message: 'success' };
+  };
 
   public getTableId = async (tableIdTableName: string) => {
     const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
     return responseTableIdData.tableIdFinalIssued;
-  }
-
-
+  };
 }
 
 export default SubscriptionService;
