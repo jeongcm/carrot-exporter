@@ -69,6 +69,7 @@ export interface IPartyUser {
   socialProviderId: string;
   timezone: string;
   adminYn: boolean;
+  language: string;
 }
 
 export interface IPartyResource {
@@ -110,6 +111,7 @@ export interface IPartyUserResponse {
   email: string;
   timezone: string;
   isEmailValidated: boolean;
+  language: string;
 }
 
 export interface IPartyResponse {

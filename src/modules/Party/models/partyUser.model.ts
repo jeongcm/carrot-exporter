@@ -1,4 +1,4 @@
-import { PartyModel } from './party.model';
+//import { PartyModel } from './party.model';
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IPartyUser } from '@/common/interfaces/party.interface';
 
@@ -25,6 +25,7 @@ export type PartyUserCreationAttributes = Optional<
   | 'partyUserStatus'
   | 'timezone'
   | 'adminYn'
+  | 'language'
 >;
 
 export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttributes> implements IPartyUser {
@@ -51,9 +52,9 @@ export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttribute
   public timezone: string;
   public adminYn: boolean;
   public updatedAt: Date;
+  public language: string;
 
   public readonly createdAt!: Date;
-  
 }
 
 export default function (sequelize: Sequelize): typeof PartyUserModel {
@@ -121,7 +122,7 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       adminYn: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
       },
       partyUserStatus: {
         type: DataTypes.STRING(2),
@@ -150,6 +151,10 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       },
       timezone: {
         type: DataTypes.STRING(100),
+      },
+      language: {
+        type: DataTypes.STRING(2),
+        defaultValue: 'EN', //EN, KR,
       },
     },
     {

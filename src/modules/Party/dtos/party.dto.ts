@@ -29,7 +29,6 @@ export class CreateUserDto {
   @IsOptional()
   public mobile: string;
 
-
   @IsString()
   @IsOptional()
   public password: string;
@@ -53,6 +52,9 @@ export class CreateUserDto {
   @IsOptional()
   public adminYn: boolean;
 
+  @IsString()
+  @IsOptional()
+  public language: string;
 }
 
 export class UpdateUserDto {
@@ -103,6 +105,10 @@ export class UpdateUserDto {
 
   @IsOptional()
   public adminYn: boolean;
+
+  @IsString()
+  @IsOptional()
+  public language: string;
 }
 
 export class CreateAccessGroupDto {

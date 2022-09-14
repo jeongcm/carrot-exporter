@@ -5,25 +5,34 @@ import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 //import AuthService from '@/modules/UserTenancy/services/auth.service';
 //import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 
-
 class resourceEventRoute implements Routes {
   public router = Router();
   public resourceEventController = new ResourceEventController();
- // public authservice = new AuthService();
+  // public authservice = new AuthService();
   constructor() {
     this.initializeRoutes();
   }
   private initializeRoutes() {
     // this.router.post('/tableId', authMiddleware, this.tableIdController.issueTableId);
     this.router.post('/resourceEventMass', this.resourceEventController.massUploadForResource);
-    this.router.get('/resourceEvent/resourceGroup/:resourceGroupUuid/:offset/:limit', 
-      authMiddleware, 
-      //createUserLogMiddleware, 
-      this.resourceEventController.getResourceEventByResourceGroupUuid);
-    this.router.get('/resourceEvent/resource/:resourceId', 
-      authMiddleware, 
+    this.router.get(
+      '/resourceEvent/resourceGroup/:resourceGroupUuid/:offset/:limit',
+      authMiddleware,
       //createUserLogMiddleware,
-      this.resourceEventController.getResourceEventByResourceId);
+      this.resourceEventController.getResourceEventByResourceGroupUuid,
+    );
+    this.router.get(
+      '/resourceEvent/resource/:resourceId',
+      authMiddleware,
+      //createUserLogMiddleware,
+      this.resourceEventController.getResourceEventByResourceId,
+    );
+    this.router.get(
+      '/resourceEvent/:resourceEventId',
+      authMiddleware,
+      //createUserLogMiddleware,
+      this.resourceEventController.getResourceEventById,
+    );
   }
 }
 

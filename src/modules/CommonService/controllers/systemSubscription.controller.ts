@@ -34,7 +34,7 @@ class SystemSubscriptionController {
         case 'CustomerCreated':
           const {
             body: {
-              Customer: { firstName, lastName, id, primaryEmail, primaryPhone, companyName },
+              Customer: { firstName, lastName, id, primaryEmail, primaryPhone, companyName, language },
             },
           } = req;
           const customerAccountData = {
@@ -61,6 +61,7 @@ class SystemSubscriptionController {
             customerAccountId: '',
             timezone: '',
             adminYn: false,
+            language: language || 'EN',
           };
 
           const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy);

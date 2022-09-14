@@ -19,8 +19,8 @@ import urlJoin from 'url-join';
 import { logger } from '@/common/utils/logger';
 import { ApiModel } from '@/modules/Api/models/api.models';
 import TokenService from '@/modules/Token/token.service';
-import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
-import moment from 'moment-timezone'; 
+//import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+//import moment from 'moment-timezone';
 
 const nodeMailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
@@ -43,8 +43,6 @@ class PartyService {
 
   public tableIdService = new tableIdService();
   public tokenService = new TokenService();
-
-
 
   public async findPartyByEmail(email: string): Promise<IPartyUser> {
     if (isEmpty(email)) throw new HttpException(400, "User doen't exist");
@@ -100,7 +98,12 @@ class PartyService {
     return party.partyKey;
   }
 
-  public async createUser(createPartyUserData: CreateUserDto, customerAccountKey: number, systemId: string, socialProviderId?: string): Promise<IPartyUserResponse> {
+  public async createUser(
+    createPartyUserData: CreateUserDto,
+    customerAccountKey: number,
+    systemId: string,
+    socialProviderId?: string,
+  ): Promise<IPartyUserResponse> {
     const tableIdTableName = 'PartyUser';
 
     //const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
@@ -108,9 +111,9 @@ class PartyService {
     //  return;
     //}
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const tz = moment.tz.guess();
-    
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    //const tz = moment.tz.guess();
+
     try {
       return await DB.sequelize.transaction(async t => {
         let hashedPassword;
@@ -134,13 +137,14 @@ class PartyService {
           {
             partyUserId: responseTableIdData.tableIdFinalIssued,
             partyKey: createdParty.partyKey,
-            createdBy: systemId || "SYSTEM",
+            createdBy: systemId || 'SYSTEM',
             firstName: createPartyUserData.firstName,
             lastName: createPartyUserData.lastName,
             userId: createPartyUserData.userId,
             mobile: createPartyUserData?.mobile,
             password: hashedPassword,
             email: createPartyUserData.email,
+            language: createPartyUserData.language,
             timezone: tz,
             socialProviderId: socialProviderId,
             isEmailValidated: false,
@@ -161,6 +165,7 @@ class PartyService {
           userId: createPartyUserData.userId,
           mobile: createPartyUserData?.mobile,
           email: createPartyUserData.email,
+          language: createPartyUserData.language,
           timezone: tz,
           isEmailValidated: false,
           partyUserStatus: createPartyUserData.partyUserStatus,
@@ -172,7 +177,7 @@ class PartyService {
   }
 
   public async updateUser(customerAccountKey: number, logginedUserId: string, updateUserId: string, updateUserData: UpdateUserDto): Promise<IParty> {
-    const { partyName, partyDescription, parentPartyId, firstName, lastName, mobile, email, timezone } = updateUserData;
+    const { partyName, partyDescription, parentPartyId, firstName, lastName, mobile, email, timezone, language } = updateUserData;
     try {
       await DB.sequelize.transaction(async t => {
         await this.party.update(
@@ -181,12 +186,12 @@ class PartyService {
         );
 
         await this.partyUser.update(
-          { firstName, lastName, mobile, email, timezone, updatedBy: logginedUserId },
+          { firstName, lastName, mobile, email, timezone, updatedBy: logginedUserId, language },
           { where: { partyUserId: updateUserId }, transaction: t },
         );
       });
-      return this.getUser(customerAccountKey, updateUserId)
-    } catch (error) { }
+      return this.getUser(customerAccountKey, updateUserId);
+    } catch (error) {}
 
     return await this.getUser(customerAccountKey, updateUserId);
   }
@@ -238,9 +243,8 @@ class PartyService {
   }
 
   public async requestPasswordReset(email: string) {
-
-    //1. check email if exist. Send exception if there is no email account. 
-    if (isEmpty(email)) throw new HttpException(400, "No email address provided");
+    //1. check email if exist. Send exception if there is no email account.
+    if (isEmpty(email)) throw new HttpException(400, 'No email address provided');
     const findUser: IPartyUser = await this.partyUser.findOne({ where: { email: email } });
     if (!findUser) throw new HttpException(401, `No user information found with the provided email address`);
 
@@ -251,35 +255,39 @@ class PartyService {
     const obj = {
       partyUserKey: findUser.partyUserKey,
       tokenId: responseTableIdData.tableIdFinalIssued,
-      token: tokenData.token
+      token: tokenData.token,
     };
-    const tokenResult = await this.tokenService.createTokenDetail(obj)
+    const tokenResult = await this.tokenService.createTokenDetail(obj);
     //3. send email with the token to user with the link to reset password
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/forgotPassword.hbs'), 'utf8');
     const template = handlebars.compile(emailTemplateSource);
-    let name = findUser.firstName
+    const name = findUser.firstName;
     const url = urlJoin(config.email.passwordReset.resetPageURL, `reset/password/?token=${tokenData.token}&email=${findUser.email}`);
     const htmlToSend = template({ url, name });
     const mailOptions = {
       to: findUser.email,
-      from: "service@nexclipper.io",
+      from: 'service@nexclipper.io',
       subject: 'Password Reset - NexClipper',
-      html: htmlToSend
-    }
-    const a = await sendMail(findUser, mailOptions)
+      html: htmlToSend,
+    };
+    const a = await sendMail(findUser, mailOptions);
     const resultEmail = {
       to: findUser.email,
-      from: "service@nexclipper.io",
-      subject: 'Password Reset - NexClipper'
+      from: 'service@nexclipper.io',
+      subject: 'Password Reset - NexClipper',
     };
 
     return resultEmail;
   }
 
-  public async resetPassword(email: string, password: string, resetToken?: any, oldPassword?: any): Promise<{ cookie: string; findUser: IPartyUser; token: string }> {
-
+  public async resetPassword(
+    email: string,
+    password: string,
+    resetToken?: any,
+    oldPassword?: any,
+  ): Promise<{ cookie: string; findUser: IPartyUser; token: string }> {
     if (resetToken) {
-      //check for token 
+      //check for token
       const token = await this.tokenService.findTokenDetail(resetToken);
       if (!token) {
         throw new HttpException(401, `Invalid token`);
@@ -289,14 +297,14 @@ class PartyService {
       }
     }
     //0. validate email address
-    if (isEmpty(email)) throw new HttpException(400, "No email address provided");
+    if (isEmpty(email)) throw new HttpException(400, 'No email address provided');
     const findUser: IPartyUser = await this.partyUser.findOne({ where: { email: email } });
     if (!findUser) throw new HttpException(401, `No user information found with the provided email address`);
     if (oldPassword) {
       const oldHashedPassword = await bcrypt.compare(oldPassword, findUser.password);
       if (!oldHashedPassword) {
         throw new HttpException(500, `Old password entered is wrong .Please check`);
-      };
+      }
     }
 
     //1. validate the password rule
@@ -309,25 +317,23 @@ class PartyService {
     //2.send mail of password reset
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/passwordReset.hbs'), 'utf8');
     const template = handlebars.compile(emailTemplateSource);
-    let name = findUser.firstName
+    const name = findUser.firstName;
     const url = urlJoin(config.email.passwordReset.resetPageURL, 'login');
     const htmlToSend = template({ url, name });
     const mailOptions = {
       to: findUser.email,
-      from: "service@nexclipper.io",
+      from: 'service@nexclipper.io',
       subject: 'Password Reset - NexClipper',
-      html: htmlToSend
-    }
+      html: htmlToSend,
+    };
     const a = await sendMail(findUser, mailOptions);
     const loginData = {
-      "userId": findUser.userId,
-      "password": password
-    }
+      userId: findUser.userId,
+      password: password,
+    };
     const loggedIn = await this.login(loginData);
     return loggedIn;
   }
-
-
 
   public createToken(user: IPartyUser): ITokenData {
     const dataStoredInToken: IDataStoredInToken = { partyUserKey: user.partyUserKey };
@@ -352,14 +358,14 @@ const sendMail = async (user: any, mailOptions: any) => {
     const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
     smtpTransport.sendMail(mailOptions, function (error, response) {
       if (error && Object.keys(error).length) {
-        logger.error(`Error while sending mail`, error)
+        logger.error(`Error while sending mail`, error);
       } else {
-        logger.info(`Successfully sent email.`)
+        logger.info(`Successfully sent email.`);
       }
     });
   } catch (err) {
     return { message: 'Error while sending mail', error: err };
   }
-}
+};
 
 export default PartyService;

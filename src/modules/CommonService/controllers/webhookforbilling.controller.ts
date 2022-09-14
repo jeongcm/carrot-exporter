@@ -59,6 +59,8 @@ class webhookForBillingController {
             partyUserStatus: 'DR',
             timezone: '',
             adminYn: false,
+            language: 'EN',
+
             customerAccountId: createdCustomerAccount.customerAccountId,
           };
           await this.partyService.createUser(partyData, createdCustomerAccount.customerAccountKey, systemId || partyId);

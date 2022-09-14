@@ -17,6 +17,7 @@ import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/custome
 import { CreateSubscriptionDto } from '@/modules/Subscriptions/dtos/subscriptions.dto';
 import { CreateUserDto } from '@/modules/Party/dtos/party.dto';
 import urlJoin from 'url-join';
+import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 
 const nodeMailer = require('nodemailer');
 const mg = require('nodemailer-mailgun-transport');
@@ -32,6 +33,7 @@ class systemSubscriptionService {
   public customerAccount = DB.CustomerAccount;
   public party = DB.Party;
   public partyUser = DB.PartyUser;
+  public catalogPlan = DB.CatalogPlan;
   public notification = DB.Notification;
   public tableIdService = new tableIdService();
 
@@ -45,7 +47,7 @@ class systemSubscriptionService {
     const returnResult = {};
     const currentDate = new Date();
     const CustomerAccountDataNew = { ...customerAccountData, customerAccountType: 'CO' as customerAccountType };
-    const { partyName, partyDescription, parentPartyId, firstName, lastName, userId, email, mobile } = partyData;
+    const { partyName, partyDescription, parentPartyId, firstName, lastName, userId, email, mobile, language } = partyData;
 
     let tableIdTableName = 'CustomerAccount';
     let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
@@ -103,6 +105,7 @@ class systemSubscriptionService {
             isEmailValidated: false,
             partyUserStatus: 'AC',
             adminYn: true,
+            language: language,
           },
           { transaction: t },
         );
@@ -119,20 +122,27 @@ class systemSubscriptionService {
         let fuseBillInterface = false;
         const headers = { Authorization: `Basic ${config.fuseBillApiDetail.apiKey}` };
 
-        await axios({
+        const fuseBillCustomer = await axios({
           method: 'post',
           url: config.fuseBillApiDetail.createCustomerUrl,
           data: fuseBillCreateCustomer,
           headers: headers,
-        })
-          .then(async (res: any) => {
-            console.log(`got interface result -- ${res}`);
-            fuseBillInterface = true;
-          })
-          .catch(error => {
-            //console.log(error);
-            console.log(error.response.data.Errors);
-          });
+        });
+        if (fuseBillCustomer.data) {
+          fuseBillInterface = true;
+        }
+        const customerActivationPayload = {
+          customerId: fuseBillCustomer.data.id,
+          activateAllSubscriptions: true,
+          activateAllDraftPurchases: true,
+          temporarilyDisableAutoPost: false,
+        };
+        await axios({
+          method: 'post',
+          url: `${config.fuseBillApiDetail.baseURL}customeractivation`,
+          data: customerActivationPayload,
+          headers: headers,
+        });
 
         //4. prep sending email to customer
         const emailTemplateSource = fs.readFileSync(
@@ -169,7 +179,7 @@ class systemSubscriptionService {
           notificationStatus: 'ST',
         };
 
-        const createNotificationData: Notification = await this.notification.create(newNotification, { transaction: t });
+        await this.notification.create(newNotification, { transaction: t });
 
         //4.1 send email to customer
         let emailSent = false;
@@ -204,21 +214,84 @@ class systemSubscriptionService {
    * @param {number} customerAccountKey;
    */
   public async createSubscription(subscriptionData: CreateSubscriptionDto, partyId: string, customerAccountKey: number): Promise<object> {
-    //1.create subscription
-    const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, customerAccountKey);
-    //2. call fusebill api
-    await axios({
+    // check for customer account on fusebill server
+    const customerDetails = await this.customerAccount.findOne({ where: { customerAccountKey } });
+    const partyUserDeatils = await this.partyUser.findOne({ where: { partyUserId: partyId } });
+    console.log('partyUserDeatils', partyUserDeatils);
+    const response = await axios({
       method: 'get',
-      url: `${config.fuseBillApiDetail.baseURL}subscriptions`,
+      url: `${config.fuseBillApiDetail.createCustomerUrl}/?query=reference:${customerDetails.customerAccountId}`,
       headers: { Authorization: `Basic ${config.fuseBillApiDetail.apiKey}` },
-    })
-      .then(async (res: any) => {
-        fusebillResponse = res.data;
-      })
-      .catch(error => {});
+    });
+    const fuseBillCustomerDetails = response.data[0];
+    if (!fuseBillCustomerDetails) {
+      throw new HttpException(404, `Can't find customerAccount information on fusebill: ${customerDetails.customerAccountId}`);
+    }
+    //2.create subscription
+    const newSubscriptions: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, customerAccountKey);
+    //3. pull catalogPlan details to get fusbill id
+    const catalogPlans: ICatalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: subscriptionData.catalogPlanId } });
 
-    //3. send notification to customer
-    return newSubscription;
+    //4. call fusebill api to add subscription
+    const fusebillSubscriptionPayload = {
+      customerID: fuseBillCustomerDetails.id, // refrence
+      planFrequencyID: catalogPlans.fusebillPlanFrequencyId,
+    };
+    const subscriptionAtFuseBill = await axios({
+      method: 'post',
+      url: `${config.fuseBillApiDetail.baseURL}subscriptions`,
+      data: fusebillSubscriptionPayload,
+      headers: { Authorization: `Basic ${config.fuseBillApiDetail.apiKey}` },
+    });
+
+    //5. activate subscription
+    await axios({
+      method: 'post',
+      url: `${config.fuseBillApiDetail.baseURL}SubscriptionActivation/${subscriptionAtFuseBill.data.id}`,
+      data: fusebillSubscriptionPayload,
+      headers: { Authorization: `Basic ${config.fuseBillApiDetail.apiKey}` },
+    });
+    //6. send notification to customer
+    const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/newSubscriptions.hbs'), 'utf8');
+    const template = handlebars.compile(emailTemplateSource);
+    const name = fuseBillCustomerDetails.firstName;
+    const htmlToSend = template({ name });
+    const mailOptions = {
+      to: fuseBillCustomerDetails.primaryEmail,
+      from: 'service@nexclipper.io',
+      subject: 'New Subscription - NexClipper',
+      html: htmlToSend,
+    };
+    const notificationMessage = JSON.parse(JSON.stringify(mailOptions));
+
+    //7. create notification history
+    const tableIdTableName = 'Notification';
+    let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+    responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+    const notificationId = responseTableIdData.tableIdFinalIssued;
+
+    const newNotification = {
+      notificationId: notificationId,
+      partyKey: partyUserDeatils.partyKey,
+      createdBy: partyId,
+      createdAt: new Date(),
+      notificationStatutsUpdatedAt: new Date(),
+      customerAccountKey,
+      notificationChannelType: 'email',
+      notificationType: 'newSubsctiptionAdded',
+      notificationChannel: fuseBillCustomerDetails.primaryEmail,
+      notificationMessage: notificationMessage,
+      notificationStatus: 'ST',
+    };
+
+    await this.notification.create(newNotification);
+
+    //8. send email to customer
+    const mailSentDetail = await this.sendMailService.sendMailGeneral(mailOptions);
+    console.log('mailSentDetail', mailSentDetail);
+    console.log('success!!!!!');
+    //6. return message
+    return newSubscriptions;
   }
 
   /**

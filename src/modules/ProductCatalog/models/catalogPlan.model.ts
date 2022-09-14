@@ -1,40 +1,41 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import {ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
+import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 import { DATE } from 'sequelize';
 
 export type CatalogPlanCreationAttributes = Optional<
-    ICatalogPlan,
-     'catalogPlanId'
-    |'catalogPlanKey'
-    |'catalogPlanName'
-    |'catalogPlanType'
-    |'deletedAt'
-    |'catalogPlanDescription'
-    |'createdAt'
-    |'updatedAt'
-    |'createdBy'
-    |'updatedBy'
+  ICatalogPlan,
+  | 'catalogPlanId'
+  | 'catalogPlanKey'
+  | 'catalogPlanName'
+  | 'catalogPlanType'
+  | 'deletedAt'
+  | 'catalogPlanDescription'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'createdBy'
+  | 'updatedBy'
 >;
 
 export class CatalogPlanModel extends Model<ICatalogPlan, CatalogPlanCreationAttributes> implements ICatalogPlan {
-    public catalogPlanId: string;
-    public catalogPlanKey: number;
-    public catalogPlanName: string;
-    public catalogPlanType: string;
-    public catalogPlanDescription: string;
-    public createdBy: string;
-    public updatedBy: string;
-    public deletedAt: Date;
-    public updatedAt: Date;
+  public catalogPlanId: string;
+  public catalogPlanKey: number;
+  public catalogPlanName: string;
+  public catalogPlanType: string;
+  public catalogPlanDescription: string;
+  public fusebillPlanFrequencyId: number;
+  public fusebillPlanId: number;
+  public createdBy: string;
+  public updatedBy: string;
+  public deletedAt: Date;
+  public updatedAt: Date;
 
-    public readonly createdAt!: Date;
-
+  public readonly createdAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof CatalogPlanModel {
   CatalogPlanModel.init(
     {
-    catalogPlanKey: {
+      catalogPlanKey: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
@@ -43,7 +44,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
       catalogPlanId: {
         primaryKey: false,
         allowNull: false,
-        type: DataTypes.STRING(16)
+        type: DataTypes.STRING(16),
         // unique:true
       },
       catalogPlanName: {
@@ -60,37 +61,44 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
       },
       deletedAt: {
         allowNull: true,
-        type: DataTypes.DATE()
+        type: DataTypes.DATE(),
       },
       createdBy: {
         allowNull: false,
-        type: DataTypes.STRING(16)
+        type: DataTypes.STRING(16),
       },
       updatedBy: {
         allowNull: true,
-        type: DataTypes.STRING(45)
+        type: DataTypes.STRING(45),
       },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE(),
-        defaultValue: new Date()
+        defaultValue: new Date(),
       },
+      // fusebillPlanId: {
+      //   type: DataTypes.INTEGER,
+      //   allowNull: true,
+      // },
+      // fusebillPlanFrequencyId: {
+      //   type: DataTypes.INTEGER,
+      //   allowNull: true,
+      // },
       updatedAt: {
         allowNull: true,
         type: DataTypes.DATE(),
-        defaultValue: new Date()
+        defaultValue: new Date(),
       },
     },
-    
+
     {
-      
       tableName: 'CatalogPlan',
       modelName: 'CatalogPlan',
       indexes: [
         {
           unique: true,
           fields: ['catalog_plan_id'],
-        }
+        },
       ],
       sequelize,
     },
