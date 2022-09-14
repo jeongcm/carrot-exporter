@@ -1,7 +1,7 @@
 import DB from '@/database';
 import { IResource } from '@/common/interfaces/resource.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
-import { IRelatedResourceResultDto, IRelatedResource } from '@/common/interfaces/topology.interface';
+import { IRelatedResourceResultDto, IResourceCount } from '@/common/interfaces/topology.interface';
 import ServiceExtension from '@/common/extentions/service.extension';
 import { Op } from 'sequelize';
 import createK8sGraph from './create-k8s-graph';
@@ -139,6 +139,22 @@ class TopologyService extends ServiceExtension {
     });
 
     return topologyItems;
+  }
+
+  public async countResources(customerAccountKey: number, resourceTypes: string[]): IResourceCount[] {
+    console.log(resourceTypes);
+
+    const counts: IResourceCount[] = await this.resource.count({
+      where: {
+        customerAccountKey,
+        resourceType: resourceTypes,
+        deletedAt: null,
+      },
+      attributes: ['resourceType'],
+      group: 'resourceType',
+    });
+
+    return counts;
   }
 
   public async createNsServiceTopology(resources: IResource[], resourceGroup: IResourceGroup) {
