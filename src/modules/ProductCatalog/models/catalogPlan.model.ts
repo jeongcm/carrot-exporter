@@ -76,14 +76,14 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
         type: DataTypes.DATE(),
         defaultValue: new Date(),
       },
-      // fusebillPlanId: {
-      //   type: DataTypes.INTEGER,
-      //   allowNull: true,
-      // },
-      // fusebillPlanFrequencyId: {
-      //   type: DataTypes.INTEGER,
-      //   allowNull: true,
-      // },
+      fusebillPlanId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
+      fusebillPlanFrequencyId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       updatedAt: {
         allowNull: true,
         type: DataTypes.DATE(),
