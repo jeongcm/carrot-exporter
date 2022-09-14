@@ -235,7 +235,7 @@ class systemSubscriptionService {
     //4. call fusebill api to add subscription
     const fusebillSubscriptionPayload = {
       customerID: fuseBillCustomerDetails.id, // refrence
-      planFrequencyID: catalogPlans.fusebillPlanFrequencyId,
+      planFrequencyID: catalogPlans.billingPlanFrequencyId,
     };
     const subscriptionAtFuseBill = await axios({
       method: 'post',
