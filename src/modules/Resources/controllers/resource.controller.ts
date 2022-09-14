@@ -1,5 +1,5 @@
 import { NextFunction, Response } from 'express';
-import { IResource } from '@/common/interfaces/resource.interface';
+import { IResource, IResourceCount } from '@/common/interfaces/resource.interface';
 import ResourceService from '../services/resource.service';
 import TopologyService from '../services/topology.service';
 import { ResourceDto } from '../dtos/resource.dto';
@@ -77,6 +77,27 @@ class ResourceController {
       next(error);
     }
   };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public countResources = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const { customerAccountKey } = req;
+      const resourceTypes = req.query.resourceType as string[];
+
+      console.log(req.query);
+
+      const resourceCount: IResourceCount = await this.topologyService.countResources(customerAccountKey, resourceTypes);
+
+      res.status(200).json({ data: resourceCount, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res

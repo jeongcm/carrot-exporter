@@ -13,6 +13,7 @@ class TopologyRoute implements Routes {
   }
 
   private initializeRoutes() {
+    this.router.get('/topology/resource/count', authMiddleware, createUserLogMiddleware, this.resourceController.countResources);
     this.router.get('/topology/resourceGroup/all/:topologyType', authMiddleware, createUserLogMiddleware, this.resourceController.getAllTopology);
     this.router.get(
       '/topology/resource/:resourceId/ns-related',
