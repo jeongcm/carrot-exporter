@@ -175,6 +175,7 @@ class ResourceEventService {
       include: [
         {
           model: ResourceModel,
+          attributes: ['resourceId'],
         },
       ],
       order: [['createdAt', 'DESC']],
@@ -191,6 +192,7 @@ class ResourceEventService {
       include: [
         {
           model: ResourceModel,
+          attributes: ['resourceId'],
         },
       ],
       order: [['createdAt', 'DESC']],
@@ -204,6 +206,7 @@ class ResourceEventService {
       include: [
         {
           model: ResourceModel,
+          attributes: ['resourceId'],
         },
       ],
     });
