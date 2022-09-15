@@ -535,7 +535,7 @@ class MetricService extends ServiceExtension {
           (1 - avg(rate(node_cpu_seconds_total{__LABEL_PLACE_HOLDER__,mode="idle"}[1m])) by (node)) * 100
         )`;*/
         promQl = `sort_desc(
-          avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[1m])) by (node) * 100
+          avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[5m])) by (node) * 100
         )`;
         break;
       case 'K8S_CLUSTER_NODE_DISK_RANKING':

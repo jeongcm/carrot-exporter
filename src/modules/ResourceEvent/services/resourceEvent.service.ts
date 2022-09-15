@@ -12,6 +12,7 @@ import CustomerAccountService from '@/modules/CustomerAccount/services/customerA
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import { ResourceModel } from '@/modules/Resources/models/resource.model';
+
 //import { Op } from 'sequelize';
 //import { ResourceEventModel } from '../models/resourceEvent.model';
 

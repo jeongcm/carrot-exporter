@@ -2,7 +2,7 @@
 FROM node:lts-alpine as common-build-stage
 
 ENV WORKDIR=/usr/src/app/ \
-    NAME=nexclipper-mqcomm \
+    NAME=nexclipper-api \
     USER=nexclipperuser \
     USER_ID=1002 \
     GROUP=nexclipper
@@ -20,9 +20,9 @@ RUN npm ci
 
 COPY . ${WORKDIR}
 
-# RUN addgroup ${GROUP} && \
-#     adduser -D ${USER} -g ${GROUP} -u ${USER_ID} && \
-#     chown -R ${USER}:${GROUP} ${WORKDIR}
+RUN addgroup ${GROUP} && \
+    adduser -D ${USER} -g ${GROUP} -u ${USER_ID} && \
+    chown -R ${USER}:${GROUP} ${WORKDIR}
 
 # USER ${USER}
 
