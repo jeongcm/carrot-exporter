@@ -20,9 +20,9 @@ RUN npm ci
 
 COPY . ${WORKDIR}
 
-RUN addgroup ${GROUP} && \
-    adduser -D ${USER} -g ${GROUP} -u ${USER_ID} && \
-    chown -R ${USER}:${GROUP} ${WORKDIR}
+# RUN addgroup ${GROUP} && \
+#     adduser -D ${USER} -g ${GROUP} -u ${USER_ID} && \
+#     chown -R ${USER}:${GROUP} ${WORKDIR}
 
 # USER ${USER}
 
