@@ -231,6 +231,11 @@ class systemSubscriptionService {
     const newSubscriptions: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, customerAccountKey);
     //3. pull catalogPlan details to get fusbill id
     const catalogPlans: ICatalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: subscriptionData.catalogPlanId } });
+
+    if (!catalogPlans) {
+      throw new HttpException(404, `Can't find catalog palns information : ${subscriptionData.catalogPlanId}`);
+    }
+
     //4. call fusebill api to add subscription
     const fusebillSubscriptionPayload = {
       customerID: fuseBillCustomerDetails.id, // refrence
