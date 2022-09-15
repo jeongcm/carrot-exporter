@@ -142,8 +142,6 @@ class TopologyService extends ServiceExtension {
   }
 
   public async countResources(customerAccountKey: number, resourceTypes: string[]): IResourceCount[] {
-    console.log(resourceTypes);
-
     const counts: IResourceCount[] = await this.resource.count({
       where: {
         customerAccountKey,
@@ -153,6 +151,8 @@ class TopologyService extends ServiceExtension {
       attributes: ['resourceType'],
       group: 'resourceType',
     });
+
+
 
     return counts;
   }
