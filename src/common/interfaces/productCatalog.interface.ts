@@ -4,8 +4,8 @@ export interface ICatalogPlan {
   catalogPlanName: string;
   catalogPlanType: string;
   catalogPlanDescription: string;
-  fusebillPlanFrequencyId: number;
-  fusebillPlanId: number;
+  billingPlanFrequencyId: number;
+  billingPlanId: number;
   deletedAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -28,6 +28,7 @@ export interface ICatalogPlanProduct {
   catalogPlanProductUOM: string;
   catalogPlanProductCurrency: string;
   catalogPlanProductType: string;
+  billingProductId: number;
 }
 
 export interface ICatalogPlanProductPrice {

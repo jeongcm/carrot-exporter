@@ -22,8 +22,8 @@ export class CatalogPlanModel extends Model<ICatalogPlan, CatalogPlanCreationAtt
   public catalogPlanName: string;
   public catalogPlanType: string;
   public catalogPlanDescription: string;
-  public fusebillPlanFrequencyId: number;
-  public fusebillPlanId: number;
+  public billingPlanFrequencyId: number;
+  public billingPlanId: number;
   public createdBy: string;
   public updatedBy: string;
   public deletedAt: Date;
@@ -76,11 +76,11 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
         type: DataTypes.DATE(),
         defaultValue: new Date(),
       },
-      fusebillPlanId: {
+      billingPlanId: {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
-      fusebillPlanFrequencyId: {
+      billingPlanFrequencyId: {
         type: DataTypes.INTEGER,
         allowNull: true,
       },

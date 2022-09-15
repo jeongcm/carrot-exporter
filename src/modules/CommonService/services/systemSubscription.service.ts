@@ -231,11 +231,10 @@ class systemSubscriptionService {
     const newSubscriptions: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId, customerAccountKey);
     //3. pull catalogPlan details to get fusbill id
     const catalogPlans: ICatalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: subscriptionData.catalogPlanId } });
-
     //4. call fusebill api to add subscription
     const fusebillSubscriptionPayload = {
       customerID: fuseBillCustomerDetails.id, // refrence
-      planFrequencyID: catalogPlans.fusebillPlanFrequencyId,
+      planFrequencyID: catalogPlans.billingPlanFrequencyId,
     };
     const subscriptionAtFuseBill = await axios({
       method: 'post',
