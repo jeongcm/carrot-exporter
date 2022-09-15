@@ -10,6 +10,8 @@ export type CatalogPlanCreationAttributes = Optional<
   | 'catalogPlanType'
   | 'deletedAt'
   | 'catalogPlanDescription'
+  | 'billingPlanFrequencyId'
+  | 'billingPlanId'
   | 'createdAt'
   | 'updatedAt'
   | 'createdBy'

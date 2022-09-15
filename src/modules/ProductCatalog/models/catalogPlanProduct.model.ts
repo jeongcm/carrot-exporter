@@ -17,6 +17,7 @@ export type CatalogPlanProductCreationAttributes = Optional<
   | 'catalogPlanProductUOM'
   | 'catalogPlanProductCurrency'
   | 'catalogPlanProductType'
+  | 'billingProductId'
 >;
 
 export class CatalogPlanProductModel extends Model<ICatalogPlanProduct, CatalogPlanProductCreationAttributes> implements ICatalogPlanProduct {
