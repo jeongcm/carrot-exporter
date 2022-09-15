@@ -22,6 +22,7 @@ class VictoriaMetricService extends ServiceExtension {
       url = `${url}&step=${step}`;
     }
 
+    // FOR DEBUG:
     logger.info(`Calling Victoria Metric: ${url}`);
 
     try {
