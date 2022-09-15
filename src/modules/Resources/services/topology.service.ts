@@ -1,9 +1,9 @@
 import DB from '@/database';
 import { IResource } from '@/common/interfaces/resource.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
-import { IRelatedResourceResultDto, IResourceCount } from '@/common/interfaces/topology.interface';
+import { IRelatedResourceResultDto } from '@/common/interfaces/topology.interface';
 import ServiceExtension from '@/common/extentions/service.extension';
-import { Op } from 'sequelize';
+import { Op, GroupedCountResultItem } from 'sequelize';
 import createK8sGraph from './create-k8s-graph';
 import filterRelatedGraph from './filter-related-graph';
 
@@ -141,8 +141,8 @@ class TopologyService extends ServiceExtension {
     return topologyItems;
   }
 
-  public async countResources(customerAccountKey: number, resourceTypes: string[]): IResourceCount[] {
-    const counts: IResourceCount[] = await this.resource.count({
+  public async countResources(customerAccountKey: number, resourceTypes: string[]): Promise<GroupedCountResultItem[]> {
+    const counts: GroupedCountResultItem[] = await this.resource.count({
       where: {
         customerAccountKey,
         resourceType: resourceTypes,
@@ -151,8 +151,6 @@ class TopologyService extends ServiceExtension {
       attributes: ['resourceType'],
       group: 'resourceType',
     });
-
-
 
     return counts;
   }

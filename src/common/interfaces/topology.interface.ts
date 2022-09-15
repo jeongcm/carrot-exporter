@@ -18,7 +18,4 @@ export interface IRelatedResourceResultDto {
   relatedNodes?: any;
   flat?: any[];
 }
-export interface IResourceCount {
-  resourceType: string;
-  count: number;
-};
+
