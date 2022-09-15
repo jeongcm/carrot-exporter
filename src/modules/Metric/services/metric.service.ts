@@ -517,7 +517,6 @@ class MetricService extends ServiceExtension {
         promQl = `sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))`;
         break;
 
-
       // Node Ranking
       case 'K8S_CLUSTER_NODE_MEMORY_RANKING':
         labelString += getSelectorLabels({

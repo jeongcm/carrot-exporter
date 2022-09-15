@@ -11,7 +11,7 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
-
+import { ResourceModel } from '@/modules/Resources/models/resource.model';
 //import { Op } from 'sequelize';
 //import { ResourceEventModel } from '../models/resourceEvent.model';
 
@@ -172,6 +172,11 @@ class ResourceEventService {
       limit: limit,
       offset: offset,
       where: { resourceGroupUuid },
+      include: [
+        {
+          model: ResourceModel,
+        },
+      ],
       order: [['createdAt', 'DESC']],
     });
     return resultResourceEvent;
@@ -183,6 +188,11 @@ class ResourceEventService {
 
     const resultResourceEvent: IResourceEvent[] = await this.resourceEvent.findAll({
       where: { resourceKey: resultResource.resourceKey },
+      include: [
+        {
+          model: ResourceModel,
+        },
+      ],
       order: [['createdAt', 'DESC']],
     });
     return resultResourceEvent;
@@ -191,6 +201,11 @@ class ResourceEventService {
   public async getResourceEventById(resourceEventId: string): Promise<IResourceEvent> {
     const resultResourceEvent: IResourceEvent = await this.resourceEvent.findOne({
       where: { resourceEventId },
+      include: [
+        {
+          model: ResourceModel,
+        },
+      ],
     });
     if (!resultResourceEvent) throw new HttpException(400, `No Kubernetes event with ResourceEvent Id - ${resourceEventId}`);
     return resultResourceEvent;
