@@ -88,8 +88,6 @@ class ResourceController {
       const { customerAccountKey } = req;
       const resourceTypes = req.query.resourceType as string[];
 
-      console.log(req.query);
-
       const resourceCount: IResourceCount = await this.topologyService.countResources(customerAccountKey, resourceTypes);
 
       res.status(200).json({ data: resourceCount, message: 'findAll' });

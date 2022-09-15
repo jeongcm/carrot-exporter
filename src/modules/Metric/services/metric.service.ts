@@ -490,6 +490,34 @@ class MetricService extends ServiceExtension {
         promQl = `count((kube_persistentvolumeclaim_status_phase{__LABEL_PLACE_HOLDER__, phase="Lost"}==1)) or vector(0)`;
         break;
 
+      // Cluster Node Metric
+      case 'K8S_CLUSTER_NODE_MEMORY':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `(1 - (node_memory_MemAvailable_bytes{__LABEL_PLACE_HOLDER__} / (node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__}))) * 100`;
+        break;
+      case 'K8S_CLUSTER_NODE_CPU':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[1m])) by (node) * 100`;
+        break;
+      case 'K8S_CLUSTER_NODE_DISK':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `(node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__,fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}) * 100
+/ (node_filesystem_avail_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"} + (node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__, job="node-exporter", fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}))`;
+        break;
+      case 'K8S_CLUSTER_NODE_RXTX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))`;
+        break;
+
+
       // Node Ranking
       case 'K8S_CLUSTER_NODE_MEMORY_RANKING':
         labelString += getSelectorLabels({
@@ -503,8 +531,12 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
+        /*
         promQl = `sort_desc(
           (1 - avg(rate(node_cpu_seconds_total{__LABEL_PLACE_HOLDER__,mode="idle"}[1m])) by (node)) * 100
+        )`;*/
+        promQl = `sort_desc(
+          avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[1m])) by (node) * 100
         )`;
         break;
       case 'K8S_CLUSTER_NODE_DISK_RANKING':
