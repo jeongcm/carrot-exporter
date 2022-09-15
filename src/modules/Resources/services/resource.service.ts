@@ -125,7 +125,7 @@ class ResourceService {
       where: { resourceId },
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
-    console.log(resource);
+
     return resource;
   }
 
@@ -241,7 +241,7 @@ class ResourceService {
    * @param  {number} resourceGroupId
    * @param  {any} query
    */
-   public async getResourceByTypeResourceGroupIdForMetricOps(resourceType: string[], resourceGroupId: string, query?: any): Promise<IResource[]> {
+  public async getResourceByTypeResourceGroupIdForMetricOps(resourceType: string[], resourceGroupId: string, query?: any): Promise<IResource[]> {
     const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
     let resourceKeys = [];

@@ -18,3 +18,4 @@ export interface IRelatedResourceResultDto {
   relatedNodes?: any;
   flat?: any[];
 }
+

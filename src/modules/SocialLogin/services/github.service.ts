@@ -1,7 +1,5 @@
-
-
 import DB from '@/database';
-import {Strategy} from 'passport-github';
+import { Strategy } from 'passport-github';
 import config from '@config/index';
 import { logger } from '@/common/utils/logger';
 import PartyService from '@/modules/Party/services/party.service';
@@ -23,38 +21,45 @@ class Github {
         },
         async (req, accessToken, refreshToken, profile, done) => {
           try {
-            
-              const existingUser = await this.partyUser.findOne({ where: { socialProviderId: profile.id } });
-              if (existingUser) {
-                return done(null, existingUser);
-              }else {
-                logger.info(`in github login ${JSON.stringify(profile)}`)
-                {
-                  const customerAccount = await this.customerAccountService.createCustomerAccount({
-                      customerAccountName: profile.displayName || profile.username,
-                      customerAccountDescription: '',
-                      parentCustomerAccountId: '',
-                      customerAccountType: 'IA'
-                  }, req.systemId);
-                  const newPartyUser = await this.partyService.createUser({
-                      email: "",
-                      timezone: "",
-                      partyName: profile.displayName || profile.username,
-                      partyDescription: '',
-                      parentPartyId: '',
-                      firstName: profile.displayName || profile.username,
-                      lastName: profile.displayName || '',
-                      userId: profile.username,
-                      mobile: '',
-                      password: '',
-                      customerAccountId:customerAccount.customerAccountId,
-                      partyUserStatus: 'AC',
-                      adminYn: false,
-                  }, customerAccount.customerAccountKey, '', profile.id);
-                  done(null, newPartyUser);
+            const existingUser = await this.partyUser.findOne({ where: { socialProviderId: profile.id } });
+            if (existingUser) {
+              return done(null, existingUser);
+            } else {
+              logger.info(`in github login ${JSON.stringify(profile)}`);
+              {
+                const customerAccount = await this.customerAccountService.createCustomerAccount(
+                  {
+                    customerAccountName: profile.displayName || profile.username,
+                    customerAccountDescription: '',
+                    parentCustomerAccountId: '',
+                    customerAccountType: 'IA',
+                  },
+                  req.systemId,
+                );
+                const newPartyUser = await this.partyService.createUser(
+                  {
+                    email: '',
+                    timezone: '',
+                    partyName: profile.displayName || profile.username,
+                    partyDescription: '',
+                    parentPartyId: '',
+                    firstName: profile.displayName || profile.username,
+                    lastName: profile.displayName || '',
+                    userId: profile.username,
+                    mobile: '',
+                    password: '',
+                    customerAccountId: customerAccount.customerAccountId,
+                    partyUserStatus: 'AC',
+                    adminYn: false,
+                    language: 'EN',
+                  },
+                  customerAccount.customerAccountKey,
+                  '',
+                  profile.id,
+                );
+                done(null, newPartyUser);
               }
-              }
-            
+            }
           } catch (err) {
             console.log(err);
           }

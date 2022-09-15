@@ -16,6 +16,7 @@ import SudoryService from '@/modules/CommonService/services/sudory.service';
 //import { Db } from 'mongodb';
 //import sequelize from 'sequelize';
 import config from '@config/index';
+import axios from '@/common/httpClient/axios';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
@@ -117,6 +118,19 @@ class ResourceGroupService {
     });
 
     return resourceGroup;
+  }
+
+  /**
+   * @param  {string[]} resourceGroupIds
+   * @returns Promise
+   */
+  public async getResourceGroupByIds(resourceGroupId: string[]): Promise<IResourceGroup[]> {
+    const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: { resourceGroupId, deletedAt: null },
+      attributes: { exclude: ['deletedAt'] },
+    });
+
+    return resourceGroups;
   }
 
   /**
@@ -264,8 +278,8 @@ class ResourceGroupService {
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
     if (!findResourceGroup) throw new HttpException(400, "*ResourceGroup doesn't exist");
     const sudoryChannel = config.sudoryApiDetail.channel_webhook;
-    const kpsLokiNamespace = findResourceGroup.resourceGroupKpsLokiNamespace || "monitor";
-    const sudoryNamespace = findResourceGroup.resourceGroupSudoryNamespace || "sudoryclient";
+    const kpsLokiNamespace = findResourceGroup.resourceGroupKpsLokiNamespace || 'monitor';
+    const sudoryNamespace = findResourceGroup.resourceGroupSudoryNamespace || 'sudoryclient';
 
     if (deleteOption == '2') {
       //0-1. Prometheus / KPS
@@ -377,7 +391,7 @@ class ResourceGroupService {
         const resultCancelScheduler = await this.schedulerService.cancelCronScheduleByResourceGroupUuid(resourceGroupUuid);
         console.log('Scheduler - cancalled - ', resourceGroupUuid);
 
-        //6. sudoryclient?
+        //6-1. sudoryclient?
 
         const name = 'sudory uninstall';
         const summary = 'sudory uninstall';
@@ -394,6 +408,23 @@ class ResourceGroupService {
           sudoryChannel,
         );
         console.log('sudory client - uninstalled - ', resourceGroupUuid);
+
+        //6-2. sudoryserver?
+        const executeServerClusterUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateCluster + '/' + resourceGroupUuid;
+        await axios({
+          method: 'delete',
+          url: `${executeServerClusterUrl}`,
+          //data: sudoryCreateCluster,
+          headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
+        })
+          .then(async (res: any) => {
+            const sudoryDeleteClusterResponse = res.data;
+            console.log('success to delete sudory cluster', sudoryDeleteClusterResponse);
+          })
+          .catch(error => {
+            console.log('error to delete sudory clusgter', error);
+            return error;
+          });
 
         //7. AlertRule, AlertReceived
         const findAlertRule: IAlertRule[] = await this.alertRule.findAll({ where: { resourceGroupUuid: resourceGroupUuid } });

@@ -11,7 +11,7 @@ class systemSubscription implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/systemSubscription',systemAuthMiddleware,this.systemSubscriptionController.createSystemSubscription);
+    this.router.post('/systemSubscription', systemAuthMiddleware, this.systemSubscriptionController.createSystemSubscription);
   }
 }
 

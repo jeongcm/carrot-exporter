@@ -1,16 +1,14 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 
-
-
 export type SudoryWebhookUpdateAttributes = Optional<
-ISudoryWebhook,
+  ISudoryWebhook,
   | 'sudoryWebhookKey'
   | 'sudoryWebhookId'
-  | 'clusterUuid' 
-  | 'status' 
+  | 'clusterUuid'
+  | 'status'
   | 'serviceUuid'
-  | 'serviceName' 
+  | 'serviceName'
   | 'serviceResult'
   | 'createdAt'
   | 'updatedAt'
@@ -24,7 +22,6 @@ ISudoryWebhook,
   | 'assignedClientUuid'
   | 'templateUuid'
 >;
-
 
 export class SudoryWebhookModel extends Model<ISudoryWebhook, SudoryWebhookUpdateAttributes> implements ISudoryWebhook {
   public sudoryWebhookKey: number;
@@ -49,9 +46,6 @@ export class SudoryWebhookModel extends Model<ISudoryWebhook, SudoryWebhookUpdat
 
   public readonly createdAt!: Date;
 }
-
-
-
 
 export default function (sequelize: Sequelize): typeof SudoryWebhookModel {
   SudoryWebhookModel.init(

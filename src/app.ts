@@ -1,4 +1,3 @@
-
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -19,14 +18,11 @@ import passport from 'passport';
 import { request } from 'http';
 
 class App {
-
   public port: number;
   public env: string;
   public app: express.Application;
 
-
   constructor(routes: Routes[]) {
-
     this.app = express();
     this.port = Number(config.appPort);
     this.env = config.nodeEnv;
@@ -72,7 +68,7 @@ class App {
         saveUninitialized: true,
         resave: true,
         // cookie: { secure: true },
-        maxAge: 24 * 60 * 60 * 100
+        maxAge: 24 * 60 * 60 * 100,
       }),
     );
     this.app = Passport.mountPackage(this.app);
@@ -110,16 +106,14 @@ class App {
         logger.info(`url is ${req.url}`);
         logger.info(`Status code is ${res.statusCode}`);
 
-        if ("password" in req.body){
-          var req_new_body = req.body;
-          req_new_body.password = "********";
-          logger.info(`Request Body is ${JSON.stringify(req_new_body || {})}`);
-        }
-        else{
-          logger.info(`Request Body is ${JSON.stringify(req.body || {})}`);
-        }
-
         if (config.logger.silenceResponse !== true) {
+          if ('password' in req.body) {
+            const req_new_body = req.body;
+            req_new_body.password = '********';
+            logger.info(`Request Body is ${JSON.stringify(req_new_body || {})}`);
+          } else {
+            logger.info(`Request Body is ${JSON.stringify(req.body || {})}`);
+          }
           logger.info(`Response Body is ${c}`);
         }
         res.send = send;
