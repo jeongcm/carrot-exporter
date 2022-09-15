@@ -1,9 +1,10 @@
 import { NextFunction, Response } from 'express';
-import { IResource, IResourceCount } from '@/common/interfaces/resource.interface';
+import { IResource } from '@/common/interfaces/resource.interface';
 import ResourceService from '../services/resource.service';
 import TopologyService from '../services/topology.service';
 import { ResourceDto } from '../dtos/resource.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
+import { GroupedCountResultItem } from 'sequelize';
 
 class ResourceController {
   public resourceService = new ResourceService();
@@ -88,7 +89,7 @@ class ResourceController {
       const { customerAccountKey } = req;
       const resourceTypes = req.query.resourceType as string[];
 
-      const resourceCount: IResourceCount = await this.topologyService.countResources(customerAccountKey, resourceTypes);
+      const resourceCount: GroupedCountResultItem[] = await this.topologyService.countResources(customerAccountKey, resourceTypes);
 
       res.status(200).json({ data: resourceCount, message: 'findAll' });
     } catch (error) {
