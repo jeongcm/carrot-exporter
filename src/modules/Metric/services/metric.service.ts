@@ -63,7 +63,7 @@ class MetricService extends ServiceExtension {
               return this.throwError(`NOT_FOUND`, `No resource found with resourceId (${resourceId})`);
             }
 
-            const resourceGroupKeys = resources.map((resource: IResource) => resource.resourceGroupKey);
+            const resourceGroupKeys = resources?.map((resource: IResource) => resource.resourceGroupKey);
 
             resourceGroups = await this.resourceGroupService.getUserResourceGroupByKeys(customerAccountKey, resourceGroupKeys);
 
@@ -147,9 +147,9 @@ class MetricService extends ServiceExtension {
 
   private getPromQlFromQuery(query: IMetricQueryBodyQuery, resources?: IResource[], resourceGroups?: IResourceGroup[]) {
     const { type, promql: customPromQl, start, end, step } = query;
-    const clusterUuid = resourceGroups.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupUuid);
-    const resourceName = resources.map((resource: IResource) => resource.resourceName);
-    const resourceNamespace = resources.map((resource: IResource) =>
+    const clusterUuid = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupUuid);
+    const resourceName = resources?.map((resource: IResource) => resource.resourceName);
+    const resourceNamespace = resources?.map((resource: IResource) =>
       resource?.resourceType === 'NS' ? resource.resourceName : resource.resourceNamespace,
     );
     let labelString = '';
@@ -319,8 +319,8 @@ class MetricService extends ServiceExtension {
       case 'PV_SPACE_USAGE_FREE':
         labelString += getSelectorLabels({
           clusterUuid,
-          persistentvolumeclaim: resources.map((resource: IResource) => resource.resourcePvClaimRef?.name),
-          namespace: resources.map((resource: IResource) => resource.resourcePvClaimRef?.namespace),
+          persistentvolumeclaim: resources?.map((resource: IResource) => resource.resourcePvClaimRef?.name),
+          namespace: resources?.map((resource: IResource) => resource.resourcePvClaimRef?.namespace),
         });
         ranged = true;
 
@@ -436,7 +436,7 @@ class MetricService extends ServiceExtension {
       case 'NS_PVCS_FULL_IN_2DAYS':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resources.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `(
           count (
@@ -451,7 +451,7 @@ class MetricService extends ServiceExtension {
       case 'NS_PVCS_FULL_IN_5DAYS':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resources.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `(
           count (
@@ -466,7 +466,7 @@ class MetricService extends ServiceExtension {
       case 'NS_PVCS_FULL_IN_WEEK':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resources.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `(
           count (
@@ -481,21 +481,21 @@ class MetricService extends ServiceExtension {
       case 'NS_PVCS_ABOVE_WARNING_THRESHOLD':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resources.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `count (max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__} ) and (max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__} )) / (max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__} )) >= (80 / 100)) or vector (0)`;
         break;
       case 'NS_PVCS_IN_PENDING_STATE':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resources.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `count((kube_persistentvolumeclaim_status_phase{__LABEL_PLACE_HOLDER__, phase="Pending"}==1)) or vector(0)`;
         break;
       case 'NS_PVCS_IN_LOST_STATE':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resources.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `count((kube_persistentvolumeclaim_status_phase{__LABEL_PLACE_HOLDER__, phase="Lost"}==1)) or vector(0)`;
         break;
