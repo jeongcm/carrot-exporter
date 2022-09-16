@@ -38,6 +38,7 @@ class VictoriaMetricService extends ServiceExtension {
         return null;
       }
     } catch (e) {
+      console.log(e.toJSON());
       this.throwError('EXCEPTION', e.response?.data);
     }
   }
@@ -64,7 +65,7 @@ class VictoriaMetricService extends ServiceExtension {
         return null;
       }
     } catch (e) {
-      console.log(e.response?.data)
+      console.log(e.response?.data);
       this.throwError('EXCEPTION', e);
     }
   }

@@ -154,6 +154,18 @@ class ResourceService {
   }
 
   /**
+   * @param  {string} resourceIds
+   */
+  public async getUserResourceByIds(customerAccountKey: number, resourceIds: string[]): Promise<IResource[]> {
+    const resource: IResource[] = await this.resource.findAll({
+      where: { resourceId: resourceIds, customerAccountKey },
+      attributes: { exclude: ['deletedAt'] },
+    });
+
+    return resource;
+  }
+
+  /**
    * @param  {string} resourceId
    * @param  {ResourceDto} resourceData
    * @param  {string} currentUserId
