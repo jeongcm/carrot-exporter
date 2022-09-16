@@ -261,6 +261,19 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by(pod) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )`;
         break;
+      case 'POD_CPU_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `sort_desc(
+          sum by(pod) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )
+        )`;
+        break;
+
       case 'POD_MEMORY':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -271,6 +284,19 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
+
+      case 'POD_MEMORY_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `sort_desc(sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__}))`;
+        break;
+
+
       case 'POD_NETWORK_RX':
         labelString += getSelectorLabels({
           clusterUuid,
