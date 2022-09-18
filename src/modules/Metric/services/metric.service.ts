@@ -296,7 +296,6 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__}))`;
         break;
 
-
       case 'POD_NETWORK_RX':
         labelString += getSelectorLabels({
           clusterUuid,

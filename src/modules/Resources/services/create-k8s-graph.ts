@@ -124,6 +124,8 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
   (resources || []).map((resource: any, index: number) => {
     const { resourceType, _nodeId, resourceNamespace = 'default' } = resource;
     let resourceOwnerReferences;
+    let resourcePodVolume = [];
+    let resourcePodContainer = [];
 
     switch (resourceType) {
       case 'EP':
@@ -224,6 +226,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
 
       case 'PD':
         logger.info('PD: ' + _nodeId);
+        console.log('bugfix1', resource.resourceOwnerReferences);
         if (resource.resourceOwnerReferences) {
           if (!Array.isArray(resource.resourceOwnerReferences)) {
             if (typeof resource.resourceOwnerReferences === 'string') {
@@ -238,8 +241,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
             resourceOwnerReferences = resource.resourceOwnerReferences;
           }
           const owner = resourceOwnerReferences;
-
-          const type = TYPE_PER_NAME[(owner.kind || '').toLowerCase()];
+          //const type = TYPE_PER_NAME[(owner.kind || '').toLowerCase()];
           const uid = owner.uid;
           const target = `${resourceNamespace}.${uid}`;
 
@@ -254,7 +256,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
             resourcePerNodeId,
           );
         }
-        let resourcePodVolume;
+        console.log('bugfix2', resource.resourcePodVolume);
         if (resource.resourcePodVolume) {
           if (!Array.isArray(resource.resourcePodVolume)) {
             if (typeof resource.resourcePodVolume === 'string') {
@@ -291,7 +293,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
             );
           });
         }
-        let resourcePodContainer;
+        console.log('bugfix3', resource.resourcePodContainer);
         if (resource.resourcePodContainer) {
           if (!Array.isArray(resource.resourcePodContainer)) {
             if (typeof resource.resourcePodContainer === 'string') {
