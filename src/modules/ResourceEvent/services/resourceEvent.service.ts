@@ -179,7 +179,6 @@ class ResourceEventService {
           attributes: ['resourceId'],
         },
       ],
-
       order: [['createdAt', 'DESC']],
     });
     return resultResourceEvent;
@@ -197,7 +196,6 @@ class ResourceEventService {
           attributes: ['resourceId'],
         },
       ],
-
       order: [['createdAt', 'DESC']],
     });
     return resultResourceEvent;

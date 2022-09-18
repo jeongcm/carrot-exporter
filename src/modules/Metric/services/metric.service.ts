@@ -10,7 +10,7 @@ import getSelectorLabels from 'common/utils/getSelectorLabels';
 export interface IMetricQueryBodyQuery {
   name: string;
   type: string;
-  resourceId: string;
+  resourceId: string | string[];
   start?: string;
   end?: string;
   step?: string;
@@ -48,22 +48,28 @@ class MetricService extends ServiceExtension {
             return this.throwError('EXCEPTION', `type for '${name}' is missing`);
           }
 
-          let resource: IResource = null;
+          let resources: IResource[] = null;
           let resourceGroups: IResourceGroup[] = null;
           if (resourceId) {
-            resource = await this.resourceService.getUserResourceById(customerAccountKey, resourceId);
+            let idsToUse: string[] = [];
+            if (Array.isArray(resourceId)) {
+              idsToUse = resourceId;
+            } else {
+              idsToUse = [resourceId];
+            }
+            resources = await this.resourceService.getUserResourceByIds(customerAccountKey, idsToUse);
 
-            if (!resource) {
+            if (!resources || resources.length === 0) {
               return this.throwError(`NOT_FOUND`, `No resource found with resourceId (${resourceId})`);
             }
 
-            const resourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, resource.resourceGroupKey);
+            const resourceGroupKeys = resources?.map((resource: IResource) => resource.resourceGroupKey);
 
-            if (!resourceGroup) {
-              return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupUuid})`);
+            resourceGroups = await this.resourceGroupService.getUserResourceGroupByKeys(customerAccountKey, resourceGroupKeys);
+
+            if (!resourceGroups || resourceGroups.length === 0) {
+              return this.throwError('EXCEPTION', `No access to resourceGroups (accessed through resourceId)`);
             }
-
-            resourceGroups = [resourceGroup];
           } else if (resourceGroupUuid) {
             const resourceGroup = await this.resourceGroupService.getUserResourceGroupByUuid(customerAccountKey, resourceGroupUuid);
             if (!resourceGroup) {
@@ -83,14 +89,14 @@ class MetricService extends ServiceExtension {
             }
           }
 
-          if (!resourceGroups && !resource) {
+          if (!resourceGroups && !resources) {
             return this.throwError(
               'NOT_FOUND',
               `no resourceGroup nor resource found! Please make sure to pass resourceGroupId or resourceGroupUuid or resourceId`,
             );
           }
 
-          const promQl = this.getPromQlFromQuery(query, resource, resourceGroups);
+          const promQl = this.getPromQlFromQuery(query, resources, resourceGroups);
 
           if (!promQl.promQl) {
             return this.throwError(`EXCEPTION`, `Invalid type ${type}`);
@@ -139,9 +145,13 @@ class MetricService extends ServiceExtension {
     return resultInOrder;
   }
 
-  private getPromQlFromQuery(query: IMetricQueryBodyQuery, resource?: IResource, resourceGroups?: IResourceGroup[]) {
+  private getPromQlFromQuery(query: IMetricQueryBodyQuery, resources?: IResource[], resourceGroups?: IResourceGroup[]) {
     const { type, promql: customPromQl, start, end, step } = query;
-    const clusterUuid = resourceGroups.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupUuid);
+    const clusterUuid = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupUuid);
+    const resourceName = resources?.map((resource: IResource) => resource.resourceName);
+    const resourceNamespace = resources?.map((resource: IResource) =>
+      resource?.resourceType === 'NS' ? resource.resourceName : resource.resourceNamespace,
+    );
     let labelString = '';
     let ranged = false;
 
@@ -163,7 +173,7 @@ class MetricService extends ServiceExtension {
       case 'NODE_CPU_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,
-          node: resource.resourceName,
+          node: resourceName,
         });
         ranged = true;
 
@@ -180,7 +190,7 @@ class MetricService extends ServiceExtension {
       case 'NODE_MEMORY_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
-          node: resource.resourceName,
+          node: resourceName,
         });
         ranged = true;
 
@@ -194,7 +204,7 @@ class MetricService extends ServiceExtension {
       case 'NODE_FILESYSTEM_USED':
         labelString += getSelectorLabels({
           clusterUuid,
-          node: resource.resourceName,
+          node: resourceName,
         });
         ranged = true;
 
@@ -211,7 +221,7 @@ class MetricService extends ServiceExtension {
       case 'NODE_FILESYSTEM_AVAILABLE':
         labelString += getSelectorLabels({
           clusterUuid,
-          node: resource.resourceName,
+          node: resourceName,
         });
         ranged = true;
 
@@ -226,7 +236,7 @@ class MetricService extends ServiceExtension {
       case 'NODE_NETWORK_TRAFFIC_RX':
         labelString += getSelectorLabels({
           clusterUuid,
-          node: resource.resourceName,
+          node: resourceName,
         });
         ranged = true;
 
@@ -235,7 +245,7 @@ class MetricService extends ServiceExtension {
       case 'NODE_NETWORK_TRAFFIC_TX':
         labelString += getSelectorLabels({
           clusterUuid,
-          node: resource.resourceName,
+          node: resourceName,
         });
         ranged = true;
 
@@ -244,27 +254,53 @@ class MetricService extends ServiceExtension {
       case 'POD_CPU':
         labelString += getSelectorLabels({
           clusterUuid,
-          pod: resource.resourceName,
-          namespace: resource.resourceNamespace,
+          pod: resourceName,
+          namespace: resourceNamespace,
         });
         ranged = true;
 
         promQl = `sum by(pod) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )`;
         break;
+      case 'POD_CPU_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `sort_desc(
+          sum by(pod) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )
+        )`;
+        break;
+
       case 'POD_MEMORY':
         labelString += getSelectorLabels({
           clusterUuid,
-          pod: resource.resourceName,
-          namespace: resource.resourceNamespace,
+          pod: resourceName,
+          namespace: resourceNamespace,
         });
         ranged = true;
 
         promQl = `sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
+
+      case 'POD_MEMORY_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `sort_desc(sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__}))`;
+        break;
+
+
       case 'POD_NETWORK_RX':
         labelString += getSelectorLabels({
           clusterUuid,
-          pod: resource.resourceName,
+          pod: resourceName,
         });
         ranged = true;
 
@@ -273,7 +309,7 @@ class MetricService extends ServiceExtension {
       case 'POD_NETWORK_TX':
         labelString += getSelectorLabels({
           clusterUuid,
-          pod: resource.resourceName,
+          pod: resourceName,
         });
         ranged = true;
 
@@ -283,8 +319,8 @@ class MetricService extends ServiceExtension {
       case 'PV_SPACE_USAGE_CAPACITY':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceNamespace,
-          persistentvolumeclaim: resource.resourceName,
+          namespace: resourceNamespace,
+          persistentvolumeclaim: resourceName,
         });
         ranged = true;
 
@@ -296,8 +332,8 @@ class MetricService extends ServiceExtension {
       case 'PV_SPACE_USAGE_USED':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceNamespace,
-          persistentvolumeclaim: resource.resourceName,
+          namespace: resourceNamespace,
+          persistentvolumeclaim: resourceName,
         });
         ranged = true;
 
@@ -309,8 +345,8 @@ class MetricService extends ServiceExtension {
       case 'PV_SPACE_USAGE_FREE':
         labelString += getSelectorLabels({
           clusterUuid,
-          persistentvolumeclaim: resource.resourcePvClaimRef?.name,
-          namespace: resource.resourcePvClaimRef?.namespace,
+          persistentvolumeclaim: resources?.map((resource: IResource) => resource.resourcePvClaimRef?.name),
+          namespace: resources?.map((resource: IResource) => resource.resourcePvClaimRef?.namespace),
         });
         ranged = true;
 
@@ -321,7 +357,7 @@ class MetricService extends ServiceExtension {
       case 'PD_container_network_receive_bytes_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceName,
+          namespace: resourceName,
         });
 
         promQl = `sum(irate(container_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
@@ -329,7 +365,7 @@ class MetricService extends ServiceExtension {
       case 'PD_container_network_transmit_bytes_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceName,
+          namespace: resourceName,
         });
 
         promQl = `sum(irate(container_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
@@ -337,7 +373,7 @@ class MetricService extends ServiceExtension {
       case 'PD_container_network_receive_packets_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceName,
+          namespace: resourceName,
         });
 
         promQl = `sum(irate(container_network_receive_packets_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
@@ -345,7 +381,7 @@ class MetricService extends ServiceExtension {
       case 'PD_container_network_transmit_packets_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceName,
+          namespace: resourceName,
         });
 
         promQl = `sum(irate(container_network_transmit_packets_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
@@ -353,7 +389,7 @@ class MetricService extends ServiceExtension {
       case 'PD_container_network_receive_packets_dropped_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceName,
+          namespace: resourceName,
         });
 
         promQl = `sum(irate(container_network_receive_packets_dropped_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
@@ -361,7 +397,7 @@ class MetricService extends ServiceExtension {
       case 'PD_container_network_transmit_packets_dropped_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource.resourceName,
+          namespace: resourceName,
         });
 
         promQl = `sum(irate(container_network_transmit_packets_dropped_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod)`;
@@ -372,7 +408,7 @@ class MetricService extends ServiceExtension {
       case 'NS_container_network_receive_bytes_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource?.resourceName,
+          namespace: resourceName,
         });
 
         promQl = `sum(irate(container_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (namespace)`;
@@ -380,7 +416,7 @@ class MetricService extends ServiceExtension {
       case 'NS_container_network_transmit_bytes_total':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource?.resourceName,
+          namespace: resourceName,
         });
 
         promQl = `sum(irate(container_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (namespace)`;
@@ -418,7 +454,7 @@ class MetricService extends ServiceExtension {
       case 'NS_RUNNING_PVCS_USED_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource?.resourceType === 'NS' ? resource.resourceName : resource.resourceNamespace,
+          namespace: resourceNamespace,
         });
         ranged = true;
         promQl = `(max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}))`;
@@ -426,7 +462,7 @@ class MetricService extends ServiceExtension {
       case 'NS_PVCS_FULL_IN_2DAYS':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource?.resourceType === 'NS' ? resource.resourceName : undefined,
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `(
           count (
@@ -441,7 +477,7 @@ class MetricService extends ServiceExtension {
       case 'NS_PVCS_FULL_IN_5DAYS':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource?.resourceType === 'NS' ? resource.resourceName : undefined,
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `(
           count (
@@ -456,7 +492,7 @@ class MetricService extends ServiceExtension {
       case 'NS_PVCS_FULL_IN_WEEK':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource?.resourceType === 'NS' ? resource.resourceName : undefined,
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `(
           count (
@@ -471,21 +507,21 @@ class MetricService extends ServiceExtension {
       case 'NS_PVCS_ABOVE_WARNING_THRESHOLD':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource?.resourceType === 'NS' ? resource.resourceName : undefined,
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `count (max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__} ) and (max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__} )) / (max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__} )) >= (80 / 100)) or vector (0)`;
         break;
       case 'NS_PVCS_IN_PENDING_STATE':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource?.resourceType === 'NS' ? resource.resourceName : undefined,
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `count((kube_persistentvolumeclaim_status_phase{__LABEL_PLACE_HOLDER__, phase="Pending"}==1)) or vector(0)`;
         break;
       case 'NS_PVCS_IN_LOST_STATE':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resource?.resourceType === 'NS' ? resource.resourceName : undefined,
+          namespace: resources?.map((resource: IResource) => (resource?.resourceType === 'NS' ? resource.resourceName : undefined)),
         });
         promQl = `count((kube_persistentvolumeclaim_status_phase{__LABEL_PLACE_HOLDER__, phase="Lost"}==1)) or vector(0)`;
         break;
@@ -516,7 +552,6 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))`;
         break;
-
 
       // Node Ranking
       case 'K8S_CLUSTER_NODE_MEMORY_RANKING':

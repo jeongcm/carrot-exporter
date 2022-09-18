@@ -82,8 +82,8 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
         type: DataTypes.STRING(2),
       },
       billingProductId: {
-        allowNull: false,
         type: DataTypes.INTEGER,
+        allowNull: true,
       },
       createdBy: {
         allowNull: false,
