@@ -103,6 +103,9 @@ class TopologyService extends ServiceExtension {
       case 'nodes':
         resourceType = ['ND'];
         break;
+      case 'pods':
+        resourceType = ['PD'];
+        break;
       case 'ns-services':
         resourceType = ['NS', 'SV'];
         break;
@@ -123,22 +126,43 @@ class TopologyService extends ServiceExtension {
 
     switch (type) {
       case 'nodes':
-        return await this.createNodesTopology(resources);
+        return await this.createNodeTopology(resources);
+      case 'pods':
+        return await this.createPodTopology(resources);
       case 'ns-services':
         return await this.createNsServiceTopology(resources, resourceGroup);
     }
   }
 
-  public async createNodesTopology(resources: IResource[]) {
+  public async createNodeTopology(resources: IResource[]) {
     const topologyItems = [];
 
     resources.forEach((resource: IResource) => {
       topologyItems.push({
         id: resource.resourceId,
+        name: resource.resourceName,
       });
     });
 
     return topologyItems;
+  }
+
+  public async createPodTopology(resources: IResource[]) {
+    const namespaces: any = {};
+
+    resources.forEach((resource: IResource) => {
+      if (!namespaces[resource.resourceNamespace]) {
+        namespaces[resource.resourceNamespace] = [];
+      }
+
+      namespaces[resource.resourceNamespace].push({
+        id: resource.resourceId,
+        name: resource.resourceName,
+        namespace: resource.resourceNamespace,
+      });
+    });
+
+    return Object.values(namespaces);
   }
 
   public async countResources(customerAccountKey: number, resourceTypes: string[]): Promise<GroupedCountResultItem[]> {
