@@ -255,7 +255,6 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
           );
         }
         let resourcePodVolume;
-        console.log(resource.resourcePodVolume);
         if (resource.resourcePodVolume) {
           if (!Array.isArray(resource.resourcePodVolume)) {
             if (typeof resource.resourcePodVolume === 'string') {
@@ -266,6 +265,8 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
                 resourcePodVolume = [];
               }
             }
+          } else {
+            resourcePodVolume = resource.resourcePodVolume;
           }
           console.log(resourcePodVolume);
           resourcePodVolume.forEach((volume: any) => {
@@ -290,9 +291,22 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
             );
           });
         }
-        console.log(resource.resourcePodContainer);
+        let resourcePodContainer;
         if (resource.resourcePodContainer) {
-          resource.resourcePodContainer.forEach((container: any) => {
+          if (!Array.isArray(resource.resourcePodContainer)) {
+            if (typeof resource.resourcePodContainer === 'string') {
+              try {
+                resourcePodContainer = JSON.parse(resource.resourcePodContainer);
+              } catch (e) {
+                console.error(e);
+                resourcePodContainer = [];
+              }
+            }
+          } else {
+            resourcePodContainer = resource.resourcePodContainer;
+          }
+          console.log(resourcePodVolume);
+          resourcePodContainer.forEach((container: any) => {
             let target = '';
             if (container.env) {
               container.env.forEach((env: any) => {
