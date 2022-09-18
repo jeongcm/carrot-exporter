@@ -126,18 +126,30 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
     let resourceOwnerReferences;
     let resourcePodVolume = [];
     let resourcePodContainer = [];
+    let resourceEndpoint;
 
     switch (resourceType) {
       case 'EP':
-        if (Array.isArray(resource.resourceEndpoint)) {
-          resource.resourceEndpoint.forEach((ep: any) => {
+        if (resource.resourceEndpoint) {
+          if (!Array.isArray(resource.resourceEndpoint)) {
+            if (typeof resource.resourceEndpoint === 'string') {
+              try {
+                resourceEndpoint = JSON.parse(resource.resourceEndpoint);
+              } catch (e) {
+                console.error(e);
+                resourceEndpoint = [];
+              }
+            }
+          } else {
+            resourceEndpoint = resource.resourceEndpoint;
+          }
+
+          resourceEndpoint.forEach((ep: any) => {
             (ep?.addresses || []).forEach((address: any) => {
               const { targetRef } = address;
               if (targetRef) {
                 const target = `${targetRef.namespace}.${targetRef.uid}`;
-
                 logger.info('EP target: ' + target + ' EP: ' + _nodeId);
-
                 addEdge(
                   resourceNamespace,
                   {
