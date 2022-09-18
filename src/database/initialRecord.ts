@@ -35,15 +35,22 @@ class InitialRecordService {
 
     //insert/update TableId
     try {
-      await this.tableId.bulkCreate(tableIds, 
-        {
-          fields: ["tableIdTableName", "tableIdHeader", "tableMonth", "tableYear", "tableDay","tableIdSequenceDigit","tableIdIssuedSequence","createdBy"],
-          updateOnDuplicate: ["tableIdTableName"]
-        }
-      );
-      } catch (error) {
-        console.log(error);
-      } 
+      await this.tableId.bulkCreate(tableIds, {
+        fields: [
+          'tableIdTableName',
+          'tableIdHeader',
+          'tableMonth',
+          'tableYear',
+          'tableDay',
+          'tableIdSequenceDigit',
+          'tableIdIssuedSequence',
+          'createdBy',
+        ],
+        updateOnDuplicate: ['tableIdTableName'],
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
     //create a system user
     const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountType: 'IA' } });
@@ -95,17 +102,16 @@ class InitialRecordService {
       }
     } // end of !findIaCustomer
 
-
     //insert/update API
-    let apiDataList = [];
-      // pre-step to be ready to use bulk table id
-    let apiListLength = apiList.length;
+    const apiDataList = [];
+    // pre-step to be ready to use bulk table id
+    const apiListLength = apiList.length;
     const responseApiTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Api', apiListLength);
     const api_id_prefix = responseApiTableIdData.tableIdFinalIssued.substring(0, 8);
     let api_id_postfix_number = Number(responseApiTableIdData.tableIdFinalIssued.substring(8, 16)) - responseApiTableIdData.tableIdRange;
     let api_id_postfix = '';
     const tableIdApiSequenceDigit = responseApiTableIdData.tableIdSequenceDigit;
-      //
+    //
     for (const apiObj of apiList) {
       // creating tableid from bulk
       api_id_postfix_number = api_id_postfix_number + 1;
@@ -113,7 +119,7 @@ class InitialRecordService {
       while (api_id_postfix.length < tableIdApiSequenceDigit) {
         api_id_postfix = '0' + api_id_postfix;
       }
-      let api_id = api_id_prefix + api_id_postfix;
+      const api_id = api_id_prefix + api_id_postfix;
 
       apiDataList.push({
         ...apiObj,
@@ -123,93 +129,96 @@ class InitialRecordService {
       });
     }
     try {
-      await this.api.bulkCreate(apiDataList, 
-        {
-          fields: ["apiId","apiName", "apiDescription", "apiEndPoint1", "apiEndPoint2", "apiVisibleTF", "createdBy", "createdAt"],
-          updateOnDuplicate: ["apiName"]
-        }
-      );
-      } catch (error) {
-        console.log(error);
-      } 
-
-  //insert/update Role   
-  let roleDataList = [];
-  let roleListLength = roleList.length;
-  const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Role', roleListLength);
-  const role_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
-  let role_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
-  let role_id_postfix = '';
-  const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
-
-  for (const roleObj of roleList) {
-    // creating tableid from bulk
-    role_id_postfix_number = role_id_postfix_number + 1;
-    role_id_postfix = role_id_postfix_number.toString();
-    while (role_id_postfix.length < tableIdSequenceDigit) {
-      role_id_postfix = '0' + role_id_postfix;
-    }
-    let role_id = role_id_prefix + role_id_postfix;
-
-    roleDataList.push({
-      ...roleObj,
-      createdBy: 'SYSTEM',
-      createdAt: new Date(),
-      roleId: role_id,
-    });
-  }
-
-  try {
-    await this.role.bulkCreate(roleDataList, 
-      {
-        fields: ["roleId", "roleName", "roleCode", "roleId", "createdBy", "createdAt"],
-        updateOnDuplicate: ["roleName"]
-      }
-    );
+      await this.api.bulkCreate(apiDataList, {
+        fields: ['apiId', 'apiName', 'apiDescription', 'apiEndPoint1', 'apiEndPoint2', 'apiVisibleTF', 'createdBy', 'createdAt'],
+        updateOnDuplicate: ['apiName'],
+      });
     } catch (error) {
       console.log(error);
-    } 
-//insert/update Exporters
-  let exportersDataList = [];
-  let exportersListLength = exportersList.length;
-  const responseExportersTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Exporters', exportersListLength);
-  const exporters_id_prefix = responseExportersTableIdData.tableIdFinalIssued.substring(0, 8);
-  let exporters_id_postfix_number = Number(responseExportersTableIdData.tableIdFinalIssued.substring(8, 16)) - responseExportersTableIdData.tableIdRange;
-  let exporters_id_postfix = '';
-  const exportersTableIdSequenceDigit = responseExportersTableIdData.tableIdSequenceDigit;
-
-  for (const exportersObj of exportersList) {
-    // creating tableid from bulk
-    exporters_id_postfix_number = exporters_id_postfix_number + 1;
-    exporters_id_postfix = exporters_id_postfix_number.toString();
-    while (exporters_id_postfix.length < exportersTableIdSequenceDigit) {
-      exporters_id_postfix = '0' + exporters_id_postfix;
     }
-    let exporters_id = exporters_id_prefix + exporters_id_postfix;
 
-    exportersDataList.push({
-      ...exportersObj,
-      createdBy: 'SYSTEM',
-      createdAt: new Date(),
-      exporterId: exporters_id,
-    });
-  }
+    //insert/update Role
+    const roleDataList = [];
+    const roleListLength = roleList.length;
+    const responseTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Role', roleListLength);
+    const role_id_prefix = responseTableIdData.tableIdFinalIssued.substring(0, 8);
+    let role_id_postfix_number = Number(responseTableIdData.tableIdFinalIssued.substring(8, 16)) - responseTableIdData.tableIdRange;
+    let role_id_postfix = '';
+    const tableIdSequenceDigit = responseTableIdData.tableIdSequenceDigit;
 
-  try {
-    await this.exporters.bulkCreate(exportersDataList, 
-      {
-        fields: ["exporterId", "exporterName", "exporterDescription", 
-        "exporterHelmChartName", "exporterHelmChartRepoUrl", "exporterHelmChartVersion", 
-        "exporterHelmChartValues", "grafanaDashboard", "exporterType", "exporterExporterhubUrl",
-        "createdBy", "createdAt"],
-        updateOnDuplicate: ["exporterName"]
+    for (const roleObj of roleList) {
+      // creating tableid from bulk
+      role_id_postfix_number = role_id_postfix_number + 1;
+      role_id_postfix = role_id_postfix_number.toString();
+      while (role_id_postfix.length < tableIdSequenceDigit) {
+        role_id_postfix = '0' + role_id_postfix;
       }
-    );
+      const role_id = role_id_prefix + role_id_postfix;
+
+      roleDataList.push({
+        ...roleObj,
+        createdBy: 'SYSTEM',
+        createdAt: new Date(),
+        roleId: role_id,
+      });
+    }
+
+    try {
+      await this.role.bulkCreate(roleDataList, {
+        fields: ['roleId', 'roleName', 'roleCode', 'roleId', 'createdBy', 'createdAt'],
+        updateOnDuplicate: ['roleName'],
+      });
     } catch (error) {
-      console.log("bulk create error: ", error);
-    } 
+      console.log(error);
+    }
+    //insert/update Exporters
+    const exportersDataList = [];
+    const exportersListLength = exportersList.length;
+    const responseExportersTableIdData: IResponseIssueTableIdBulkDto = await this.tableIdService.issueTableIdBulk('Exporters', exportersListLength);
+    const exporters_id_prefix = responseExportersTableIdData.tableIdFinalIssued.substring(0, 8);
+    let exporters_id_postfix_number =
+      Number(responseExportersTableIdData.tableIdFinalIssued.substring(8, 16)) - responseExportersTableIdData.tableIdRange;
+    let exporters_id_postfix = '';
+    const exportersTableIdSequenceDigit = responseExportersTableIdData.tableIdSequenceDigit;
 
+    for (const exportersObj of exportersList) {
+      // creating tableid from bulk
+      exporters_id_postfix_number = exporters_id_postfix_number + 1;
+      exporters_id_postfix = exporters_id_postfix_number.toString();
+      while (exporters_id_postfix.length < exportersTableIdSequenceDigit) {
+        exporters_id_postfix = '0' + exporters_id_postfix;
+      }
+      const exporters_id = exporters_id_prefix + exporters_id_postfix;
 
+      exportersDataList.push({
+        ...exportersObj,
+        createdBy: 'SYSTEM',
+        createdAt: new Date(),
+        exporterId: exporters_id,
+      });
+    }
+
+    try {
+      await this.exporters.bulkCreate(exportersDataList, {
+        fields: [
+          'exporterId',
+          'exporterName',
+          'exporterDescription',
+          'exporterHelmChartName',
+          'exporterHelmChartRepoUrl',
+          'exporterHelmChartVersion',
+          'exporterHelmChartValues',
+          'grafanaDashboard',
+          'exporterType',
+          'exporterExporterhubUrl',
+          'createdBy',
+          'createdAt',
+        ],
+        updateOnDuplicate: ['exporterName'],
+      });
+    } catch (error) {
+      console.log('bulk create error: ', error);
+    }
   } // end of method
 } // end of class
 

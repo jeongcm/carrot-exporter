@@ -255,6 +255,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
           );
         }
         let resourcePodVolume;
+        console.log(resource.resourcePodVolume);
         if (resource.resourcePodVolume) {
           if (!Array.isArray(resource.resourcePodVolume)) {
             if (typeof resource.resourcePodVolume === 'string') {
@@ -266,6 +267,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
               }
             }
           }
+          console.log(resourcePodVolume);
           resourcePodVolume.forEach((volume: any) => {
             let target = '';
             if (volume.persistentVolumeClaim) {
@@ -288,28 +290,31 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
             );
           });
         }
-
-        (resource.resourcePodContainer || []).forEach((container: any) => {
-          let target = '';
-          (container.env || []).forEach((env: any) => {
-            if (env.valueFrom?.configMapKeyRef) {
-              target = `${resourceNamespace}.CM.${env.valueFrom.configMapKeyRef.name}`;
-            } else if (env.valueFrom?.secretKeyRef) {
-              target = `${resourceNamespace}.SE.${env.valueFrom.secretKeyRef.name}`;
+        console.log(resource.resourcePodContainer);
+        if (resource.resourcePodContainer) {
+          resource.resourcePodContainer.forEach((container: any) => {
+            let target = '';
+            if (container.env) {
+              container.env.forEach((env: any) => {
+                if (env.valueFrom?.configMapKeyRef) {
+                  target = `${resourceNamespace}.CM.${env.valueFrom.configMapKeyRef.name}`;
+                } else if (env.valueFrom?.secretKeyRef) {
+                  target = `${resourceNamespace}.SE.${env.valueFrom.secretKeyRef.name}`;
+                }
+                addEdge(
+                  resourceNamespace,
+                  {
+                    source: _nodeId,
+                    target,
+                  },
+                  nsNodes,
+                  existingEdgeIds,
+                  resourcePerNodeId,
+                );
+              });
             }
-
-            addEdge(
-              resourceNamespace,
-              {
-                source: _nodeId,
-                target,
-              },
-              nsNodes,
-              existingEdgeIds,
-              resourcePerNodeId,
-            );
           });
-        });
+        }
         break;
     }
   });
