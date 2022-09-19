@@ -2075,10 +2075,7 @@ class executorService {
     const sudoryWebhookId = uuid.v1();
     let serviceResult;
 
-    console.log('##DataSetFromSudory##');
-    console.log(DataSetFromSudory);
-
-    if (DataSetFromSudory.result === '' || DataSetFromSudory.result === null) {
+    if (DataSetFromSudory.result === null) {
       serviceResult = '';
     } else {
       if (!Array.isArray(DataSetFromSudory.result)) {
