@@ -1260,12 +1260,10 @@ class executorService {
    * @param {string} targetNamespace
    */
 
-  public async scheduleMetricMeta(clusterUuid: string, customerAccountKey: number): Promise<string> {
+  public async scheduleMetricMeta(clusterUuid: string, customerAccountKey: number): Promise<object> {
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
     const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
     //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090";
-    let cronData;
-    let cronJobKey;
 
     //get customerAccountId
     const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
@@ -1279,7 +1277,7 @@ class executorService {
     }
     const prometheus = responseResourceGroup.resourceGroupPrometheus;
 
-    cronData = {
+    const cronData = {
       name: 'Get MetricMeta',
       summary: 'Get MetricMeta',
       cronTab: '*/5 * * * *',
@@ -1310,7 +1308,7 @@ class executorService {
     };
 
     const resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId);
-    cronJobKey = { key: resultNewCron.scheduleKey, jobname: 'Get MetricMeta', type: 'add' };
+    const cronJobKey = { key: resultNewCron.scheduleKey, jobname: 'Get MetricMeta', type: 'add' };
 
     return cronJobKey;
   }
@@ -1320,15 +1318,12 @@ class executorService {
    * @param {string} targetNamespace
    */
 
-  public async scheduleAlert(clusterUuid: string, customerAccountKey: number): Promise<string> {
+  public async scheduleAlert(clusterUuid: string, customerAccountKey: number): Promise<object> {
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
     const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
     const subscribed_channel = config.sudoryApiDetail.channel_alert;
 
     //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090";
-    let cronData;
-    let cronJobKey;
-
     //get customerAccountId
     const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
     if (!customerAccountData) {
@@ -1341,7 +1336,7 @@ class executorService {
     }
     const prometheus = responseResourceGroup.resourceGroupPrometheus;
 
-    cronData = {
+    const cronData = {
       name: 'Get Alert Rules & Alert Received',
       summary: 'Get Alert Rules & Alert Received',
       cronTab: '* * * * *',
@@ -1369,7 +1364,7 @@ class executorService {
     };
 
     const resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId);
-    cronJobKey = { key: resultNewCron.scheduleKey, jobname: 'Get Alert Rules & Alert Received', type: 'add' };
+    const cronJobKey = { key: resultNewCron.scheduleKey, jobname: 'Get Alert Rules & Alert Received', type: 'add' };
 
     return cronJobKey;
   }
@@ -1378,12 +1373,10 @@ class executorService {
    * @param {string} clusterUuid
    * @param {string} resourceType
    */
-  public async scheduleResource(clusterUuid: string, customerAccountKey: number, resourceType: string, newCrontab: string): Promise<string> {
+  public async scheduleResource(clusterUuid: string, customerAccountKey: number, resourceType: string, newCrontab: string): Promise<object> {
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
     const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
     const subscribed_channel = config.sudoryApiDetail.channel_resource;
-    let cronData;
-    let cronJobKey;
 
     //get customerAccountId
     const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
@@ -1425,7 +1418,7 @@ class executorService {
     const scheduleName = 'K8s interface for ' + selectedTemplate.resourceName;
     const scheduleSummary = 'K8s interface for ' + selectedTemplate.resourceName;
 
-    cronData = {
+    const cronData = {
       name: scheduleName,
       summary: scheduleSummary,
       cronTab: newCrontab,
@@ -1453,7 +1446,7 @@ class executorService {
     };
     const resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId);
 
-    cronJobKey = { key: resultNewCron.scheduleKey, jobname: scheduleName, type: 'add' };
+    const cronJobKey = { key: resultNewCron.scheduleKey, jobname: scheduleName, type: 'add' };
 
     return cronJobKey;
   }
@@ -1468,7 +1461,6 @@ class executorService {
     //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090";
     let cronData;
     const cronJobKey = [];
-    let DistinctJobList;
 
     //get customerAccountId
     const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
@@ -1483,7 +1475,7 @@ class executorService {
     const prometheus = responseResourceGroup.resourceGroupPrometheus;
 
     // get distinct data of job...
-    DistinctJobList = await this.MetricMetaService.getDistinctJobOfMetricMetabyUuid(clusterUuid);
+    const DistinctJobList = await this.MetricMetaService.getDistinctJobOfMetricMetabyUuid(clusterUuid);
     if (!DistinctJobList) {
       throw new HttpException(404, `No metric Job information with the clusterUuid: ${clusterUuid}`);
     }
@@ -2083,13 +2075,23 @@ class executorService {
     const sudoryWebhookId = uuid.v1();
     let serviceResult;
 
+    console.log('##DataSetFromSudory##');
+    console.log(DataSetFromSudory);
+
     if (DataSetFromSudory.result === '') {
       serviceResult = '';
     } else {
-      if (DataSetFromSudory.status === 8) {
-        serviceResult = JSON.parse(JSON.stringify(DataSetFromSudory.result));
+      if (!Array.isArray(DataSetFromSudory.result)) {
+        if (typeof DataSetFromSudory.result === 'string') {
+          try {
+            serviceResult = JSON.parse(DataSetFromSudory.result);
+          } catch (e) {
+            console.error(e);
+            serviceResult = [];
+          }
+        }
       } else {
-        serviceResult = JSON.parse(DataSetFromSudory.result);
+        serviceResult = DataSetFromSudory.result;
       }
     }
 
