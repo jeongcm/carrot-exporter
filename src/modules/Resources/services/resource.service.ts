@@ -125,7 +125,6 @@ class ResourceService {
       where: { resourceId },
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
-
     return resource;
   }
 

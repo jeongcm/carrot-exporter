@@ -44,7 +44,6 @@ class resourceEventController {
   public getResourceEventByResourceId = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
     try {
       const resourceId = req.params.resourceId;
-
       const resourceEvent = await this.resourceEventService.getResourceEventByResourceId(resourceId);
 
       if (!resourceEvent) {
