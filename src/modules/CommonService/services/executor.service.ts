@@ -2078,7 +2078,7 @@ class executorService {
     console.log('##DataSetFromSudory##');
     console.log(DataSetFromSudory);
 
-    if (DataSetFromSudory.result === '') {
+    if (DataSetFromSudory.result === '' || DataSetFromSudory.result === null) {
       serviceResult = '';
     } else {
       if (!Array.isArray(DataSetFromSudory.result)) {
