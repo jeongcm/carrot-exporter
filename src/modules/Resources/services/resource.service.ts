@@ -306,6 +306,26 @@ class ResourceService {
   }
 
   /**
+   * @param  {string} resourceGroupUuid
+   */
+  public async getWorkloadByResourceGroupUuid(resourceGroupUuid: string): Promise<IResource[]> {
+    const resultResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
+    const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+
+    const allResources: IResource[] = await this.resource.findAll({
+      where: {
+        deletedAt: null,
+        resourceLevel4: 'WL',
+        resourceGroupKey: resourceGroupKey,
+      },
+      //include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
+      order: [['resourceLevel3', 'DESC']],
+    });
+
+    return allResources;
+  }
+
+  /**
    * @param  {string} resourceType
    * @param  {number} resourceGroupId
    */
