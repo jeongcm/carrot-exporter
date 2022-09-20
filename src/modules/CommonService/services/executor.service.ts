@@ -2089,7 +2089,7 @@ class executorService {
           }
         }
       } else {
-        serviceResult = DataSetFromSudory.result;
+        serviceResult = JSON.parse(JSON.stringify(DataSetFromSudory.result));
       }
     }
 
