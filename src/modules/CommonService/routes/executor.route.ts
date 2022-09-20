@@ -139,8 +139,8 @@ class ExecutorRoute implements Routes {
       this.executorController.processSudoryWebhook,
     );
     this.router.get(
-      '/executor/sudorywebhook/:serviceUuid', 
-      authMiddleware, 
+      '/executor/sudorywebhook/:serviceUuid',
+      authMiddleware,
       //     createUserLogMiddleware,
       this.executorController.getSudoryWebhook,
     );
@@ -168,7 +168,7 @@ class ExecutorRoute implements Routes {
       //      createUserLogMiddleware,
       this.executorController.postMetricRequest,
     );
-    
+
     this.router.get(
       '/executor/service/:serviceUuid',
       authMiddleware,
@@ -182,8 +182,6 @@ class ExecutorRoute implements Routes {
       //     createUserLogMiddleware,
       this.executorController.checkExecutorClient,
     );
-    
-
   }
 }
 

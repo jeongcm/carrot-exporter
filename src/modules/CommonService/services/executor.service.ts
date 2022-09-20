@@ -12,7 +12,9 @@ import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 
 import { IExecutorService } from '@/common/interfaces/executor.interface';
+import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+const { Op } = require('sequelize');
 
 class executorService {
   //    public tableIdService = new TableIdService();
@@ -2089,7 +2091,7 @@ class executorService {
         }
       } else {
         console.log('sudoryObject');
-        serviceResult = DataSetFromSudory.result;
+        serviceResult = JSON.parse(JSON.stringify(DataSetFromSudory.result));
       }
     }
 
@@ -2130,8 +2132,9 @@ class executorService {
   /**
    * @param {string} serviceUuid
    */
-  public async getSudoryWebhook(serviceUuid: string): Promise<object> {
-    const resultSudoryWebhook = await this.sudoryWebhook.findOne({ where: { serviceUuid, status: 4 } });
+  public async getSudoryWebhook(serviceUuid: string): Promise<ISudoryWebhook> {
+    const resultSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({ where: { serviceUuid, status: { [Op.in]: [4, 8] } } });
+    console.log(resultSudoryWebhook);
     return resultSudoryWebhook;
   }
 

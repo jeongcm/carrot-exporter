@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
+import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
+
 import { ExecutorDto, IExecutorClient, IExecutorClientCheck } from '@/modules/CommonService/dtos/executor.dto';
+
 import executorService from '../services/executor.service';
 import { HttpException } from '@/common/exceptions/HttpException';
 import config from '@config/index';
@@ -309,7 +312,7 @@ class executorController {
     try {
       const serviceUuid = req.params.serviceUuid;
       console.log(serviceUuid);
-      const resultSudoryWebhook: object = await this.executorService.getSudoryWebhook(serviceUuid);
+      const resultSudoryWebhook: ISudoryWebhook = await this.executorService.getSudoryWebhook(serviceUuid);
       if (!resultSudoryWebhook) {
         res.status(404).json({ data: resultSudoryWebhook, message: `no sudoryWebhook result` });
         return;
