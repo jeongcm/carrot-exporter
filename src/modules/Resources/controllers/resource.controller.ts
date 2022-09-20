@@ -188,6 +188,23 @@ class ResourceController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
+  public getWorkloadByResourceGroupUuid = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceGroupUuid: string = req.params.resourceGroupUuid;
+    const allReplicasYN: string = req.params.allReplicasYN || 'N';
+
+    try {
+      const resource: IResource[] = await this.resourceService.getWorkloadByResourceGroupUuid(resourceGroupUuid, allReplicasYN);
+      res.status(200).json({ data: resource, message: `find workloads with resourceGroupUuid(${resourceGroupUuid}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
   public getResourceByTypeResourceGroupIdForMetricOps = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const resourceType: string[] = req.query.resourceType as string[];
     const resourceQuery: any = {

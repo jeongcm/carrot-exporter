@@ -185,11 +185,10 @@ class ResourceEventService {
   }
 
   public async getResourceEventByResourceId(resourceId: string): Promise<IResourceEvent[]> {
-    const resultResource: IResource = await this.resourceService.getResourceById(resourceId);
-    if (!resultResource) throw new HttpException(400, `No resource with Resource Id - ${resourceId}`);
-
+    const resourceKey = await this.resourceService.getResourceKeyById(resourceId);
+    if (!resourceKey) throw new HttpException(400, `No resource with Resource Id - ${resourceId}`);
     const resultResourceEvent: IResourceEvent[] = await this.resourceEvent.findAll({
-      where: { resourceKey: resultResource.resourceKey },
+      where: { resourceKey: resourceKey },
       include: [
         {
           model: ResourceModel,

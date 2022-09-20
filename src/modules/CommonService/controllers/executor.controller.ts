@@ -1,6 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
+import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
+
 import { ExecutorDto, IExecutorClient, IExecutorClientCheck } from '@/modules/CommonService/dtos/executor.dto';
+
 import executorService from '../services/executor.service';
 import { HttpException } from '@/common/exceptions/HttpException';
 import config from '@config/index';
@@ -151,7 +154,7 @@ class executorController {
       //const targetNamespace = req.body.targetNamespace;
       const customerAccountKey = req.customerAccountKey;
 
-      const cronJobKey: string = await this.executorService.scheduleMetricMeta(clusterUuid, customerAccountKey);
+      const cronJobKey = await this.executorService.scheduleMetricMeta(clusterUuid, customerAccountKey);
       res.status(200).json({ cronJobResult: cronJobKey, message: `Successfullyt schedule metric meta job` });
     } catch (error) {
       next(error);
@@ -166,7 +169,7 @@ class executorController {
     try {
       const clusterUuid = req.body.clusterUuid;
       const customerAccountKey = req.customerAccountKey;
-      const cronJobKey: string = await this.executorService.scheduleAlert(clusterUuid, customerAccountKey);
+      const cronJobKey = await this.executorService.scheduleAlert(clusterUuid, customerAccountKey);
       res.status(200).json({ cronJobResult: cronJobKey, message: `Successfullyt schedule alert job` });
     } catch (error) {
       next(error);
@@ -272,7 +275,7 @@ class executorController {
       const cronTab = req.body.cronTab;
       const customerAccountKey = req.customerAccountKey;
 
-      const cronJobKey: string = await this.executorService.scheduleResource(clusterUuid, customerAccountKey, resourceType, cronTab);
+      const cronJobKey = await this.executorService.scheduleResource(clusterUuid, customerAccountKey, resourceType, cronTab);
       res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule resource interfaces` });
     } catch (error) {
       next(error);
@@ -309,7 +312,7 @@ class executorController {
     try {
       const serviceUuid = req.params.serviceUuid;
       console.log(serviceUuid);
-      const resultSudoryWebhook: object = await this.executorService.getSudoryWebhook(serviceUuid);
+      const resultSudoryWebhook: ISudoryWebhook = await this.executorService.getSudoryWebhook(serviceUuid);
       if (!resultSudoryWebhook) {
         res.status(404).json({ data: resultSudoryWebhook, message: `no sudoryWebhook result` });
         return;
