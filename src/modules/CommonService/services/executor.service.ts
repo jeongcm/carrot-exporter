@@ -2074,7 +2074,8 @@ class executorService {
     const uuid = require('uuid');
     const sudoryWebhookId = uuid.v1();
     let serviceResult;
-
+    console.log('DatafromSudory', DataSetFromSudory);
+    console.log(JSON.stringify(DataSetFromSudory.result));
     if (DataSetFromSudory.result === null) {
       serviceResult = '';
     } else {
