@@ -114,7 +114,7 @@ export class SudoryWebhookDto {
 
   @IsObject()
   @IsOptional()
-  public result: object;
+  public result: JSON;
   public service_name: string;
   public cluster_uuid: string;
   public status: number;

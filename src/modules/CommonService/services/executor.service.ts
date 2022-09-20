@@ -2077,19 +2077,19 @@ class executorService {
     console.log('DatafromSudory', DataSetFromSudory);
     console.log(JSON.stringify(DataSetFromSudory.result));
     if (DataSetFromSudory.result === null) {
-      serviceResult = '';
+      serviceResult = [];
     } else {
-      if (!Array.isArray(DataSetFromSudory.result)) {
-        if (typeof DataSetFromSudory.result === 'string') {
-          try {
-            serviceResult = JSON.parse(DataSetFromSudory.result);
-          } catch (e) {
-            console.error(e);
-            serviceResult = [];
-          }
+      if (typeof DataSetFromSudory.result === 'string') {
+        try {
+          console.log('sudoryString');
+          serviceResult = JSON.parse(DataSetFromSudory.result);
+        } catch (e) {
+          console.error(e);
+          serviceResult = [];
         }
       } else {
-        serviceResult = JSON.parse(JSON.stringify(DataSetFromSudory.result));
+        console.log('sudoryObject');
+        serviceResult = DataSetFromSudory.result;
       }
     }
 
