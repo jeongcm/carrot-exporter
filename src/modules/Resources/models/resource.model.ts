@@ -223,7 +223,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-            args: [['', 'PD', 'SV', 'PM']],
+            args: [['', 'ND', 'NS', 'PJ', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV']],
             msg: 'Resource level3 must be of type PD, SV, PM or empty.',
           },
         },
@@ -232,7 +232,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-            args: [['', 'CT', 'VM']],
+            args: [['', 'WL']],
             msg: 'Resource level4 must be of type CT, VM or empty',
           },
         },

@@ -73,7 +73,7 @@ export default function (sequelize: Sequelize): typeof SudoryWebhookModel {
         type: DataTypes.STRING(100),
       },
       serviceResult: {
-        allowNull: false,
+        allowNull: true,
         type: DataTypes.JSON,
       },
       status: {

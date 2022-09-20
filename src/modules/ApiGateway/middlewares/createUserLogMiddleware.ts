@@ -15,35 +15,33 @@ import { IApi } from '@/common/interfaces/api.interface';
  */
 
 const createUserLogMiddleware = async (req, res: Response, next: NextFunction) => {
+  try {
+    const tableIdService = new TableIdService();
 
-  try{
-      const tableIdService = new TableIdService();
+    const partyUserId = req?.user?.partyId ? req?.user?.partyId : req?.systemId;
+    const apiEndPoint1 = req.method;
+    const apiEndPoint2 = req?.route?.path;
+    console.log(partyUserId);
 
-      const partyUserId = req?.user?.partyId ? req?.user?.partyId : req?.systemId;
-      const apiEndPoint1 = req.method;
-      const apiEndPoint2 = req?.route?.path;
-      console.log (partyUserId); 
+    const findPartyUser: IPartyUser = await DB.PartyUser.findOne({
+      where: {
+        partyUserId,
+      },
+    });
 
-      const findPartyUser: IPartyUser = await DB.PartyUser.findOne({
-        where: {
-          partyUserId,
-        },
-      });
+    const apiFound: IApi = await DB.Api.findOne({
+      where: {
+        apiEndPoint1,
+        apiEndPoint2,
+      },
+    });
 
-      const apiFound: IApi = await DB.Api.findOne({
-        where: {
-          apiEndPoint1,
-          apiEndPoint2,
-        },
-      });
+    return next();
+  } catch (error) {
+    return next(error);
+  }
 
-      return next();
-    } catch (error) {
-      return next(error);
-    }    
-
-
-/*
+  /*
   try {
     // TODO: handle better if an API is not in the API table
 
@@ -64,7 +62,6 @@ const createUserLogMiddleware = async (req, res: Response, next: NextFunction) =
     return next(error);
   }
 */
-
 };
 
 export default createUserLogMiddleware;

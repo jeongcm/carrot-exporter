@@ -1,112 +1,107 @@
 import { IsString, IsNotEmpty, IsObject, IsOptional } from 'class-validator';
 
 export class ExecutorDto {
-    @IsString()
-    @IsNotEmpty()
-    public resourceGroupName: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    public customerAccountId: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    public resourceGroupProvider: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    public resourceGroupPlatform: 'OS' | 'K8';
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupName: string;
 
-    @IsString()
-    @IsOptional()
-    public resourceGroupSudoryNamespace: string;
-  
-    @IsString()
-    @IsOptional()
-    public resourceGroupKpsLokiNamespace: string;
-  }
-  
-  export class ExecutorKpsDto {
-    @IsString()
-    @IsNotEmpty()
-    public clusterUuid: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    public targetNamespace: string;
-  }
+  @IsString()
+  @IsNotEmpty()
+  public customerAccountId: string;
 
-  export class ExecutorUuidDto {
-    @IsString()
-    @IsNotEmpty()
-    public clusterUuid: string;
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupProvider: string;
 
-    @IsString()
-    @IsOptional()
-    public cronTab: string;
-  
-  }
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupPlatform: 'OS' | 'K8';
 
+  @IsString()
+  @IsOptional()
+  public resourceGroupSudoryNamespace: string;
 
-  export interface IExecutorClient {
-    exectuorServerUrl: string;
-    clusterUuid: string;
-    token: string;
-    repoName: string;
-    repoUrl: string;
-  }
+  @IsString()
+  @IsOptional()
+  public resourceGroupKpsLokiNamespace: string;
+}
 
-  export class ExecutorResourceListDto {
-    @IsString()
-    @IsNotEmpty()
-    public resourceType: string;
+export class ExecutorKpsDto {
+  @IsString()
+  @IsNotEmpty()
+  public clusterUuid: string;
 
-    @IsString()
-    @IsNotEmpty()
-    public clusterUuid: string;
+  @IsString()
+  @IsNotEmpty()
+  public targetNamespace: string;
+}
 
-    @IsString()
-    public targetNamespace: string;
+export class ExecutorUuidDto {
+  @IsString()
+  @IsNotEmpty()
+  public clusterUuid: string;
 
-    @IsString()
-    public name: string;
+  @IsString()
+  @IsOptional()
+  public cronTab: string;
+}
 
-    @IsObject()
-    public labels: object;
+export interface IExecutorClient {
+  exectuorServerUrl: string;
+  clusterUuid: string;
+  token: string;
+  repoName: string;
+  repoUrl: string;
+}
+
+export class ExecutorResourceListDto {
+  @IsString()
+  @IsNotEmpty()
+  public resourceType: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public clusterUuid: string;
+
+  @IsString()
+  public targetNamespace: string;
+
+  @IsString()
+  public name: string;
+
+  @IsObject()
+  public labels: object;
 }
 
 export class ExecutorResultDto {
+  @IsString()
+  public serviceUuid: string;
 
-    @IsString()
-    public serviceUuid: string;
-    
-    @IsString()
-    public name: string;
-    
-    @IsString()
-    public clusterUuid: string;
+  @IsString()
+  public name: string;
 
-    @IsObject()
-    public result: object;
+  @IsString()
+  public clusterUuid: string;
 
-    @IsString()
-    public status: string;
+  @IsObject()
+  public result: object;
 
+  @IsString()
+  public status: string;
 }
 
 export class ExecutorResourceDto {
-    @IsString()
-    @IsNotEmpty()
-    public resourceType: string;
+  @IsString()
+  @IsNotEmpty()
+  public resourceType: string;
 
-    @IsString()
-    @IsNotEmpty()
-    public clusterUuid: string;
+  @IsString()
+  @IsNotEmpty()
+  public clusterUuid: string;
 
-    @IsString()
-    @IsNotEmpty()
-    public cronTab: string;
-
+  @IsString()
+  @IsNotEmpty()
+  public cronTab: string;
 }
 
 export interface IExecutorClientCheck {
@@ -115,9 +110,11 @@ export interface IExecutorClientCheck {
 }
 
 export class SudoryWebhookDto {
-
   public service_uuid: string;
-  public result: string;
+
+  @IsObject()
+  @IsOptional()
+  public result: JSON;
   public service_name: string;
   public cluster_uuid: string;
   public status: number;

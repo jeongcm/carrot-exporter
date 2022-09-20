@@ -134,6 +134,27 @@ class ResourceGroupService {
   }
 
   /**
+   * @param  {number[]} resourceGroupKeys
+   * @returns Promise
+   */
+  public async getUserResourceGroupByKeys(customerAccountKey: number, resourceGroupKeys: number[]): Promise<IResourceGroup[]> {
+    const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: { customerAccountKey, resourceGroupKey: resourceGroupKeys, deletedAt: null },
+      attributes: { exclude: ['deletedAt'] },
+    });
+
+    return resourceGroups;
+  }
+
+  public async getUserResourceGroupByKey(customerAccountKey: number, resourceGroupKey: number): Promise<IResourceGroup> {
+    const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+      where: { resourceGroupKey, customerAccountKey, deletedAt: null },
+      //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
+    });
+    return resourceGroup;
+  }
+
+  /**
    * @param  {string} resourceGroupUuid
    * @returns Promise
    */
@@ -148,14 +169,6 @@ class ResourceGroupService {
   public async getUserResourceGroupByUuid(customerAccountKey: number, resourceGroupUuid: string): Promise<IResourceGroup> {
     const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
       where: { resourceGroupUuid, customerAccountKey, deletedAt: null },
-      //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
-    });
-    return resourceGroup;
-  }
-
-  public async getUserResourceGroupByKey(customerAccountKey: number, resourceGroupKey: number): Promise<IResourceGroup> {
-    const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-      where: { resourceGroupKey, customerAccountKey, deletedAt: null },
       //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
     });
     return resourceGroup;

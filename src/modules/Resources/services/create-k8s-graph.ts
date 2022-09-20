@@ -124,18 +124,32 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
   (resources || []).map((resource: any, index: number) => {
     const { resourceType, _nodeId, resourceNamespace = 'default' } = resource;
     let resourceOwnerReferences;
+    let resourcePodVolume = [];
+    let resourcePodContainer = [];
+    let resourceEndpoint;
 
     switch (resourceType) {
       case 'EP':
-        if (Array.isArray(resource.resourceEndpoint)) {
-          resource.resourceEndpoint.forEach((ep: any) => {
+        if (resource.resourceEndpoint) {
+          if (!Array.isArray(resource.resourceEndpoint)) {
+            if (typeof resource.resourceEndpoint === 'string') {
+              try {
+                resourceEndpoint = JSON.parse(resource.resourceEndpoint);
+              } catch (e) {
+                console.error(e);
+                resourceEndpoint = [];
+              }
+            }
+          } else {
+            resourceEndpoint = resource.resourceEndpoint;
+          }
+
+          resourceEndpoint.forEach((ep: any) => {
             (ep?.addresses || []).forEach((address: any) => {
               const { targetRef } = address;
               if (targetRef) {
                 const target = `${targetRef.namespace}.${targetRef.uid}`;
-
                 logger.info('EP target: ' + target + ' EP: ' + _nodeId);
-
                 addEdge(
                   resourceNamespace,
                   {
@@ -224,6 +238,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
 
       case 'PD':
         logger.info('PD: ' + _nodeId);
+        console.log('bugfix1', resource.resourceOwnerReferences);
         if (resource.resourceOwnerReferences) {
           if (!Array.isArray(resource.resourceOwnerReferences)) {
             if (typeof resource.resourceOwnerReferences === 'string') {
@@ -238,8 +253,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
             resourceOwnerReferences = resource.resourceOwnerReferences;
           }
           const owner = resourceOwnerReferences;
-
-          const type = TYPE_PER_NAME[(owner.kind || '').toLowerCase()];
+          //const type = TYPE_PER_NAME[(owner.kind || '').toLowerCase()];
           const uid = owner.uid;
           const target = `${resourceNamespace}.${uid}`;
 
@@ -254,7 +268,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
             resourcePerNodeId,
           );
         }
-        let resourcePodVolume;
+        console.log('bugfix2', resource.resourcePodVolume);
         if (resource.resourcePodVolume) {
           if (!Array.isArray(resource.resourcePodVolume)) {
             if (typeof resource.resourcePodVolume === 'string') {
@@ -265,7 +279,10 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
                 resourcePodVolume = [];
               }
             }
+          } else {
+            resourcePodVolume = resource.resourcePodVolume;
           }
+          console.log(resourcePodVolume);
           resourcePodVolume.forEach((volume: any) => {
             let target = '';
             if (volume.persistentVolumeClaim) {
@@ -288,28 +305,44 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
             );
           });
         }
-
-        (resource.resourcePodContainer || []).forEach((container: any) => {
-          let target = '';
-          (container.env || []).forEach((env: any) => {
-            if (env.valueFrom?.configMapKeyRef) {
-              target = `${resourceNamespace}.CM.${env.valueFrom.configMapKeyRef.name}`;
-            } else if (env.valueFrom?.secretKeyRef) {
-              target = `${resourceNamespace}.SE.${env.valueFrom.secretKeyRef.name}`;
+        console.log('bugfix3', resource.resourcePodContainer);
+        if (resource.resourcePodContainer) {
+          if (!Array.isArray(resource.resourcePodContainer)) {
+            if (typeof resource.resourcePodContainer === 'string') {
+              try {
+                resourcePodContainer = JSON.parse(resource.resourcePodContainer);
+              } catch (e) {
+                console.error(e);
+                resourcePodContainer = [];
+              }
             }
-
-            addEdge(
-              resourceNamespace,
-              {
-                source: _nodeId,
-                target,
-              },
-              nsNodes,
-              existingEdgeIds,
-              resourcePerNodeId,
-            );
+          } else {
+            resourcePodContainer = resource.resourcePodContainer;
+          }
+          console.log(resourcePodVolume);
+          resourcePodContainer.forEach((container: any) => {
+            let target = '';
+            if (container.env) {
+              container.env.forEach((env: any) => {
+                if (env.valueFrom?.configMapKeyRef) {
+                  target = `${resourceNamespace}.CM.${env.valueFrom.configMapKeyRef.name}`;
+                } else if (env.valueFrom?.secretKeyRef) {
+                  target = `${resourceNamespace}.SE.${env.valueFrom.secretKeyRef.name}`;
+                }
+                addEdge(
+                  resourceNamespace,
+                  {
+                    source: _nodeId,
+                    target,
+                  },
+                  nsNodes,
+                  existingEdgeIds,
+                  resourcePerNodeId,
+                );
+              });
+            }
           });
-        });
+        }
         break;
     }
   });
