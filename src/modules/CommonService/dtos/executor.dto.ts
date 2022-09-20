@@ -111,6 +111,9 @@ export interface IExecutorClientCheck {
 
 export class SudoryWebhookDto {
   public service_uuid: string;
+
+  @IsObject()
+  @IsOptional()
   public result: object;
   public service_name: string;
   public cluster_uuid: string;
