@@ -282,6 +282,26 @@ class executorService {
     ];
 
     // instant call
+    const resultJo = await this.postExecuteService(
+      'K8s interface for Job',
+      'K8s interface for Job',
+      clusterUuid,
+      '00000000000000000000000000005002',
+      steps,
+      customerAccountKey,
+      subscribedChannelResource,
+    );
+    if (!resultJo) console.log(resultJo);
+    const resultCj = await this.postExecuteService(
+      'K8s interface for CronJob',
+      'K8s interface for CronJob',
+      clusterUuid,
+      '00000000000000000000000000005003',
+      steps,
+      customerAccountKey,
+      subscribedChannelResource,
+    );
+    if (!resultCj) console.log(resultCj);
     const resultNd = await this.postExecuteService(
       'K8s interface for Node',
       'K8s interface for Node',
@@ -443,8 +463,29 @@ class executorService {
     );
     if (!resultEV) console.log(resultPV);
 
-    // scheduleResource - node
+    // scheduleResource - job
+    await this.scheduleResource(clusterUuid, customerAccountKey, 'JO', newCrontab1)
+      .then(async (res: any) => {
+        resourceJobKey.push({ resourceType: 'JO', cronKey: res });
+        console.log(`Submitted resource JO schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        console.log(`confirmed the executor/sudory client installed but fail to submit resource JO schedule request for clsuter:${clusterUuid}`);
+      }); //end of catch
 
+    // scheduleResource - CronJob
+    await this.scheduleResource(clusterUuid, customerAccountKey, 'CJ', newCrontab1)
+      .then(async (res: any) => {
+        resourceJobKey.push({ resourceType: 'CJ', cronKey: res });
+        console.log(`Submitted resource CJ schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        console.log(`confirmed the executor/sudory client installed but fail to submit resource CJ schedule request for clsuter:${clusterUuid}`);
+      }); //end of catch
+
+    // scheduleResource - node
     await this.scheduleResource(clusterUuid, customerAccountKey, 'ND', newCrontab1)
       .then(async (res: any) => {
         resourceJobKey.push({ resourceType: 'ND', cronKey: res });
@@ -930,8 +971,8 @@ class executorService {
     const templatePv = '00000000000000000000000000000012';
     const templateStorageClass = '00000000000000000000000000003002';
     const templateEvent = '00000000000000000000000000000008';
-    //const templateJob = "00000000000000000000000000003002";
-    //const templateCronJob = "00000000000000000000000000003002";
+    const templateJob = '00000000000000000000000000005002';
+    const templateCronJob = '00000000000000000000000000005003';
 
     switch (resourceType) {
       case 'SV': //service
@@ -1223,6 +1264,29 @@ class executorService {
 
         break;
 
+      case 'JO': //job
+        service_name = 'k8s job list request';
+        service_summary = 'k8s job list request';
+        template_uuid = templateJob;
+        if (!labels) {
+          argsData = { labels: {} };
+        } else {
+          argsData = { labels: labels };
+        }
+
+        break;
+
+      case 'CJ': //cron-job
+        service_name = 'k8s cronjob list request';
+        service_summary = 'k8s cronjob list request';
+        template_uuid = templateCronJob;
+        if (!labels) {
+          argsData = { labels: {} };
+        } else {
+          argsData = { labels: labels };
+        }
+
+        break;
       default:
     }
 
@@ -1404,8 +1468,8 @@ class executorService {
       { resourceName: 'PV', resourceType: 'PV', template_uuid: '00000000000000000000000000000012' }, //pv
       { resourceName: 'Storage Class', resourceType: 'SC', template_uuid: '00000000000000000000000000003002' }, //storageclass
       { resourceName: 'Event', resourceType: 'EV', template_uuid: '00000000000000000000000000000008' }, //storageclass
-      //template_uuid: "00000000000000000000000000003002",
-      //template_uuid: "00000000000000000000000000003002";
+      { resourceName: 'Job', resourceType: 'JO', template_uuid: '00000000000000000000000000005002' }, //job
+      { resourceName: 'CronJob', resourceType: 'CJ', template_uuid: '00000000000000000000000000005003' }, //cron-job
     ];
 
     const selectedTemplate = resource_template.find(template => {
@@ -1783,6 +1847,8 @@ class executorService {
       'K8s interface for Service',
       'K8s interface for Storage Class',
       'K8s interface for Event',
+      'K8s interface for Job',
+      'K8s interface for CronJob',
     ];
 
     const resource_template = [
@@ -1812,8 +1878,8 @@ class executorService {
         jobName: 'K8s interface for Storage Class',
       }, //storageclass
       { resourceName: 'Event', resourceType: 'EV', template_uuid: '00000000000000000000000000000008', jobName: 'K8s interface for Event' }, //event
-      //template_uuid: "00000000000000000000000000003002",
-      //template_uuid: "00000000000000000000000000003002";
+      { resourceName: 'Job', resourceType: 'JO', template_uuid: '00000000000000000000000000005002', jobName: 'K8s interface for Job' }, //job
+      { resourceName: 'CronJob', resourceType: 'CJ', template_uuid: '00000000000000000000000000005003', jobName: 'K8s interface for CronJob' }, //cron-job
     ];
 
     //1. Validate clusterUuid and find customerAccountData
