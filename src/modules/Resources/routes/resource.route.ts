@@ -44,7 +44,7 @@ class ResourceRoute implements Routes {
     );
 
     this.router.get(
-      '/resource/resourceGroup/:resourceGroupUuid/workloads',
+      '/resource/resourceGroup/:resourceGroupUuid/workloads/:allReplicasYN', //all replicasets "Y" or "N"
       authMiddleware,
       createUserLogMiddleware,
       this.resourceController.getWorkloadByResourceGroupUuid,

@@ -307,28 +307,43 @@ class ResourceService {
 
   /**
    * @param  {string} resourceGroupUuid
+   * @param {string} allReplicasYN
    */
-  public async getWorkloadByResourceGroupUuid(resourceGroupUuid: string): Promise<IResource[]> {
+  public async getWorkloadByResourceGroupUuid(resourceGroupUuid: string, allReplicasYN: string): Promise<IResource[]> {
     const resultResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+    let query;
+    if (allReplicasYN === 'Y') {
+      query = {
+        where: {
+          deletedAt: null,
+          resourceLevel4: 'WL',
+          resourceGroupKey: resourceGroupKey,
+        },
+        //include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
+        order: [['resourceLevel3', 'DESC']],
+      };
+    } else {
+      query = {
+        where: {
+          [Op.or]: [
+            {
+              resourceReplicas: { [Op.is]: null },
+            },
+            {
+              resourceReplicas: { [Op.ne]: 0 },
+            },
+          ],
+          deletedAt: null,
+          resourceLevel4: 'WL',
+          resourceGroupKey: resourceGroupKey,
+        },
+        //include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
+        order: [['resourceLevel3', 'DESC']],
+      };
+    }
 
-    const allResources: IResource[] = await this.resource.findAll({
-      where: {
-        [Op.or]: [
-          {
-            resourceReplicas: { [Op.is]: null },
-          },
-          {
-            resourceReplicas: { [Op.ne]: 0 },
-          },
-        ],
-        deletedAt: null,
-        resourceLevel4: 'WL',
-        resourceGroupKey: resourceGroupKey,
-      },
-      //include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
-      order: [['resourceLevel3', 'DESC']],
-    });
+    const allResources: IResource[] = await this.resource.findAll(query);
 
     return allResources;
   }
