@@ -1330,7 +1330,7 @@ class executorService {
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
     const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
     //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090";
-
+    const subscribe_channel = config.sudoryApiDetail.channel_metric;
     //get customerAccountId
     const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
     if (!customerAccountData) {
@@ -1358,7 +1358,7 @@ class executorService {
         name: 'Get MetricMeta',
         template_uuid: '10000000000000000000000000000007',
         summary: 'Get MetricMeta',
-        subscribed_channel: 'nc_metric',
+        subscribed_channel: subscribe_channel,
         on_completion: on_completion,
         steps: [
           {
@@ -1742,7 +1742,7 @@ class executorService {
     });
 
     //filter only for metric_received
-    const newFilterList = newList.filter(data => data.scheduleApiBody.subscribed_channel === 'nc_metric_received');
+    const newFilterList = newList.filter(data => data.scheduleApiBody.subscribed_channel === subscribed_channel);
 
     //pull metricMetaTargetJob
     for (let i = 0; i < Object.keys(newFilterList).length; i++) {
@@ -1901,7 +1901,7 @@ class executorService {
     });
 
     //3. filter only for resource
-    const newFilterList = newList.filter(data => data.scheduleApiBody.subscribed_channel === 'nc_resource');
+    const newFilterList = newList.filter(data => data.scheduleApiBody.subscribed_channel === subscribed_channel);
     //pull resourceJobName
     for (let i = 0; i < Object.keys(newFilterList).length; i++) {
       targetJobCron[i] = newFilterList[i].scheduleApiBody.name;
