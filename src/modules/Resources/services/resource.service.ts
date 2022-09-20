@@ -317,6 +317,14 @@ class ResourceService {
         deletedAt: null,
         resourceLevel4: 'WL',
         resourceGroupKey: resourceGroupKey,
+        [Op.or]: [
+          {
+            resource_replicas: { [Op.is]: null },
+          },
+          {
+            resource_replicas: { [Op.ne]: 0 },
+          },
+        ],
       },
       //include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
       order: [['resourceLevel3', 'DESC']],
