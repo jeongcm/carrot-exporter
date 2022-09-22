@@ -96,15 +96,27 @@ class TopologyService extends ServiceExtension {
   }
 
   public async getResourceGroupTopology(type: string, resourceGroup: IResourceGroup, customerAccountKey: number) {
-    let resourceType: string[] = [];
     const { resourceGroupKey } = resourceGroup;
+
+    let resourceType: string[] = [];
+    let queryOptions: any = {};
 
     switch (type) {
       case 'nodes':
         resourceType = ['ND'];
         break;
-      case 'pods':
-        resourceType = ['PD'];
+      case 'workload-pods':
+        resourceType = ['PD', 'RS'];
+        queryOptions = {
+          [Op.or]: [
+            {
+              resourceReplicas: { [Op.is]: null },
+            },
+            {
+              resourceReplicas: { [Op.ne]: 0 },
+            },
+          ],
+        };
         break;
       case 'ns-services':
         resourceType = ['NS', 'SV'];
@@ -117,6 +129,7 @@ class TopologyService extends ServiceExtension {
         resourceGroupKey,
         resourceType,
         deletedAt: null,
+        ...queryOptions,
       },
     });
 
@@ -127,8 +140,8 @@ class TopologyService extends ServiceExtension {
     switch (type) {
       case 'nodes':
         return await this.createNodeTopology(resources);
-      case 'pods':
-        return await this.createPodTopology(resources);
+      case 'workload-pods':
+        return await this.createWorkloadPodTopology(resources);
       case 'ns-services':
         return await this.createNsServiceTopology(resources, resourceGroup);
     }
@@ -147,22 +160,64 @@ class TopologyService extends ServiceExtension {
     return topologyItems;
   }
 
-  public async createPodTopology(resources: IResource[]) {
-    const namespaces: any = {};
+  public async createWorkloadPodTopology(resources: IResource[]) {
+    const replicaSets: any = {};
+    const podsPerUid: any = {};
 
     resources.forEach((resource: IResource) => {
-      if (!namespaces[resource.resourceNamespace]) {
-        namespaces[resource.resourceNamespace] = [];
-      }
+      switch (resource.resourceType) {
+        case 'RS':
+          replicaSets[resource.resourceTargetUuid] = {
+            resourceName: resource.resourceName,
+            resourceId: resource.resourceId,
+            resourceTargetUuid: resource.resourceTargetUuid,
+            resourceType: 'RS',
+            pods: [],
+          };
+          break;
+        case 'PD':
+          if (typeof resource.resourceOwnerReferences === 'string') {
+            let owners = [];
+            try {
+              owners = JSON.parse(resource.resourceOwnerReferences);
 
-      namespaces[resource.resourceNamespace].push({
-        id: resource.resourceId,
-        name: resource.resourceName,
-        namespace: resource.resourceNamespace,
-      });
+              if (!Array.isArray(owners)) {
+                owners = [owners];
+              }
+
+              console.log(owners);
+
+              owners?.map((owner: any) => {
+                // TODO: Add DaemonSet, StatefulSet, Deployment?
+                if (owner.kind === 'ReplicaSet' && owner.uid) {
+                  if (!podsPerUid[owner.uid]) {
+                    podsPerUid[owner.uid] = [];
+                  }
+                  podsPerUid[owner.uid].push({
+                    resourceType: 'PD',
+                    resourceName: resource.resourceName,
+                    resourceNamespace: resource.resourceNamespace,
+                    resourceId: resource.resourceId,
+                  });
+                }
+              });
+            } catch (e) {
+              owners = [];
+            }
+          }
+          break;
+      }
     });
 
-    return Object.values(namespaces);
+    console.log('podsPerUid: ', podsPerUid);
+
+    Object.keys(podsPerUid).forEach((key: string) => {
+      if (replicaSets[key]) {
+        replicaSets[key].pods = podsPerUid[key];
+      }
+    });
+
+    return Object.values(replicaSets);
   }
 
   public async countResources(customerAccountKey: number, resourceTypes: string[]): Promise<GroupedCountResultItem[]> {
