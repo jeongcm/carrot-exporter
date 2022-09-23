@@ -14,6 +14,11 @@ import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
+import IncidentService from '@/modules/Incident/services/incident.service';
+import TableIdService from './tableId.service';
+import { IGNORE } from 'sequelize/types/index-hints';
+import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
 const { Op } = require('sequelize');
 
 class executorService {
@@ -22,11 +27,17 @@ class executorService {
   public resourceGroupService = new ResourceGroupService();
   public MetricMetaService = new MetricMetaService();
   public schedulerService = new SchedulerService();
+  public incidentService = new IncidentService();
 
   public sudoryWebhook = DB.SudoryWebhook;
   public executorService = DB.ExecutorService;
   public resourceGroup = DB.ResourceGroup;
   public exporters = DB.Exporters;
+  public incident = DB.Incident;
+  public tableIdService = new TableIdService();
+  public incidentAction = DB.IncidentAction;
+  public incidentActionAttachment = DB.IncidentActionAttachment;
+
 
   /**
    * @param {string} serviceUuid
@@ -2191,6 +2202,38 @@ class executorService {
     };
     const query = { where: { serviceUuid: DataSetFromSudory.service_uuid } };
     const resultExecutorService = await this.executorService.update(data, query);
+    console.log("resultSudoryWebhookresultSudoryWebhookresultSudoryWebhook", )
+    if (resultSudoryWebhook.status === 4 && resultSudoryWebhook.serviceName.startsWith('METRICOPS')) {
+      //incident ID fetch
+      const a = DataSetFromSudory.status_description.indexOf('INC');
+      const b = DataSetFromSudory.status_description.slice(a);
+      const c = b.indexOf(' ');
+      const incidentId = b.slice(0, c);
+      //incidentActionPayload
+      const actionData = {
+        incidentActionName: resultSudoryWebhook.serviceName,
+        incidentActionDescription: resultSudoryWebhook.statusDescription,
+        incidentActionStatus: 'EX',
+      };
+      //create incident Action
+
+      const tableIdTableName = 'IncidentAction';
+
+      const { incidentKey } = await this.incident.findOne({
+        where: { deletedAt: null, incidentId },
+        attributes: ['incidentKey'],
+      });
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+      // @ts-ignore
+      const createdActionData: IIncidentAction = await this.incidentAction.create({
+        ...actionData,
+        createdBy: 'SYSTEM',
+        incidentKey,
+        incidentActionId: responseTableIdData.tableIdFinalIssued,
+      });
+
+      //create incident Action attachement
+    }
     console.log(resultExecutorService);
     return resultSudoryWebhook;
   }

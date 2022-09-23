@@ -358,7 +358,7 @@ class EvaluateServices {
     if (!resultMonitoringTarget) throw new HttpException(401, `Can't find AnomalyTarget - ${customerAccountId}`);
 
     //3. call evaluateMonitorintTarget (ML)
-
+    console.log('resultMonitoringTarget', resultMonitoringTarget);
     const clusterUuid = await this.resourceGroupService.getResourceGroupUuidByCustomerAcc(customerAccountKey);
     const resultReturn = {};
     for (let i = 0; i < resultMonitoringTarget.length; i++) {
@@ -378,11 +378,9 @@ class EvaluateServices {
           incidentDueDate: null,
           assigneeId: '',
         };
-        console.log (incidentData);
-        
+
         const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, UserId, incidentData);
         const incidentId = resultIncidentCreate.incidentId;
-        console.log ("incidentId", incidentId);
 
         const firedAlerts = resultEvaluation.evaluationRequest.firedAlerts;
 
@@ -404,32 +402,36 @@ class EvaluateServices {
           }
         });
         logger.info(`ruleGroup===================, ${ruleGroup}`);
-        
+        console.log('evaluationRequest=============', evaluationRequest);
         evaluationRequest.ruleGroup.map(async (grp: any) => {
           if (ruleGroup.indexOf(grp.ruleGroupName) !== -1) {
+            console.log('in iffffffffffffffff', grp);
             // getResolutionActionByRuleGroupId
             const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(grp.ruleGroupId);
-            resolutionActions.map(async (resolutionAction: any) => {
-              //7. postExecuteService to sudory server
-              const currentDate = new Date();
-              const start = new Date(currentDate.setHours(currentDate.getHours() - 1)).toDateString();
-              const subscribed_channel = config.sudoryApiDetail.channel_webhook;
-              const end = currentDate.toDateString();
-              const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
-              const resourceReplace = resolutionAction.resolutionActionTemplateSteps.replace('${resourceName}', resourceName);
-              const startReplace = resourceReplace.replace('${start}', start);
-              const steps = startReplace.replace('${end}', end);
-              const serviceOutput: any = await this.executorService.postExecuteService(
-                `METRICOPS-${resolutionAction?.resolutionActionName}`,
-                `INC-${incidentId}`,
-                clusterUuid,
-                templateUuid,
-                steps,
-                customerAccountKey,
-                subscribed_channel,
-              );
-              logger.info(`serviceOutput------${serviceOutput}`);
-            });
+            console.log('=resolutionActions============', resolutionActions);
+            resolutionActions.length &&
+              resolutionActions.map(async (resolutionAction: any) => {
+                //7. postExecuteService to sudory server
+                const currentDate = new Date();
+                const start = new Date(currentDate.setHours(currentDate.getHours() - 1)).toDateString();
+                const subscribed_channel = config.sudoryApiDetail.channel_webhook;
+                const end = currentDate.toDateString();
+                const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
+                const resourceReplace = resolutionAction.resolutionActionTemplateSteps.replace('${resourceName}', resourceName);
+                const startReplace = resourceReplace.replace('${start}', start);
+                const steps = startReplace.replace('${end}', end);
+                console.log('steps=============', steps);
+                const serviceOutput: any = await this.executorService.postExecuteService(
+                  `METRICOPS-${resolutionAction?.resolutionActionName}`,
+                  `INC-${incidentId}`,
+                  clusterUuid,
+                  templateUuid,
+                  steps,
+                  customerAccountKey,
+                  subscribed_channel,
+                );
+                logger.info(`serviceOutput------${serviceOutput}`);
+              });
           }
         });
 
