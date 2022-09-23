@@ -421,6 +421,19 @@ class ResourceService {
       });
     }
 
+    if (!query.allReplicasYN || query.allReplicasYN === 'N') {
+      generatedQuery.push({
+        [Op.or]: [
+          {
+            resourceReplicas: { [Op.is]: null },
+          },
+          {
+            resourceReplicas: { [Op.ne]: 0 },
+          },
+        ],
+      });
+    }
+
     if (query.excludeFailed === true) {
       generatedQuery.push({
         [Op.or]: [
