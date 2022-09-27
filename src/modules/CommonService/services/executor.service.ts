@@ -17,9 +17,10 @@ import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface'
 import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
 import IncidentService from '@/modules/Incident/services/incident.service';
 import TableIdService from './tableId.service';
-import { IGNORE } from 'sequelize/types/index-hints';
 import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
 const { Op } = require('sequelize');
+import UploadService from '@/modules/CommonService/services/fileUpload.service';
+import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
 class executorService {
   //    public tableIdService = new TableIdService();
@@ -37,7 +38,7 @@ class executorService {
   public tableIdService = new TableIdService();
   public incidentAction = DB.IncidentAction;
   public incidentActionAttachment = DB.IncidentActionAttachment;
-
+  public fileUploadService = new UploadService();
 
   /**
    * @param {string} serviceUuid
@@ -2202,37 +2203,55 @@ class executorService {
     };
     const query = { where: { serviceUuid: DataSetFromSudory.service_uuid } };
     const resultExecutorService = await this.executorService.update(data, query);
-    console.log("resultSudoryWebhookresultSudoryWebhookresultSudoryWebhook", )
     if (resultSudoryWebhook.status === 4 && resultSudoryWebhook.serviceName.startsWith('METRICOPS')) {
       //incident ID fetch
-      const a = DataSetFromSudory.status_description.indexOf('INC');
-      const b = DataSetFromSudory.status_description.slice(a);
-      const c = b.indexOf(' ');
-      const incidentId = b.slice(0, c);
+      let incidentId, customerAccountKey;
+      const incidentString = resultSudoryWebhook.serviceName.indexOf('INC');
+      if (incidentString) {
+        const b = resultSudoryWebhook.serviceName.slice(incidentString);
+        const c = b.indexOf('/');
+        incidentId = b.slice(0, c);
+      }
+      const customerAccountString = resultSudoryWebhook.serviceName.indexOf('CUST');
+      if (customerAccountString) {
+        const b = resultSudoryWebhook.serviceName.slice(customerAccountString);
+        const c = b.indexOf('/');
+        customerAccountKey = b.slice(0, c);
+      }
       //incidentActionPayload
       const actionData = {
         incidentActionName: resultSudoryWebhook.serviceName,
         incidentActionDescription: resultSudoryWebhook.statusDescription,
         incidentActionStatus: 'EX',
       };
-      //create incident Action
-
-      const tableIdTableName = 'IncidentAction';
-
-      const { incidentKey } = await this.incident.findOne({
-        where: { deletedAt: null, incidentId },
-        attributes: ['incidentKey'],
-      });
-      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+      // create incident Action
       // @ts-ignore
-      const createdActionData: IIncidentAction = await this.incidentAction.create({
-        ...actionData,
-        createdBy: 'SYSTEM',
-        incidentKey,
-        incidentActionId: responseTableIdData.tableIdFinalIssued,
-      });
+      const incidentAction = await this.incidentService.createIncidentAction(customerAccountKey, incidentId, actionData, 'SYSTEM');
 
       //create incident Action attachement
+      // @ts-ignore
+      const parts = [new Blob([JSON.stringify(resultSudoryWebhook.serviceResult)], { type: 'text/json' })];
+      // @ts-ignore
+      const incidentActionAttachmentFile = new File(parts, `${resultSudoryWebhook.serviceName}.json`, {
+        lastModified: Date.now(),
+        type: 'text/json',
+      });
+
+      const actionAttachmentData = {
+        incidentActionAttachmentName: resultSudoryWebhook.serviceName,
+        incidentActionAttachmentDescription: resultSudoryWebhook.statusDescription,
+        incidentActionAttachmentType: 'JS',
+        incidentActionAttachmentFilename: `${resultSudoryWebhook.serviceName}.json`,
+      };
+      await this.incidentService.createIncidentActionAttachment(
+        customerAccountKey,
+        incidentId,
+        incidentAction.incidentActionId,
+        // @ts-ignore
+        actionAttachmentData,
+        'SYSTEM',
+        incidentActionAttachmentFile,
+      );
     }
     console.log(resultExecutorService);
     return resultSudoryWebhook;

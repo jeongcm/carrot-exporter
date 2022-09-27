@@ -422,7 +422,7 @@ class EvaluateServices {
                 const steps = startReplace.replace('${end}', end);
                 console.log('steps=============', steps);
                 const serviceOutput: any = await this.executorService.postExecuteService(
-                  `METRICOPS-${resolutionAction?.resolutionActionName}`,
+                  `METRICOPS-${resolutionAction?.resolutionActionName}/:CUST-${customerAccountKey}/:INC-${incidentId}`,
                   `INC-${incidentId}`,
                   clusterUuid,
                   templateUuid,
