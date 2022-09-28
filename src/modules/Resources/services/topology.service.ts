@@ -70,7 +70,7 @@ class TopologyService extends ServiceExtension {
 
     await Promise.all(
       accountResourceGroups.map(async (resourceGroup: IResourceGroup) => {
-        const topology = await this.getResourceGroupTopology(type, resourceGroup, customerAccountKey);
+        const children = await this.getResourceGroupTopology(type, resourceGroup, customerAccountKey);
 
         const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider } = resourceGroup;
 
@@ -82,12 +82,12 @@ class TopologyService extends ServiceExtension {
             resourceGroupPlatform,
             resourceGroupProvider,
           },
-          topology: topology,
+          children,
         };
       }),
     );
 
-    return topologyPerGroupId;
+    return Object.values(topologyPerGroupId);
   }
 
   public async getResourceGroupTopology(type: string, resourceGroup: IResourceGroup, customerAccountKey: number) {
@@ -101,7 +101,7 @@ class TopologyService extends ServiceExtension {
         resourceType = ['ND'];
         break;
       case 'workload-pods':
-        resourceType = ['PD', 'RS', 'DS', 'SS', 'DP'];
+        resourceType = ['PD', 'RS', 'DS', 'SS', 'DP', 'CJ', 'JO'];
         queryOptions = {
           [Op.or]: [
             {
@@ -159,17 +159,24 @@ class TopologyService extends ServiceExtension {
     const sets: any = {};
     const podsPerUid: any = {};
 
+    let workload = 0;
+    let pod = 0;
+
     resources.forEach((resource: IResource) => {
       const namespace = resource.resourceNamespace;
 
       switch (resource.resourceType) {
+        case 'JO':
+        case 'CJ':
         case 'SS':
-        case 'RS':
+        case 'DS':
         case 'DP':
         case 'RS':
           if (!sets[resource.resourceNamespace]) {
             sets[namespace] = {};
           }
+
+          workload += 1;
 
           sets[namespace][resource.resourceTargetUuid] = {
             resourceNamespace: namespace,
@@ -177,41 +184,44 @@ class TopologyService extends ServiceExtension {
             resourceId: resource.resourceId,
             resourceTargetUuid: resource.resourceTargetUuid,
             resourceType: resource.resourceType,
-            pods: [],
+            level: 'workload',
+            children: [],
           };
           break;
         case 'PD':
+          pod += 1;
+          let owners = [];
           if (typeof resource.resourceOwnerReferences === 'string') {
-            let owners = [];
             try {
               owners = JSON.parse(resource.resourceOwnerReferences);
-
-              if (!Array.isArray(owners)) {
-                owners = [owners];
-              }
-
-              owners?.map((owner: any) => {
-                // TODO: Add DaemonSet, StatefulSet, Deployment?
-                if (owner.uid) {
-                  if (!podsPerUid[namespace]) {
-                    podsPerUid[namespace] = {};
-                  }
-
-                  if (!podsPerUid[namespace][owner.uid]) {
-                    podsPerUid[namespace][owner.uid] = [];
-                  }
-                  podsPerUid[namespace][owner.uid].push({
-                    resourceType: 'PD',
-                    resourceName: resource.resourceName,
-                    resourceNamespace: namespace,
-                    resourceId: resource.resourceId,
-                  });
-                }
-              });
             } catch (e) {
               owners = [];
             }
           }
+          if (!Array.isArray(owners)) {
+            owners = [owners];
+          }
+
+          owners?.map((owner: any) => {
+            // TODO: Add DaemonSet, StatefulSet, Deployment?
+            if (owner.uid) {
+              if (!podsPerUid[namespace]) {
+                podsPerUid[namespace] = {};
+              }
+
+              if (!podsPerUid[namespace][owner.uid]) {
+                podsPerUid[namespace][owner.uid] = [];
+              }
+              podsPerUid[namespace][owner.uid].push({
+                resourceType: 'PD',
+                resourceName: resource.resourceName,
+                resourceNamespace: namespace,
+                resourceId: resource.resourceId,
+                level: 'pod',
+              });
+            }
+          });
+
           break;
       }
     });
@@ -219,14 +229,21 @@ class TopologyService extends ServiceExtension {
     Object.keys(podsPerUid).forEach((namespace: string) => {
       Object.keys(podsPerUid[namespace]).forEach((key: string) => {
         if (sets[namespace] && sets[namespace][key]) {
-          sets[namespace][key].pods = podsPerUid[namespace][key];
+          sets[namespace][key].children = podsPerUid[namespace][key];
         }
       });
     });
 
     Object.keys(sets).forEach((namespace: string) => {
-      sets[namespace] = Object.values(sets[namespace]);
+      sets[namespace] = {
+        level: 'namespace',
+        resourceType: 'NS',
+        resourceNamespace: namespace,
+        children: Object.values(sets[namespace]),
+      };
     });
+
+    console.log('total resource:', resources.length, 'total pod:', pod, 'workload', workload);
 
     return Object.values(sets);
   }

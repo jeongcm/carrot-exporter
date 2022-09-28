@@ -505,7 +505,6 @@ class ResourceService {
     try {
       const updateResult = await this.resource.update(updatedResource, notInQuery);
       returnResult = updateResult;
-      console.log(updateResult);
     } catch (error) {
       throw new HttpException(500, error);
     }
