@@ -25,11 +25,11 @@ class IncidentController {
   public createIncident = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
     const incidentData: CreateIncidentDto = req.body;
-    if(incidentData.assigneeId){
+    if (incidentData.assigneeId) {
       const assignee = await this.partyService.getUser(customerAccountKey, incidentData.assigneeId);
-          if (!assignee) {
-            res.status(404).json({ message: `assignee user id(${incidentData.assigneeId}) not found` });
-          }
+      if (!assignee) {
+        res.status(404).json({ message: `assignee user id(${incidentData.assigneeId}) not found` });
+      }
     }
 
     try {
@@ -105,7 +105,7 @@ class IncidentController {
     try {
       const logginedUserId = req.user.partyId;
 
-      let data = await this.incidentService.deleteIncidentById(customerAccountKey, incidentId, logginedUserId);
+      const data = await this.incidentService.deleteIncidentById(customerAccountKey, incidentId, logginedUserId);
       // res.status(204).json({ message: `delete incident id(${incidentId})` });
       res.status(200).json({ message: data });
     } catch (error) {
@@ -281,8 +281,8 @@ class IncidentController {
       return res.status(404).json({ message: `Incident action id(${actionId}) not found` });
     }
 
-    if(!incidentActionAttachmentFile){
-      return  res.status(404).json({ message: `Payload request must contain some attachments(pdf,image/json)` });
+    if (!incidentActionAttachmentFile) {
+      return res.status(404).json({ message: `Payload request must contain some attachments(pdf,image/json)` });
     }
 
     try {
@@ -343,14 +343,12 @@ class IncidentController {
     const logginedUserId = req.user.partyId;
 
     try {
-      const incidentActionAttachments = await this.incidentService.deleteIncidentActionAttachment(
-        customerAccountKey,
-        attachmentId,
-        logginedUserId
-      );
+      const incidentActionAttachments = await this.incidentService.deleteIncidentActionAttachment(customerAccountKey, attachmentId, logginedUserId);
 
       if (incidentActionAttachments) {
-        res.status(200).json({ data: incidentActionAttachments, message: `Incident's Attachment having id(${attachmentId})'s deleted successfully.` });
+        res
+          .status(200)
+          .json({ data: incidentActionAttachments, message: `Incident's Attachment having id(${attachmentId})'s deleted successfully.` });
       } else {
         res.status(404).json({ message: `Attachment id(${attachmentId})'s not found` });
       }

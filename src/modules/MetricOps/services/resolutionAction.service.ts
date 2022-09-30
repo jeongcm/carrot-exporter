@@ -117,10 +117,12 @@ class ResolutionActionService {
         where: { deletedAt: { [Op.eq]: null }, ruleGroupKey: ruleGroupDetail.ruleGroupKey },
         attributes: ['resolutionActionKey'],
       });
+      console.log('ruleGroupResolutionAction====', ruleGroupResolutionAction);
       let resolutionActionKeys: any[];
       if (ruleGroupResolutionAction) {
         resolutionActionKeys = _.map(ruleGroupResolutionAction, 'resolutionActionKey');
       }
+      console.log('resolutionActionKeys============', resolutionActionKeys);
       let whereCondition = {};
       if (resolutionActionKeys.length) {
         whereCondition = {
@@ -132,13 +134,15 @@ class ResolutionActionService {
           deletedAt: null,
         };
       }
+      console.log('whreCondition=========', JSON.stringify(whereCondition));
       const allResolutionAction: IResolutionAction[] = await this.resolutionAction.findAll({
-        where: whereCondition,
+        where: { deletedAt: null },
         include: [{ model: SudoryTemplateModel, as: 'sudoryTemplate' }],
       });
+      console.log('allResolutionAction', allResolutionAction);
       return allResolutionAction;
     } catch (error) {
-      console.log(error);
+      console.log("error============", error);
       return [];
     }
   }
