@@ -1,6 +1,6 @@
 import Sequelize from 'sequelize';
-import { writeFileSync } from 'fs';
-import sequelizeErd from 'sequelize-erd';
+//import { writeFileSync } from 'fs';
+//import sequelizeErd from 'sequelize-erd';
 import { logger } from '@/common/utils/logger';
 import AlertRuleModel from '@/modules/Alert/models/alertRule.model';
 import AlertReceivedModel from '@/modules/Alert/models/alertReceived.model';
@@ -95,7 +95,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
 
   logging: (query, time) => {
     // TODO: find a better way to leave a log
-    // logger.info(time + 'ms' + ' ' + query);
+    //logger.info(time + 'ms' + ' ' + query);
   },
 
   //logging: console.log,
@@ -444,8 +444,93 @@ DB.ResourceEvent.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' })
 DB.sequelize
   .sync({ force: false })
   .then(async () => {
-    const initialRecordService = new InitialRecordService();
+    const trigger1pre = 'DROP TRIGGER IF EXISTS nc_api.tr_AlertReceivedHash;';
+    const trigger2pre = 'DROP TRIGGER IF EXISTS nc_api.tr_AlertReceivedCreatedAt;';
+    const trigger1 =
+      'CREATE TRIGGER nc_api.tr_AlertReceivedHash BEFORE INSERT ON nc_api.AlertReceived FOR EACH ROW SET NEW.alert_received_hash = SHA1(CONCAT(NEW.alert_rule_key, NEW.alert_received_namespace, NEW.alert_received_node, NEW.alert_received_service, NEW.alert_received_pod));';
+    const trigger2 =
+      'CREATE TRIGGER nc_api.tr_AlertReceivedCreatedAt BEFORE INSERT ON nc_api.AlertReceived FOR EACH ROW SET NEW.alert_received_ui_flag = mod(minute(NEW.created_at),10); ';
+    const sp1 = `
+        CREATE PROCEDURE IF NOT EXISTS nc_api.sp_upsertSudoryTemplate() 
+        BEGIN
+        INSERT INTO nc_api.SudoryTemplate (
+        sudory_template_id,
+        created_by,
+        created_at,
+        sudory_template_name,
+        sudory_template_description,
+        sudory_template_uuid,
+        sudory_template_args
+        )
+        SELECT
+        UUID(),
+        'SYSTEM',
+        NOW(),
+        A.name as sudory_template_name,
+        A.summary as sudory_template_description,
+        A.uuid,
+        B.args as sudory_template_args
+        FROM nc_sudory.template A, nc_sudory.template_command B
+        WHERE A.uuid = B.template_uuid
+        ON DUPLICATE KEY UPDATE
+        updated_by = 'SYSTEM',
+        updated_at = NOW(),
+        sudory_template_name = values(sudory_template_name),
+        sudory_template_description = values(sudory_template_description),
+        sudory_template_args = values(sudory_template_args)
+        ;
+        UPDATE nc_api.SudoryTemplate
+        SET subscribed_channel = 'nc_resource'
+        WHERE sudory_template_uuid like '0%' and subscribed_channel = "";
+        UPDATE nc_api.SudoryTemplate
+        SET subscribed_channel = 'nc_alert'
+        WHERE sudory_template_uuid IN ('10000000000000000000000000000003', '10000000000000000000000000000004') and subscribed_channel = "";
+        UPDATE nc_api.SudoryTemplate
+        SET subscribed_channel = 'nc_metric'
+        WHERE sudory_template_uuid IN ('10000000000000000000000000000006', '10000000000000000000000000000007') and subscribed_channel = "";
+        UPDATE nc_api.SudoryTemplate
+        SET subscribed_channel = 'nc_metric_received'
+        WHERE sudory_template_uuid IN ('10000000000000000000000000000001', '10000000000000000000000000000002') and subscribed_channel = "";
+        END;
+    `;
 
+    const sp2 = `
+        CREATE PROCEDURE IF NOT EXISTS nc_api.sp_deleteAlertReceived()
+        BEGIN
+            DECLARE counter INT DEFAULT 1;
+            REPEAT
+                delete from nc_api.AlertReceived 
+                where day(created_at) < day (current_date())-1 limit 100000; commit;
+                SET counter = counter + 1;
+                SELECT SLEEP(2);
+            UNTIL counter >= 200
+            END REPEAT;
+        END;
+    `;
+
+    const event1pre = `DROP EVENT IF EXISTS nc_api.ev_sp_upsertSudoryTemplate;`;
+    const event1 = `CREATE EVENT nc_api.ev_sp_upsertSudoryTemplate
+                    ON SCHEDULE EVERY '1' DAY
+                    STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY)
+                    DO CALL nc_api.sp_upsertSudoryTemplate();`;
+    const event2pre = `DROP EVENT IF EXISTS nc_api.ev_sp_deleteAlertReceived;`;
+    const event2 = `CREATE EVENT nc_api.ev_sp_deleteAlertReceived 
+                    ON SCHEDULE EVERY 1 DAY 
+                    STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY + INTERVAL 1 HOUR)
+                    DO CALL nc_api.sp_deleteAlertReceived()`;
+
+    sequelize.query(trigger1pre);
+    sequelize.query(trigger2pre);
+    sequelize.query(trigger1);
+    sequelize.query(trigger2);
+    sequelize.query(sp1);
+    sequelize.query(sp2);
+    sequelize.query(event1pre);
+    sequelize.query(event2pre);
+    sequelize.query(event1);
+    sequelize.query(event2);
+
+    const initialRecordService = new InitialRecordService();
     initialRecordService.insertInitialRecords().then(() => {
       console.log('Yes resync done');
     });

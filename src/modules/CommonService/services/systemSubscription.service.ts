@@ -121,7 +121,6 @@ class systemSubscriptionService {
         };
         let fuseBillInterface = false;
         const headers = { Authorization: `Basic ${config.fuseBillApiDetail.apiKey}` };
-        console.log('fusebill_key: ', headers);
         const fuseBillCustomer = await axios({
           method: 'post',
           url: config.fuseBillApiDetail.createCustomerUrl,
