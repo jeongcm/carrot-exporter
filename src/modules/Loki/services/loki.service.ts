@@ -9,7 +9,7 @@ class LokiService {
     process.stdin.pipe(duplex);
 
     /*
-    socket.onopen = function (event) {
+      socket.onopen = function (event) {
       // Send an initial message
       socket.send("I am the client and I'm listening!");
 
