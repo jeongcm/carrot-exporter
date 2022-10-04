@@ -51,8 +51,8 @@ class App {
     require('console-stamp')(console, {
       format: '(console).yellow :date().green.underline :label(7)',
     });
+    /*
     const socketServer = require('ws').Server;
-
     const wss = new socketServer({ server: server, path: '/loki/v1/tail' });
 
     wss.on('connection', async function (ws) {
@@ -66,7 +66,8 @@ class App {
         ws.send('feeding loki log');
         ws.send(cb);
       });
-      /*
+      
+
       lokiSocket.on('open', function open(message) {
         console.log('connected to Loki WS', message);
       });
@@ -77,7 +78,7 @@ class App {
       lokiSocket.on('close', function close(event) {
         console.log('disconncetd to Loki WS', event);
       });
-      */
+
       ws.on('message', function incoming(message) {
         console.log('Received Client Message: %s', message);
         //connectedUsers.push(message);
@@ -86,7 +87,7 @@ class App {
         console.log('connection droped');
       });
     });
-
+    */
     //const listEndpoints = require ("express-list-endpoints")
     //console.log(listEndpoints(this.app));
   }
