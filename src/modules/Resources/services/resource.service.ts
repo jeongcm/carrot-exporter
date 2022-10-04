@@ -226,6 +226,7 @@ class ResourceService {
         // ...extraWhere,
       },
       attributes: { exclude: ['deletedAt', 'resourceKey', 'resource_group_key'] },
+      include: [{ model: ResourceGroupModel, attributes: ['resourceGroupId'] }],
     });
     if (!findResource) throw new HttpException(404, "Resource  doesn't exist");
 
