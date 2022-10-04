@@ -1,7 +1,6 @@
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import morgan from 'morgan';
@@ -11,20 +10,30 @@ import session from 'express-session';
 import { Routes } from '@common/interfaces/routes.interface';
 import errorMiddleware from '@common/middlewares/error.middleware';
 import { logger, stream } from '@common/utils/logger';
-import { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
 import Passport from './modules/SocialLogin/providers/passport';
-import passport from 'passport';
-import { request } from 'http';
+import WebSocket, { createWebSocketStream } from 'ws';
+//import { Duplex } from 'winston-daily-rotate-file';
+//import { DiagConsoleLogger } from '@opentelemetry/api';
+import { PassThrough } from 'stream';
+//import { chunk } from 'lodash';
+//import { PassThrough } from 'stream';
+//import PassThrough from 'stream';
+//import { setInternalBufferSize } from 'bson';
+//import passport from 'passport';
+//import { createServer } from 'http';
 
 class App {
   public port: number;
+  public wsPort: number;
   public env: string;
   public app: express.Application;
 
   constructor(routes: Routes[]) {
     this.app = express();
     this.port = Number(config.appPort);
+    this.wsPort = Number(config.appWsPort);
     this.env = config.nodeEnv;
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
@@ -33,7 +42,7 @@ class App {
   }
 
   public listen() {
-    this.app.listen(this.port, () => {
+    const server = this.app.listen(this.port, function () {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
       logger.info(`🚀 NexClipper API listening on the port ${this.port}`);
@@ -41,6 +50,41 @@ class App {
     });
     require('console-stamp')(console, {
       format: '(console).yellow :date().green.underline :label(7)',
+    });
+    const socketServer = require('ws').Server;
+
+    const wss = new socketServer({ server: server, path: '/loki/v1/tail' });
+
+    wss.on('connection', async function (ws) {
+      console.log('Conncted to Websocket Server ...');
+      ws.send('Message From server at: ' + new Date());
+
+      const url = 'ws://localhost:3100/loki/api/v1/tail?query=app="nexclipper-api"}';
+      const lokiSocket = new WebSocket(url);
+      const duplex = createWebSocketStream(lokiSocket, { encoding: 'utf8' });
+      streamToString(duplex, cb => {
+        ws.send('feeding loki log');
+        ws.send(cb);
+      });
+      /*
+      lokiSocket.on('open', function open(message) {
+        console.log('connected to Loki WS', message);
+      });
+      lokiSocket.on('messeage', function message(message) {
+        console.log('got loki messagse', message);
+        ws.send(message);
+      });
+      lokiSocket.on('close', function close(event) {
+        console.log('disconncetd to Loki WS', event);
+      });
+      */
+      ws.on('message', function incoming(message) {
+        console.log('Received Client Message: %s', message);
+        //connectedUsers.push(message);
+      });
+      ws.on('disconnect', function () {
+        console.log('connection droped');
+      });
     });
 
     //const listEndpoints = require ("express-list-endpoints")
@@ -122,6 +166,16 @@ class App {
       next();
     });
   }
+}
+
+async function streamToString(stream, cb) {
+  const chunks = [];
+  stream.on('data', chunks => {
+    chunks.push(chunks.toString());
+  });
+  stream.on('end', () => {
+    cb(chunks.join(''));
+  });
 }
 
 export default App;

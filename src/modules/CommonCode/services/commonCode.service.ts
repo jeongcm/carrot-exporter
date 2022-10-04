@@ -21,10 +21,10 @@ class CommonCodeService {
 
     try {
       const tableIdTableName = 'CommonCode';
-      
+
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
       if (!responseTableIdData) {
-        console.log("error on issuing TableId for commoncode");
+        console.log('error on issuing TableId for commoncode');
         return;
       }
 
@@ -38,7 +38,6 @@ class CommonCodeService {
       return createCommonCode;
     } catch (error) {
       console.log(error.code);
-      
     }
   }
 
@@ -72,7 +71,6 @@ class CommonCodeService {
    * @returns Promise
    */
   public async updateCommonCodeById(commonCodeId: string, commonCodeData: CommonCodeDto, currentUserId: string): Promise<ICommonCode> {
-
     if (isEmpty(commonCodeData)) throw new IsEmptyError('CommonCode Data cannot be blank');
 
     const findCommonCode: ICommonCode = await this.commonCode.findOne({ where: { commonCodeId: commonCodeId } });
