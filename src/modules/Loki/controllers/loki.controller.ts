@@ -14,6 +14,17 @@ class LokiController {
       next(error);
     }
   };
+  public queryLog = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const query = req.query.query as string;
+      const logResult = await this.lokiService.queryLog(query);
+      res.status(200).json({ data: logResult, message: `success to query logs` });
+    } catch (error) {
+      console.log('Loki query error');
+      res.status(500).json({ message: `Loki Query Unknown Error` });
+      next(error);
+    }
+  };
 }
 
 export default LokiController;
