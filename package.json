@@ -79,6 +79,7 @@
     "tsc-alias": "^1.7.0",
     "uuid": "^8.3.2",
     "vue-docgen-api": "^4.44.23",
+    "websocket-stream": "^5.5.2",
     "winston": "^3.7.2",
     "winston-daily-rotate-file": "^4.6.1"
   },
