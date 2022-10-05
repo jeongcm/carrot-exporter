@@ -18,14 +18,14 @@ import uniqid from 'uniqid';
 
 //import { Duplex } from 'winston-daily-rotate-file';
 //import { DiagConsoleLogger } from '@opentelemetry/api';
-import { PassThrough } from 'stream';
+//import { PassThrough } from 'stream';
 //import { chunk } from 'lodash';
 //import { PassThrough } from 'stream';
 //import PassThrough from 'stream';
 //import { setInternalBufferSize } from 'bson';
 //import passport from 'passport';
 //import { createServer } from 'http';
-import io from 'socket.io-client';
+//import io from 'socket.io-client';
 // const WebSocketClient = require('websocket').client;
 
 class App {
@@ -57,7 +57,6 @@ class App {
       format: '(console).yellow :date().green.underline :label(7)',
     });
 
-
     const wsConnections = {};
 
     const url = 'ws://localhost:3100/loki/api/v1/tail?query={app="nexclipper-api"}';
@@ -66,7 +65,6 @@ class App {
       Object.values(wsConnections).forEach((ws: any) => {
         console.log(ws.id);
         ws.send(data);
-
       });
     });
 
@@ -81,7 +79,6 @@ class App {
         delete wsConnections[ws.id];
       });
     });
-
   }
 
   public getServer() {
