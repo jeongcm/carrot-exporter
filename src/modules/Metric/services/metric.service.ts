@@ -274,6 +274,17 @@ class MetricService extends ServiceExtension {
         )`;
         break;
 
+      case 'POD_RESOURCE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `{__name__=~"kube_pod_container_resource_limits|kube_pod_container_resource_requests", __LABEL_PLACE_HOLDER__}`;
+        break;
+
       case 'POD_MEMORY':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -284,6 +295,29 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
+
+      case 'POD_CPU_MOMENT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `sum by(pod) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )`;
+        break;
+
+      case 'POD_MEMORY_MOMENT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
+        break;
+
 
       case 'POD_MEMORY_RANKING':
         labelString += getSelectorLabels({
