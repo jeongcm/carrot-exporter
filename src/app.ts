@@ -13,7 +13,9 @@ import { logger, stream } from '@common/utils/logger';
 import express, { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
 import Passport from './modules/SocialLogin/providers/passport';
-import WebSocket, { createWebSocketStream } from 'ws';
+import WebSocket, { createWebSocketStream, WebSocketServer } from 'ws';
+import uniqid from 'uniqid';
+
 //import { Duplex } from 'winston-daily-rotate-file';
 //import { DiagConsoleLogger } from '@opentelemetry/api';
 import { PassThrough } from 'stream';
@@ -23,6 +25,8 @@ import { PassThrough } from 'stream';
 //import { setInternalBufferSize } from 'bson';
 //import passport from 'passport';
 //import { createServer } from 'http';
+import io from 'socket.io-client';
+// const WebSocketClient = require('websocket').client;
 
 class App {
   public port: number;
@@ -48,48 +52,36 @@ class App {
       logger.info(`🚀 NexClipper API listening on the port ${this.port}`);
       logger.info(`=================================`);
     });
+
     require('console-stamp')(console, {
       format: '(console).yellow :date().green.underline :label(7)',
     });
-    /*
-    const socketServer = require('ws').Server;
-    const wss = new socketServer({ server: server, path: '/loki/v1/tail' });
 
-    wss.on('connection', async function (ws) {
-      console.log('Conncted to Websocket Server ...');
-      ws.send('Message From server at: ' + new Date());
 
-      const url = 'ws://localhost:3100/loki/api/v1/tail?query=app="nexclipper-api"}';
-      const lokiSocket = new WebSocket(url);
-      const duplex = createWebSocketStream(lokiSocket, { encoding: 'utf8' });
-      streamToString(duplex, cb => {
-        ws.send('feeding loki log');
-        ws.send(cb);
-      });
-      
+    const wsConnections = {};
 
-      lokiSocket.on('open', function open(message) {
-        console.log('connected to Loki WS', message);
-      });
-      lokiSocket.on('messeage', function message(message) {
-        console.log('got loki messagse', message);
-        ws.send(message);
-      });
-      lokiSocket.on('close', function close(event) {
-        console.log('disconncetd to Loki WS', event);
-      });
+    const url = 'ws://localhost:3100/loki/api/v1/tail?query={app="nexclipper-api"}';
+    const lokiSocket = new WebSocket(url);
+    lokiSocket.on('message', function message(data) {
+      Object.values(wsConnections).forEach((ws: any) => {
+        console.log(ws.id);
+        ws.send(data);
 
-      ws.on('message', function incoming(message) {
-        console.log('Received Client Message: %s', message);
-        //connectedUsers.push(message);
-      });
-      ws.on('disconnect', function () {
-        console.log('connection droped');
       });
     });
-    */
-    //const listEndpoints = require ("express-list-endpoints")
-    //console.log(listEndpoints(this.app));
+
+    const socketServer = require('ws').Server;
+    const wss = new socketServer({ server: server, path: '/loki/v1/tail' });
+    wss.on('connection', async function (ws) {
+      const id = uniqid();
+      ws.id = id;
+      wsConnections[id] = ws;
+
+      ws.on('disconnect', function () {
+        delete wsConnections[ws.id];
+      });
+    });
+
   }
 
   public getServer() {
@@ -171,8 +163,8 @@ class App {
 
 async function streamToString(stream, cb) {
   const chunks = [];
-  stream.on('data', chunks => {
-    chunks.push(chunks.toString());
+  stream.on('data', chunkIn => {
+    chunks.push(chunkIn.toString());
   });
   stream.on('end', () => {
     cb(chunks.join(''));
