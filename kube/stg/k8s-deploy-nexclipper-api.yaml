@@ -92,6 +92,7 @@ data:
   NC_LOKI_URL_HEAD: "http://loki."
   NC_LOKI_URL_TAIL: ".svc.cluster.local:3100"
   NC_LARI_LOG_SILENCE_RESPONSE: "true"
+  NC_LOKI_API_BASE_URL: "http://loki.monitor.svc.cluster.local:3100/loki/api/v1"
 
 
 ---
