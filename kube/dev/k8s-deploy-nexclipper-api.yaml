@@ -93,6 +93,9 @@ data:
   NC_LOKI_URL_HEAD: "http://loki."
   NC_LOKI_URL_TAIL: ".svc.cluster.local:3100"
   NC_LARI_LOG_SILENCE_RESPONSE: "true"
+  FUSEBILL_BASE_URL: "https://secure.fusebill.com/v1/"
+  FUSEBILL_API_CREATE_CUSTOMER_URL: "https://secure.fusebill.com/v1/customers"
+  NC_LOKI_API_BASE_URL: "http://loki.monitor.svc.cluster.local:3100/loki/api/v1"
 
 ---
 apiVersion: apps/v1
@@ -141,6 +144,11 @@ spec:
             valueFrom:
               secretKeyRef:
                 name: nc-mailgun-apikey
+                key: apiKey
+          - name: FUSEBILL_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: nc-fusebill-apikey
                 key: apiKey
 
         ports:

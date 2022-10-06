@@ -5,7 +5,7 @@ export type MetricMetaCreationAttributes = Optional<
   IMetricMeta,
   | 'metricMetaKey'
   | 'metricMetaId'
-  | 'metricMetaHash'  
+  | 'metricMetaHash'
   | 'createdBy'
   | 'updatedBy'
   | 'createdAt'
@@ -13,7 +13,7 @@ export type MetricMetaCreationAttributes = Optional<
   | 'deletedAt'
   | 'metricMetaName'
   | 'metricMetaDescription'
-  | 'metricMetaType'  
+  | 'metricMetaType'
   | 'metricMetaUnit'
   | 'metricMetaTargetInstance'
   | 'metricMetaTargetJob'
@@ -21,13 +21,12 @@ export type MetricMetaCreationAttributes = Optional<
   | 'metricMetaTargetPod'
   | 'metricMetaTarget'
   | 'customerAccountKey'
-  | 'resourceKey'  
+  | 'resourceKey'
   | 'resourceGroupUuid'
   | 'metricMetaTargetMetricsPath'
 >;
 
-export class MetricMetaModel extends Model<IMetricMeta, MetricMetaCreationAttributes > implements IMetricMeta {
-
+export class MetricMetaModel extends Model<IMetricMeta, MetricMetaCreationAttributes> implements IMetricMeta {
   public metricMetaKey: number;
   public metricMetaId: string;
   public metricMetaHash: string;
@@ -50,11 +49,10 @@ export class MetricMetaModel extends Model<IMetricMeta, MetricMetaCreationAttrib
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
-
 }
 
 export default function (sequelize: Sequelize): typeof MetricMetaModel {
-    MetricMetaModel.init(
+  MetricMetaModel.init(
     {
       metricMetaKey: {
         type: DataTypes.INTEGER,
@@ -73,7 +71,7 @@ export default function (sequelize: Sequelize): typeof MetricMetaModel {
       metricMetaHash: {
         allowNull: false,
         type: DataTypes.STRING(40),
-      },      
+      },
       createdBy: {
         type: DataTypes.STRING(16),
         allowNull: false,
@@ -81,7 +79,7 @@ export default function (sequelize: Sequelize): typeof MetricMetaModel {
       updatedBy: {
         type: DataTypes.STRING(16),
         allowNull: true,
-      },            
+      },
       createdAt: {
         type: DataTypes.DATE(),
         allowNull: false,
@@ -89,11 +87,11 @@ export default function (sequelize: Sequelize): typeof MetricMetaModel {
       updatedAt: {
         type: DataTypes.DATE(),
         allowNull: true,
-      },      
+      },
       deletedAt: {
         type: DataTypes.DATE(),
         allowNull: true,
-      },      
+      },
       metricMetaName: {
         type: DataTypes.STRING(100),
         allowNull: false,
@@ -140,12 +138,40 @@ export default function (sequelize: Sequelize): typeof MetricMetaModel {
       },
       resourceGroupUuid: {
         type: DataTypes.STRING(100),
-        unique: true,
         allowNull: false,
       },
-          },
-
+    },
     {
+      indexes: [
+        {
+          unique: false,
+          fields: ['resource_group_uuid'],
+        },
+        {
+          unique: false,
+          fields: ['metric_meta_hash'],
+        },
+        {
+          unique: false,
+          fields: ['deleted_at'],
+        },
+        {
+          unique: false,
+          fields: ['metric_meta_target_job'],
+        },
+        {
+          unique: false,
+          fields: ['metric_meta_target_instance'],
+        },
+        {
+          unique: false,
+          fields: ['resource_key'],
+        },
+        {
+          unique: false,
+          fields: ['metric_meta_id'],
+        },
+      ],
       tableName: 'MetricMeta',
       modelName: 'MetricMeta',
       sequelize,

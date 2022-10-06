@@ -146,7 +146,6 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
       },
     },
     {
-
       tableName: 'AlertRule',
       modelName: 'AlertRule',
       sequelize,

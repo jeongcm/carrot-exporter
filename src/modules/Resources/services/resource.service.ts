@@ -226,6 +226,7 @@ class ResourceService {
         // ...extraWhere,
       },
       attributes: { exclude: ['deletedAt', 'resourceKey', 'resource_group_key'] },
+      include: [{ model: ResourceGroupModel, attributes: ['resourceGroupId'] }],
     });
     if (!findResource) throw new HttpException(404, "Resource  doesn't exist");
 
@@ -421,6 +422,19 @@ class ResourceService {
       });
     }
 
+    if (!query.allReplicasYN || query.allReplicasYN === 'N') {
+      generatedQuery.push({
+        [Op.or]: [
+          {
+            resourceReplicas: { [Op.is]: null },
+          },
+          {
+            resourceReplicas: { [Op.ne]: 0 },
+          },
+        ],
+      });
+    }
+
     if (query.excludeFailed === true) {
       generatedQuery.push({
         [Op.or]: [
@@ -492,7 +506,6 @@ class ResourceService {
     try {
       const updateResult = await this.resource.update(updatedResource, notInQuery);
       returnResult = updateResult;
-      console.log(updateResult);
     } catch (error) {
       throw new HttpException(500, error);
     }

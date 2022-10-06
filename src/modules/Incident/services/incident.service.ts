@@ -61,12 +61,11 @@ class IncidentService {
     const incidentKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentTable);
     const incidentActionTable = 'IncidentAction';
     const incidentActionKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentActionTable);
-    console.log (incidentKey);
-    console.log (incidentActionKey);
-    var assigneeKey = null; 
+    console.log(incidentKey);
+    console.log(incidentActionKey);
+    let assigneeKey = null;
     try {
       return await DB.sequelize.transaction(async t => {
-        
         if (incidentData.assigneeId) {
           const assignee = await this.partyService.getUserKey(customerAccountKey, incidentData.assigneeId);
           assigneeKey = assignee.partyKey;
@@ -79,19 +78,21 @@ class IncidentService {
             createdBy: logginedUserId,
             incidentId: incidentKey.tableIdFinalIssued,
             assigneeKey: assigneeKey,
-          }, {transaction: t}
+          },
+          { transaction: t },
         );
 
-       const createIncidentAction: any = await this.incidentAction.create(
+        const createIncidentAction: any = await this.incidentAction.create(
           {
             incidentActionId: incidentActionKey.tableIdFinalIssued,
-            incidentActionName: "Incident Created",
-            incidentActionDescription: "Incident Created",
-            incidentActionStatus: "EX",
+            incidentActionName: 'Incident Created',
+            incidentActionDescription: 'Incident Created',
+            incidentActionStatus: 'EX',
             createdBy: logginedUserId,
             incidentKey: createIncidentData.incidentKey,
-          }, {transaction: t}
-       ); 
+          },
+          { transaction: t },
+        );
 
         return createIncidentData;
       });
@@ -196,19 +197,18 @@ class IncidentService {
     incidentData: CreateIncidentDto,
     logginedUserId: string,
   ): Promise<IIncident> {
-
     const incidentActionTable = 'IncidentAction';
     const incidentActionKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentActionTable);
 
     const incidentCode = [
-      { code: '3O', name: 'OPEN'}, //incidentStatus
-      { code: '2I', name: 'IN PROGRESS'}, // incidentStatus
-      { code: '1R', name: 'RESOLVED'}, // incidentStatus
-      { code: '0C', name: 'CLOSED'}, // incidentStatus
-      { code: '3U', name: 'URGENT'}, // incidentSeveriy
-      { code: '2H', name: 'HIGH'}, // incidentSeveriy
-      { code: '1M', name: 'MEDIUM'}, // incidentSeveriy
-      { code: '0L', name: 'LOW'}, // incidentSeveriy
+      { code: '3O', name: 'OPEN' }, //incidentStatus
+      { code: '2I', name: 'IN PROGRESS' }, // incidentStatus
+      { code: '1R', name: 'RESOLVED' }, // incidentStatus
+      { code: '0C', name: 'CLOSED' }, // incidentStatus
+      { code: '3U', name: 'URGENT' }, // incidentSeveriy
+      { code: '2H', name: 'HIGH' }, // incidentSeveriy
+      { code: '1M', name: 'MEDIUM' }, // incidentSeveriy
+      { code: '0L', name: 'LOW' }, // incidentSeveriy
     ];
 
     const incidentStatus = incidentCode.find(codeTable => {
@@ -219,38 +219,39 @@ class IncidentService {
     });
 
     const assignee = await this.partyService.getUserKey(customerAccountKey, incidentData?.assigneeId);
-    const findIncident = await this.incident.findOne ({where: {incidentId}});
+    const findIncident = await this.incident.findOne({ where: { incidentId } });
     if (!findIncident) throw new HttpException(404, `Can't find incident data - ${incidentId}`);
 
     const actionDescription = {
       Name: incidentData.incidentName,
       Description: incidentData.incidentDescription,
-      "Due Date": incidentData.incidentDueDate || "Not yet setup",
+      'Due Date': incidentData.incidentDueDate || 'Not yet setup',
       Status: incidentStatus.name,
       Severity: incidentSeverity.name,
       Assignee: assignee?.partyName,
-    }
+    };
 
     try {
       return await DB.sequelize.transaction(async t => {
-
         await this.incident.update(
           { ...incidentData, updatedBy: logginedUserId, assigneeKey: assignee?.partyKey },
-          { where: { customerAccountKey, incidentId}, transaction: t});
+          { where: { customerAccountKey, incidentId }, transaction: t },
+        );
 
         const createIncidentAction: any = await this.incidentAction.create(
           {
             incidentActionId: incidentActionKey.tableIdFinalIssued,
-            incidentActionName: "Incident Update",
+            incidentActionName: 'Incident Update',
             incidentActionDescription: `Incident Update - ${JSON.stringify(actionDescription)}`,
-            incidentActionStatus: "EX",
+            incidentActionStatus: 'EX',
             createdBy: logginedUserId,
             incidentKey: findIncident.incidentKey,
-          }, {transaction: t}
-        ); 
+          },
+          { transaction: t },
+        );
 
-      return this.getIncidentById(customerAccountKey, incidentId);
-      });    
+        return this.getIncidentById(customerAccountKey, incidentId);
+      });
     } catch (error) {
       throw error;
     }
@@ -295,8 +296,8 @@ class IncidentService {
             },
           ],
         });
-        let incidentActionAttachmentKeys = [];
-        let incidentActionAttachmentFilePaths = [];
+        const incidentActionAttachmentKeys = [];
+        const incidentActionAttachmentFilePaths = [];
 
         incidentActionAttachment.forEach(incidentActionAttachmentX => {
           incidentActionAttachmentKeys.push(incidentActionAttachmentX.incidentActionAttachmentKey);
@@ -636,12 +637,12 @@ class IncidentService {
   }
 
   public async deleteIncidentActionAttachment(customerAccountKey: number, attachmentId: string, logginedUserId: string): Promise<[number]> {
-    const deletedAttachment = await this.incidentActionAttachment.findOne({where: { incidentActionAttachmentId: attachmentId }});
+    const deletedAttachment = await this.incidentActionAttachment.findOne({ where: { incidentActionAttachmentId: attachmentId } });
     if (!deletedAttachment) throw new HttpException(400, `Can't find incident attachment - ${attachmentId}`);
 
-    const findIncidentAction = await this.incidentAction.findOne({where: {incidentActionKey: deletedAttachment.incidentActionKey}})
+    const findIncidentAction = await this.incidentAction.findOne({ where: { incidentActionKey: deletedAttachment.incidentActionKey } });
     if (!findIncidentAction) throw new HttpException(400, `Can't find incident Action - ${deletedAttachment.incidentActionKey}`);
-  
+
     const incidentKey = findIncidentAction.incidentKey;
 
     const incidentActionTable = 'IncidentAction';
@@ -658,15 +659,16 @@ class IncidentService {
             incidentActionId: incidentActionKey.tableIdFinalIssued,
             incidentActionName: `Incident Attachment Removed - ${deletedAttachment.incidentActionAttachmentName}`,
             incidentActionDescription: `Incident Attachment Removed - ${deletedAttachment.incidentActionAttachmentFileType}`,
-            incidentActionStatus: "EX",
+            incidentActionStatus: 'EX',
             createdBy: logginedUserId,
             incidentKey: incidentKey,
-          }, {transaction: t}
+          },
+          { transaction: t },
         );
-        console.log (createIncidentAction); 
-        const uploadedFilePath = await this.fileUploadService.delete({ query: { fileName: deletedAttachment.incidentActionAttachmentPath } });  
+        console.log(createIncidentAction);
+        const uploadedFilePath = await this.fileUploadService.delete({ query: { fileName: deletedAttachment.incidentActionAttachmentPath } });
         return deletedIncidentActionAttachments;
-      });  
+      });
     } catch (error) {}
   }
 
@@ -826,15 +828,16 @@ class IncidentService {
         const createIncidentAction: any = await this.incidentAction.create(
           {
             incidentActionId: incidentActionKey.tableIdFinalIssued,
-            incidentActionName: "Incident Alert Attached",
+            incidentActionName: 'Incident Alert Attached',
             incidentActionDescription: `Incident Alert Attached - ${JSON.stringify(alertReceivedIdList)}`,
-            incidentActionStatus: "EX",
+            incidentActionStatus: 'EX',
             createdBy: logginedUserId,
             incidentKey: incidentKey,
-          }, {transaction: t}
-       ); 
+          },
+          { transaction: t },
+        );
 
-      return incidentAlertReceived;
+        return incidentAlertReceived;
       });
     } catch (error) {
       throw error;
@@ -847,7 +850,6 @@ class IncidentService {
     dropAlertReceivedData: DropAlertReceivedFromIncidentDto,
     logginedUserId: string,
   ): Promise<any> {
-
     const incidentActionTable = 'IncidentAction';
     const incidentActionKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentActionTable);
     try {
@@ -866,7 +868,7 @@ class IncidentService {
 
         const alertReceivedKeyList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedKey);
         const alertReceivedIdList = alertReceivedDetails.map(alertReceived => alertReceived.alertReceivedId);
-  /*
+        /*
         await this.incidentAlertReceived.update(
           //@ts-expect-error
           { deletedBy: logginedUserId },
@@ -878,28 +880,28 @@ class IncidentService {
           },
         );
   */
-        const result = await this.incidentAlertReceived.destroy(
-          {where: {
+        const result = await this.incidentAlertReceived.destroy({
+          where: {
             incidentKey,
             alertReceivedKey: { [Op.in]: alertReceivedKeyList },
-          }, transaction: t
           },
-        );
+          transaction: t,
+        });
 
         const createIncidentAction: any = await this.incidentAction.create(
           {
             incidentActionId: incidentActionKey.tableIdFinalIssued,
-            incidentActionName: "Incident Alert Removed",
+            incidentActionName: 'Incident Alert Removed',
             incidentActionDescription: `Incident Alert Removed - ${JSON.stringify(alertReceivedIdList)}`,
-            incidentActionStatus: "EX",
+            incidentActionStatus: 'EX',
             createdBy: logginedUserId,
             incidentKey: incidentKey,
-          }, {transaction: t}
-       ); 
+          },
+          { transaction: t },
+        );
 
         return result > 0 ? 'deleted' : false;
-      });  
-      
+      });
     } catch (error) {
       throw error;
     }

@@ -14,7 +14,13 @@ import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
+import IncidentService from '@/modules/Incident/services/incident.service';
+import TableIdService from './tableId.service';
+import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
 const { Op } = require('sequelize');
+import UploadService from '@/modules/CommonService/services/fileUpload.service';
+import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
 class executorService {
   //    public tableIdService = new TableIdService();
@@ -22,11 +28,17 @@ class executorService {
   public resourceGroupService = new ResourceGroupService();
   public MetricMetaService = new MetricMetaService();
   public schedulerService = new SchedulerService();
+  public incidentService = new IncidentService();
 
   public sudoryWebhook = DB.SudoryWebhook;
   public executorService = DB.ExecutorService;
   public resourceGroup = DB.ResourceGroup;
   public exporters = DB.Exporters;
+  public incident = DB.Incident;
+  public tableIdService = new TableIdService();
+  public incidentAction = DB.IncidentAction;
+  public incidentActionAttachment = DB.IncidentActionAttachment;
+  public fileUploadService = new UploadService();
 
   /**
    * @param {string} serviceUuid
@@ -2191,6 +2203,56 @@ class executorService {
     };
     const query = { where: { serviceUuid: DataSetFromSudory.service_uuid } };
     const resultExecutorService = await this.executorService.update(data, query);
+    if (resultSudoryWebhook.status === 4 && resultSudoryWebhook.serviceName.startsWith('METRICOPS')) {
+      //incident ID fetch
+      let incidentId, customerAccountKey;
+      const incidentString = resultSudoryWebhook.serviceName.indexOf('INC');
+      if (incidentString) {
+        const b = resultSudoryWebhook.serviceName.slice(incidentString);
+        const c = b.indexOf('/');
+        incidentId = b.slice(0, c);
+      }
+      const customerAccountString = resultSudoryWebhook.serviceName.indexOf('CUST');
+      if (customerAccountString) {
+        const b = resultSudoryWebhook.serviceName.slice(customerAccountString);
+        const c = b.indexOf('/');
+        customerAccountKey = b.slice(0, c);
+      }
+      //incidentActionPayload
+      const actionData = {
+        incidentActionName: resultSudoryWebhook.serviceName,
+        incidentActionDescription: resultSudoryWebhook.statusDescription,
+        incidentActionStatus: 'EX',
+      };
+      // create incident Action
+      // @ts-ignore
+      const incidentAction = await this.incidentService.createIncidentAction(customerAccountKey, incidentId, actionData, 'SYSTEM');
+
+      //create incident Action attachement
+      // @ts-ignore
+      const parts = [new Blob([JSON.stringify(resultSudoryWebhook.serviceResult)], { type: 'text/json' })];
+      // @ts-ignore
+      const incidentActionAttachmentFile = new File(parts, `${resultSudoryWebhook.serviceName}.json`, {
+        lastModified: Date.now(),
+        type: 'text/json',
+      });
+
+      const actionAttachmentData = {
+        incidentActionAttachmentName: resultSudoryWebhook.serviceName,
+        incidentActionAttachmentDescription: resultSudoryWebhook.statusDescription,
+        incidentActionAttachmentType: 'JS',
+        incidentActionAttachmentFilename: `${resultSudoryWebhook.serviceName}.json`,
+      };
+      await this.incidentService.createIncidentActionAttachment(
+        customerAccountKey,
+        incidentId,
+        incidentAction.incidentActionId,
+        // @ts-ignore
+        actionAttachmentData,
+        'SYSTEM',
+        incidentActionAttachmentFile,
+      );
+    }
     console.log(resultExecutorService);
     return resultSudoryWebhook;
   }

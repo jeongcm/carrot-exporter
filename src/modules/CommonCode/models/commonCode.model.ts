@@ -3,7 +3,18 @@ import { ICommonCode } from '@/common/interfaces/commonCode.interface';
 
 export type CommonCodeCreationAttributes = Optional<
   ICommonCode,
-  'commonCodeKey' | 'commonCodeId' | 'commonCodeName' | 'commonCodeCode' | 'createdBy' | 'updatedBy' | 'createdAt' | 'updatedAt' | 'deletedAt' | 'commonCodeDescription' | 'commonCodeDisplayENG' | 'commonCodeDisplayKOR'
+  | 'commonCodeKey'
+  | 'commonCodeId'
+  | 'commonCodeName'
+  | 'commonCodeCode'
+  | 'createdBy'
+  | 'updatedBy'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'deletedAt'
+  | 'commonCodeDescription'
+  | 'commonCodeDisplayENG'
+  | 'commonCodeDisplayKOR'
 >;
 
 export class CommonCodeModel extends Model<ICommonCode, CommonCodeCreationAttributes> implements ICommonCode {
@@ -34,7 +45,7 @@ export default function (sequelize: Sequelize): typeof CommonCodeModel {
       commonCodeId: {
         allowNull: false,
         type: DataTypes.STRING(16),
-        unique: true
+        unique: true,
       },
       createdBy: {
         allowNull: false,
@@ -60,8 +71,8 @@ export default function (sequelize: Sequelize): typeof CommonCodeModel {
       commonCodeCode: {
         allowNull: false,
         type: DataTypes.STRING(2),
-        unique: true
-      },            
+        unique: true,
+      },
       commonCodeDescription: {
         allowNull: false,
         type: DataTypes.STRING(500),
