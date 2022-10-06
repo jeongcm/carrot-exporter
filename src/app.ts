@@ -56,7 +56,7 @@ class App {
     require('console-stamp')(console, {
       format: '(console).yellow :date().green.underline :label(7)',
     });
-
+    /*
     const wsConnections = {};
 
     const url = 'ws://localhost:3100/loki/api/v1/tail?query={app="nexclipper-api"}';
@@ -79,6 +79,7 @@ class App {
         delete wsConnections[ws.id];
       });
     });
+ */
   }
 
   public getServer() {
