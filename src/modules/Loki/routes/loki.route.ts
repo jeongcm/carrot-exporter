@@ -14,7 +14,10 @@ class LokiRoute implements Routes {
   }
 
   private initializeRoutes() {
+    /*
+    for experiment only
     this.router.get('/loki/v1/tail', authMiddleware, createUserLogMiddleware, this.lokiController.tailLog);
+    */
     this.router.get('/loki/v1/query', authMiddleware, createUserLogMiddleware, this.lokiController.queryLog);
   }
 }

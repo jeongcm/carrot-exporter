@@ -15,6 +15,8 @@ import config from '@config/index';
 import Passport from './modules/SocialLogin/providers/passport';
 import WebSocket, { createWebSocketStream, WebSocketServer } from 'ws';
 import uniqid from 'uniqid';
+import parseUrl from 'parseurl';
+import queryString from 'query-string';
 
 //import { Duplex } from 'winston-daily-rotate-file';
 //import { DiagConsoleLogger } from '@opentelemetry/api';
@@ -57,29 +59,37 @@ class App {
       format: '(console).yellow :date().green.underline :label(7)',
     });
 
-
     const wsConnections = {};
-
     const url = 'ws://localhost:3100/loki/api/v1/tail?query={app="nexclipper-api"}';
     const lokiSocket = new WebSocket(url);
     lokiSocket.on('message', function message(data) {
       Object.values(wsConnections).forEach((ws: any) => {
-        console.log(ws.id);
         ws.send(data);
-
       });
     });
 
     const socketServer = require('ws').Server;
     const wss = new socketServer({ server: server, path: '/loki/v1/tail' });
-    wss.on('connection', async function (ws) {
+    wss.on('connection', async function (ws, req) {
       const id = uniqid();
       ws.id = id;
-      wsConnections[id] = ws;
+      ws.updateReq = req;
 
+      const parsed = parseUrl(req);
+      if (parsed.query) {
+        const parsedQuery = queryString.parse(parsed.query);
+        console.log(parsedQuery);
+      }
+
+      wsConnections[id] = ws;
       ws.on('disconnect', function () {
         delete wsConnections[ws.id];
       });
+    });
+
+    process.on('uncaughtException', function (err) {
+      console.error(err.stack);
+      console.log('Node NOT Exiting...');
     });
 
   }
