@@ -51,6 +51,22 @@ docker-build-commit:
   rules:
     - if: $CI_COMMIT_BRANCH =~ /\b^(issue|feature|bugfix|improvement).*$\b/
 
+deploy-nexclipper-api-commit:
+  stage: build-code
+  image: repo.nexclipper.io/nexclipper/helm-kubectl:latest
+  variables:
+    HARBOR_NEXCLIPPER_PROJECT: "nexclipper-dev"
+  before_script:
+    - echo -e "\nLogin to Kubernetes"
+    - source /data/scripts/login-cluster.sh dev
+  script:
+    - "source /data/scripts/deploy.sh dev nc"
+  needs:
+    - docker-build-commit
+  rules:
+    - if: $CI_COMMIT_BRANCH =~ /\b^(issue|feature|bugfix|improvement).*$\b/
+      when: manual
+
 docker-build-dev:
   stage: dev
   variables:
@@ -82,10 +98,10 @@ deploy-nexclipper-api-dev:
     - source /data/scripts/login-cluster.sh dev
   script:
     - "source /data/scripts/deploy.sh dev nc"
+  needs:
+    - docker-build-dev
   rules:
     - if: $CI_COMMIT_BRANCH == "develop"
-    - if: $CI_COMMIT_BRANCH =~ /\b^(issue|feature|bugfix|improvement).*$\b/
-      when: manual
 
 
 
