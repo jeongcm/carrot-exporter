@@ -251,6 +251,14 @@ class MetricService extends ServiceExtension {
 
         promQl = `rate(node_network_transmit_bytes_total{job="node-exporter", device!="lo", __LABEL_PLACE_HOLDER__}[${step}])`;
         break;
+      case 'POD_CPU_MOMENT_PER_CLUSTER':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        ranged = false;
+
+        promQl = `sum by(pod) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )`;
+        break;
       case 'POD_CPU':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -283,6 +291,15 @@ class MetricService extends ServiceExtension {
         ranged = false;
 
         promQl = `{__name__=~"kube_pod_container_resource_limits|kube_pod_container_resource_requests", __LABEL_PLACE_HOLDER__}`;
+        break;
+
+      case 'POD_MEMORY_MOMENT_PER_CLUSTER':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        ranged = false;
+
+        promQl = `sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
 
       case 'POD_MEMORY':
@@ -318,7 +335,6 @@ class MetricService extends ServiceExtension {
         promQl = `sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
 
-
       case 'POD_MEMORY_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -328,6 +344,14 @@ class MetricService extends ServiceExtension {
         ranged = false;
 
         promQl = `sort_desc(sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__}))`;
+        break;
+
+      case 'POD_RXTX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sum by (pod) (increase(container_network_receive_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]) + increase(container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]))`;
         break;
 
       case 'POD_NETWORK_RX':
