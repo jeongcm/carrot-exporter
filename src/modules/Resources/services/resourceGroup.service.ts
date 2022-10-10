@@ -433,22 +433,22 @@ class ResourceGroupService {
 
         //7. sudoryclient?
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
-        const name = 'sudory uninstall';
-        const summary = 'sudory uninstall';
+        const nameSudoryClient = 'sudory uninstall';
+        const summarySudoryClient = 'sudory uninstall';
         const helmUninstallTemplateUuid = '20000000000000000000000000000002';
         const steps = [{ args: { name: 'sudory', namespace: sudoryNamespace } }];
         const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-        const scheduleFrom = new Date().toISOString();
+        const scheduleFromSudoryClient = new Date().toISOString();
         const currentTime = new Date();
         currentTime.setMinutes(currentTime.getMinutes() + 5);
-        const scheduleTo = currentTime.toISOString();
+        const scheduleToSudoryClient = currentTime.toISOString();
         const uninstallSudoryClient = {
-          name: name,
-          summary: summary,
+          name: nameSudoryClient,
+          summary: summarySudoryClient,
           apiUrl: executorServerUrl,
           apiBody: {
-            name: name,
-            summary: summary,
+            name: nameSudoryClient,
+            summary: summarySudoryClient,
             template_uuid: helmUninstallTemplateUuid,
             cluster_uuid: resourceGroupUuid,
             on_completion: on_completion,
@@ -457,31 +457,51 @@ class ResourceGroupService {
           },
           cronTab: '*/10 * * * *',
           clusterId: resourceGroupUuid,
-          scheduleFrom: scheduleFrom,
-          scheduleTo: scheduleTo,
+          scheduleFrom: scheduleFromSudoryClient,
+          scheduleTo: scheduleToSudoryClient,
           reRunRequire: false,
         };
-        console.log(uninstallSudoryClient);
-        const resultCreateScheduler = await this.schedulerService.createScheduler(uninstallSudoryClient, customerAccountId);
+        console.log('sudory uninstall scheduler data map:', uninstallSudoryClient);
+        const resultCreateSchedulerDeleteClient = await this.schedulerService.createScheduler(uninstallSudoryClient, customerAccountId);
 
         console.log('sudory client - uninstalled - ', resourceGroupUuid);
 
         //8. sudoryserver?
         const executeServerClusterUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateCluster + '/' + resourceGroupUuid;
-        await axios({
-          method: 'delete',
-          url: `${executeServerClusterUrl}`,
-          //data: sudoryCreateCluster,
-          headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
-        })
-          .then(async (res: any) => {
-            const sudoryDeleteClusterResponse = res.data;
-            console.log('success to delete sudory cluster', sudoryDeleteClusterResponse);
-          })
-          .catch(error => {
-            console.log('error to delete sudory clusgter', error);
-            return error;
-          });
+        const nameSudoryCluster = 'Delete Sudory Cluster';
+        const summarySudoryCluster = 'Delete Sudory Cluster';
+
+        const currentTimeCluster = new Date();
+        currentTimeCluster.setMinutes(currentTimeCluster.getMinutes() + 10);
+        const schedulefromSudoryCluster = currentTimeCluster.toISOString();
+
+        const currentTimeClusterTo = new Date();
+        currentTimeClusterTo.setMinutes(currentTimeClusterTo.getMinutes() + 15);
+        const scheduleToSudoryCluster = currentTimeClusterTo.toISOString();
+
+        const uninstallSudoryCluster = {
+          name: nameSudoryCluster,
+          summary: summarySudoryCluster,
+          apiUrl: executeServerClusterUrl,
+          apiBody: {
+            name: nameSudoryCluster,
+            summary: summarySudoryCluster,
+            template_uuid: helmUninstallTemplateUuid,
+            cluster_uuid: resourceGroupUuid,
+            on_completion: on_completion,
+            steps: steps,
+            subscribed_channel: sudoryChannel,
+          },
+          cronTab: '*/10 * * * *',
+          clusterId: resourceGroupUuid,
+          scheduleFrom: schedulefromSudoryCluster,
+          scheduleTo: scheduleToSudoryCluster,
+          reRunRequire: false,
+        };
+
+        console.log('sudory - delete cluster data map:', uninstallSudoryClient);
+        const resultCreateSchedulerDeleteCluster = await this.schedulerService.createScheduler(uninstallSudoryCluster, customerAccountId);
+
         //9. Customer Notification (To Be Coded)
 
         //10. return
