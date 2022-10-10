@@ -13,10 +13,12 @@ import CustomerAccountService from '@/modules/CustomerAccount/services/customerA
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import SubscriptionsService from '@/modules/Subscriptions/services/subscriptions.service';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
+
 //import { Db } from 'mongodb';
 //import sequelize from 'sequelize';
 import config from '@config/index';
 import axios from '@/common/httpClient/axios';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
@@ -28,6 +30,7 @@ class ResourceGroupService {
   public anomalyTarget = DB.AnomalyMonitoringTarget;
   public alertRule = DB.AlertRule;
   public alertReceived = DB.AlertReceived;
+  public customerAccount = DB.CustomerAccount;
 
   public tableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
@@ -290,6 +293,10 @@ class ResourceGroupService {
     if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid  must not be empty');
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
     if (!findResourceGroup) throw new HttpException(400, "*ResourceGroup doesn't exist");
+    const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey: customerAccountKey } });
+    if (!findCustomerAccount) throw new HttpException(400, "*CustomerAccount doesn't exist");
+    const customerAccountId = findCustomerAccount.customerAccountId;
+
     const sudoryChannel = config.sudoryApiDetail.channel_webhook;
     const kpsLokiNamespace = findResourceGroup.resourceGroupKpsLokiNamespace || 'monitor';
     const sudoryNamespace = findResourceGroup.resourceGroupSudoryNamespace || 'sudoryclient';
@@ -404,42 +411,7 @@ class ResourceGroupService {
         const resultCancelScheduler = await this.schedulerService.cancelCronScheduleByResourceGroupUuid(resourceGroupUuid);
         console.log('Scheduler - cancalled - ', resourceGroupUuid);
 
-        //6-1. sudoryclient?
-
-        const name = 'sudory uninstall';
-        const summary = 'sudory uninstall';
-        const templateUuid = '20000000000000000000000000000002';
-        const steps = [{ args: { name: 'sudory', namespace: sudoryNamespace } }];
-
-        const resultUninstallSudoryClient = await this.sudoryService.postSudoryService(
-          name,
-          summary,
-          resourceGroupUuid,
-          templateUuid,
-          steps,
-          customerAccountKey,
-          sudoryChannel,
-        );
-        console.log('sudory client - uninstalled - ', resourceGroupUuid);
-
-        //6-2. sudoryserver?
-        const executeServerClusterUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateCluster + '/' + resourceGroupUuid;
-        await axios({
-          method: 'delete',
-          url: `${executeServerClusterUrl}`,
-          //data: sudoryCreateCluster,
-          headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
-        })
-          .then(async (res: any) => {
-            const sudoryDeleteClusterResponse = res.data;
-            console.log('success to delete sudory cluster', sudoryDeleteClusterResponse);
-          })
-          .catch(error => {
-            console.log('error to delete sudory clusgter', error);
-            return error;
-          });
-
-        //7. AlertRule, AlertReceived
+        // 6. AlertRule, AlertReceived
         const findAlertRule: IAlertRule[] = await this.alertRule.findAll({ where: { resourceGroupUuid: resourceGroupUuid } });
         if (!findAlertRule) {
           console.log('no alert rules');
@@ -459,9 +431,60 @@ class ResourceGroupService {
         }
         console.log('alert deleted - ', resourceGroupUuid);
 
-        //10. Customer Notification (To Be Coded)
+        //7. sudoryclient?
+        const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+        const name = 'sudory uninstall';
+        const summary = 'sudory uninstall';
+        const helmUninstallTemplateUuid = '20000000000000000000000000000002';
+        const steps = [{ args: { name: 'sudory', namespace: sudoryNamespace } }];
+        const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
+        const scheduleFrom = new Date().toISOString();
+        const currentTime = new Date();
+        currentTime.setMinutes(currentTime.getMinutes() + 5);
+        const scheduleTo = currentTime.toISOString();
+        const uninstallSudoryClient = {
+          name: name,
+          summary: summary,
+          apiUrl: executorServerUrl,
+          apiBody: {
+            name: name,
+            summary: summary,
+            template_uuid: helmUninstallTemplateUuid,
+            cluster_uuid: resourceGroupUuid,
+            on_completion: on_completion,
+            steps: steps,
+            subscribed_channel: sudoryChannel,
+          },
+          cronTab: '*/10 * * * *',
+          clusterId: resourceGroupUuid,
+          scheduleFrom: scheduleFrom,
+          scheduleTo: scheduleTo,
+          reRunRequire: false,
+        };
+        console.log(uninstallSudoryClient);
+        const resultCreateScheduler = await this.schedulerService.createScheduler(uninstallSudoryClient, customerAccountId);
 
-        //11. return
+        console.log('sudory client - uninstalled - ', resourceGroupUuid);
+
+        //8. sudoryserver?
+        const executeServerClusterUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateCluster + '/' + resourceGroupUuid;
+        await axios({
+          method: 'delete',
+          url: `${executeServerClusterUrl}`,
+          //data: sudoryCreateCluster,
+          headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
+        })
+          .then(async (res: any) => {
+            const sudoryDeleteClusterResponse = res.data;
+            console.log('success to delete sudory cluster', sudoryDeleteClusterResponse);
+          })
+          .catch(error => {
+            console.log('error to delete sudory clusgter', error);
+            return error;
+          });
+        //9. Customer Notification (To Be Coded)
+
+        //10. return
         return resultResourceGroup;
       });
     } catch (err) {

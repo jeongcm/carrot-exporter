@@ -187,7 +187,7 @@ class SchedulerService {
     return result;
   }
 
-  public async cancelCronScheduleByResourceGroupUuid(resourceGroupUuid: string): Promise<any>{
+  public async cancelCronScheduleByResourceGroupUuid(resourceGroupUuid: string): Promise<any> {
     const schedulerServerUrl = config.ncCronApiDetail.baseURL + '/scheduler/cluster/' + resourceGroupUuid;
 
     let result = [];
@@ -211,7 +211,6 @@ class SchedulerService {
 
     return result;
   }
-
 }
 
 export default SchedulerService;
