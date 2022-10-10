@@ -13,28 +13,14 @@ import { logger, stream } from '@common/utils/logger';
 import express, { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
 import Passport from './modules/SocialLogin/providers/passport';
-import WebSocket, { createWebSocketStream, WebSocketServer } from 'ws';
-import uniqid from 'uniqid';
-import parseUrl from 'parseurl';
-import queryString from 'query-string';
-
-//import { Duplex } from 'winston-daily-rotate-file';
-//import { DiagConsoleLogger } from '@opentelemetry/api';
-//import { PassThrough } from 'stream';
-//import { chunk } from 'lodash';
-// import { PassThrough } from 'stream';
-//import PassThrough from 'stream';
-//import { setInternalBufferSize } from 'bson';
-//import passport from 'passport';
-//import { createServer } from 'http';
-//import io from 'socket.io-client';
-// const WebSocketClient = require('websocket').client;
+import http from 'http';
 
 class App {
   public port: number;
   public wsPort: number;
   public env: string;
   public app: express.Application;
+  private server: http.Server;
 
   constructor(routes: Routes[]) {
     this.app = express();
@@ -48,7 +34,7 @@ class App {
   }
 
   public listen() {
-    const server = this.app.listen(this.port, function () {
+    this.server = this.app.listen(this.port, function () {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
       logger.info(`🚀 NexClipper API listening on the port ${this.port}`);
@@ -58,44 +44,14 @@ class App {
     require('console-stamp')(console, {
       format: '(console).yellow :date().green.underline :label(7)',
     });
-
-    const wsConnections = {};
-    const url = 'ws://localhost:3100/loki/api/v1/tail?query={app="nexclipper-api"}';
-    const lokiSocket = new WebSocket(url);
-    lokiSocket.on('message', function message(data) {
-      Object.values(wsConnections).forEach((ws: any) => {
-        ws.send(data);
-      });
-    });
-
-    const socketServer = require('ws').Server;
-    const wss = new socketServer({ server: server, path: '/loki/v1/tail' });
-    wss.on('connection', async function (ws, req) {
-      const id = uniqid();
-      ws.id = id;
-      ws.updateReq = req;
-
-      const parsed = parseUrl(req);
-      if (parsed.query) {
-        const parsedQuery = queryString.parse(parsed.query);
-        console.log(parsedQuery);
-      }
-
-      wsConnections[id] = ws;
-      ws.on('disconnect', function () {
-        delete wsConnections[ws.id];
-      });
-    });
-
-    process.on('uncaughtException', function (err) {
-      console.error(err.stack);
-      console.log('Node NOT Exiting...');
-    });
-
   }
 
-  public getServer() {
+  public getServer(): express.Application {
     return this.app;
+  }
+
+  public getHttpServer(): http.Server {
+    return this.server;
   }
 
   private initializeMiddlewares() {
