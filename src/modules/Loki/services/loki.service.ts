@@ -14,7 +14,7 @@ class LokiService {
   public async queryLog(query: string): Promise<object> {
     let data;
     try {
-      const url = config.lokiApiBaseUrl + '/query?query=' + query;
+      const url = config.lokiApiBaseUrl + '/loki/api/v1/query?query=' + query;
       data = await axios({ method: 'get', url: url });
     } catch (e) {
       throw new HttpException(500, 'Unknown error on Loki query');
