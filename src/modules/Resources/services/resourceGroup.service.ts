@@ -446,6 +446,7 @@ class ResourceGroupService {
           name: nameSudoryClient,
           summary: summarySudoryClient,
           apiUrl: executorServerUrl,
+          apiType: 'post',
           apiBody: {
             name: nameSudoryClient,
             summary: summarySudoryClient,
@@ -483,6 +484,7 @@ class ResourceGroupService {
           name: nameSudoryCluster,
           summary: summarySudoryCluster,
           apiUrl: executeServerClusterUrl,
+          apiType: 'delete',
           apiBody: {
             name: nameSudoryCluster,
             summary: summarySudoryCluster,
