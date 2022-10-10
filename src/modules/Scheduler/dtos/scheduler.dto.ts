@@ -10,6 +10,9 @@ export class SchedulerDto {
   public summary: string;
 
   @IsString()
+  public apiType: string;
+
+  @IsString()
   public apiUrl: string;
 
   @IsObject()
