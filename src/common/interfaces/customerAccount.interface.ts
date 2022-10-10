@@ -25,6 +25,5 @@ export interface ICustomerAccount {
 }
 
 export interface ICustomerAccoutType {
-
   customerAccountType: customerAccountType;
 }

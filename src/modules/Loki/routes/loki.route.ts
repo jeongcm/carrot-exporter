@@ -16,6 +16,8 @@ class LokiRoute implements Routes {
   private initializeRoutes() {
     this.router.get('/loki/v1/tail', authMiddleware, createUserLogMiddleware, this.lokiController.tailLog);
     this.router.get('/loki/v1/query', authMiddleware, createUserLogMiddleware, this.lokiController.queryLog);
+    this.router.get('/loki/v1/labels', authMiddleware, createUserLogMiddleware, this.lokiController.getLabels);
+    this.router.get('/loki/v1/label/:label/values', authMiddleware, createUserLogMiddleware, this.lokiController.getLabelValues);
   }
 }
 
