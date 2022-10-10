@@ -440,7 +440,7 @@ class ResourceGroupService {
         const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
         const scheduleFromSudoryClient = new Date().toISOString();
         const currentTime = new Date();
-        currentTime.setMinutes(currentTime.getMinutes() + 5);
+        currentTime.setMinutes(currentTime.getMinutes() + 12);
         const scheduleToSudoryClient = currentTime.toISOString();
         const uninstallSudoryClient = {
           name: nameSudoryClient,
@@ -477,7 +477,7 @@ class ResourceGroupService {
         const schedulefromSudoryCluster = currentTimeCluster.toISOString();
 
         const currentTimeClusterTo = new Date();
-        currentTimeClusterTo.setMinutes(currentTimeClusterTo.getMinutes() + 15);
+        currentTimeClusterTo.setMinutes(currentTimeClusterTo.getMinutes() + 22);
         const scheduleToSudoryCluster = currentTimeClusterTo.toISOString();
 
         const uninstallSudoryCluster = {
