@@ -8,7 +8,7 @@ import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface'
 import { AddressModel } from '@/modules/Address/models/address.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
-//import HealthService from '@/modules/CommonService/services/health.service';
+import ExecutorService from '@/modules/CommonService/services/executor.service';
 /**
  * @memberof CustomerAccount
  */
@@ -18,7 +18,7 @@ class CustomerAccountService {
   public customerAccountAdress = DB.CustomerAccountAddress;
   public party = DB.Party;
   public tableIdService = new tableIdService();
-  //public healthService = new HealthService();
+  public executorService = new ExecutorService();
 
   public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, systemId: string): Promise<ICustomerAccount> {
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
@@ -36,9 +36,39 @@ class CustomerAccountService {
       const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
         where: { deletedAt: null },
       });
+      let auth = '\n' + `Users: ` + '\n';
+      getActiveCustomerAccounts.forEach(customerAccount => {
+        auth =
+          auth +
+          `- username: ${customerAccount.customerAccountId}
+  password: ${customerAccount.customerAccountId}
+  url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountId}/prometheus/"
+- username: ${customerAccount.customerAccountId}
+  password: ${customerAccount.customerAccountId}
+  url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountId}/prometheus/"` +
+          '\n';
+      });
+      console.log(auth);
+      //call sudory to patch VM multiline secret file
+      /*
+      const name = 'Update VM Secret';
+      const summary = 'Update VM Secret';
+      const clusterUuid = '';
+      const templateUuid = '';
+      const step = {};
+      const customerAccountKey = createdCustomerAccount.customerAccountKey;
+      const subscribedChannel = config.sudoryApiDetail.channel_webhook;
 
-      getActiveCustomerAccounts.forEach(customerAccount => {});
-
+      const updateVmSecret = await this.executorService.postExecuteService(
+        name,
+        summary,
+        clusterUuid,
+        templateUuid,
+        step,
+        customerAccountKey,
+        subscribedChannel,
+      );
+      */
       /* blocked due to Maximum call stack size exceeded error
       //schdule Heathcheck of customer Account clusters //improvement/547
       let cronTabforHealth = config.healthCron;     
