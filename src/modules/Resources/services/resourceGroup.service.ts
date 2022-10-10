@@ -456,7 +456,7 @@ class ResourceGroupService {
             steps: steps,
             subscribed_channel: sudoryChannel,
           },
-          cronTab: '*/10 * * * *',
+          cronTab: '*/5 * * * *',
           clusterId: resourceGroupUuid,
           scheduleFrom: scheduleFromSudoryClient,
           scheduleTo: scheduleToSudoryClient,
@@ -473,11 +473,11 @@ class ResourceGroupService {
         const summarySudoryCluster = 'Delete Sudory Cluster';
 
         const currentTimeCluster = new Date();
-        currentTimeCluster.setMinutes(currentTimeCluster.getMinutes() + 10);
+        currentTimeCluster.setMinutes(currentTimeCluster.getMinutes() + 20);
         const schedulefromSudoryCluster = currentTimeCluster.toISOString();
 
         const currentTimeClusterTo = new Date();
-        currentTimeClusterTo.setMinutes(currentTimeClusterTo.getMinutes() + 22);
+        currentTimeClusterTo.setMinutes(currentTimeClusterTo.getMinutes() + 32);
         const scheduleToSudoryCluster = currentTimeClusterTo.toISOString();
 
         const uninstallSudoryCluster = {
