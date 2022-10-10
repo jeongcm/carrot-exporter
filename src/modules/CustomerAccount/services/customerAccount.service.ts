@@ -32,6 +32,12 @@ class CustomerAccountService {
         customerAccountId: customerAccountId,
         createdBy: systemId || 'SYSTEM',
       });
+      // create multi-tenant VM secret data
+      const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
+        where: { deletedAt: null },
+      });
+
+      getActiveCustomerAccounts.forEach(customerAccount => {});
 
       /* blocked due to Maximum call stack size exceeded error
       //schdule Heathcheck of customer Account clusters //improvement/547
@@ -43,7 +49,7 @@ class CustomerAccountService {
           console.log(error);
           throw new HttpException(500, `create CustomerAccount but fail to schedule health check service - ${customerAccountId}`);
         }); //end of catch  
-      */      
+      */
       return createdCustomerAccount;
     } catch (error) {
       console.log('error', error);
