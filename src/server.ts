@@ -127,5 +127,5 @@ initTailLokiWebsocket(app.getHttpServer());
 
 process.on('uncaughtException', function (err) {
   console.error(err.stack);
-  console.log('Node NOT Exiting...');
+  console.log('Node NOW Exiting...');
 });

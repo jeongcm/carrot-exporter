@@ -11,6 +11,7 @@ class LokiService {
     duplex.pipe(process.stdout);
     process.stdin.pipe(duplex);
   }
+
   public async queryLog(query: string): Promise<object> {
     let data;
     try {
