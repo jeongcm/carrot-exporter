@@ -43,7 +43,7 @@ class CustomerAccountService {
           console.log(error);
           throw new HttpException(500, `create CustomerAccount but fail to schedule health check service - ${customerAccountId}`);
         }); //end of catch  
-      */      
+      */
       return createdCustomerAccount;
     } catch (error) {
       console.log('error', error);

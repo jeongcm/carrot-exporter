@@ -24,5 +24,28 @@ class LokiService {
     const queryResult = data.data;
     return queryResult;
   }
+  public async getLabels(): Promise<object> {
+    let data;
+    try {
+      const url = config.lokiApiBaseUrl + '/labels';
+      data = await axios({ method: 'get', url: url });
+    } catch (e) {
+      throw new HttpException(500, 'Unknown error on Loki labels query');
+    }
+
+    const queryResult = data.data;
+    return queryResult;
+  }
+  public async getLabelValues(label: string): Promise<object> {
+    let data;
+    try {
+      const url = config.lokiApiBaseUrl + '/label/' + label + '/values';
+      data = await axios({ method: 'get', url: url });
+    } catch (e) {
+      throw new HttpException(500, 'Unknown error on Loki label value query');
+    }
+    const queryResult = data.data;
+    return queryResult;
+  }
 }
 export default LokiService;

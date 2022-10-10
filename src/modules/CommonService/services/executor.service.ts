@@ -1365,6 +1365,7 @@ class executorService {
       scheduleTo: '',
       accountId: customerAccountData.customerAccountId,
       apiUrl: executorServerUrl,
+      apiType: 'post',
       apiBody: {
         cluster_uuid: clusterUuid,
         name: 'Get MetricMeta',
@@ -1419,6 +1420,7 @@ class executorService {
       summary: 'Get Alert Rules & Alert Received',
       cronTab: '* * * * *',
       apiUrl: executorServerUrl,
+      apiType: 'post',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -1501,6 +1503,7 @@ class executorService {
       summary: scheduleSummary,
       cronTab: newCrontab,
       apiUrl: executorServerUrl,
+      apiType: 'post',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -1609,6 +1612,7 @@ class executorService {
       name: 'SyncMetricReceived',
       summary: 'SyncMetricReceived',
       cronTab: cronTab,
+      apiType: 'post',
       apiUrl: nexclipperApiUrl,
       reRunRequire: true,
       scheduleFrom: '',
@@ -1636,6 +1640,7 @@ class executorService {
       name: 'SyncResources',
       summary: 'SyncResources',
       cronTab: `*/5 * * * *`,
+      apiType: 'post',
       apiUrl: nexclipperApiUrl,
       reRunRequire: true,
       scheduleFrom: '',
@@ -1664,6 +1669,7 @@ class executorService {
       summary: 'SyncAlerts',
       cronTab: '*/5 * * * *',
       apiUrl: nexclipperApiUrl,
+      apiType: 'post',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -1691,6 +1697,7 @@ class executorService {
       summary: 'SyncMetricMeta',
       cronTab: `30 */5 * * * *`, //Every min offset 30 sec`,
       apiUrl: nexclipperApiUrl,
+      apiType: 'post',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -1784,6 +1791,7 @@ class executorService {
         summary: metricSummary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
+        apiType: 'post',
         clusterId: clusterUuid,
         //accountId: customerAccountData.customerAccountId,
         reRunRequire: true,
@@ -1941,6 +1949,7 @@ class executorService {
         summary: summary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
+        apiType: 'post',
         clusterId: clusterUuid,
         reRunRequire: true,
         scheduleFrom: '',
@@ -2029,6 +2038,7 @@ class executorService {
         summary: summary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
+        apiType: 'post',
         clusterId: clusterUuid,
         reRunRequire: true,
         scheduleFrom: '',
@@ -2117,6 +2127,7 @@ class executorService {
         summary: summary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
+        apiType: 'post',
         clusterId: clusterUuid,
         reRunRequire: true,
         scheduleFrom: '',
@@ -2225,12 +2236,15 @@ class executorService {
         incidentActionStatus: 'EX',
       };
       // create incident Action
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const incidentAction = await this.incidentService.createIncidentAction(customerAccountKey, incidentId, actionData, 'SYSTEM');
 
       //create incident Action attachement
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const parts = [new Blob([JSON.stringify(resultSudoryWebhook.serviceResult)], { type: 'text/json' })];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const incidentActionAttachmentFile = new File(parts, `${resultSudoryWebhook.serviceName}.json`, {
         lastModified: Date.now(),
@@ -2247,6 +2261,7 @@ class executorService {
         customerAccountKey,
         incidentId,
         incidentAction.incidentActionId,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         actionAttachmentData,
         'SYSTEM',

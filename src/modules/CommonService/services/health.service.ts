@@ -140,6 +140,7 @@ class healthService {
       summary: 'checkHeathByCustomerAccountId',
       cronTab: cronTab,
       apiUrl: nexclipperApiUrl,
+      apiType: 'post',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',

@@ -17,9 +17,9 @@ metadata:
 data:
   NC_LARI_PORT: "5001"
   NC_LARI_URL: "http://nexclipper-api.nc.svc.cluster.local"
-  NC_LARI_ENV: development
+  NC_LARI_ENV: production
   NC_LARI_DB_CONFIG_PORT: "3306"
-  NC_LARI_DB_CONFIG_HOST: "ncdb.prd.nexclipper.local"
+  NC_LARI_DB_CONFIG_HOST: "ncdb-mariadb-primary.ncdb.svc.cluster.local"
   NC_LARI_DB_CONFIG_DB_NAME: nc_api
   NC_LARI_DB_CONFIG_POOL_MIN: "1"
   NC_LARI_DB_CONFIG_POOL_MAX: "5"
@@ -49,18 +49,19 @@ data:
   NC_LARI_SYSTEM_PARTYUSER_PASSWORD: Password@123!
   NC_LARI_SYSTEM_PARTYUSER_EMAIL: system@nexclipper.io
   SUDORY_X_AUTH_TOKEN: "SUDORY"
-  SUDORY_BASE_URL: "http://a05575fbc8661459ab7d35dc431d3d2e-998310490.eu-central-1.elb.amazonaws.com:8099"
+  SUDORY_BASE_URL: "http://157.245.23.81:8099"
   SUDORY_PATH_CREATECLUSTER: "/server/cluster"
   SUDORY_PATH_CREATETOKEN: "/server/cluster_token"
   SUDORY_PATH_SESSION: "/server/session"
   SUDORY_PATH_SERVICE: "/server/service"
   SUDORY_SUBSCRIBED_CHANNEL_RESOURCE: "be19c211fa1340c498689fee93f386b6"
-  SUDORY_SUBSCRIBED_CHANNEL_ALERT: "nc_a3eb4fce4e1b84c109ea34962dbaf6862lert"
+  SUDORY_SUBSCRIBED_CHANNEL_ALERT: "3eb4fce4e1b84c109ea34962dbaf6862"
   SUDORY_SUBSCRIBED_CHANNEL_METRIC: "7ee1673f7bc14fcf85ea8a518edceb5a"
   SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED: "44f4a98fa42749688782a6f64bcfcbbd"
+  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "482b889fd74848c9adae018c7a95de85"
   SUDORY_SERVICE_RESULT_DELETE: "1"
-  SUDORY_REPO_NAME: "nex-dev"
-  SUDORY_REPO_URL: "https://repo.nexclipper.io/chartrepo/nexclipper-dev"
+  SUDORY_REPO_NAME: "nex"
+  SUDORY_REPO_URL: "https://repo.nexclipper.io/chartrepo/nexclipper"
   NC_CRON_URL: "http://nexclipper-cron.nc.svc.cluster.local:5001"
   NC_CRON_X_AUTH_TOKEN: "CRON"
   NC_LARI_VM_ADDRESS: "http://vm-victoria-metrics-single-server.vm.svc.cluster.local:8428"
@@ -71,7 +72,6 @@ data:
   NODE_OPTIONS: "--max-old-space-size=8192"
   NC_ALERTHUB_URL: "http://nexclipper-notification.nc.svc.cluster.local:3039"
   NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
-  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "482b889fd74848c9adae018c7a95de85"
   NC_LARI_RESOURCE_CRON: "* * * * *"
   NC_LARI_ALERT_CRON: "* * * * *"
   NC_LARI_METRIC_CRON: "*/5 * * * *"
@@ -121,6 +121,12 @@ spec:
           {{- with secret "kv/common/mailgun" -}}
           NC_LARI_MAILGUN_API_KEY={{ .Data.data.apiKey }}
           {{- end -}}  
+        vault.hashicorp.com/agent-inject-secret-ncDoKeys: 'kv/common/ncDoKeys'
+        vault.hashicorp.com/agent-inject-template-ncDoKeys: |
+          {{- with secret "kv/common/ncDoKeys" -}}
+          NC_LARI_DO_ACCESS_KEY_ID={{ .Data.data.doAccessKey }}
+          NC_LARI_DO_SECRET_ACCESS_KEY={{ .Data.data.doSecretKey }}
+          {{- end -}}
       labels:
         app: ${APP_IMAGE_NAME}
     spec:
@@ -129,34 +135,36 @@ spec:
       - name: ${APP_IMAGE_NAME}
         image: ${IMG_TAG_TO_DEPLOY}
         imagePullPolicy: Always
-        resources: {}
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1024Mi
+          requests:
+            cpu: 250m
+            memory: 512Mi
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1002
+          capabilities:
+            drop:
+              - SETUID
+              - SETGID
         livenessProbe:
           tcpSocket:
             port: 5001
           initialDelaySeconds: 90
           timeoutSeconds: 15
+        volumeMounts:
+          - name:  varlog
+            mountPath:  /var/log 
         envFrom:
           - configMapRef:
               name: ${APP_IMAGE_NAME}-configmap
-        env:
-          - name: NC_LARI_DO_ACCESS_KEY_ID
-            valueFrom:
-              secretKeyRef:
-                name: nc-do-keys
-                key: do-access-key
-          - name: NC_LARI_DO_SECRET_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: nc-do-keys
-                key: do-secret-key
-          - name: NC_LARI_MAILGUN_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: nc-mailgun-apikey
-                key: apiKey      
-      
         ports:
         - containerPort: 5001
+      volumes:
+        - name: varlog
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
@@ -165,6 +173,7 @@ metadata:
 spec:
   selector:
     app: ${APP_IMAGE_NAME}
+  type: ClusterIP
   ports:
   - port: 5001
     targetPort: 5001

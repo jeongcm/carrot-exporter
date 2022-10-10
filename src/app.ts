@@ -44,6 +44,31 @@ class App {
     require('console-stamp')(console, {
       format: '(console).yellow :date().green.underline :label(7)',
     });
+
+    /*
+    const wsConnections = {};
+
+    const url = 'ws://localhost:3100/loki/api/v1/tail?query={app="nexclipper-api"}';
+    const lokiSocket = new WebSocket(url);
+    lokiSocket.on('message', function message(data) {
+      Object.values(wsConnections).forEach((ws: any) => {
+        console.log(ws.id);
+        ws.send(data);
+      });
+    });
+
+    const socketServer = require('ws').Server;
+    const wss = new socketServer({ server: server, path: '/loki/v1/tail' });
+    wss.on('connection', async function (ws) {
+      const id = uniqid();
+      ws.id = id;
+      wsConnections[id] = ws;
+
+      ws.on('disconnect', function () {
+        delete wsConnections[ws.id];
+      });
+    });
+  */
   }
 
   public getServer(): express.Application {

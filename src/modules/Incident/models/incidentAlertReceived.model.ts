@@ -52,7 +52,7 @@ export default function (sequelize: Sequelize): typeof IncidentAlertReceivedMode
         allowNull: false,
       },
       alertReceivedKey: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: false,
       },
       createdBy: {
@@ -68,7 +68,7 @@ export default function (sequelize: Sequelize): typeof IncidentAlertReceivedMode
       },
       updatedAt: {
         type: DataTypes.DATE,
-      }
+      },
     },
     {
       tableName: 'IncidentAlertReceived',
