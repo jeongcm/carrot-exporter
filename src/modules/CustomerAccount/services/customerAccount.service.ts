@@ -9,12 +9,14 @@ import { AddressModel } from '@/modules/Address/models/address.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
+import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 /**
  * @memberof CustomerAccount
  */
 class CustomerAccountService {
   public customerAccount = DB.CustomerAccount;
   public address = DB.Address;
+  public resourceGroup = DB.ResourceGroup;
   public customerAccountAdress = DB.CustomerAccountAddress;
   public party = DB.Party;
   public tableIdService = new tableIdService();
@@ -146,6 +148,19 @@ class CustomerAccountService {
     });
 
     return customerAccountKey;
+  }
+
+  public async getCustomerAccountByResourceGroupUuid(resourceGroupUuid: string): Promise<ICustomerAccount> {
+    const getResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+      where: { resourceGroupUuid, deletedAt: null },
+    });
+    if (!getResourceGroup) throw new HttpException(404, 'No resource Group');
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({
+      where: { customerAccountKey: getResourceGroup.customerAccountKey, deletedAt: null },
+    });
+    if (!getCustomerAccount) throw new HttpException(404, 'No customer account');
+
+    return getCustomerAccount;
   }
 
   public async getCustomerAccountIdByKey(customerAccountKey: number): Promise<string> {
