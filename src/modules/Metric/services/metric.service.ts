@@ -1,8 +1,10 @@
 import ServiceExtension from '@/common/extentions/service.extension';
 import { isEmpty } from 'lodash';
 import VictoriaMetricService from './victoriaMetric.service';
+import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
+import { ICustomerAccount } from 'common/interfaces/customerAccount.interface';
 import { IResourceGroup } from 'common/interfaces/resourceGroup.interface';
 import { IResource } from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
@@ -27,6 +29,7 @@ class MetricService extends ServiceExtension {
   private victoriaMetricService = new VictoriaMetricService();
   private resourceService = new ResourceService();
   private resourceGroupService = new ResourceGroupService();
+  private customerAccountService = new CustomerAccountService();
 
   constructor() {
     super({});
@@ -47,7 +50,7 @@ class MetricService extends ServiceExtension {
           if (isEmpty(type)) {
             return this.throwError('EXCEPTION', `type for '${name}' is missing`);
           }
-
+          const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
           let resources: IResource[] = null;
           let resourceGroups: IResourceGroup[] = null;
           if (resourceId) {
@@ -112,9 +115,9 @@ class MetricService extends ServiceExtension {
             let data: any = null;
 
             if (start && end) {
-              data = await this.victoriaMetricService.queryRange(`${promQl.promQl}`, `${start}`, `${end}`, step);
+              data = await this.victoriaMetricService.queryRange(customerAccountId, `${promQl.promQl}`, `${start}`, `${end}`, step);
             } else {
-              data = await this.victoriaMetricService.query(`${promQl.promQl}`, step);
+              data = await this.victoriaMetricService.query(customerAccountId, `${promQl.promQl}`, step);
             }
 
             results[name] = {

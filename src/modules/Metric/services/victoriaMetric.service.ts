@@ -4,18 +4,21 @@ import { isEmpty } from 'lodash';
 import { logger } from '@/common/utils/logger';
 import axios from 'common/httpClient/axios';
 class VictoriaMetricService extends ServiceExtension {
-  private victoriaEndpoint = config.victoriaMetrics.NC_LARI_VM_ADDRESS;
+  //private victoriaEndpoint = config.victoriaMetrics.NC_LARI_VM_ADDRESS;
+  private victoriaEndpoint = config.victoriaMetrics.vmMultiAuthUrl;
 
   constructor() {
     super({});
   }
 
-  public async queryRange(promQl, start, end, step?) {
+  public async queryRange(customerAccountId, promQl, start, end, step?) {
     if (isEmpty(promQl)) return this.throwError('EXCEPTION', 'promQL is missing');
     if (isEmpty(start)) return this.throwError('EXCEPTION', 'start time is missing');
     if (isEmpty(end)) return this.throwError('EXCEPTION', 'end time is missing');
 
     const startTime: number = Date.now();
+    const username = 'C' + customerAccountId;
+    const password = customerAccountId;
 
     let url = `${this.victoriaEndpoint}/api/v1/query_range?query=${encodeURIComponent(promQl)}&start=${start}&end=${end}`;
     if (step) {
@@ -29,6 +32,7 @@ class VictoriaMetricService extends ServiceExtension {
       const result = await axios({
         method: 'GET',
         url: `${url}`,
+        auth: { username: username, password: password },
       });
 
       if (result && result.data && result.data.data) {
@@ -43,8 +47,11 @@ class VictoriaMetricService extends ServiceExtension {
     }
   }
 
-  public async query(promQl, step) {
+  public async query(customerAccountId, promQl, step) {
     if (isEmpty(promQl)) return this.throwError('EXCEPTION', 'promQL is missing');
+
+    const username = 'C' + customerAccountId;
+    const password = customerAccountId;
 
     let stepStr = '';
     if (step) {
@@ -57,6 +64,7 @@ class VictoriaMetricService extends ServiceExtension {
       const result = await axios({
         method: 'GET',
         url: `${url}`,
+        auth: { username: username, password: password },
       });
 
       if (result && result.data && result.data.data) {
