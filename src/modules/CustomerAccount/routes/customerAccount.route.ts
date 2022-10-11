@@ -42,7 +42,7 @@ class CustomerAccountRoute implements Routes {
     );
 
     this.router.get(
-      '/customerAccount/:resourceGroupUuid',
+      '/customerAccount/resourceGroup/:resourceGroupUuid',
       systemAuthMiddleware,
       createUserLogMiddleware,
       this.customerAccountController.getCustomerAccountByResourceGroupUuid,

@@ -27,6 +27,6 @@ const getSelectorLabels = (labels: any) => {
   const labelString = labelChunk.join(',');
 
   return labelString;
-}
+};
 
 export default getSelectorLabels;

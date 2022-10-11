@@ -34,26 +34,27 @@ class CustomerAccountService {
         customerAccountId: customerAccountId,
         createdBy: systemId || 'SYSTEM',
       });
-      /*
+
       // create multi-tenant VM secret data
       const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
         where: { deletedAt: null },
       });
-      let auth = '\n' + `Users: ` + '\n';
+      let auth = '\n' + `users: ` + '\n';
       getActiveCustomerAccounts.forEach(customerAccount => {
         auth =
           auth +
-          `- username: ${customerAccount.customerAccountId}
-  password: ${customerAccount.customerAccountId}
+          `- username: "S${customerAccount.customerAccountId}"
+  password: "${customerAccount.customerAccountId}"
   url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountId}/prometheus/"
-- username: ${customerAccount.customerAccountId}
-  password: ${customerAccount.customerAccountId}
+- username: "I${customerAccount.customerAccountId}"
+  password: "${customerAccount.customerAccountId}"
   url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountId}/prometheus/"` +
           '\n';
       });
       console.log(auth);
-      //call sudory to patch VM multiline secret file
 
+      //call sudory to patch VM multiline secret file
+      /*
       const name = 'Update VM Secret';
       const summary = 'Update VM Secret';
       const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
