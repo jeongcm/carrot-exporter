@@ -148,6 +148,14 @@ export default {
   victoriaMetrics: {
     NC_LARI_VM_ADDRESS: process.env.NC_LARI_VM_ADDRESS,
     NC_LARI_VM_API: process.env.NC_LARI_VM_API,
+    vmMultiBaseUrlInsert:
+      process.env.NC_VM_MULTI_BASE_URL_INSERT || 'http://vm-cluster-victoria-metrics-cluster-vminsert.vm-multi-tenant.svc.cluster.local:8480/insert',
+    vmMultiBaseUrlSelect:
+      process.env.NC_VM_MULTI_BASE_URL_SELECT || 'http://vm-cluster-victoria-metrics-cluster-vminsert.vm-multi-tenant.svc.cluster.local:8480/select',
+    vmMultiAuthUrl: process.env.NC_VM_MULTI_AUTH_URL || 'http://vm-auth-victoria-metrics-auth..vm-multi-tenant.svc.cluster.local:8427',
+    vmMultiNamespaces: process.env.NC_VM_MULTI_NAMESPACE || 'vm-multi-tenant',
+    vmMultiSecret: process.env.NC_VM_MULTI_SECRET || 'vm-auth-victoria-metrics-auth',
+    vmMultiClusterUuid: process.env.NC_VM_MULTI_CLUSTER_UUID,
   },
   alerthub: {
     baseUrl: process.env.NC_ALERTHUB_URL,

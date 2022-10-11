@@ -2,25 +2,26 @@ import DB from '@/database';
 import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
-import bcrypt from 'bcrypt';
+//import bcrypt from 'bcrypt';
 
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import SendMailService from '@/modules/Messaging/services/sendMail.service';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 
 import NotificationService from '@/modules/Notification/services/notification.service';
-import { Notification } from '@/common/interfaces/notification.interface';
+//import { Notification } from '@/common/interfaces/notification.interface';
 import { IPartyUser, IParty } from '@/common/interfaces/party.interface';
 import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/customerAccount.dto';
 import { CreateSubscriptionDto } from '@/modules/Subscriptions/dtos/subscriptions.dto';
 import { CreateUserDto } from '@/modules/Party/dtos/party.dto';
-import urlJoin from 'url-join';
+//import urlJoin from 'url-join';
 import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
+import SudoryService from '@/modules/CommonService/services/sudory.service';
 
-const nodeMailer = require('nodemailer');
-const mg = require('nodemailer-mailgun-transport');
+//const nodeMailer = require('nodemailer');
+//const mg = require('nodemailer-mailgun-transport');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
@@ -36,6 +37,7 @@ class systemSubscriptionService {
   public catalogPlan = DB.CatalogPlan;
   public notification = DB.Notification;
   public tableIdService = new tableIdService();
+  public sudoryService = new SudoryService();
 
   /**
    * @param {CreateCustomerAccountDto} customerAccountData
@@ -72,6 +74,53 @@ class systemSubscriptionService {
         const customerAccountKey = createdCustomerAccount.customerAccountKey;
         console.log('1. createdCustomerAccount', createdCustomerAccount);
 
+        //1-1. create multi-tenant VM secret data
+        /*
+        const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
+          where: { deletedAt: null },
+        });
+        let auth = '\n' + `Users: ` + '\n';
+        getActiveCustomerAccounts.forEach(customerAccount => {
+          auth =
+            auth +
+            `- username: ${customerAccount.customerAccountId}
+password: ${customerAccount.customerAccountId}
+url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountId}/prometheus/"
+- username: ${customerAccount.customerAccountId}
+password: ${customerAccount.customerAccountId}
+url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountId}/prometheus/"` +
+            '\n';
+        });
+        console.log(auth);
+        //call sudory to patch VM multiline secret file
+
+        const sudoryServiceName = 'Update VM Secret';
+        const summary = 'Update VM Secret';
+        const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
+        const templateUuid = ''; //tmplateUuid will be updated
+        const step = [
+          {
+            args: {
+              name: config.victoriaMetrics.vmMultiSecret,
+              namespace: config.victoriaMetrics.vmMultiNamespaces,
+              op: 'replace',
+              path: "/data/'auth.yml'",
+              value: `'$(base64<<<${auth})'`,
+            },
+          },
+        ];
+
+        const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+        const updateVmSecret = await this.sudoryService.postSudoryService(
+          sudoryServiceName,
+          summary,
+          clusterUuid,
+          templateUuid,
+          step,
+          customerAccountKey,
+          subscribedChannel,
+        );
+        */
         //2. create a party & party user
         const createdParty: IParty = await this.party.create(
           {

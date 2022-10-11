@@ -14,13 +14,13 @@ import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
-import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
+//import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
 import IncidentService from '@/modules/Incident/services/incident.service';
 import TableIdService from './tableId.service';
-import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
+//import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
-import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
+//import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
 class executorService {
   //    public tableIdService = new TableIdService();

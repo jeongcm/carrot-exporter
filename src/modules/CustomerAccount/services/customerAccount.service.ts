@@ -8,7 +8,7 @@ import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface'
 import { AddressModel } from '@/modules/Address/models/address.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
-//import HealthService from '@/modules/CommonService/services/health.service';
+import SudoryService from '@/modules/CommonService/services/sudory.service';
 /**
  * @memberof CustomerAccount
  */
@@ -18,7 +18,7 @@ class CustomerAccountService {
   public customerAccountAdress = DB.CustomerAccountAddress;
   public party = DB.Party;
   public tableIdService = new tableIdService();
-  //public healthService = new HealthService();
+  public sudoryService = new SudoryService();
 
   public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, systemId: string): Promise<ICustomerAccount> {
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
@@ -32,7 +32,53 @@ class CustomerAccountService {
         customerAccountId: customerAccountId,
         createdBy: systemId || 'SYSTEM',
       });
+      /*
+      // create multi-tenant VM secret data
+      const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
+        where: { deletedAt: null },
+      });
+      let auth = '\n' + `Users: ` + '\n';
+      getActiveCustomerAccounts.forEach(customerAccount => {
+        auth =
+          auth +
+          `- username: ${customerAccount.customerAccountId}
+  password: ${customerAccount.customerAccountId}
+  url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountId}/prometheus/"
+- username: ${customerAccount.customerAccountId}
+  password: ${customerAccount.customerAccountId}
+  url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountId}/prometheus/"` +
+          '\n';
+      });
+      console.log(auth);
+      //call sudory to patch VM multiline secret file
 
+      const name = 'Update VM Secret';
+      const summary = 'Update VM Secret';
+      const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
+      const templateUuid = ''; //tmplateUuid will be updated
+      const step = [
+        {
+          args: {
+            name: config.victoriaMetrics.vmMultiSecret,
+            namespace: config.victoriaMetrics.vmMultiNamespaces,
+            op: 'replace',
+            path: "/data/'auth.yml'",
+            value: `'$(base64<<<${auth})'`,
+          },
+        },
+      ];
+      const customerAccountKey = createdCustomerAccount.customerAccountKey;
+      const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+      const updateVmSecret = await this.sudoryService.postSudoryService(
+        name,
+        summary,
+        clusterUuid,
+        templateUuid,
+        step,
+        customerAccountKey,
+        subscribedChannel,
+      );
+      */
       /* blocked due to Maximum call stack size exceeded error
       //schdule Heathcheck of customer Account clusters //improvement/547
       let cronTabforHealth = config.healthCron;     
