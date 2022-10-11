@@ -85,10 +85,10 @@ class systemSubscriptionService {
             auth +
             `- username: "S${customerAccount.customerAccountId}"
 password: "${customerAccount.customerAccountId}"
-url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountId}/prometheus/"
+url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountKey}/prometheus/"
 - username: "I${customerAccount.customerAccountId}"
 password: "${customerAccount.customerAccountId}"
-url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountId}/prometheus/"` +
+url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
             '\n';
         });
         console.log(auth);
