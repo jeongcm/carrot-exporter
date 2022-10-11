@@ -8,7 +8,7 @@ import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface'
 import { AddressModel } from '@/modules/Address/models/address.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
-import ExecutorService from '@/modules/CommonService/services/executor.service';
+import SudoryService from '@/modules/CommonService/services/sudory.service';
 /**
  * @memberof CustomerAccount
  */
@@ -18,7 +18,7 @@ class CustomerAccountService {
   public customerAccountAdress = DB.CustomerAccountAddress;
   public party = DB.Party;
   public tableIdService = new tableIdService();
-  public executorService = new ExecutorService();
+  public sudoryService = new SudoryService();
 
   public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, systemId: string): Promise<ICustomerAccount> {
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
@@ -32,6 +32,7 @@ class CustomerAccountService {
         customerAccountId: customerAccountId,
         createdBy: systemId || 'SYSTEM',
       });
+      /*
       // create multi-tenant VM secret data
       const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
         where: { deletedAt: null },
@@ -50,16 +51,25 @@ class CustomerAccountService {
       });
       console.log(auth);
       //call sudory to patch VM multiline secret file
-      /*
+
       const name = 'Update VM Secret';
       const summary = 'Update VM Secret';
-      const clusterUuid = '';
-      const templateUuid = '';
-      const step = {};
+      const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
+      const templateUuid = ''; //tmplateUuid will be updated
+      const step = [
+        {
+          args: {
+            name: config.victoriaMetrics.vmMultiSecret,
+            namespace: config.victoriaMetrics.vmMultiNamespaces,
+            op: 'replace',
+            path: "/data/'auth.yml'",
+            value: `'$(base64<<<${auth})'`,
+          },
+        },
+      ];
       const customerAccountKey = createdCustomerAccount.customerAccountKey;
       const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-
-      const updateVmSecret = await this.executorService.postExecuteService(
+      const updateVmSecret = await this.sudoryService.postSudoryService(
         name,
         summary,
         clusterUuid,
