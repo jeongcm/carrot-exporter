@@ -19,7 +19,7 @@ class VictoriaMetricService extends ServiceExtension {
     const startTime: number = Date.now();
     let url;
     let axiosParameter;
-    if (config.victoriaMetrics.vmMultiAuthUrl === 'SINGLE') {
+    if (config.victoriaMetrics.vmOption === 'SINGLE') {
       url = `${this.victoriaSingleEndpoint}/api/v1/query_range?query=${encodeURIComponent(promQl)}&start=${start}&end=${end}`;
       axiosParameter = {
         method: 'GET',
@@ -64,7 +64,7 @@ class VictoriaMetricService extends ServiceExtension {
     if (step) {
       stepStr = `&step=${step}`;
     }
-    if (config.victoriaMetrics.vmMultiAuthUrl === 'SINGLE') {
+    if (config.victoriaMetrics.vmOption === 'SINGLE') {
       url = `${this.victoriaSingleEndpoint}/api/v1/query?query=${encodeURIComponent(promQl)}${stepStr}`;
       axiosParameter = {
         method: 'GET',
