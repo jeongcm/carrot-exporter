@@ -102,6 +102,7 @@ data:
   NC_VM_MULTI_NAMESPACE: "vm-multi-tenant"
   NC_VM_MULTI_SECRET: "vm-auth-victoria-metrics-auth"
   NC_VM_MULTI_CLUSTER_UUID: ""
+  NC_VM_OPTION: "SINGLE"
 
 ---
 apiVersion: apps/v1

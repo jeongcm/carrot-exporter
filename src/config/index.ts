@@ -14,6 +14,7 @@ import tableIds from '../../init/tableId.seeding.json';
 import api from '../../init/api.seeding.json';
 import role from '../../init/role.seeding.json';
 import exporters from '../../init/exporters.seeding.json';
+import { multiply } from 'lodash';
 
 validateEnv();
 
@@ -156,6 +157,7 @@ export default {
     vmMultiNamespaces: process.env.NC_VM_MULTI_NAMESPACE || 'vm-multi-tenant',
     vmMultiSecret: process.env.NC_VM_MULTI_SECRET || 'vm-auth-victoria-metrics-auth',
     vmMultiClusterUuid: process.env.NC_VM_MULTI_CLUSTER_UUID,
+    vmOption: process.env.NC_VM_OPTION || 'MULTI',
   },
   alerthub: {
     baseUrl: process.env.NC_ALERTHUB_URL,
