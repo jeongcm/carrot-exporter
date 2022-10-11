@@ -17,7 +17,7 @@ class VictoriaMetricService extends ServiceExtension {
     if (isEmpty(end)) return this.throwError('EXCEPTION', 'end time is missing');
 
     const startTime: number = Date.now();
-    const username = 'C' + customerAccountId;
+    const username = 'S' + customerAccountId;
     const password = customerAccountId;
 
     let url = `${this.victoriaEndpoint}/api/v1/query_range?query=${encodeURIComponent(promQl)}&start=${start}&end=${end}`;
@@ -50,7 +50,7 @@ class VictoriaMetricService extends ServiceExtension {
   public async query(customerAccountId, promQl, step) {
     if (isEmpty(promQl)) return this.throwError('EXCEPTION', 'promQL is missing');
 
-    const username = 'C' + customerAccountId;
+    const username = 'S' + customerAccountId;
     const password = customerAccountId;
 
     let stepStr = '';
