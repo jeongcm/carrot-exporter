@@ -91,27 +91,31 @@ password: "${customerAccount.customerAccountId}"
 url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
             '\n';
         });
-        console.log(auth);
+        const authBuff = new Buffer(auth);
+        const base64Auth = authBuff.toString('base64');
         //call sudory to patch VM multiline secret file
-        /*
         const sudoryServiceName = 'Update VM Secret';
         const summary = 'Update VM Secret';
         const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
-        const templateUuid = ''; //tmplateUuid will be updated
+        const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
         const step = [
           {
             args: {
               name: config.victoriaMetrics.vmMultiSecret,
               namespace: config.victoriaMetrics.vmMultiNamespaces,
-              op: 'replace',
-              path: "/data/'auth.yml'",
-              value: `'$(base64<<<${auth})'`,
+              patch_type: 'json',
+              patch_data: [
+                {
+                  op: 'replace',
+                  path: '/data/auth.yml',
+                  value: base64Auth,
+                },
+              ],
             },
           },
         ];
-
         const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-        const updateVmSecret = await this.sudoryService.postSudoryService(
+        await this.sudoryService.postSudoryService(
           sudoryServiceName,
           summary,
           clusterUuid,
@@ -120,7 +124,6 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
           customerAccountKey,
           subscribedChannel,
         );
-        */
         //2. create a party & party user
         const createdParty: IParty = await this.party.create(
           {
