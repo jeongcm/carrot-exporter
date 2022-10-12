@@ -32,6 +32,9 @@ class Google {
                   customerAccountDescription: '',
                   parentCustomerAccountId: '',
                   customerAccountType: 'IA',
+                  firstName: profile.displayName,
+                  lastName: profile.displayName,
+                  email: profile.emails[0].value,
                 },
                 req.systemId,
               );

@@ -101,7 +101,7 @@ data:
   NC_VM_MULTI_AUTH_URL: "http://vm-auth-victoria-metrics-auth.vm-multi-tenant.svc.cluster.local:8427"
   NC_VM_MULTI_NAMESPACE: "vm-multi-tenant"
   NC_VM_MULTI_SECRET: "vm-auth-victoria-metrics-auth"
-  NC_VM_MULTI_CLUSTER_UUID: ""
+  NC_VM_MULTI_CLUSTER_UUID: "89fa971849114f1c96a2e2deac19db94"
   NC_VM_OPTION: "SINGLE"
 
 ---

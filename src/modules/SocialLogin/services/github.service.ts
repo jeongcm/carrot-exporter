@@ -33,6 +33,9 @@ class Github {
                     customerAccountDescription: '',
                     parentCustomerAccountId: '',
                     customerAccountType: 'IA',
+                    firstName: profile.displayName || profile.username,
+                    lastName: profile.username,
+                    email: '',
                   },
                   req.systemId,
                 );
