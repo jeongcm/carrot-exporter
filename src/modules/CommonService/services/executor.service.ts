@@ -856,17 +856,6 @@ class executorService {
         throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert feeds ');
       }); //end of catch
 
-    //schdule SyncMetricReceived
-    const cronTabforMetricReceived = config.metricReceivedCron;
-    await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
-      .then(async (res: any) => {
-        console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
-      }); //end of catch
-
     //schdule SyncResource
     const cronTabforResource = config.resourceCron;
     await this.scheduleSyncResources(clusterUuid, cronTabforResource)
@@ -900,6 +889,18 @@ class executorService {
         throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric meta sync');
       }); //end of catch
 
+    if (config.metricReceivedSwitch === 'on') {
+      //schdule SyncMetricReceived
+      const cronTabforMetricReceived = config.metricReceivedCron;
+      await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
+        .then(async (res: any) => {
+          console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
+        })
+        .catch(error => {
+          console.log(error);
+          throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
+        }); //end of catch
+    }
     return serviceUuid;
   }
 

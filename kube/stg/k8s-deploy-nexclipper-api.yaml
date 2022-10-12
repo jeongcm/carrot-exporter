@@ -100,6 +100,7 @@ data:
   NC_VM_MULTI_SECRET: "vm-auth-victoria-metrics-auth"
   NC_VM_MULTI_CLUSTER_UUID: ""
   NC_VM_OPTION: "SINGLE"
+  NC_METRIC_RECEIVED_SWITCH: "off"
 
 
 

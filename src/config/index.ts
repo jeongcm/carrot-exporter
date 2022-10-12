@@ -31,6 +31,7 @@ export default {
   metricCron: process.env.NC_LARI_METRIC_CRON || `*/5 * * * *`,
   metricReceivedCron: process.env.NC_LARI_METRIC_RECEIVED_CRON || `*/5 * * * *`,
   healthCron: process.env.NC_LARI_HEALTH_CRON || '*/5 * * * *',
+  metricReceivedSwitch: process.env.NC_METRIC_RECEIVED_SWITCH || 'off',
   defaultPassword: process.env.NC_LARI_DEFAULT_PASSWORD || 'WOt7u7OGxr',
   frontenAppUrl: process.env.NC_LARI_FRONTEND_URL,
   lokiApiBaseUrl: process.env.NC_LOKI_API_BASE_URL,
