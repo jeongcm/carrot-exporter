@@ -20,6 +20,7 @@ import TableIdService from './tableId.service';
 //import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
+//import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
 class executorService {
@@ -729,7 +730,7 @@ class executorService {
         lokiChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
       }
     }
-
+    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
     const kpsSteps = [
       {
         args: {
@@ -739,6 +740,35 @@ class executorService {
           namespace: targetNamespace,
           chart_version: kpsChartVersion,
           values: {
+            prometheus: {
+              extraSecret: {
+                name: 'vmmulti',
+                data: {
+                  username: 'I' + customerAccountId,
+                  password: customerAccountId,
+                },
+              },
+              prometheusSpec: {
+                externalLabels: {
+                  clusterUuid: clusterUuid,
+                },
+                remoteWrite: [
+                  {
+                    url: config.victoriaMetrics.vmMultiAuthUrl + '/api/v1/write',
+                    basicAuth: {
+                      username: {
+                        name: 'vmmulti',
+                        key: 'username',
+                      },
+                      password: {
+                        name: 'vmmulti',
+                        key: 'password',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
             'prometheus-node-exporter': {
               hostRootFsMount: {
                 enabled: {},
@@ -757,8 +787,6 @@ class executorService {
     const kpsExecuteSummary = 'KPS Helm Installation';
     const kpsTemplateUuid = '20000000000000000000000000000001';
     const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey, '');
-    console.log('########### kps chart installation');
-    console.log(executeKpsHelm);
 
     if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
 
