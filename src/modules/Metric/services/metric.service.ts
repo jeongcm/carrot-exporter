@@ -1,8 +1,10 @@
 import ServiceExtension from '@/common/extentions/service.extension';
 import { isEmpty } from 'lodash';
 import VictoriaMetricService from './victoriaMetric.service';
+import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
+import { ICustomerAccount } from 'common/interfaces/customerAccount.interface';
 import { IResourceGroup } from 'common/interfaces/resourceGroup.interface';
 import { IResource } from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
@@ -27,6 +29,7 @@ class MetricService extends ServiceExtension {
   private victoriaMetricService = new VictoriaMetricService();
   private resourceService = new ResourceService();
   private resourceGroupService = new ResourceGroupService();
+  private customerAccountService = new CustomerAccountService();
 
   constructor() {
     super({});
@@ -47,7 +50,7 @@ class MetricService extends ServiceExtension {
           if (isEmpty(type)) {
             return this.throwError('EXCEPTION', `type for '${name}' is missing`);
           }
-
+          const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
           let resources: IResource[] = null;
           let resourceGroups: IResourceGroup[] = null;
           if (resourceId) {
@@ -112,9 +115,9 @@ class MetricService extends ServiceExtension {
             let data: any = null;
 
             if (start && end) {
-              data = await this.victoriaMetricService.queryRange(`${promQl.promQl}`, `${start}`, `${end}`, step);
+              data = await this.victoriaMetricService.queryRange(customerAccountId, `${promQl.promQl}`, `${start}`, `${end}`, step);
             } else {
-              data = await this.victoriaMetricService.query(`${promQl.promQl}`, step);
+              data = await this.victoriaMetricService.query(customerAccountId, `${promQl.promQl}`, step);
             }
 
             results[name] = {
@@ -251,6 +254,14 @@ class MetricService extends ServiceExtension {
 
         promQl = `rate(node_network_transmit_bytes_total{job="node-exporter", device!="lo", __LABEL_PLACE_HOLDER__}[${step}])`;
         break;
+      case 'POD_CPU_MOMENT_PER_CLUSTER':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        ranged = false;
+
+        promQl = `sum by(pod) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )`;
+        break;
       case 'POD_CPU':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -283,6 +294,15 @@ class MetricService extends ServiceExtension {
         ranged = false;
 
         promQl = `{__name__=~"kube_pod_container_resource_limits|kube_pod_container_resource_requests", __LABEL_PLACE_HOLDER__}`;
+        break;
+
+      case 'POD_MEMORY_MOMENT_PER_CLUSTER':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        ranged = false;
+
+        promQl = `sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
 
       case 'POD_MEMORY':
@@ -318,7 +338,6 @@ class MetricService extends ServiceExtension {
         promQl = `sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
 
-
       case 'POD_MEMORY_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -328,6 +347,14 @@ class MetricService extends ServiceExtension {
         ranged = false;
 
         promQl = `sort_desc(sum by(pod) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__}))`;
+        break;
+
+      case 'POD_RXTX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sum by (pod) (increase(container_network_receive_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]) + increase(container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]))`;
         break;
 
       case 'POD_NETWORK_RX':

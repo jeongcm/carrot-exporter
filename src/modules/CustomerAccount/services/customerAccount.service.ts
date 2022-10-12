@@ -8,17 +8,19 @@ import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface'
 import { AddressModel } from '@/modules/Address/models/address.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
-//import HealthService from '@/modules/CommonService/services/health.service';
+import SudoryService from '@/modules/CommonService/services/sudory.service';
+import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 /**
  * @memberof CustomerAccount
  */
 class CustomerAccountService {
   public customerAccount = DB.CustomerAccount;
   public address = DB.Address;
+  public resourceGroup = DB.ResourceGroup;
   public customerAccountAdress = DB.CustomerAccountAddress;
   public party = DB.Party;
   public tableIdService = new tableIdService();
-  //public healthService = new HealthService();
+  public sudoryService = new SudoryService();
 
   public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, systemId: string): Promise<ICustomerAccount> {
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
@@ -33,6 +35,53 @@ class CustomerAccountService {
         createdBy: systemId || 'SYSTEM',
       });
 
+      // create multi-tenant VM secret data
+      const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
+        where: { deletedAt: null },
+      });
+      let auth = '\n' + `users: ` + '\n';
+      getActiveCustomerAccounts.forEach(customerAccount => {
+        auth =
+          auth +
+          `- username: "S${customerAccount.customerAccountId}"
+  password: "${customerAccount.customerAccountId}"
+  url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountKey}/prometheus/"
+- username: "I${customerAccount.customerAccountId}"
+  password: "${customerAccount.customerAccountId}"
+  url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
+          '\n';
+      });
+      console.log(auth);
+
+      //call sudory to patch VM multiline secret file
+      /*
+      const name = 'Update VM Secret';
+      const summary = 'Update VM Secret';
+      const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
+      const templateUuid = ''; //tmplateUuid will be updated
+      const step = [
+        {
+          args: {
+            name: config.victoriaMetrics.vmMultiSecret,
+            namespace: config.victoriaMetrics.vmMultiNamespaces,
+            op: 'replace',
+            path: "/data/'auth.yml'",
+            value: `'$(base64<<<${auth})'`,
+          },
+        },
+      ];
+      const customerAccountKey = createdCustomerAccount.customerAccountKey;
+      const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+      const updateVmSecret = await this.sudoryService.postSudoryService(
+        name,
+        summary,
+        clusterUuid,
+        templateUuid,
+        step,
+        customerAccountKey,
+        subscribedChannel,
+      );
+      */
       /* blocked due to Maximum call stack size exceeded error
       //schdule Heathcheck of customer Account clusters //improvement/547
       let cronTabforHealth = config.healthCron;     
@@ -100,6 +149,19 @@ class CustomerAccountService {
     });
 
     return customerAccountKey;
+  }
+
+  public async getCustomerAccountByResourceGroupUuid(resourceGroupUuid: string): Promise<ICustomerAccount> {
+    const getResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+      where: { resourceGroupUuid, deletedAt: null },
+    });
+    if (!getResourceGroup) throw new HttpException(404, 'No resource Group');
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({
+      where: { customerAccountKey: getResourceGroup.customerAccountKey, deletedAt: null },
+    });
+    if (!getCustomerAccount) throw new HttpException(404, 'No customer account');
+
+    return getCustomerAccount;
   }
 
   public async getCustomerAccountIdByKey(customerAccountKey: number): Promise<string> {
