@@ -15,7 +15,7 @@ interface ILokiWsConnection {
 
 const initTailLokiWebsocket = (server: http.Server) => {
   const wsConnections = {};
-  const lokiWsConnections: { [key: string] : ILokiWsConnection } = {};
+  const lokiWsConnections: { [key: string]: ILokiWsConnection } = {};
   const socketServer = require('ws').Server;
   const wss = new socketServer({ server: server, path: '/ws/loki/api/v1/tail' });
 
@@ -53,11 +53,12 @@ const initTailLokiWebsocket = (server: http.Server) => {
 
       // STEP 3. establish or reuse the existing loki socket connection
       if (!lokiWsConnections[lokiWsConnectionId]) {
+        const wsEndpoint = `${config.lokiWsBaseUrl}/tail?query=${parsedQuery.query}`;
         lokiWsConnections[lokiWsConnectionId] = {
-          ws: new WebSocket(`${config.lokiApiBaseUrl}/tail?query=${parsed.query}`),
+          ws: new WebSocket(wsEndpoint),
           connections: {},
         };
-        console.log(`New Loki ws connected: ${lokiWsConnectionId}`);
+        console.log(`New Loki ws connected: ${lokiWsConnectionId} at ${wsEndpoint}`);
       }
 
       console.log(`new ws connection ${ws.id} subscribed to Loki connections ${lokiWsConnectionId}`);
@@ -70,11 +71,18 @@ const initTailLokiWebsocket = (server: http.Server) => {
         });
       };
 
+      lokiWsConnections[lokiWsConnectionId].ws.onclose = (event: WebSocket.CloseEvent) => {
+        Object.values(lokiWsConnections[lokiWsConnectionId].connections).forEach((ws: any) => {
+          ws.send(`Loki ${lokiWsConnectionId} closed`);
+          delete lokiWsConnections[lokiWsConnectionId];
+        });
+      };
+
       wsConnections[id] = ws;
     } catch (e) {
       console.error(e);
     }
   });
-}
+};
 
 export default initTailLokiWebsocket;
