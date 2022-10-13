@@ -85,8 +85,18 @@ class executorController {
       const clusterUuid = req.params.clusterUuid;
       const sudoryNamespace = req.params.sudoryNamespace;
       const customerAccountKey = req.customerAccountKey;
+      const resourceType = req.params.resourceType
+      let clientResponse
 
-      const clientResponse = await this.executorService.checkExecutorClient(clusterUuid, sudoryNamespace, customerAccountKey);
+      switch (resourceType) {
+        case "K8":
+          clientResponse = await this.executorService.checkExecutorClient(clusterUuid, sudoryNamespace, customerAccountKey);
+          break
+        case "OS":
+          clientResponse = await this.executorService.checkExecutorClientForOpenstack(clusterUuid, sudoryNamespace, customerAccountKey);
+          break
+        default:
+      }
 
       if (clientResponse) {
         res.status(200).json({ data: clientResponse, message: `Success to confirm Executor/Sudory client` });
