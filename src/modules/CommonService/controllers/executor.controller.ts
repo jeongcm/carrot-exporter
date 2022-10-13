@@ -124,6 +124,27 @@ class executorController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
+  public installKpsOnResourceGroupForOpenstack = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const clusterUuid = req.body.clusterUuid;
+      const targetNamespace = req.body.targetNamespace;
+      const customerAccountKey = req.customerAccountKey;
+      const systemId = req.systemId;
+
+      const serviceUuids = await this.executorService.installKpsOnResourceGroupForOpenstack(clusterUuid, customerAccountKey, targetNamespace, systemId);
+      res
+        .status(200)
+        .json({ serviceUuid: serviceUuids, message: `Successfullyt submit kps stack installation service request on cluserUuid: ${clusterUuid}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
   public requestResourceToExecutor = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterUuid = req.body.clusterUuid;

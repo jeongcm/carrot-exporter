@@ -54,6 +54,15 @@ class ExecutorRoute implements Routes {
       //      createUserLogMiddleware,
       this.executorController.installKpsOnResourceGroup,
     );
+
+    this.router.post(
+      '/executor/kpsInstall/openstack',
+      authMiddleware,
+      validationMiddleware(ExecutorKpsDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.installKpsOnResourceGroupForOpenstack,
+    );
+
     this.router.post(
       '/executor/schedule/metricReceived',
       authMiddleware,

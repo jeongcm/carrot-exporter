@@ -877,6 +877,163 @@ class executorService {
 
   /**
    * @param {string} clusterUuid
+   * @param {string} targetNamespace
+   */
+  public async installKpsOnResourceGroupForOpenstack(
+    clusterUuid: string,
+    customerAccountKey: number,
+    targetNamespace: string,
+    systemId: string,
+  ): Promise<object> {
+    const serviceUuid = [];
+    //const helmRepoUrl = config.helmRepoUrl;
+    const prometheusUrlHead = config.obsUrl.prometheusUrlHead;
+    const prometheusUrlTail = config.obsUrl.prometheusUrlTail;
+    const grafanaUrlHead = config.obsUrl.grafanaUrlHead;
+    const grafanaUrlTail = config.obsUrl.grafanaUrlTail;
+    const alertManagerUrlHead = config.obsUrl.alertManagerUrlHead;
+    const alertMangerUrlTail = config.obsUrl.alertManagerUrlTail;
+
+    const prometheus = prometheusUrlHead + targetNamespace + prometheusUrlTail;
+    const grafana = grafanaUrlHead + targetNamespace + grafanaUrlTail;
+    const alertManager = alertManagerUrlHead + targetNamespace + alertMangerUrlTail;
+
+    const resultKpsChart = await this.exporters.findAll({ where: { exporterType: 'HL' } });
+    const chartLength = resultKpsChart.length;
+    let kpsChartName = '';
+    let kpsChartVersion = '';
+    let kpsChartRepoUrl = '';
+
+    const resultResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    if (!resultResourceGroup) throw new HttpException(404, `can't find cluster - clusterUuid: ${clusterUuid}`);
+    const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
+
+    for (let i = 0; i < chartLength; i++) {
+      if (resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack') {
+        kpsChartName = resultKpsChart[i].exporterHelmChartName;
+        kpsChartVersion = resultKpsChart[i].exporterHelmChartVersion;
+        kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
+      }
+    }
+
+    const kpsSteps = [
+      {
+        args: {
+          name: 'kps',
+          chart_name: kpsChartName,
+          repo_url: kpsChartRepoUrl,
+          namespace: targetNamespace,
+          chart_version: kpsChartVersion,
+          values: {
+            'prometheus-node-exporter': {
+              hostRootFsMount: {
+                enabled: {},
+              },
+            },
+          },
+        },
+      },
+    ];
+
+    if (resourceGroupProvider == 'DD') {
+      kpsSteps[0].args.values['prometheus-node-exporter'].hostRootFsMount.enabled = false;
+    }
+
+    const kpsExecuteName = 'KPS Helm Instllation';
+    const kpsExecuteSummary = 'KPS Helm Installation';
+    const kpsTemplateUuid = '20000000000000000000000000000001';
+    const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey, '');
+    console.log('########### kps chart installation');
+    console.log(executeKpsHelm);
+
+    if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
+
+    // update ResourceGroup - resourceGroupPrometheus
+    const resourceGroup = {
+      resourceGroupPrometheus: prometheus,
+      resourceGroupGrafana: grafana,
+      resourceGroupAlertManager: alertManager,
+      resourceGroupKpsLokiNamespace: targetNamespace,
+    };
+    // get system user id
+
+    try {
+      const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
+      console.log('Success to create ResponseGroup: ', ResponseResoureGroup.resourceGroupId);
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(500, `Error on creating cluster ${clusterUuid}`);
+    }
+
+    //schedule metricMeta
+    await this.scheduleMetricMeta(clusterUuid, customerAccountKey)
+      .then(async (res: any) => {
+        console.log(`Submitted metric meta feeds schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule MetricMeta ');
+      }); //end of catch
+
+    //schedule alert rules & received
+    await this.scheduleAlert(clusterUuid, customerAccountKey)
+      .then(async (res: any) => {
+        console.log(`Submitted alert feeds schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert feeds ');
+      }); //end of catch
+
+    //schdule SyncMetricReceived
+    const cronTabforMetricReceived = config.metricReceivedCron;
+    await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
+      .then(async (res: any) => {
+        console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
+      }); //end of catch
+
+    //schdule SyncResource
+    const cronTabforResource = config.resourceCron;
+    await this.scheduleSyncResources(clusterUuid, cronTabforResource)
+      .then(async (res: any) => {
+        console.log(`Submitted resource sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
+      }); //end of catch
+
+    //schdule SyncAlerts
+    const cronTabforAlert = config.alertCron;
+    await this.scheduleSyncAlerts(clusterUuid, cronTabforAlert)
+      .then(async (res: any) => {
+        console.log(`Submitted Alert sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert sync');
+      }); //end of catch
+
+    //schdule SyncMetricMeta
+    const cronTabforMetricMeta = config.metricCron;
+    await this.scheduleSyncMetricMeta(clusterUuid, cronTabforMetricMeta)
+      .then(async (res: any) => {
+        console.log(`Submitted MetricMeta sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric meta sync');
+      }); //end of catch
+
+    return serviceUuid;
+  }
+
+  /**
+   * @param {string} clusterUuid
    * @param {string} templateUud
    * @param {string} name
    * @param {string} summary
