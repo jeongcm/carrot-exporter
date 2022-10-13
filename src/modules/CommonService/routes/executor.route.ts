@@ -177,6 +177,13 @@ class ExecutorRoute implements Routes {
       //      createUserLogMiddleware,
       this.executorController.checkExecutorResponse,
     );
+
+    this.router.get(
+      '/executor/:clusterUuid/:sudoryNamespace',
+      authMiddleware,
+      //     createUserLogMiddleware,
+      this.executorController.checkExecutorClient,
+    );
   }
 }
 
