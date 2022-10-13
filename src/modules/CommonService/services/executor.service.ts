@@ -944,7 +944,7 @@ class executorService {
         kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
       }
     }
-
+    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
     const kpsSteps = [
       {
         args: {
@@ -954,6 +954,35 @@ class executorService {
           namespace: targetNamespace,
           chart_version: kpsChartVersion,
           values: {
+            prometheus: {
+              extraSecret: {
+                name: 'vmmulti',
+                data: {
+                  username: 'I' + customerAccountId,
+                  password: customerAccountId,
+                },
+              },
+              prometheusSpec: {
+                externalLabels: {
+                  clusterUuid: clusterUuid,
+                },
+                remoteWrite: [
+                  {
+                    url: config.victoriaMetrics.vmMultiAuthUrl + '/api/v1/write',
+                    basicAuth: {
+                      username: {
+                        name: 'vmmulti',
+                        key: 'username',
+                      },
+                      password: {
+                        name: 'vmmulti',
+                        key: 'password',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
             'prometheus-node-exporter': {
               hostRootFsMount: {
                 enabled: {},
@@ -972,8 +1001,6 @@ class executorService {
     const kpsExecuteSummary = 'KPS Helm Installation';
     const kpsTemplateUuid = '20000000000000000000000000000001';
     const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey, '');
-    console.log('########### kps chart installation');
-    console.log(executeKpsHelm);
 
     if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
 
@@ -1014,17 +1041,6 @@ class executorService {
         throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert feeds ');
       }); //end of catch
 
-    //schdule SyncMetricReceived
-    const cronTabforMetricReceived = config.metricReceivedCron;
-    await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
-      .then(async (res: any) => {
-        console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
-      }); //end of catch
-
     //schdule SyncResource
     const cronTabforResource = config.resourceCron;
     await this.scheduleSyncResources(clusterUuid, cronTabforResource)
@@ -1058,6 +1074,18 @@ class executorService {
         throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric meta sync');
       }); //end of catch
 
+    if (config.metricReceivedSwitch === 'on') {
+      //schdule SyncMetricReceived
+      const cronTabforMetricReceived = config.metricReceivedCron;
+      await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
+        .then(async (res: any) => {
+          console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
+        })
+        .catch(error => {
+          console.log(error);
+          throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
+        }); //end of catch
+    }
     return serviceUuid;
   }
 
