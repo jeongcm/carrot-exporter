@@ -57,14 +57,6 @@ class ExecutorRoute implements Routes {
     );
 
     this.router.post(
-      '/executor/kpsInstall/openstack',
-      authMiddleware,
-      validationMiddleware(ExecutorKpsDto, 'body'),
-      //      createUserLogMiddleware,
-      this.executorController.installKpsOnResourceGroupForOpenstack,
-    );
-
-    this.router.post(
       '/executor/schedule/metricReceived',
       authMiddleware,
       validationMiddleware(ExecutorUuidDto, 'body'),
@@ -184,13 +176,6 @@ class ExecutorRoute implements Routes {
       authMiddleware,
       //      createUserLogMiddleware,
       this.executorController.checkExecutorResponse,
-    );
-
-    this.router.get(
-      '/executor/:clusterUuid/:sudoryNamespace',
-      authMiddleware,
-      //     createUserLogMiddleware,
-      this.executorController.checkExecutorClient,
     );
   }
 }
