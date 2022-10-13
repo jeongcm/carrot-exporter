@@ -906,6 +906,91 @@ class executorService {
 
   /**
    * @param {string} clusterUuid
+   * @param {number} customerAccountKey
+   * @param {string} sudoryNamespace
+   */
+  public async checkExecutorClientForOpenstack(clusterUuid: string, sudoryNamespace: string, customerAccountKey: number): Promise<object> {
+    // let clientTrueFalse = false;
+    // const resourceJobKey = [];
+    // const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession + '/cluster/' + clusterUuid + '/alive';
+    //
+    // const resourceCron = config.resourceCron;
+    // //const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`;
+    // //executorServerUrl = executorServerUrl + sessionQueryParameter;
+    // const subscribedChannelResource = config.sudoryApiDetail.channel_resource;
+    // await axios({
+    //   method: 'get',
+    //   url: `${executorServerUrl}`,
+    //   headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
+    // })
+    //   .then(async (res: any) => {
+    //     if (res.data == true) clientTrueFalse = true;
+    //     console.log(`Successful to run API to search Executor/Sudory client`);
+    //   })
+    //   .catch(error => {
+    //     //console.log(error);
+    //     throw new HttpException(500, `Sudory Server Error - ${JSON.stringify(error.response.data)} `);
+    //   });
+    //
+    // //sudory namespace save...
+    // const resourceGroupSet = { resourceGroupSudoryNamespace: sudoryNamespace };
+    // await this.resourceGroup.update(resourceGroupSet, { where: { resourceGroupUuid: clusterUuid } });
+    //
+    // const newCrontab1 = resourceCron;
+    // const newCrontab2 = resourceCron;
+    // const newCrontab3 = resourceCron;
+    // const newCrontab4 = resourceCron;
+    // const newCrontab5 = resourceCron;
+    // const newCrontab6 = resourceCron;
+    // const newCrontab7 = resourceCron;
+    // const newCrontab8 = resourceCron;
+    // const newCrontab9 = resourceCron;
+    // const newCrontab10 = resourceCron;
+    // const newCrontab11 = resourceCron;
+    // const newCrontab12 = resourceCron;
+    // const newCrontab13 = resourceCron;
+    // const newCrontab14 = resourceCron;
+    // const newCrontab15 = resourceCron;
+    //
+    // const steps = [
+    //   {
+    //     args: {
+    //       labels: {},
+    //     },
+    //   },
+    // ];
+    //
+    // // instant call
+    // const resultPM = await this.postExecuteService(
+    //   'openstack interface for PMList',
+    //   'openstack interface for PMList',
+    //   clusterUuid,
+    //   '',
+    //   steps,
+    //   customerAccountKey,
+    //   subscribedChannelResource,
+    // );
+    // if (!resultPM) console.log(resultPM);
+    //
+    // // scheduleResource - PM
+    // await this.scheduleResource(clusterUuid, customerAccountKey, 'PM', newCrontab15)
+    //   .then(async (res: any) => {
+    //     resourceJobKey.push({ resourceType: 'PM', cronKey: res });
+    //     console.log(`Submitted resource Event schedule reqeust on ${clusterUuid} cluster successfully`);
+    //   })
+    //   .catch(error => {
+    //     console.log(error);
+    //     console.log(`confirmed the executor/sudory client installed but fail to submit resource PM schedule request for clsuter:${clusterUuid}`);
+    //   }); //end of catch
+    //
+    // const responseExecutorClientCheck = { clusterUuid, clientTrueFalse };
+    // return responseExecutorClientCheck;
+    const message = "openstack check client"
+    const ret = { message } ;
+    return ret
+  }
+  /**
+   * @param {string} clusterUuid
    * @param {string} targetNamespace
    */
   public async installKpsOnResourceGroupForOpenstack(
