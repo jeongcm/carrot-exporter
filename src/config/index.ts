@@ -35,6 +35,7 @@ export default {
   defaultPassword: process.env.NC_LARI_DEFAULT_PASSWORD || 'WOt7u7OGxr',
   frontenAppUrl: process.env.NC_LARI_FRONTEND_URL,
   lokiApiBaseUrl: process.env.NC_LOKI_API_BASE_URL,
+  lokiWsBaseUrl: (process.env.NC_LOKI_API_BASE_URL || '').replace('http://', 'ws://').replace('https://', 'wss://'),
   cors: {
     allowAnyOrigin: process.env.NC_LARI_CORS_ORIGIN === 'true' ? Boolean(process.env.NC_LARI_CORS_ORIGIN) : process.env.NC_LARI_CORS_ORIGIN,
     credentials: process.env.NC_LARI_CORS_CREDENTIALS === 'true',
