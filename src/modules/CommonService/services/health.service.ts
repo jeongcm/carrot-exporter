@@ -57,6 +57,7 @@ class healthService {
       //4. check sudoryclient
       const clusterUuid = responseResourceGroup[i].resourceGroupUuid;
       const resultExecutorClient: ISudoryClient = await this.sudoryService.checkSudoryClient(clusterUuid);
+      console.log('Sudory Client Check:', resultExecutorClient);
       if (!resultExecutorClient || resultExecutorClient.validClient == false) {
         clusterStatus[i] = {
           resourceGroupUuid: clusterUuid,
@@ -77,7 +78,7 @@ class healthService {
           customerAccountKey,
           subscribed_channel,
         );
-        console.log(resultSuodryCall);
+        console.log('Sudory Client Restart:', resultSuodryCall);
       } else {
         clusterStatus[i] = {
           resourceGroupUuid: clusterUuid,

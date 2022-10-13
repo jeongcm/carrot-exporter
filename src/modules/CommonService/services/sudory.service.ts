@@ -98,7 +98,7 @@ class sudoryService {
       })
       .catch(error => {
         //console.log(error);
-        throw new HttpException(500, `Sudory Server Error - ${JSON.stringify(error.response.data)} `);
+        resultReturn = { clusterUuid, validClient };
       });
 
     return resultReturn;

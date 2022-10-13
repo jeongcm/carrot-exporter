@@ -954,9 +954,9 @@ class executorService {
       data: sudoryServiceData,
     })
       .then(async (res: any) => {
-        //serviceUuid = res.data.uuid
+        const serviceUuid = res.data.uuid;
+        console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
         return res.data;
-        // console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
       })
       .catch(error => {
         console.log(error);
@@ -977,12 +977,11 @@ class executorService {
       steps: JSON.parse(JSON.stringify(steps)),
       subscribed_channel: sudoryChannel,
     };
-    console.log('Data for DB insert: ');
+    console.log('Executor Data for DB insert: ');
     console.log(insertData);
 
     const resultExecutorService = await this.executorService.create(insertData);
-
-    console.log(resultExecutorService);
+    //console.log(resultExecutorService);
     return resultExecutorService;
   }
 
