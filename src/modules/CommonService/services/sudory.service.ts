@@ -3,7 +3,7 @@ import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { ISudoryClient } from '@/modules/CommonService/dtos/sudory.dto';
-
+import { IExecutorService } from '@/common/interfaces/executor.interface';
 class sudoryService {
   public executorService = DB.ExecutorService;
 
@@ -40,7 +40,7 @@ class sudoryService {
       on_completion: on_completion,
       subscribed_channel: sudoryChannel,
     };
-    console.log(sudoryServiceData);
+
     const serviceData = await axios({
       method: 'post',
       url: sudoryUrl,
@@ -70,12 +70,8 @@ class sudoryService {
       steps: JSON.parse(JSON.stringify(steps)),
       subscribed_channel: sudoryChannel,
     };
-    console.log('Data for DB insert: ');
-    console.log(insertData);
 
-    const resultSudoryService = await this.executorService.create(insertData);
-
-    console.log(resultSudoryService);
+    const resultSudoryService: IExecutorService = await this.executorService.create(insertData);
     return resultSudoryService;
   }
 

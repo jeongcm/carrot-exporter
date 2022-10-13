@@ -101,6 +101,8 @@ data:
   NC_VM_MULTI_CLUSTER_UUID: "a2c0cfa9203b4347a7b0441029ef9f6b"
   NC_VM_OPTION: "MULTI"
   NC_METRIC_RECEIVED_SWITCH: "off"
+  FUSEBILL_BASE_URL: "https://secure.fusebill.com/v1/"
+  FUSEBILL_API_CREATE_CUSTOMER_URL: "https://secure.fusebill.com/v1/customers"
 
 
 
