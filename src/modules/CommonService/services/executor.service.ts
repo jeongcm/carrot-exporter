@@ -14,13 +14,14 @@ import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
-import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
+//import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
 import IncidentService from '@/modules/Incident/services/incident.service';
 import TableIdService from './tableId.service';
-import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
+//import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
-import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
+//import { updateShorthandPropertyAssignment } from 'typescript';
+//import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
 class executorService {
   //    public tableIdService = new TableIdService();
@@ -729,7 +730,7 @@ class executorService {
         lokiChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
       }
     }
-
+    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
     const kpsSteps = [
       {
         args: {
@@ -739,6 +740,35 @@ class executorService {
           namespace: targetNamespace,
           chart_version: kpsChartVersion,
           values: {
+            prometheus: {
+              extraSecret: {
+                name: 'vmmulti',
+                data: {
+                  username: 'I' + customerAccountId,
+                  password: customerAccountId,
+                },
+              },
+              prometheusSpec: {
+                externalLabels: {
+                  clusterUuid: clusterUuid,
+                },
+                remoteWrite: [
+                  {
+                    url: config.victoriaMetrics.vmMultiAuthUrl + '/api/v1/write',
+                    basicAuth: {
+                      username: {
+                        name: 'vmmulti',
+                        key: 'username',
+                      },
+                      password: {
+                        name: 'vmmulti',
+                        key: 'password',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
             'prometheus-node-exporter': {
               hostRootFsMount: {
                 enabled: {},
@@ -757,8 +787,6 @@ class executorService {
     const kpsExecuteSummary = 'KPS Helm Installation';
     const kpsTemplateUuid = '20000000000000000000000000000001';
     const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey, '');
-    console.log('########### kps chart installation');
-    console.log(executeKpsHelm);
 
     if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
 
@@ -828,17 +856,6 @@ class executorService {
         throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert feeds ');
       }); //end of catch
 
-    //schdule SyncMetricReceived
-    const cronTabforMetricReceived = config.metricReceivedCron;
-    await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
-      .then(async (res: any) => {
-        console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
-      }); //end of catch
-
     //schdule SyncResource
     const cronTabforResource = config.resourceCron;
     await this.scheduleSyncResources(clusterUuid, cronTabforResource)
@@ -872,6 +889,18 @@ class executorService {
         throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric meta sync');
       }); //end of catch
 
+    if (config.metricReceivedSwitch === 'on') {
+      //schdule SyncMetricReceived
+      const cronTabforMetricReceived = config.metricReceivedCron;
+      await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
+        .then(async (res: any) => {
+          console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
+        })
+        .catch(error => {
+          console.log(error);
+          throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
+        }); //end of catch
+    }
     return serviceUuid;
   }
 
@@ -1522,6 +1551,7 @@ class executorService {
       scheduleTo: '',
       accountId: customerAccountData.customerAccountId,
       apiUrl: executorServerUrl,
+      apiType: 'post',
       apiBody: {
         cluster_uuid: clusterUuid,
         name: 'Get MetricMeta',
@@ -1576,6 +1606,7 @@ class executorService {
       summary: 'Get Alert Rules & Alert Received',
       cronTab: '* * * * *',
       apiUrl: executorServerUrl,
+      apiType: 'post',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -1658,6 +1689,7 @@ class executorService {
       summary: scheduleSummary,
       cronTab: newCrontab,
       apiUrl: executorServerUrl,
+      apiType: 'post',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -1766,6 +1798,7 @@ class executorService {
       name: 'SyncMetricReceived',
       summary: 'SyncMetricReceived',
       cronTab: cronTab,
+      apiType: 'post',
       apiUrl: nexclipperApiUrl,
       reRunRequire: true,
       scheduleFrom: '',
@@ -1793,6 +1826,7 @@ class executorService {
       name: 'SyncResources',
       summary: 'SyncResources',
       cronTab: `*/5 * * * *`,
+      apiType: 'post',
       apiUrl: nexclipperApiUrl,
       reRunRequire: true,
       scheduleFrom: '',
@@ -1821,6 +1855,7 @@ class executorService {
       summary: 'SyncAlerts',
       cronTab: '*/5 * * * *',
       apiUrl: nexclipperApiUrl,
+      apiType: 'post',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -1848,6 +1883,7 @@ class executorService {
       summary: 'SyncMetricMeta',
       cronTab: `30 */5 * * * *`, //Every min offset 30 sec`,
       apiUrl: nexclipperApiUrl,
+      apiType: 'post',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -1941,6 +1977,7 @@ class executorService {
         summary: metricSummary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
+        apiType: 'post',
         clusterId: clusterUuid,
         //accountId: customerAccountData.customerAccountId,
         reRunRequire: true,
@@ -2098,6 +2135,7 @@ class executorService {
         summary: summary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
+        apiType: 'post',
         clusterId: clusterUuid,
         reRunRequire: true,
         scheduleFrom: '',
@@ -2186,6 +2224,7 @@ class executorService {
         summary: summary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
+        apiType: 'post',
         clusterId: clusterUuid,
         reRunRequire: true,
         scheduleFrom: '',
@@ -2274,6 +2313,7 @@ class executorService {
         summary: summary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
+        apiType: 'post',
         clusterId: clusterUuid,
         reRunRequire: true,
         scheduleFrom: '',
@@ -2382,12 +2422,15 @@ class executorService {
         incidentActionStatus: 'EX',
       };
       // create incident Action
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const incidentAction = await this.incidentService.createIncidentAction(customerAccountKey, incidentId, actionData, 'SYSTEM');
 
       //create incident Action attachement
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const parts = [new Blob([JSON.stringify(resultSudoryWebhook.serviceResult)], { type: 'text/json' })];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const incidentActionAttachmentFile = new File(parts, `${resultSudoryWebhook.serviceName}.json`, {
         lastModified: Date.now(),
@@ -2404,6 +2447,7 @@ class executorService {
         customerAccountKey,
         incidentId,
         incidentAction.incidentActionId,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         actionAttachmentData,
         'SYSTEM',

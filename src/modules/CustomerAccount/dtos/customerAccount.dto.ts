@@ -16,4 +16,13 @@ export class CreateCustomerAccountDto {
   @IsString()
   @IsOptional()
   public customerAccountType: customerAccountType;
+
+  @IsString()
+  public firstName: string;
+
+  @IsString()
+  public lastName: string;
+
+  @IsString()
+  public email: string;
 }

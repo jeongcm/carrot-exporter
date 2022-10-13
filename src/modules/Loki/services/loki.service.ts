@@ -11,6 +11,7 @@ class LokiService {
     duplex.pipe(process.stdout);
     process.stdin.pipe(duplex);
   }
+
   public async queryLog(query: string): Promise<object> {
     let data;
     try {
@@ -20,6 +21,29 @@ class LokiService {
       throw new HttpException(500, 'Unknown error on Loki query');
     }
 
+    const queryResult = data.data;
+    return queryResult;
+  }
+  public async getLabels(): Promise<object> {
+    let data;
+    try {
+      const url = config.lokiApiBaseUrl + '/labels';
+      data = await axios({ method: 'get', url: url });
+    } catch (e) {
+      throw new HttpException(500, 'Unknown error on Loki labels query');
+    }
+
+    const queryResult = data.data;
+    return queryResult;
+  }
+  public async getLabelValues(label: string): Promise<object> {
+    let data;
+    try {
+      const url = config.lokiApiBaseUrl + '/label/' + label + '/values';
+      data = await axios({ method: 'get', url: url });
+    } catch (e) {
+      throw new HttpException(500, 'Unknown error on Loki label value query');
+    }
     const queryResult = data.data;
     return queryResult;
   }

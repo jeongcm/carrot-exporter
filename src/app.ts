@@ -13,26 +13,14 @@ import { logger, stream } from '@common/utils/logger';
 import express, { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
 import Passport from './modules/SocialLogin/providers/passport';
-import WebSocket, { createWebSocketStream, WebSocketServer } from 'ws';
-import uniqid from 'uniqid';
-
-//import { Duplex } from 'winston-daily-rotate-file';
-//import { DiagConsoleLogger } from '@opentelemetry/api';
-//import { PassThrough } from 'stream';
-//import { chunk } from 'lodash';
-//import { PassThrough } from 'stream';
-//import PassThrough from 'stream';
-//import { setInternalBufferSize } from 'bson';
-//import passport from 'passport';
-//import { createServer } from 'http';
-//import io from 'socket.io-client';
-// const WebSocketClient = require('websocket').client;
+import http from 'http';
 
 class App {
   public port: number;
   public wsPort: number;
   public env: string;
   public app: express.Application;
+  private server: http.Server;
 
   constructor(routes: Routes[]) {
     this.app = express();
@@ -46,7 +34,7 @@ class App {
   }
 
   public listen() {
-    const server = this.app.listen(this.port, function () {
+    this.server = this.app.listen(this.port, function () {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${this.env} =======`);
       logger.info(`🚀 NexClipper API listening on the port ${this.port}`);
@@ -56,6 +44,7 @@ class App {
     require('console-stamp')(console, {
       format: '(console).yellow :date().green.underline :label(7)',
     });
+
     /*
     const wsConnections = {};
 
@@ -79,11 +68,15 @@ class App {
         delete wsConnections[ws.id];
       });
     });
- */
+  */
   }
 
-  public getServer() {
+  public getServer(): express.Application {
     return this.app;
+  }
+
+  public getHttpServer(): http.Server {
+    return this.server;
   }
 
   private initializeMiddlewares() {

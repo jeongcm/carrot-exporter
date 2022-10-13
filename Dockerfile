@@ -1,5 +1,5 @@
 # Common build stage
-FROM node:lts-alpine as common-build-stage
+FROM node:16-alpine as common-build-stage
 
 ENV WORKDIR=/usr/src/app/ \
     NAME=nexclipper-api \
@@ -9,34 +9,25 @@ ENV WORKDIR=/usr/src/app/ \
 
 WORKDIR ${WORKDIR}
 
-COPY  ./package.json ./package-lock.json  ${WORKDIR}
+COPY  ./package.json  ${WORKDIR}
+COPY  ./package-lock.json  ${WORKDIR}
 COPY ./tsconfig-paths-bootstrap.js ${WORKDIR}
 
 COPY docker-entrypoint.sh ${WORKDIR}
 
-
 RUN chmod +x  ${WORKDIR}docker-entrypoint.sh
+
 RUN npm ci
 
 COPY . ${WORKDIR}
 
-# RUN addgroup ${GROUP} && \
-#     adduser -D ${USER} -g ${GROUP} -u ${USER_ID} && \
-#     chown -R ${USER}:${GROUP} ${WORKDIR}
+RUN addgroup ${GROUP} && \
+    adduser -D ${USER} -G ${GROUP} -u ${USER_ID} && \
+    chown -R ${USER}:${GROUP} ${WORKDIR}
 
-# USER ${USER}
+USER ${USER}
 
 EXPOSE 5001
-
-##Development build stage
-FROM common-build-stage as development-build-stage
-
-ENV NODE_ENV development
-
-CMD [ "npm","run","dev" ]
-
-# Production build stage
-FROM common-build-stage as production-build-stage
 
 ENV NODE_ENV production
 
