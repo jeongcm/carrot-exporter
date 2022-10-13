@@ -1,13 +1,16 @@
 import { NextFunction, Response } from 'express';
 import { IResource } from '@/common/interfaces/resource.interface';
 import ResourceService from '../services/resource.service';
+import ResourceGroupService from '../services/resourceGroup.service';
 import TopologyService from '../services/topology.service';
 import { ResourceDto } from '../dtos/resource.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import { GroupedCountResultItem } from 'sequelize';
+import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 
 class ResourceController {
   public resourceService = new ResourceService();
+  public resourceGroupService = new ResourceGroupService();
   public topologyService = new TopologyService();
 
   /**
@@ -136,10 +139,18 @@ class ResourceController {
    */
   public getResourceById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const resourceId = req.params.resourceId;
+    const customerAccountKey = req.customerAccountKey;
 
     try {
       const resource: IResource = await this.resourceService.getResourceById(resourceId);
-      res.status(200).json({ data: resource, message: `find resource id(${resourceId}) ` });
+      const resourceGroup: IResourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, resource.resourceGroupKey);
+      res.status(200).json({
+        data: {
+          resourceGroupId: resourceGroup.resourceGroupId,
+          ...resource,
+        },
+        message: `find resource id(${resourceId}) `,
+      });
     } catch (error) {
       next(error);
     }
