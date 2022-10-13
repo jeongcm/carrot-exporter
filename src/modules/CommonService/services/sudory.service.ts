@@ -47,9 +47,9 @@ class sudoryService {
       data: sudoryServiceData,
     })
       .then(async (res: any) => {
-        //serviceUuid = res.data.uuid
+        const serviceUuid = res.data.uuid;
+        console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
         return res.data;
-        // console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
       })
       .catch(error => {
         console.log(error);
