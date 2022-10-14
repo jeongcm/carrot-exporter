@@ -198,8 +198,10 @@ class TopologyService extends ServiceExtension {
             } catch (e) {
               owners = [];
             }
-          } else {
+          } else if (resource.resourceOwnerReferences) {
             owners = resource.resourceOwnerReferences;
+          } else if (!resource.resourceOwnerReferences) {
+            owners = [];
           }
 
           if (!Array.isArray(owners)) {
