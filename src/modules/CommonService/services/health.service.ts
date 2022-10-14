@@ -1,5 +1,5 @@
 import DB from '@/database';
-import axios from 'common/httpClient/axios';
+//import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
@@ -96,15 +96,17 @@ class healthService {
         clusterStatus[i].syncMetricMeta = true;
       }
 
-      const syncMetricReceivedFiltered = syncMetricReceived.filter(data => data.scheduleApiBody.clusterUuid === clusterUuid);
-      if (syncMetricReceivedFiltered.length === 0) {
-        clusterStatus[i].syncMetricReceived = false;
-        //call scheduleSyncMetricReceived
-        const resultScheduleSyncMetricReceived = await this.executorService.scheduleSyncMetricReceived(clusterUuid, config.metricReceivedCron);
-        if (resultScheduleSyncMetricReceived) clusterStatus[i].syncMetricReceivedAction = true;
-      } else {
-        clusterStatus[i].syncMetricReceived = true;
-      }
+      if (config.metricReceivedSwitch === 'on') {
+        const syncMetricReceivedFiltered = syncMetricReceived.filter(data => data.scheduleApiBody.clusterUuid === clusterUuid);
+        if (syncMetricReceivedFiltered.length === 0) {
+          clusterStatus[i].syncMetricReceived = false;
+          //call scheduleSyncMetricReceived
+          const resultScheduleSyncMetricReceived = await this.executorService.scheduleSyncMetricReceived(clusterUuid, config.metricReceivedCron);
+          if (resultScheduleSyncMetricReceived) clusterStatus[i].syncMetricReceivedAction = true;
+        } else {
+          clusterStatus[i].syncMetricReceived = true;
+        }
+      } else clusterStatus[i].syncMetricReceived = true;
 
       const syncAlertsFiltered = syncAlerts.filter(data => data.scheduleApiBody.clusterUuid === clusterUuid);
       if (syncAlertsFiltered.length === 0) {

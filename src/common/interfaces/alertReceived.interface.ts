@@ -45,5 +45,5 @@ export interface IAlertRuleSettingData {
   alertNotiSettingEnabled: boolean;
   alertNotiSettingSilentFrom: Date;
   alertNotiSettingSilentUnti: Date;
-  alertRuleId: number
+  alertRuleId: number;
 }
