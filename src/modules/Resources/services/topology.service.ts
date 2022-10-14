@@ -198,13 +198,13 @@ class TopologyService extends ServiceExtension {
             } catch (e) {
               owners = [];
             }
+          } else {
+            owners = resource.resourceOwnerReferences;
           }
+
           if (!Array.isArray(owners)) {
             owners = [owners];
           }
-
-          console.log(`========== OWNERS ============`);
-          console.log(owners);
 
           owners?.map((owner: any) => {
             // TODO: Add DaemonSet, StatefulSet, Deployment?
