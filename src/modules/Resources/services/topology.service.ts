@@ -235,6 +235,8 @@ class TopologyService extends ServiceExtension {
     });
 
     Object.keys(podsPerUid).forEach((namespace: string) => {
+      console.log(podsPerUid[namespace]);
+      console.log(sets[namespace]);
       Object.keys(podsPerUid[namespace]).forEach((key: string) => {
         if (sets[namespace] && sets[namespace][key]) {
           sets[namespace][key].children = podsPerUid[namespace][key];
@@ -252,7 +254,6 @@ class TopologyService extends ServiceExtension {
     });
 
     console.log('total resource:', resources.length, 'total pod:', pod, 'workload', workload, 'workload pod:', connectedPod);
-
     return Object.values(sets);
   }
 
