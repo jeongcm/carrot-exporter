@@ -161,6 +161,7 @@ class TopologyService extends ServiceExtension {
 
     let workload = 0;
     let pod = 0;
+    let connectedPod = 0;
 
     resources.forEach((resource: IResource) => {
       const namespace = resource.resourceNamespace;
@@ -197,7 +198,10 @@ class TopologyService extends ServiceExtension {
             } catch (e) {
               owners = [];
             }
+          } else {
+            owners = resource.resourceOwnerReferences;
           }
+
           if (!Array.isArray(owners)) {
             owners = [owners];
           }
@@ -212,6 +216,7 @@ class TopologyService extends ServiceExtension {
               if (!podsPerUid[namespace][owner.uid]) {
                 podsPerUid[namespace][owner.uid] = [];
               }
+              connectedPod++;
               podsPerUid[namespace][owner.uid].push({
                 resourceType: 'PD',
                 resourceName: resource.resourceName,
@@ -227,6 +232,8 @@ class TopologyService extends ServiceExtension {
     });
 
     Object.keys(podsPerUid).forEach((namespace: string) => {
+      console.log(podsPerUid[namespace]);
+      console.log(sets[namespace]);
       Object.keys(podsPerUid[namespace]).forEach((key: string) => {
         if (sets[namespace] && sets[namespace][key]) {
           sets[namespace][key].children = podsPerUid[namespace][key];
@@ -243,8 +250,7 @@ class TopologyService extends ServiceExtension {
       };
     });
 
-    console.log('total resource:', resources.length, 'total pod:', pod, 'workload', workload);
-
+    console.log('total resource:', resources.length, 'total pod:', pod, 'workload', workload, 'workload pod:', connectedPod);
     return Object.values(sets);
   }
 
