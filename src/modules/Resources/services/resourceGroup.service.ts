@@ -241,11 +241,14 @@ class ResourceGroupService {
       deletedAt: null,
       customerAccountKey: customerAccountKey,
       resourceGroupPlatform: platform,
+      [Op.or]: [
+        {
+          resourceGroupId: {
+            [Op.eq]: query.resourceGroupId
+          }
+        },
+      ],
     };
-
-    if (resourceGroupId) {
-      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupId
-    }
 
     console.log("query:", resourceGroupWhereCondition)
 
