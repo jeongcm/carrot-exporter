@@ -232,7 +232,7 @@ class ResourceGroupService {
    * @param  {string} customerAccountId
    * @returns Promise
    */
-  public async getResourceGroupByCustomerAccountIdAndPlatform(platform: string, customerAccountId: string): Promise<IResourceGroupUi[]> {
+  public async getResourceGroupByCustomerAccountIdForOpenstack(platform: string, customerAccountId: string): Promise<IResourceGroupUi[]> {
     const resourceType = 'ND';
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;

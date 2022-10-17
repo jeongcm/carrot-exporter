@@ -152,9 +152,18 @@ class ResourceGroupController {
   public getResourceGroupByCustomerAccountIdAndPlatform = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
     const platform = req.params.platform;
+    let resourceGroup: IResourceGroupUi[]
 
     try {
-      const resourceGroup: IResourceGroupUi[] = await this.resourceGroupService.getResourceGroupByCustomerAccountIdAndPlatform(platform, customerAccountId);
+      switch (platform) {
+      case "K8":
+        resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId);
+        break;
+      case "OS":
+        resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountIdForOpenstack(platform, customerAccountId);
+        break;
+      }
+
       res.status(200).json({ data: resourceGroup, message: `find resourceGroup for customerAccountId(${customerAccountId}) ` });
     } catch (error) {
       next(error);
