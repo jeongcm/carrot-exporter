@@ -244,11 +244,9 @@ class ResourceGroupService {
       },
     });
 
-    const numberOfResouceGroup = resultResourceGroup.length;
-
     const resourceGroupResult = [];
 
-    for (let i = 0; i < numberOfResouceGroup; i++) {
+    for (let i = 0; i < resultResourceGroup.length; i++) {
       const resourceGroupKey = resultResourceGroup[i].resourceGroupKey;
 
       const projectCount = await this.resource.count({
