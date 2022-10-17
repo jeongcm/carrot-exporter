@@ -241,8 +241,11 @@ class ResourceGroupService {
       deletedAt: null,
       customerAccountKey: customerAccountKey,
       resourceGroupPlatform: platform,
-      resourceGroupId,
     };
+
+    if (resourceGroupId) {
+      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupId
+    }
 
     console.log("query:", resourceGroupWhereCondition)
 
