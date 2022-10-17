@@ -1452,6 +1452,7 @@ class executorService {
     const grafanaUrlTail = config.obsUrl.grafanaUrlTail;
     const alertManagerUrlHead = config.obsUrl.alertManagerUrlHead;
     const alertMangerUrlTail = config.obsUrl.alertManagerUrlTail;
+    const webhookChannel = config.sudoryApiDetail.channel_webhook;
 
     const prometheus = prometheusUrlHead + targetNamespace + prometheusUrlTail;
     const grafana = grafanaUrlHead + targetNamespace + grafanaUrlTail;
@@ -1530,7 +1531,15 @@ class executorService {
     const kpsExecuteName = 'KPS Helm Instllation';
     const kpsExecuteSummary = 'KPS Helm Installation';
     const kpsTemplateUuid = '20000000000000000000000000000001';
-    const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey, '');
+    const executeKpsHelm = this.postExecuteService(
+      kpsExecuteName,
+      kpsExecuteSummary,
+      clusterUuid,
+      kpsTemplateUuid,
+      kpsSteps,
+      customerAccountKey,
+      webhookChannel,
+    );
 
     if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
 
@@ -1618,7 +1627,6 @@ class executorService {
     }
     return serviceUuid;
   }
-
   /**
    * @param {string} clusterUuid
    * @param {string} templateUud
