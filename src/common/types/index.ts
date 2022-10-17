@@ -1,4 +1,4 @@
-export type Platform = 'AWS' | 'baremetal' | 'kubernetes';
+export type Platform = 'AWS' | 'baremetal' | 'kubernetes' | 'openstack';
 
 export type ChannelType = 'EMAIL' | 'SLACK' | 'WEBHOOK' | 'PAGEDUTY' | 'SMPT';
 
@@ -14,9 +14,9 @@ export type EventFrom = 'LARI' | 'PROMETHEUS';
 
 export type NotificationStatus = 'CR' | 'SM';
 
-export type ResourceType = 'K8' | 'ND' | 'DP' | 'NS' | 'SV' | 'OP' | 'PD' | 'PM' | 'PJ' | 'VM' | 'CT';
+export type ResourceType = 'K8' | 'ND' | 'DP' | 'NS' | 'SV' | 'OS' | 'PD' | 'PM' | 'PJ' | 'VM' | 'CT';
 
-export type ResourceTypeLevel1 = 'K8' | 'OP';
+export type ResourceTypeLevel1 = 'K8' | 'OS';
 
 export type ResourceTypeLevel2 = 'ND' | 'NS' | 'PJ';
 
