@@ -164,7 +164,7 @@ class executorService {
     let sudoryCreateClusterResponse;
 
     await axios({
-      method: 'post',
+      method: 'POST',
       url: `${executorServerClusterUrl}`,
       data: sudoryCreateCluster,
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
@@ -183,7 +183,7 @@ class executorService {
     const sudoryCreateTokenData = { name: apiDataName, cluster_uuid: clusterUuid, summary: apiDataSummary };
 
     await axios({
-      method: 'post',
+      method: 'POST',
       url: `${executorServerTokenUrl}`,
       data: sudoryCreateTokenData,
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
@@ -1663,7 +1663,7 @@ class executorService {
     };
     console.log(sudoryServiceData);
     const serviceData = await axios({
-      method: 'post',
+      method: 'POST',
       url: sudoryUrl,
       data: sudoryServiceData,
     })
@@ -2066,7 +2066,7 @@ class executorService {
     sudoryServiceData.steps.push(argsData);
     console.log(sudoryServiceData);
     await axios({
-      method: 'post',
+      method: 'POST',
       url: `${executorServerUrl}`,
       data: sudoryServiceData,
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
