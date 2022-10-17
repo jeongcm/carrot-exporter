@@ -2235,6 +2235,11 @@ class executorService {
       { resourceName: 'Event', resourceType: 'EV', template_uuid: '00000000000000000000000000000008' }, //storageclass
       { resourceName: 'Job', resourceType: 'JO', template_uuid: '00000000000000000000000000005002' }, //job
       { resourceName: 'CronJob', resourceType: 'CJ', template_uuid: '00000000000000000000000000005003' }, //cron-job
+      { resourceName: 'Project', resourceType: 'PJ', template_uuid: '50000000000000000000000000000002' }, //project
+      { resourceName: 'VM', resourceType: 'VM', template_uuid: '50000000000000000000000000000004' }, //vm
+      // { resourceName: 'Network', resourceType: 'NT', template_uuid: '50000000000000000000000000000006' }, //vm
+      // { resourceName: 'Router', resourceType: 'RT', template_uuid: '50000000000000000000000000000008' }, //vm
+      // { resourceName: 'Subnet', resourceType: 'SN', template_uuid: '50000000000000000000000000000010' }, //vm
     ];
 
     const selectedTemplate = resource_template.find(template => {
