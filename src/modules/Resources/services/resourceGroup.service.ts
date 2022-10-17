@@ -239,7 +239,7 @@ class ResourceGroupService {
 
     const resourceGroupWhereCondition = { deletedAt: null, customerAccountKey: customerAccountKey, resourceGroupPlatform: platform, };
     if (resourceGroupId) {
-      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupId;
+      resourceGroupWhereCondition['[Op.or]'] = { resourceGroupId: resourceGroupId };
     }
 
     console.log("query:", resourceGroupWhereCondition)
