@@ -152,6 +152,7 @@ class ResourceGroupController {
   public getResourceGroupByCustomerAccountIdAndPlatform = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
     const platform = req.params.platform;
+    const query = req.query
     let resourceGroup: IResourceGroupUi[]
 
     try {
@@ -160,7 +161,7 @@ class ResourceGroupController {
         resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId);
         break;
       case "OS":
-        resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountIdForOpenstack(platform, customerAccountId);
+        resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountIdForOpenstack(platform, customerAccountId, query);
         break;
       }
 
