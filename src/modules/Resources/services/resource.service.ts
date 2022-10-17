@@ -238,12 +238,18 @@ class ResourceService {
    * @param  {string} resourceType
    * @param  {number} customerAccountId
    */
-  public async getResourceByTypeCustomerAccountId(resourceType: string[], customerAccountId: string): Promise<IResource[]> {
+  public async getResourceByTypeCustomerAccountId(resourceType: string[], customerAccountId: string, query?: any): Promise<IResource[]> {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
+
+    if (query.resourceGroupId) {
+      resourceWhereCondition['resourceGroupId'] = query.resourceGroupId;
+    }
+
     const allResources: IResource[] = await this.resource.findAll({
-      where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey },
+      where: resourceWhereCondition,
     });
 
     return allResources;

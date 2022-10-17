@@ -166,8 +166,8 @@ class ResourceController {
     const customerAccountId: string = req.params.customerAccountId;
 
     try {
-      const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId(resourceType, customerAccountId);
-      res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resoruceType ${resource}` });
+      const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId(resourceType, customerAccountId, req.query);
+      res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resourceType ${resource}` });
     } catch (error) {
       next(error);
     }
