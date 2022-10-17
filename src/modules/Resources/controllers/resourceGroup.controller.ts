@@ -153,7 +153,9 @@ class ResourceGroupController {
     const customerAccountId = req.params.customerAccountId;
     const platform = req.params.platform;
     let resourceGroup: IResourceGroupUi[]
+    let query = req.query.toString()
 
+    console.log("query:", query)
     try {
       switch (platform) {
       case "K8":
