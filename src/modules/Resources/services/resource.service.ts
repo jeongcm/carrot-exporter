@@ -124,6 +124,7 @@ class ResourceService {
     const resource: IResource = await this.resource.findOne({
       where: { resourceId },
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
+      raw: true,
     });
     return resource;
   }

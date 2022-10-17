@@ -446,7 +446,7 @@ class ResourceGroupService {
           name: nameSudoryClient,
           summary: summarySudoryClient,
           apiUrl: executorServerUrl,
-          apiType: 'post',
+          apiType: 'POST',
           apiBody: {
             name: nameSudoryClient,
             summary: summarySudoryClient,
@@ -480,20 +480,12 @@ class ResourceGroupService {
         currentTimeClusterTo.setMinutes(currentTimeClusterTo.getMinutes() + 32);
         const scheduleToSudoryCluster = currentTimeClusterTo.toISOString();
 
-        const uninstallSudoryCluster = {
+        const deleteSudoryCluster = {
           name: nameSudoryCluster,
           summary: summarySudoryCluster,
           apiUrl: executeServerClusterUrl,
-          apiType: 'delete',
-          apiBody: {
-            name: nameSudoryCluster,
-            summary: summarySudoryCluster,
-            template_uuid: helmUninstallTemplateUuid,
-            cluster_uuid: resourceGroupUuid,
-            on_completion: on_completion,
-            steps: steps,
-            subscribed_channel: sudoryChannel,
-          },
+          apiType: 'DELETE',
+          apiBody: {},
           cronTab: '*/10 * * * *',
           clusterId: resourceGroupUuid,
           scheduleFrom: schedulefromSudoryCluster,
@@ -502,7 +494,7 @@ class ResourceGroupService {
         };
 
         console.log('sudory - delete cluster data map:', uninstallSudoryClient);
-        const resultCreateSchedulerDeleteCluster = await this.schedulerService.createScheduler(uninstallSudoryCluster, customerAccountId);
+        const resultCreateSchedulerDeleteCluster = await this.schedulerService.createScheduler(deleteSudoryCluster, customerAccountId);
 
         //9. Customer Notification (To Be Coded)
 

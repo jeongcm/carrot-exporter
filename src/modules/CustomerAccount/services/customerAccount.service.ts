@@ -51,7 +51,8 @@ class CustomerAccountService {
   url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
           '\n';
       });
-      const authBuff = new Buffer(auth);
+
+      const authBuff = Buffer.from(auth);
       const base64Auth = authBuff.toString('base64');
 
       //call sudory to patch VM multiline secret file
@@ -79,7 +80,15 @@ class CustomerAccountService {
       ];
       const customerAccountKey = createdCustomerAccount.customerAccountKey;
       const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-      await this.sudoryService.postSudoryService(name, summary, clusterUuid, templateUuid, step, customerAccountKey, subscribedChannel);
+      const sudoryRequest = await this.sudoryService.postSudoryService(
+        name,
+        summary,
+        clusterUuid,
+        templateUuid,
+        step,
+        customerAccountKey,
+        subscribedChannel,
+      );
 
       /* blocked due to Maximum call stack size exceeded error
       //schdule Heathcheck of customer Account clusters //improvement/547

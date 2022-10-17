@@ -699,6 +699,7 @@ class executorService {
     const alertMangerUrlTail = config.obsUrl.alertManagerUrlTail;
     const lokiUrlHead = config.obsUrl.lokiUrlHead;
     const lokiUrlTail = config.obsUrl.lokiUrlTail;
+    const webhookChannel = config.sudoryApiDetail.channel_webhook;
 
     const prometheus = prometheusUrlHead + targetNamespace + prometheusUrlTail;
     const grafana = grafanaUrlHead + targetNamespace + grafanaUrlTail;
@@ -786,7 +787,15 @@ class executorService {
     const kpsExecuteName = 'KPS Helm Instllation';
     const kpsExecuteSummary = 'KPS Helm Installation';
     const kpsTemplateUuid = '20000000000000000000000000000001';
-    const executeKpsHelm = this.postExecuteService(kpsExecuteName, kpsExecuteSummary, clusterUuid, kpsTemplateUuid, kpsSteps, customerAccountKey, '');
+    const executeKpsHelm = this.postExecuteService(
+      kpsExecuteName,
+      kpsExecuteSummary,
+      clusterUuid,
+      kpsTemplateUuid,
+      kpsSteps,
+      customerAccountKey,
+      webhookChannel,
+    );
 
     if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
 
@@ -813,7 +822,7 @@ class executorService {
       lokiTemplateUuid,
       lokiSteps,
       customerAccountKey,
-      '',
+      webhookChannel,
     );
     console.log('########### Loki chart installation');
     console.log(executeLokiHelm);
@@ -1651,9 +1660,9 @@ class executorService {
       data: sudoryServiceData,
     })
       .then(async (res: any) => {
-        //serviceUuid = res.data.uuid
+        const serviceUuid = res.data.uuid;
+        console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
         return res.data;
-        // console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
       })
       .catch(error => {
         console.log(error);
@@ -1674,12 +1683,11 @@ class executorService {
       steps: JSON.parse(JSON.stringify(steps)),
       subscribed_channel: sudoryChannel,
     };
-    console.log('Data for DB insert: ');
+    console.log('Executor Data for DB insert: ');
     console.log(insertData);
 
     const resultExecutorService = await this.executorService.create(insertData);
-
-    console.log(resultExecutorService);
+    //console.log(resultExecutorService);
     return resultExecutorService;
   }
 
@@ -2100,7 +2108,7 @@ class executorService {
       scheduleTo: '',
       accountId: customerAccountData.customerAccountId,
       apiUrl: executorServerUrl,
-      apiType: 'post',
+      apiType: 'POST',
       apiBody: {
         cluster_uuid: clusterUuid,
         name: 'Get MetricMeta',
@@ -2155,7 +2163,7 @@ class executorService {
       summary: 'Get Alert Rules & Alert Received',
       cronTab: '* * * * *',
       apiUrl: executorServerUrl,
-      apiType: 'post',
+      apiType: 'POST',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -2238,7 +2246,7 @@ class executorService {
       summary: scheduleSummary,
       cronTab: newCrontab,
       apiUrl: executorServerUrl,
-      apiType: 'post',
+      apiType: 'POST',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -2347,7 +2355,7 @@ class executorService {
       name: 'SyncMetricReceived',
       summary: 'SyncMetricReceived',
       cronTab: cronTab,
-      apiType: 'post',
+      apiType: 'POST',
       apiUrl: nexclipperApiUrl,
       reRunRequire: true,
       scheduleFrom: '',
@@ -2375,7 +2383,7 @@ class executorService {
       name: 'SyncResources',
       summary: 'SyncResources',
       cronTab: `*/5 * * * *`,
-      apiType: 'post',
+      apiType: 'POST',
       apiUrl: nexclipperApiUrl,
       reRunRequire: true,
       scheduleFrom: '',
@@ -2404,7 +2412,7 @@ class executorService {
       summary: 'SyncAlerts',
       cronTab: '*/5 * * * *',
       apiUrl: nexclipperApiUrl,
-      apiType: 'post',
+      apiType: 'POST',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -2432,7 +2440,7 @@ class executorService {
       summary: 'SyncMetricMeta',
       cronTab: `30 */5 * * * *`, //Every min offset 30 sec`,
       apiUrl: nexclipperApiUrl,
-      apiType: 'post',
+      apiType: 'POST',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
@@ -2526,7 +2534,7 @@ class executorService {
         summary: metricSummary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
-        apiType: 'post',
+        apiType: 'POST',
         clusterId: clusterUuid,
         //accountId: customerAccountData.customerAccountId,
         reRunRequire: true,
@@ -2684,7 +2692,7 @@ class executorService {
         summary: summary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
-        apiType: 'post',
+        apiType: 'POST',
         clusterId: clusterUuid,
         reRunRequire: true,
         scheduleFrom: '',
@@ -2773,7 +2781,7 @@ class executorService {
         summary: summary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
-        apiType: 'post',
+        apiType: 'POST',
         clusterId: clusterUuid,
         reRunRequire: true,
         scheduleFrom: '',
@@ -2862,7 +2870,7 @@ class executorService {
         summary: summary,
         cronTab: cronTab,
         apiUrl: executorServerUrl,
-        apiType: 'post',
+        apiType: 'POST',
         clusterId: clusterUuid,
         reRunRequire: true,
         scheduleFrom: '',

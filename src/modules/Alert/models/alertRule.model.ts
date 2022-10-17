@@ -124,7 +124,7 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
         allowNull: false,
       },
       alertRuleRunbook: {
-        type: DataTypes.STRING(500),
+        type: DataTypes.STRING(1000),
         allowNull: false,
       },
       alertRuleHealth: {

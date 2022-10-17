@@ -1,5 +1,5 @@
 import DB from '@/database';
-import axios from 'common/httpClient/axios';
+//import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
@@ -57,6 +57,7 @@ class healthService {
       //4. check sudoryclient
       const clusterUuid = responseResourceGroup[i].resourceGroupUuid;
       const resultExecutorClient: ISudoryClient = await this.sudoryService.checkSudoryClient(clusterUuid);
+      console.log('Sudory Client Check:', resultExecutorClient);
       if (!resultExecutorClient || resultExecutorClient.validClient == false) {
         clusterStatus[i] = {
           resourceGroupUuid: clusterUuid,
@@ -77,7 +78,7 @@ class healthService {
           customerAccountKey,
           subscribed_channel,
         );
-        console.log(resultSuodryCall);
+        console.log('Sudory Client Restart:', resultSuodryCall);
       } else {
         clusterStatus[i] = {
           resourceGroupUuid: clusterUuid,
@@ -95,15 +96,17 @@ class healthService {
         clusterStatus[i].syncMetricMeta = true;
       }
 
-      const syncMetricReceivedFiltered = syncMetricReceived.filter(data => data.scheduleApiBody.clusterUuid === clusterUuid);
-      if (syncMetricReceivedFiltered.length === 0) {
-        clusterStatus[i].syncMetricReceived = false;
-        //call scheduleSyncMetricReceived
-        const resultScheduleSyncMetricReceived = await this.executorService.scheduleSyncMetricReceived(clusterUuid, config.metricReceivedCron);
-        if (resultScheduleSyncMetricReceived) clusterStatus[i].syncMetricReceivedAction = true;
-      } else {
-        clusterStatus[i].syncMetricReceived = true;
-      }
+      if (config.metricReceivedSwitch === 'on') {
+        const syncMetricReceivedFiltered = syncMetricReceived.filter(data => data.scheduleApiBody.clusterUuid === clusterUuid);
+        if (syncMetricReceivedFiltered.length === 0) {
+          clusterStatus[i].syncMetricReceived = false;
+          //call scheduleSyncMetricReceived
+          const resultScheduleSyncMetricReceived = await this.executorService.scheduleSyncMetricReceived(clusterUuid, config.metricReceivedCron);
+          if (resultScheduleSyncMetricReceived) clusterStatus[i].syncMetricReceivedAction = true;
+        } else {
+          clusterStatus[i].syncMetricReceived = true;
+        }
+      } else clusterStatus[i].syncMetricReceived = true;
 
       const syncAlertsFiltered = syncAlerts.filter(data => data.scheduleApiBody.clusterUuid === clusterUuid);
       if (syncAlertsFiltered.length === 0) {
@@ -140,7 +143,7 @@ class healthService {
       summary: 'checkHeathByCustomerAccountId',
       cronTab: cronTab,
       apiUrl: nexclipperApiUrl,
-      apiType: 'post',
+      apiType: 'POST',
       reRunRequire: true,
       scheduleFrom: '',
       scheduleTo: '',
