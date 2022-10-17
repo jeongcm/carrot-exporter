@@ -4,8 +4,6 @@ import ResourceGroupService from '../services/resourceGroup.service';
 import { ResourceGroupDto } from '../dtos/resourceGroup.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import k8sService from '../services/k8s.service';
-import queryString from 'query-string';
-import parseUrl from 'parseurl';
 
 class ResourceGroupController {
   public resourceGroupService = new ResourceGroupService();
@@ -155,14 +153,16 @@ class ResourceGroupController {
     const customerAccountId = req.params.customerAccountId;
     const platform = req.params.platform;
     let resourceGroup: IResourceGroupUi[]
-    console.log("query:", queryString.parse(req.query.toString()))
+    let query = req.query
+
+    console.log("query:", query.resourceGroupId)
     try {
       switch (platform) {
       case "K8":
         resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId);
         break;
       case "OS":
-        resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountIdForOpenstack(platform, customerAccountId);
+        resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountIdForOpenstack(platform, customerAccountId, query);
         break;
       }
 
