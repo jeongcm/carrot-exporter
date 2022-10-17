@@ -233,7 +233,6 @@ class ResourceGroupService {
    * @returns Promise
    */
   public async getResourceGroupByCustomerAccountIdForOpenstack(platform: string, customerAccountId: string): Promise<IResourceGroupUi[]> {
-    const resourceType = 'ND';
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
@@ -252,10 +251,13 @@ class ResourceGroupService {
     for (let i = 0; i < numberOfResouceGroup; i++) {
       const resourceGroupKey = resultResourceGroup[i].resourceGroupKey;
 
-      const resultResource = await this.resource.findAll({
-        where: { deletedAt: null, resourceType: resourceType, resourceGroupKey: resourceGroupKey },
+      const projectCount = await this.resource.count({
+        where: { deletedAt: null, resourceType: "PJ", resourceGroupKey: resourceGroupKey },
       });
-      const numberOfNode = resultResource.length;
+
+      const vmCount = await this.resource.count({
+        where: { deletedAt: null, resourceType: "VM", resourceGroupKey: resourceGroupKey },
+      });
 
       resourceGroupResult[i] = {
         resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
@@ -275,7 +277,8 @@ class ResourceGroupService {
         resourceGroupGrafana: resultResourceGroup[i].resourceGroupGrafana,
         resourceGroupLoki: resultResourceGroup[i].resourceGroupLoki,
         resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
-        numberOfNode: numberOfNode,
+        numberOfProject: projectCount,
+        numberOfVM: vmCount,
       };
     }
 
