@@ -232,22 +232,15 @@ class ResourceGroupService {
    * @param  {string} customerAccountId
    * @returns Promise
    */
-  public async getResourceGroupByCustomerAccountIdForOpenstack(platform: string, customerAccountId: string, query?: any): Promise<IResourceGroupUi[]> {
+  public async getResourceGroupByCustomerAccountIdForOpenstack(platform: string, customerAccountId: string, resourceGroupId: string[]): Promise<IResourceGroupUi[]> {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
-    const resourceGroupId: string[] = query.resourceGroupId as string[];
     console.log("resource Group id length, value: ", resourceGroupId.length, resourceGroupId);
     const resourceGroupWhereCondition = {
       deletedAt: null,
       customerAccountKey: customerAccountKey,
       resourceGroupPlatform: platform,
-      [Op.or]: [
-        {
-          resourceGroupId: {
-            [Op.eq]: query.resourceGroupId
-          }
-        },
-      ],
+      resourceGroupId,
     };
 
     console.log("query:", resourceGroupWhereCondition)
