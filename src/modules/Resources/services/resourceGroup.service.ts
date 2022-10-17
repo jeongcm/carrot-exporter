@@ -237,7 +237,7 @@ class ResourceGroupService {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
-    const resourceGroupWhereCondition = { deletedAt: null, customerAccountKey };
+    const resourceGroupWhereCondition = { deletedAt: null, customerAccountKey: customerAccountKey, resourceGroupPlatform: platform };
     if (resourceGroupId) {
       resourceGroupWhereCondition['resourceGroupId'] = resourceGroupId;
     }
