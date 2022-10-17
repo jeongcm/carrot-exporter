@@ -60,6 +60,13 @@ class ResourceGroupRoute implements Routes {
       this.resourceGroupController.updateResourceGroupById,
     );
     this.router.get('/resourceGroup/:resourceGroupId/k8s', authMiddleware, createUserLogMiddleware, this.resourceGroupController.getK8sClusterDetail);
+
+    this.router.get(
+      '/resourceGroup/:platform/CustomerAccountId/:customerAccountId',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceGroupController.getResourceGroupByCustomerAccountIdAndPlatform,
+    );
   }
 }
 

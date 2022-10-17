@@ -228,6 +228,61 @@ class ResourceGroupService {
   }
 
   /**
+   * @param  {string} platform
+   * @param  {string} customerAccountId
+   * @returns Promise
+   */
+  public async getResourceGroupByCustomerAccountIdAndPlatform(platform: string, customerAccountId: string): Promise<IResourceGroupUi[]> {
+    const resourceType = 'ND';
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+
+    const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: {
+        resourceGroupPlatform: platform,
+        customerAccountKey: customerAccountKey,
+        deletedAt: null
+      },
+    });
+
+    const numberOfResouceGroup = resultResourceGroup.length;
+
+    const resourceGroupResult = [];
+
+    for (let i = 0; i < numberOfResouceGroup; i++) {
+      const resourceGroupKey = resultResourceGroup[i].resourceGroupKey;
+
+      const resultResource = await this.resource.findAll({
+        where: { deletedAt: null, resourceType: resourceType, resourceGroupKey: resourceGroupKey },
+      });
+      const numberOfNode = resultResource.length;
+
+      resourceGroupResult[i] = {
+        resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
+        resourceGroupId: resultResourceGroup[i].resourceGroupId,
+        customerAccountKey: resultResourceGroup[i].customerAccountKey,
+        createdBy: resultResourceGroup[i].createdBy,
+        updatedBy: resultResourceGroup[i].updatedBy,
+        createdAt: resultResourceGroup[i].createdAt,
+        updatedAt: resultResourceGroup[i].updatedAt,
+        deletedAt: resultResourceGroup[i].deletedAt,
+        resourceGroupName: resultResourceGroup[i].resourceGroupName,
+        resourceGroupDescription: resultResourceGroup[i].resourceGroupDescription,
+        resourceGroupProvider: resultResourceGroup[i].resourceGroupProvider,
+        resourceGroupPlatform: resultResourceGroup[i].resourceGroupPlatform,
+        resourceGroupUuid: resultResourceGroup[i].resourceGroupUuid,
+        resourceGroupPrometheus: resultResourceGroup[i].resourceGroupPrometheus,
+        resourceGroupGrafana: resultResourceGroup[i].resourceGroupGrafana,
+        resourceGroupLoki: resultResourceGroup[i].resourceGroupLoki,
+        resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
+        numberOfNode: numberOfNode,
+      };
+    }
+
+    return resourceGroupResult;
+  }
+
+  /**
    * @param  {string} resourceGroupId
    * @param  {ResourceGroupDto} resourceGroupData
    * @param  {string} currentUserId

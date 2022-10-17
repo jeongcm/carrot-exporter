@@ -149,6 +149,23 @@ class ResourceGroupController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
+  public getResourceGroupByCustomerAccountIdAndPlatform = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountId = req.params.customerAccountId;
+    const platform = req.params.platform;
+
+    try {
+      const resourceGroup: IResourceGroupUi[] = await this.resourceGroupService.getResourceGroupByCustomerAccountIdAndPlatform(platform, customerAccountId);
+      res.status(200).json({ data: resourceGroup, message: `find resourceGroup for customerAccountId(${customerAccountId}) ` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
   public updateResourceGroupById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const resourceGroupId = req.params.resourceGroupId;
