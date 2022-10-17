@@ -240,8 +240,10 @@ class ResourceGroupService {
 
     const resourceGroupWhereCondition = { deletedAt: null, customerAccountKey: customerAccountKey, resourceGroupPlatform: platform };
     if (resourceGroupId) {
-      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupId;
+      resourceGroupWhereCondition['resourceGroupId'] = { [Op.or]: resourceGroupId};
     }
+
+    console.log("query:", resourceGroupWhereCondition)
 
     const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
       where: resourceGroupWhereCondition,
