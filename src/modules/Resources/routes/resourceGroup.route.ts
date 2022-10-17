@@ -63,7 +63,7 @@ class ResourceGroupRoute implements Routes {
 
     this.router.get(
       '/resourceGroup/:platform/CustomerAccountId/:customerAccountId',
-      authMiddleware,
+      // authMiddleware,
       createUserLogMiddleware,
       this.resourceGroupController.getResourceGroupByCustomerAccountIdAndPlatform,
     );
