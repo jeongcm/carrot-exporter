@@ -30,12 +30,11 @@ class AlertRuleService {
   public async getAlertRuleGraph(customerAccountKey: number, status: string): Promise<IAlertRuleGraph[]> {
     let conditionalWhere = {};
 
-    if (status === 'firing') {
-      const ago = dayjs().subtract(1.5, 'hour').utc().toDate();
+    if (status === 'all') {
+    } else {
       conditionalWhere = {
-        alertReceivedActiveAt: {
-          [Op.gt]: ago,
-        },
+        alertRuleState: status,
+        ...conditionalWhere,
       };
     }
 
@@ -43,7 +42,7 @@ class AlertRuleService {
       where: {
         customerAccountKey: customerAccountKey,
         deletedAt: null,
-        alertRuleState: status,
+        ...conditionalWhere,
       },
       attributes: {
         exclude: [
