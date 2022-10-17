@@ -155,16 +155,14 @@ class ResourceGroupController {
     const customerAccountId = req.params.customerAccountId;
     const platform = req.params.platform;
     let resourceGroup: IResourceGroupUi[]
-    let query = req.query
-
-    console.log("query:", query)
+    console.log("query:", queryString.parse(req.query.toString()))
     try {
       switch (platform) {
       case "K8":
         resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId);
         break;
       case "OS":
-        resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountIdForOpenstack(platform, customerAccountId, query);
+        resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountIdForOpenstack(platform, customerAccountId);
         break;
       }
 
