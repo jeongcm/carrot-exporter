@@ -85,10 +85,10 @@ class executorController {
       const clusterUuid = req.params.clusterUuid;
       const sudoryNamespace = req.params.sudoryNamespace;
       const customerAccountKey = req.customerAccountKey;
-      const resourceType = req.params.resourceType
+      const platform = req.params.platform
       let clientResponse
 
-      switch (resourceType) {
+      switch (platform) {
         case "K8":
           clientResponse = await this.executorService.checkExecutorClient(clusterUuid, sudoryNamespace, customerAccountKey);
           break
@@ -119,10 +119,10 @@ class executorController {
       const targetNamespace = req.body.targetNamespace;
       const customerAccountKey = req.customerAccountKey;
       const systemId = req.systemId;
-      const resourceType = req.body.resourceType
+      const platform = req.body.platform
       let serviceUuids
 
-      switch (resourceType) {
+      switch (platform) {
         case "K8":
           serviceUuids = await this.executorService.installKpsOnResourceGroup(clusterUuid, customerAccountKey, targetNamespace, systemId);
           break
