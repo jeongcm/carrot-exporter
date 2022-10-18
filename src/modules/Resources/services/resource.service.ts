@@ -296,8 +296,6 @@ class ResourceService {
       count += ret
     }
 
-
-
     return count;
   }
 
