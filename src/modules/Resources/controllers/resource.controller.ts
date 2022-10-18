@@ -166,8 +166,37 @@ class ResourceController {
     const customerAccountId: string = req.params.customerAccountId;
 
     try {
-      const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId(resourceType, customerAccountId, req.query);
+      const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId(resourceType, customerAccountId);
       res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resourceType ${resource}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public getResourceByCustomerAccountIdAndResourceType = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceType: string = req.params.resourceType;
+    const customerAccountId: string = req.params.customerAccountId;
+    let resources: IResource[]
+    try {
+      switch (resourceType) {
+        case "VM":
+          resources = await this.resourceService.getVMListByCustomerAccountId(resourceType, customerAccountId, req.query);
+          break;
+        case "PM":
+          resources = await this.resourceService.getPMListByCustomerAccountId(resourceType, customerAccountId, req.query);
+          break;
+        case "PJ":
+          resources = await this.resourceService.getPJListByCustomerAccountId(resourceType, customerAccountId, req.query);
+          break
+        default:
+      }
+
+      res.status(200).json({ data: resources, message: `find resources with customerAccountId(${customerAccountId}) and resourceType ${resourceType}` });
     } catch (error) {
       next(error);
     }

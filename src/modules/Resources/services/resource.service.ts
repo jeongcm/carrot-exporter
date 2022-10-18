@@ -238,26 +238,11 @@ class ResourceService {
    * @param  {string} resourceType
    * @param  {number} customerAccountId
    */
-  public async getResourceByTypeCustomerAccountId(resourceType: string[], customerAccountId: string, query?: any): Promise<IResource[]> {
+  public async getResourceByTypeCustomerAccountId(resourceType: string[], customerAccountId: string): Promise<IResource[]> {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
-
-    if (resourceType.indexOf("VM")) {
-      console.log("resourceType is VM so check pm, project id Query is exist")
-      if (query.pmId) {
-        resourceWhereCondition['parentResourceId'] = query.pmId
-      }
-
-      if (query.projectId) {
-        resourceWhereCondition['resourceNamespace'] = query.projectId
-      }
-    }
-
-    if (query.resourceGroupId) {
-      resourceWhereCondition['resourceGroupId'] = query.resourceGroupId;
-    }
 
     const allResources: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
@@ -266,6 +251,172 @@ class ResourceService {
     return allResources;
   }
 
+  /**
+   * @param  {string} resourceType
+   * @param  {number} customerAccountId
+   */
+  public async getVMListByCustomerAccountId(resourceType: string, customerAccountId: string, query?: any): Promise<IResource[]> {
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
+
+    if (query.resourceGroupId) {
+      resourceWhereCondition['resourceGroupId'] = query.resourceGroupId;
+    }
+
+    const resultVMList: IResource[] = await this.resource.findAll({
+      where: resourceWhereCondition,
+    });
+
+    return this.getVMDetails(resultVMList);
+  }
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} customerAccountId
+   */
+  public async getPMListByCustomerAccountId(resourceType: string, customerAccountId: string, query?: any): Promise<IResource[]> {
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
+
+    if (query.resourceGroupId) {
+      resourceWhereCondition['resourceGroupId'] = query.resourceGroupId;
+    }
+
+    const resultPMList: IResource[] = await this.resource.findAll({
+      where: resourceWhereCondition,
+    });
+
+    for (let i = 0; i < resultPMList.length; i++) {
+      const resourceGroupKey = resultPMList[i].resourceGroupKey;
+
+      let vms = await this.resource.findAll({
+        where: {
+          deletedAt: null,
+          resourceType: "VM",
+          resourceGroupKey: resourceGroupKey,
+          parentResourceId: resultPMList[i].resourceTargetUuid
+        },
+      });
+
+      // pm 별 vm의 정보
+      resultPMList[i].resourceSpec.vms = await this.getVMDetails(vms)
+    }
+
+    return resultPMList;
+  }
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} customerAccountId
+   */
+  public async getPJListByCustomerAccountId(resourceType: string, customerAccountId: string, query?: any): Promise<IResource[]> {
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
+
+    if (query.resourceGroupId) {
+      resourceWhereCondition['resourceGroupId'] = query.resourceGroupId;
+    }
+
+    const resultPJList: IResource[] = await this.resource.findAll({
+      where: resourceWhereCondition,
+    });
+
+    for (let i = 0; i < resultPJList.length; i++) {
+      const resourceGroupKey = resultPJList[i].resourceGroupKey;
+
+      // get VM info from PJ
+      let vms = await this.resource.findAll({
+        where: {
+          deletedAt: null,
+          resourceType: "VM",
+          resourceGroupKey: resourceGroupKey,
+          resourceNamespace: resultPJList[i].resourceName
+        },
+      });
+
+      resultPJList[i].resourceSpec.vms = this.getVMDetails(vms)
+
+      // get PM info in project
+
+      // find vms group by pm_id
+      let groupByVms = await this.resource.findAll({
+        where: { deletedAt: null, resourceType: "VM", resourceGroupKey: resourceGroupKey, resourceNamespace: resultPJList[i].resourceName},
+        group: 'parent_resource_id',
+      });
+
+      let pms = [];
+      for (let i = 0; i < groupByVms.length; i++) {
+        // find vm's pm
+        let pm = await this.resource.findOne({
+          where: { deletedAt: null, resourceType: "PM", resourceGroupKey: resourceGroupKey, resourceTargetUuid: groupByVms[i].parentResourceId},
+        });
+        pms.push(pm)
+      }
+
+      // get PM info from PJ
+      resultPJList[i].resourceSpec.pms = await this.getPMDetails(pms)
+    }
+
+    return resultPJList;
+  }
+
+  public async getVMDetails(vms: IResource[]): Promise<IResource[]> {
+    for (let i = 0; i < vms.length; i++) {
+      const resourceGroupKey = vms[i].resourceGroupKey;
+
+      let PM = await this.resource.findOne({
+        attributes: ['resourceName'],
+        where: {
+          deletedAt: null,
+          resourceType: "PM",
+          resourceGroupKey: resourceGroupKey,
+          resourceTargetUuid: vms[i].parentResourceId
+        },
+      });
+
+      vms[i].resourceSpec.PMName = PM.resourceName
+
+      let project = await this.resource.findOne({
+        attributes: ['resourceName'],
+        where: {
+          deletedAt: null,
+          resourceType: "PJ",
+          resourceGroupKey: resourceGroupKey,
+          resourceName: vms[i].resourceNamespace
+        },
+      });
+
+      vms[i].resourceSpec.projectName = project.resourceName
+    }
+
+    return vms
+  }
+
+  public async getPMDetails(pms: IResource[]): Promise<IResource[]> {
+    for (let i = 0; i < pms.length; i++) {
+      const resourceGroupKey = pms[i].resourceGroupKey;
+
+      let vms = await this.resource.findAll({
+        where: {
+          deletedAt: null,
+          resourceType: "VM",
+          resourceGroupKey: resourceGroupKey,
+          parentResourceId: pms[i].resourceTargetUuid
+        },
+      });
+
+      // pm 별 vm의 정보
+      pms[i].resourceSpec.vms = await this.getVMDetails(vms)
+    }
+
+    return pms
+  }
   /**
    * @param  {string} resourceId
    * @param  {number} customerAccountKey
