@@ -181,7 +181,7 @@ class ResourceGroupService {
    * @param  {string} customerAccountId
    * @returns Promise
    */
-  public async getResourceGroupByCustomerAccountId(customerAccountId: string, query: any): Promise<IResourceGroupUi[]> {
+  public async getResourceGroupByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResourceGroupUi[]> {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
