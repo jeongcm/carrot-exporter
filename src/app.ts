@@ -83,7 +83,7 @@ class App {
     this.app.use(morgan(config.logFormat, { stream }));
     this.app.use(cors({ origin: config.cors.allowAnyOrigin, credentials: config.cors.credentials }));
     //this.app.use(sqlInjection);
-    this.app.use(hpp({ whitelist: ['resourceType', 'query', 'metricReceivedName'] }));
+    this.app.use(hpp({ whitelist: ['resourceType', 'query', 'metricReceivedName', 'resourceGroupId'] }));
     this.app.use(helmet());
     this.app.use(compression());
     this.app.use(express.json({ limit: config.maxApiBodySize }));
