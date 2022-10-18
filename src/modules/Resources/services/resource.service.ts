@@ -262,7 +262,8 @@ class ResourceService {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
 
     if (query.resourceGroupId) {
-      resourceWhereCondition['resourceGroupId'] = query.resourceGroupId;
+      let resultResourceGroup = await this.resourceGroupService.getResourceGroupById(query.resourceGroupId[i]);
+      resourceWhereCondition['resourceGroupKey'] = resultResourceGroup.resourceGroupKey;
     }
 
     const resultVMList: IResource[] = await this.resource.findAll({
@@ -283,7 +284,8 @@ class ResourceService {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
 
     if (query.resourceGroupId) {
-      resourceWhereCondition['resourceGroupId'] = query.resourceGroupId;
+      let resultResourceGroup = await this.resourceGroupService.getResourceGroupById(query.resourceGroupId[i]);
+      resourceWhereCondition['resourceGroupKey'] = resultResourceGroup.resourceGroupKey;
     }
 
     const resultPMList: IResource[] = await this.resource.findAll({
@@ -320,7 +322,8 @@ class ResourceService {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
 
     if (query.resourceGroupId) {
-      resourceWhereCondition['resourceGroupId'] = query.resourceGroupId;
+      let resultResourceGroup = await this.resourceGroupService.getResourceGroupById(query.resourceGroupId[i]);
+      resourceWhereCondition['resourceGroupKey'] = resultResourceGroup.resourceGroupKey;
     }
 
     const resultPJList: IResource[] = await this.resource.findAll({
