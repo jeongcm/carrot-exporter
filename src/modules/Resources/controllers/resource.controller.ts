@@ -178,6 +178,23 @@ class ResourceController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
+  public getResourceDetailByCustomerAccountIdResourceID = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceId: string = req.params.resourceId;
+    const customerAccountId: string = req.params.customerAccountId;
+
+    try {
+      const resource: IResource = await this.resourceService.getResourceByTypeCustomerAccountIdResourceId(resourceId, customerAccountId);
+      res.status(200).json({ data: resource, message: `find resource with customerAccountId(${customerAccountId}) and resourceId ${resourceId}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
   public getResourceByTypeResourceGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const resourceType: string[] = req.query.resourceType as string[];
     const resourceQuery: any = {
