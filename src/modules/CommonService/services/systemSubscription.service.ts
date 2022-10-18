@@ -2,26 +2,19 @@ import DB from '@/database';
 import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
-//import bcrypt from 'bcrypt';
+
 
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import SendMailService from '@/modules/Messaging/services/sendMail.service';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 
-import NotificationService from '@/modules/Notification/services/notification.service';
-//import { Notification } from '@/common/interfaces/notification.interface';
-import { IPartyUser, IParty } from '@/common/interfaces/party.interface';
-import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import NotificationService from '@/modules/Notification/services/notification.service';//import { Notification } from '@/common/interfaces/notification.interface';
+
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
-import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/customerAccount.dto';
 import { CreateSubscriptionDto } from '@/modules/Subscriptions/dtos/subscriptions.dto';
-import { CreateUserDto } from '@/modules/Party/dtos/party.dto';
-//import urlJoin from 'url-join';
 import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
 
-//const nodeMailer = require('nodemailer');
-//const mg = require('nodemailer-mailgun-transport');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');

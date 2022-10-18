@@ -37,9 +37,6 @@ class Github {
                     lastName: profile.username,
                     email: '',
                   },
-                  req.systemId,
-                );
-                const newPartyUser = await this.partyService.createUser(
                   {
                     email: '',
                     timezone: '',
@@ -51,16 +48,15 @@ class Github {
                     userId: profile.username,
                     mobile: '',
                     password: '',
-                    customerAccountId: customerAccount.customerAccountId,
+                    customerAccountId: '',
                     partyUserStatus: 'AC',
                     adminYn: false,
                     language: 'EN',
+                    socialProviderId: profile.id,
                   },
-                  customerAccount.customerAccountKey,
-                  '',
-                  profile.id,
+                  req.systemId,
                 );
-                done(null, newPartyUser);
+                done(null, customerAccount);
               }
             }
           } catch (err) {

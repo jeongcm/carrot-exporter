@@ -2,7 +2,6 @@ import DB from '@/database';
 import config from '@config/index';
 
 import { HttpException } from '@/common/exceptions/HttpException';
-import { isEmpty } from '@/common/utils/util';
 import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/customerAccount.dto';
 import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { AddressModel } from '@/modules/Address/models/address.model';
@@ -39,7 +38,7 @@ class CustomerAccountService {
    */
   public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, partyData: CreateUserDto, createdBy: string): Promise<object> {
     //0. Data Prep
-    const returnResult = {};
+
     const currentDate = new Date();
     const CustomerAccountDataNew = { ...customerAccountData, customerAccountType: 'CO' as customerAccountType };
     const { partyName, partyDescription, parentPartyId, firstName, lastName, userId, email, mobile, language } = partyData;

@@ -36,9 +36,6 @@ class Google {
                   lastName: profile.displayName,
                   email: profile.emails[0].value,
                 },
-                req.systemId,
-              );
-              const newPartyUser = await this.partyService.createUser(
                 {
                   email: profile.emails[0].value,
                   timezone: '',
@@ -51,15 +48,14 @@ class Google {
                   mobile: '',
                   password: '',
                   adminYn: false,
-                  customerAccountId: customerAccount.customerAccountId,
+                  customerAccountId: '',
                   partyUserStatus: 'AC',
                   language: 'EN',
+                  socialProviderId: profile.id,
                 },
-                customerAccount.customerAccountKey,
-                '',
-                profile.id,
+                req.systemId,
               );
-              done(null, newPartyUser);
+              done(null, customerAccount);
             }
           } catch (err) {
             return done(err);

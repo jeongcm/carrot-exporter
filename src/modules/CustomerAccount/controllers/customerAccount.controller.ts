@@ -50,6 +50,7 @@ class CustomerAccountController {
         adminYn: false,
         language: 'EN',
         mobile: '',
+        socialProviderId: '',
       };
       const createdCustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, partyData, systemId);
 
