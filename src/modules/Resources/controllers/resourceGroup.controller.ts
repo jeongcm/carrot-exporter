@@ -135,35 +135,10 @@ class ResourceGroupController {
    */
   public getResourceGroupByCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
+    let resourceGroup: IResourceGroup[]
 
     try {
-      const resourceGroup: IResourceGroupUi[] = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId);
-      res.status(200).json({ data: resourceGroup, message: `find resourceGroup for customerAccountId(${customerAccountId}) ` });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  /**
-   * @param  {IRequestWithUser} req
-   * @param  {Response} res
-   * @param  {NextFunction} next
-   */
-  public getResourceGroupByCustomerAccountIdAndPlatform = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const customerAccountId = req.params.customerAccountId;
-    const platform = req.params.platform;
-    let resourceGroup: IResourceGroupUi[]
-
-    try {
-      switch (platform) {
-      case "K8":
-        resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId);
-        break;
-      case "OS":
-        resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountIdForOpenstack(platform, customerAccountId, req.query);
-        break;
-      }
-
+      resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId, req.query);
       res.status(200).json({ data: resourceGroup, message: `find resourceGroup for customerAccountId(${customerAccountId}) ` });
     } catch (error) {
       next(error);

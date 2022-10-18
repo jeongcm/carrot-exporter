@@ -181,50 +181,28 @@ class ResourceGroupService {
    * @param  {string} customerAccountId
    * @returns Promise
    */
-  public async getResourceGroupByCustomerAccountId(customerAccountId: string): Promise<IResourceGroupUi[]> {
-    const resourceType = 'ND';
+  public async getResourceGroupByCustomerAccountId(customerAccountId: string, query: any): Promise<IResourceGroupUi[]> {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
-    const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null },
-    });
+    const resourceGroupWhereCondition = {
+      deletedAt: null,
+      customerAccountKey: customerAccountKey,
+    };
 
-    const numberOfResouceGroup = resultResourceGroup.length;
-
-    const resourceGroupResult = [];
-
-    for (let i = 0; i < numberOfResouceGroup; i++) {
-      const resourceGroupKey = resultResourceGroup[i].resourceGroupKey;
-
-      const resultResource = await this.resource.findAll({
-        where: { deletedAt: null, resourceType: resourceType, resourceGroupKey: resourceGroupKey },
-      });
-      const numberOfNode = resultResource.length;
-
-      resourceGroupResult[i] = {
-        resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
-        resourceGroupId: resultResourceGroup[i].resourceGroupId,
-        customerAccountKey: resultResourceGroup[i].customerAccountKey,
-        createdBy: resultResourceGroup[i].createdBy,
-        updatedBy: resultResourceGroup[i].updatedBy,
-        createdAt: resultResourceGroup[i].createdAt,
-        updatedAt: resultResourceGroup[i].updatedAt,
-        deletedAt: resultResourceGroup[i].deletedAt,
-        resourceGroupName: resultResourceGroup[i].resourceGroupName,
-        resourceGroupDescription: resultResourceGroup[i].resourceGroupDescription,
-        resourceGroupProvider: resultResourceGroup[i].resourceGroupProvider,
-        resourceGroupPlatform: resultResourceGroup[i].resourceGroupPlatform,
-        resourceGroupUuid: resultResourceGroup[i].resourceGroupUuid,
-        resourceGroupPrometheus: resultResourceGroup[i].resourceGroupPrometheus,
-        resourceGroupGrafana: resultResourceGroup[i].resourceGroupGrafana,
-        resourceGroupLoki: resultResourceGroup[i].resourceGroupLoki,
-        resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
-        numberOfNode: numberOfNode,
-      };
+    if (query.platform) {
+      resourceGroupWhereCondition['resourceGroupPlatform'] = query.platform
     }
 
-    return resourceGroupResult;
+    if (query.resourceGroupId) {
+      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId
+    }
+
+    const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: resourceGroupWhereCondition,
+    });
+
+    return resultResourceGroup;
   }
 
   /**
@@ -232,7 +210,7 @@ class ResourceGroupService {
    * @param  {string} customerAccountId
    * @returns Promise
    */
-  public async getResourceGroupByCustomerAccountIdForOpenstack(platform: string, customerAccountId: string, query?: any): Promise<IResourceGroupUi[]> {
+  public async getResourceGroupByCustomerAccountIdForOpenstack(customerAccountId: string, platform: string, query?: any): Promise<IResourceGroupUi[]> {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
