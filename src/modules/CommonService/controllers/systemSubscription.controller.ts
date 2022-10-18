@@ -67,7 +67,7 @@ class SystemSubscriptionController {
             language: language || 'EN',
           };
 
-          const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy);
+          const responseCustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, partyData, createdBy);
           createdResponse = responseCustomerAccount;
           break;
 

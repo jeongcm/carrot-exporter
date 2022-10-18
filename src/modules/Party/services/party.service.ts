@@ -229,13 +229,13 @@ class PartyService {
 
     const findUser: IPartyUser = await this.partyUser.findOne({ where: { userId: loginData.userId } });
     if (!findUser) throw new HttpException(401, `LOGIN_FAILED`);
-    if(loginData.password === config.defaultPassword){
-      throw new HttpException(401, `Please Reset your password before login`);
-    }
     const isPasswordMatching: boolean = await bcrypt.compare(loginData.password, findUser.password);
 
     if (!isPasswordMatching) throw new HttpException(401, `LOGIN_FAILED`);
 
+    if (loginData.password === config.defaultPassword) {
+      throw new HttpException(401, `Please Reset your password before login`);
+    }
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);
 

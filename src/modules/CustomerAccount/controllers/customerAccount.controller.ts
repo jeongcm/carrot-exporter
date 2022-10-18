@@ -13,12 +13,10 @@ import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface'
 import { IAddress } from '@/common/interfaces/address.interface';
 import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
 import { CreateUserDto } from '@/modules/Party/dtos/party.dto';
-import SystemSubscriptionService from '@/modules/CommonService/services/systemSubscription.service';
 
 class CustomerAccountController {
   public customerAccountService = new CustomerAccountService();
   public addressService = new AddressService();
-  public systemSubscriptionService = new SystemSubscriptionService();
 
   public createCustomerAccount = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
     try {
@@ -53,7 +51,7 @@ class CustomerAccountController {
         language: 'EN',
         mobile: '',
       };
-      const createdCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, systemId);
+      const createdCustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, partyData, systemId);
 
       res.status(201).json({ data: createdCustomerAccount, message: 'created' });
     } catch (error) {
