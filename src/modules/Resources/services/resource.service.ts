@@ -339,6 +339,8 @@ class ResourceService {
       }
 
       resourceWhereCondition['resourceGroupKey'] = resourceGroupKey
+
+      console.log(resourceWhereCondition)
     }
 
     const resultPJList: IResource[] = await this.resource.findAll({
