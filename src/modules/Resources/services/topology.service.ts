@@ -31,7 +31,7 @@ export const TYPE_PER_NAME: any = {
 export const NAME_PER_TYPE: any = {
   NS: 'Namespace',
   SS: 'StatefulSet',
-  DS: 'DaemonSet',
+  DS: 'DS',
   RS: 'ReplicaSet',
   DP: 'Deployment',
   PD: 'Pod',
@@ -209,7 +209,7 @@ class TopologyService extends ServiceExtension {
           }
 
           owners?.map((owner: any) => {
-            // TODO: Add DaemonSet, StatefulSet, Deployment?
+            // TODO: Add DS, StatefulSet, Deployment?
             if (owner.uid) {
               if (!podsPerUid[namespace]) {
                 podsPerUid[namespace] = {};
@@ -219,7 +219,7 @@ class TopologyService extends ServiceExtension {
                 podsPerUid[namespace][owner.uid] = [];
               }
 
-              connectedPod ++;
+              connectedPod++;
               podsPerUid[namespace][owner.uid].push({
                 resourceType: 'PD',
                 resourceName: resource.resourceName,
@@ -269,6 +269,54 @@ class TopologyService extends ServiceExtension {
     });
 
     return counts;
+  }
+
+  public async countPodResources(customerAccountKey: number): Promise<any> {
+    const podPerNamespace: any = await this.getAllTopology('workload-pods', customerAccountKey);
+    let myCounts = {
+      Clusters: 0,
+      Namespaces: 0,
+      Pods: 0,
+      workloads: 0,
+      RS: 0,
+      SS: 0,
+      DS: 0,
+      CJ: 0,
+      JO: 0,
+    };
+    podPerNamespace?.map((podPerNamespaceX: any) => {
+      console.log(podPerNamespaceX);
+      if (podPerNamespaceX?.resourceGroup) {
+        myCounts.Clusters = myCounts.Clusters + 1;
+      }
+      podPerNamespaceX?.children.map((podPerNamespaceXX: any) => {
+        if (podPerNamespaceXX?.resourceType === 'NS') {
+          myCounts.Namespaces = myCounts.Namespaces + 1;
+        }
+        podPerNamespaceXX.children.map((podPerNamespaceXXX: any) => {
+          if (podPerNamespaceXXX?.level === 'workload') {
+            myCounts.workloads = myCounts.workloads + 1;
+            if (podPerNamespaceXXX?.resourceType === 'DP' || podPerNamespaceXXX?.resourceType === 'RS') {
+              myCounts.RS = myCounts.RS + 1;
+            } else if (podPerNamespaceXXX?.resourceType === 'SS') {
+              myCounts.SS = myCounts.SS + 1;
+            } else if (podPerNamespaceXXX?.resourceType === 'JO') {
+              myCounts.JO = myCounts.JO + 1;
+            } else if (podPerNamespaceXXX?.resourceType === 'CJ') {
+              myCounts.CJ = myCounts.CJ + 1;
+            } else if (podPerNamespaceXXX?.resourceType === 'DS') {
+              myCounts.DS = myCounts.DS + 1;
+            }
+          }
+          podPerNamespaceXXX?.children.map((podPerNamespaceXXXX: any) => {
+            if (podPerNamespaceXXXX?.resourceType === 'PD') {
+              myCounts.Pods = myCounts.Pods + 1;
+            }
+          });
+        });
+      });
+    });
+    return myCounts;
   }
 
   public async createNsServiceTopology(resources: IResource[], resourceGroup: IResourceGroup) {
