@@ -286,15 +286,24 @@ class ResourceService {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType };
     let count: number = 0
 
-    for (let i = 0; i < query.resourceGroupId.length; i++) {
-      const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(query.resourceGroupId[i]);
-      resourceWhereCondition['resourceGroupKey'] = resultResourceGroup.resourceGroupKey;
+    if (query.resourceGroupId) {
+      for (let i = 0; i < query.resourceGroupId.length; i++) {
+        let resultResourceGroup = await this.resourceGroupService.getResourceGroupById(query.resourceGroupId[i]);
+        resourceWhereCondition['resourceGroupKey'] = resultResourceGroup.resourceGroupKey;
+        let ret: number = await this.resource.count({
+          where: resourceWhereCondition,
+        });
+
+        count += ret
+      }
+    } else {
       let ret: number = await this.resource.count({
         where: resourceWhereCondition,
       });
 
-      count += ret
+      count = ret
     }
+
 
     return count;
   }
