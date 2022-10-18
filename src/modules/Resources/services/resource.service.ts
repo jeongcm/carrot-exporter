@@ -287,8 +287,11 @@ class ResourceService {
     let count: number = 0
 
     if (query.resourceGroupId) {
+      console.log("rgIDs: ", query.resourceGroupId)
       for (let i = 0; i < query.resourceGroupId.length; i++) {
+        console.log("rgID: ", query.resourceGroupId)
         let resultResourceGroup = await this.resourceGroupService.getResourceGroupById(query.resourceGroupId[i]);
+        console.log("rg: ", resultResourceGroup)
         resourceWhereCondition['resourceGroupKey'] = resultResourceGroup.resourceGroupKey;
         let ret: number = await this.resource.count({
           where: resourceWhereCondition,
