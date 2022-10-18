@@ -198,8 +198,10 @@ class TopologyService extends ServiceExtension {
             } catch (e) {
               owners = [];
             }
-          } else {
+          } else if (resource.resourceOwnerReferences) {
             owners = resource.resourceOwnerReferences;
+          } else if (!resource.resourceOwnerReferences) {
+            owners = [];
           }
 
           if (!Array.isArray(owners)) {
@@ -216,7 +218,8 @@ class TopologyService extends ServiceExtension {
               if (!podsPerUid[namespace][owner.uid]) {
                 podsPerUid[namespace][owner.uid] = [];
               }
-              connectedPod++;
+
+              connectedPod ++;
               podsPerUid[namespace][owner.uid].push({
                 resourceType: 'PD',
                 resourceName: resource.resourceName,
