@@ -269,7 +269,7 @@ class ResourceService {
       where: resourceWhereCondition,
     });
 
-    return this.getVMDetails(resultVMList);
+    return await this.getVMDetails(resultVMList);
   }
 
   /**
@@ -340,7 +340,7 @@ class ResourceService {
         },
       });
 
-      resultPJList[i].resourceSpec.vms = this.getVMDetails(vms)
+      resultPJList[i].resourceSpec.vms = await this.getVMDetails(vms)
 
       // get PM info in project
 
