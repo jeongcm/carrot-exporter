@@ -248,11 +248,36 @@ class ResourceService {
       resourceWhereCondition['resourceGroupId'] = query.resourceGroupId;
     }
 
+    if (query.pmId) {
+      resourceWhereCondition['parentResourceId'] = query.pmId
+    }
+
+    if (query.projectId) {
+      resourceWhereCondition['resourceNamespace'] = query.projectId
+    }
+
     const allResources: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
     });
 
     return allResources;
+  }
+
+  /**
+   * @param  {string} resourceId
+   * @param  {number} customerAccountId
+   */
+  public async getResourceByTypeCustomerAccountIdResourceId(resourceId: string, customerAccountId: string): Promise<IResource> {
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceId: resourceId,};
+
+    const resource: IResource = await this.resource.findOne({
+      where: resourceWhereCondition,
+    });
+
+    return resource;
   }
 
   /**
