@@ -265,12 +265,9 @@ class ResourceService {
 
   /**
    * @param  {string} resourceId
-   * @param  {number} customerAccountId
+   * @param  {number} customerAccountKey
    */
-  public async getResourceByTypeCustomerAccountIdResourceId(resourceId: string, customerAccountId: string): Promise<IResource> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
-
+  public async getResourceByTypeCustomerAccountKeyResourceId(resourceId: string, customerAccountKey: number): Promise<IResource> {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceId: resourceId,};
 
     const resource: IResource = await this.resource.findOne({
@@ -278,6 +275,25 @@ class ResourceService {
     });
 
     return resource;
+  }
+
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} customerAccountKey
+   */
+  public async getResourceCountByResourceType(resourceType: string, customerAccountKey: number, query?: any): Promise<number> {
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType };
+
+    if (query.resourceGroupId) {
+      resourceWhereCondition['resourceGroupId'] = query.resourceGroupId;
+    }
+
+    const count: number = await this.resource.count({
+      where: resourceWhereCondition,
+    });
+
+    return count;
   }
 
   /**
