@@ -244,16 +244,19 @@ class ResourceService {
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
 
+    if (resourceType.indexOf("VM")) {
+      console.log("resourceType is VM so check pm, project id Query is exist")
+      if (query.pmId) {
+        resourceWhereCondition['parentResourceId'] = query.pmId
+      }
+
+      if (query.projectId) {
+        resourceWhereCondition['resourceNamespace'] = query.projectId
+      }
+    }
+
     if (query.resourceGroupId) {
       resourceWhereCondition['resourceGroupId'] = query.resourceGroupId;
-    }
-
-    if (query.pmId) {
-      resourceWhereCondition['parentResourceId'] = query.pmId
-    }
-
-    if (query.projectId) {
-      resourceWhereCondition['resourceNamespace'] = query.projectId
     }
 
     const allResources: IResource[] = await this.resource.findAll({
