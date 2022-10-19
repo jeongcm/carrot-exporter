@@ -31,7 +31,7 @@ class CustomerAccountController {
         customerAccountDescription,
         parentCustomerAccountId,
         customerAccountType,
-      } = createdCustomerAccount ||{};
+      } = createdCustomerAccount || {};
 
       const response = {
         customerAccountId,
@@ -59,7 +59,6 @@ class CustomerAccountController {
     }
   };
 
-
   public getCustomerAccountById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
 
@@ -78,6 +77,23 @@ class CustomerAccountController {
     }
   };
 
+  public getCustomerAccountByResourceGroupUuid = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    const resourceGroupUuid = req.params.resourceGroupUuid;
+
+    try {
+      const customerAccount: ICustomerAccount = await this.customerAccountService.getCustomerAccountByResourceGroupUuid(resourceGroupUuid);
+
+      if (customerAccount) {
+        res.status(200).json({ data: customerAccount, message: 'success' });
+        return;
+      } else {
+        res.status(404).json({ message: `ResourceGroupUud(${resourceGroupUuid}) not found` });
+        return;
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
   public updateCustomerAccountById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
     const logginedUserId = req.user.partyId;

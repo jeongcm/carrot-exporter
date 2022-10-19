@@ -29,7 +29,6 @@ class SchedulerController {
     }
   };
 
-
   public getSchedulerByClusterId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterId = req.params.clusterId;
@@ -78,16 +77,16 @@ class SchedulerController {
     }
   };
 
-
-  
   public createScheduler = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
     const createSchedulerData = req.body;
-    //improvement/599, in case of "" of apiUrl, fill Sudory base url. 
-    const apiUrl =  req.body.apiUrl || config.sudoryApiDetail.baseURL;
+    //improvement/599, in case of "" of apiUrl, fill Sudory base url.
+    const apiUrl = req.body.apiUrl || config.sudoryApiDetail.baseURL;
+    const apiType = req.body.apiType || 'POST';
     const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
-    delete createSchedulerData.apiUrl; 
-    const newCreateSchedulerData = {...createSchedulerData, apiUrl};
+    delete createSchedulerData.apiUrl;
+    delete createSchedulerData.apiType;
+    const newCreateSchedulerData = { ...createSchedulerData, apiUrl, apiType };
     try {
       const createSchedulerResult = await this.schedulerService.createScheduler(newCreateSchedulerData, customerAccountId);
       res.status(200).json({ data: createSchedulerResult, message: `created scheduler` });

@@ -14,6 +14,7 @@ import tableIds from '../../init/tableId.seeding.json';
 import api from '../../init/api.seeding.json';
 import role from '../../init/role.seeding.json';
 import exporters from '../../init/exporters.seeding.json';
+import { multiply } from 'lodash';
 
 validateEnv();
 
@@ -30,9 +31,11 @@ export default {
   metricCron: process.env.NC_LARI_METRIC_CRON || `*/5 * * * *`,
   metricReceivedCron: process.env.NC_LARI_METRIC_RECEIVED_CRON || `*/5 * * * *`,
   healthCron: process.env.NC_LARI_HEALTH_CRON || '*/5 * * * *',
+  metricReceivedSwitch: process.env.NC_METRIC_RECEIVED_SWITCH || 'off',
   defaultPassword: process.env.NC_LARI_DEFAULT_PASSWORD || 'WOt7u7OGxr',
   frontenAppUrl: process.env.NC_LARI_FRONTEND_URL,
   lokiApiBaseUrl: process.env.NC_LOKI_API_BASE_URL,
+  lokiWsBaseUrl: (process.env.NC_LOKI_API_BASE_URL || '').replace('http://', 'ws://').replace('https://', 'wss://'),
   cors: {
     allowAnyOrigin: process.env.NC_LARI_CORS_ORIGIN === 'true' ? Boolean(process.env.NC_LARI_CORS_ORIGIN) : process.env.NC_LARI_CORS_ORIGIN,
     credentials: process.env.NC_LARI_CORS_CREDENTIALS === 'true',
@@ -148,6 +151,15 @@ export default {
   victoriaMetrics: {
     NC_LARI_VM_ADDRESS: process.env.NC_LARI_VM_ADDRESS,
     NC_LARI_VM_API: process.env.NC_LARI_VM_API,
+    vmMultiBaseUrlInsert:
+      process.env.NC_VM_MULTI_BASE_URL_INSERT || 'http://vm-cluster-victoria-metrics-cluster-vminsert.vm-multi-tenant.svc.cluster.local:8480/insert',
+    vmMultiBaseUrlSelect:
+      process.env.NC_VM_MULTI_BASE_URL_SELECT || 'http://vm-cluster-victoria-metrics-cluster-vmselect.vm-multi-tenant.svc.cluster.local:8481/select',
+    vmMultiAuthUrl: process.env.NC_VM_MULTI_AUTH_URL || 'http://vm-auth-victoria-metrics-auth..vm-multi-tenant.svc.cluster.local:8427',
+    vmMultiNamespaces: process.env.NC_VM_MULTI_NAMESPACE || 'vm-multi-tenant',
+    vmMultiSecret: process.env.NC_VM_MULTI_SECRET || 'vm-auth-victoria-metrics-auth',
+    vmMultiClusterUuid: process.env.NC_VM_MULTI_CLUSTER_UUID,
+    vmOption: process.env.NC_VM_OPTION || 'MULTI',
   },
   alerthub: {
     baseUrl: process.env.NC_ALERTHUB_URL,

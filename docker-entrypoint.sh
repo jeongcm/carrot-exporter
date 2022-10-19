@@ -12,5 +12,11 @@ if [[ -f /vault/secrets/nc-mailgun ]]; then
     export NC_LARI_MAILGUN_API_KEY="${NC_LARI_MAILGUN_API_KEY}"
 fi
 
+if [[ -f /vault/secrets/ncDoKeys ]]; then
+    source /vault/secrets/ncDoKeys
+    export NC_LARI_DO_ACCESS_KEY_ID="${NC_LARI_DO_ACCESS_KEY_ID}"
+    export NC_LARI_DO_SECRET_ACCESS_KEY="${NC_LARI_DO_SECRET_ACCESS_KEY}"
+fi
+
 npm run start
 

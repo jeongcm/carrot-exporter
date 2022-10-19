@@ -3,7 +3,7 @@ import urlJoin from 'url-join';
 //import messageModel from '../models/message.model';
 //import {SendMail} from '@/modules/Messaging/dtos/sendMail.dto'
 //import DB from '@/database';
-import NotificationService from'@modules/Notification/services/notification.service'
+import NotificationService from '@modules/Notification/services/notification.service';
 
 // RYAN: please keep it our convention by using import
 const nodeMailer = require('nodemailer');
@@ -45,9 +45,9 @@ class MailService {
     });
   };
 
-  public sendMailGeneral(mailOptions: any){
-    var msg = {};
-    console.log ("sending mail");
+  public sendMailGeneral(mailOptions: any) {
+    let msg = {};
+    console.log('sending mail');
     try {
       const auth = {
         api_key: config.email.mailgun.apiKey,
@@ -56,21 +56,16 @@ class MailService {
       const mailgunAuth = { auth };
       const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
 
-      
       smtpTransport.sendMail(mailOptions, function (error, response) {
         if (error && Object.keys(error).length) {
-          console.log (error);
-
+          console.log(error);
         } else {
-          msg = {response: "success", details: response.Message};
-      
+          msg = { response: 'success', details: response.Message };
         }
       });
-
     } catch (err) {
-      console.log (err);
+      console.log(err);
     }
   }
-
 }
 export default MailService;

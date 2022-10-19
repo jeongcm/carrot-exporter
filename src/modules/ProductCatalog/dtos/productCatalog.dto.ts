@@ -9,20 +9,18 @@ import { IsString, IsNotEmpty, IsAlpha, IsOptional, IsNumber } from 'class-valid
 export class CreateCatalogPlanDto {
   @IsString()
   @IsNotEmpty()
-  public catalogPlanName : string;
+  public catalogPlanName: string;
 
   @IsString()
   @IsNotEmpty()
-  public catalogPlanDescription : string;
-  
+  public catalogPlanDescription: string;
+
   @IsString()
   @IsNotEmpty()
-  public catalogPlanType  :  string;
+  public catalogPlanType: string;
   // - OB (Observability)
   // - MO (MetricOps;
-
 }
-
 
 /**
  * DTO with information to create a new catalog  plan product
@@ -32,43 +30,42 @@ export class CreateCatalogPlanDto {
  * @property {number} catalogPlanProductMonthlyPrice - monthly price
  * @property {string} catalogPlanProductUOM - ProductUOM
  * @property {string} catalogPlanProductCurrency - currency
- * @property {string} catalogPlanKey - catalogPlan id 
+ * @property {string} catalogPlanKey - catalogPlan id
  */
 export class CreateCatalogPlanProductDto {
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductName: string;
-  
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductDescription: string;
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanProductName: string;
 
-    @IsNumber()
-    @IsNotEmpty()
-    public catalogPlanProductMonthlyPrice: number;
-    
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductType: 'ND' | 'VM' | 'MN' | 'MS' | 'VM';
-    //   ND (Observability Kubernetes Node)
-    //   VM (Observability Openstack VM)
-    //   MN (MetricOps Kubernetes Node)
-    //   MS (MetricOps Kubernetes Service);
-    //   MV (MetricOps Openstack VM);
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanProductDescription: string;
 
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductUOM: string;
+  @IsNumber()
+  @IsNotEmpty()
+  public catalogPlanProductMonthlyPrice: number;
 
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductCurrency: string;
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanProductType: 'ND' | 'VM' | 'MN' | 'MS' | 'VM';
+  //   ND (Observability Kubernetes Node)
+  //   VM (Observability Openstack VM)
+  //   MN (MetricOps Kubernetes Node)
+  //   MS (MetricOps Kubernetes Service);
+  //   MV (MetricOps Openstack VM);
 
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanId: string;
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanProductUOM: string;
 
-  }
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanProductCurrency: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanId: string;
+}
 
 /**
  * DTO with information to create a new catalog  plan product pricing
@@ -78,21 +75,20 @@ export class CreateCatalogPlanProductDto {
  * @property {number} catalogPlanProductMonthlyPrice - monthly price
  * @property {string} catalogPlanProductKey - catalog Plan product key
  */
-  export class CreateProductPricingDto {
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductMonthlyPriceFrom: Date;
-  
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductMonthlyPriceTo: Date;
+export class CreateProductPricingDto {
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanProductMonthlyPriceFrom: Date;
 
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductMonthlyPrice: number;
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanProductMonthlyPriceTo: Date;
 
-    @IsString()
-    @IsNotEmpty()
-    public catalogPlanProductId: string;
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanProductMonthlyPrice: number;
 
-  }
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanProductId: string;
+}

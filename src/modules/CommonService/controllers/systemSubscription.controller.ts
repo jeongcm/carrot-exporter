@@ -1,17 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
 import { IPartyUserResponse, IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
-import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+//import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import PartyService from '@/modules/Party/services/party.service';
-import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
-import { ISubscriptions } from '@/common/interfaces/subscription.interface';
+//import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
+//import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import SystemSubscriptionService from '@/modules/CommonService/services/systemSubscription.service';
 import * as _ from 'lodash';
-import { IResource } from '@/common/interfaces/resource.interface';
-import config from '@config/index';
-import { CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
-import catalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
+//import { IResource } from '@/common/interfaces/resource.interface';
+//import config from '@config/index';
+//import { CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
+//import catalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
 import { CreateUserDto } from '@/modules/Party/dtos/party.dto';
 
 class SystemSubscriptionController {
@@ -42,6 +42,9 @@ class SystemSubscriptionController {
             customerAccountDescription: null,
             parentCustomerAccountId: null,
             customerAccountType: null,
+            firstName: firstName,
+            lastName: lastName,
+            email: primaryEmail,
           };
 
           const partyData: CreateUserDto = {
