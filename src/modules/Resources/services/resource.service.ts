@@ -469,18 +469,80 @@ class ResourceService {
 
     switch (resource.resourceType) {
       case "VM":
+           const vm = await this.getVMDetails(resource)
+           resource.resourceSpec = vm.resourceSpec
+        break
+
+      case "PM":
+        const vms = await this.resource.findAll({
+          where: {
+            deletedAt: null,
+            resourceType: "VM",
+            resourceGroupKey: resource.resourceGroupKey,
+            parentResourceId: resource.resourceTargetUuid
+          },
+        });
+
+        const vmsInPM = [];
+        for (let i = 0; i < vms.length; i ++) {
+          vmsInPM.push(await this.getVMDetails(vms[i]))
+        }
+
+        resource.resourceSpec.vms = vmsInPM
 
         break
-      case "PM":
-        break
+
       case "PJ":
+        // get VM info from PJ
+        const v = await this.resource.findAll({
+          where: {
+            deletedAt: null,
+            resourceType: "VM",
+            resourceGroupKey: resource.resourceGroupKey,
+            resourceNamespace: resource.resourceName
+          },
+        });
+
+        const vmsInProject = [];
+        for (let i = 0; i < v.length; i++) {
+          vmsInProject.push(await this.getVMDetails(v[i]))
+        }
+
+        resource.resourceSpec.vms = vmsInProject
+
+        // get PM info in project
+
+        // find vms group by pm_id
+        const groupByVms = await this.resource.findAll({
+          where: { deletedAt: null, resourceType: "VM", resourceGroupKey: resource.resourceGroupKey, resourceNamespace: resource.resourceName},
+          group: 'parent_resource_id',
+        });
+
+        const pmTargetUUIDs = [];
+        for (let i = 0; i < groupByVms.length; i++) {
+          // find vm's pm
+          pmTargetUUIDs.push(groupByVms[i].parentResourceId)
+        }
+
+        const pms = await this.resource.findAll({
+          where: { deletedAt: null, resourceType: "PM", resourceGroupKey: resource.resourceGroupKey, resourceTargetUuid: pmTargetUUIDs},
+        });
+
+        // get PM info from PJ
+        const pmsInProject = [];
+        for (let i = 0; i < pms.length; i++) {
+          pmsInProject.push(await this.getPMDetails(pms[i]))
+        }
+
+        resource.resourceSpec.pms = pmsInProject
+
         break
+
       default:
     }
 
     return resource;
   }
-
 
   /**
    * @param  {string} resourceType
