@@ -262,7 +262,7 @@ class ResourceService {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
 
     const resourceGroupKey = [];
-    if (query.resourceGroupId) {
+    if (query?.resourceGroupId) {
       let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
       for (let i = 0; i < resourceGroups.length; i++) {
         resourceGroupKey.push(resourceGroups[i].resourceGroupKey)
@@ -271,11 +271,16 @@ class ResourceService {
       resourceWhereCondition['resourceGroupKey'] = resourceGroupKey
     }
 
-    const resultVMList: IResource[] = await this.resource.findAll({
+    const vms: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
     });
 
-    return await this.getVMDetails(resultVMList);
+    const vmsWithDetails = [];
+    for (let i = 0; i < vms.length; i ++) {
+      vmsWithDetails.push(await this.getVMDetails(vms[i]))
+    }
+
+    return vmsWithDetails;
   }
 
   /**
@@ -289,7 +294,7 @@ class ResourceService {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
 
     const resourceGroupKey = [];
-    if (query.resourceGroupId) {
+    if (query?.resourceGroupId) {
       let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
       for (let i = 0; i < resourceGroups.length; i++) {
         resourceGroupKey.push(resourceGroups[i].resourceGroupKey)
@@ -314,8 +319,13 @@ class ResourceService {
         },
       });
 
+      const vmsInPM = [];
+      for (let i = 0; i < vms.length; i ++) {
+        vmsInPM.push(await this.getVMDetails(vms[i]))
+      }
+
       // pm 별 vm의 정보
-      resultPMList[i].resourceSpec.vms = await this.getVMDetails(vms)
+      resultPMList[i].resourceSpec.vms = vmsInPM
     }
 
     return resultPMList;
@@ -332,7 +342,7 @@ class ResourceService {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
 
     const resourceGroupKey = [];
-    if (query.resourceGroupId) {
+    if (query?.resourceGroupId) {
       let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
       for (let i = 0; i < resourceGroups.length; i++) {
         resourceGroupKey.push(resourceGroups[i].resourceGroupKey)
@@ -358,7 +368,12 @@ class ResourceService {
         },
       });
 
-      resultPJList[i].resourceSpec.vms = await this.getVMDetails(vms)
+      const vmsInProject = [];
+      for (i = 0; i < vms.length; i++) {
+        vmsInProject.push(await this.getVMDetails(vms[i]))
+      }
+
+      resultPJList[i].resourceSpec.vms = vmsInProject
 
       // get PM info in project
 
@@ -378,15 +393,18 @@ class ResourceService {
       }
 
       // get PM info from PJ
-      resultPJList[i].resourceSpec.pms = await this.getPMDetails(pms)
+      const pmsInProject = [];
+      for (let i = 0; i < pms.length; i++) {
+        pmsInProject.push(await this.getPMDetails(pms[i]))
+      }
+      resultPJList[i].resourceSpec.pms = pmsInProject
     }
 
     return resultPJList;
   }
 
-  public async getVMDetails(vms: IResource[]): Promise<IResource[]> {
-    for (let i = 0; i < vms.length; i++) {
-      const resourceGroupKey = vms[i].resourceGroupKey;
+  public async getVMDetails(vm: IResource): Promise<IResource> {
+      const resourceGroupKey = vm.resourceGroupKey;
 
       let PM = await this.resource.findOne({
         attributes: ['resourceName'],
@@ -394,11 +412,11 @@ class ResourceService {
           deletedAt: null,
           resourceType: "PM",
           resourceGroupKey: resourceGroupKey,
-          resourceTargetUuid: vms[i].parentResourceId
+          resourceTargetUuid: vm.parentResourceId
         },
       });
 
-      vms[i].resourceSpec.PMName = PM.resourceName
+      vm.resourceSpec.PMName = PM.resourceName
 
       let project = await this.resource.findOne({
         attributes: ['resourceName'],
@@ -406,34 +424,35 @@ class ResourceService {
           deletedAt: null,
           resourceType: "PJ",
           resourceGroupKey: resourceGroupKey,
-          resourceName: vms[i].resourceNamespace
+          resourceName: vm.resourceNamespace
         },
       });
 
-      vms[i].resourceSpec.projectName = project.resourceName
-    }
-
-    return vms
+      vm.resourceSpec.projectName = project.resourceName
+    return vm
   }
 
-  public async getPMDetails(pms: IResource[]): Promise<IResource[]> {
-    for (let i = 0; i < pms.length; i++) {
-      const resourceGroupKey = pms[i].resourceGroupKey;
+  public async getPMDetails(pm: IResource): Promise<IResource> {
+      const resourceGroupKey = pm.resourceGroupKey;
 
       let vms = await this.resource.findAll({
         where: {
           deletedAt: null,
           resourceType: "VM",
           resourceGroupKey: resourceGroupKey,
-          parentResourceId: pms[i].resourceTargetUuid
+          parentResourceId: pm.resourceTargetUuid
         },
       });
 
       // pm 별 vm의 정보
-      pms[i].resourceSpec.vms = await this.getVMDetails(vms)
-    }
+      const resultVms = [];
+      for (let i = 0; i < vms.length; i++) {
+        resultVms.push(await this.getVMDetails(vms[i]))
+      }
 
-    return pms
+      pm.resourceSpec.vms = resultVms
+
+    return pm
   }
   /**
    * @param  {string} resourceId
@@ -445,6 +464,17 @@ class ResourceService {
     const resource: IResource = await this.resource.findOne({
       where: resourceWhereCondition,
     });
+
+    switch (resource.resourceType) {
+      case "VM":
+
+        break
+      case "PM":
+        break
+      case "PJ":
+        break
+      default:
+    }
 
     return resource;
   }
@@ -458,7 +488,7 @@ class ResourceService {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType };
     let count: number = 0
 
-    if (query.resourceGroupId) {
+    if (query?.resourceGroupId) {
       for (let i = 0; i < query.resourceGroupId.length; i++) {
         let resultResourceGroup = await this.resourceGroupService.getResourceGroupById(query.resourceGroupId[i]);
         resourceWhereCondition['resourceGroupKey'] = resultResourceGroup.resourceGroupKey;
