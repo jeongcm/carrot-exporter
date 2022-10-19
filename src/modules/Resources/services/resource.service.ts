@@ -383,20 +383,22 @@ class ResourceService {
         group: 'parent_resource_id',
       });
 
-      let pms = [];
+      const pmTargetUUIDs = [];
       for (let i = 0; i < groupByVms.length; i++) {
         // find vm's pm
-        let pm = await this.resource.findOne({
-          where: { deletedAt: null, resourceType: "PM", resourceGroupKey: resourceGroupKey, resourceTargetUuid: groupByVms[i].parentResourceId},
-        });
-        pms.push(pm)
+        pmTargetUUIDs.push(groupByVms[i].parentResourceId)
       }
+
+      let pms = await this.resource.findAll({
+        where: { deletedAt: null, resourceType: "PM", resourceGroupKey: resourceGroupKey, resourceTargetUuid: pmTargetUUIDs},
+      });
 
       // get PM info from PJ
       const pmsInProject = [];
       for (let i = 0; i < pms.length; i++) {
         pmsInProject.push(await this.getPMDetails(pms[i]))
       }
+
       resultPJList[i].resourceSpec.pms = pmsInProject
     }
 
