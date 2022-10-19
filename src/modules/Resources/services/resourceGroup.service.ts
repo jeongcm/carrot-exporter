@@ -190,7 +190,9 @@ class ResourceGroupService {
       customerAccountKey: customerAccountKey,
     };
 
+    console.log("platform is comming before")
     if (query.platform) {
+      console.log("platform is comming")
       resourceGroupWhereCondition['resourceGroupPlatform'] = query.platform
     }
 
