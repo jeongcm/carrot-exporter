@@ -3,7 +3,7 @@ import { Routes } from '@/common/interfaces/routes.interface';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 
-import { ResourceGroupDto } from '../dtos/resourceGroup.dto';
+import { ResourceGroupDto, UpdateResourceGroupDto } from '../dtos/resourceGroup.dto';
 import ResourceGroupController from '../controllers/resourceGroup.controller';
 import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
 
@@ -55,7 +55,7 @@ class ResourceGroupRoute implements Routes {
     this.router.put(
       '/resourceGroup/:resourceGroupId',
       authMiddleware,
-      validationMiddleware(ResourceGroupDto, 'body'),
+      validationMiddleware(UpdateResourceGroupDto, 'body'),
       createUserLogMiddleware,
       this.resourceGroupController.updateResourceGroupById,
     );
