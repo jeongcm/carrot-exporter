@@ -311,8 +311,13 @@ class ResourceService {
         attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
+      const vmsInPM = [];
+      for (let i = 0; i < vms.length; i ++) {
+        vmsInPM.push(await this.getVMDetails(vms[i]))
+      }
+
       // pm 별 vm의 정보
-      resultPMList[i].resourceSpec.vms = vms?.map(async (vm: IResource) => await this.getVMDetails(vm))
+      resultPMList[i].resourceSpec.vms = vmsInPM
     }
 
     return resultPMList;
@@ -352,7 +357,12 @@ class ResourceService {
         attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
-      resultPJList[i].resourceSpec.vms = vms?.map(async (vm: IResource) => await this.getVMDetails(vm))
+      const vmsInProject = [];
+      for (let i = 0; i < vms.length; i++) {
+        vmsInProject.push(await this.getVMDetails(vms[i]))
+      }
+
+      resultPJList[i].resourceSpec.vms = vmsInProject
 
       // get PM info in project
 
@@ -370,7 +380,12 @@ class ResourceService {
       });
 
       // get PM info from PJ
-      resultPJList[i].resourceSpec.pms = pms?.map(async (pm: IResource) => await this.getPMDetails(pm))
+      const pmsInProject = [];
+      for (let i = 0; i < pms.length; i++) {
+        pmsInProject.push(await this.getPMDetails(pms[i]))
+      }
+
+      resultPJList[i].resourceSpec.pms = pmsInProject
     }
 
     return resultPJList;
@@ -418,8 +433,13 @@ class ResourceService {
         attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
-      // vms in PM
-      pm.resourceSpec.vms = vms?.map(async (vm: IResource) => await this.getVMDetails(vm))
+      // pm 별 vm의 정보
+      const resultVms = [];
+      for (let i = 0; i < vms.length; i++) {
+        resultVms.push(await this.getVMDetails(vms[i]))
+      }
+
+      pm.resourceSpec.vms = resultVms
 
     return pm
   }
@@ -453,7 +473,12 @@ class ResourceService {
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
-        resource.resourceSpec.vms = vms?.map(async (vm: IResource) => await this.getVMDetails(vm))
+        const vmsInPM = [];
+        for (let i = 0; i < vms.length; i ++) {
+          vmsInPM.push(await this.getVMDetails(vms[i]))
+        }
+
+        resource.resourceSpec.vms = vmsInPM
 
         break
 
@@ -469,7 +494,12 @@ class ResourceService {
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
-        resource.resourceSpec.vms = v?.map(async (vm: IResource) => await this.getVMDetails(vm))
+        const vmsInProject = [];
+        for (let i = 0; i < v.length; i++) {
+          vmsInProject.push(await this.getVMDetails(v[i]))
+        }
+
+        resource.resourceSpec.vms = vmsInProject
 
         // get PM info in project
 
@@ -486,7 +516,13 @@ class ResourceService {
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
-        resource.resourceSpec.pms = pms?.map(async (pm: IResource) => await this.getPMDetails(pm))
+        // get PM info from PJ
+        const pmsInProject = [];
+        for (let i = 0; i < pms.length; i++) {
+          pmsInProject.push(await this.getPMDetails(pms[i]))
+        }
+
+        resource.resourceSpec.pms = pmsInProject
 
         break
 
