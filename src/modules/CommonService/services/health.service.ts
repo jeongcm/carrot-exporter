@@ -38,6 +38,7 @@ class healthService {
 
     //2. pull resourceGroupAll
     const responseResourceGroup: IResourceGroup[] = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId);
+    console.log("res: ", responseResourceGroup)
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the customerAccountId: ${customerAccountId}`);
     }
