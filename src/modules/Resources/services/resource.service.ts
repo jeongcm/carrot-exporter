@@ -261,11 +261,11 @@ class ResourceService {
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
 
+    const resourceGroupKey = [];
     if (query.resourceGroupId) {
-      let resourceGroupKey = [];
-      for (let i = 0; i < query.resourceGroupId.length; i++) {
-        let resultResourceGroup = await this.resourceGroupService.getResourceGroupById(query.resourceGroupId[i]);
-        resourceGroupKey.push(resultResourceGroup.resourceGroupKey)
+      let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
+      for (let i = 0; i < resourceGroups.length; i++) {
+        resourceGroupKey.push(resourceGroups[i].resourceGroupKey)
       }
 
       resourceWhereCondition['resourceGroupKey'] = resourceGroupKey
@@ -288,11 +288,11 @@ class ResourceService {
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
 
+    const resourceGroupKey = [];
     if (query.resourceGroupId) {
-      let resourceGroupKey = [];
-      for (let i = 0; i < query.resourceGroupId.length; i++) {
-        let resultResourceGroup = await this.resourceGroupService.getResourceGroupById(query.resourceGroupId[i]);
-        resourceGroupKey.push(resultResourceGroup.resourceGroupKey)
+      let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
+      for (let i = 0; i < resourceGroups.length; i++) {
+        resourceGroupKey.push(resourceGroups[i].resourceGroupKey)
       }
 
       resourceWhereCondition['resourceGroupKey'] = resourceGroupKey
@@ -331,16 +331,14 @@ class ResourceService {
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
 
+    const resourceGroupKey = [];
     if (query.resourceGroupId) {
-      let resourceGroupKey = [];
-      for (let i = 0; i < query.resourceGroupId.length; i++) {
-        let resultResourceGroup = await this.resourceGroupService.getResourceGroupById(query.resourceGroupId[i]);
-        resourceGroupKey.push(resultResourceGroup.resourceGroupKey)
+      let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
+      for (let i = 0; i < resourceGroups.length; i++) {
+        resourceGroupKey.push(resourceGroups[i].resourceGroupKey)
       }
 
       resourceWhereCondition['resourceGroupKey'] = resourceGroupKey
-
-      console.log(resourceWhereCondition)
     }
 
     const resultPJList: IResource[] = await this.resource.findAll({
