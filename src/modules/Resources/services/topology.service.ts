@@ -31,7 +31,7 @@ export const TYPE_PER_NAME: any = {
 export const NAME_PER_TYPE: any = {
   NS: 'Namespace',
   SS: 'StatefulSet',
-  DS: 'DS',
+  DS: 'DaemonSet',
   RS: 'ReplicaSet',
   DP: 'Deployment',
   PD: 'Pod',
@@ -209,7 +209,7 @@ class TopologyService extends ServiceExtension {
           }
 
           owners?.map((owner: any) => {
-            // TODO: Add DS, StatefulSet, Deployment?
+           // TODO: Add DaemonSet, StatefulSet, Deployment?
             if (owner.uid) {
               if (!podsPerUid[namespace]) {
                 podsPerUid[namespace] = {};
