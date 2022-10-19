@@ -312,7 +312,7 @@ class ResourceService {
       });
 
       // pm 별 vm의 정보
-      resultPMList[i].resourceSpec.vms = vms?.map((vm: IResource) => this.getVMDetails(vm))
+      resultPMList[i].resourceSpec.vms = vms?.map(async (vm: IResource) => await this.getVMDetails(vm))
     }
 
     return resultPMList;
@@ -352,7 +352,7 @@ class ResourceService {
         attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
-      resultPJList[i].resourceSpec.vms = vms?.map((vm: IResource) => this.getVMDetails(vm))
+      resultPJList[i].resourceSpec.vms = vms?.map(async (vm: IResource) => await this.getVMDetails(vm))
 
       // get PM info in project
 
@@ -370,7 +370,7 @@ class ResourceService {
       });
 
       // get PM info from PJ
-      resultPJList[i].resourceSpec.pms = pms?.map((pm: IResource) => this.getPMDetails(pm))
+      resultPJList[i].resourceSpec.pms = pms?.map(async (pm: IResource) => await this.getPMDetails(pm))
     }
 
     return resultPJList;
@@ -419,10 +419,11 @@ class ResourceService {
       });
 
       // vms in PM
-      pm.resourceSpec.vms = vms?.map((vm: IResource) => this.getVMDetails(vm))
+      pm.resourceSpec.vms = vms?.map(async (vm: IResource) => await this.getVMDetails(vm))
 
     return pm
   }
+
   /**
    * @param  {string} resourceId
    * @param  {number} customerAccountKey
@@ -452,7 +453,7 @@ class ResourceService {
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
-        resource.resourceSpec.vms = vms?.map((vm: IResource) => this.getVMDetails(vm))
+        resource.resourceSpec.vms = vms?.map(async (vm: IResource) => await this.getVMDetails(vm))
 
         break
 
@@ -468,7 +469,7 @@ class ResourceService {
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
-        resource.resourceSpec.vms = v?.map((vm: IResource) => this.getVMDetails(vm))
+        resource.resourceSpec.vms = v?.map(async (vm: IResource) => await this.getVMDetails(vm))
 
         // get PM info in project
 
@@ -485,7 +486,7 @@ class ResourceService {
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
-        resource.resourceSpec.pms = pms?.map((pm: IResource) => this.getPMDetails(pm))
+        resource.resourceSpec.pms = pms?.map(async (pm: IResource) => await this.getPMDetails(pm))
 
         break
 
