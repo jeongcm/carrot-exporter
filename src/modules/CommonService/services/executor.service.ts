@@ -2235,6 +2235,7 @@ class executorService {
       { resourceName: 'Event', resourceType: 'EV', template_uuid: '00000000000000000000000000000008' }, //storageclass
       { resourceName: 'Job', resourceType: 'JO', template_uuid: '00000000000000000000000000005002' }, //job
       { resourceName: 'CronJob', resourceType: 'CJ', template_uuid: '00000000000000000000000000005003' }, //cron-job
+      // { resourceName: 'PhysicalMachine', resourceType: 'PM', template_uuid: '50000000000000000000000000000002' }, //pm
       { resourceName: 'Project', resourceType: 'PJ', template_uuid: '50000000000000000000000000000002' }, //project
       { resourceName: 'VM', resourceType: 'VM', template_uuid: '50000000000000000000000000000004' }, //vm
       // { resourceName: 'Network', resourceType: 'NT', template_uuid: '50000000000000000000000000000006' }, //vm
