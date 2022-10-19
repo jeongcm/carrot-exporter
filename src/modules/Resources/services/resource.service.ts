@@ -273,6 +273,7 @@ class ResourceService {
 
     const vms: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
+      attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
 
     const vmsWithDetails = [];
@@ -305,6 +306,7 @@ class ResourceService {
 
     const resultPMList: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
+      attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
 
     for (let i = 0; i < resultPMList.length; i++) {
@@ -317,6 +319,7 @@ class ResourceService {
           resourceGroupKey: resourceGroupKey,
           parentResourceId: resultPMList[i].resourceTargetUuid
         },
+        attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
       const vmsInPM = [];
@@ -353,6 +356,7 @@ class ResourceService {
 
     const resultPJList: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
+      attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
 
     for (let i = 0; i < resultPJList.length; i++) {
@@ -366,6 +370,7 @@ class ResourceService {
           resourceGroupKey: resourceGroupKey,
           resourceNamespace: resultPJList[i].resourceName
         },
+        attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
       const vmsInProject = [];
@@ -380,6 +385,7 @@ class ResourceService {
       // find vms group by pm_id
       let groupByVms = await this.resource.findAll({
         where: { deletedAt: null, resourceType: "VM", resourceGroupKey: resourceGroupKey, resourceNamespace: resultPJList[i].resourceName},
+        attributes: { exclude: ['resourceKey', 'deletedAt'] },
         group: 'parent_resource_id',
       });
 
@@ -391,6 +397,7 @@ class ResourceService {
 
       let pms = await this.resource.findAll({
         where: { deletedAt: null, resourceType: "PM", resourceGroupKey: resourceGroupKey, resourceTargetUuid: pmTargetUUIDs},
+        attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
       // get PM info from PJ
@@ -444,6 +451,7 @@ class ResourceService {
           resourceGroupKey: resourceGroupKey,
           parentResourceId: pm.resourceTargetUuid
         },
+        attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
       // pm 별 vm의 정보
