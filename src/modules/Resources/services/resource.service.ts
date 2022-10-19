@@ -465,6 +465,7 @@ class ResourceService {
 
     const resource: IResource = await this.resource.findOne({
       where: resourceWhereCondition,
+      attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
 
     switch (resource.resourceType) {
