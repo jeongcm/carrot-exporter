@@ -439,6 +439,9 @@ class ResourceService {
         resultVms.push(await this.getVMDetails(vms[i]))
       }
 
+      let vv = Promise.all(vms.map(async (v: IResource) => await this.getVMDetails(v)))
+      console.log("test.vv: ", vv)
+
       pm.resourceSpec.vms = resultVms
 
     return pm
