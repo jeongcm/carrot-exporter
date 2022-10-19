@@ -369,7 +369,7 @@ class ResourceService {
       });
 
       const vmsInProject = [];
-      for (i = 0; i < vms.length; i++) {
+      for (let i = 0; i < vms.length; i++) {
         vmsInProject.push(await this.getVMDetails(vms[i]))
       }
 
