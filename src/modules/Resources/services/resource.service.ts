@@ -490,6 +490,7 @@ class ResourceService {
             resourceGroupKey: resource.resourceGroupKey,
             parentResourceId: resource.resourceTargetUuid
           },
+          attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
         const vmsInPM = [];
@@ -510,6 +511,7 @@ class ResourceService {
             resourceGroupKey: resource.resourceGroupKey,
             resourceNamespace: resource.resourceName
           },
+          attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
         const vmsInProject = [];
@@ -524,6 +526,7 @@ class ResourceService {
         // find vms group by pm_id
         const groupByVms = await this.resource.findAll({
           where: { deletedAt: null, resourceType: "VM", resourceGroupKey: resource.resourceGroupKey, resourceNamespace: resource.resourceName},
+          attributes: { exclude: ['resourceKey', 'deletedAt'] },
           group: 'parent_resource_id',
         });
 
@@ -535,6 +538,7 @@ class ResourceService {
 
         const pms = await this.resource.findAll({
           where: { deletedAt: null, resourceType: "PM", resourceGroupKey: resource.resourceGroupKey, resourceTargetUuid: pmTargetUUIDs},
+          attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
         // get PM info from PJ
