@@ -311,13 +311,8 @@ class ResourceService {
         attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
-      const vmsInPM = [];
-      for (let i = 0; i < vms.length; i ++) {
-        vmsInPM.push(await this.getVMDetails(vms[i]))
-      }
-
       // pm 별 vm의 정보
-      resultPMList[i].resourceSpec.vms = vmsInPM
+      resultPMList[i].resourceSpec.vms = vms?.map((vm: IResource) => this.getVMDetails(vm))
     }
 
     return resultPMList;
@@ -357,12 +352,7 @@ class ResourceService {
         attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
-      const vmsInProject = [];
-      for (let i = 0; i < vms.length; i++) {
-        vmsInProject.push(await this.getVMDetails(vms[i]))
-      }
-
-      resultPJList[i].resourceSpec.vms = vmsInProject
+      resultPJList[i].resourceSpec.vms = vms?.map((vm: IResource) => this.getVMDetails(vm))
 
       // get PM info in project
 
@@ -373,24 +363,14 @@ class ResourceService {
         group: 'parent_resource_id',
       });
 
-      const pmTargetUUIDs = [];
-      for (let i = 0; i < groupByVms.length; i++) {
-        // find vm's pm
-        pmTargetUUIDs.push(groupByVms[i].parentResourceId)
-      }
-
+      const pmTargetUUIDs = groupByVms?.map((vm: IResource) => vm.parentResourceId)
       let pms = await this.resource.findAll({
         where: { deletedAt: null, resourceType: "PM", resourceGroupKey: resourceGroupKey, resourceTargetUuid: pmTargetUUIDs},
         attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
       // get PM info from PJ
-      const pmsInProject = [];
-      for (let i = 0; i < pms.length; i++) {
-        pmsInProject.push(await this.getPMDetails(pms[i]))
-      }
-
-      resultPJList[i].resourceSpec.pms = pmsInProject
+      resultPJList[i].resourceSpec.pms = pms?.map((pm: IResource) => this.getPMDetails(pm))
     }
 
     return resultPJList;
@@ -438,13 +418,8 @@ class ResourceService {
         attributes: { exclude: ['resourceKey', 'deletedAt'] },
       });
 
-      // pm 별 vm의 정보
-      const resultVms = [];
-      for (let i = 0; i < vms.length; i++) {
-        resultVms.push(await this.getVMDetails(vms[i]))
-      }
-
-      pm.resourceSpec.vms = resultVms
+      // vms in PM
+      pm.resourceSpec.vms = vms?.map((vm: IResource) => this.getVMDetails(vm))
 
     return pm
   }
@@ -477,12 +452,7 @@ class ResourceService {
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
-        const vmsInPM = [];
-        for (let i = 0; i < vms.length; i ++) {
-          vmsInPM.push(await this.getVMDetails(vms[i]))
-        }
-
-        resource.resourceSpec.vms = vmsInPM
+        resource.resourceSpec.vms = vms?.map((vm: IResource) => this.getVMDetails(vm))
 
         break
 
@@ -498,12 +468,7 @@ class ResourceService {
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
-        const vmsInProject = [];
-        for (let i = 0; i < v.length; i++) {
-          vmsInProject.push(await this.getVMDetails(v[i]))
-        }
-
-        resource.resourceSpec.vms = vmsInProject
+        resource.resourceSpec.vms = v?.map((vm: IResource) => this.getVMDetails(vm))
 
         // get PM info in project
 
@@ -514,24 +479,13 @@ class ResourceService {
           group: 'parent_resource_id',
         });
 
-        const pmTargetUUIDs = [];
-        for (let i = 0; i < groupByVms.length; i++) {
-          // find vm's pm
-          pmTargetUUIDs.push(groupByVms[i].parentResourceId)
-        }
-
+        const pmTargetUUIDs = groupByVms?.map((vm: IResource) => vm.parentResourceId)
         const pms = await this.resource.findAll({
           where: { deletedAt: null, resourceType: "PM", resourceGroupKey: resource.resourceGroupKey, resourceTargetUuid: pmTargetUUIDs},
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
         });
 
-        // get PM info from PJ
-        const pmsInProject = [];
-        for (let i = 0; i < pms.length; i++) {
-          pmsInProject.push(await this.getPMDetails(pms[i]))
-        }
-
-        resource.resourceSpec.pms = pmsInProject
+        resource.resourceSpec.pms = pms?.map((pm: IResource) => this.getPMDetails(pm))
 
         break
 
