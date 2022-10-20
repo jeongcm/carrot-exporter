@@ -214,8 +214,8 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         allowNull: true,
         validate: {
           isIn: {
-            args: [['', 'ND', 'NS', 'PJ', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV']],
-            msg: 'Resource level2 must be of type ND, NS, PJ or empty.',
+            args: [['', 'ND', 'NS', 'PJ', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV', 'PM']],
+            msg: 'Resource level2 must be of type ND, NS, PJ, PM or empty.',
           },
         },
       },
@@ -223,8 +223,8 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-            args: [['', 'ND', 'NS', 'PM', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV']],
-            msg: 'Resource level3 must be of type PD, SV, PM or empty.',
+            args: [['', 'ND', 'NS', 'VM', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV']],
+            msg: 'Resource level3 must be of type PD, SV, VM or empty.',
           },
         },
       },
@@ -232,8 +232,8 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-            args: [['', 'WL', 'VM']],
-            msg: 'Resource level4 must be of type CT, VM or empty',
+            args: [['', 'WL']],
+            msg: 'Resource level4 must be of type CT or empty',
           },
         },
       },
@@ -274,7 +274,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         unique: 'unique_index',
       },
       parentResourceId: {
-        type: DataTypes.STRING(16),
+        type: DataTypes.STRING(100),
       },
       resourceNamespace: {
         type: DataTypes.STRING(100),

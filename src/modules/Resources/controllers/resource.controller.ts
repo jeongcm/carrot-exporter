@@ -167,7 +167,65 @@ class ResourceController {
 
     try {
       const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId(resourceType, customerAccountId);
-      res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resoruceType ${resource}` });
+      res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resourceType ${resource}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public getResourcesByCustomerAccountIdAndResourceType = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceType: string = req.params.resourceType;
+    const customerAccountId: string = req.params.customerAccountId;
+    let resources: IResource[]
+    try {
+      switch (resourceType) {
+        case "VM":
+          resources = await this.resourceService.getVMListByCustomerAccountId(customerAccountId, req.query);
+          break;
+        case "PM":
+          resources = await this.resourceService.getPMListByCustomerAccountId(customerAccountId, req.query);
+          break;
+        case "PJ":
+          resources = await this.resourceService.getPJListByCustomerAccountId(customerAccountId, req.query);
+          break
+        default:
+      }
+
+      res.status(200).json({ data: resources, message: `find resources with customerAccountId(${customerAccountId}) and resourceType ${resourceType}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public getResourceDetailByResourceID = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceId: string = req.params.resourceId;
+    const customerAccountKey: number = req.customerAccountKey;
+
+    try {
+      const resource: IResource = await this.resourceService.getResourceByTypeCustomerAccountKeyResourceId(resourceId, customerAccountKey);
+      res.status(200).json({ data: resource, message: `find resource with and resourceId ${resourceId}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getResourceCountByResourceType = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey: number = req.customerAccountKey;
+    const resourceType = req.params.resourceType;
+
+    try {
+      const count: number = await this.resourceService.getResourceCountByResourceType(resourceType, customerAccountKey, req.query);
+      res.status(200).json({ count: count, message: `get  resource count with resourceType(${resourceType})`});
     } catch (error) {
       next(error);
     }
