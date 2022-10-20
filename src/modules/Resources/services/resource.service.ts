@@ -303,6 +303,7 @@ class ResourceService {
 
     for (let i = 0; i < pms.length; i++) {
       let vmsInPM = [];
+
       for (let j = 0; j < vms.length; j++) {
         if (pms[i].resourceTargetUuid === vms[j].parentResourceId) {
           vmsInPM.push(await this.getVMDetails(vms[j]))
@@ -336,16 +337,20 @@ class ResourceService {
     });
 
     const projects = resultList.filter(pj => pj.resourceType === "PJ")
-    const pms = resultList.filter(pj => pj.resourceType === "PM")
-    const vms = resultList.filter(pj => pj.resourceType === "VM")
+    const allPms = resultList.filter(pm => pm.resourceType === "PM")
+    const allVms = resultList.filter(vm => vm.resourceType === "VM")
 
     for (let i = 0; i < projects.length; i++) {
       // get vms in projects
+      const vms = allVms.map(vm => {
+        if (projects[i].resourceName === vm.resourceNamespace) {
+          return vm
+        }
+      }).filter(n => n !== undefined)
+
       let vmsInProject = [];
       for (let j = 0; j < vms.length; j++) {
-        if (projects[i].resourceName === vms[j].resourceNamespace) {
-          vmsInProject.push(await this.getVMDetails(vms[j]))
-        }
+        vmsInProject.push(await this.getVMDetails(vms[j]))
       }
 
       projects[i].resourceSpec.vms = vmsInProject
@@ -353,13 +358,15 @@ class ResourceService {
       // get pms in project (by vms)
       // get pm uuids in vms
       let pmUUIDs = [... new Set(vmsInProject.filter(vm => {return vm.parentResourceId}))]
+      const pms = allPms.map(pm => {
+        if (pmUUIDs.indexOf(pm.resourceTargetUuid) !== -1) {
+          return pm
+        }
+      }).filter(n => n !== undefined)
+
       let pmsInProject = [];
       for (let j = 0; j < pms.length; j++) {
-        for (let k = 0; k < pmUUIDs.length; k++) {
-          if (pms[j].resourceTargetUuid === pmUUIDs[k]) {
-            pmsInProject.push(await this.getPMDetails(pms[j]))
-          }
-        }
+        pmsInProject.push(await this.getPMDetails(pms[j]))
       }
 
       projects[i].resourceSpec.pms = pmsInProject
@@ -460,19 +467,22 @@ class ResourceService {
 
       case "PJ":
         // get VM info from PJ
-        const v = await this.resource.findAll({
+        const resultList = await this.resource.findAll({
           where: {
             deletedAt: null,
-            resourceType: "VM",
+            resourceType: ["VM", "PM"],
             resourceGroupKey: resource.resourceGroupKey,
             resourceNamespace: resource.resourceName
           },
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
-        });
+        })
+
+        const pList = resultList.filter(pm => pm.resourceType === "PM")
+        const vList = resultList.filter(vm => (vm.resourceType === "VM" && vm.resourceNamespace === resource.resourceName))
 
         const vmsInProject = [];
-        for (let i = 0; i < v.length; i++) {
-          vmsInProject.push(await this.getVMDetails(v[i]))
+        for (let i = 0; i < vList.length; i++) {
+          vmsInProject.push(await this.getVMDetails(vList[i]))
         }
 
         resource.resourceSpec.vms = vmsInProject
@@ -482,10 +492,11 @@ class ResourceService {
         // find vms group by pm_id
         // get pms in project (by vms)
         let pmUUIDs = [... new Set(vmsInProject.filter(vm => {return vm.parentResourceId}))]
-        const pms = await this.resource.findAll({
-          where: { deletedAt: null, resourceType: "PM", resourceGroupKey: resource.resourceGroupKey, resourceTargetUuid: pmUUIDs},
-          attributes: { exclude: ['resourceKey', 'deletedAt'] },
-        });
+        const pms = pList.map(pm => {
+          if (pmUUIDs.indexOf(pm.resourceTargetUuid) !== -1) {
+            return pm
+          }
+        }).filter(n => n !== undefined)
 
         // get pm uuids in vms
         let pmsInProject = [];
