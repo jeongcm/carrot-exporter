@@ -39,6 +39,8 @@ class AlertRuleService {
       };
     }
 
+    const ago = dayjs().subtract(1.5, 'hour').utc().toDate();
+
     const allAlertRules: IAlertRuleGraph[] = await this.alertRule.findAll({
       where: {
         customerAccountKey: customerAccountKey,
@@ -55,7 +57,6 @@ class AlertRuleService {
           'customerAccountKey',
           'alertRuleDuration',
           'alertRuleDescription',
-          'alertRuleSummary',
           'alertRuleRunbook',
           'createdAt',
           'updatedAt',
@@ -75,7 +76,9 @@ class AlertRuleService {
           required: false,
           where: {
             alertReceivedState: status,
-            ...conditionalWhere,
+            alertReceivedActiveAt: {
+              [Op.gt]: ago,
+            },
           },
         },
       ],
