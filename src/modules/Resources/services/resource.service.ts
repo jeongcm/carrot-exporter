@@ -306,8 +306,8 @@ class ResourceService {
 
     for (let i = 0; i < pms.length; i++) {
       let vms = [];
-      for (let j = 0; i < resultList.length; j++) {
-        if (pms[i].resourceTargetUuid === resultList[j].parentResourceId && resultList[i].resourceType === "VM") {
+      for (let j = 0; j < resultList.length; j++) {
+        if (pms[i].resourceTargetUuid === resultList[j].parentResourceId && resultList[j].resourceType === "VM") {
           vms.push(await this.getVMDetails(resultList[i]))
         }
       }
