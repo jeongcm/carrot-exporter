@@ -72,7 +72,7 @@ class TopologyService extends ServiceExtension {
       accountResourceGroups.map(async (resourceGroup: IResourceGroup) => {
         const children = await this.getResourceGroupTopology(type, resourceGroup, customerAccountKey);
 
-        const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider } = resourceGroup;
+        const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider,resourceGroupUuid } = resourceGroup;
 
         topologyPerGroupId[resourceGroup.resourceGroupId] = {
           resourceGroup: {
@@ -81,6 +81,7 @@ class TopologyService extends ServiceExtension {
             resourceGroupDescription,
             resourceGroupPlatform,
             resourceGroupProvider,
+            resourceGroupUuid
           },
           children,
         };
@@ -225,6 +226,7 @@ class TopologyService extends ServiceExtension {
                 resourceName: resource.resourceName,
                 resourceNamespace: namespace,
                 resourceId: resource.resourceId,
+                resourceStatusPhase: resource.resourceStatus?.phase,
                 level: 'pod',
               });
             }
