@@ -279,48 +279,64 @@ class ResourceService {
   }
 
   /**
-   * @param  {string} resourceType
    * @param  {number} customerAccountId
    */
-  public async getPMListByCustomerAccountId(resourceType: string, customerAccountId: string, query?: any): Promise<IResource[]> {
+  public async getPMListByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResource[]> {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
-    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ["PM", "VM"],};
 
     if (query?.resourceGroupId) {
       let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
       resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
     }
 
-    const resultPMList: IResource[] = await this.resource.findAll({
+    const resultList: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
 
-    for (let i = 0; i < resultPMList.length; i++) {
-      const resourceGroupKey = resultPMList[i].resourceGroupKey;
-
-      let vms = await this.resource.findAll({
-        where: {
-          deletedAt: null,
-          resourceType: "VM",
-          resourceGroupKey: resourceGroupKey,
-          parentResourceId: resultPMList[i].resourceTargetUuid
-        },
-        attributes: { exclude: ['resourceKey', 'deletedAt'] },
-      });
-
-      const vmsInPM = [];
-      for (let i = 0; i < vms.length; i ++) {
-        vmsInPM.push(await this.getVMDetails(vms[i]))
+    let pms = [];
+    for (let i = 0; i < resultList.length; i++) {
+      if (resultList[i].resourceType === "PM") {
+        pms.push(resultList[i])
       }
-
-      // pm 별 vm의 정보
-      resultPMList[i].resourceSpec.vms = vmsInPM
     }
 
-    return resultPMList;
+    for (let i = 0; i < pms.length; i++) {
+      let vms = [];
+      for (let j = 0; i < resultList.length; j++) {
+        if (pms[i].resourceTargetUuid === resultList[j].parentResourceId && resultList[i].resourceType === "VM") {
+          vms.push(await this.getVMDetails(resultList[i]))
+        }
+      }
+
+      pms[i].resourceSpec.vms = vms
+    }
+    // for (let i = 0; i < resultList.length; i++) {
+    //   const resourceGroupKey = resultList[i].resourceGroupKey;
+    //
+    //   let vms = await this.resource.findAll({
+    //     where: {
+    //       deletedAt: null,
+    //       resourceType: "VM",
+    //       resourceGroupKey: resourceGroupKey,
+    //       parentResourceId: resultList[i].resourceTargetUuid
+    //     },
+    //     attributes: { exclude: ['resourceKey', 'deletedAt'] },
+    //   });
+    //
+    //   const vmsInPM = [];
+    //   for (let i = 0; i < vms.length; i ++) {
+    //     vmsInPM.push(await this.getVMDetails(vms[i]))
+    //   }
+    //
+    //   // pm 별 vm의 정보
+    //   resultList[i].resourceSpec.vms = vmsInPM
+    // }
+
+    return pms;
   }
 
   /**

@@ -188,7 +188,7 @@ class ResourceController {
           resources = await this.resourceService.getVMListByCustomerAccountId(resourceType, customerAccountId, req.query);
           break;
         case "PM":
-          resources = await this.resourceService.getPMListByCustomerAccountId(resourceType, customerAccountId, req.query);
+          resources = await this.resourceService.getPMListByCustomerAccountId(customerAccountId, req.query);
           break;
         case "PJ":
           resources = await this.resourceService.getPJListByCustomerAccountId(resourceType, customerAccountId, req.query);
