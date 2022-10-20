@@ -441,12 +441,12 @@ class ResourceService {
 
     switch (resource.resourceType) {
       case "VM":
-           const vm = await this.getVMDetails(resource)
+           let vm = await this.getVMDetails(resource)
            resource.resourceSpec = vm.resourceSpec
         break
 
       case "PM":
-        const vms = await this.resource.findAll({
+        let vms = await this.resource.findAll({
           where: {
             deletedAt: null,
             resourceType: "VM",
@@ -467,7 +467,7 @@ class ResourceService {
 
       case "PJ":
         // get VM info from PJ
-        const resultList = await this.resource.findAll({
+        let resultList = await this.resource.findAll({
           where: {
             deletedAt: null,
             resourceType: ["VM", "PM"],
@@ -477,31 +477,33 @@ class ResourceService {
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
         })
 
-        const pList = resultList.filter(pm => pm.resourceType === "PM")
-        const vList = resultList.filter(vm => (vm.resourceType === "VM" && vm.resourceNamespace === resource.resourceName))
+        let pList = resultList.filter(pm => pm.resourceType === "PM")
+        let vList = resultList.filter(vm => (vm.resourceType === "VM" && vm.resourceNamespace === resource.resourceName))
 
-        const vmsInProject = [];
+        let vmsInProject = [];
         for (let i = 0; i < vList.length; i++) {
           vmsInProject.push(await this.getVMDetails(vList[i]))
         }
 
         resource.resourceSpec.vms = vmsInProject
-
+        console.log("vm in project: ", vmsInProject)
         // get PM info in project
 
         // find vms group by pm_id
         // get pms in project (by vms)
         let pmUUIDs = [... new Set(vmsInProject.filter(vm => {return vm.parentResourceId}))]
-        const pms = pList.map(pm => {
+        console.log("pmuuids: ", pmUUIDs)
+        let pmList = pList.map(pm => {
           if (pmUUIDs.indexOf(pm.resourceTargetUuid) !== -1) {
             return pm
           }
         }).filter(n => n !== undefined)
+        console.log("pms: ", pmList)
 
         // get pm uuids in vms
         let pmsInProject = [];
-        for (let i = 0; i < pms.length; i++) {
-          pmsInProject.push(await this.getPMDetails(pms[i]))
+        for (let i = 0; i < pmList.length; i++) {
+          pmsInProject.push(await this.getPMDetails(pmList[i]))
         }
 
         resource.resourceSpec.pms = pmsInProject
