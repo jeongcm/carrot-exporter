@@ -372,7 +372,7 @@ class ResourceService {
       projects[i].resourceSpec.pms = pmsInProject
     }
 
-    return resultList;
+    return projects;
   }
 
   public async getVMDetails(vm: IResource): Promise<IResource> {
