@@ -357,7 +357,7 @@ class ResourceService {
 
       // get pms in project (by vms)
       // get pm uuids in vms
-      let pmUUIDs = [... new Set(vmsInProject.filter(vm => {return vm.parentResourceId}))]
+      let pmUUIDs = [... new Set(vmsInProject.map(vm => {return vm.parentResourceId}))]
       const pms = allPms.map(pm => {
         if (pmUUIDs.indexOf(pm.resourceTargetUuid) !== -1) {
           return pm
@@ -486,19 +486,16 @@ class ResourceService {
         }
 
         resource.resourceSpec.vms = vmsInProject
-        console.log("vm in project: ", vmsInProject)
         // get PM info in project
 
         // find vms group by pm_id
         // get pms in project (by vms)
-        let pmUUIDs = [... new Set(vmsInProject.filter(vm => {return vm.parentResourceId}))]
-        console.log("pmuuids: ", pmUUIDs)
+        let pmUUIDs = [... new Set(vmsInProject.map(vm => {return vm.parentResourceId}))]
         let pmList = pList.map(pm => {
           if (pmUUIDs.indexOf(pm.resourceTargetUuid) !== -1) {
             return pm
           }
         }).filter(n => n !== undefined)
-        console.log("pms: ", pmList)
 
         // get pm uuids in vms
         let pmsInProject = [];
