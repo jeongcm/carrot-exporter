@@ -272,6 +272,12 @@ class ResourceService {
 
     const vmsWithDetails = [];
     for (let i = 0; i < vms.length; i ++) {
+      // get resourceGroup
+      vms[i].resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
+        attributes: ['resourceGroupId', 'resourceGroupName'],
+        where: {resourceGroupKey: vms[i].resourceGroupKey}
+      })
+
       vmsWithDetails.push(await this.getVMDetails(vms[i]))
     }
 
@@ -302,6 +308,12 @@ class ResourceService {
     let vms = resultList.filter(pm => pm.resourceType === "VM")
 
     for (let i = 0; i < pms.length; i++) {
+      // get resourceGroup
+      pms[i].resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
+        attributes: ['resourceGroupId', 'resourceGroupName'],
+        where: {resourceGroupKey: pms[i].resourceGroupKey}
+      })
+
       let vmsInPM = [];
 
       for (let j = 0; j < vms.length; j++) {
@@ -341,6 +353,12 @@ class ResourceService {
     const allVms = resultList.filter(vm => vm.resourceType === "VM")
 
     for (let i = 0; i < projects.length; i++) {
+      // get resourceGroup
+      projects[i].resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
+        attributes: ['resourceGroupId', 'resourceGroupName'],
+        where: {resourceGroupKey: projects[i].resourceGroupKey}
+      })
+
       // get vms in projects
       const vms = allVms.map(vm => {
         if (projects[i].resourceName === vm.resourceNamespace) {
@@ -439,11 +457,15 @@ class ResourceService {
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
 
+    // get resourceGroup
+    resource.resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
+      attributes: ['resourceGroupId', 'resourceGroupName'],
+      where: {resourceGroupKey: resource.resourceGroupKey}
+    })
+
     switch (resource.resourceType) {
       case "VM":
-           let vm = await this.getVMDetails(resource)
-           resource.resourceSpec = vm.resourceSpec
-        break
+        return await this.getVMDetails(resource)
 
       case "PM":
         let vms = await this.resource.findAll({
