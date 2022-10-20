@@ -181,7 +181,7 @@ class ResourceGroupService {
    * @param  {string} customerAccountId
    * @returns Promise
    */
-  public async getResourceGroupByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResourceGroupUi[]> {
+  public async getResourceGroupByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResourceGroup[]> {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
@@ -190,11 +190,11 @@ class ResourceGroupService {
       customerAccountKey: customerAccountKey,
     };
 
-    if (query.platform) {
+    if (query?.platform) {
       resourceGroupWhereCondition['resourceGroupPlatform'] = query.platform
     }
 
-    if (query.resourceGroupId) {
+    if (query?.resourceGroupId) {
       resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId
     }
 
@@ -220,7 +220,7 @@ class ResourceGroupService {
       resourceGroupPlatform: platform,
     };
 
-    if (query.resourceGroupId) {
+    if (query?.resourceGroupId) {
       resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId
     }
 

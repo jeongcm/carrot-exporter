@@ -39,7 +39,7 @@ class ResourceRoute implements Routes {
       '/resource/customerAccount/:customerAccountId/:resourceType',
       authMiddleware,
       createUserLogMiddleware,
-      this.resourceController.getResourceByCustomerAccountIdAndResourceType,
+      this.resourceController.getResourcesByCustomerAccountIdAndResourceType,
     );
 
     this.router.get(

@@ -178,20 +178,20 @@ class ResourceController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-  public getResourceByCustomerAccountIdAndResourceType = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public getResourcesByCustomerAccountIdAndResourceType = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const resourceType: string = req.params.resourceType;
     const customerAccountId: string = req.params.customerAccountId;
     let resources: IResource[]
     try {
       switch (resourceType) {
         case "VM":
-          resources = await this.resourceService.getVMListByCustomerAccountId(resourceType, customerAccountId, req.query);
+          resources = await this.resourceService.getVMListByCustomerAccountId(customerAccountId, req.query);
           break;
         case "PM":
-          resources = await this.resourceService.getPMListByCustomerAccountId(resourceType, customerAccountId, req.query);
+          resources = await this.resourceService.getPMListByCustomerAccountId(customerAccountId, req.query);
           break;
         case "PJ":
-          resources = await this.resourceService.getPJListByCustomerAccountId(resourceType, customerAccountId, req.query);
+          resources = await this.resourceService.getPJListByCustomerAccountId(customerAccountId, req.query);
           break
         default:
       }
