@@ -470,9 +470,8 @@ class ResourceService {
         let resultList = await this.resource.findAll({
           where: {
             deletedAt: null,
-            resourceType: ["VM", "PM"],
+            resourceType: ['VM', 'PM'],
             resourceGroupKey: resource.resourceGroupKey,
-            resourceNamespace: resource.resourceName
           },
           attributes: { exclude: ['resourceKey', 'deletedAt'] },
         })
