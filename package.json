@@ -1,6 +1,6 @@
 {
   "name": "nexclipper-api",
-  "version": "0.9.26",
+  "version": "0.9.27",
   "description": "TypeScript + Sequelize + MySQL + Express API Server",
   "author": "NexClipper Inc.",
   "license": "ISC",
