@@ -6,11 +6,13 @@ import { IAlertTimeline } from '@/common/interfaces/alertTimeline.interface';
 import { IAlertRule, IAlertRuleGraph } from '@/common/interfaces/alertRule.interface';
 import AlertReceivedService from '../services/alertReceived.service';
 import AlerthubService from '../services/alerthub.service';
+import AlertEasyRuleService from '../services/alertEasyRule.service';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 import { AlertReceivedDto } from '../dtos/alertReceived.dto';
 import ControllerExtension from '@/common/extentions/controller.extension';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
+import { IAlertTargetGroup } from '@/common/interfaces/alertTargetGroup.interface';
 
 class AlertRuleController extends ControllerExtension {
   public alertRuleService = new AlertRuleService();
@@ -18,6 +20,7 @@ class AlertRuleController extends ControllerExtension {
   public resourceGroupService = new ResourceGroupService();
   public resourceService = new ResourceService();
   public alerthubService = new AlerthubService();
+  public alertEasyRuleService = new AlertEasyRuleService();
 
   public getAllAlertRules = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
@@ -53,8 +56,8 @@ class AlertRuleController extends ControllerExtension {
   public getAllSettingAlertRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const {alertRuleIds} = req.body;
-      const findAllAlertReceived: IAlertRule[] = await this.alerthubService.getAllAlertRuleIdsSettingData(alertRuleIds,customerAccountKey);
+      const { alertRuleIds } = req.body;
+      const findAllAlertReceived: IAlertRule[] = await this.alerthubService.getAllAlertRuleIdsSettingData(alertRuleIds, customerAccountKey);
       res.status(200).json({ data: findAllAlertReceived, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -65,7 +68,7 @@ class AlertRuleController extends ControllerExtension {
     try {
       const customerAccountKey = req.customerAccountKey;
       const alertSettingData = req.body;
-      const findAllAlertReceived: IAlertRule[] = await this.alerthubService.upsertAlertRuleSetting(alertSettingData,customerAccountKey);
+      const findAllAlertReceived: IAlertRule[] = await this.alerthubService.upsertAlertRuleSetting(alertSettingData, customerAccountKey);
       res.status(200).json({ data: findAllAlertReceived, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -76,12 +79,12 @@ class AlertRuleController extends ControllerExtension {
     try {
       const customerAccountKey = req.customerAccountKey;
       const alertRuleId: string = req.params.alertRuleId;
-      const alertRuleKey: IAlertRule[] = await this.alertRuleService.findAlertRuleKeyByIds([alertRuleId],customerAccountKey);
-      let alertSettingData = req.body;
-      if(alertRuleKey.length!==0){
-        alertSettingData["alertRuleKey"] = alertRuleKey[0].alertRuleKey
+      const alertRuleKey: IAlertRule[] = await this.alertRuleService.findAlertRuleKeyByIds([alertRuleId], customerAccountKey);
+      const alertSettingData = req.body;
+      if (alertRuleKey.length !== 0) {
+        alertSettingData['alertRuleKey'] = alertRuleKey[0].alertRuleKey;
       }
-      const findAllAlertReceived: IAlertRule[] = await this.alerthubService.upsertAlertRuleSetting(alertSettingData,customerAccountKey);
+      const findAllAlertReceived: IAlertRule[] = await this.alerthubService.upsertAlertRuleSetting(alertSettingData, customerAccountKey);
       res.status(200).json({ data: findAllAlertReceived, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -217,8 +220,8 @@ class AlertRuleController extends ControllerExtension {
   public getAlertReceived = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const alertReceivedId: string = req.params.alertReceivedId;
-      const showDeleted: string = String(req.query?.showDeleted);
-      const alertFound: any = await this.alertReceivedService.findAlertReceivedById(alertReceivedId,showDeleted==="true" );
+      const showDeleted = String(req.query?.showDeleted);
+      const alertFound: any = await this.alertReceivedService.findAlertReceivedById(alertReceivedId, showDeleted === 'true');
       if (alertFound) {
         // TODO: we need to associate resourceGroup with alertRule through resourceGroupUuid later
         let resourceGroup = {};
@@ -334,15 +337,17 @@ class AlertRuleController extends ControllerExtension {
         params: { resourceId },
       } = req;
       const customerAccountKey = req.customerAccountKey;
-      const resource  =await this.resourceService.getResourceById(resourceId);
+      const resource = await this.resourceService.getResourceById(resourceId);
       const resourceGroupKey = Number(resource?.resourceGroupKey);
-      const resourceType= resource.resourceType;
+      const resourceType = resource.resourceType;
       const resourceName = resource.resourceName;
       const resourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, resourceGroupKey);
       const resourceGroupUuid = resourceGroup?.resourceGroupUuid;
       const filteringData = {
-        resourceName,resourceType,resourceGroupUuid
-      }
+        resourceName,
+        resourceType,
+        resourceGroupUuid,
+      };
       const start = Date.now();
       const alertTimelines: any = await this.alerthubService.getAlertTimelineByResourceDetail(customerAccountKey, filteringData);
 
@@ -352,6 +357,18 @@ class AlertRuleController extends ControllerExtension {
       alertTimelines.ctrlResTime = ctrlResTime;
 
       return res.status(200).json({ data: alertTimelines, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public createAlertTargetGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertTargetGroup = req.body;
+      const partyId = req.user.partyId;
+      console.log(partyId);
+      const createAlertTargetGroup: IAlertTargetGroup = await this.alertEasyRuleService.createAlertTargetGroup(alertTargetGroup, partyId);
+      res.status(200).json({ data: createAlertTargetGroup, message: 'create AlertTargetGroup' });
     } catch (error) {
       next(error);
     }

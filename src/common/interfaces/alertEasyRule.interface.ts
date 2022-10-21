@@ -15,4 +15,5 @@ export interface IAlertEasyRule {
   alertEasyRuleThreshold1: number;
   alertEasyRuleThreshold2: number;
   alertEasyRuleQuery: string;
+  customerAccountKey: number;
 }
