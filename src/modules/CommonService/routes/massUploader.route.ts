@@ -16,7 +16,6 @@ class massUploaderRoute implements Routes {
   private initializeRoutes() {
     // this.router.post('/tableId', authMiddleware, this.tableIdController.issueTableId);
     this.router.post('/resourceMass', this.massUploaderController.massUploadForResource);
-    this.router.post('/resourceMass/pm', this.massUploaderController.massUploadPMResource);
   }
 }
 
