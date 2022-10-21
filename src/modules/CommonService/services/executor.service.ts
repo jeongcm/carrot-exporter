@@ -1900,6 +1900,7 @@ class executorService {
       executorServerUrl = config.appUrl + ':' + config.appPort + '/metric/upload/pm'
       apiBody = {
         cluster_uuid: clusterUuid,
+        customerAccountKey: customerAccountKey,
         query: "",
         //TODO check required params for get PM metric
       }
