@@ -42,5 +42,4 @@ export interface IResourceGroupUi {
   resourceGroupLoki: string;
   resourceGroupSudoryNamespace: string;
   resourceGroupKpsLokiNamespace: string;
-  numberofNode: number;
 }

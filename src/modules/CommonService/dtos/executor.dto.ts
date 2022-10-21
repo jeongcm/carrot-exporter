@@ -34,6 +34,10 @@ export class ExecutorKpsDto {
   @IsString()
   @IsNotEmpty()
   public targetNamespace: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public resourceType: string;
 }
 
 export class ExecutorUuidDto {

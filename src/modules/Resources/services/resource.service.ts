@@ -1,18 +1,17 @@
 import DB from '@/database';
-import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
-import { IRquestMassUploaderMongo } from '@/common/interfaces/massUploader.interface';
-import { ResourceDto, ResourceDetailQueryDTO } from '../dtos/resource.dto';
-import { HttpException } from '@/common/exceptions/HttpException';
-import { isEmpty } from '@/common/utils/util';
+import {IResource, IResourceTargetUuid} from '@/common/interfaces/resource.interface';
+import {IRquestMassUploaderMongo} from '@/common/interfaces/massUploader.interface';
+import {ResourceDetailQueryDTO, ResourceDto} from '../dtos/resource.dto';
+import {HttpException} from '@/common/exceptions/HttpException';
+import {isEmpty} from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
-import { IMassUploaderMongoUpdateDto } from '@modules/CommonService/dtos/massUploaderMongo.dto';
-import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import {IResourceGroup} from '@/common/interfaces/resourceGroup.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import { Op } from 'sequelize';
-import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
-import { ResourceGroupModel } from '../models/resourceGroup.model';
+import {Op} from 'sequelize';
+import {IAnomalyMonitoringTarget} from '@/common/interfaces/monitoringTarget.interface';
+import {ResourceGroupModel} from '../models/resourceGroup.model';
 
 class ResourceService {
   public resource = DB.Resource;
@@ -242,11 +241,317 @@ class ResourceService {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
+
     const allResources: IResource[] = await this.resource.findAll({
-      where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey },
+      where: resourceWhereCondition,
     });
 
     return allResources;
+  }
+
+  /**
+   * @param  {number} customerAccountId
+   * @param  {any} query
+   */
+  public async getVMListByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResource[]> {
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: "VM",};
+
+    if (query?.resourceGroupId) {
+      let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
+      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+    }
+
+    const vms: IResource[] = await this.resource.findAll({
+      where: resourceWhereCondition,
+      attributes: { exclude: ['resourceKey', 'deletedAt'] },
+    });
+
+    const vmsWithDetails = [];
+    for (let i = 0; i < vms.length; i ++) {
+      // get resourceGroup
+      vms[i].resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
+        attributes: ['resourceGroupId', 'resourceGroupName'],
+        where: {resourceGroupKey: vms[i].resourceGroupKey}
+      })
+
+      vmsWithDetails.push(await this.getVMDetails(vms[i]))
+    }
+
+    return vmsWithDetails;
+  }
+
+  /**
+   * @param  {number} customerAccountId
+   * @param  {any} query
+   */
+  public async getPMListByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResource[]> {
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ["PM", "VM"],};
+
+    if (query?.resourceGroupId) {
+      let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
+      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+    }
+
+    const resultList: IResource[] = await this.resource.findAll({
+      where: resourceWhereCondition,
+      attributes: { exclude: ['resourceKey', 'deletedAt'] },
+    });
+
+    let pms = resultList.filter(pm => pm.resourceType === "PM")
+    let vms = resultList.filter(pm => pm.resourceType === "VM")
+
+    for (let i = 0; i < pms.length; i++) {
+      // get resourceGroup
+      pms[i].resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
+        attributes: ['resourceGroupId', 'resourceGroupName'],
+        where: {resourceGroupKey: pms[i].resourceGroupKey}
+      })
+
+      let vmsInPM = [];
+
+      for (let j = 0; j < vms.length; j++) {
+        if (pms[i].resourceTargetUuid === vms[j].parentResourceId) {
+          vmsInPM.push(await this.getVMDetails(vms[j]))
+        }
+      }
+
+      pms[i].resourceSpec.vms = vmsInPM
+    }
+
+    return pms;
+  }
+
+  /**
+   * @param  {number} customerAccountId
+   * @param  {any} query
+   */
+  public async getPJListByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResource[]> {
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PJ', 'PM', 'VM'],};
+
+    if (query?.resourceGroupId) {
+      let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
+      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+    }
+
+    const resultList: IResource[] = await this.resource.findAll({
+      where: resourceWhereCondition,
+      attributes: { exclude: ['resourceKey', 'deletedAt'] },
+    });
+
+    const projects = resultList.filter(pj => pj.resourceType === "PJ")
+    const allPms = resultList.filter(pm => pm.resourceType === "PM")
+    const allVms = resultList.filter(vm => vm.resourceType === "VM")
+
+    for (let i = 0; i < projects.length; i++) {
+      // get resourceGroup
+      projects[i].resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
+        attributes: ['resourceGroupId', 'resourceGroupName'],
+        where: {resourceGroupKey: projects[i].resourceGroupKey}
+      })
+
+      // get vms in projects
+      const vms = allVms.map(vm => {
+        if (projects[i].resourceName === vm.resourceNamespace) {
+          return vm
+        }
+      }).filter(n => n !== undefined)
+
+      let vmsInProject = [];
+      for (let j = 0; j < vms.length; j++) {
+        vmsInProject.push(await this.getVMDetails(vms[j]))
+      }
+
+      projects[i].resourceSpec.vms = vmsInProject
+
+      // get pms in project (by vms)
+      // get pm uuids in vms
+      let pmUUIDs = [... new Set(vmsInProject.map(vm => {return vm.parentResourceId}))]
+      const pms = allPms.map(pm => {
+        if (pmUUIDs.indexOf(pm.resourceTargetUuid) !== -1) {
+          return pm
+        }
+      }).filter(n => n !== undefined)
+
+      let pmsInProject = [];
+      for (let j = 0; j < pms.length; j++) {
+        pmsInProject.push(await this.getPMDetails(pms[j]))
+      }
+
+      projects[i].resourceSpec.pms = pmsInProject
+    }
+
+    return projects;
+  }
+
+  public async getVMDetails(vm: IResource): Promise<IResource> {
+    const resourceGroupKey = vm.resourceGroupKey;
+
+    let PM = await this.resource.findOne({
+      attributes: ['resourceName'],
+      where: {
+        deletedAt: null,
+        resourceType: "PM",
+        resourceGroupKey: resourceGroupKey,
+        resourceTargetUuid: vm.parentResourceId
+      },
+    });
+
+    vm.resourceSpec.PMName = PM.resourceName
+
+    let project = await this.resource.findOne({
+      attributes: ['resourceName'],
+      where: {
+        deletedAt: null,
+        resourceType: "PJ",
+        resourceGroupKey: resourceGroupKey,
+        resourceName: vm.resourceNamespace
+      },
+    });
+
+    vm.resourceSpec.projectName = project.resourceName
+    return vm
+  }
+
+  public async getPMDetails(pm: IResource): Promise<IResource> {
+    const resourceGroupKey = pm.resourceGroupKey;
+
+    let vms = await this.resource.findAll({
+      where: {
+        deletedAt: null,
+        resourceType: "VM",
+        resourceGroupKey: resourceGroupKey,
+        parentResourceId: pm.resourceTargetUuid
+      },
+      attributes: { exclude: ['resourceKey', 'deletedAt'] },
+    });
+
+    // pm 별 vm의 정보
+    const resultVms = [];
+    for (let i = 0; i < vms.length; i++) {
+      resultVms.push(await this.getVMDetails(vms[i]))
+    }
+
+    pm.resourceSpec.vms = resultVms
+    return pm
+  }
+
+  /**
+   * @param  {string} resourceId
+   * @param  {number} customerAccountKey
+   */
+  public async getResourceByTypeCustomerAccountKeyResourceId(resourceId: string, customerAccountKey: number): Promise<IResource> {
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceId: resourceId,};
+
+    const resource: IResource = await this.resource.findOne({
+      where: resourceWhereCondition,
+      attributes: { exclude: ['resourceKey', 'deletedAt'] },
+    });
+
+    // get resourceGroup
+    resource.resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
+      attributes: ['resourceGroupId', 'resourceGroupName'],
+      where: {resourceGroupKey: resource.resourceGroupKey}
+    })
+
+    switch (resource.resourceType) {
+      case "VM":
+        return await this.getVMDetails(resource)
+
+      case "PM":
+        let vms = await this.resource.findAll({
+          where: {
+            deletedAt: null,
+            resourceType: "VM",
+            resourceGroupKey: resource.resourceGroupKey,
+            parentResourceId: resource.resourceTargetUuid
+          },
+          attributes: { exclude: ['resourceKey', 'deletedAt'] },
+        });
+
+        const vmsInPM = [];
+        for (let i = 0; i < vms.length; i ++) {
+          vmsInPM.push(await this.getVMDetails(vms[i]))
+        }
+
+        resource.resourceSpec.vms = vmsInPM
+
+        break
+
+      case "PJ":
+        // get VM info from PJ
+        let resultList = await this.resource.findAll({
+          where: {
+            deletedAt: null,
+            resourceType: ['VM', 'PM'],
+            resourceGroupKey: resource.resourceGroupKey,
+          },
+          attributes: { exclude: ['resourceKey', 'deletedAt'] },
+        })
+
+        let pList = resultList.filter(pm => pm.resourceType === "PM")
+        let vList = resultList.filter(vm => (vm.resourceType === "VM" && vm.resourceNamespace === resource.resourceName))
+
+        let vmsInProject = [];
+        for (let i = 0; i < vList.length; i++) {
+          vmsInProject.push(await this.getVMDetails(vList[i]))
+        }
+
+        resource.resourceSpec.vms = vmsInProject
+        // get PM info in project
+
+        // find vms group by pm_id
+        // get pms in project (by vms)
+        let pmUUIDs = [... new Set(vmsInProject.map(vm => {return vm.parentResourceId}))]
+        let pmList = pList.map(pm => {
+          if (pmUUIDs.indexOf(pm.resourceTargetUuid) !== -1) {
+            return pm
+          }
+        }).filter(n => n !== undefined)
+
+        // get pm uuids in vms
+        let pmsInProject = [];
+        for (let i = 0; i < pmList.length; i++) {
+          pmsInProject.push(await this.getPMDetails(pmList[i]))
+        }
+
+        resource.resourceSpec.pms = pmsInProject
+        break
+
+      default:
+    }
+
+    return resource;
+  }
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} customerAccountKey
+   */
+  public async getResourceCountByResourceType(resourceType: string, customerAccountKey: number, query?: any): Promise<number> {
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType };
+
+    if (query?.resourceGroupId) {
+      let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId);
+      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+      return await this.resource.count({
+        where: resourceWhereCondition,
+      });
+    }
+
+    return await this.resource.count({
+      where: resourceWhereCondition,
+    });
+    ;
   }
 
   /**
