@@ -13,6 +13,8 @@ import ControllerExtension from '@/common/extentions/controller.extension';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import { IAlertTargetGroup } from '@/common/interfaces/alertTargetGroup.interface';
+import { IAlertTargetSubGroup } from '@/common/interfaces/alertTargetSubGroup.interface';
+import { IAlertEasyRule } from '@/common/interfaces/alertEasyRule.interface';
 
 class AlertRuleController extends ControllerExtension {
   public alertRuleService = new AlertRuleService();
@@ -368,7 +370,31 @@ class AlertRuleController extends ControllerExtension {
       const partyId = req.user.partyId;
       console.log(partyId);
       const createAlertTargetGroup: IAlertTargetGroup = await this.alertEasyRuleService.createAlertTargetGroup(alertTargetGroup, partyId);
-      res.status(200).json({ data: createAlertTargetGroup, message: 'create AlertTargetGroup' });
+      res.status(200).json({ data: createAlertTargetGroup, message: 'created AlertTargetGroup' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public createAlertTargetSubGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertTargetSubGroup = req.body;
+      const partyId = req.user.partyId;
+      console.log(partyId);
+      const createAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertEasyRuleService.createAlertTargetSubGroup(alertTargetSubGroup, partyId);
+      res.status(200).json({ data: createAlertTargetSubGroup, message: 'created AlertTargetSubGroup' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public createAlertEasyRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertEasyRule = req.body;
+      const partyId = req.user.partyId;
+      console.log(partyId);
+      const createAlertEasyRule = await this.alertEasyRuleService.createAlertEasyRule(alertEasyRule, partyId);
+      res.status(200).json({ data: createAlertEasyRule, message: 'created AlertTargetGroup' });
     } catch (error) {
       next(error);
     }

@@ -19,6 +19,9 @@ export type AlertEasyRuleCreationAttributes = Optional<
   | 'resourceGroupUuid'
   | 'alertTargetSubGroupKey'
   | 'customerAccountKey'
+  | 'alertEasyRuleGroup'
+  | 'alertEasyRuleSeverity'
+  | 'alertEasyRuleSummary'
 >;
 
 export class AlertEasyRuleModel extends Model<IAlertEasyRule, AlertEasyRuleCreationAttributes> implements IAlertEasyRule {
@@ -39,6 +42,9 @@ export class AlertEasyRuleModel extends Model<IAlertEasyRule, AlertEasyRuleCreat
   public alertEasyRuleThreshold2: number;
   public alertEasyRuleQuery: string;
   public customerAccountKey: number;
+  public alertEasyRuleGroup: string;
+  public alertEasyRuleSeverity: string;
+  public alertEasyRuleSummary: string;
 }
 
 export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
@@ -92,7 +98,19 @@ export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
         allowNull: true,
       },
       alertEasyRuleDescription: {
-        type: DataTypes.STRING(500),
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      alertEasyRuleSummary: {
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      alertEasyRuleGroup: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+      },
+      alertEasyRuleSeverity: {
+        type: DataTypes.STRING(100),
         allowNull: false,
       },
       alertEasyRuleThreshold2: {
