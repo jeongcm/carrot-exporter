@@ -10,7 +10,7 @@ export interface IAlertEasyRule {
   alertEasyRuleDescription: string;
   resourceGroupUuid: string;
   alertRuleKey: number;
-  alertTargetGroupKey: number;
+  alertTargetSubGroupKey: number;
   alertEasyRuleDuration: number;
   alertEasyRuleThreshold1: number;
   alertEasyRuleThreshold2: number;

@@ -63,6 +63,9 @@ import ExportersModel from '@/modules/Exporters/models/exporters.model';
 import TokenModel from '@/modules/Token/token.model';
 import EvaluationModel from '@/modules/MetricOps/models/evaluate.model';
 import ResourceEventModel from '@/modules/ResourceEvent/models/resourceEvent.model';
+import AlertTargetGroupModel from '@/modules/Alert/models/alertTargetGroup.model';
+import AlertTargetSubGroupModel from '@/modules/Alert/models/alertTargetSubGroup.model';
+import AlertEasyRuleModel from '@/modules/Alert/models/alertEasyRule.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -169,6 +172,9 @@ const DB = {
   Tokens: TokenModel(sequelize),
   Evaluation: EvaluationModel(sequelize),
   ResourceEvent: ResourceEventModel(sequelize),
+  AlertTargetGroup: AlertTargetGroupModel(sequelize),
+  AlertTargetSubGroup: AlertTargetSubGroupModel(sequelize),
+  AlertEasyRule: AlertEasyRuleModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -434,6 +440,12 @@ DB.ResourceEvent.belongsTo(DB.Resource, { foreignKey: 'resourceKey' });
 
 DB.ResourceGroup.hasMany(DB.ResourceEvent, { foreignKey: 'resourceGroupKey' });
 DB.ResourceEvent.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
+
+DB.AlertTargetGroup.hasMany(DB.AlertTargetSubGroup, { foreignKey: 'alertTargetGroupKey' });
+DB.AlertTargetSubGroup.belongsTo(DB.AlertTargetGroup, { foreignKey: 'alertTargetGroupKey' });
+
+DB.AlertTargetSubGroup.hasMany(DB.AlertEasyRule, { foreignKey: 'alertTargetSubGroupKey' });
+DB.AlertEasyRule.belongsTo(DB.AlertTargetSubGroup, { foreignKey: 'alertTargetSubGroupKey' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
