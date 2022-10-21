@@ -53,7 +53,7 @@ export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
 
       alertEasyRuleId: {
         allowNull: false,
-        type: DataTypes.STRING(30),
+        type: DataTypes.STRING(50),
       },
       createdBy: {
         type: DataTypes.STRING(16),
@@ -80,7 +80,7 @@ export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
         allowNull: false,
       },
       alertEasyRuleQuery: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING(500),
         allowNull: true,
       },
       alertEasyRuleDuration: {
@@ -92,7 +92,7 @@ export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
         allowNull: true,
       },
       alertEasyRuleDescription: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING(500),
         allowNull: false,
       },
       alertEasyRuleThreshold2: {
@@ -100,11 +100,11 @@ export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
         allowNull: true,
       },
       alertRuleKey: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         allowNull: true,
       },
       alertTargetSubGroupKey: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       resourceGroupUuid: {
@@ -112,7 +112,7 @@ export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
         allowNull: false,
       },
       customerAccountKey: {
-        type: DataTypes.NUMBER,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
     },

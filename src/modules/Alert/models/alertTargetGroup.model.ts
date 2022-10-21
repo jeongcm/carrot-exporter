@@ -38,7 +38,7 @@ export default function (sequelize: Sequelize): typeof AlertTargetGroupModel {
 
       alertTargetGroupId: {
         allowNull: false,
-        type: DataTypes.STRING(30),
+        type: DataTypes.STRING(50),
       },
       createdBy: {
         type: DataTypes.STRING(16),
