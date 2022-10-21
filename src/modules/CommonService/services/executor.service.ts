@@ -962,29 +962,24 @@ class executorService {
     // );
     // if (!resultHV) console.log(resultHV);
 
-    // post Auth execute
-    // const resultAuth = await this.postExecuteService(
-    //   'openstack interface for authentication',
-    //   'openstack interface for authentication',
-    //   clusterUuid,
-    //   '',
-    //   steps,
-    //   customerAccountKey,
-    //   "",
-    // );
-    // if (!resultAuth) console.log(resultAuth);
-
     // post PM Excute
     const pmListQuery: any = {}
     const resultPM = await this.metricService.uploadResource(customerAccountKey, pmListQuery)
     // console.log()
 
+    const openstackStep = [
+      {
+        args: {
+          credential_key: "",
+        }
+      },
+    ]
     const resultPJ = await this.postExecuteService(
       'openstack interface for PJList',
       'openstack interface for PJList',
       clusterUuid,
       '50000000000000000000000000000002',
-      steps,
+      steps, //TODO: openstack전용 step으로 변경 예정
       customerAccountKey,
       subscribedChannelResource,
     );
@@ -995,7 +990,7 @@ class executorService {
       'openstack interface for VMList',
       clusterUuid,
       '50000000000000000000000000000003',
-      steps,
+      steps, //TODO: openstack전용 step으로 변경 예정
       customerAccountKey,
       subscribedChannelResource,
     );
@@ -1022,17 +1017,6 @@ class executorService {
 //         console.log(error);
 //         console.log(`confirmed the executor/sudory client installed but fail to submit resource HV schedule request for cluster:${clusterUuid}`);
 //       }); //end of catch
-
-// // scheduleResource - ReAuth
-//     await this.scheduleResource(clusterUuid, customerAccountKey, 'PJ', resourceCron)
-//       .then(async (res: any) => {
-//         resourceJobKey.push({ resourceType: 'PJ', cronKey: res });
-//         console.log(`Submitted resource Project schedule request on ${clusterUuid} cluster successfully`);
-//       })
-//       .catch(error => {
-//         console.log(error);
-//         console.log(`confirmed the executor/sudory client installed but fail to submit resource PJ schedule request for cluster:${clusterUuid}`);
-//       });
 
 // scheduleResource - PJ
     await this.scheduleResource(clusterUuid, customerAccountKey, 'PJ', resourceCron)
@@ -1897,6 +1881,7 @@ class executorService {
     switch (selectedTemplate.resourceType) {
     case "PM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
+      scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
       executorServerUrl = config.appUrl + ':' + config.appPort + '/metric/upload/pm'
       apiBody = {
         cluster_uuid: clusterUuid,
@@ -1905,10 +1890,15 @@ class executorService {
         //TODO check required params for get PM metric
       }
       break
+    case "PJ":
+      scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
+      scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
+      steps.push({args: {credentialKey: ""}})
+      break
     case "VM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      steps.push({args: {detail: true}})
+      steps.push({args: {credentialKey: ""}})
       break
     default:
       scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;
