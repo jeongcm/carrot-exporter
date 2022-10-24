@@ -26,6 +26,12 @@ class Google {
             if (existingUser) {
               done(null, existingUser);
             } else {
+              //set customerAccount Api Key
+              const uuid = require('uuid');
+              const apiKey = uuid.v1();
+              const apiBuff = Buffer.from(apiKey);
+              const encodedApiKey = apiBuff.toString('base64');
+
               const customerAccount = await this.customerAccountService.createCustomerAccount(
                 {
                   customerAccountName: profile.displayName,
@@ -35,6 +41,8 @@ class Google {
                   firstName: profile.displayName,
                   lastName: profile.displayName,
                   email: profile.emails[0].value,
+                  customerAccountApiKey: encodedApiKey,
+                  customerAccountApiKeyIssuedAt: new Date(),
                 },
                 req.systemId,
               );
