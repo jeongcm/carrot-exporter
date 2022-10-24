@@ -52,11 +52,11 @@ const authMiddleware = async (req, res: Response, next: NextFunction) => {
     if (Authorization) {
       const secretKey: string = config.auth.jwtSecretKey;
       const verificationResponse = jwt.verify(Authorization, secretKey) as IDataStoredInToken;
-      const partyUserKey = verificationResponse.partyUserKey;
-      const findPartyUser = await DB.PartyUser.findByPk(partyUserKey);
+      const searchKey = verificationResponse.partyUserKey;
+      const findPartyUser = await DB.PartyUser.findByPk(searchKey);
 
       const findPartyIncludePartyUser = await DB.Party.findOne({
-        where: { partyId: findPartyUser.partyUserId },
+        where: { partyId: findPartyUser.partyUserId, deletedAt: null },
         include: [
           {
             model: PartyUserModel,
@@ -72,7 +72,27 @@ const authMiddleware = async (req, res: Response, next: NextFunction) => {
 
         next();
       } else {
-        next(new HttpException(401, 'Wrong authentication token'));
+        //this is for external party API access
+        const findCustomerAccount = await DB.CustomerAccount.findOne({
+          where: { customerAccountKey: searchKey, deletedAt: null },
+        });
+        if (findCustomerAccount) {
+          const findParty = await DB.Party.findOne({
+            where: { customerAccountKey: searchKey, deletedAt: null },
+            include: [
+              {
+                model: PartyUserModel,
+                attributes: { exclude: ['password'] },
+                where: { systemYn: true },
+              },
+            ],
+          });
+          if (findParty) {
+            req.user = findParty;
+            req.customerAccountKey = searchKey;
+            next();
+          } else next(new HttpException(401, 'Wrong authentication token'));
+        } else next(new HttpException(401, 'Wrong authentication token'));
       }
     } else {
       next(new HttpException(401, 'Authentication token missing'));

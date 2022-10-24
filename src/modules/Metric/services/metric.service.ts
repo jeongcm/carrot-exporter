@@ -654,6 +654,7 @@ class MetricService extends ServiceExtension {
     }
 
     promQl = promQl.replace(/__LABEL_PLACE_HOLDER__/g, labelString);
+    console.log(promQl);
 
     return {
       promQl,

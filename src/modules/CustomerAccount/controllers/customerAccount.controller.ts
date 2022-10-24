@@ -21,15 +21,17 @@ class CustomerAccountController {
   public createCustomerAccount = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
     try {
       const { body, systemId } = req;
-      const { firstName, lastName, email } = body;
+      const { customerAccountName, customerAccountType, firstName, lastName, email } = body;
       const customerAccountData = {
-        customerAccountName: `${firstName} ${lastName}`,
+        customerAccountName: customerAccountName,
         customerAccountDescription: null,
         parentCustomerAccountId: null,
-        customerAccountType: null,
+        customerAccountType: customerAccountType || 'CO',
         firstName,
         lastName,
         email,
+        customerAccountApiKey: '',
+        customerAccountApiKeyIssuedAt: null,
       };
 
       const partyData: CreateUserDto = {

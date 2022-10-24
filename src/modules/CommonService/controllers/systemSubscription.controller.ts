@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import {  IRequestWithUser } from '@/common/interfaces/party.interface';
+import { IRequestWithUser } from '@/common/interfaces/party.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import PartyService from '@/modules/Party/services/party.service';

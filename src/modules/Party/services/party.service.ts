@@ -148,6 +148,8 @@ class PartyService {
             timezone: tz,
             socialProviderId: socialProviderId,
             isEmailValidated: false,
+            systemYn: false,
+            adminYn: false,
             partyUserStatus: createPartyUserData.partyUserStatus,
           },
           { transaction: t },
@@ -168,6 +170,8 @@ class PartyService {
           language: createdPartyUser.language,
           timezone: createdPartyUser.timezone,
           isEmailValidated: createdPartyUser.isEmailValidated,
+          adminYn: createdPartyUser.adminYn,
+          systemYn: createdPartyUser.systemYn,
           partyUserStatus: createdPartyUser.partyUserStatus,
         };
       });

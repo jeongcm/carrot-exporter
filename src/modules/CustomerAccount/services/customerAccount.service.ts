@@ -1,6 +1,6 @@
 import DB from '@/database';
 import config from '@config/index';
-
+import { isEmpty } from '@/common/utils/util';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/customerAccount.dto';
 import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
@@ -38,10 +38,18 @@ class CustomerAccountService {
    */
   public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, partyData: CreateUserDto, createdBy: string): Promise<object> {
     //0. Data Prep
+    if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
 
     const currentDate = new Date();
-    const CustomerAccountDataNew = { ...customerAccountData, customerAccountType: 'CO' as customerAccountType };
     const { partyName, partyDescription, parentPartyId, firstName, lastName, userId, email, mobile, language } = partyData;
+
+    //set customerAccount Api Key
+    const uuid = require('uuid');
+    const apiKey = uuid.v1();
+    const apiBuff = Buffer.from(apiKey);
+    const encodedApiKey = apiBuff.toString('base64');
+    customerAccountData.customerAccountApiKey = encodedApiKey;
+    customerAccountData.customerAccountApiKeyIssuedAt = new Date();
 
     let tableIdTableName = 'CustomerAccount';
     let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
@@ -52,19 +60,22 @@ class CustomerAccountService {
     responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
     const partyId = responseTableIdData.tableIdFinalIssued;
 
+    //id creation for api user
+    responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+    const partyIdApi = responseTableIdData.tableIdFinalIssued;
+
     try {
       return await DB.sequelize.transaction(async t => {
         //1. create a customer account
         const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create(
           {
-            ...CustomerAccountDataNew,
+            ...customerAccountData,
             customerAccountId: customerAccountId,
             createdBy: partyId,
           },
           { transaction: t },
         );
         const customerAccountKey = createdCustomerAccount.customerAccountKey;
-        console.log('1. createdCustomerAccount', createdCustomerAccount);
 
         //1-1. create multi-tenant VM secret data
         const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
@@ -132,7 +143,6 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
         );
 
         const partyKey = createdParty.partyKey;
-        //let hashedPassword = await bcrypt.hash(password, 10);
         const password = config.defaultPassword;
         const createdPartyUser: IPartyUser = await this.partyUser.create(
           {
@@ -149,11 +159,48 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
             isEmailValidated: false,
             partyUserStatus: 'AC',
             adminYn: true,
+            systemYn: false,
             language: language,
           },
           { transaction: t },
         );
-        console.log('Part and Part USer Creation');
+        //create an API user
+        const createdPartyApi: IParty = await this.party.create(
+          {
+            partyId: partyIdApi,
+            partyName: customerAccountData.customerAccountName + '-API',
+            partyDescription: customerAccountData.customerAccountName + '-API',
+            parentPartyId: parentPartyId,
+            partyType: 'US',
+            customerAccountKey,
+            createdBy: createdBy,
+            createdAt: currentDate,
+          },
+          { transaction: t },
+        );
+
+        const partyKeyApi = createdPartyApi.partyKey;
+        const createdPartyUserApi: IPartyUser = await this.partyUser.create(
+          {
+            partyUserId: partyIdApi,
+            partyKey: partyKeyApi,
+            createdBy: createdBy,
+            firstName: 'API-User',
+            lastName: customerAccountData.customerAccountName,
+            userId: customerAccountId,
+            mobile: '',
+            password: password,
+            email: '',
+            timezone: timeZone,
+            isEmailValidated: false,
+            partyUserStatus: 'AC',
+            adminYn: false,
+            systemYn: true,
+            language: language,
+          },
+          { transaction: t },
+        );
+
         //3. fusebill interface
         console.log('fuseBill Start');
         const fuseBillCreateCustomer = {
