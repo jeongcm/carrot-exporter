@@ -13,6 +13,7 @@ import P8sService from "@modules/Metric/services/p8sService";
 export interface IMetricQueryBodyQuery {
   name: string;
   type: string;
+  hostname: string;
   resourceId: string | string[];
   start?: string;
   end?: string;
@@ -160,7 +161,7 @@ class MetricService extends ServiceExtension {
     try {
       await Promise.all(
         queryBody.query.map(async (query: IMetricQueryBodyQuery) => {
-          const { name, start, end, step, resourceGroupUuid, resourceId, resourceGroupId, type } = query;
+          const { name, start, end, step, resourceGroupUuid, resourceId, resourceGroupId, type, hostname } = query;
 
           if (isEmpty(type)) {
             return this.throwError('EXCEPTION', `type for '${name}' is missing`);
@@ -264,7 +265,7 @@ class MetricService extends ServiceExtension {
   }
 
   private getPromQlFromQuery(query: IMetricQueryBodyQuery, resources?: IResource[], resourceGroups?: IResourceGroup[]) {
-    const { type, promql: customPromQl, start, end, step } = query;
+    const { type, promql: customPromQl, start, end, step, hostname } = query;
     const clusterUuid = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupUuid);
     const resourceName = resources?.map((resource: IResource) => resource.resourceName);
     const resourceNamespace = resources?.map((resource: IResource) =>
@@ -765,6 +766,13 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(
           sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))
         )`;
+        break;
+      case 'OS_CLUSTER_PM_NODE_UPTIME':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          hostname,
+        });
+        promQl = `sum(time() - node_boot_time_seconds{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`;
         break;
     }
 
