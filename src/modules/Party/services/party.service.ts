@@ -342,7 +342,7 @@ class PartyService {
   }
 
   public createToken(user: IPartyUser): ITokenData {
-    const dataStoredInToken: IDataStoredInToken = { partyUserKey: user.partyUserKey };
+    const dataStoredInToken: IDataStoredInToken = { partyUserKey: user.partyUserKey, customerAccountKey: 0 };
     const secretKey: string = config.auth.jwtSecretKey;
     const expiresIn: number = config.auth.authTokenExpirySecond; // 60 * 60;
 

@@ -156,6 +156,7 @@ export interface ITokenData {
 
 export interface IDataStoredInToken {
   partyUserKey: number;
+  customerAccountKey: number;
 }
 
 export interface IRequestWithUser extends Request {

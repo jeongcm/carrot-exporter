@@ -63,20 +63,13 @@ class ExternalPartyService {
   }
 
   public createApiToken(customerAccount: ICustomerAccount): ITokenData {
-    const dataStoredInToken = { customerAccountKey: customerAccount.customerAccountKey };
+    const dataStoredInToken: IDataStoredInToken = { customerAccountKey: customerAccount.customerAccountKey, partyUserKey: 0 };
     const secretKey: string = config.auth.jwtSecretKey;
     const expiresIn: number = config.auth.authTokenApiExpirySecond; // 60 * 60 * 24;
 
     return { expiresIn, token: jwt.sign(dataStoredInToken, secretKey, { expiresIn }) };
   }
 
-  public createToken(user: IPartyUser): ITokenData {
-    const dataStoredInToken: IDataStoredInToken = { partyUserKey: user.partyUserKey };
-    const secretKey: string = config.auth.jwtSecretKey;
-    const expiresIn: number = config.auth.authTokenExpirySecond; // 60 * 60;
-
-    return { expiresIn, token: jwt.sign(dataStoredInToken, secretKey, { expiresIn }) };
-  }
   public createApiCookie(tokenData: ITokenData): string {
     return `X-AUTHORIZATION=${tokenData.token}; HttpOnly; Max-Age=${tokenData.expiresIn};`;
   }

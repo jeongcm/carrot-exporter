@@ -52,49 +52,53 @@ const authMiddleware = async (req, res: Response, next: NextFunction) => {
     if (Authorization) {
       const secretKey: string = config.auth.jwtSecretKey;
       const verificationResponse = jwt.verify(Authorization, secretKey) as IDataStoredInToken;
-      const searchKey = verificationResponse.partyUserKey;
-      const findPartyUser = await DB.PartyUser.findByPk(searchKey);
 
-      const findPartyIncludePartyUser = await DB.Party.findOne({
-        where: { partyId: findPartyUser.partyUserId, deletedAt: null },
-        include: [
-          {
-            model: PartyUserModel,
-            attributes: { exclude: ['password'] },
-          },
-        ],
-        // raw: true,
-      });
-
-      if (findPartyIncludePartyUser) {
-        req.user = findPartyIncludePartyUser;
-        req.customerAccountKey = (req.headers.customerAccountKey as string) || findPartyIncludePartyUser.customerAccountKey;
-
-        next();
-      } else {
-        //this is for external party API access
-        const findCustomerAccount = await DB.CustomerAccount.findOne({
-          where: { customerAccountKey: searchKey, deletedAt: null },
-        });
-        if (findCustomerAccount) {
-          const findParty = await DB.Party.findOne({
-            where: { customerAccountKey: searchKey, deletedAt: null },
+      let searchKey;
+      if (verificationResponse.customerAccountKey === 0) {
+        searchKey = verificationResponse.partyUserKey;
+        const findPartyUser = await DB.PartyUser.findByPk(searchKey);
+        if (findPartyUser) {
+          const findPartyIncludePartyUser = await DB.Party.findOne({
+            where: { partyId: findPartyUser.partyUserId, deletedAt: null },
             include: [
               {
                 model: PartyUserModel,
                 attributes: { exclude: ['password'] },
-                where: { systemYn: true },
               },
             ],
+            // raw: true,
           });
-          if (findParty) {
-            req.user = findParty;
-            req.customerAccountKey = searchKey;
+          if (findPartyIncludePartyUser) {
+            req.user = findPartyIncludePartyUser;
+            req.customerAccountKey = (req.headers.customerAccountKey as string) || findPartyIncludePartyUser.customerAccountKey;
             next();
-          } else next(new HttpException(401, 'Wrong authentication token'));
-        } else next(new HttpException(401, 'Wrong authentication token'));
+          } else next(new HttpException(401, 'Wrong authentication token I'));
+        } else next(new HttpException(401, 'Wrong authentication token II'));
       }
+      //this is for external party API access
+      else searchKey = verificationResponse.customerAccountKey;
+      const findCustomerAccount = await DB.CustomerAccount.findOne({
+        where: { customerAccountKey: searchKey, deletedAt: null },
+      });
+      if (findCustomerAccount) {
+        const findParty = await DB.Party.findOne({
+          where: { customerAccountKey: searchKey, deletedAt: null },
+          include: [
+            {
+              model: PartyUserModel,
+              attributes: { exclude: ['password'] },
+              where: { systemYn: true },
+            },
+          ],
+        });
+        if (findParty) {
+          req.user = findParty;
+          req.customerAccountKey = searchKey;
+          next();
+        } else next(new HttpException(401, 'Wrong authentication token I'));
+      } else next(new HttpException(401, 'Wrong authentication token II'));
     } else {
+      // !Authorization
       next(new HttpException(401, 'Authentication token missing'));
     }
   } catch (error) {
