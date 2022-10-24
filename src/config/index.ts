@@ -166,6 +166,7 @@ export default {
     authToken: process.env.NC_ALERTHUB_X_AUTH_TOKEN,
   },
   obsUrl: {
+    kpsNamespace: process.env.NC_KPS_NAMESPACE || 'monitor',
     prometheusUrlHead: process.env.NC_PROMETHEUS_URL_HEAD || 'http://kps-kube-prometheus-stack-prometheus.',
     prometheusUrlTail: process.env.NC_PROMETHEUS_URL_TAIL || '.svc.cluster.local:9090',
     grafanaUrlHead: process.env.NC_GRAFANA_URL_HEAD || 'http://kps-grafana.',
