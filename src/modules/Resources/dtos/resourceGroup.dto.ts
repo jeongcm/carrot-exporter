@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 import { isString } from 'lodash';
 
 export class ResourceGroupDto {
@@ -28,6 +28,39 @@ export class ResourceGroupDto {
   public resourceGroupSudoryNamespace: string;
 
   @IsString()
+  public resourceGroupKpsLokiNamespace: string;
+}
+export class UpdateResourceGroupDto {
+  @IsString()
+  @IsOptional()
+  public resourceGroupName: string;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupDescription: string;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupProvider: string;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupPlatform: 'OS' | 'K8';
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupUuid: string;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupPrometheus: string;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupSudoryNamespace: string;
+
+  @IsString()
+  @IsOptional()
   public resourceGroupKpsLokiNamespace: string;
 }
 

@@ -77,6 +77,24 @@ class CustomerAccountController {
     }
   };
 
+  public getCustomerAccountApiKeyById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountId = req.params.customerAccountId;
+
+    try {
+      const customerAccount = await this.customerAccountService.getCustomerAccountApiKeyById(customerAccountId);
+
+      if (customerAccount) {
+        res.status(200).json({ data: customerAccount, message: 'success' });
+        return;
+      } else {
+        res.status(404).json({ message: `customerAccount id(${customerAccountId}) not found` });
+        return;
+      }
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getCustomerAccountByResourceGroupUuid = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     const resourceGroupUuid = req.params.resourceGroupUuid;
 

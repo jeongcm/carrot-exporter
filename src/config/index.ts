@@ -74,6 +74,7 @@ export default {
     jwtSecretKey: process.env.NC_LARI_JWT_SECRET_KEY,
     systemVerifyKey: process.env.NC_LARI_SYSTEM_NAME,
     authTokenExpirySecond: Number(process.env.AUTH_TOKEN_EXPIRY_SECOND) || 60 * 60 * 3,
+    authTokenApiExpirySecond: Number(process.env.AUTH_TOKEN_EXPIRY_SECOND) || 60 * 60 * 24,
   },
   socialKey: {
     github: {

@@ -1,6 +1,8 @@
 variables:
   APP_IMAGE_NAME: "nexclipper-api"
-  APP_VERSION: "0.9.27"
+
+  APP_VERSION_DEV: "0.9.27"
+  APP_VERSION_STG: "0.9.27"
 
 default:
   tags:
@@ -28,7 +30,7 @@ code-build:
       - package-lock.json
       - dist/
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "staging"  || $CI_COMMIT_BRANCH =~ /\b^(issue|feature|bugfix|improvement).*$\b/
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH =~ /\b^(issue|feature|bugfix|improvement).*$\b/
 
 docker-build-commit:
   stage: build-code
@@ -50,6 +52,7 @@ docker-build-commit:
     - code-build
   rules:
     - if: $CI_COMMIT_BRANCH =~ /\b^(issue|feature|bugfix|improvement).*$\b/
+      when: manual
 
 deploy-nexclipper-api-commit:
   stage: build-code
@@ -60,17 +63,18 @@ deploy-nexclipper-api-commit:
     - echo -e "\nLogin to Kubernetes"
     - source /data/scripts/login-cluster.sh dev
   script:
-    - "source /data/scripts/deploy.sh dev nc"
+    - "source /data/scripts/deploy.sh dev nc ${CI_COMMIT_SHORT_SHA}"
   needs:
     - docker-build-commit
   rules:
     - if: $CI_COMMIT_BRANCH =~ /\b^(issue|feature|bugfix|improvement).*$\b/
       when: manual
 
-docker-build-dev:
+docker-build-nexclipper-api:
+  environment: development
   stage: dev
   variables:
-    HARBOR_NEXCLIPPER_PROJECT: "nexclipper-dev"
+    HARBOR_NEXCLIPPER_PROJECT: "nexclipper"
   image:
     name: gcr.io/kaniko-project/executor:v1.9.0-debug
     entrypoint: [""]
@@ -82,13 +86,14 @@ docker-build-dev:
       --context "${CI_PROJECT_DIR}"
       --target "common-build-stage"
       --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-      --destination "$HARBOR_URL/$HARBOR_NEXCLIPPER_PROJECT/$APP_IMAGE_NAME:${APP_VERSION}"
+      --destination "$HARBOR_URL/$HARBOR_NEXCLIPPER_PROJECT/$APP_IMAGE_NAME:${APP_VERSION_DEV}"
       --destination "$HARBOR_URL/$HARBOR_NEXCLIPPER_PROJECT/$APP_IMAGE_NAME:latest"
       --destination "$HARBOR_URL/$HARBOR_NEXCLIPPER_PROJECT/$APP_IMAGE_NAME:${CI_COMMIT_SHORT_SHA}"
   rules:
     - if: $CI_COMMIT_BRANCH == "develop"
 
 deploy-nexclipper-api-dev:
+  environment: development
   stage: dev
   image: repo.nexclipper.io/nexclipper/helm-kubectl:latest
   variables:
@@ -97,39 +102,15 @@ deploy-nexclipper-api-dev:
     - echo -e "\nLogin to Kubernetes"
     - source /data/scripts/login-cluster.sh dev
   script:
-    - "source /data/scripts/deploy.sh dev nc"
+    - "source /data/scripts/deploy.sh dev nc ${APP_VERSION_DEV}"
   needs:
-    - docker-build-dev
+    - docker-build-nexclipper-api
   rules:
     - if: $CI_COMMIT_BRANCH == "develop"
 
 
-
-docker-build-stg:
-  stage: stg
-  variables:
-    HARBOR_NEXCLIPPER_PROJECT: "nexclipper"
-  image:
-    name: gcr.io/kaniko-project/executor:v1.9.0-debug
-    entrypoint: [""]
-  before_script:
-    - echo "{\"auths\":{\"$HARBOR_URL/$HARBOR_NEXCLIPPER_PROJECT/$APP_IMAGE_NAME\":{\"username\":\"$HARBOR_USER\",\"password\":\"$HARBOR_PASS\"}}}" > /kaniko/.docker/config.json
-  script:
-    - echo "building docker image for $APP_IMAGE_NAME "
-    - /kaniko/executor
-      --context "${CI_PROJECT_DIR}"
-      --target "common-build-stage"
-      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-      --destination "$HARBOR_URL/$HARBOR_NEXCLIPPER_PROJECT/$APP_IMAGE_NAME:${APP_VERSION}"
-      --destination "$HARBOR_URL/$HARBOR_NEXCLIPPER_PROJECT/$APP_IMAGE_NAME:latest"
-      --destination "$HARBOR_URL/$HARBOR_NEXCLIPPER_PROJECT/$APP_IMAGE_NAME:${CI_COMMIT_SHORT_SHA}"
-  needs:
-    - job: code-build
-  rules:
-    - if: $CI_COMMIT_BRANCH == "staging" 
-
-
 deploy-nexclipper-api-stg:
+  environment: staging
   stage: stg
   image: repo.nexclipper.io/nexclipper/helm-kubectl:latest
   variables:
@@ -138,8 +119,6 @@ deploy-nexclipper-api-stg:
     - echo -e "\nLogin to Kubernetes"
     - source /data/scripts/login-cluster.sh stg
   script:
-   - "source /data/scripts/deploy.sh stg nc"
-  needs:
-    - job: docker-build-stg
+   - "source /data/scripts/deploy.sh stg nc ${APP_VERSION_STG}"
   rules:
     - if: $CI_COMMIT_BRANCH == "staging" 
