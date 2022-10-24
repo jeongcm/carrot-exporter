@@ -779,7 +779,7 @@ class MetricService extends ServiceExtension {
         break;
       case 'OS_CLUSTER_NEUTRON_AGENT_UP':
         break;
-      case 'OS_CLUSTER_PM_NODE_UPTIME':
+      case 'OS_CLUSTER_PM_NODE_UP_TIME':
         labelString += getSelectorLabels({
           clusterUuid,
           nodename,
@@ -789,6 +789,13 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_NODE_STATUS':
         break
       case 'OS_CLUSTER_PM_CPU_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        ranged = true;
+        promQl = `(1 - avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) by (nodename)) * 100`
         break
       case 'OS_CLUSTER_PM_MEMORY_USAGE':
         break
