@@ -76,30 +76,29 @@ const authMiddleware = async (req, res: Response, next: NextFunction) => {
         } else next(new HttpException(401, 'Wrong authentication token II'));
       }
       //this is for external party API access
-      else searchKey = verificationResponse.customerAccountKey;
-      const findCustomerAccount = await DB.CustomerAccount.findOne({
-        where: { customerAccountKey: searchKey, deletedAt: null },
-      });
-      if (findCustomerAccount) {
-        const findParty = await DB.Party.findOne({
+      else {
+        searchKey = verificationResponse.customerAccountKey;
+        const findCustomerAccount = await DB.CustomerAccount.findOne({
           where: { customerAccountKey: searchKey, deletedAt: null },
-          include: [
-            {
-              model: PartyUserModel,
-              attributes: { exclude: ['password'] },
-              where: { systemYn: true },
-            },
-          ],
         });
-        if (findParty) {
-          req.user = findParty;
-          req.customerAccountKey = searchKey;
-          next();
-        } else next(new HttpException(401, 'Wrong authentication token I'));
-      } else next(new HttpException(401, 'Wrong authentication token II'));
-    } else {
-      // !Authorization
-      next(new HttpException(401, 'Authentication token missing'));
+        if (findCustomerAccount) {
+          const findParty = await DB.Party.findOne({
+            where: { customerAccountKey: searchKey, deletedAt: null },
+            include: [
+              {
+                model: PartyUserModel,
+                attributes: { exclude: ['password'] },
+                where: { systemYn: true },
+              },
+            ],
+          });
+          if (findParty) {
+            req.user = findParty;
+            req.customerAccountKey = searchKey;
+            next();
+          } else next(new HttpException(401, 'Wrong authentication token III'));
+        } else next(new HttpException(401, 'Wrong authentication token IV'));
+      }
     }
   } catch (error) {
     console.log(error);
