@@ -49,17 +49,10 @@ class webhookForBillingController {
             customerAccountApiKey: encodedApiKey,
             customerAccountApiKeyIssuedAt: new Date(),
           };
-          const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(
-            customerAccountData,
-            systemId || partyId,
-          );
           const partyData = {
             partyName: companyName || `${firstName} ${lastName}`,
             partyDescription: null,
             parentPartyId: null,
-            partyType: 'US',
-            customerAccountKey,
-            createdBy: systemId || partyId,
             firstName,
             lastName,
             userId: id,
@@ -67,13 +60,13 @@ class webhookForBillingController {
             email: primaryEmail,
             mobile: primaryPhone,
             partyUserStatus: 'DR',
+            customerAccountId: '',
             timezone: '',
             adminYn: false,
             language: 'EN',
-
-            customerAccountId: createdCustomerAccount.customerAccountId,
+            socialProviderId: '',
           };
-          await this.partyService.createUser(partyData, createdCustomerAccount.customerAccountKey, systemId || partyId);
+          await this.customerAccountService.createCustomerAccount(customerAccountData, partyData, systemId || partyId);
           break;
         case 'SubscriptionCreated':
           const {

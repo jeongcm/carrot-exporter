@@ -3,7 +3,6 @@ import urlJoin from 'url-join';
 //import messageModel from '../models/message.model';
 //import {SendMail} from '@/modules/Messaging/dtos/sendMail.dto'
 //import DB from '@/database';
-import NotificationService from '@modules/Notification/services/notification.service';
 
 // RYAN: please keep it our convention by using import
 const nodeMailer = require('nodemailer');
@@ -17,7 +16,6 @@ const auth = {
   domain: config.email.mailgun.domain,
 };
 class MailService {
-  public notificationService = new NotificationService();
 
   public sendMail = (req, res) => {
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/verifyEmail.hbs'), 'utf8');

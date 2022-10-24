@@ -12,6 +12,7 @@ import { RequestWithUser } from '@/common/interfaces/auth.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { IAddress } from '@/common/interfaces/address.interface';
 import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
+import { CreateUserDto } from '@/modules/Party/dtos/party.dto';
 
 class CustomerAccountController {
   public customerAccountService = new CustomerAccountService();
@@ -19,31 +20,41 @@ class CustomerAccountController {
 
   public createCustomerAccount = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
     try {
-      const customerAccountData: CreateCustomerAccountDto = req.body;
-
-      const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, req.systemId);
-
-      const {
-        customerAccountId,
-        createdBy,
-        createdAt,
-        customerAccountName,
-        customerAccountDescription,
-        parentCustomerAccountId,
-        customerAccountType,
-      } = createdCustomerAccount || {};
-
-      const response = {
-        customerAccountId,
-        createdBy,
-        createdAt,
-        customerAccountName,
-        customerAccountDescription,
-        parentCustomerAccountId,
-        customerAccountType,
+      const { body, systemId } = req;
+      const { firstName, lastName, email } = body;
+      const customerAccountData = {
+        customerAccountName: `${firstName} ${lastName}`,
+        customerAccountDescription: null,
+        parentCustomerAccountId: null,
+        customerAccountType: null,
+        firstName,
+        lastName,
+        email,
       };
 
-      res.status(201).json({ data: response, message: 'created' });
+      const partyData: CreateUserDto = {
+        partyName: `${firstName} ${lastName}`,
+        partyDescription: null,
+        parentPartyId: null,
+        //partyType: 'US',
+        //customerAccountKey:createdCustomerAccount.customerAccountKey,
+        //createdBy: systemId || partyId,
+        firstName,
+        lastName,
+        userId: email,
+        password: '',
+        email: email,
+        partyUserStatus: 'DR',
+        customerAccountId: '',
+        timezone: '',
+        adminYn: false,
+        language: 'EN',
+        mobile: '',
+        socialProviderId: '',
+      };
+      const createdCustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, partyData, systemId);
+
+      res.status(201).json({ data: createdCustomerAccount, message: 'created' });
     } catch (error) {
       next(error);
     }

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { IPartyUserResponse, IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
+import {  IRequestWithUser } from '@/common/interfaces/party.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import PartyService from '@/modules/Party/services/party.service';
@@ -72,9 +72,10 @@ class SystemSubscriptionController {
             timezone: '',
             adminYn: false,
             language: language || 'EN',
+            socialProviderId: '',
           };
 
-          const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy);
+          const responseCustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, partyData, createdBy);
           createdResponse = responseCustomerAccount;
           break;
 
