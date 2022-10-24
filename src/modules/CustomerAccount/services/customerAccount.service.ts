@@ -116,7 +116,6 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
           subscribedChannel,
         );
 
-        console.log("create multi-tenant VM secret data")
         //2. create a party & party user
         const createdParty: IParty = await this.party.create(
           {
@@ -325,6 +324,22 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
       where: { customerAccountKey },
     });
     return customerAccountData.customerAccountId;
+  }
+
+  public async getCustomerAccountApiKeyById(customerAccountId: string): Promise<Object> {
+    const customerAccount: ICustomerAccount = await this.customerAccount.findOne({
+      where: { customerAccountId, deletedAt: null },
+    });
+    const encodedApiKey = customerAccount.customerAccountApiKey;
+    const apiKeyBuff = Buffer.from(encodedApiKey, 'base64');
+    const apiKey = apiKeyBuff.toString('ascii');
+    const returnMsg = {
+      customerAccount: customerAccountId,
+      customerAccountApiKey: apiKey,
+      customerAccountApiKeyIssuedAt: customerAccount.customerAccountApiKeyIssuedAt,
+    };
+
+    return returnMsg;
   }
 
   public async updateCustomerAccount(

@@ -3,7 +3,6 @@ import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 
-
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import SendMailService from '@/modules/Messaging/services/sendMail.service';
 import tableIdService from '@/modules/CommonService/services/tableId.service';

@@ -37,6 +37,11 @@ class SystemSubscriptionController {
               Customer: { firstName, lastName, id, primaryEmail, primaryPhone, companyName, language },
             },
           } = req;
+          //set customerAccount Api Key
+          const uuid = require('uuid');
+          const apiKey = uuid.v1();
+          const apiBuff = Buffer.from(apiKey);
+          const encodedApiKey = apiBuff.toString('base64');
           const customerAccountData = {
             customerAccountName: companyName || `${firstName} ${lastName}`,
             customerAccountDescription: null,
@@ -45,6 +50,8 @@ class SystemSubscriptionController {
             firstName: firstName,
             lastName: lastName,
             email: primaryEmail,
+            customerAccountApiKey: encodedApiKey,
+            customerAccountApiKeyIssuedAt: new Date(),
           };
 
           const partyData: CreateUserDto = {
