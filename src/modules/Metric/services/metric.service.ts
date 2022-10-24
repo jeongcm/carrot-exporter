@@ -767,6 +767,12 @@ class MetricService extends ServiceExtension {
           sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))
         )`;
         break;
+      case 'OS_CLUSTER_PM_INFO':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `node_uname_info{is_collector_pm="Y", __LABEL_PLACE_HOLDER__}`;
+        break;
       case 'OS_CLUSTER_NOVA_AGENT_UP':
         break;
       case 'OS_CLUSTER_CINDER_AGENT_UP':
