@@ -771,7 +771,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `node_uname_info{is_collector_pm="Y", __LABEL_PLACE_HOLDER__}`;
+        promQl = `node_uname_info{job=~"pm-node-exporter", is_collector_pm=~"Y", __LABEL_PLACE_HOLDER__}`;
         break;
       case 'OS_CLUSTER_NOVA_AGENT_UP':
         break;
@@ -784,7 +784,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
           nodename,
         });
-        promQl = `sum(time() - nc:node_boot_time_seconds{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum(time() - nc:node_boot_time_seconds{job=~"pm-node-exporter", is_collector_pm=~"Y", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'OS_CLUSTER_PM_NODE_STATUS':
         break
