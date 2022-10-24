@@ -34,6 +34,14 @@ export class ExecutorKpsDto {
   @IsString()
   @IsNotEmpty()
   public targetNamespace: string;
+
+  @IsString()
+  @IsOptional()
+  public kpsChartVersion: string;
+
+  @IsString()
+  @IsOptional()
+  public lokiChartVersion: string;
 }
 
 export class ExecutorUuidDto {

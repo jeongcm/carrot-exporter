@@ -107,10 +107,19 @@ class executorController {
     try {
       const clusterUuid = req.body.clusterUuid;
       const targetNamespace = req.body.targetNamespace;
+      const kpsChartVersion = req.body.kpsChartVersion || '';
+      const lokiChartVersion = req.body.lokiChartVersion || '';
       const customerAccountKey = req.customerAccountKey;
       const systemId = req.systemId;
 
-      const serviceUuids = await this.executorService.installKpsOnResourceGroup(clusterUuid, customerAccountKey, targetNamespace, systemId);
+      const serviceUuids = await this.executorService.installKpsOnResourceGroup(
+        clusterUuid,
+        customerAccountKey,
+        targetNamespace,
+        systemId,
+        kpsChartVersion,
+        lokiChartVersion,
+      );
       res
         .status(200)
         .json({ serviceUuid: serviceUuids, message: `Successfullyt submit kps stack installation service request on cluserUuid: ${clusterUuid}` });
