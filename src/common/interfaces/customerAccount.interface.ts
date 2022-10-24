@@ -1,12 +1,13 @@
 import { IAddress } from './address.interface';
 
-export type customerAccountType = 'ST' | 'SM' | 'EN' | 'IA' | 'CO';
+export type customerAccountType = 'ST' | 'SM' | 'EN' | 'IA' | 'CO' | 'PA';
 /**
  * ST : Startup 스타트업
  * SM : SMB 중소기업
  * EN : Enterprise 대기업
  * CO : Corprate general 일반기업
  * IA : Internal Account 내부계정
+ * PA : Partner
  */
 
 export interface ICustomerAccount {
@@ -22,6 +23,8 @@ export interface ICustomerAccount {
   parentCustomerAccountId: string;
   customerAccountType: customerAccountType;
   address?: IAddress[];
+  customerAccountApiKey: string;
+  customerAccountApiKeyIssuedAt: Date;
 }
 
 export interface ICustomerAccoutType {
