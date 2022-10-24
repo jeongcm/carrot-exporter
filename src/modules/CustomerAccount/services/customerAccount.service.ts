@@ -51,28 +51,36 @@ class CustomerAccountService {
   url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
           '\n';
       });
-      console.log(auth);
+
+      const authBuff = Buffer.from(auth);
+      const base64Auth = authBuff.toString('base64');
 
       //call sudory to patch VM multiline secret file
-      /*
+
       const name = 'Update VM Secret';
       const summary = 'Update VM Secret';
       const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
-      const templateUuid = ''; //tmplateUuid will be updated
+      const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
       const step = [
         {
           args: {
             name: config.victoriaMetrics.vmMultiSecret,
             namespace: config.victoriaMetrics.vmMultiNamespaces,
-            op: 'replace',
-            path: "/data/'auth.yml'",
-            value: `'$(base64<<<${auth})'`,
+            patch_type: 'json',
+            patch_data: [
+              {
+                op: 'replace',
+                path: '/data/auth.yml',
+                //value: `'$(base64<<<${auth})'`,
+                value: base64Auth,
+              },
+            ],
           },
         },
       ];
       const customerAccountKey = createdCustomerAccount.customerAccountKey;
       const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-      const updateVmSecret = await this.sudoryService.postSudoryService(
+      const sudoryRequest = await this.sudoryService.postSudoryService(
         name,
         summary,
         clusterUuid,
@@ -81,7 +89,7 @@ class CustomerAccountService {
         customerAccountKey,
         subscribedChannel,
       );
-      */
+
       /* blocked due to Maximum call stack size exceeded error
       //schdule Heathcheck of customer Account clusters //improvement/547
       let cronTabforHealth = config.healthCron;     

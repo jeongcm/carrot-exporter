@@ -91,27 +91,31 @@ password: "${customerAccount.customerAccountId}"
 url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
             '\n';
         });
-        console.log(auth);
+        const authBuff = Buffer.from(auth);
+        const base64Auth = authBuff.toString('base64');
         //call sudory to patch VM multiline secret file
-        /*
         const sudoryServiceName = 'Update VM Secret';
         const summary = 'Update VM Secret';
         const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
-        const templateUuid = ''; //tmplateUuid will be updated
+        const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
         const step = [
           {
             args: {
               name: config.victoriaMetrics.vmMultiSecret,
               namespace: config.victoriaMetrics.vmMultiNamespaces,
-              op: 'replace',
-              path: "/data/'auth.yml'",
-              value: `'$(base64<<<${auth})'`,
+              patch_type: 'json',
+              patch_data: [
+                {
+                  op: 'replace',
+                  path: '/data/auth.yml',
+                  value: base64Auth,
+                },
+              ],
             },
           },
         ];
-
         const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-        const updateVmSecret = await this.sudoryService.postSudoryService(
+        await this.sudoryService.postSudoryService(
           sudoryServiceName,
           summary,
           clusterUuid,
@@ -120,7 +124,6 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
           customerAccountKey,
           subscribedChannel,
         );
-        */
         //2. create a party & party user
         const createdParty: IParty = await this.party.create(
           {
@@ -178,19 +181,22 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
         });
         if (fuseBillCustomer.data) {
           fuseBillInterface = true;
+          console.log('Provision customer infor to fusebill successfully');
+          const customerActivationPayload = {
+            customerId: fuseBillCustomer.data.id,
+            activateAllSubscriptions: true,
+            activateAllDraftPurchases: true,
+            temporarilyDisableAutoPost: false,
+          };
+          await axios({
+            method: 'post',
+            url: `${config.fuseBillApiDetail.baseURL}customerActivation`,
+            data: customerActivationPayload,
+            headers: headers,
+          });
+        } else {
+          console.log('Fail to provision customer data to Fulsebill');
         }
-        const customerActivationPayload = {
-          customerId: fuseBillCustomer.data.id,
-          activateAllSubscriptions: true,
-          activateAllDraftPurchases: true,
-          temporarilyDisableAutoPost: false,
-        };
-        await axios({
-          method: 'post',
-          url: `${config.fuseBillApiDetail.baseURL}customeractivation`,
-          data: customerActivationPayload,
-          headers: headers,
-        });
 
         //4. prep sending email to customer
         const emailTemplateSource = fs.readFileSync(
@@ -207,12 +213,10 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
           html: htmlToSend,
         };
         const notificationMessage = JSON.parse(JSON.stringify(mailOptions));
-
         //5 create notification history
         tableIdTableName = 'Notification';
         responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
         const notificationId = responseTableIdData.tableIdFinalIssued;
-
         const newNotification = {
           notificationId: notificationId,
           partyKey: partyKey,
@@ -226,14 +230,13 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
           notificationMessage: notificationMessage,
           notificationStatus: 'ST',
         };
-
         await this.notification.create(newNotification, { transaction: t });
 
         //4.1 send email to customer
         let emailSent = false;
         await this.sendMailService.sendMailGeneral(mailOptions);
         emailSent = true;
-        console.log('success!!!!!');
+        console.log('email sent to new customer');
         //6. return message
         return {
           customerAccountId: createdCustomerAccount.customerAccountId,

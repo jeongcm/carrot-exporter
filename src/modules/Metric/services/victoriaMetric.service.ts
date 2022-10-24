@@ -20,7 +20,7 @@ class VictoriaMetricService extends ServiceExtension {
     let url;
     let axiosParameter;
     if (config.victoriaMetrics.vmOption === 'SINGLE') {
-      url = `${this.victoriaSingleEndpoint}/api/v1/query_range?query=${encodeURIComponent(promQl)}&start=${start}&end=${end}`;
+      url = `${this.victoriaSingleEndpoint}/api/v1/query_range?query=${encodeURIComponent(promQl)}&start=${start}&end=${end}&step=${step}`;
       axiosParameter = {
         method: 'GET',
         url: `${url}`,
@@ -28,7 +28,7 @@ class VictoriaMetricService extends ServiceExtension {
     } else {
       const username = 'S' + customerAccountId;
       const password = customerAccountId;
-      url = `${this.victoriaMultiEndpoint}/api/v1/query_range?query=${encodeURIComponent(promQl)}&start=${start}&end=${end}`;
+      url = `${this.victoriaMultiEndpoint}/api/v1/query_range?query=${encodeURIComponent(promQl)}&start=${start}&end=${end}&step=${step}`;
       axiosParameter = {
         method: 'GET',
         url: `${url}`,

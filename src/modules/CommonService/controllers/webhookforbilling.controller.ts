@@ -8,10 +8,10 @@ import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import axios from 'common/httpClient/axios';
 import * as _ from 'lodash';
-import { IResource } from '@/common/interfaces/resource.interface';
+//import { IResource } from '@/common/interfaces/resource.interface';
 import config from '@config/index';
-import { CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
-import catalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
+//import { CreateProductPricingDto } from '@/modules/ProductCatalog/dtos/productCatalog.dto';
+//import catalogPlanProductModel from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
 class webhookForBillingController {
   public customerAccountService = new CustomerAccountService();
   public partyService = new PartyService();
@@ -38,6 +38,9 @@ class webhookForBillingController {
             customerAccountDescription: null,
             parentCustomerAccountId: null,
             customerAccountType: null,
+            firstName: firstName,
+            lastName: lastName,
+            email: primaryEmail,
           };
           const createdCustomerAccount: ICustomerAccount = await this.customerAccountService.createCustomerAccount(
             customerAccountData,
@@ -81,6 +84,7 @@ class webhookForBillingController {
             .then(async (res: any) => {
               fusebillResponse = res.data;
             })
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
             .catch(error => {});
           const { status, nextPeriodStartDate, lastPeriodStartDate, subscriptionCommitmentType = 'AC', planCode } = fusebillResponse;
           let subscriptionStatus;

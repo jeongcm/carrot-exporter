@@ -20,9 +20,9 @@ class LokiController {
       const logResult = await this.lokiService.queryLog(query);
       res.status(200).json({ data: logResult, message: `success to query logs` });
     } catch (error) {
-      console.log('Loki query error');
+      console.log('Loki query error', error);
       res.status(500).json({ message: `Loki Query Unknown Error` });
-      next(error);
+      // next(error);
     }
   };
   public getLabels = async (req: IRequestWithUser, res: Response, next: NextFunction) => {

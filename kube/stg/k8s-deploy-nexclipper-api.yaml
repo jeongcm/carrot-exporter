@@ -49,7 +49,7 @@ data:
   NC_LARI_SYSTEM_PARTYUSER_PASSWORD: Password@123!
   NC_LARI_SYSTEM_PARTYUSER_EMAIL: system@nexclipper.io
   SUDORY_X_AUTH_TOKEN: "SUDORY"
-  SUDORY_BASE_URL: "http://157.245.23.81:8099"
+  SUDORY_BASE_URL: "http://157.230.76.220:8099"
   SUDORY_PATH_CREATECLUSTER: "/server/cluster"
   SUDORY_PATH_CREATETOKEN: "/server/cluster_token"
   SUDORY_PATH_SESSION: "/server/session"
@@ -98,8 +98,11 @@ data:
   NC_VM_MULTI_AUTH_URL: "http://vm-auth-victoria-metrics-auth.vm-multi-tenant.svc.cluster.local:8427"
   NC_VM_MULTI_NAMESPACE: "vm-multi-tenant"
   NC_VM_MULTI_SECRET: "vm-auth-victoria-metrics-auth"
-  NC_VM_MULTI_CLUSTER_UUID: ""
-  NC_VM_OPTION: "SINGLE"
+  NC_VM_MULTI_CLUSTER_UUID: "a2c0cfa9203b4347a7b0441029ef9f6b"
+  NC_VM_OPTION: "MULTI"
+  NC_METRIC_RECEIVED_SWITCH: "off"
+  FUSEBILL_BASE_URL: "https://secure.fusebill.com/v1/"
+  FUSEBILL_API_CREATE_CUSTOMER_URL: "https://secure.fusebill.com/v1/customers"
 
 
 

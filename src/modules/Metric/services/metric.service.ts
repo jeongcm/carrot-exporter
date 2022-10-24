@@ -123,13 +123,13 @@ class MetricService extends ServiceExtension {
             results[name] = {
               ok: true,
               data,
-              query: promQl,
+              query: { ...promQl, step },
             };
           } catch (e) {
             results[name] = {
               ok: false,
               reason: e,
-              query: promQl,
+              query: { ...promQl, step },
             };
           }
         }),
@@ -659,6 +659,10 @@ class MetricService extends ServiceExtension {
       promQl,
       ranged,
     };
+  }
+
+  public async uploadResource(customerAccountKey: number, queryBody: IMetricQueryBody) {
+
   }
 }
 

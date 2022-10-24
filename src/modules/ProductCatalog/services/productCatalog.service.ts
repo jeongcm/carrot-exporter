@@ -1,4 +1,3 @@
-
 import DB from '@/database';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
@@ -14,44 +13,42 @@ class ProductCatlogService {
   public catalogPlanProductPrice = DB.CatalogPlanProductPrice;
   public tableIdService = new tableIdService();
 
-
   /**
    * @function {findAllCatalogPlans} find the all catalog Data
-   * @returns 
+   * @returns
    */
   public async findAllCatalogPlans(): Promise<ICatalogPlan[]> {
-    const catalogPlans: ICatalogPlan[] = await this.catalogPlan.findAll(
-      { where: { deletedAt: null },
-      include:[
+    const catalogPlans: ICatalogPlan[] = await this.catalogPlan.findAll({
+      where: { deletedAt: null },
+      include: [
         {
-          model: CatalogPlanProductModel
-        }
-      ] });
+          model: CatalogPlanProductModel,
+        },
+      ],
+    });
     return catalogPlans;
   }
 
   /**
    * @function {createCatalogPlan} create new Catalog plan
-   * @param {object} new catalog plan data 
+   * @param {object} new catalog plan data
    * @returns {object} new catalog plan created
    */
   public async createCatalogPlan(data: CreateCatalogPlanDto, partyId: string, systemId: string): Promise<ICatalogPlan> {
     const catalogPlanId = await this.getTableId('CatalogPlan');
-    const createData =
-    {
+    const createData = {
       ...data,
       catalogPlanId: catalogPlanId,
       createdBy: partyId,
-      createdAt: new Date()
-    }
+      createdAt: new Date(),
+    };
     const newCatalogPlan: ICatalogPlan = await this.catalogPlan.create(createData);
     return newCatalogPlan;
   }
 
-
   /**
    * {findCatalogPlan} find the catalog plan by its catalogPlanId
-   * @param {string} id 
+   * @param {string} id
    * @returns {object} catalog plan object
    */
 
@@ -62,17 +59,29 @@ class ProductCatlogService {
         catalogPlanId: id,
         deletedAt: null,
       },
-      include:[
-        {model: CatalogPlanProductModel,
-         where: {deletedAt: null}
-        },
-        
-      ]
+      include: [{ model: CatalogPlanProductModel, where: { deletedAt: null } }],
     });
     if (!findCatalogPlan) throw new HttpException(409, 'Catalog Plan Not found');
     return findCatalogPlan;
   }
 
+  /**
+   * {findCatalogPlanOnly} find the catalog plan by its catalogPlanId
+   * @param {string} id
+   * @returns {object} catalog plan object only
+   */
+
+  public async findCatalogPlanOnly(id: string): Promise<ICatalogPlan> {
+    if (isEmpty(id)) throw new HttpException(400, 'Not a valid catalog Plan');
+    const findCatalogPlan: ICatalogPlan = await this.catalogPlan.findOne({
+      where: {
+        catalogPlanId: id,
+        deletedAt: null,
+      },
+    });
+    if (!findCatalogPlan) throw new HttpException(409, 'Catalog Plan Not found');
+    return findCatalogPlan;
+  }
 
   /**
    * @function  {updateCatalogPlanById} update catalog Plan Data using id
@@ -80,12 +89,16 @@ class ProductCatlogService {
    * @param  {number} currentUserPk
    * @returns Promise<catalogPlan>
    */
-  public async updateCatalogPlanById(catalogPlanId: string, catalogPlanData: CreateCatalogPlanDto, systemId: string, partyId: string): Promise<ICatalogPlan> {
+  public async updateCatalogPlanById(
+    catalogPlanId: string,
+    catalogPlanData: CreateCatalogPlanDto,
+    systemId: string,
+    partyId: string,
+  ): Promise<ICatalogPlan> {
     if (isEmpty(catalogPlanData)) throw new HttpException(400, 'Access Group Data cannot be blank');
-    const findCataPlan: ICatalogPlan = await this.catalogPlan.findOne( 
-      { 
-        where: { catalogPlanId },
-      });
+    const findCataPlan: ICatalogPlan = await this.catalogPlan.findOne({
+      where: { catalogPlanId },
+    });
 
     if (!findCataPlan) throw new HttpException(409, "Access Group doesn't exist");
     const updatedcCtalogPlanData = {
@@ -103,19 +116,17 @@ class ProductCatlogService {
 
   /**
    * @function {getCatalogPlanProducts} get all  catalog plan product of a particular plan
-   * @param {string} catalogPlanKey 
+   * @param {string} catalogPlanKey
    * @returns array of catalog plan product of a particular plan
    */
   public async getCatalogPlanProducts(catalogPlanKey: string): Promise<ICatalogPlanProduct[]> {
-    const catalogPlanProducts: ICatalogPlanProduct[] = await this.catalogPlanProduct.findAll(
-      {
-        where:
-        {
-          catalogPlanKey,
-          deletedAt: null
-        }
-        , attributes: { exclude: ['catalogPlanProductKey', 'deletedAt'] }
-      });
+    const catalogPlanProducts: ICatalogPlanProduct[] = await this.catalogPlanProduct.findAll({
+      where: {
+        catalogPlanKey,
+        deletedAt: null,
+      },
+      attributes: { exclude: ['catalogPlanProductKey', 'deletedAt'] },
+    });
     return catalogPlanProducts;
   }
 
@@ -125,7 +136,12 @@ class ProductCatlogService {
    * @returns {object} newly created catalogPlan product
    */
 
-  public async createCatalogPlanProduct(newData: CreateCatalogPlanProductDto, catalogPlanKey: number, partyId: string, systemId: string): Promise<ICatalogPlanProduct> {
+  public async createCatalogPlanProduct(
+    newData: CreateCatalogPlanProductDto,
+    catalogPlanKey: number,
+    partyId: string,
+    systemId: string,
+  ): Promise<ICatalogPlanProduct> {
     const catalogPlanProductId = await this.getTableId('CatalogPlanProduct');
     const {
       catalogPlanProductCurrency,
@@ -133,9 +149,9 @@ class ProductCatlogService {
       catalogPlanProductMonthlyPrice,
       catalogPlanProductName,
       catalogPlanProductUOM,
-      catalogPlanProductType
-    } = newData
-    let createData = {
+      catalogPlanProductType,
+    } = newData;
+    const createData = {
       catalogPlanProductId,
       catalogPlanKey,
       catalogPlanProductCurrency,
@@ -145,17 +161,15 @@ class ProductCatlogService {
       catalogPlanProductUOM,
       catalogPlanProductType,
       createdBy: partyId || systemId,
-    }
+    };
     const newCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.create(createData);
-    console.log(
-      "newCatalogPlanProduct", newCatalogPlanProduct
-    )
+    console.log('newCatalogPlanProduct', newCatalogPlanProduct);
     return newCatalogPlanProduct;
   }
 
   /**
    * @function getCalogPlanProductById catalogPlanProduct details by id
-   * @param catalogPlanProductId 
+   * @param catalogPlanProductId
    * @returns {object} deatils of catalog plan Product Data
    */
   public async getCatalogPlanProductById(catalogPlanProductId: string): Promise<ICatalogPlanProduct> {
@@ -163,31 +177,37 @@ class ProductCatlogService {
     const findCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
       where: {
         catalogPlanProductId,
-        deletedAt: null
-      }
+        deletedAt: null,
+      },
     });
     if (!findCatalogPlanProduct) throw new HttpException(409, `Catalog Plan product  Not found `);
     return findCatalogPlanProduct;
   }
 
-
   /**
    * @function updateCatalagPlanProduct for updating the plan product
-   * @param {object} productData 
-   * @param {string} productId 
+   * @param {object} productData
+   * @param {string} productId
    * @returns  {object}
    */
 
-  public async updateCatalagPlanProduct(productId: string, productData: ICatalogPlanProduct, partyId: string, systemId: string): Promise<ICatalogPlanProduct> {
+  public async updateCatalagPlanProduct(
+    productId: string,
+    productData: ICatalogPlanProduct,
+    partyId: string,
+    systemId: string,
+  ): Promise<ICatalogPlanProduct> {
     if (isEmpty(productData)) throw new HttpException(400, 'Access Group Data cannot be blank');
 
-    const planProductData: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({ where: { catalogPlanProductId: productId, deletedAt: null } });
+    const planProductData: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
+      where: { catalogPlanProductId: productId, deletedAt: null },
+    });
 
     if (!planProductData) throw new HttpException(409, "Catalog Plan product doesn't exist");
     const updatedPlanProduct = {
       ...productData,
       updatedAt: new Date(),
-      updatedBy: partyId || systemId
+      updatedBy: partyId || systemId,
     };
 
     await this.catalogPlanProduct.update(updatedPlanProduct, { where: { catalogPlanProductId: productId } });
@@ -195,34 +215,32 @@ class ProductCatlogService {
     return updateData;
   }
 
-
-
   /**
-   * @function createProductPricing 
-   * @param {object} pricingData 
+   * @function createProductPricing
+   * @param {object} pricingData
    * @returns {object} ICatalogPlanProductPrice
    */
 
-  public async createProductPricing(pricingData: CreateProductPricingDto, catalogPlanProductKey: number,  partyId:string, systemId:string): Promise<ICatalogPlanProductPrice> {
+  public async createProductPricing(
+    pricingData: CreateProductPricingDto,
+    catalogPlanProductKey: number,
+    partyId: string,
+    systemId: string,
+  ): Promise<ICatalogPlanProductPrice> {
     const catalogPlanProductPricingId = await this.getTableId('CatalogPlanProductPrice');
-    const {
-      catalogPlanProductMonthlyPrice,
-      catalogPlanProductMonthlyPriceFrom,
-      catalogPlanProductMonthlyPriceTo
-    } = pricingData
+    const { catalogPlanProductMonthlyPrice, catalogPlanProductMonthlyPriceFrom, catalogPlanProductMonthlyPriceTo } = pricingData;
 
-    let createData = {
+    const createData = {
       catalogPlanProductPricingId,
       catalogPlanProductMonthlyPrice,
       catalogPlanProductMonthlyPriceFrom,
       catalogPlanProductMonthlyPriceTo,
       catalogPlanProductKey,
       createdBy: partyId || systemId,
-      }
+    };
     const newData: ICatalogPlanProductPrice = await this.catalogPlanProductPrice.create(createData);
-    return newData
+    return newData;
   }
-
 
   public getTableId = async (tableIdTableName: string) => {
     const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
@@ -232,9 +250,7 @@ class ProductCatlogService {
     }
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
     return responseTableIdData.tableIdFinalIssued;
-  }
-
-
+  };
 }
 
 export default ProductCatlogService;

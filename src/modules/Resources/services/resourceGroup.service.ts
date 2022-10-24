@@ -181,26 +181,69 @@ class ResourceGroupService {
    * @param  {string} customerAccountId
    * @returns Promise
    */
-  public async getResourceGroupByCustomerAccountId(customerAccountId: string): Promise<IResourceGroupUi[]> {
-    const resourceType = 'ND';
+  public async getResourceGroupByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResourceGroup[]> {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
+    const resourceGroupWhereCondition = {
+      deletedAt: null,
+      customerAccountKey: customerAccountKey,
+    };
+
+    if (query?.platform) {
+      resourceGroupWhereCondition['resourceGroupPlatform'] = query.platform
+    }
+
+    if (query?.resourceGroupId) {
+      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId
+    }
+
     const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null },
+      where: resourceGroupWhereCondition,
     });
 
-    const numberOfResouceGroup = resultResourceGroup.length;
+    return resultResourceGroup;
+  }
+
+  /**
+   * @param  {string} platform
+   * @param  {string} customerAccountId
+   * @returns Promise
+   */
+  public async getResourceGroupByCustomerAccountIdForOpenstack(customerAccountId: string, platform: string, query?: any): Promise<IResourceGroupUi[]> {
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+
+    const resourceGroupWhereCondition = {
+      deletedAt: null,
+      customerAccountKey: customerAccountKey,
+      resourceGroupPlatform: platform,
+    };
+
+    if (query?.resourceGroupId) {
+      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId
+    }
+
+    console.log("query:", resourceGroupWhereCondition)
+
+    const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: resourceGroupWhereCondition,
+    });
+
+    console.log("data:", resultResourceGroup)
 
     const resourceGroupResult = [];
 
-    for (let i = 0; i < numberOfResouceGroup; i++) {
+    for (let i = 0; i < resultResourceGroup.length; i++) {
       const resourceGroupKey = resultResourceGroup[i].resourceGroupKey;
 
-      const resultResource = await this.resource.findAll({
-        where: { deletedAt: null, resourceType: resourceType, resourceGroupKey: resourceGroupKey },
+      const projectCount = await this.resource.count({
+        where: { deletedAt: null, resourceType: "PJ", resourceGroupKey: resourceGroupKey },
       });
-      const numberOfNode = resultResource.length;
+
+      const vmCount = await this.resource.count({
+        where: { deletedAt: null, resourceType: "VM", resourceGroupKey: resourceGroupKey },
+      });
 
       resourceGroupResult[i] = {
         resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
@@ -220,7 +263,8 @@ class ResourceGroupService {
         resourceGroupGrafana: resultResourceGroup[i].resourceGroupGrafana,
         resourceGroupLoki: resultResourceGroup[i].resourceGroupLoki,
         resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
-        numberOfNode: numberOfNode,
+        numberOfProject: projectCount,
+        numberOfVM: vmCount,
       };
     }
 
@@ -446,7 +490,7 @@ class ResourceGroupService {
           name: nameSudoryClient,
           summary: summarySudoryClient,
           apiUrl: executorServerUrl,
-          apiType: 'post',
+          apiType: 'POST',
           apiBody: {
             name: nameSudoryClient,
             summary: summarySudoryClient,
@@ -480,20 +524,12 @@ class ResourceGroupService {
         currentTimeClusterTo.setMinutes(currentTimeClusterTo.getMinutes() + 32);
         const scheduleToSudoryCluster = currentTimeClusterTo.toISOString();
 
-        const uninstallSudoryCluster = {
+        const deleteSudoryCluster = {
           name: nameSudoryCluster,
           summary: summarySudoryCluster,
           apiUrl: executeServerClusterUrl,
-          apiType: 'delete',
-          apiBody: {
-            name: nameSudoryCluster,
-            summary: summarySudoryCluster,
-            template_uuid: helmUninstallTemplateUuid,
-            cluster_uuid: resourceGroupUuid,
-            on_completion: on_completion,
-            steps: steps,
-            subscribed_channel: sudoryChannel,
-          },
+          apiType: 'DELETE',
+          apiBody: {},
           cronTab: '*/10 * * * *',
           clusterId: resourceGroupUuid,
           scheduleFrom: schedulefromSudoryCluster,
@@ -502,7 +538,7 @@ class ResourceGroupService {
         };
 
         console.log('sudory - delete cluster data map:', uninstallSudoryClient);
-        const resultCreateSchedulerDeleteCluster = await this.schedulerService.createScheduler(uninstallSudoryCluster, customerAccountId);
+        const resultCreateSchedulerDeleteCluster = await this.schedulerService.createScheduler(deleteSudoryCluster, customerAccountId);
 
         //9. Customer Notification (To Be Coded)
 

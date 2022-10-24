@@ -7,6 +7,7 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import Sequelize from 'sequelize';
 dayjs.extend(utc);
 
 const { Op } = require('sequelize');
@@ -30,20 +31,21 @@ class AlertRuleService {
   public async getAlertRuleGraph(customerAccountKey: number, status: string): Promise<IAlertRuleGraph[]> {
     let conditionalWhere = {};
 
-    if (status === 'firing') {
-      const ago = dayjs().subtract(1.5, 'hour').utc().toDate();
+    if (status === 'all') {
+    } else {
       conditionalWhere = {
-        alertReceivedActiveAt: {
-          [Op.gt]: ago,
-        },
+        alertRuleState: status,
+        ...conditionalWhere,
       };
     }
+
+    const ago = dayjs().subtract(1.5, 'hour').utc().toDate();
 
     const allAlertRules: IAlertRuleGraph[] = await this.alertRule.findAll({
       where: {
         customerAccountKey: customerAccountKey,
         deletedAt: null,
-        alertRuleState: status,
+        ...conditionalWhere,
       },
       attributes: {
         exclude: [
@@ -55,24 +57,31 @@ class AlertRuleService {
           'customerAccountKey',
           'alertRuleDuration',
           'alertRuleDescription',
-          'alertRuleSummary',
           'alertRuleRunbook',
           'createdAt',
           'updatedAt',
         ],
       },
-      /*
+      group: [
+        'alertRuleId',
+        Sequelize.col('AlertReceiveds.alert_received_node'),
+        Sequelize.col('AlertReceiveds.alert_received_service'),
+        Sequelize.col('AlertReceiveds.alert_received_pod'),
+      ],
       include: [
         {
           model: this.alertReceived,
-          attributes: ['alertReceivedId'],
+          as: 'AlertReceiveds',
+          attributes: ['alertReceivedNode', 'alertReceivedService', 'alertReceivedPod'],
+          required: false,
           where: {
             alertReceivedState: status,
-            ...conditionalWhere,
+            alertReceivedActiveAt: {
+              [Op.gt]: ago,
+            },
           },
         },
       ],
-      */
     });
     return allAlertRules;
   }
@@ -100,11 +109,32 @@ class AlertRuleService {
     return findAlertRule.alertRuleKey;
   }
 
-  public async findAlertRuleKeyByIds(alertRuleIds: string[], customerAccountKey:number ): Promise<IAlertRule[]> {
+  public async findAlertRuleKeyByIds(alertRuleIds: string[], customerAccountKey: number): Promise<IAlertRule[]> {
     if (isEmpty(alertRuleIds)) throw new HttpException(400, 'Not a valid Alert Rule');
     const findAlertRule: IAlertRule[] = await this.alertRule.findAll({
-      where: { alertRuleId: {[Op.or]: alertRuleIds}, customerAccountKey:2, },
-      attributes: { exclude: ['customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy','createdAt', 'updatedAt','alertRuleName','alertRuleGroup','alertRuleState', 'alertRuleQuery','alertRuleDuration', 'alertRuleSeverity' , 'alertRuleDescription','alertRuleSummary','alertRuleRunbook','alertRuleHealth' ,'alertRuleEvaluationTime','alertRuleLastEvaluation',    ] },
+      where: { alertRuleId: { [Op.or]: alertRuleIds }, customerAccountKey: 2 },
+      attributes: {
+        exclude: [
+          'customerAccountKey',
+          'deletedAt',
+          'updatedBy',
+          'createdBy',
+          'createdAt',
+          'updatedAt',
+          'alertRuleName',
+          'alertRuleGroup',
+          'alertRuleState',
+          'alertRuleQuery',
+          'alertRuleDuration',
+          'alertRuleSeverity',
+          'alertRuleDescription',
+          'alertRuleSummary',
+          'alertRuleRunbook',
+          'alertRuleHealth',
+          'alertRuleEvaluationTime',
+          'alertRuleLastEvaluation',
+        ],
+      },
     });
     if (!findAlertRule) throw new HttpException(404, 'NOT_FOUND');
 
@@ -232,7 +262,6 @@ class AlertRuleService {
 
       const deleteAlertReceived = await this.alertReceived.update({ deletedAt: new Date() }, queryIn);
       const deleteAlertRule = await this.alertRule.update({ deletedAt: new Date() }, { where: { resourceGroupUuid: resourceGroupUuid } });
-
     }
     return;
   }
