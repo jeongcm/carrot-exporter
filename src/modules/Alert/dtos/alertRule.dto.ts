@@ -51,6 +51,4 @@ export class CreateAlertRuleDto {
   public alertRuleEvaluationTime: number;
 
   public alertRuleLastEvaluation: Date;
-
 }
-

@@ -75,7 +75,7 @@ class systemSubscriptionService {
         console.log('1. createdCustomerAccount', createdCustomerAccount);
 
         //1-1. create multi-tenant VM secret data
-
+        console.log('create multi-tenant VM secret data');
         const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
           where: { deletedAt: null },
         });
@@ -124,6 +124,8 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
           customerAccountKey,
           subscribedChannel,
         );
+
+        console.log('create multi-tenant VM secret data');
         //2. create a party & party user
         const createdParty: IParty = await this.party.create(
           {
@@ -161,8 +163,9 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
           },
           { transaction: t },
         );
-
+        console.log('Part and Part USer Creation');
         //3. fusebill interface
+        console.log('fuseBill Start');
         const fuseBillCreateCustomer = {
           firstName: firstName,
           lastName: lastName,
@@ -197,8 +200,9 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
         } else {
           console.log('Fail to provision customer data to Fulsebill');
         }
-
+        console.log('fuseBill End');
         //4. prep sending email to customer
+        console.log('sending email to customer Start');
         const emailTemplateSource = fs.readFileSync(
           path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'),
           'utf8',
@@ -231,8 +235,9 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
           notificationStatus: 'ST',
         };
         await this.notification.create(newNotification, { transaction: t });
-
+        console.log('sending email to customer end');
         //4.1 send email to customer
+        console.log('sending email to customer start 4.1');
         let emailSent = false;
         await this.sendMailService.sendMailGeneral(mailOptions);
         emailSent = true;
