@@ -14,6 +14,7 @@ import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.mod
 import { CreateAlertEasyRuleDto, CreateAlertTargetGroupDto, CreateAlertTargetSubGroupDto } from '../dtos/alertEasyRule.dto';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
+import { IExecutorService } from '@/common/interfaces/executor.interface';
 
 const { Op } = require('sequelize');
 const uuid = require('uuid');
@@ -26,6 +27,7 @@ class AlertEasyRuleService {
   private alertTargetGroup = DB.AlertTargetGroup;
   private alertTargetSubGroup = DB.AlertTargetSubGroup;
   private customerAccount = DB.CustomerAccount;
+  private executorService = DB.ExecutorService;
 
   public async createAlertTargetGroup(alertTargetGroup: CreateAlertTargetGroupDto, partyId: string): Promise<IAlertTargetGroup> {
     const currentDate = new Date();
@@ -69,6 +71,7 @@ class AlertEasyRuleService {
     // need to find customerAccount, resourceGloup, AlertRules
     // step 1.1 find CustomerAccount
     const result = [];
+    console.log(alertEasyRule);
     const alertRuleName = alertEasyRule.alertEasyRuleName;
     const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({
       where: { customerAccountId: alertEasyRule.customerAccountId, deletedAt: null },
@@ -87,7 +90,11 @@ class AlertEasyRuleService {
     });
     if (!findAlertTargetSubGroup) throw new HttpException(402, `couldn't find alert target sub group`);
     const alertTargetSubGroupKey = findAlertTargetSubGroup.alertTargetSubGroupKey;
-
+    // step 1.4 if there is an alertEasyRule - same name with alertTargetSubGroup in the table , return exception
+    // To be coded
+    //
+    //
+    //
     // step2. Then, create AlertEasyRule for the alert rule of the each cluster.
     for (let i = 1; i < findResourceGroup.length; i++) {
       const resourceGroupUuid = findResourceGroup[i].resourceGroupUuid;
@@ -97,81 +104,109 @@ class AlertEasyRuleService {
       const findAlertRule: IAlertRule = await this.alertRule.findOne({
         where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null, alertRuleName: alertRuleName },
       });
-      const alertGroup = findAlertRule.alertRuleGroup;
-      const prometheusRuleGroupName = prometheus.substring(7, prometheus.indexOf('.')) + '-' + alertGroup;
-      console.log('prometheusRuleGroup', prometheusRuleGroupName);
       // step 2-2 if there is no matched alert, create an alert rule
       let alertRuleKey;
+      let alertGroup;
+      let appName;
+      let prometheusRuleGroupName;
       if (!findAlertRule) {
         // will be coded later
       } else {
+        alertGroup = findAlertRule.alertRuleGroup;
+        appName = prometheus.substring(7, prometheus.indexOf('.'));
+        prometheusRuleGroupName = appName.substring(0, appName.lenghth - 12) + '-' + alertGroup;
+        console.log('prometheusRuleGroup', prometheusRuleGroupName);
         alertRuleKey = findAlertRule.alertRuleKey;
-      }
-      const currentDate = new Date();
-      const createQuery = {
-        alertEasyRuleId: uuid.v1(),
-        alertTargetSubGroupKey: alertTargetSubGroupKey,
-        resourceGroupUuid: resourceGroupUuid,
-        alertRuleKey: alertRuleKey,
-        customerAccountKey: customerAccountKey,
-        createdBy: partyId,
-        updatedBy: null,
-        createdAt: currentDate,
-        updatedAt: null,
-        deletedAt: null,
-        alertEasyRuleName: alertEasyRule.alertEasyRuleName,
-        alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
-        alertEasyRuleSummary: alertEasyRule.alertEasyRuleDescription,
-        alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
-        alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
-        alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
-        alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
-        alertEasyRuleThreshold2: alertEasyRule.alertEasyRuleThreshold2,
-        alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
-      };
-      const createAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.create(createQuery);
-      // step 3. if the alert rule query is different, provision the brand-new rule to Prometheus thru Sudory
 
-      const sudoryServiceName = 'Patch Prometheus Rule';
-      const summary = 'Patch Prometheus Rule';
-      const clusterUuid = resourceGroupUuid;
-      const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
-      const step = [
-        {
-          args: {
-            name: prometheusRuleGroupName,
-            namespace: prometheusNamespace,
-            patch_type: 'merge',
-            patch_data: {
-              spec: {
-                groups: [
-                  {
-                    names: alertGroup,
-                    rules: [
-                      {
-                        alert: alertEasyRule.alertEasyRuleName,
-                        annotation: {
-                          description: alertEasyRule.alertEasyRuleDescription,
-                          summary: alertEasyRule.alertEasyRuleSummary,
+        const currentDate = new Date();
+        const createQuery = {
+          alertEasyRuleId: uuid.v1(),
+          alertTargetSubGroupKey: alertTargetSubGroupKey,
+          resourceGroupUuid: resourceGroupUuid,
+          alertRuleKey: alertRuleKey,
+          customerAccountKey: customerAccountKey,
+          createdBy: partyId,
+          updatedBy: null,
+          createdAt: currentDate,
+          updatedAt: null,
+          deletedAt: null,
+          alertEasyRuleName: alertEasyRule.alertEasyRuleName,
+          alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
+          alertEasyRuleSummary: alertEasyRule.alertEasyRuleDescription,
+          alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
+          alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
+          alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
+          alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
+          alertEasyRuleThreshold2: alertEasyRule.alertEasyRuleThreshold2,
+          alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
+        };
+        const createAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.create(createQuery);
+        // step 3. if the alert rule query is different, provision the brand-new rule to Prometheus thru Sudory
+
+        const sudorySName = 'getPrometheusRule';
+        const sudorySummary = 'getPrometheusRule';
+        const clusterUuid = resourceGroupUuid;
+        const getTemplateUuid = '00000000000000000000000000004003';
+        const getStep = [{ args: { name: prometheusRuleGroupName, namespace: prometheusNamespace } }];
+        const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+        const getPrometheusRule = await this.sudoryService.postSudoryService(
+          sudorySName,
+          sudorySummary,
+          clusterUuid,
+          getTemplateUuid,
+          getStep,
+          customerAccountKey,
+          subscribedChannel,
+        );
+        const executorServiceId = getPrometheusRule.dataValues.executorServiceId;
+        const getExecutorService = await this.executorService.findOne({ where: { executorServiceId: executorServiceId } });
+        console.log('executorServiceId', executorServiceId);
+        const sudoryServiceName = 'Patch Prometheus Rule';
+        const summary = 'Patch Prometheus Rule';
+        const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
+        const step = [
+          {
+            args: {
+              name: prometheusRuleGroupName,
+              namespace: prometheusNamespace,
+              patch_type: 'merge',
+              patch_data: {
+                spec: {
+                  groups: [
+                    {
+                      name: alertGroup,
+                      rules: [
+                        {
+                          alert: alertEasyRule.alertEasyRuleName,
+                          annotation: {
+                            description: alertEasyRule.alertEasyRuleDescription,
+                            summary: alertEasyRule.alertEasyRuleSummary,
+                          },
+                          expr: alertEasyRule.alertEasyRuleQuery,
+                          for: alertEasyRule.alertEasyRuleDuration,
+                          labels: {
+                            severity: alertEasyRule.alertEasyRuleSeverity,
+                          },
                         },
-                        expr: alertEasyRule.alertEasyRuleQuery,
-                        for: alertEasyRule.alertEasyRuleDuration,
-                        labels: {
-                          severity: alertEasyRule.alertEasyRuleSeverity,
-                        },
-                      },
-                    ],
-                  },
-                ],
+                      ],
+                    },
+                  ],
+                },
               },
             },
           },
-        },
-      ];
-      const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-      await this.sudoryService.postSudoryService(sudoryServiceName, summary, clusterUuid, templateUuid, step, customerAccountKey, subscribedChannel);
-
-      result.push(createAlertEasyRule);
+        ];
+        await this.sudoryService.postSudoryService(
+          sudoryServiceName,
+          summary,
+          clusterUuid,
+          templateUuid,
+          step,
+          customerAccountKey,
+          subscribedChannel,
+        );
+        result.push(createAlertEasyRule);
+      }
     }
     return result;
   }
