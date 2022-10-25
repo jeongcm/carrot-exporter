@@ -1003,11 +1003,15 @@ class MetricService extends ServiceExtension {
   }
 
   public async uploadResourcePM(customerAccountKey: number, queryBody: IMetricQueryBody) {
+    if (isEmpty(queryBody?.query)) {
+      return this.throwError('EXCEPTION', 'query[] is missing');
+    }
+
     const metricName = queryBody.query[0].name;
-    const cluster_uuid = queryBody.query[0].resourceGroupUuid
+    const clusterUuid = queryBody.query[0].resourceGroupUuid
     var uploadQuery = {};
-    var mergedQuery: any;
-    var tempQuery: any;
+    var mergedQuery: any = {};
+    var tempQuery: any = {};
 
     const result = await this.getMetricP8S(customerAccountKey, queryBody);
     let length = result[metricName].data.result.length
@@ -1025,13 +1029,13 @@ class MetricService extends ServiceExtension {
       uploadQuery['resource_Anomaly_Monitor'] = false;
       uploadQuery['resource_Active'] = true;
 
-      tempQuery = this.formatter_resource(i, length, "PM", cluster_uuid, uploadQuery, mergedQuery);
+      tempQuery = this.formatter_resource(i, length, "PM", clusterUuid, uploadQuery, mergedQuery);
       mergedQuery = tempQuery;
     }
 
     let massUploadResourceReq: any = {};
     massUploadResourceReq.resource_Type = "PM"
-    massUploadResourceReq.resource_Group_Uuid = cluster_uuid
+    massUploadResourceReq.resource_Group_Uuid = clusterUuid
     massUploadResourceReq.resource = JSON.parse(mergedQuery)
 
     return await this.massUploaderService.massUploadResource(massUploadResourceReq)
