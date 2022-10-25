@@ -792,10 +792,55 @@ class MetricService extends ServiceExtension {
         promQl = `node_uname_info{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}`;
         break;
       case 'OS_CLUSTER_NOVA_AGENT_UP':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        promQl = `sum(last_over_time(openstack_nova_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_NOVA_AGENT_DOWN':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        promQl = `count(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))
+        -sum(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
         break;
       case 'OS_CLUSTER_CINDER_AGENT_UP':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        promQl = `sum(last_over_time(openstack_cinder_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_CINDER_AGENT_DOWN':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        promQl = `count(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))
+        -sum(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
         break;
       case 'OS_CLUSTER_NEUTRON_AGENT_UP':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        promQl = `sum(last_over_time(openstack_neutron_agent_state{adminState="up",__LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_NEUTRON_AGENT_DOWN':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        promQl = `count(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h]))
+        -sum(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h]))`;
         break;
       case 'OS_CLUSTER_PM_NODE_UP_TIME':
         labelString += getSelectorLabels({
