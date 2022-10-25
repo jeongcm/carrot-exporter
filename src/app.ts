@@ -36,8 +36,8 @@ class App {
   public listen() {
     this.server = this.app.listen(this.port, function () {
       logger.info(`=================================`);
-      logger.info(`======= ENV: ${this.env} =======`);
-      logger.info(`🚀 NexClipper API listening on the port ${this.port}`);
+      logger.info(`======= ENV: ${config.nodeEnv} =======`);
+      logger.info(`🚀 NexClipper API listening on the port ${config.appPort}`);
       logger.info(`=================================`);
     });
 
