@@ -97,7 +97,7 @@ deploy-nexclipper-api-dev:
   stage: dev
   image: repo.nexclipper.io/nexclipper/helm-kubectl:latest
   variables:
-    HARBOR_NEXCLIPPER_PROJECT: "nexclipper-dev"
+    HARBOR_NEXCLIPPER_PROJECT: "nexclipper"
   before_script:
     - echo -e "\nLogin to Kubernetes"
     - source /data/scripts/login-cluster.sh dev
