@@ -27,6 +27,11 @@ class Github {
             } else {
               logger.info(`in github login ${JSON.stringify(profile)}`);
               {
+                //set customerAccount Api Key
+                const uuid = require('uuid');
+                const apiKey = uuid.v1();
+                const apiBuff = Buffer.from(apiKey);
+                const encodedApiKey = apiBuff.toString('base64');
                 const customerAccount = await this.customerAccountService.createCustomerAccount(
                   {
                     customerAccountName: profile.displayName || profile.username,
@@ -36,10 +41,9 @@ class Github {
                     firstName: profile.displayName || profile.username,
                     lastName: profile.username,
                     email: '',
+                    customerAccountApiKey: encodedApiKey,
+                    customerAccountApiKeyIssuedAt: new Date(),
                   },
-                  req.systemId,
-                );
-                const newPartyUser = await this.partyService.createUser(
                   {
                     email: '',
                     timezone: '',
@@ -51,16 +55,15 @@ class Github {
                     userId: profile.username,
                     mobile: '',
                     password: '',
-                    customerAccountId: customerAccount.customerAccountId,
+                    customerAccountId: '',
                     partyUserStatus: 'AC',
                     adminYn: false,
                     language: 'EN',
+                    socialProviderId: profile.id,
                   },
-                  customerAccount.customerAccountKey,
-                  '',
-                  profile.id,
+                  req.systemId,
                 );
-                done(null, newPartyUser);
+                done(null, customerAccount);
               }
             }
           } catch (err) {

@@ -69,6 +69,7 @@ export interface IPartyUser {
   socialProviderId: string;
   timezone: string;
   adminYn: boolean;
+  systemYn: boolean;
   language: string;
 }
 
@@ -155,6 +156,7 @@ export interface ITokenData {
 
 export interface IDataStoredInToken {
   partyUserKey: number;
+  customerAccountKey: number;
 }
 
 export interface IRequestWithUser extends Request {

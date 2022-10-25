@@ -145,7 +145,7 @@ class AccessGroupService {
         deletedAt: null,
         partyKey: { [Op.in]: partyChannels.map(partyChannelsX => partyChannelsX.partyKey) },
       },
-      attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey','createdBy', 'updatedBy', 'parentPartyId', 'partyType'] },
+      attributes: { exclude: ['partyKey', 'deletedAt', 'customerAccountKey', 'createdBy', 'updatedBy', 'parentPartyId', 'partyType'] },
     });
     return accessGroups;
   }
@@ -358,6 +358,7 @@ class AccessGroupService {
     const resourceOfAccessGroup = [];
 
     partyResource.map(resource => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       //@ts-expect-error
       resourceOfAccessGroup.push(resource.Resource);
     });

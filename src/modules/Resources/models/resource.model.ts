@@ -274,7 +274,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         unique: 'unique_index',
       },
       parentResourceId: {
-        type: DataTypes.STRING(100),
+        type: DataTypes.STRING(16),
       },
       resourceNamespace: {
         type: DataTypes.STRING(100),

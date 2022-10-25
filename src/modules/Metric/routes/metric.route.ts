@@ -27,6 +27,7 @@ class MetricRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post('/metric', authMiddleware, this.metricController.getMetric);
+    this.router.post('/metric/p8s', authMiddleware, this.metricController.getMetricP8S);
 
     this.router.get('/chart', authMiddleware, this.chartController.getAllCharts);
     this.router.get('/chart/:resourceGroupId', authMiddleware, this.chartController.getResourceGroupChart);
@@ -34,7 +35,11 @@ class MetricRoute implements Routes {
 
     this.router.post('/metric/meta', authMiddleware, validationMiddleware(MetricMetaDto, 'body'), this.metricMetaController.createMetricMeta);
     this.router.get('/metric/meta', authMiddleware, this.metricMetaController.getMetricMeta);
-    this.router.get('/metric/meta/resourceGroup/:resourceGroupId', authMiddleware, this.metricMetaController.getDistinctJobOfMetricMetabyResourceGroupId);
+    this.router.get(
+      '/metric/meta/resourceGroup/:resourceGroupId',
+      authMiddleware,
+      this.metricMetaController.getDistinctJobOfMetricMetabyResourceGroupId,
+    );
     this.router.put(
       '/metric/meta/:metricMetaId',
       authMiddleware,

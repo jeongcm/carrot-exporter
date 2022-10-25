@@ -21,8 +21,23 @@ class MetricController {
     try {
       const customerAccountKey = req.customerAccountKey;
       const queryBody = req.body;
-      const result = await this.metricService.getMetric(customerAccountKey, queryBody);
+      let result: any = null;
+      switch (req.params.resourceType) {
+        case "PM":
+          result = await this.metricService.uploadResourcePM(customerAccountKey, queryBody);
+      }
       res.status(200).json({ data: result, message: `upload Resource` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getMetricP8S = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.customerAccountKey;
+      const queryBody = req.body;
+      const findMetricData = await this.metricService.getMetricP8S(customerAccountKey, queryBody);
+      res.status(200).json({ data: findMetricData, message: 'findAll' });
     } catch (error) {
       next(error);
     }

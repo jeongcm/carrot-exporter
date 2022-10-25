@@ -100,6 +100,22 @@ class ResourceController {
     }
   };
 
+    /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+     public countPodResources = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+      try {
+        const { customerAccountKey } = req;
+        const resourceCount: any[] = await this.topologyService.countPodResources(customerAccountKey);
+  
+        res.status(200).json({ data: resourceCount, message: 'findAll' });
+      } catch (error) {
+        next(error);
+      }
+    };
+
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res

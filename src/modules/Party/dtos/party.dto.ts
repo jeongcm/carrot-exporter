@@ -55,6 +55,10 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   public language: string;
+
+  @IsString()
+  @IsOptional()
+  public socialProviderId: string;
 }
 
 export class UpdateUserDto {
@@ -153,4 +157,9 @@ export class LoginDto {
   @IsString()
   @IsNotEmpty()
   public password: string;
+}
+export class LoginApiDto {
+  @IsString()
+  @IsNotEmpty()
+  public apiKey: string;
 }

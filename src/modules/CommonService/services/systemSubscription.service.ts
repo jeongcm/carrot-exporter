@@ -2,26 +2,18 @@ import DB from '@/database';
 import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
-//import bcrypt from 'bcrypt';
 
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import SendMailService from '@/modules/Messaging/services/sendMail.service';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 
-import NotificationService from '@/modules/Notification/services/notification.service';
-//import { Notification } from '@/common/interfaces/notification.interface';
-import { IPartyUser, IParty } from '@/common/interfaces/party.interface';
-import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import NotificationService from '@/modules/Notification/services/notification.service';//import { Notification } from '@/common/interfaces/notification.interface';
+
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
-import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/customerAccount.dto';
 import { CreateSubscriptionDto } from '@/modules/Subscriptions/dtos/subscriptions.dto';
-import { CreateUserDto } from '@/modules/Party/dtos/party.dto';
-//import urlJoin from 'url-join';
 import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
 
-//const nodeMailer = require('nodemailer');
-//const mg = require('nodemailer-mailgun-transport');
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
@@ -40,227 +32,7 @@ class systemSubscriptionService {
   public sudoryService = new SudoryService();
 
   /**
-   * @param {CreateCustomerAccountDto} customerAccountData
-   * @param {Object} partyData
-   * @param {string} createdBy
-   */
-  public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, partyData: CreateUserDto, createdBy: string): Promise<object> {
-    //0. Data Prep
-    const returnResult = {};
-    const currentDate = new Date();
-    const CustomerAccountDataNew = { ...customerAccountData, customerAccountType: 'CO' as customerAccountType };
-    const { partyName, partyDescription, parentPartyId, firstName, lastName, userId, email, mobile, language } = partyData;
-
-    let tableIdTableName = 'CustomerAccount';
-    let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
-    const customerAccountId = responseTableIdData.tableIdFinalIssued;
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-    tableIdTableName = 'Party';
-    responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
-    const partyId = responseTableIdData.tableIdFinalIssued;
-
-    try {
-      return await DB.sequelize.transaction(async t => {
-        //1. create a customer account
-        const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create(
-          {
-            ...CustomerAccountDataNew,
-            customerAccountId: customerAccountId,
-            createdBy: partyId,
-          },
-          { transaction: t },
-        );
-        const customerAccountKey = createdCustomerAccount.customerAccountKey;
-        console.log('1. createdCustomerAccount', createdCustomerAccount);
-
-        //1-1. create multi-tenant VM secret data
-
-        const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
-          where: { deletedAt: null },
-        });
-        let auth = '\n' + `users: ` + '\n';
-        getActiveCustomerAccounts.forEach(customerAccount => {
-          auth =
-            auth +
-            `- username: "S${customerAccount.customerAccountId}"
-password: "${customerAccount.customerAccountId}"
-url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountKey}/prometheus/"
-- username: "I${customerAccount.customerAccountId}"
-password: "${customerAccount.customerAccountId}"
-url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
-            '\n';
-        });
-        const authBuff = Buffer.from(auth);
-        const base64Auth = authBuff.toString('base64');
-        //call sudory to patch VM multiline secret file
-        const sudoryServiceName = 'Update VM Secret';
-        const summary = 'Update VM Secret';
-        const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
-        const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
-        const step = [
-          {
-            args: {
-              name: config.victoriaMetrics.vmMultiSecret,
-              namespace: config.victoriaMetrics.vmMultiNamespaces,
-              patch_type: 'json',
-              patch_data: [
-                {
-                  op: 'replace',
-                  path: '/data/auth.yml',
-                  value: base64Auth,
-                },
-              ],
-            },
-          },
-        ];
-        const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-        await this.sudoryService.postSudoryService(
-          sudoryServiceName,
-          summary,
-          clusterUuid,
-          templateUuid,
-          step,
-          customerAccountKey,
-          subscribedChannel,
-        );
-        //2. create a party & party user
-        const createdParty: IParty = await this.party.create(
-          {
-            partyId: partyId,
-            partyName: partyName,
-            partyDescription: partyDescription,
-            parentPartyId: parentPartyId,
-            partyType: 'US',
-            customerAccountKey,
-            createdBy: createdBy,
-            createdAt: currentDate,
-          },
-          { transaction: t },
-        );
-
-        const partyKey = createdParty.partyKey;
-        //let hashedPassword = await bcrypt.hash(password, 10);
-        const password = config.defaultPassword;
-        const createdPartyUser: IPartyUser = await this.partyUser.create(
-          {
-            partyUserId: partyId,
-            partyKey: createdParty.partyKey,
-            createdBy: createdBy,
-            firstName: firstName,
-            lastName: lastName,
-            userId: userId,
-            mobile: mobile,
-            password: password,
-            email: email,
-            timezone: timeZone,
-            isEmailValidated: false,
-            partyUserStatus: 'AC',
-            adminYn: true,
-            language: language,
-          },
-          { transaction: t },
-        );
-
-        //3. fusebill interface
-        const fuseBillCreateCustomer = {
-          firstName: firstName,
-          lastName: lastName,
-          companyName: partyName,
-          primaryEmail: email,
-          primaryPhone: mobile,
-          reference: customerAccountId,
-        };
-        let fuseBillInterface = false;
-        const headers = { Authorization: `Basic ${config.fuseBillApiDetail.apiKey}` };
-        const fuseBillCustomer = await axios({
-          method: 'post',
-          url: config.fuseBillApiDetail.createCustomerUrl,
-          data: fuseBillCreateCustomer,
-          headers: headers,
-        });
-        if (fuseBillCustomer.data) {
-          fuseBillInterface = true;
-          console.log('Provision customer infor to fusebill successfully');
-          const customerActivationPayload = {
-            customerId: fuseBillCustomer.data.id,
-            activateAllSubscriptions: true,
-            activateAllDraftPurchases: true,
-            temporarilyDisableAutoPost: false,
-          };
-          await axios({
-            method: 'post',
-            url: `${config.fuseBillApiDetail.baseURL}customerActivation`,
-            data: customerActivationPayload,
-            headers: headers,
-          });
-        } else {
-          console.log('Fail to provision customer data to Fulsebill');
-        }
-
-        //4. prep sending email to customer
-        const emailTemplateSource = fs.readFileSync(
-          path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'),
-          'utf8',
-        );
-        const template = handlebars.compile(emailTemplateSource);
-        const name = createdPartyUser.firstName;
-        const htmlToSend = template({ name });
-        const mailOptions = {
-          to: createdPartyUser.email,
-          from: 'service@nexclipper.io',
-          subject: 'Welcome Onboard - NexClipper',
-          html: htmlToSend,
-        };
-        const notificationMessage = JSON.parse(JSON.stringify(mailOptions));
-        //5 create notification history
-        tableIdTableName = 'Notification';
-        responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
-        const notificationId = responseTableIdData.tableIdFinalIssued;
-        const newNotification = {
-          notificationId: notificationId,
-          partyKey: partyKey,
-          createdBy: createdBy,
-          createdAt: currentDate,
-          notificationStatutsUpdatedAt: currentDate,
-          customerAccountKey,
-          notificationChannelType: 'email',
-          notificationType: 'newCustomerAccount',
-          notificationChannel: createdPartyUser.email,
-          notificationMessage: notificationMessage,
-          notificationStatus: 'ST',
-        };
-        await this.notification.create(newNotification, { transaction: t });
-
-        //4.1 send email to customer
-        let emailSent = false;
-        await this.sendMailService.sendMailGeneral(mailOptions);
-        emailSent = true;
-        console.log('email sent to new customer');
-        //6. return message
-        return {
-          customerAccountId: createdCustomerAccount.customerAccountId,
-          customerAccountKey: createdCustomerAccount.customerAccountKey,
-          customerAccountName: createdCustomerAccount.customerAccountName,
-          customerAccountType: createdCustomerAccount.customerAccountType,
-          firstName: createdPartyUser.firstName,
-          lastName: createdPartyUser.lastName,
-          userId: createdPartyUser.userId,
-          email: createdPartyUser.email,
-          mobile: createdPartyUser.mobile,
-          emailSent: emailSent,
-          notificationId: notificationId,
-          fuseBillInterface: fuseBillInterface,
-        };
-      });
-    } catch (err) {
-      console.log(err);
-      throw new HttpException(500, 'Unknown error while creating account');
-    }
-  }
-
-  /**
-   * @param {CreateCustomerAccountDto} CreateSubscriptionDto
+   * @param {CreateSubscriptionDto} CreateSubscriptionDto
    * @param {string} partyId
    * @param {number} customerAccountKey;
    */
