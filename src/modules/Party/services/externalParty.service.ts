@@ -63,7 +63,7 @@ class ExternalPartyService {
   }
 
   public createApiToken(customerAccount: ICustomerAccount): ITokenData {
-    const dataStoredInToken = { customerAccountKey: customerAccount.customerAccountKey };
+    const dataStoredInToken: IDataStoredInToken = { customerAccountKey: customerAccount.customerAccountKey, partyUserKey: 0 };
     const secretKey: string = config.auth.jwtSecretKey;
     const expiresIn: number = config.auth.authTokenApiExpirySecond; // 60 * 60 * 24;
 

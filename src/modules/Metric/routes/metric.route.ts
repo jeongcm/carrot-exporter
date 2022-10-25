@@ -35,7 +35,11 @@ class MetricRoute implements Routes {
 
     this.router.post('/metric/meta', authMiddleware, validationMiddleware(MetricMetaDto, 'body'), this.metricMetaController.createMetricMeta);
     this.router.get('/metric/meta', authMiddleware, this.metricMetaController.getMetricMeta);
-    this.router.get('/metric/meta/resourceGroup/:resourceGroupId', authMiddleware, this.metricMetaController.getDistinctJobOfMetricMetabyResourceGroupId);
+    this.router.get(
+      '/metric/meta/resourceGroup/:resourceGroupId',
+      authMiddleware,
+      this.metricMetaController.getDistinctJobOfMetricMetabyResourceGroupId,
+    );
     this.router.put(
       '/metric/meta/:metricMetaId',
       authMiddleware,

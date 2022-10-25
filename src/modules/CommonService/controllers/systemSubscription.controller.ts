@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { IPartyUserResponse, IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
+import { IRequestWithUser } from '@/common/interfaces/party.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import PartyService from '@/modules/Party/services/party.service';
@@ -37,6 +37,11 @@ class SystemSubscriptionController {
               Customer: { firstName, lastName, id, primaryEmail, primaryPhone, companyName, language },
             },
           } = req;
+          //set customerAccount Api Key
+          const uuid = require('uuid');
+          const apiKey = uuid.v1();
+          const apiBuff = Buffer.from(apiKey);
+          const encodedApiKey = apiBuff.toString('base64');
           const customerAccountData = {
             customerAccountName: companyName || `${firstName} ${lastName}`,
             customerAccountDescription: null,
@@ -45,6 +50,8 @@ class SystemSubscriptionController {
             firstName: firstName,
             lastName: lastName,
             email: primaryEmail,
+            customerAccountApiKey: encodedApiKey,
+            customerAccountApiKeyIssuedAt: new Date(),
           };
 
           const partyData: CreateUserDto = {
@@ -65,9 +72,10 @@ class SystemSubscriptionController {
             timezone: '',
             adminYn: false,
             language: language || 'EN',
+            socialProviderId: '',
           };
 
-          const responseCustomerAccount = await this.systemSubscriptionService.createCustomerAccount(customerAccountData, partyData, createdBy);
+          const responseCustomerAccount = await this.customerAccountService.createCustomerAccount(customerAccountData, partyData, createdBy);
           createdResponse = responseCustomerAccount;
           break;
 

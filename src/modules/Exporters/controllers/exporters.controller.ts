@@ -61,6 +61,7 @@ class exporterController {
         exporterHelmChartRepoUrl: req.body.exporterHelmChartRepoUrl,
         exporterHelmChartValues: req.body.exporterHelmChartValues,
         grafanaDashboard: req.body.grafanaDashboard,
+        defaultChartYn: req.body.defaultChartYn || false,
       };
 
       const getExporter: IExporters = await this.exeporterService.createExporter(dataSetForExporter, createdBy);

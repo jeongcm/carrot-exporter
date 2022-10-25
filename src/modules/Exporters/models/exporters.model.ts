@@ -13,13 +13,14 @@ export type ExporterCreationAttributes = Optional<
   | 'exporterName'
   | 'exporterDescription'
   | 'exporterHelmChartName'
-  | 'exporterHelmChartRepoUrl'  
+  | 'exporterHelmChartRepoUrl'
   | 'exporterHelmChartVersion'
   | 'exporterHelmChartValues'
   | 'grafanaDashboard'
   | 'exporterExporterhubUrl'
   | 'exporterNamespace'
   | 'exporterType'
+  | 'defaultChartYn'
 >;
 
 export class ExportersModel extends Model<IExporters, ExporterCreationAttributes> implements IExporters {
@@ -40,9 +41,9 @@ export class ExportersModel extends Model<IExporters, ExporterCreationAttributes
   public exporterExporterhubUrl: string;
   public exporterNamespace: string;
   public exporterType: string;
+  public defaultChartYn: boolean;
 
   public readonly createdAt!: Date;
-  
 }
 
 export default function (sequelize: Sequelize): typeof ExportersModel {
@@ -79,7 +80,7 @@ export default function (sequelize: Sequelize): typeof ExportersModel {
       exporterName: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        unique: true,   //don't drop unique index of roleName
+        unique: true, //don't drop unique index of roleName
       },
       exporterDescription: {
         type: DataTypes.STRING(500),
@@ -107,6 +108,9 @@ export default function (sequelize: Sequelize): typeof ExportersModel {
       },
       exporterExporterhubUrl: {
         type: DataTypes.STRING(100),
+      },
+      defaultChartYn: {
+        type: DataTypes.BOOLEAN,
       },
     },
     {

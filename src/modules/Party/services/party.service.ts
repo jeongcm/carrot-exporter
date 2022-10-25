@@ -148,6 +148,8 @@ class PartyService {
             timezone: tz,
             socialProviderId: socialProviderId,
             isEmailValidated: false,
+            systemYn: false,
+            adminYn: false,
             partyUserStatus: createPartyUserData.partyUserStatus,
           },
           { transaction: t },
@@ -168,6 +170,8 @@ class PartyService {
           language: createdPartyUser.language,
           timezone: createdPartyUser.timezone,
           isEmailValidated: createdPartyUser.isEmailValidated,
+          adminYn: createdPartyUser.adminYn,
+          systemYn: createdPartyUser.systemYn,
           partyUserStatus: createdPartyUser.partyUserStatus,
         };
       });
@@ -229,11 +233,13 @@ class PartyService {
 
     const findUser: IPartyUser = await this.partyUser.findOne({ where: { userId: loginData.userId } });
     if (!findUser) throw new HttpException(401, `LOGIN_FAILED`);
-
     const isPasswordMatching: boolean = await bcrypt.compare(loginData.password, findUser.password);
 
     if (!isPasswordMatching) throw new HttpException(401, `LOGIN_FAILED`);
 
+    if (loginData.password === config.defaultPassword) {
+      throw new HttpException(401, `Please Reset your password before login`);
+    }
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);
 
@@ -336,7 +342,7 @@ class PartyService {
   }
 
   public createToken(user: IPartyUser): ITokenData {
-    const dataStoredInToken: IDataStoredInToken = { partyUserKey: user.partyUserKey };
+    const dataStoredInToken: IDataStoredInToken = { partyUserKey: user.partyUserKey, customerAccountKey: 0 };
     const secretKey: string = config.auth.jwtSecretKey;
     const expiresIn: number = config.auth.authTokenExpirySecond; // 60 * 60;
 

@@ -158,6 +158,8 @@ class AlertEasyRuleService {
           customerAccountKey,
           subscribedChannel,
         );
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         const executorServiceId = getPrometheusRule.dataValues.executorServiceId;
         const getExecutorService = await this.executorService.findOne({ where: { executorServiceId: executorServiceId } });
         console.log('executorServiceId', executorServiceId);
