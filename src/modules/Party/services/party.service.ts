@@ -237,7 +237,7 @@ class PartyService {
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);
 
-    // await this.partyUser.update({ lastAccessAt: new Date() }, { where: { userId: loginData.userId } });
+    await this.partyUser.update({ lastAccessAt: new Date() }, { where: { userId: loginData.userId } });
 
     return { cookie, findUser, token: tokenData.token };
   }

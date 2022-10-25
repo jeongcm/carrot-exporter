@@ -29,6 +29,14 @@ class CustomerAccountService {
       const tableIdTableName = 'CustomerAccount';
       const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
       const customerAccountId = responseTableIdData.tableIdFinalIssued;
+      //set customerAccount Api Key
+      const uuid = require('uuid');
+      const apiKey = uuid.v1();
+      const apiBuff = Buffer.from(apiKey);
+      const encodedApiKey = apiBuff.toString('base64');
+      customerAccountData.customerAccountApiKey = encodedApiKey;
+      customerAccountData.customerAccountApiKeyIssuedAt = new Date();
+
       const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create({
         ...customerAccountData,
         customerAccountId: customerAccountId,
@@ -90,17 +98,6 @@ class CustomerAccountService {
         subscribedChannel,
       );
 
-      /* blocked due to Maximum call stack size exceeded error
-      //schdule Heathcheck of customer Account clusters //improvement/547
-      let cronTabforHealth = config.healthCron;     
-      await this.healthService.scheduleCheckHealthByCustomerAccountId(customerAccountId, cronTabforHealth
-        ).then(async (res: any) =>{
-          console.log(`Submitted Health  schedule reqeust on ${customerAccountId} cluster successfully`);
-        }).catch(error => {
-          console.log(error);
-          throw new HttpException(500, `create CustomerAccount but fail to schedule health check service - ${customerAccountId}`);
-        }); //end of catch  
-      */
       return createdCustomerAccount;
     } catch (error) {
       console.log('error', error);
@@ -177,6 +174,22 @@ class CustomerAccountService {
       where: { customerAccountKey },
     });
     return customerAccountData.customerAccountId;
+  }
+
+  public async getCustomerAccountApiKeyById(customerAccountId: string): Promise<Object> {
+    const customerAccount: ICustomerAccount = await this.customerAccount.findOne({
+      where: { customerAccountId, deletedAt: null },
+    });
+    const encodedApiKey = customerAccount.customerAccountApiKey;
+    const apiKeyBuff = Buffer.from(encodedApiKey, 'base64');
+    const apiKey = apiKeyBuff.toString('ascii');
+    const returnMsg = {
+      customerAccount: customerAccountId,
+      customerAccountApiKey: apiKey,
+      customerAccountApiKeyIssuedAt: customerAccount.customerAccountApiKeyIssuedAt,
+    };
+
+    return returnMsg;
   }
 
   public async updateCustomerAccount(

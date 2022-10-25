@@ -12,6 +12,7 @@ import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import { AlertReceivedDto } from '../dtos/alertReceived.dto';
+import { CreateAlertEasyRuleDto, CreateAlertTargetGroupDto, CreateAlertTargetSubGroupDto } from '../dtos/alertEasyRule.dto';
 class AlertRoute implements Routes {
   public router = Router();
   public alertController = new AlertController();
@@ -46,9 +47,9 @@ class AlertRoute implements Routes {
     );
     this.router.delete('/alert/received/:alertReceivedId', authMiddleware, this.alertController.deleteAlertReceived);
     this.router.get('/alertRule/graph/:status', authMiddleware, this.alertController.getAllAlertRulesGraph);
-    this.router.post('/alertRule/setting',authMiddleware, this.alertController.createAlertRuleSetting);
-    this.router.post('/alertRule/setting/get',authMiddleware, this.alertController.getAllSettingAlertRule)
-    this.router.put('/alertRule/setting/:alertRuleId',authMiddleware, this.alertController.updateAlertRuleSetting);
+    this.router.post('/alertRule/setting', authMiddleware, this.alertController.createAlertRuleSetting);
+    this.router.post('/alertRule/setting/get', authMiddleware, this.alertController.getAllSettingAlertRule);
+    this.router.put('/alertRule/setting/:alertRuleId', authMiddleware, this.alertController.updateAlertRuleSetting);
     this.router.get('/alertRule/:ruleGroupId', authMiddleware, this.alertController.getAlertRuleByRuleGroupId);
     this.router.get('/alertRule/resourceGroup/:resourceGroupId', authMiddleware, this.alertController.getAlertRuleByResourceGroupUuid);
 
@@ -57,6 +58,24 @@ class AlertRoute implements Routes {
 
     this.router.get('/alertTimeline/resource/:resourceId', authMiddleware, this.alertController.getAlertTimelineByResourceId);
     this.router.get('/alertTimeline/:alertTimelineId/alertReceived', authMiddleware, this.alertController.getAlertReceivedByAlertTimelineId);
+    this.router.post(
+      '/alertTargetGroup',
+      authMiddleware,
+      validationMiddleware(CreateAlertTargetGroupDto, 'body'),
+      this.alertController.createAlertTargetGroup,
+    );
+    this.router.post(
+      '/alertTargetSubGroup',
+      authMiddleware,
+      validationMiddleware(CreateAlertTargetSubGroupDto, 'body'),
+      this.alertController.createAlertTargetSubGroup,
+    );
+    this.router.post(
+      '/alertEasyRule',
+      authMiddleware,
+      validationMiddleware(CreateAlertEasyRuleDto, 'body'),
+      this.alertController.createAlertEasyRule,
+    );
   }
 }
 

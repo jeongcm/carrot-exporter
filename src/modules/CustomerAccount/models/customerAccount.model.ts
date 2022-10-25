@@ -14,6 +14,8 @@ export type CustomerAccountCreationAttributes = Optional<
   | 'customerAccountDescription'
   | 'parentCustomerAccountId'
   | 'customerAccountType'
+  | 'customerAccountApiKey'
+  | 'customerAccountApiKeyIssuedAt'
 >;
 
 export class CustomerAccountModel extends Model<ICustomerAccount, CustomerAccountCreationAttributes> implements ICustomerAccount {
@@ -27,9 +29,11 @@ export class CustomerAccountModel extends Model<ICustomerAccount, CustomerAccoun
   public customerAccountDescription: string;
   public parentCustomerAccountId: string;
   public customerAccountType: customerAccountType;
+  public customerAccountApiKey: string;
+  public customerAccountApiKeyIssuedAt: Date;
+  public updatedAt: Date;
 
   public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof CustomerAccountModel {
@@ -63,12 +67,18 @@ export default function (sequelize: Sequelize): typeof CustomerAccountModel {
       deletedAt: {
         type: DataTypes.DATE,
       },
+      customerAccountApiKeyIssuedAt: {
+        type: DataTypes.DATE,
+      },
       customerAccountName: {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
       customerAccountDescription: {
         type: DataTypes.STRING(500),
+      },
+      customerAccountApiKey: {
+        type: DataTypes.STRING(100),
       },
       parentCustomerAccountId: {
         type: DataTypes.STRING(16),

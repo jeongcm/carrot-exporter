@@ -154,3 +154,8 @@ export class LoginDto {
   @IsNotEmpty()
   public password: string;
 }
+export class LoginApiDto {
+  @IsString()
+  @IsNotEmpty()
+  public apiKey: string;
+}

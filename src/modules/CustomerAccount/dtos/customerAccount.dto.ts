@@ -25,4 +25,11 @@ export class CreateCustomerAccountDto {
 
   @IsString()
   public email: string;
+
+  @IsString()
+  @IsOptional()
+  public customerAccountApiKey: string;
+
+  @IsOptional()
+  customerAccountApiKeyIssuedAt: Date;
 }

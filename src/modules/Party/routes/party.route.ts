@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
-import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
+import { CreateUserDto, UpdateUserDto, LoginDto, LoginApiDto } from '@/modules/Party/dtos/party.dto';
 import validationMiddleware from '@/common/middlewares/validation.middleware';
 
 import PartyController from '../controllers/party.controller';
@@ -18,6 +18,13 @@ class partyRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post('/login', systemAuthMiddleware, validationMiddleware(LoginDto, 'body'), createUserLogMiddleware, this.partyController.login);
+    this.router.post(
+      '/apiLogin',
+      systemAuthMiddleware,
+      validationMiddleware(LoginApiDto, 'body'),
+      createUserLogMiddleware,
+      this.partyController.apiLogin,
+    );
     this.router.get('/logout', systemAuthMiddleware, createUserLogMiddleware, this.partyController.logout);
     this.router.get('/password/reset/:email', systemAuthMiddleware, createUserLogMiddleware, this.partyController.requestPasswordReset);
     this.router.post('/updatePassword', systemAuthMiddleware, createUserLogMiddleware, this.partyController.resetPassword);
