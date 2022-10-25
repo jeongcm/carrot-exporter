@@ -129,7 +129,7 @@ class executorController {
           serviceUuids = await this.executorService.installKpsOnResourceGroup(clusterUuid, customerAccountKey, targetNamespace, systemId, kpsChartVersion, lokiChartVersion);
           break
         case "OS":
-          serviceUuids = await this.executorService.installKpsOnResourceGroupForOpenstack(clusterUuid, customerAccountKey, targetNamespace, systemId, kpsChartVersion, lokiChartVersion);
+          serviceUuids = await this.executorService.installKpsOnResourceGroupForOpenstack(clusterUuid, customerAccountKey, targetNamespace, systemId, kpsChartVersion);
           break
         default:
       }

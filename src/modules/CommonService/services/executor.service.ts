@@ -1083,6 +1083,7 @@ class executorService {
     customerAccountKey: number,
     targetNamespace: string,
     systemId: string,
+    kpsChartVersion: string,
   ): Promise<object> {
     const serviceUuid = [];
     //const helmRepoUrl = config.helmRepoUrl;
@@ -1101,7 +1102,7 @@ class executorService {
     const resultKpsChart = await this.exporters.findAll({ where: { exporterType: 'HL' } });
     const chartLength = resultKpsChart.length;
     let kpsChartName = '';
-    let kpsChartVersion = '';
+    let kpsChartVersionNew = '';
     let kpsChartRepoUrl = '';
 
     const resultResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
@@ -1109,9 +1110,21 @@ class executorService {
     const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
 
     for (let i = 0; i < chartLength; i++) {
-      if (resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack') {
+      if (
+        resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack' &&
+        resultKpsChart[i].defaultChartYn === true &&
+        kpsChartVersion === ''
+      ) {
         kpsChartName = resultKpsChart[i].exporterHelmChartName;
-        kpsChartVersion = resultKpsChart[i].exporterHelmChartVersion;
+        kpsChartVersionNew = resultKpsChart[i].exporterHelmChartVersion;
+        kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
+      } else if (
+        resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack' &&
+        resultKpsChart[i].defaultChartYn === false &&
+        resultKpsChart[i].exporterHelmChartVersion === kpsChartVersion
+      ) {
+        kpsChartName = resultKpsChart[i].exporterHelmChartName;
+        kpsChartVersionNew = kpsChartVersion;
         kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
       }
     }
@@ -1123,7 +1136,7 @@ class executorService {
           chart_name: kpsChartName,
           repo_url: kpsChartRepoUrl,
           namespace: targetNamespace,
-          chart_version: kpsChartVersion,
+          chart_version: kpsChartVersionNew,
           values: {
             prometheus: {
               extraSecret: {
