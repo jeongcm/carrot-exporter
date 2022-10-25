@@ -767,9 +767,27 @@ class MetricService extends ServiceExtension {
           sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))
         )`;
         break;
+      // promql for openstack
+      case 'OS_CLUSTER_PM_TOTAL_CPU_COUNT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        promQl = `count(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode='system', __LABEL_PLACE_HOLDER__}) by (nodename)`
+        break;
+      case 'OS_CLUSTER_PM_TOTAL_MEMORY_SIZE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        promQl = `nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - 0`
+        break;
       case 'OS_CLUSTER_PM_INFO':
         labelString += getSelectorLabels({
           clusterUuid,
+          nodename,
         });
         promQl = `node_uname_info{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}`;
         break;
@@ -787,7 +805,7 @@ class MetricService extends ServiceExtension {
         promQl = `sum(time() - nc:node_boot_time_seconds{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'OS_CLUSTER_PM_NODE_STATUS':
-        break
+        break;
       case 'OS_CLUSTER_PM_CPU_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -798,23 +816,54 @@ class MetricService extends ServiceExtension {
         promQl = `(1 - avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) by (nodename)) * 100`
         break
       case 'OS_CLUSTER_PM_MEMORY_USAGE':
-        break
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        promQl = `(1 - (nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}
+         / (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}))) * 100`
+        break;
       case 'OS_CLUSTER_PM_FILESYSTEM_USAGE':
-        break
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        promQl = `max((node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}
+        - node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}) *100
+        / (node_filesystem_avail_bytes {job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}
+        + (node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}
+        - node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}))) by (nodename)`
+        break;
       case 'OS_CLUSTER_PM_NETWORK_RECEIVED':
-        break
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        ranged = true;
+        promQl = `max(rate(node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename)`
+        break;
       case 'OS_CLUSTER_PM_NETWORK_TRANSMITTED':
-        break
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+
+        ranged = true;
+        promQl = `max(rate(node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename)`
+        break;
       case 'OS_CLUSTER_VM_CPU_USAGE':
-        break
+        break;
       case 'OS_CLUSTER_VM_MEMORY_USAGE':
-        break
+        break;
       case 'OS_CLUSTER_VM_FILESYSTEM_USAGE':
-        break
+        break;
       case 'OS_CLUSTER_VM_NETWORK_RECEIVED':
-        break
+        break;
       case 'OS_CLUSTER_VM_NETWORK_TRANSMITTED':
-        break
+        break;
       case 'OS_NODE_CPU_RANKING':
         break;
       case 'OS_NODE_MEMORY_RANKING':
