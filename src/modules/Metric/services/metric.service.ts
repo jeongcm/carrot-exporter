@@ -998,6 +998,10 @@ class MetricService extends ServiceExtension {
       ranged,
     };
   }
+
+  public async uploadResource(customerAccountKey: number, queryBody: IMetricQueryBody) {
+
+  }
 }
 
 export default MetricService;

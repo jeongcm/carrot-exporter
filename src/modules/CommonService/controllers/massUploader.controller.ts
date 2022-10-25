@@ -20,6 +20,25 @@ class massUploaderController {
       next(error);
     }
   };
+
+  public massUploadPMResource = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
+    try {
+
+
+      //TODO: get PM metric from p8s or vm
+
+      let resourceMassFeed: any = null;
+      const massFeedResult = await this.massUploaderService.massUploadResource(resourceMassFeed);
+
+      if (!massFeedResult) {
+        return res.sendStatus(500);
+      }
+
+      res.status(200).json({ data: massFeedResult, message: `bulk data feed is successfully complete` });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default massUploaderController;
