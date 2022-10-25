@@ -2,6 +2,7 @@ import ServiceExtension from '@/common/extentions/service.extension';
 import { isEmpty } from 'lodash';
 import VictoriaMetricService from './victoriaMetric.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+import massUploaderService from '@/modules/CommonService/services/massUploader.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import { ICustomerAccount } from 'common/interfaces/customerAccount.interface';
@@ -9,6 +10,7 @@ import { IResourceGroup } from 'common/interfaces/resourceGroup.interface';
 import { IResource } from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
 import P8sService from "@modules/Metric/services/p8sService";
+import {IRequestMassUploader} from "@common/interfaces/massUploader.interface";
 
 export interface IMetricQueryBodyQuery {
   name: string;
@@ -33,6 +35,7 @@ class MetricService extends ServiceExtension {
   private resourceService = new ResourceService();
   private resourceGroupService = new ResourceGroupService();
   private customerAccountService = new CustomerAccountService();
+  private massUploaderService = new massUploaderService();
 
   constructor() {
     super({});
@@ -999,8 +1002,62 @@ class MetricService extends ServiceExtension {
     };
   }
 
-  public async uploadResource(customerAccountKey: number, queryBody: IMetricQueryBody) {
+  public async uploadResourcePM(customerAccountKey: number, queryBody: IMetricQueryBody) {
+    const metricName = queryBody.query[0].name;
+    const cluster_uuid = queryBody.query[0].resourceGroupUuid
+    var uploadQuery = {};
+    var mergedQuery: any;
+    var tempQuery: any;
 
+    const result = await this.getMetricP8S(customerAccountKey, queryBody);
+    let length = result[metricName].data.result.length
+
+    for (var i=0; i<length; i++) {
+      uploadQuery['resource_Name'] = result[metricName].data.result[i].metric.nodename;
+      uploadQuery['resource_Type'] = "PM";
+      uploadQuery['resource_Instance'] = result[metricName].data.result[i].metric.ip;
+      uploadQuery['resource_Spec'] = result[metricName].data.result[i].metric;
+      uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
+      uploadQuery['resource_Level1'] = "OS"; //Openstack
+      uploadQuery['resource_Level2'] = "PM";
+      uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
+      uploadQuery['resource_Rbac'] = false;
+      uploadQuery['resource_Anomaly_Monitor'] = false;
+      uploadQuery['resource_Active'] = true;
+
+      tempQuery = this.formatter_resource(i, length, "PM", cluster_uuid, uploadQuery, mergedQuery);
+      mergedQuery = tempQuery;
+    }
+
+    let massUploadResourceReq: any = {};
+    massUploadResourceReq.resource_Type = "PM"
+    massUploadResourceReq.resource_Group_Uuid = cluster_uuid
+    massUploadResourceReq.resource = JSON.parse(mergedQuery)
+
+    return await this.massUploaderService.massUploadResource(massUploadResourceReq)
+  }
+
+  private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
+    let interimQuery = {};
+    try {
+      if (itemLength==1) {
+        interimQuery = '{"resource_Type": "' + resourceType + '", "resource_Group_Uuid": "' + cluster_uuid + '", ' + '"resource":[' + JSON.stringify(query) + "]}";
+      }
+      else {
+        if (i==0) {
+          interimQuery = '{"resource_Type": "' + resourceType + '", "resource_Group_Uuid": "' + cluster_uuid + '", ' + '"resource":[' + JSON.stringify(query);
+        }
+        else if (i==(itemLength-1)) {
+          interimQuery = mergedQuery + "," + JSON.stringify(query) + "]}";
+        }
+        else {
+          interimQuery = mergedQuery +  "," + JSON.stringify(query);
+        }
+      }
+    } catch (error) {
+      console.log("error due to unexpoected error: ", error.response);
+    }
+    return interimQuery;
   }
 }
 

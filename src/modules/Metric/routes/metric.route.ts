@@ -58,7 +58,7 @@ class MetricRoute implements Routes {
       this.metricReceivedController.updateMetricReceived,
     );
     this.router.delete('/metric/received/:metricReceivedId', authMiddleware, this.metricReceivedController.deleteMetricReceived);
-    this.router.post('/metric/upload/:resourceType', authMiddleware, this.metricController.uploadResource)
+    this.router.post('/metric/upload/pm', authMiddleware, this.metricController.uploadResourcePM)
   }
 }
 

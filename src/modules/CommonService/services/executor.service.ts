@@ -975,9 +975,15 @@ class executorService {
     // if (!resultAuth) console.log(resultAuth);
 
     // post PM Excute
-    const pmListQuery: any = {}
-    const resultPM = await this.metricService.uploadResource(customerAccountKey, pmListQuery)
-    // console.log()
+    let executePMQuery: any = {}
+    let metricQuery: any[] = []
+    metricQuery[0].name = "pm_info"
+    metricQuery[0].type = "OS_CLUSTER_PM_INFO"
+    metricQuery[0].resourceGroupUuid = clusterUuid
+
+    executePMQuery.query = metricQuery
+    const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, executePMQuery)
+    if (!resultPM) {console.log(resultPM)}
 
     const resultPJ = await this.postExecuteService(
       'openstack interface for PJList',
