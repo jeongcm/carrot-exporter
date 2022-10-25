@@ -20,7 +20,7 @@ import TableIdService from './tableId.service';
 //import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
-import metricService, {IMetricQueryBody} from "@modules/Metric/services/metric.service";
+import MetricService, {IMetricQueryBody} from "@modules/Metric/services/metric.service";
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
@@ -31,7 +31,7 @@ class executorService {
   public MetricMetaService = new MetricMetaService();
   public schedulerService = new SchedulerService();
   public incidentService = new IncidentService();
-  public metricService = new metricService();
+  public metricService = new MetricService();
 
   public sudoryWebhook = DB.SudoryWebhook;
   public executorService = DB.ExecutorService;
@@ -975,14 +975,14 @@ class executorService {
     // if (!resultAuth) console.log(resultAuth);
 
     // post PM Excute
-    let executePMQuery: any = {}
+    let uploadPMQuery: any = {}
     let metricQuery: any[] = []
     metricQuery[0].name = "pm_info"
     metricQuery[0].type = "OS_CLUSTER_PM_INFO"
     metricQuery[0].resourceGroupUuid = clusterUuid
 
-    executePMQuery.query = metricQuery
-    const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, executePMQuery)
+    uploadPMQuery.query = metricQuery
+    const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, uploadPMQuery)
     if (!resultPM) {console.log(resultPM)}
 
     const resultPJ = await this.postExecuteService(
