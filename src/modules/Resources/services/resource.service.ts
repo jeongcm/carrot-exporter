@@ -426,9 +426,8 @@ class ResourceService {
       vm.resourceSpec.projectName = "unknown"
     } else {
       vm.resourceSpec.projectName = project.resourceName
-
     }
-    vm.resourceSpec.projectName = project.resourceName
+
     return vm
   }
 
