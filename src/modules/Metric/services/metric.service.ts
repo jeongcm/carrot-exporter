@@ -1039,6 +1039,8 @@ class MetricService extends ServiceExtension {
     massUploadResourceReq.resource_Group_Uuid = clusterUuid
     massUploadResourceReq.resource = JSON.parse(mergedQuery)
 
+    console.log("upload resource pm: ", massUploadResourceReq)
+
     return await this.massUploaderService.massUploadResource(massUploadResourceReq)
   }
 
