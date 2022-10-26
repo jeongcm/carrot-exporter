@@ -1015,6 +1015,7 @@ class MetricService extends ServiceExtension {
     var tempQuery: any = {};
 
     const result = await this.getMetricP8S(customerAccountKey, queryBody);
+    console.log(result[metricName])
     let length = result[metricName].data.result.length
 
     for (var i=0; i<length; i++) {
