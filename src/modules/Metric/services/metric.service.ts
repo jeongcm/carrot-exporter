@@ -1024,10 +1024,11 @@ class MetricService extends ServiceExtension {
       uploadQuery['resource_Spec'] = result[metricName].data.result[i].metric;
       uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
       uploadQuery['resource_Target_Uuid'] = result[metricName].data.result[i].metric.nodename;
+      uploadQuery['resource_Description'] = result[metricName].data.result[i].metric.version;
       uploadQuery['resource_Level1'] = "OS"; //Openstack
       uploadQuery['resource_Level2'] = "PM";
       uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
-      uploadQuery['resource_Rbac'] = false;
+      uploadQuery['resource_Rbac'] = true;
       uploadQuery['resource_Anomaly_Monitor'] = false;
       uploadQuery['resource_Active'] = true;
 
@@ -1035,12 +1036,7 @@ class MetricService extends ServiceExtension {
       mergedQuery = tempQuery;
     }
 
-    let massUploadResourceReq: any = {};
-    massUploadResourceReq.resource_Type = "PM"
-    massUploadResourceReq.resource_Group_Uuid = clusterUuid
-    massUploadResourceReq.resource = JSON.parse(mergedQuery)
-
-    return await this.massUploaderService.massUploadResource(massUploadResourceReq)
+    return await this.massUploaderService.massUploadResource(mergedQuery)
   }
 
   private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
