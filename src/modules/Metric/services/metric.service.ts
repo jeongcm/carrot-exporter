@@ -1042,7 +1042,7 @@ class MetricService extends ServiceExtension {
 
     console.log("upload resource pm: ", massUploadResourceReq.resource)
 
-    return await this.massUploaderService.massUploadResource(massUploadResourceReq)
+    // return await this.massUploaderService.massUploadResource(massUploadResourceReq)
   }
 
   private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
