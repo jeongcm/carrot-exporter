@@ -245,7 +245,6 @@ class massUploaderService {
         await mysqlConnection.query('COMMIT');
       } // end of soft delete
 
-
       await mysqlConnection.query(query1, [query2]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {
