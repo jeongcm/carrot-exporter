@@ -971,21 +971,6 @@ class executorService {
     const resourceGroupSet = { resourceGroupSudoryNamespace: sudoryNamespace };
     await this.resourceGroup.update(resourceGroupSet, { where: { resourceGroupUuid: clusterUuid } });
 
-    const steps = [];
-
-
-    // // instant call
-    // const resultHV = await this.postExecuteService(
-    //   'openstack interface for HVList',
-    //   'openstack interface for HVList',
-    //   clusterUuid,
-    //   '', // TODO: insert template_uuid
-    //   steps,
-    //   customerAccountKey,
-    //   subscribedChannelResource,
-    // );
-    // if (!resultHV) console.log(resultHV);
-
     // post PM Excute
     let uploadPMQuery: any = {}
     let metricQuery: any[] = []
@@ -997,10 +982,10 @@ class executorService {
     const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, uploadPMQuery)
     if (!resultPM) {console.log(resultPM)}
 
-    const openstackStep = [
+    const openstackSteps = [
       {
         args: {
-          credential_key: "",
+          credential_key: "openstack_token_0",
         }
       },
     ]
@@ -1009,7 +994,7 @@ class executorService {
       'openstack interface for PJList',
       clusterUuid,
       '50000000000000000000000000000002',
-      steps, //TODO: openstack전용 step으로 변경 예정
+      openstackSteps,
       customerAccountKey,
       subscribedChannelResource,
     );
@@ -1020,12 +1005,13 @@ class executorService {
       'openstack interface for VMList',
       clusterUuid,
       '50000000000000000000000000000003',
-      steps, //TODO: openstack전용 step으로 변경 예정
+      openstackSteps,
       customerAccountKey,
       subscribedChannelResource,
     );
     if (!resultVM) console.log(resultVM);
 
+/*
 // scheduleResource - PM
     await this.scheduleResource(clusterUuid, customerAccountKey, 'PM', resourceCron)
       .then(async (res: any) => {
@@ -1069,7 +1055,7 @@ class executorService {
         console.log(error);
         console.log(`confirmed the executor/sudory client installed but fail to submit resource VM schedule request for cluster:${clusterUuid}`);
       });
-
+*/
     const responseExecutorClientCheck = { clusterUuid, clientTrueFalse };
     return responseExecutorClientCheck;
   }
