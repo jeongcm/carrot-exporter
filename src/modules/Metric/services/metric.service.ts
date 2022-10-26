@@ -1013,13 +1013,16 @@ class MetricService extends ServiceExtension {
     for (var i=0; i<length; i++) {
       uploadQuery['resource_Name'] = result[metricName].data.result[i].metric.nodename;
       uploadQuery['resource_Type'] = "PM";
-      uploadQuery['resource_Instance'] = result[metricName].data.result[i].metric.ip;
+      // uploadQuery['resource_Instance'] = result[metricName].data.result[i].metric.ip;
       uploadQuery['resource_Spec'] = result[metricName].data.result[i].metric;
       uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
+      uploadQuery['resource_Target_Uuid'] = result[metricName].data.result[i].metric.nodename;
+      uploadQuery['resource_Description'] = result[metricName].data.result[i].metric.version;
+      uploadQuery['resource_Target_Created_At'] = null
       uploadQuery['resource_Level1'] = "OS"; //Openstack
       uploadQuery['resource_Level2'] = "PM";
       uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
-      uploadQuery['resource_Rbac'] = false;
+      uploadQuery['resource_Rbac'] = true;
       uploadQuery['resource_Anomaly_Monitor'] = false;
       uploadQuery['resource_Active'] = true;
 
@@ -1027,12 +1030,9 @@ class MetricService extends ServiceExtension {
       mergedQuery = tempQuery;
     }
 
-    let massUploadResourceReq: any = {};
-    massUploadResourceReq.resource_Type = "PM"
-    massUploadResourceReq.resource_Group_Uuid = clusterUuid
-    massUploadResourceReq.resource = JSON.parse(mergedQuery)
+    console.log("mergedQuery: ", mergedQuery)
 
-    return await this.massUploaderService.massUploadResource(massUploadResourceReq)
+    return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
   }
 
   private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
