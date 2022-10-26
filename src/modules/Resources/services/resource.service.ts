@@ -406,7 +406,11 @@ class ResourceService {
       },
     });
 
-    vm.resourceSpec.PMName = PM.resourceName
+    if (!PM) {
+      vm.resourceSpec.PMName = "unknown"
+    } else {
+      vm.resourceSpec.PMName = PM.resourceName
+    }
 
     let project = await this.resource.findOne({
       attributes: ['resourceName'],
@@ -418,6 +422,12 @@ class ResourceService {
       },
     });
 
+    if (!project) {
+      vm.resourceSpec.projectName = "unknown"
+    } else {
+      vm.resourceSpec.projectName = project.resourceName
+
+    }
     vm.resourceSpec.projectName = project.resourceName
     return vm
   }
