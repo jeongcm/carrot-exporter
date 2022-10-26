@@ -1008,7 +1008,6 @@ class MetricService extends ServiceExtension {
     var tempQuery: any = {};
 
     const result = await this.getMetricP8S(customerAccountKey, queryBody);
-    console.log(result[metricName])
     let length = result[metricName].data.result.length
 
     for (var i=0; i<length; i++) {
@@ -1019,6 +1018,7 @@ class MetricService extends ServiceExtension {
       uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
       uploadQuery['resource_Target_Uuid'] = result[metricName].data.result[i].metric.nodename;
       uploadQuery['resource_Description'] = result[metricName].data.result[i].metric.version;
+      uploadQuery['resource_Target_Created_At'] = new Date();
       uploadQuery['resource_Level1'] = "OS"; //Openstack
       uploadQuery['resource_Level2'] = "PM";
       uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
