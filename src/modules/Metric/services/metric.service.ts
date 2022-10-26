@@ -790,7 +790,6 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_INFO':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
         });
         promQl = `node_uname_info{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}`;
         break;
