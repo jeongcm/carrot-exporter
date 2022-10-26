@@ -1015,7 +1015,7 @@ class MetricService extends ServiceExtension {
       uploadQuery['resource_Name'] = result[metricName].data.result[i].metric.nodename;
       uploadQuery['resource_Type'] = "PM";
       // uploadQuery['resource_Instance'] = result[metricName].data.result[i].metric.ip;
-      uploadQuery['resource_Spec'] = result[metricName].data.result[i].metric;
+      // uploadQuery['resource_Spec'] = result[metricName].data.result[i].metric;
       uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
       uploadQuery['resource_Target_Uuid'] = result[metricName].data.result[i].metric.nodename;
       uploadQuery['resource_Description'] = result[metricName].data.result[i].metric.version;
