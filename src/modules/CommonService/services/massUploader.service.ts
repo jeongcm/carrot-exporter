@@ -18,7 +18,6 @@ class massUploaderService {
 
   public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<string> {
     const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    console.log(resourceMassFeed.resource)
     const sizeOfInput = resourceMassFeed.resource.length;
 
     /* process bulk id for Resource table
@@ -215,7 +214,6 @@ class massUploaderService {
       ];
       //resource_Target_Created_At = null;
     }
-    console.log("query2:", query2);
 
     const mysql = require('mysql2/promise');
     const mysqlConnection = await mysql.createConnection({
@@ -248,8 +246,6 @@ class massUploaderService {
       } // end of soft delete
 
 
-      console.log("query1: ", query1);
-      console.log("query2: ", query2);
       await mysqlConnection.query(query1, [query2]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {
