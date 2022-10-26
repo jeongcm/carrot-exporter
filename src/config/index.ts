@@ -74,6 +74,7 @@ export default {
     jwtSecretKey: process.env.NC_LARI_JWT_SECRET_KEY,
     systemVerifyKey: process.env.NC_LARI_SYSTEM_NAME,
     authTokenExpirySecond: Number(process.env.AUTH_TOKEN_EXPIRY_SECOND) || 60 * 60 * 3,
+    authTokenApiExpirySecond: Number(process.env.AUTH_TOKEN_EXPIRY_SECOND) || 60 * 60 * 24,
   },
   socialKey: {
     github: {
@@ -166,6 +167,7 @@ export default {
     authToken: process.env.NC_ALERTHUB_X_AUTH_TOKEN,
   },
   obsUrl: {
+    kpsNamespace: process.env.NC_KPS_NAMESPACE || 'monitor',
     prometheusUrlHead: process.env.NC_PROMETHEUS_URL_HEAD || 'http://kps-kube-prometheus-stack-prometheus.',
     prometheusUrlTail: process.env.NC_PROMETHEUS_URL_TAIL || '.svc.cluster.local:9090',
     grafanaUrlHead: process.env.NC_GRAFANA_URL_HEAD || 'http://kps-grafana.',

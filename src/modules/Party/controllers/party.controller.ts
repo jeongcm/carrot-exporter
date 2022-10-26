@@ -1,16 +1,18 @@
 import { NextFunction, Response } from 'express';
 
 import PartyService from '@/modules/Party/services/party.service';
+import ExternalPartyService from '@/modules/Party/services/externalParty.service';
 
 import { RequestWithUser } from '@/common/interfaces/auth.interface';
 import { IParty, IPartyUserAPILog, IPartyUserResponse, IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.interface';
-import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
+import { CreateUserDto, UpdateUserDto, LoginDto, LoginApiDto } from '@/modules/Party/dtos/party.dto';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import { logger } from '@/common/utils/logger';
 
 class PartyController {
   public partyService = new PartyService();
+  public externalPartyService = new ExternalPartyService();
   public customerAccountService = new CustomerAccountService();
 
   public getUsers = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
@@ -150,6 +152,22 @@ class PartyController {
 
       res.setHeader('Set-Cookie', [cookie]);
       res.status(200).json({ data: loggedInUser, message: 'login', token });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public apiLogin = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const loginData: LoginApiDto = req.body;
+      const { cookie, findCustomerAccount, token } = await this.externalPartyService.apiLogin(loginData);
+
+      const loggedInCustomerAccount = {
+        customerAccountid: findCustomerAccount.customerAccountId,
+      };
+
+      res.setHeader('Set-Cookie', [cookie]);
+      res.status(200).json({ data: loggedInCustomerAccount, message: 'login', token });
     } catch (error) {
       next(error);
     }

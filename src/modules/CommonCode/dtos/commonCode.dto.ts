@@ -8,7 +8,7 @@ export class CommonCodeDto {
   @IsString()
   @IsNotEmpty()
   public commonCodeCode: string;
-  
+
   @IsString()
   @IsNotEmpty()
   public commonCodeDescription: string;
