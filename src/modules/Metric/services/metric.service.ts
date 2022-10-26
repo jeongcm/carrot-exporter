@@ -1017,6 +1017,7 @@ class MetricService extends ServiceExtension {
     const result = await this.getMetricP8S(customerAccountKey, queryBody);
     let length = result[metricName].data.result.length
 
+    console.log(result)
     for (var i=0; i<length; i++) {
       uploadQuery['resource_Name'] = result[metricName].data.result[i].metric.nodename;
       uploadQuery['resource_Type'] = "PM";
