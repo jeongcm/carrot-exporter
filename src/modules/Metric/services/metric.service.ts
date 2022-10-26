@@ -1017,13 +1017,13 @@ class MetricService extends ServiceExtension {
     const result = await this.getMetricP8S(customerAccountKey, queryBody);
     let length = result[metricName].data.result.length
 
-    console.log(result)
     for (var i=0; i<length; i++) {
       uploadQuery['resource_Name'] = result[metricName].data.result[i].metric.nodename;
       uploadQuery['resource_Type'] = "PM";
       // uploadQuery['resource_Instance'] = result[metricName].data.result[i].metric.ip;
       uploadQuery['resource_Spec'] = result[metricName].data.result[i].metric;
       uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
+      uploadQuery['resource_Target_Uuid'] = result[metricName].data.result[i].metric.nodename;
       uploadQuery['resource_Level1'] = "OS"; //Openstack
       uploadQuery['resource_Level2'] = "PM";
       uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
@@ -1040,9 +1040,7 @@ class MetricService extends ServiceExtension {
     massUploadResourceReq.resource_Group_Uuid = clusterUuid
     massUploadResourceReq.resource = JSON.parse(mergedQuery)
 
-    console.log("upload resource pm: ", massUploadResourceReq.resource)
-
-    // return await this.massUploaderService.massUploadResource(massUploadResourceReq)
+    return await this.massUploaderService.massUploadResource(massUploadResourceReq)
   }
 
   private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
