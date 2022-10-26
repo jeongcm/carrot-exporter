@@ -18,6 +18,7 @@ class massUploaderService {
 
   public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<string> {
     const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    console.log(resourceMassFeed.resource)
     const sizeOfInput = resourceMassFeed.resource.length;
 
     /* process bulk id for Resource table
@@ -73,24 +74,24 @@ class massUploaderService {
                       resource_configmap_data, resource_ingress_class, resource_ingress_rules,
                       resource_pv_storage, resource_pv_claim_ref, resource_pv_storage_class_name, resource_pv_volume_mode,
                       resource_sc_provisioner, resource_sc_reclaim_policy, resource_sc_allow_volume_expansion, resource_sc_volume_binding_mode,
-                      resource_rbac, resource_anomaly_monitor, resource_active, 
+                      resource_rbac, resource_anomaly_monitor, resource_active,
                       customer_account_key, resource_group_key
                       ) VALUES ?
-                      ON DUPLICATE KEY UPDATE 
+                      ON DUPLICATE KEY UPDATE
                       resource_active=VALUES(resource_active),
                       resource_name=VALUES(resource_name),
-                      resource_namespace=VALUES(resource_namespace),  
+                      resource_namespace=VALUES(resource_namespace),
                       resource_type=VALUES(resource_type),
                       resource_labels=VALUES(resource_labels),
                       resource_annotations=VALUES(resource_annotations),
                       resource_owner_references=VALUES(resource_owner_references),
                       resource_description=VALUES(resource_description),
                       resource_status=VALUES(resource_status),
-                      resource_spec=VALUES(resource_spec),                      
-                      resource_level1=VALUES(resource_level1),                      
-                      resource_level2=VALUES(resource_level2),                      
-                      resource_level3=VALUES(resource_level3),                      
-                      resource_level4=VALUES(resource_level4),                      
+                      resource_spec=VALUES(resource_spec),
+                      resource_level1=VALUES(resource_level1),
+                      resource_level2=VALUES(resource_level2),
+                      resource_level3=VALUES(resource_level3),
+                      resource_level4=VALUES(resource_level4),
                       resource_level_type=VALUES(resource_level_type),
                       resource_instance=VALUES(resource_instance),
                       resource_pod_phase=VALUES(resource_pod_phase),
@@ -110,14 +111,14 @@ class massUploaderService {
                       resource_pv_claim_ref=VALUES(resource_pv_claim_ref),
                       resource_pv_storage_class_name=VALUES(resource_pv_storage_class_name),
                       resource_pv_volume_mode=VALUES(resource_pv_volume_mode),
-                      resource_sc_provisioner=VALUES(resource_sc_provisioner), 
-                      resource_sc_reclaim_policy=VALUES(resource_sc_reclaim_policy), 
-                      resource_sc_allow_volume_expansion=VALUES(resource_sc_allow_volume_expansion), 
+                      resource_sc_provisioner=VALUES(resource_sc_provisioner),
+                      resource_sc_reclaim_policy=VALUES(resource_sc_reclaim_policy),
+                      resource_sc_allow_volume_expansion=VALUES(resource_sc_allow_volume_expansion),
                       resource_sc_volume_binding_mode=VALUES(resource_sc_volume_binding_mode),
-                      resource_rbac=VALUES(resource_rbac),                      
-                      resource_anomaly_monitor=VALUES(resource_anomaly_monitor),                      
-                      resource_active=VALUES(resource_active),                      
-                      customer_account_key=VALUES(customer_account_key),                      
+                      resource_rbac=VALUES(resource_rbac),
+                      resource_anomaly_monitor=VALUES(resource_anomaly_monitor),
+                      resource_active=VALUES(resource_active),
+                      customer_account_key=VALUES(customer_account_key),
                       resource_group_key=VALUES(resource_group_key),
                       resource_status_updated_at=VALUES(created_at),
                       updated_at=VALUES(created_at),
@@ -214,6 +215,7 @@ class massUploaderService {
       ];
       //resource_Target_Created_At = null;
     }
+    console.log("query2:", query2);
 
     const mysql = require('mysql2/promise');
     const mysqlConnection = await mysql.createConnection({
@@ -245,6 +247,9 @@ class massUploaderService {
         await mysqlConnection.query('COMMIT');
       } // end of soft delete
 
+
+      console.log("query1: ", query1);
+      console.log("query2: ", query2);
       await mysqlConnection.query(query1, [query2]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {
