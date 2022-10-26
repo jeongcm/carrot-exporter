@@ -994,8 +994,8 @@ class executorService {
     metricQuery[0].resourceGroupUuid = clusterUuid
 
     uploadPMQuery.query = metricQuery
-    const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, uploadPMQuery)
-    if (!resultPM) {console.log(resultPM)}
+    // const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, uploadPMQuery)
+    // if (!resultPM) {console.log(resultPM)}
 
     const openstackStep = [
       {
