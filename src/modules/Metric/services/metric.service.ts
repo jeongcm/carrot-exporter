@@ -936,8 +936,7 @@ class MetricService extends ServiceExtension {
           nodename,
         });
 
-        promQl = `sort_desc(
-        avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) by (nodename) * 100)`
+        promQl = `sort_desc(avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) by (nodename) * 100)`
         break;
       case 'OS_NODE_MEMORY_RANKING':
         labelString += getSelectorLabels({
