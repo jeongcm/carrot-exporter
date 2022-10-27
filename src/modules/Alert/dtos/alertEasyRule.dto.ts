@@ -20,13 +20,13 @@ export class CreateAlertEasyRuleDto {
   @IsNotEmpty()
   public alertEasyRuleGroup: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  public alertEasyRuleDuration: number;
-  @IsNumber()
-  public alertEasyRuleThreshold1: number;
-  @IsNumber()
-  public alertEasyRuleThreshold2: number;
+  public alertEasyRuleDuration: string;
+  @IsString()
+  public alertEasyRuleThreshold1: string;
+  @IsString()
+  public alertEasyRuleThreshold2: string;
   @IsString()
   @IsNotEmpty()
   public alertEasyRuleQuery: string;

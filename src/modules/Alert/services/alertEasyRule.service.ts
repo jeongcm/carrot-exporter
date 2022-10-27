@@ -15,6 +15,10 @@ import { CreateAlertEasyRuleDto, CreateAlertTargetGroupDto, CreateAlertTargetSub
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import { IExecutorService } from '@/common/interfaces/executor.interface';
+import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
+import { arrayBuffer } from 'stream/consumers';
+import path from 'path';
+import { max } from 'lodash';
 
 const { Op } = require('sequelize');
 const uuid = require('uuid');
@@ -28,6 +32,7 @@ class AlertEasyRuleService {
   private alertTargetSubGroup = DB.AlertTargetSubGroup;
   private customerAccount = DB.CustomerAccount;
   private executorService = DB.ExecutorService;
+  private sudoryWebhook = DB.SudoryWebhook;
 
   public async createAlertTargetGroup(alertTargetGroup: CreateAlertTargetGroupDto, partyId: string): Promise<IAlertTargetGroup> {
     const currentDate = new Date();
@@ -71,8 +76,14 @@ class AlertEasyRuleService {
     // need to find customerAccount, resourceGloup, AlertRules
     // step 1.1 find CustomerAccount
     const result = [];
-    console.log(alertEasyRule);
     const alertRuleName = alertEasyRule.alertEasyRuleName;
+    const alertRuleSeverity = alertEasyRule.alertEasyRuleSeverity;
+
+    let alertEasyRuleDescription = alertEasyRule.alertEasyRuleDescription.replace('alertEasyRuleThreshold1', alertEasyRule.alertEasyRuleThreshold1);
+    alertEasyRuleDescription = alertEasyRuleDescription.replace('alertEasyRuleThreshold2', alertEasyRule.alertEasyRuleThreshold2);
+    let alertEasyRuleQuery = alertEasyRule.alertEasyRuleQuery.replace('alertEasyRuleThreshold1', alertEasyRule.alertEasyRuleThreshold1);
+    alertEasyRuleQuery = alertEasyRuleQuery.replace('alertEasyRuleThreshold2', alertEasyRule.alertEasyRuleThreshold2);
+
     const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({
       where: { customerAccountId: alertEasyRule.customerAccountId, deletedAt: null },
     });
@@ -90,114 +101,152 @@ class AlertEasyRuleService {
     });
     if (!findAlertTargetSubGroup) throw new HttpException(402, `couldn't find alert target sub group`);
     const alertTargetSubGroupKey = findAlertTargetSubGroup.alertTargetSubGroupKey;
+
     // step 1.4 if there is an alertEasyRule - same name with alertTargetSubGroup in the table , return exception
-    // To be coded
-    //
-    //
-    //
+    const findAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.findOne({ where: { alertEasyRuleName: alertEasyRule.alertEasyRuleName } });
+    if (findAlertEasyRule) throw new HttpException(403, `Duplicatd Easy ALert Rule Name`);
+
     // step2. Then, create AlertEasyRule for the alert rule of the each cluster.
-    for (let i = 1; i < findResourceGroup.length; i++) {
-      const resourceGroupUuid = findResourceGroup[i].resourceGroupUuid;
-      const prometheusNamespace = findResourceGroup[i].resourceGroupKpsLokiNamespace;
-      const prometheus = findResourceGroup[i].resourceGroupPrometheus;
+    for (let k = 0; k < findResourceGroup.length; k++) {
+      const resourceGroupUuid = findResourceGroup[k].resourceGroupUuid;
+      const prometheusNamespace = findResourceGroup[k].resourceGroupKpsLokiNamespace;
+      const prometheus = findResourceGroup[k].resourceGroupPrometheus;
+
       // step 2-1. find AlertRule of the cluster
       const findAlertRule: IAlertRule = await this.alertRule.findOne({
-        where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null, alertRuleName: alertRuleName },
+        where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null, alertRuleName: alertRuleName, alertRuleSeverity: alertRuleSeverity },
       });
-      // step 2-2 if there is no matched alert, create an alert rule
-      let alertRuleKey;
+
       let alertGroup;
-      let appName;
-      let prometheusRuleGroupName;
       if (!findAlertRule) {
-        // will be coded later
+        alertGroup = alertEasyRule.alertEasyRuleGroup;
       } else {
+        // if there is a same alert...
         alertGroup = findAlertRule.alertRuleGroup;
-        appName = prometheus.substring(7, prometheus.indexOf('.'));
-        prometheusRuleGroupName = appName.substring(0, appName.lenghth - 12) + '-' + alertGroup;
-        console.log('prometheusRuleGroup', prometheusRuleGroupName);
-        alertRuleKey = findAlertRule.alertRuleKey;
+      }
+      const appName = prometheus.substring(7, prometheus.indexOf('.'));
+      const prometheusRuleGroupName = appName.substring(0, appName.length - 11) + '-' + alertGroup;
 
-        const currentDate = new Date();
-        const createQuery = {
-          alertEasyRuleId: uuid.v1(),
-          alertTargetSubGroupKey: alertTargetSubGroupKey,
-          resourceGroupUuid: resourceGroupUuid,
-          alertRuleKey: alertRuleKey,
-          customerAccountKey: customerAccountKey,
-          createdBy: partyId,
-          updatedBy: null,
-          createdAt: currentDate,
-          updatedAt: null,
-          deletedAt: null,
-          alertEasyRuleName: alertEasyRule.alertEasyRuleName,
-          alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
-          alertEasyRuleSummary: alertEasyRule.alertEasyRuleDescription,
-          alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
-          alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
-          alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
-          alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
-          alertEasyRuleThreshold2: alertEasyRule.alertEasyRuleThreshold2,
-          alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
-        };
-        const createAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.create(createQuery);
-        // step 3. if the alert rule query is different, provision the brand-new rule to Prometheus thru Sudory
+      const sudorySName = 'getPrometheusRule';
+      const sudorySummary = 'getPrometheusRule';
+      const clusterUuid = resourceGroupUuid;
+      const getTemplateUuid = '00000000000000000000000000004003';
+      const getStep = [{ args: { name: prometheusRuleGroupName, namespace: prometheusNamespace } }];
+      const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+      const getPrometheusRule = await this.sudoryService.postSudoryService(
+        sudorySName,
+        sudorySummary,
+        clusterUuid,
+        getTemplateUuid,
+        getStep,
+        customerAccountKey,
+        subscribedChannel,
+      );
 
-        const sudorySName = 'getPrometheusRule';
-        const sudorySummary = 'getPrometheusRule';
-        const clusterUuid = resourceGroupUuid;
-        const getTemplateUuid = '00000000000000000000000000004003';
-        const getStep = [{ args: { name: prometheusRuleGroupName, namespace: prometheusNamespace } }];
-        const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-        const getPrometheusRule = await this.sudoryService.postSudoryService(
-          sudorySName,
-          sudorySummary,
-          clusterUuid,
-          getTemplateUuid,
-          getStep,
-          customerAccountKey,
-          subscribedChannel,
-        );
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const executorServiceId = getPrometheusRule.dataValues.executorServiceId;
-        const getExecutorService = await this.executorService.findOne({ where: { executorServiceId: executorServiceId } });
-        console.log('executorServiceId', executorServiceId);
+      let indexRuleGroup;
+      let indexRules;
+      let maxIndexRuleGroup;
+      let maxIndexRules;
+      const sleep = ms => new Promise(res => setTimeout(res, ms));
+      let i;
+      for (i = 0; i < 6; i++) {
+        await sleep(1000);
+        const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          where: { serviceUuid: getPrometheusRule.dataValues.serviceUuid, status: 4 },
+        });
+        if (getSudoryWebhook) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const ruleGroup = JSON.parse(JSON.stringify(getSudoryWebhook.serviceResult.spec.groups));
+          const rules = [];
+          ruleGroup.forEach((item: any) => {
+            item?.rules?.forEach((ruleItem: any) => {
+              if (ruleItem.alert) {
+                const object = { alert: ruleItem.alert, severity: ruleItem.labels.severity, for: ruleItem.for };
+                rules.push(object);
+              }
+            });
+          });
+          indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
+          indexRules = rules.findIndex(element => element.alert == alertEasyRule.alertEasyRuleName);
+          maxIndexRuleGroup = ruleGroup.length - 1;
+          maxIndexRules = rules.length;
+          i = 100; //exit for
+        }
+      }
+      if (i === 101) {
         const sudoryServiceName = 'Patch Prometheus Rule';
         const summary = 'Patch Prometheus Rule';
         const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
-        const step = [
-          {
-            args: {
-              name: prometheusRuleGroupName,
-              namespace: prometheusNamespace,
-              patch_type: 'merge',
-              patch_data: {
-                spec: {
-                  groups: [
-                    {
-                      name: alertGroup,
-                      rules: [
-                        {
-                          alert: alertEasyRule.alertEasyRuleName,
-                          annotation: {
-                            description: alertEasyRule.alertEasyRuleDescription,
-                            summary: alertEasyRule.alertEasyRuleSummary,
-                          },
-                          expr: alertEasyRule.alertEasyRuleQuery,
-                          for: alertEasyRule.alertEasyRuleDuration,
-                          labels: {
-                            severity: alertEasyRule.alertEasyRuleSeverity,
-                          },
-                        },
-                      ],
+
+        let step = [];
+
+        if (!findAlertRule) {
+          // step 2-2 provision a brand new alert
+          step = [
+            {
+              args: {
+                name: prometheusRuleGroupName,
+                namespace: prometheusNamespace,
+                patch_type: 'json',
+                patch_data: [
+                  {
+                    path: `/spec/groups/${maxIndexRuleGroup}/rules/${maxIndexRules}`,
+                    op: 'add',
+                    value: {
+                      alert: alertEasyRule.alertEasyRuleName,
+                      for: alertEasyRule.alertEasyRuleDuration,
+                      labels: { severity: alertEasyRule.alertEasyRuleSeverity },
+                      expr: alertEasyRuleQuery,
+                      annotations: { description: alertEasyRuleDescription, summary: alertEasyRule.alertEasyRuleSummary },
                     },
-                  ],
-                },
+                  },
+                ],
               },
             },
-          },
-        ];
+          ];
+        } else {
+          // step 2-3 provision alert update
+          step = [
+            {
+              args: {
+                name: prometheusRuleGroupName,
+                namespace: prometheusNamespace,
+                patch_type: 'json',
+                patch_data: [
+                  {
+                    path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/for`,
+                    op: 'replace',
+                    value: alertEasyRule.alertEasyRuleDuration,
+                  },
+                  {
+                    path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/labels/severity`,
+                    op: 'replace',
+                    value: alertEasyRule.alertEasyRuleSeverity,
+                  },
+                  {
+                    path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/expr`,
+                    op: 'replace',
+                    value: alertEasyRuleQuery,
+                  },
+                  {
+                    path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/description`,
+                    op: 'replace',
+                    value: alertEasyRuleDescription,
+                  },
+                  {
+                    path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/summary`,
+                    op: 'replace',
+                    value: alertEasyRule.alertEasyRuleSummary,
+                  },
+                ],
+              },
+            },
+          ];
+        }
+
         await this.sudoryService.postSudoryService(
           sudoryServiceName,
           summary,
@@ -207,6 +256,30 @@ class AlertEasyRuleService {
           customerAccountKey,
           subscribedChannel,
         );
+        console.log(`provision is done ${clusterUuid}`);
+        const currentDate = new Date();
+        const createQuery = {
+          alertEasyRuleId: uuid.v1(),
+          alertTargetSubGroupKey: alertTargetSubGroupKey,
+          resourceGroupUuid: resourceGroupUuid,
+          customerAccountKey: customerAccountKey,
+          createdBy: partyId,
+          updatedBy: null,
+          createdAt: currentDate,
+          updatedAt: null,
+          deletedAt: null,
+          alertEasyRuleName: alertEasyRule.alertEasyRuleName,
+          alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
+          alertEasyRuleSummary: alertEasyRule.alertEasyRuleSummary,
+          alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
+          alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
+          alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
+          alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
+          alertEasyRuleThreshold2: alertEasyRule.alertEasyRuleThreshold2,
+          alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
+        };
+        const createAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.create(createQuery);
+
         result.push(createAlertEasyRule);
       }
     }

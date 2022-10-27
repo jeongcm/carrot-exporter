@@ -35,11 +35,10 @@ export class AlertEasyRuleModel extends Model<IAlertEasyRule, AlertEasyRuleCreat
   public alertEasyRuleName: string;
   public alertEasyRuleDescription: string;
   public resourceGroupUuid: string;
-  public alertRuleKey: number;
   public alertTargetSubGroupKey: number;
-  public alertEasyRuleDuration: number;
-  public alertEasyRuleThreshold1: number;
-  public alertEasyRuleThreshold2: number;
+  public alertEasyRuleDuration: string;
+  public alertEasyRuleThreshold1: string;
+  public alertEasyRuleThreshold2: string;
   public alertEasyRuleQuery: string;
   public customerAccountKey: number;
   public alertEasyRuleGroup: string;
@@ -90,11 +89,11 @@ export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
         allowNull: true,
       },
       alertEasyRuleDuration: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING(50),
         allowNull: true,
       },
       alertEasyRuleThreshold1: {
-        type: DataTypes.DOUBLE,
+        type: DataTypes.STRING(50),
         allowNull: true,
       },
       alertEasyRuleDescription: {
@@ -114,11 +113,7 @@ export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
         allowNull: false,
       },
       alertEasyRuleThreshold2: {
-        type: DataTypes.DOUBLE,
-        allowNull: true,
-      },
-      alertRuleKey: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING(50),
         allowNull: true,
       },
       alertTargetSubGroupKey: {
