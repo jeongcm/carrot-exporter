@@ -1877,9 +1877,9 @@ class executorService {
       { resourceName: 'PhysicalMachine', resourceType: 'PM'}, //pm
       { resourceName: 'Project', resourceType: 'PJ', template_uuid: '50000000000000000000000000000002' }, //project
       { resourceName: 'VM', resourceType: 'VM', template_uuid: '50000000000000000000000000000004' }, //vm
-      // { resourceName: 'Network', resourceType: 'NT', template_uuid: '50000000000000000000000000000006' }, //vm
-      // { resourceName: 'Router', resourceType: 'RT', template_uuid: '50000000000000000000000000000008' }, //vm
-      // { resourceName: 'Subnet', resourceType: 'SN', template_uuid: '50000000000000000000000000000010' }, //vm
+      // { resourceName: 'Network', resourceType: 'NT', template_uuid: '50000000000000000000000000000006' }, // network
+      // { resourceName: 'Router', resourceType: 'RT', template_uuid: '50000000000000000000000000000008' }, // router
+      // { resourceName: 'Subnet', resourceType: 'SN', template_uuid: '50000000000000000000000000000010' }, // subnet
     ];
 
     const selectedTemplate = resource_template.find(template => {
@@ -1911,23 +1911,27 @@ class executorService {
     case "PM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      executorServerUrl = config.appUrl + ':' + config.appPort + '/metric/upload/pm'
-      apiBody = {
-        cluster_uuid: clusterUuid,
-        customerAccountKey: customerAccountKey,
-        query: "",
-        //TODO check required params for get PM metric
-      }
+      executorServerUrl = config.appUrl + ':' + config.appPort + '/metric/upload/PM'
+
+      let uploadPMQuery: any = {}
+      let metricQuery: any[] = []
+      metricQuery[0].name = "pm_info"
+      metricQuery[0].type = "OS_CLUSTER_PM_INFO"
+      metricQuery[0].resourceGroupUuid = clusterUuid
+
+      uploadPMQuery.query = metricQuery
+
+      apiBody = uploadPMQuery
       break
     case "PJ":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      steps.push({args: {credentialKey: ""}})
+      steps.push({args: {credential_key: "openstack_token_0"}})
       break
     case "VM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      steps.push({args: {credentialKey: ""}})
+      steps.push({args: {credential_key: "openstack_token_0"}})
       break
     default:
       scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;
