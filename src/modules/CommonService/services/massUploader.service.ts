@@ -66,7 +66,7 @@ class massUploaderService {
     // mass upload #2
     // query below will cover "insert" of new resources or "update" of existing resources.
     const query1 = `INSERT INTO Resource (resource_id, created_by, created_at, resource_target_uuid, resource_target_created_at,
-                      resource_name, resource_namespace, resource_type, resource_labels, resource_annotations, resource_owner_references, resource_description, resource_status,
+                      resource_name, parent_resource_id, resource_namespace, resource_type, resource_labels, resource_annotations, resource_owner_references, resource_description, resource_status,
                       resource_spec, resource_level1, resource_level2, resource_level3, resource_level4, resource_level_type, resource_instance,
                       resource_pod_phase, resource_pod_container, resource_pod_volume, resource_replicas, resource_sts_volume_claim_templates,
                       resource_pvc_storage, resource_pvc_volume_name, resource_pvc_storage_class_name, resource_pvc_volume_mode, resource_endpoint,
@@ -79,6 +79,7 @@ class massUploaderService {
                       ON DUPLICATE KEY UPDATE
                       resource_active=VALUES(resource_active),
                       resource_name=VALUES(resource_name),
+                      parent_resource_id=VALUES(parent_resource_id),
                       resource_namespace=VALUES(resource_namespace),
                       resource_type=VALUES(resource_type),
                       resource_labels=VALUES(resource_labels),
@@ -164,6 +165,7 @@ class massUploaderService {
         resource_Target_Created_At,
         //2nd line
         resourceMassFeed.resource[i].resource_Name,
+        resourceMassFeed.resource[i].parent_Resource_Id, // parent resource id
         resourceMassFeed.resource[i].resource_Namespace,
         resourceMassFeed.resource[i].resource_Type,
         resource_lables,

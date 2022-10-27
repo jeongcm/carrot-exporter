@@ -418,7 +418,7 @@ class ResourceService {
         deletedAt: null,
         resourceType: "PJ",
         resourceGroupKey: resourceGroupKey,
-        resourceName: vm.resourceNamespace
+        resourceTargetUuid: vm.resourceNamespace
       },
     });
 

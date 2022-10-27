@@ -56,6 +56,7 @@ export interface IRequestMassUploader {
   resource: {
     resource_Group_Uuid: string;
     resource_Name: string;
+    parent_Resource_Id: string;
     resource_Target_Uuid: string;
     resource_Target_Created_At: Date;
     resource_Labels: object;
