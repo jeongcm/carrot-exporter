@@ -1012,7 +1012,6 @@ class executorService {
     );
     if (!resultVM) console.log(resultVM);
 
-/*
 // scheduleResource - PM
     await this.scheduleResource(clusterUuid, customerAccountKey, 'PM', resourceCron)
       .then(async (res: any) => {
@@ -1056,7 +1055,7 @@ class executorService {
         console.log(error);
         console.log(`confirmed the executor/sudory client installed but fail to submit resource VM schedule request for cluster:${clusterUuid}`);
       });
-*/
+
     const responseExecutorClientCheck = { clusterUuid, clientTrueFalse };
     return responseExecutorClientCheck;
   }
