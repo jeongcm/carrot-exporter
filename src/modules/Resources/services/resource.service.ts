@@ -361,7 +361,7 @@ class ResourceService {
 
       // get vms in projects
       const vms = allVms.map(vm => {
-        if (projects[i].resourceName === vm.resourceNamespace) {
+        if (projects[i].resourceTargetUuid === vm.resourceNamespace) {
           return vm
         }
       }).filter(n => n !== undefined)
