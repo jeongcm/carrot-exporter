@@ -1,5 +1,4 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
-import { isString } from 'lodash';
 
 export class ResourceGroupDto {
   @IsString()

@@ -2,6 +2,7 @@ import ServiceExtension from '@/common/extentions/service.extension';
 import { isEmpty } from 'lodash';
 import VictoriaMetricService from './victoriaMetric.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+import massUploaderService from '@/modules/CommonService/services/massUploader.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import { ICustomerAccount } from 'common/interfaces/customerAccount.interface';
@@ -9,6 +10,7 @@ import { IResourceGroup } from 'common/interfaces/resourceGroup.interface';
 import { IResource } from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
 import P8sService from "@modules/Metric/services/p8sService";
+import {IRequestMassUploader} from "@common/interfaces/massUploader.interface";
 
 export interface IMetricQueryBodyQuery {
   name: string;
@@ -33,6 +35,7 @@ class MetricService extends ServiceExtension {
   private resourceService = new ResourceService();
   private resourceGroupService = new ResourceGroupService();
   private customerAccountService = new CustomerAccountService();
+  private massUploaderService = new massUploaderService();
 
   constructor() {
     super({});
@@ -787,14 +790,12 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_INFO':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
         });
         promQl = `node_uname_info{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}`;
         break;
       case 'OS_CLUSTER_NOVA_AGENT_UP':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
         });
 
         promQl = `sum(last_over_time(openstack_nova_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
@@ -802,16 +803,13 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_NOVA_AGENT_DOWN':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
         });
 
-        promQl = `count(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))
-        -sum(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
+        promQl = `count(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h])) -sum(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
         break;
       case 'OS_CLUSTER_CINDER_AGENT_UP':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
         });
 
         promQl = `sum(last_over_time(openstack_cinder_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
@@ -819,16 +817,13 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_CINDER_AGENT_DOWN':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
         });
 
-        promQl = `count(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))
-        -sum(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
+        promQl = `count(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
         break;
       case 'OS_CLUSTER_NEUTRON_AGENT_UP':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
         });
 
         promQl = `sum(last_over_time(openstack_neutron_agent_state{adminState="up",__LABEL_PLACE_HOLDER__}[1h]))`;
@@ -836,11 +831,9 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_NEUTRON_AGENT_DOWN':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
         });
 
-        promQl = `count(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h]))
-        -sum(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h]))`;
+        promQl = `count(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h]))`;
         break;
       case 'OS_CLUSTER_PM_NODE_UP_TIME':
         labelString += getSelectorLabels({
@@ -866,8 +859,7 @@ class MetricService extends ServiceExtension {
           nodename,
         });
 
-        promQl = `(1 - (nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}
-         / (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}))) * 100`
+        promQl = `(1 - (nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} / (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}))) * 100`
         break;
       case 'OS_CLUSTER_PM_FILESYSTEM_USAGE':
         labelString += getSelectorLabels({
@@ -875,11 +867,7 @@ class MetricService extends ServiceExtension {
           nodename,
         });
 
-        promQl = `max((nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}
-        - nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}) *100
-        / (nc:node_filesystem_avail_bytes {job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}
-        + (nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}
-        - nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}))) by (nodename)`
+        promQl = `max((nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"} - nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}) *100 / (nc:node_filesystem_avail_bytes {job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"} + (nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"} - nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}))) by (nodename)`
         break;
       case 'OS_CLUSTER_PM_NETWORK_RECEIVED':
         labelString += getSelectorLabels({
@@ -914,8 +902,7 @@ class MetricService extends ServiceExtension {
           nodename,
         });
 
-        promQl = `(1 - (nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}
-         / (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}))) * 100`
+        promQl = `(1 - (nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} / (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}))) * 100`
         break;
       case 'OS_CLUSTER_VM_FILESYSTEM_USAGE':
         labelString += getSelectorLabels({
@@ -923,11 +910,7 @@ class MetricService extends ServiceExtension {
           nodename,
         });
 
-        promQl = `max((nc:node_filesystem_size_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}
-        - nc:node_filesystem_free_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}) *100
-        / (nc:node_filesystem_avail_bytes {job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}
-        + (nc:node_filesystem_size_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}
-        - nc:node_filesystem_free_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}))) by (nodename)`
+        promQl = `max((nc:node_filesystem_size_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"} - nc:node_filesystem_free_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}) *100 / (nc:node_filesystem_avail_bytes {job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"} + (nc:node_filesystem_size_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"} - nc:node_filesystem_free_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}))) by (nodename)`
         break;
       case 'OS_CLUSTER_VM_NETWORK_RECEIVED':
         labelString += getSelectorLabels({
@@ -953,8 +936,7 @@ class MetricService extends ServiceExtension {
           nodename,
         });
 
-        promQl = `sort_desc(
-        avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) by (nodename) * 100)`
+        promQl = `sort_desc(avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) by (nodename) * 100)`
         break;
       case 'OS_NODE_MEMORY_RANKING':
         labelString += getSelectorLabels({
@@ -962,9 +944,7 @@ class MetricService extends ServiceExtension {
           nodename,
         });
 
-        promQl =  `sort_desc(
-        (1 - (nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}
-        / (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})))* 100)`
+        promQl =  `sort_desc((1 - (nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} / (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})))* 100)`
         break;
       case 'OS_NODE_DISK_RANKING':
         labelString += getSelectorLabels({
@@ -972,12 +952,7 @@ class MetricService extends ServiceExtension {
           nodename,
         });
 
-        promQl = `sort_desc(
-        (nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}}
-        - nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}) * 100
-        / (nc:node_filesystem_avail_bytes {job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}
-        + (nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}
-        - nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"})))`
+        promQl = `sort_desc((nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}} - nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}) * 100 / (nc:node_filesystem_avail_bytes {job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"} + (nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"} - nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"})))`
         break;
       case 'OS_NODE_RXTX_TOTAL_RANKING':
         labelString += getSelectorLabels({
@@ -985,13 +960,12 @@ class MetricService extends ServiceExtension {
           nodename,
         });
 
-        promQl = `sort_desc(
-        sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])
-        + increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
+        promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
         break;
     }
 
     promQl = promQl.replace(/__LABEL_PLACE_HOLDER__/g, labelString);
+    console.log(promQl);
 
     return {
       promQl,
@@ -999,8 +973,66 @@ class MetricService extends ServiceExtension {
     };
   }
 
-  public async uploadResource(customerAccountKey: number, queryBody: IMetricQueryBody) {
+  public async uploadResourcePM(customerAccountKey: number, queryBody: IMetricQueryBody) {
+    if (isEmpty(queryBody?.query)) {
+      return this.throwError('EXCEPTION', 'query[] is missing');
+    }
 
+    const metricName = queryBody.query[0].name;
+    const clusterUuid = queryBody.query[0].resourceGroupUuid
+    var uploadQuery = {};
+    var mergedQuery: any = {};
+    var tempQuery: any = {};
+
+    const result = await this.getMetricP8S(customerAccountKey, queryBody);
+    let length = result[metricName].data.result.length
+
+    for (var i=0; i<length; i++) {
+      uploadQuery['resource_Name'] = result[metricName].data.result[i].metric.nodename;
+      uploadQuery['resource_Type'] = "PM";
+      // uploadQuery['resource_Instance'] = result[metricName].data.result[i].metric.ip;
+      uploadQuery['resource_Spec'] = result[metricName].data.result[i].metric;
+      uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
+      uploadQuery['resource_Target_Uuid'] = result[metricName].data.result[i].metric.nodename;
+      uploadQuery['resource_Description'] = result[metricName].data.result[i].metric.version;
+      uploadQuery['resource_Target_Created_At'] = null
+      uploadQuery['resource_Level1'] = "OS"; //Openstack
+      uploadQuery['resource_Level2'] = "PM";
+      uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
+      uploadQuery['resource_Rbac'] = true;
+      uploadQuery['resource_Anomaly_Monitor'] = false;
+      uploadQuery['resource_Active'] = true;
+
+      tempQuery = this.formatter_resource(i, length, "PM", clusterUuid, uploadQuery, mergedQuery);
+      mergedQuery = tempQuery;
+    }
+
+    console.log("mergedQuery: ", mergedQuery)
+
+    return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
+  }
+
+  private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
+    let interimQuery = {};
+    try {
+      if (itemLength==1) {
+        interimQuery = '{"resource_Type": "' + resourceType + '", "resource_Group_Uuid": "' + cluster_uuid + '", ' + '"resource":[' + JSON.stringify(query) + "]}";
+      }
+      else {
+        if (i==0) {
+          interimQuery = '{"resource_Type": "' + resourceType + '", "resource_Group_Uuid": "' + cluster_uuid + '", ' + '"resource":[' + JSON.stringify(query);
+        }
+        else if (i==(itemLength-1)) {
+          interimQuery = mergedQuery + "," + JSON.stringify(query) + "]}";
+        }
+        else {
+          interimQuery = mergedQuery +  "," + JSON.stringify(query);
+        }
+      }
+    } catch (error) {
+      console.log("error due to unexpoected error: ", error.response);
+    }
+    return interimQuery;
   }
 }
 

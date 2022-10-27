@@ -20,7 +20,7 @@ import TableIdService from './tableId.service';
 //import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
-import metricService, {IMetricQueryBody} from "@modules/Metric/services/metric.service";
+import MetricService, {IMetricQueryBody} from "@modules/Metric/services/metric.service";
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
@@ -31,7 +31,7 @@ class executorService {
   public MetricMetaService = new MetricMetaService();
   public schedulerService = new SchedulerService();
   public incidentService = new IncidentService();
-  public metricService = new metricService();
+  public metricService = new MetricService();
 
   public sudoryWebhook = DB.SudoryWebhook;
   public executorService = DB.ExecutorService;
@@ -690,6 +690,8 @@ class executorService {
     customerAccountKey: number,
     targetNamespace: string,
     systemId: string,
+    kpsChartVersion: string,
+    lokiChartVersion: string,
   ): Promise<object> {
     const serviceUuid = [];
     //const helmRepoUrl = config.helmRepoUrl;
@@ -711,10 +713,10 @@ class executorService {
     const resultKpsChart = await this.exporters.findAll({ where: { exporterType: 'HL' } });
     const chartLength = resultKpsChart.length;
     let kpsChartName = '';
-    let kpsChartVersion = '';
+    let kpsChartVersionNew = '';
     let kpsChartRepoUrl = '';
     let lokiChartName = '';
-    let lokiChartVersion = '';
+    let lokiChartVersionNew = '';
     let lokiChartRepoUrl = '';
 
     const resultResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
@@ -722,14 +724,35 @@ class executorService {
     const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
 
     for (let i = 0; i < chartLength; i++) {
-      if (resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack') {
+      if (
+        resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack' &&
+        resultKpsChart[i].defaultChartYn === true &&
+        kpsChartVersion === ''
+      ) {
         kpsChartName = resultKpsChart[i].exporterHelmChartName;
-        kpsChartVersion = resultKpsChart[i].exporterHelmChartVersion;
+        kpsChartVersionNew = resultKpsChart[i].exporterHelmChartVersion;
+        kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
+      } else if (
+        resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack' &&
+        resultKpsChart[i].defaultChartYn === false &&
+        resultKpsChart[i].exporterHelmChartVersion === kpsChartVersion
+      ) {
+        kpsChartName = resultKpsChart[i].exporterHelmChartName;
+        kpsChartVersionNew = kpsChartVersion;
         kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
       }
-      if (resultKpsChart[i].exporterHelmChartName === 'loki-stack') {
+
+      if (resultKpsChart[i].exporterHelmChartName === 'loki-stack' && resultKpsChart[i].defaultChartYn === true && lokiChartVersion === '') {
         lokiChartName = resultKpsChart[i].exporterHelmChartName;
-        lokiChartVersion = resultKpsChart[i].exporterHelmChartVersion;
+        lokiChartVersionNew = resultKpsChart[i].exporterHelmChartVersion;
+        lokiChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
+      } else if (
+        resultKpsChart[i].exporterHelmChartName === 'loki-stack' &&
+        resultKpsChart[i].defaultChartYn === false &&
+        resultKpsChart[i].exporterHelmChartVersion === lokiChartVersion
+      ) {
+        lokiChartName = resultKpsChart[i].exporterHelmChartName;
+        lokiChartVersionNew = lokiChartVersion;
         lokiChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
       }
     }
@@ -741,7 +764,7 @@ class executorService {
           chart_name: kpsChartName,
           repo_url: kpsChartRepoUrl,
           namespace: targetNamespace,
-          chart_version: kpsChartVersion,
+          chart_version: kpsChartVersionNew,
           values: {
             prometheus: {
               extraSecret: {
@@ -754,6 +777,7 @@ class executorService {
               prometheusSpec: {
                 externalLabels: {
                   clusterUuid: clusterUuid,
+                  clusterName: resultResourceGroup.resourceGroupName,
                 },
                 remoteWrite: [
                   {
@@ -808,7 +832,7 @@ class executorService {
           chart_name: lokiChartName,
           repo_url: lokiChartRepoUrl,
           namespace: targetNamespace,
-          chart_version: lokiChartVersion,
+          chart_version: lokiChartVersionNew,
           values: {},
         },
       },
@@ -962,29 +986,30 @@ class executorService {
     // );
     // if (!resultHV) console.log(resultHV);
 
-    // post Auth execute
-    // const resultAuth = await this.postExecuteService(
-    //   'openstack interface for authentication',
-    //   'openstack interface for authentication',
-    //   clusterUuid,
-    //   '',
-    //   steps,
-    //   customerAccountKey,
-    //   "",
-    // );
-    // if (!resultAuth) console.log(resultAuth);
-
     // post PM Excute
-    const pmListQuery: any = {}
-    const resultPM = await this.metricService.uploadResource(customerAccountKey, pmListQuery)
-    // console.log()
+    let uploadPMQuery: any = {}
+    let metricQuery: any[] = []
+    metricQuery[0].name = "pm_info"
+    metricQuery[0].type = "OS_CLUSTER_PM_INFO"
+    metricQuery[0].resourceGroupUuid = clusterUuid
 
+    uploadPMQuery.query = metricQuery
+    const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, uploadPMQuery)
+    if (!resultPM) {console.log(resultPM)}
+
+    const openstackStep = [
+      {
+        args: {
+          credential_key: "",
+        }
+      },
+    ]
     const resultPJ = await this.postExecuteService(
       'openstack interface for PJList',
       'openstack interface for PJList',
       clusterUuid,
       '50000000000000000000000000000002',
-      steps,
+      steps, //TODO: openstack전용 step으로 변경 예정
       customerAccountKey,
       subscribedChannelResource,
     );
@@ -995,7 +1020,7 @@ class executorService {
       'openstack interface for VMList',
       clusterUuid,
       '50000000000000000000000000000003',
-      steps,
+      steps, //TODO: openstack전용 step으로 변경 예정
       customerAccountKey,
       subscribedChannelResource,
     );
@@ -1022,17 +1047,6 @@ class executorService {
 //         console.log(error);
 //         console.log(`confirmed the executor/sudory client installed but fail to submit resource HV schedule request for cluster:${clusterUuid}`);
 //       }); //end of catch
-
-// // scheduleResource - ReAuth
-//     await this.scheduleResource(clusterUuid, customerAccountKey, 'PJ', resourceCron)
-//       .then(async (res: any) => {
-//         resourceJobKey.push({ resourceType: 'PJ', cronKey: res });
-//         console.log(`Submitted resource Project schedule request on ${clusterUuid} cluster successfully`);
-//       })
-//       .catch(error => {
-//         console.log(error);
-//         console.log(`confirmed the executor/sudory client installed but fail to submit resource PJ schedule request for cluster:${clusterUuid}`);
-//       });
 
 // scheduleResource - PJ
     await this.scheduleResource(clusterUuid, customerAccountKey, 'PJ', resourceCron)
@@ -1069,6 +1083,7 @@ class executorService {
     customerAccountKey: number,
     targetNamespace: string,
     systemId: string,
+    kpsChartVersion: string,
   ): Promise<object> {
     const serviceUuid = [];
     //const helmRepoUrl = config.helmRepoUrl;
@@ -1087,7 +1102,7 @@ class executorService {
     const resultKpsChart = await this.exporters.findAll({ where: { exporterType: 'HL' } });
     const chartLength = resultKpsChart.length;
     let kpsChartName = '';
-    let kpsChartVersion = '';
+    let kpsChartVersionNew = '';
     let kpsChartRepoUrl = '';
 
     const resultResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
@@ -1095,9 +1110,21 @@ class executorService {
     const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
 
     for (let i = 0; i < chartLength; i++) {
-      if (resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack') {
+      if (
+        resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack' &&
+        resultKpsChart[i].defaultChartYn === true &&
+        kpsChartVersion === ''
+      ) {
         kpsChartName = resultKpsChart[i].exporterHelmChartName;
-        kpsChartVersion = resultKpsChart[i].exporterHelmChartVersion;
+        kpsChartVersionNew = resultKpsChart[i].exporterHelmChartVersion;
+        kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
+      } else if (
+        resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack' &&
+        resultKpsChart[i].defaultChartYn === false &&
+        resultKpsChart[i].exporterHelmChartVersion === kpsChartVersion
+      ) {
+        kpsChartName = resultKpsChart[i].exporterHelmChartName;
+        kpsChartVersionNew = kpsChartVersion;
         kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
       }
     }
@@ -1109,7 +1136,7 @@ class executorService {
           chart_name: kpsChartName,
           repo_url: kpsChartRepoUrl,
           namespace: targetNamespace,
-          chart_version: kpsChartVersion,
+          chart_version: kpsChartVersionNew,
           values: {
             prometheus: {
               extraSecret: {
@@ -1897,6 +1924,7 @@ class executorService {
     switch (selectedTemplate.resourceType) {
     case "PM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
+      scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
       executorServerUrl = config.appUrl + ':' + config.appPort + '/metric/upload/pm'
       apiBody = {
         cluster_uuid: clusterUuid,
@@ -1905,10 +1933,15 @@ class executorService {
         //TODO check required params for get PM metric
       }
       break
+    case "PJ":
+      scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
+      scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
+      steps.push({args: {credentialKey: ""}})
+      break
     case "VM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      steps.push({args: {detail: true}})
+      steps.push({args: {credentialKey: ""}})
       break
     default:
       scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;

@@ -55,6 +55,10 @@ export class CreateUserDto {
   @IsString()
   @IsOptional()
   public language: string;
+
+  @IsString()
+  @IsOptional()
+  public socialProviderId: string;
 }
 
 export class UpdateUserDto {

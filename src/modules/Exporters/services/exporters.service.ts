@@ -1,15 +1,5 @@
 import DB from '@/database';
-import { HttpException } from '@/common/exceptions/HttpException';
-import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ExporterDto } from '@/modules/Exporters/dtos/exporters.dto';
-import {
-  IExecutorClient,
-  ExecutorResultDto,
-  ExecutorResourceListDto,
-  IExecutorClientCheck,
-  SudoryWebhookDto,
-} from '@/modules/CommonService/dtos/executor.dto';
-
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import { IExporters } from '@/common/interfaces/exporters.interface';
@@ -37,6 +27,7 @@ class executorService {
       exporterHelmChartRepoUrl: DataSetForExporter.exporterHelmChartRepoUrl,
       exporterHelmChartValues: JSON.parse(JSON.stringify(DataSetForExporter.exporterHelmChartValues)),
       grafanaDashboard: JSON.parse(JSON.stringify(DataSetForExporter.grafanaDashboard)),
+      defaultChartYn: DataSetForExporter.defaultChartYn,
     };
     const resultExporter = await this.exporters.create(insertData);
 

@@ -22,4 +22,7 @@ export class ExporterDto {
   public exporterNamespace: string;
   @IsOptional()
   public exporterExporterhubUrl: string;
+  @IsOptional()
+  public defaultChartYn: Boolean;
+
 }

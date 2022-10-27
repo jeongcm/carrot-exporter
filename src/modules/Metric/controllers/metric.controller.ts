@@ -21,7 +21,11 @@ class MetricController {
     try {
       const customerAccountKey = req.customerAccountKey;
       const queryBody = req.body;
-      const result = await this.metricService.getMetric(customerAccountKey, queryBody);
+      let result: any = null;
+      switch (req.params.resourceType) {
+        case "PM":
+          result = await this.metricService.uploadResourcePM(customerAccountKey, queryBody);
+      }
       res.status(200).json({ data: result, message: `upload Resource` });
     } catch (error) {
       next(error);

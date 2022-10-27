@@ -1,15 +1,21 @@
 import DB from '@/database';
 import config from '@config/index';
-
-import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
+import { HttpException } from '@/common/exceptions/HttpException';
 import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/customerAccount.dto';
-import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { AddressModel } from '@/modules/Address/models/address.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
+import SendMailService from '@/modules/Messaging/services/sendMail.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { CreateUserDto } from '@/modules/Party/dtos/party.dto';
+import axios from 'common/httpClient/axios';
+import { IParty, IPartyUser } from '@/common/interfaces/party.interface';
+const handlebars = require('handlebars');
+const fs = require('fs');
+const path = require('path');
 /**
  * @memberof CustomerAccount
  */
@@ -19,88 +25,279 @@ class CustomerAccountService {
   public resourceGroup = DB.ResourceGroup;
   public customerAccountAdress = DB.CustomerAccountAddress;
   public party = DB.Party;
+  public partyUser = DB.PartyUser;
+  public notification = DB.Notification;
   public tableIdService = new tableIdService();
+  public sendMailService = new SendMailService();
   public sudoryService = new SudoryService();
 
-  public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, systemId: string): Promise<ICustomerAccount> {
+  /**
+   * @param {CreateCustomerAccountDto} customerAccountData
+   * @param {Object} partyData
+   * @param {string} createdBy
+   */
+  public async createCustomerAccount(customerAccountData: CreateCustomerAccountDto, partyData: CreateUserDto, createdBy: string): Promise<object> {
+    //0. Data Prep
     if (isEmpty(customerAccountData)) throw new HttpException(400, 'CustomerAccount  must not be empty');
 
+    const currentDate = new Date();
+    const { partyName, partyDescription, parentPartyId, firstName, lastName, userId, email, mobile, language } = partyData;
+
+    //set customerAccount Api Key
+    const uuid = require('uuid');
+    const apiKey = uuid.v1();
+    const apiBuff = Buffer.from(apiKey);
+    const encodedApiKey = apiBuff.toString('base64');
+    customerAccountData.customerAccountApiKey = encodedApiKey;
+    customerAccountData.customerAccountApiKeyIssuedAt = new Date();
+
+    let tableIdTableName = 'CustomerAccount';
+    let responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+    const customerAccountId = responseTableIdData.tableIdFinalIssued;
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    tableIdTableName = 'Party';
+    responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+    const partyId = responseTableIdData.tableIdFinalIssued;
+
+    //id creation for api user
+    responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+    const partyIdApi = responseTableIdData.tableIdFinalIssued;
+
     try {
-      const tableIdTableName = 'CustomerAccount';
-      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
-      const customerAccountId = responseTableIdData.tableIdFinalIssued;
-      //set customerAccount Api Key
-      const uuid = require('uuid');
-      const apiKey = uuid.v1();
-      const apiBuff = Buffer.from(apiKey);
-      const encodedApiKey = apiBuff.toString('base64');
-      customerAccountData.customerAccountApiKey = encodedApiKey;
-      customerAccountData.customerAccountApiKeyIssuedAt = new Date();
-
-      const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create({
-        ...customerAccountData,
-        customerAccountId: customerAccountId,
-        createdBy: systemId || 'SYSTEM',
-      });
-
-      // create multi-tenant VM secret data
-      const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
-        where: { deletedAt: null },
-      });
-      let auth = '\n' + `users: ` + '\n';
-      getActiveCustomerAccounts.forEach(customerAccount => {
-        auth =
-          auth +
-          `- username: "S${customerAccount.customerAccountId}"
-  password: "${customerAccount.customerAccountId}"
-  url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountKey}/prometheus/"
-- username: "I${customerAccount.customerAccountId}"
-  password: "${customerAccount.customerAccountId}"
-  url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
-          '\n';
-      });
-
-      const authBuff = Buffer.from(auth);
-      const base64Auth = authBuff.toString('base64');
-
-      //call sudory to patch VM multiline secret file
-
-      const name = 'Update VM Secret';
-      const summary = 'Update VM Secret';
-      const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
-      const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
-      const step = [
-        {
-          args: {
-            name: config.victoriaMetrics.vmMultiSecret,
-            namespace: config.victoriaMetrics.vmMultiNamespaces,
-            patch_type: 'json',
-            patch_data: [
-              {
-                op: 'replace',
-                path: '/data/auth.yml',
-                //value: `'$(base64<<<${auth})'`,
-                value: base64Auth,
-              },
-            ],
+      return await DB.sequelize.transaction(async t => {
+        //1. create a customer account
+        const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create(
+          {
+            ...customerAccountData,
+            customerAccountId: customerAccountId,
+            createdBy: partyId,
           },
-        },
-      ];
-      const customerAccountKey = createdCustomerAccount.customerAccountKey;
-      const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-      const sudoryRequest = await this.sudoryService.postSudoryService(
-        name,
-        summary,
-        clusterUuid,
-        templateUuid,
-        step,
-        customerAccountKey,
-        subscribedChannel,
-      );
+          { transaction: t },
+        );
+        const customerAccountKey = createdCustomerAccount.customerAccountKey;
 
-      return createdCustomerAccount;
-    } catch (error) {
-      console.log('error', error);
+        //1-1. create multi-tenant VM secret data
+        const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
+          where: { deletedAt: null },
+        });
+        let auth = '\n' + `users: ` + '\n';
+        getActiveCustomerAccounts.forEach(customerAccount => {
+          auth =
+            auth +
+            `- username: "S${customerAccount.customerAccountId}"
+password: "${customerAccount.customerAccountId}"
+url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountKey}/prometheus/"
+- username: "I${customerAccount.customerAccountId}"
+password: "${customerAccount.customerAccountId}"
+url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
+            '\n';
+        });
+        const authBuff = Buffer.from(auth);
+        const base64Auth = authBuff.toString('base64');
+        //call sudory to patch VM multiline secret file
+        const sudoryServiceName = 'Update VM Secret';
+        const summary = 'Update VM Secret';
+        const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
+        const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
+        const step = [
+          {
+            args: {
+              name: config.victoriaMetrics.vmMultiSecret,
+              namespace: config.victoriaMetrics.vmMultiNamespaces,
+              patch_type: 'json',
+              patch_data: [
+                {
+                  op: 'replace',
+                  path: '/data/auth.yml',
+                  value: base64Auth,
+                },
+              ],
+            },
+          },
+        ];
+        const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+        await this.sudoryService.postSudoryService(
+          sudoryServiceName,
+          summary,
+          clusterUuid,
+          templateUuid,
+          step,
+          customerAccountKey,
+          subscribedChannel,
+        );
+
+        //2. create a party & party user
+        const createdParty: IParty = await this.party.create(
+          {
+            partyId: partyId,
+            partyName: partyName,
+            partyDescription: partyDescription,
+            parentPartyId: parentPartyId,
+            partyType: 'US',
+            customerAccountKey,
+            createdBy: createdBy,
+            createdAt: currentDate,
+          },
+          { transaction: t },
+        );
+
+        const partyKey = createdParty.partyKey;
+        const password = config.defaultPassword;
+        const createdPartyUser: IPartyUser = await this.partyUser.create(
+          {
+            partyUserId: partyId,
+            partyKey: createdParty.partyKey,
+            createdBy: createdBy,
+            firstName: firstName,
+            lastName: lastName,
+            userId: userId,
+            mobile: mobile,
+            password: password,
+            email: email,
+            timezone: timeZone,
+            isEmailValidated: false,
+            partyUserStatus: 'AC',
+            adminYn: true,
+            systemYn: false,
+            language: language,
+          },
+          { transaction: t },
+        );
+        //create an API user
+        const createdPartyApi: IParty = await this.party.create(
+          {
+            partyId: partyIdApi,
+            partyName: customerAccountData.customerAccountName + '-API',
+            partyDescription: customerAccountData.customerAccountName + '-API',
+            parentPartyId: parentPartyId,
+            partyType: 'US',
+            customerAccountKey,
+            createdBy: createdBy,
+            createdAt: currentDate,
+          },
+          { transaction: t },
+        );
+
+        const partyKeyApi = createdPartyApi.partyKey;
+        const createdPartyUserApi: IPartyUser = await this.partyUser.create(
+          {
+            partyUserId: partyIdApi,
+            partyKey: partyKeyApi,
+            createdBy: createdBy,
+            firstName: 'API-User',
+            lastName: customerAccountData.customerAccountName,
+            userId: customerAccountId,
+            mobile: '',
+            password: password,
+            email: '',
+            timezone: timeZone,
+            isEmailValidated: false,
+            partyUserStatus: 'AC',
+            adminYn: false,
+            systemYn: true,
+            language: language,
+          },
+          { transaction: t },
+        );
+
+        //3. fusebill interface
+        console.log('fuseBill Start');
+        const fuseBillCreateCustomer = {
+          firstName: firstName,
+          lastName: lastName,
+          companyName: partyName,
+          primaryEmail: email,
+          primaryPhone: mobile,
+          reference: customerAccountId,
+        };
+        let fuseBillInterface = false;
+        const headers = { Authorization: `Basic ${config.fuseBillApiDetail.apiKey}` };
+        const fuseBillCustomer = await axios({
+          method: 'post',
+          url: config.fuseBillApiDetail.createCustomerUrl,
+          data: fuseBillCreateCustomer,
+          headers: headers,
+        });
+        if (fuseBillCustomer.data) {
+          fuseBillInterface = true;
+          console.log('Provision customer infor to fusebill successfully');
+          const customerActivationPayload = {
+            customerId: fuseBillCustomer.data.id,
+            activateAllSubscriptions: true,
+            activateAllDraftPurchases: true,
+            temporarilyDisableAutoPost: false,
+          };
+          await axios({
+            method: 'post',
+            url: `${config.fuseBillApiDetail.baseURL}customerActivation`,
+            data: customerActivationPayload,
+            headers: headers,
+          });
+        } else {
+          console.log('Fail to provision customer data to Fulsebill');
+        }
+        console.log('fuseBill End');
+        //4. prep sending email to customer
+        console.log('sending email to customer Start');
+        const emailTemplateSource = fs.readFileSync(
+          path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'),
+          'utf8',
+        );
+        const template = handlebars.compile(emailTemplateSource);
+        const name = createdPartyUser.firstName;
+        const htmlToSend = template({ name });
+        const mailOptions = {
+          to: createdPartyUser.email,
+          from: 'service@nexclipper.io',
+          subject: 'Welcome Onboard - NexClipper',
+          html: htmlToSend,
+        };
+        const notificationMessage = JSON.parse(JSON.stringify(mailOptions));
+        //5 create notification history
+        tableIdTableName = 'Notification';
+        responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+        const notificationId = responseTableIdData.tableIdFinalIssued;
+        const newNotification = {
+          notificationId: notificationId,
+          partyKey: partyKey,
+          createdBy: createdBy,
+          createdAt: currentDate,
+          notificationStatutsUpdatedAt: currentDate,
+          customerAccountKey,
+          notificationChannelType: 'email',
+          notificationType: 'newCustomerAccount',
+          notificationChannel: createdPartyUser.email,
+          notificationMessage: notificationMessage,
+          notificationStatus: 'ST',
+        };
+        await this.notification.create(newNotification, { transaction: t });
+        console.log('sending email to customer end');
+        //4.1 send email to customer
+        console.log('sending email to customer start 4.1');
+        let emailSent = false;
+        await this.sendMailService.sendMailGeneral(mailOptions);
+        emailSent = true;
+        console.log('email sent to new customer');
+        //6. return message
+        return {
+          customerAccountId: createdCustomerAccount.customerAccountId,
+          customerAccountKey: createdCustomerAccount.customerAccountKey,
+          customerAccountName: createdCustomerAccount.customerAccountName,
+          customerAccountType: createdCustomerAccount.customerAccountType,
+          firstName: createdPartyUser.firstName,
+          lastName: createdPartyUser.lastName,
+          userId: createdPartyUser.userId,
+          email: createdPartyUser.email,
+          mobile: createdPartyUser.mobile,
+          emailSent: emailSent,
+          notificationId: notificationId,
+          fuseBillInterface: fuseBillInterface,
+        };
+      });
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(500, 'Unknown error while creating account');
     }
   }
 

@@ -117,6 +117,8 @@ class executorController {
     try {
       const clusterUuid = req.body.clusterUuid;
       const targetNamespace = req.body.targetNamespace;
+      const kpsChartVersion = req.body.kpsChartVersion || '';
+      const lokiChartVersion = req.body.lokiChartVersion || '';
       const customerAccountKey = req.customerAccountKey;
       const systemId = req.systemId;
       const platform = req.body.platform
@@ -124,10 +126,10 @@ class executorController {
 
       switch (platform) {
         case "K8":
-          serviceUuids = await this.executorService.installKpsOnResourceGroup(clusterUuid, customerAccountKey, targetNamespace, systemId);
+          serviceUuids = await this.executorService.installKpsOnResourceGroup(clusterUuid, customerAccountKey, targetNamespace, systemId, kpsChartVersion, lokiChartVersion);
           break
         case "OS":
-          serviceUuids = await this.executorService.installKpsOnResourceGroupForOpenstack(clusterUuid, customerAccountKey, targetNamespace, systemId);
+          serviceUuids = await this.executorService.installKpsOnResourceGroupForOpenstack(clusterUuid, customerAccountKey, targetNamespace, systemId, kpsChartVersion);
           break
         default:
       }

@@ -25,6 +25,7 @@ export type PartyUserCreationAttributes = Optional<
   | 'partyUserStatus'
   | 'timezone'
   | 'adminYn'
+  | 'systemYn'
   | 'language'
 >;
 
@@ -51,6 +52,7 @@ export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttribute
   public lastAccessAt: Date;
   public timezone: string;
   public adminYn: boolean;
+  public systemYn: boolean;
   public updatedAt: Date;
   public language: string;
 
@@ -120,6 +122,11 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
         type: DataTypes.STRING(45),
       },
       adminYn: {
+        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
+      systemYn: {
         allowNull: false,
         type: DataTypes.BOOLEAN,
         defaultValue: false,
