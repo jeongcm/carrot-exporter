@@ -974,6 +974,7 @@ class executorService {
     // post PM Excute
     let uploadPMQuery: any = {}
     let metricQuery: any[] = []
+    metricQuery[0] = {}
     metricQuery[0].name = "pm_info"
     metricQuery[0].type = "OS_CLUSTER_PM_INFO"
     metricQuery[0].resourceGroupUuid = clusterUuid
@@ -1915,6 +1916,7 @@ class executorService {
 
       let uploadPMQuery: any = {}
       let metricQuery: any[] = []
+      metricQuery[0] = {}
       metricQuery[0].name = "pm_info"
       metricQuery[0].type = "OS_CLUSTER_PM_INFO"
       metricQuery[0].resourceGroupUuid = clusterUuid
