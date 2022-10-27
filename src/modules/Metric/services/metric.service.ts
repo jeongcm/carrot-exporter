@@ -180,15 +180,16 @@ class MetricService extends ServiceExtension {
         });
         ranged = true;
 
-        /*
-        promQl = `(
-          (1 - sum without (mode) (rate(node_cpu_seconds_total{job="node-exporter", mode=~"idle|iowait|steal", __LABEL_PLACE_HOLDER__}[${step}])))
-        / ignoring(cpu) group_left
-          count without (cpu, mode) (node_cpu_seconds_total{job="node-exporter", mode="idle", __LABEL_PLACE_HOLDER__})
-        )`;
-        */
-
         promQl = `avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[${step}])) by (node, cpu)`;
+        break;
+      case 'NODE_CPU_PERCENTAGE_MOMENT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        ranged = false;
+
+        promQl = `avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[${step || '5m'}])) by (node)`;
         break;
       case 'NODE_MEMORY_USAGE':
         labelString += getSelectorLabels({
@@ -203,6 +204,31 @@ class MetricService extends ServiceExtension {
           - node_memory_Buffers_bytes{job="node-exporter", __LABEL_PLACE_HOLDER__}
           - node_memory_Cached_bytes{job="node-exporter", __LABEL_PLACE_HOLDER__}
         )`;
+        break;
+      case 'NODE_MEMORY_TOTAL_MOMENT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        ranged = false;
+
+        promQl = `(
+            node_memory_MemTotal_bytes{job="node-exporter", __LABEL_PLACE_HOLDER__}
+          )`;
+        break;
+      case 'NODE_MEMORY_USAGE_MOMENT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        ranged = false;
+
+        promQl = `(
+            node_memory_MemTotal_bytes{job="node-exporter", __LABEL_PLACE_HOLDER__}
+            - node_memory_MemFree_bytes{job="node-exporter", __LABEL_PLACE_HOLDER__}
+            - node_memory_Buffers_bytes{job="node-exporter", __LABEL_PLACE_HOLDER__}
+            - node_memory_Cached_bytes{job="node-exporter", __LABEL_PLACE_HOLDER__}
+          )`;
         break;
       case 'NODE_FILESYSTEM_USED':
         labelString += getSelectorLabels({
@@ -221,6 +247,23 @@ class MetricService extends ServiceExtension {
           )
         `;
         break;
+      case 'NODE_FILESYSTEM_USED_MOMENT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        ranged = false;
+
+        promQl = `
+          sum by (node) (
+            max by (device) (
+              node_filesystem_size_bytes{job="node-exporter", fstype!="", __LABEL_PLACE_HOLDER__}
+            -
+              node_filesystem_avail_bytes{job="node-exporter", fstype!="", __LABEL_PLACE_HOLDER__}
+            )
+          )
+        `;
+        break;
       case 'NODE_FILESYSTEM_AVAILABLE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -229,8 +272,23 @@ class MetricService extends ServiceExtension {
         ranged = true;
 
         promQl = `
-          sum(
+          sum (
             max by (device) (
+              node_filesystem_avail_bytes{job="node-exporter", fstype!="", __LABEL_PLACE_HOLDER__}
+            )
+          )
+        `;
+        break;
+      case 'NODE_FILESYSTEM_AVAILABLE_MOMENT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        ranged = false;
+
+        promQl = `
+          sum by (node) (
+            max by (device, node) (
               node_filesystem_avail_bytes{job="node-exporter", fstype!="", __LABEL_PLACE_HOLDER__}
             )
           )
@@ -396,6 +454,18 @@ class MetricService extends ServiceExtension {
           persistentvolumeclaim: resourceName,
         });
         ranged = true;
+
+        promQl = `(
+          sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
+        )`;
+        break;
+      case 'PV_SPACE_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resourceNamespace,
+          persistentvolumeclaim: resourceName,
+        });
+        ranged = false;
 
         promQl = `(
           sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
