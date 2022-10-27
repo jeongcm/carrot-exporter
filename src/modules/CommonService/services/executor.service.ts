@@ -1005,7 +1005,7 @@ class executorService {
       'openstack interface for VMList',
       'openstack interface for VMList',
       clusterUuid,
-      '50000000000000000000000000000003',
+      '50000000000000000000000000000004',
       openstackSteps,
       customerAccountKey,
       subscribedChannelResource,
