@@ -988,7 +988,7 @@ class executorService {
         args: {
           credential_key: "openstack_token_0",
         }
-      },
+      }
     ]
     const resultPJ = await this.postExecuteService(
       'openstack interface for PJList',
