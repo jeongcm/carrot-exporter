@@ -21,6 +21,7 @@ const noAuthList = [
   'POST/customerAccount',
   'GET/customerAccount',
   'GET/customerAccount/:customerAccountId',
+  'POST/metric/upload/:resourceType',
 ];
 
 const checkNoAuth = (method: string, path: string): boolean => {
