@@ -1921,6 +1921,7 @@ class executorService {
       metricQuery[0].resourceGroupUuid = clusterUuid
 
       uploadPMQuery.query = metricQuery
+      uploadPMQuery.customerAccountKey = customerAccountKey
 
       apiBody = uploadPMQuery
       break
