@@ -624,6 +624,26 @@ class AlertEasyRuleService {
 
     return result;
   }
+
+  public async getAlertTargetGroupAll(): Promise<Object[]> {
+    const findAlertTargetGroup: IAlertTargetGroup[] = await this.alertTargetGroup.findAll({
+      where: { deletedAt: null },
+      include: [{ model: AlertTargetSubGroupModel, required: true, where: { deletedAt: null } }],
+    });
+    return findAlertTargetGroup;
+  }
+
+  public async deleteAlertTargetSubGroup(alertTargetSubGroupId: string): Promise<Object> {
+    const findAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
+      where: { deletedAt: null, alertTargetSubGroupId: alertTargetSubGroupId },
+    });
+    if (!findAlertTargetSubGroup) throw new HttpException(404, `couldn't find AlertTargetSubGroup`);
+
+    const updateQuery = { deletedAt: new Date() };
+    const whereQuery = { where: { deletedAt: null, alertTargetSubGroupId: alertTargetSubGroupId } };
+    const resultUpdateOfAlertTargetSubGroup = await this.alertTargetSubGroup.update(updateQuery, whereQuery);
+    return resultUpdateOfAlertTargetSubGroup;
+  }
 }
 
 export default AlertEasyRuleService;

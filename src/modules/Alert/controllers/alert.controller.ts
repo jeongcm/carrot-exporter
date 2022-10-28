@@ -428,6 +428,15 @@ class AlertRuleController extends ControllerExtension {
       next(error);
     }
   };
+  public deleteAlertTargetSubGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertTargetSubGroupId = req.params.alertTargetSubGroupId;
+      const getResponse = await this.alertEasyRuleService.deleteAlertTargetSubGroup(alertTargetSubGroupId);
+      res.status(200).json({ data: getResponse, message: 'delete AlertTargetSubGroup' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AlertRuleController;
