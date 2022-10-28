@@ -1007,7 +1007,6 @@ class MetricService extends ServiceExtension {
       mergedQuery = tempQuery;
     }
 
-    console.log("mergedQuery: ", mergedQuery)
     const data = await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
     console.log(data)
     return data

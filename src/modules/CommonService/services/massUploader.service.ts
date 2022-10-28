@@ -32,7 +32,6 @@ class massUploaderService {
     const resourceGroupUuid = resourceMassFeed.resource_Group_Uuid;
     const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
     const customerAccountKey = responseResourceGroup.customerAccountKey;
-    console.log(customerAccountKey)
     const resourceGroupKey = responseResourceGroup.resourceGroupKey;
     const resourceType = resourceMassFeed.resource_Type;
 
