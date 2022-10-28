@@ -1920,10 +1920,12 @@ class executorService {
       metricQuery[0].type = "OS_CLUSTER_PM_INFO"
       metricQuery[0].resourceGroupUuid = clusterUuid
 
-      uploadPMQuery.query = metricQuery
-      uploadPMQuery.customerAccountKey = customerAccountKey
+      uploadPMQuery = {
+        query: metricQuery,
+        customerAccountKey: customerAccountKey
+      }
 
-      apiBody = JSON.parse(uploadPMQuery)
+      apiBody = uploadPMQuery
       break
     case "PJ":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
