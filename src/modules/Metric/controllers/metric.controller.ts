@@ -21,7 +21,7 @@ class MetricController {
     try {
       const queryBody = req.body;
       const customerAccountKey = req.body.customerAccountKey
-      console.log("ca key:", customerAccountKey)
+
       let result: any = null;
       switch (req.params.resourceType) {
         case "PM":

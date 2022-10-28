@@ -1923,7 +1923,7 @@ class executorService {
       uploadPMQuery.query = metricQuery
       uploadPMQuery.customerAccountKey = customerAccountKey
 
-      apiBody = uploadPMQuery
+      apiBody = JSON.parse(uploadPMQuery)
       break
     case "PJ":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
