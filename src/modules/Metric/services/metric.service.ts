@@ -993,29 +993,29 @@ class MetricService extends ServiceExtension {
         ranged = true;
         promQl = `max(rate(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename)`
         break;
-      case 'OS_NODE_CPU_RANKING':
+      case 'OS_CLUSTER_PM_CPU_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
           nodename,
         });
 
-        promQl = `sort_desc(avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) by (nodename) * 100)`
+        promQl = `sort_desc(avg(1 - avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) by (nodename)) * 100)`
         break;
-      case 'OS_NODE_MEMORY_RANKING':
+      case 'OS_CLUSTER_PM_MEMORY_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
           nodename,
         });
 
-        promQl =  `sort_desc((1 - (nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} / (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})))* 100)`
+        promQl =  `sort_desc((sum(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) / sum(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100)`
         break;
-      case 'OS_NODE_DISK_RANKING':
+      case 'OS_CLUSTER_PM_DISK_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
           nodename,
         });
 
-        promQl = `sort_desc((nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}} - nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"}) * 100 / (nc:node_filesystem_avail_bytes {job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"} + (nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"} - nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__,fstype=~"ext.?|xfs"})))`
+        promQl = `sort_desc((sum(avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum(avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum(avg(nc:node_filesystem_avail_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum(avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum(avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename)))))`
         break;
       case 'OS_NODE_RXTX_TOTAL_RANKING':
         labelString += getSelectorLabels({
