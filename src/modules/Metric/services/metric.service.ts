@@ -2,7 +2,7 @@ import ServiceExtension from '@/common/extentions/service.extension';
 import { isEmpty } from 'lodash';
 import VictoriaMetricService from './victoriaMetric.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
-import massUploaderService from '@/modules/CommonService/services/massUploader.service';
+import MassUploaderService from '@/modules/CommonService/services/massUploader.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import { ICustomerAccount } from 'common/interfaces/customerAccount.interface';
@@ -35,7 +35,7 @@ class MetricService extends ServiceExtension {
   private resourceService = new ResourceService();
   private resourceGroupService = new ResourceGroupService();
   private customerAccountService = new CustomerAccountService();
-  private massUploaderService = new massUploaderService();
+  private massUploaderService = new MassUploaderService();
 
   constructor() {
     super({});
@@ -1008,8 +1008,9 @@ class MetricService extends ServiceExtension {
     }
 
     console.log("mergedQuery: ", mergedQuery)
-
-    return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
+    const data = await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
+    console.log(data)
+    return data
   }
 
   private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
