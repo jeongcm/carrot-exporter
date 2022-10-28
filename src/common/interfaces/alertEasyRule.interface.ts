@@ -8,6 +8,7 @@ export interface IAlertEasyRule {
   deletedAt: Date;
   alertEasyRuleName: string;
   alertEasyRuleDescription: string;
+  resourceGroupKey: number;
   resourceGroupUuid: string;
   alertTargetSubGroupKey: number;
   alertEasyRuleDuration: string;

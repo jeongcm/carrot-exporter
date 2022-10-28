@@ -399,6 +399,26 @@ class AlertRuleController extends ControllerExtension {
       next(error);
     }
   };
+  public updateAlertEasyRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertEasyRule = req.body;
+      //const alertEasyRuleId = req.params.alertEasyRuleId;
+      const partyId = req.user.partyId;
+      const updateAlertEasyRule = await this.alertEasyRuleService.updateAlertEasyRule(alertEasyRule, partyId);
+      res.status(200).json({ data: updateAlertEasyRule, message: 'updated AlertTargetGroup' });
+    } catch (error) {
+      next(error);
+    }
+  };
+  public getAlertEasyRuleById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertEasyRuleId = req.params.alertEasyRuleId;
+      const createAlertEasyRule = await this.alertEasyRuleService.getAlertEasyRuleById(alertEasyRuleId);
+      res.status(200).json({ data: createAlertEasyRule, message: 'find AlertEasyRule' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AlertRuleController;

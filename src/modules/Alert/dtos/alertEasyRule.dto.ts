@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsDate, isNotEmpty, IsObject } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional, IsDate, isNotEmpty, IsObject } from 'class-validator';
 
 export class CreateAlertEasyRuleDto {
   @IsString()
@@ -33,6 +33,42 @@ export class CreateAlertEasyRuleDto {
   @IsString()
   @IsNotEmpty()
   public customerAccountId: string;
+}
+
+export class UpdateAlertEasyRuleDto {
+  @IsString()
+  @IsNotEmpty()
+  public alertTargetSubGroupId: string;
+  @IsString()
+  @IsNotEmpty()
+  public alertEasyRuleId: string;
+  @IsString()
+  @IsOptional()
+  public alertEasyRuleDescription: string;
+  @IsString()
+  @IsOptional()
+  public alertEasyRuleSummary: string;
+  @IsString()
+  @IsOptional()
+  public alertEasyRuleQuery: string;
+  @IsString()
+  @IsNotEmpty()
+  public alertEasyRuleSeverity: string;
+  @IsString()
+  @IsOptional()
+  public alertEasyRuleGroup: string;
+  @IsString()
+  @IsOptional()
+  public alertEasyRuleDuration: string;
+  @IsString()
+  @IsOptional()
+  public alertEasyRuleThreshold1: string;
+  @IsString()
+  @IsOptional()
+  public alertEasyRuleThreshold2: string;
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupUuid: string;
 }
 export class CreateAlertTargetGroupDto {
   @IsString()

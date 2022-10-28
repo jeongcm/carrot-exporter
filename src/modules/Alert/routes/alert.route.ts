@@ -12,7 +12,7 @@ import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import { CreateAlertRuleDto } from '../dtos/alertRule.dto';
 import { AlertReceivedDto } from '../dtos/alertReceived.dto';
-import { CreateAlertEasyRuleDto, CreateAlertTargetGroupDto, CreateAlertTargetSubGroupDto } from '../dtos/alertEasyRule.dto';
+import { CreateAlertEasyRuleDto, CreateAlertTargetGroupDto, CreateAlertTargetSubGroupDto, UpdateAlertEasyRuleDto } from '../dtos/alertEasyRule.dto';
 class AlertRoute implements Routes {
   public router = Router();
   public alertController = new AlertController();
@@ -76,6 +76,8 @@ class AlertRoute implements Routes {
       validationMiddleware(CreateAlertEasyRuleDto, 'body'),
       this.alertController.createAlertEasyRule,
     );
+    this.router.put('/alertEasyRule', authMiddleware, validationMiddleware(UpdateAlertEasyRuleDto, 'body'), this.alertController.updateAlertEasyRule);
+    this.router.get('/alertEasyRule/:alertEasyRuleId', authMiddleware, this.alertController.getAlertEasyRuleById);
   }
 }
 

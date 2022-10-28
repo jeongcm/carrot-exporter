@@ -17,6 +17,7 @@ export type AlertEasyRuleCreationAttributes = Optional<
   | 'alertEasyRuleThreshold1'
   | 'alertEasyRuleThreshold2'
   | 'resourceGroupUuid'
+  | 'resourceGroupKey'
   | 'alertTargetSubGroupKey'
   | 'customerAccountKey'
   | 'alertEasyRuleGroup'
@@ -35,6 +36,7 @@ export class AlertEasyRuleModel extends Model<IAlertEasyRule, AlertEasyRuleCreat
   public alertEasyRuleName: string;
   public alertEasyRuleDescription: string;
   public resourceGroupUuid: string;
+  public resourceGroupKey: number;
   public alertTargetSubGroupKey: number;
   public alertEasyRuleDuration: string;
   public alertEasyRuleThreshold1: string;
@@ -55,7 +57,6 @@ export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
         allowNull: false,
         primaryKey: true,
       },
-
       alertEasyRuleId: {
         allowNull: false,
         type: DataTypes.STRING(50),
@@ -122,6 +123,10 @@ export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
       },
       resourceGroupUuid: {
         type: DataTypes.STRING(100),
+        allowNull: false,
+      },
+      resourceGroupKey: {
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       customerAccountKey: {

@@ -447,6 +447,9 @@ DB.AlertTargetSubGroup.belongsTo(DB.AlertTargetGroup, { foreignKey: 'alertTarget
 DB.AlertTargetSubGroup.hasMany(DB.AlertEasyRule, { foreignKey: 'alertTargetSubGroupKey' });
 DB.AlertEasyRule.belongsTo(DB.AlertTargetSubGroup, { foreignKey: 'alertTargetSubGroupKey' });
 
+DB.ResourceGroup.hasMany(DB.AlertEasyRule, { foreignKey: 'resourceGroupKey' });
+DB.AlertEasyRule.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
+
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
 //[[force: true]]  is used when changes made in database.
