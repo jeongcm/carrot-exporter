@@ -290,14 +290,14 @@ class AlertEasyRuleService {
     return result;
   }
 
-  public async getAlertEasyRuleByCustomerAccountKey(customerAccountKey: number): Promise<IAlertEasyRule[]> {
+  public async getAlertEasyRuleAll(customerAccountKey: number): Promise<IAlertEasyRule[]> {
     const querySql = {
       where: { deletedAt: null, customerAccountKey: customerAccountKey },
       include: [
         {
           model: ResourceGroupModel,
           required: true,
-          attributes: ['resourceGroupName'],
+          attributes: ['resourceGroupName', 'resourceGroupUuid'],
           where: { deletedAt: null },
         },
         {
