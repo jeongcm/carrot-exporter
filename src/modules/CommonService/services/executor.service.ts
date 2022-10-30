@@ -775,6 +775,7 @@ class executorService {
               prometheusSpec: {
                 externalLabels: {
                   clusterUuid: clusterUuid,
+                  clusterId: clusterUuid,
                   clusterName: resultResourceGroup.resourceGroupName,
                 },
                 remoteWrite: [
