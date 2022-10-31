@@ -1,5 +1,6 @@
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IAlertRule, IAlertRuleGraph } from '@/common/interfaces/alertRule.interface';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { isEmpty } from '@/common/utils/util';
 import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
@@ -19,8 +20,11 @@ class AlertRuleService {
   private ruleGroupAlertRule = DB.RuleGroupAlertRule;
   private resourceGroup = DB.ResourceGroup;
   private ruleGroup = DB.RuleGroup;
+  private customerAccount = DB.CustomerAccount;
 
   public async getAlertRule(customerAccountKey: number): Promise<IAlertRule[]> {
+    //    const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId } });
+    //    const customerAccountKey = findCustomerAccount.customerAccountKey;
     const allAlertRules: IAlertRule[] = await this.alertRule.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
       attributes: { exclude: ['alertRuleKey', 'deletedAt', 'updatedBy', 'createdBy'] },
