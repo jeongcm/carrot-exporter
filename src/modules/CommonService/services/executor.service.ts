@@ -983,19 +983,13 @@ class executorService {
     const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, uploadPMQuery)
     if (!resultPM) {console.log(resultPM)}
 
-    const openstackSteps = [
-      {
-        args: {
-          credential_key: "openstack_token_0",
-        }
-      }
-    ]
+
     const resultPJ = await this.postExecuteService(
       'openstack interface for PJList',
       'openstack interface for PJList',
       clusterUuid,
       '50000000000000000000000000000002',
-      openstackSteps,
+      [{args: {credential_key: "openstack_token_0",}}],
       customerAccountKey,
       subscribedChannelResource,
     );
@@ -1006,7 +1000,7 @@ class executorService {
       'openstack interface for VMList',
       clusterUuid,
       '50000000000000000000000000000004',
-      openstackSteps,
+      [{args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}}}],
       customerAccountKey,
       subscribedChannelResource,
     );
@@ -1935,7 +1929,7 @@ class executorService {
     case "VM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      steps.push({args: {credential_key: "openstack_token_0"}})
+      steps.push({args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}}})
       break
     default:
       scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;
