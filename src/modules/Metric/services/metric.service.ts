@@ -936,6 +936,11 @@ class MetricService extends ServiceExtension {
         promQl = `sum(time() - nc:node_boot_time_seconds{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'OS_CLUSTER_PM_NODE_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+        promQl = `probe_success{__LABEL_PLACE_HOLDER__}`;
         break;
       case 'OS_CLUSTER_PM_CPU_USAGE':
         labelString += getSelectorLabels({
@@ -984,7 +989,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_VM_TOTAL_CPU_COUNT':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `count(nc:node_cpu_seconds_total{job=~"vm-node-exporter", is_ops_vm=~"Y", mode='system', __LABEL_PLACE_HOLDER__})`
@@ -992,7 +997,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_VM_MEMORY_TOTAL_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `sum(nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})`
@@ -1008,14 +1013,14 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_VM_FILESYSTEM_TOTAL_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
         promQl = `sum(avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename))`
         break;
       case 'OS_CLUSTER_VM_FILESYSTEM_USED_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `sum(avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename)) - sum(avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename))`
@@ -1023,7 +1028,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_VM_CPU_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         ranged = true;
@@ -1032,7 +1037,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_VM_MEMORY_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `(sum(nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) / sum(nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100`
@@ -1040,7 +1045,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_VM_FILESYSTEM_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `(sum(avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum(avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum(avg(nc:node_filesystem_avail_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum(avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum(avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))))`
@@ -1048,7 +1053,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_VM_NETWORK_RECEIVED':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         ranged = true;
@@ -1057,7 +1062,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_VM_NETWORK_TRANSMITTED':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         ranged = true;
