@@ -459,7 +459,7 @@ class MetricService extends ServiceExtension {
           sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
         )`;
         break;
-      case 'PV_SPACE_USAGE':
+      case 'PV_USAGE_USED':
         labelString += getSelectorLabels({
           clusterUuid,
           namespace: resourceNamespace,
@@ -469,6 +469,18 @@ class MetricService extends ServiceExtension {
 
         promQl = `(
           sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
+        )`;
+        break;
+      case 'PV_USAGE_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resourceNamespace,
+          persistentvolumeclaim: resourceName,
+        });
+        ranged = false;
+
+        promQl = `(
+          sum by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
         )`;
         break;
 
