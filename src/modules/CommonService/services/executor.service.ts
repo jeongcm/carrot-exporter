@@ -1000,7 +1000,7 @@ class executorService {
       'openstack interface for VMList',
       clusterUuid,
       '50000000000000000000000000000004',
-      [{args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}}}],
+      [{args: {credential_key: "openstack_token_0", query: {"all_tenants": "true"}}}],
       customerAccountKey,
       subscribedChannelResource,
     );
@@ -1929,7 +1929,7 @@ class executorService {
     case "VM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      steps.push({args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}}})
+      steps.push({args: {credential_key: "openstack_token_0", query: {"all_tenants": "true"}}})
       break
     default:
       scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;
