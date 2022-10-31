@@ -399,6 +399,44 @@ class AlertRuleController extends ControllerExtension {
       next(error);
     }
   };
+  public updateAlertEasyRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertEasyRule = req.body;
+      //const alertEasyRuleId = req.params.alertEasyRuleId;
+      const partyId = req.user.partyId;
+      const updateAlertEasyRule = await this.alertEasyRuleService.updateAlertEasyRule(alertEasyRule, partyId);
+      res.status(200).json({ data: updateAlertEasyRule, message: 'updated AlertTargetGroup' });
+    } catch (error) {
+      next(error);
+    }
+  };
+  public getAlertEasyRuleById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertEasyRuleId = req.params.alertEasyRuleId;
+      const getAlertEasyRule = await this.alertEasyRuleService.getAlertEasyRuleById(alertEasyRuleId);
+      res.status(200).json({ data: getAlertEasyRule, message: 'find AlertEasyRule' });
+    } catch (error) {
+      next(error);
+    }
+  };
+  public getAlertEasyRuleAll = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.user.customerAccountKey;
+      const getAlertEasyRules = await this.alertEasyRuleService.getAlertEasyRuleAll(customerAccountKey);
+      res.status(200).json({ data: getAlertEasyRules, message: 'find AlertEasyRules' });
+    } catch (error) {
+      next(error);
+    }
+  };
+  public deleteAlertTargetSubGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const alertTargetSubGroupId = req.params.alertTargetSubGroupId;
+      const getResponse = await this.alertEasyRuleService.deleteAlertTargetSubGroup(alertTargetSubGroupId);
+      res.status(200).json({ data: getResponse, message: 'delete AlertTargetSubGroup' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AlertRuleController;

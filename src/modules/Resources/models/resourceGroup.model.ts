@@ -45,9 +45,7 @@ export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreat
   public resourceGroupSudoryNamespace: string;
   public resourceGroupKpsLokiNamespace: string;
 
-
   public readonly createdAt!: Date;
-  
 }
 
 export default function (sequelize: Sequelize): typeof ResourceGroupModel {
@@ -136,6 +134,7 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
         type: DataTypes.STRING(100),
       },
     },
+
     {
       tableName: 'ResourceGroup',
       modelName: 'ResourceGroup',

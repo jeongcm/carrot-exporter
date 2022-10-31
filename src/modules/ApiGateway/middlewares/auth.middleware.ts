@@ -99,8 +99,7 @@ const authMiddleware = async (req, res: Response, next: NextFunction) => {
           } else next(new HttpException(401, 'Wrong authentication token III'));
         } else next(new HttpException(401, 'Wrong authentication token IV'));
       }
-    }
-    else next(new HttpException(401, 'No authentication token'));
+    } else next(new HttpException(401, 'No authentication token'));
   } catch (error) {
     console.log(error);
     next(new HttpException(401, 'Wrong authentication token'));
