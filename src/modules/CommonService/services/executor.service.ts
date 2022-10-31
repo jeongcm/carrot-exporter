@@ -983,7 +983,6 @@ class executorService {
     const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, uploadPMQuery)
     if (!resultPM) {console.log(resultPM)}
 
-
     const resultPJ = await this.postExecuteService(
       'openstack interface for PJList',
       'openstack interface for PJList',
@@ -1905,7 +1904,7 @@ class executorService {
     case "PM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      executorServerUrl = config.appUrl + ':' + config.appPort + '/metric/upload/PM'
+      executorServerUrl = config.appUrl + ':' + config.appPort + '/metric/upload/PM';
 
       let uploadPMQuery: any = {}
       let metricQuery: any[] = []
@@ -1920,17 +1919,17 @@ class executorService {
       }
 
       apiBody = uploadPMQuery
-      break
+      break;
     case "PJ":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
       steps.push({args: {credential_key: "openstack_token_0"}})
-      break
+      break;
     case "VM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
       steps.push({args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}}})
-      break
+      break;
     default:
       scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'K8S interface for ' + selectedTemplate.resourceName;
