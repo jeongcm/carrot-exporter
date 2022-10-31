@@ -774,7 +774,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_TOTAL_CPU_COUNT':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `count(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode='system', __LABEL_PLACE_HOLDER__})`
@@ -861,7 +861,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_NODE_UP_TIME':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
         promQl = `sum(time() - nc:node_boot_time_seconds{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`;
         break;
@@ -870,7 +870,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_CPU_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         ranged = true;
@@ -879,7 +879,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_MEMORY_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `(sum(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) / sum(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100`
@@ -887,7 +887,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_FILESYSTEM_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `(sum(avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum(avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum(avg(nc:node_filesystem_avail_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum(avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum(avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))))`
@@ -895,7 +895,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_NETWORK_RECEIVED':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         ranged = true;
@@ -904,7 +904,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_NETWORK_TRANSMITTED':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         ranged = true;
@@ -930,7 +930,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_VM_MEMORY_USED_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `sum(nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})`
@@ -996,7 +996,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_CPU_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `sort_desc(avg(1 - avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) by (nodename)) * 100)`
@@ -1004,7 +1004,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_MEMORY_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl =  `sort_desc((sum(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) / sum(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100)`
@@ -1012,7 +1012,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_DISK_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `sort_desc((sum(avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum(avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum(avg(nc:node_filesystem_avail_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum(avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum(avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename)))))`
@@ -1020,7 +1020,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_RXTX_TOTAL_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
