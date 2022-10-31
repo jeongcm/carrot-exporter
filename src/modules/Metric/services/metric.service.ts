@@ -852,7 +852,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_MEMORY_TOTAL_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `sum(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`
@@ -860,7 +860,7 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_MEMORY_USED_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `sum(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`
@@ -868,14 +868,14 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
         promQl = `sum(avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter",fstype=~"xfs|ext.*", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename))`
         break;
       case 'OS_CLUSTER_PM_FILESYSTEM_USED_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename,
+          nodename: resourceName,
         });
 
         promQl = `sum(avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter",fstype=~"xfs|ext.*", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename)) - sum(avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter",fstype=~"xfs|ext.*", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename))`
