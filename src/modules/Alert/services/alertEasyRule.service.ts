@@ -628,7 +628,7 @@ class AlertEasyRuleService {
   public async getAlertTargetGroupAll(): Promise<IAlertTargetGroup[]> {
     const findAlertTargetGroup: IAlertTargetGroup[] = await this.alertTargetGroup.findAll({
       where: { deletedAt: null },
-      include: [{ model: AlertTargetSubGroupModel, required: true, where: { deletedAt: null } }],
+      include: [{ model: AlertTargetSubGroupModel, required: false, where: { deletedAt: null } }],
     });
     return findAlertTargetGroup;
   }
