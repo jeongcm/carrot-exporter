@@ -1,16 +1,14 @@
 import ServiceExtension from '@/common/extentions/service.extension';
-import { isEmpty } from 'lodash';
+import {isEmpty} from 'lodash';
 import VictoriaMetricService from './victoriaMetric.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import MassUploaderService from '@/modules/CommonService/services/massUploader.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import { ICustomerAccount } from 'common/interfaces/customerAccount.interface';
-import { IResourceGroup } from 'common/interfaces/resourceGroup.interface';
-import { IResource } from 'common/interfaces/resource.interface';
+import {IResourceGroup} from 'common/interfaces/resourceGroup.interface';
+import {IResource} from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
 import P8sService from "@modules/Metric/services/p8sService";
-import {IRequestMassUploader} from "@common/interfaces/massUploader.interface";
 
 export interface IMetricQueryBodyQuery {
   name: string;
@@ -1142,7 +1140,7 @@ class MetricService extends ServiceExtension {
       let pmStatus: string = "UNKNOWN"
       if (statusResult["pm_status"].data.result.length !== 0) {
         const status = statusResult["pm_status"].data.result[0].values[0][1]
-        if (status) {
+        if (status == '1') {
           pmStatus = "ACTIVE"
         } else {
           pmStatus = "SHUT OFF"
@@ -1173,8 +1171,7 @@ class MetricService extends ServiceExtension {
       return "no update"
     }
 
-    const data = await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
-    return data
+    return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
   }
 
   private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
