@@ -1140,7 +1140,7 @@ class MetricService extends ServiceExtension {
       let pmStatus: string = "UNKNOWN"
       if (statusResult["pm_status"].data.result.length !== 0) {
         const status = statusResult["pm_status"].data.result[0].value[0][1]
-        if (status == '1') {
+        if (status === "1") {
           pmStatus = "ACTIVE"
         } else {
           pmStatus = "SHUT OFF"
