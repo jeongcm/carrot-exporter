@@ -1126,25 +1126,28 @@ class MetricService extends ServiceExtension {
     let length = result[metricName].data.result.length
 
     for (var i=0; i<length; i++) {
-      // // get pm status
-      // const statusQuery: any = {
-      //   query: [
-      //     {
-      //       "name": "pm_status",
-      //       "resourceGroupUuid": clusterUuid,
-      //       "type": "OS_CLUSTER_PM_NODE_STATUS",
-      //       "nodename": result[metricName].data.result[i].metric.nodename,
-      //     }
-      //   ]
-      // }
-      //
-      // const statusResult = await this.getMetricP8S(customerAccountKey, statusQuery)
-      // let pmStatus: number
-      // if (statusResult["pm_status"].data.result.length === 0) {
-      //   pmStatus = -2
-      // } else {
-      //   pmStatus = statusResult["pm_status"].data.result[0].values[0]
-      // }
+      // get pm status
+      const statusQuery: any = {
+        query: [
+          {
+            "name": "pm_status",
+            "resourceGroupUuid": clusterUuid,
+            "type": "OS_CLUSTER_PM_NODE_STATUS",
+            "nodename": result[metricName].data.result[i].metric.nodename,
+          }
+        ]
+      }
+
+      const statusResult = await this.getMetricP8S(customerAccountKey, statusQuery)
+      let pmStatus: string = "UNKNOWN"
+      if (statusResult["pm_status"].data.result.length !== 0) {
+        const status = statusResult["pm_status"].data.result[0].values[0][1]
+        if (status) {
+          pmStatus = "ACTIVE"
+        } else {
+          pmStatus = "SHUT OFF"
+        }
+      }
 
       uploadQuery['resource_Name'] = result[metricName].data.result[i].metric.nodename;
       uploadQuery['resource_Type'] = "PM";
@@ -1153,6 +1156,7 @@ class MetricService extends ServiceExtension {
       uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
       uploadQuery['resource_Target_Uuid'] = result[metricName].data.result[i].metric.nodename;
       uploadQuery['resource_Description'] = result[metricName].data.result[i].metric.version;
+      uploadQuery['resource_Status'] = pmStatus
       uploadQuery['resource_Target_Created_At'] = null
       uploadQuery['resource_Level1'] = "OS"; //Openstack
       uploadQuery['resource_Level2'] = "PM";
