@@ -368,7 +368,7 @@ class AlertEasyRuleService {
     const findAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.findOne({
       where: { alertEasyRuleId: alertEasyRuleId },
     });
-    console.log(findAlertEasyRule);
+
     if (!findAlertEasyRule) throw new HttpException(404, `No Easy Alert Rule`);
     const customerAccountKey = findAlertEasyRule.customerAccountKey;
     const existingAlertEasyRuleSeverity = findAlertEasyRule.alertEasyRuleSeverity;
