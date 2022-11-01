@@ -1169,12 +1169,12 @@ class MetricService extends ServiceExtension {
       mergedQuery = tempQuery;
     }
 
-    if (mergedQuery !== {}) {
-      const data = await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
-      return data
+    if (JSON.stringify(mergedQuery) === JSON.stringify({})) {
+      return "no update"
     }
 
-    return "no update"
+    const data = await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
+    return data
   }
 
   private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
