@@ -59,6 +59,7 @@ class RuleGroupService {
       include: [
         {
           model: ModelRuleScoreTable,
+          required: false,
           where: { deletedAt: null },
           attributes: ['bayesianModelKey'],
           include: [
