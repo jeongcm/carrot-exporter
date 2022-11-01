@@ -1133,7 +1133,7 @@ class MetricService extends ServiceExtension {
             "name": "pm_status",
             "resourceGroupUuid": clusterUuid,
             "type": "OS_CLUSTER_PM_NODE_STATUS",
-            "nodename": result[metricName].data.result[i].metric.nodename,
+            "nodename": result[metricName].data.result[i].metric.nodename
           }
         ]
       }
