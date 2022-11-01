@@ -62,7 +62,7 @@ class AnomalyMonitoringTargetService {
       catalogPlanProductKey: Number(process.env.CATALOGPLANPRODUCT_KEY) || 1,
       subscribedProductStatus: 'AC',
       subscribedProductFrom: new Date(),
-      subscribedProductTo: new Date('Fri, 31 Dec 9999 23:59:59'),
+      subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
       createdBy: systemId,
     };
     const subscribedProductDetail = await this.subscribedProduct.create(subscribedProductData);

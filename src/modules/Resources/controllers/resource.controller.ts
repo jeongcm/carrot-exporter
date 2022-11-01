@@ -100,21 +100,21 @@ class ResourceController {
     }
   };
 
-    /**
+  /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-     public countPodResources = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-      try {
-        const { customerAccountKey } = req;
-        const resourceCount: any[] = await this.topologyService.countPodResources(customerAccountKey);
-  
-        res.status(200).json({ data: resourceCount, message: 'findAll' });
-      } catch (error) {
-        next(error);
-      }
-    };
+  public countPodResources = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const { customerAccountKey } = req;
+      const resourceCount: any[] = await this.topologyService.countPodResources(customerAccountKey);
+
+      res.status(200).json({ data: resourceCount, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
 
   /**
    * @param  {IRequestWithUser} req
@@ -159,12 +159,35 @@ class ResourceController {
 
     try {
       const resource: IResource = await this.resourceService.getResourceById(resourceId);
+      console.log('resource', resource);
       const resourceGroup: IResourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, resource.resourceGroupKey);
+      console.log('resourceGroup', resourceGroup);
       res.status(200).json({
         data: {
           resourceGroupId: resourceGroup.resourceGroupId,
           ...resource,
         },
+        message: `find resource id(${resourceId}) `,
+      });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public getAllStatusResourceById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceId = req.params.resourceId;
+    const customerAccountKey = req.customerAccountKey;
+
+    try {
+      const resource: IResource = await this.resourceService.getAllStatusResourceById(resourceId);
+      res.status(200).json({
+        data: resource,
+
         message: `find resource id(${resourceId}) `,
       });
     } catch (error) {

@@ -132,6 +132,22 @@ class ResourceService {
   /**
    * @param  {string} resourceId
    */
+  public async getAllStatusResourceById(resourceId: string): Promise<IResource> {
+    const resource: IResource = await this.resource.findOne({
+      where: { resourceId },
+      include: [
+        {
+          model: ResourceGroupModel,
+          required: true,
+        },
+      ],
+    });
+    return resource;
+  }
+
+  /**
+   * @param  {string} resourceId
+   */
   public async getResourceKeyById(resourceId: string): Promise<number> {
     const resource: IResource = await this.resource.findOne({
       where: { resourceId },

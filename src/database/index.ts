@@ -98,7 +98,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
 
   logging: (query, time) => {
     // TODO: find a better way to leave a log
-    //logger.info(time + 'ms' + ' ' + query);
+    logger.info(time + 'ms' + ' ' + query);
   },
 
   //logging: console.log,

@@ -149,6 +149,7 @@ class BayesianModelServices {
       include: [
         {
           model: ModelRuleScoreTable,
+          required: false,
           where: { deletedAt: null },
           attributes: ['bayesianModelKey'],
           include: [
@@ -171,7 +172,7 @@ class BayesianModelServices {
         },
         {
           model: AnomalyMonitoringTargetTable,
-
+          required: false,
           include: [{ model: ResourceModel, where: { deletedAt: null }, include: [{ model: ResourceGroupModel }] }],
         },
       ],

@@ -142,7 +142,7 @@ class ResolutionActionService {
       console.log('allResolutionAction', allResolutionAction);
       return allResolutionAction;
     } catch (error) {
-      console.log("error============", error);
+      console.log('error============', error);
       return [];
     }
   }
