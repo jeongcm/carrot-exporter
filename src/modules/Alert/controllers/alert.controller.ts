@@ -437,6 +437,14 @@ class AlertRuleController extends ControllerExtension {
       next(error);
     }
   };
+  public getAlertTargetGroupAll = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const getAlertTargetGroupAll = await this.alertEasyRuleService.getAlertTargetGroupAll();
+      res.status(200).json({ data: getAlertTargetGroupAll, message: 'find AlertTargetGroupAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AlertRuleController;
