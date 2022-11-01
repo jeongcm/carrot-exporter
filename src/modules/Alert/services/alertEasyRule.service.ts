@@ -104,7 +104,7 @@ class AlertEasyRuleService {
 
     // step 1.4 if there is an alertEasyRule - same name with alertTargetSubGroup in the table , return exception
     const findAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.findOne({
-      where: { alertEasyRuleName: alertEasyRuleName, alertEasyRuleSeverity: alertEasyRuleSeverity },
+      where: { alertEasyRuleName: alertEasyRuleName, alertEasyRuleSeverity: alertEasyRuleSeverity, customerAccountKey: customerAccountKey },
     });
     if (findAlertEasyRule) throw new HttpException(403, `Duplicatd Easy ALert Rule Name`);
 
