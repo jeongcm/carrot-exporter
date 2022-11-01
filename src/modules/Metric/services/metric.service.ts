@@ -1143,7 +1143,7 @@ class MetricService extends ServiceExtension {
         if (status === "1") {
           pmStatus = "ACTIVE"
         } else {
-          pmStatus = "SHUT OFF"
+          pmStatus = "SHUTOFF"
         }
       }
 
