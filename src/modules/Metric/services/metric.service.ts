@@ -1139,7 +1139,7 @@ class MetricService extends ServiceExtension {
       const statusResult = await this.getMetricP8S(customerAccountKey, statusQuery)
       let pmStatus: string = "UNKNOWN"
       if (statusResult["pm_status"].data.result.length !== 0) {
-        const status = statusResult["pm_status"].data.result[0].value[0][1]
+        const status = statusResult["pm_status"].data.result[0].value[1]
         if (status === "1") {
           pmStatus = "ACTIVE"
         } else {
