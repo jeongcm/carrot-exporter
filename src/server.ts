@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import './dotenvConfig';
 import App from './app';
 import IndexRoute from '@/modules/ApiGateway/routes/index.route';
 import AccessGroupRoute from '@/modules/Party/routes/accessgroup.route';
