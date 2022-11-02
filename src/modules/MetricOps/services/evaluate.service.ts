@@ -476,7 +476,7 @@ class EvaluateServices {
         for (let i = 0; evaluationRequest.ruleGroup.length; i++) {
           console.log('STEP7');
           const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(evaluationRequest.ruleGroup[i].ruleGroupId);
-          console.log('resolutionActions length======>', resolutionActions.length);
+
           resolutionActions.length &&
             resolutionActions.map(async (resolutionAction: any) => {
               //7. postExecuteService to sudory server

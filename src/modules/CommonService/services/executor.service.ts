@@ -2227,8 +2227,7 @@ class executorService {
     const uuid = require('uuid');
     const sudoryWebhookId = uuid.v1();
     let serviceResult;
-    console.log('DatafromSudory', DataSetFromSudory);
-    console.log(JSON.stringify(DataSetFromSudory.result));
+    //step 1. process sudory fed data
     if (DataSetFromSudory.result === null) {
       serviceResult = [];
     } else {
@@ -2245,10 +2244,7 @@ class executorService {
         serviceResult = JSON.parse(JSON.stringify(DataSetFromSudory.result));
       }
     }
-
-    console.log('##sudorywebhook##');
-    console.log(serviceResult);
-
+    //step 2. insert data into SudoryWebhook table
     const insertData = {
       sudoryWebhookId: sudoryWebhookId,
       createdAt: new Date(),
@@ -2265,9 +2261,9 @@ class executorService {
       //assignedClientUuid: DataSetFromSudory.assgined_client_uuid,
       templateUuid: DataSetFromSudory.template_uuid,
     };
-    console.log(insertData);
     const resultSudoryWebhook = await this.sudoryWebhook.create(insertData);
 
+    //step3. update record of ExecutorService to provide the progress of sudory work
     const data = {
       updatedAt: new Date(),
       updatedBy: 'SYSTEM',
@@ -2276,21 +2272,31 @@ class executorService {
     };
     const query = { where: { serviceUuid: DataSetFromSudory.service_uuid } };
     const resultExecutorService = await this.executorService.update(data, query);
+
+    //step4. if the sudory response is for MetricOps, attach the responses back to IncidentActionAttachment
+    //naming standard: METRICOPS-Get Pod's CPU metrics/:CUST-2/:INC-IN30200700000047
+    //starting with METRICOPS
+    //
     if (resultSudoryWebhook.status === 4 && resultSudoryWebhook.serviceName.startsWith('METRICOPS')) {
       //incident ID fetch
       let incidentId, customerAccountKey;
       const incidentString = resultSudoryWebhook.serviceName.indexOf('INC');
       if (incidentString) {
         const b = resultSudoryWebhook.serviceName.slice(incidentString);
-        const c = b.indexOf('/');
-        incidentId = b.slice(0, c);
+        const c = b.indexOf('-');
+        incidentId = b.slice(c + 1);
       }
+      console.log('MetricOps - incident no:', incidentId);
+
       const customerAccountString = resultSudoryWebhook.serviceName.indexOf('CUST');
       if (customerAccountString) {
         const b = resultSudoryWebhook.serviceName.slice(customerAccountString);
-        const c = b.indexOf('/');
-        customerAccountKey = b.slice(0, c);
+        const c = b.indexOf('-');
+        const d = b.indexOf('/');
+        customerAccountKey = b.slice(c + 1, d);
       }
+      console.log('MetricOps - customerAccountKey:', customerAccountKey);
+
       //incidentActionPayload
       const actionData = {
         incidentActionName: resultSudoryWebhook.serviceName,
