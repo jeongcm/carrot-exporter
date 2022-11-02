@@ -110,36 +110,34 @@ class ResolutionActionService {
     return await this.findResolutionActionById(resolutionActionId);
   }
 
-  public async getResolutionActionByRuleGroupId(ruleGroupId: string) {
+  public async getResolutionActionByRuleGroupId(ruleGroupId: string): Promise<IResolutionAction[]> {
     try {
       const ruleGroupDetail: any = await this.ruleGroup.findOne({ where: { ruleGroupId } });
       const ruleGroupResolutionAction = await this.ruleGroupResolutionAction.findAll({
-        where: { deletedAt: { [Op.eq]: null }, ruleGroupKey: ruleGroupDetail.ruleGroupKey },
+        where: { deletedAt: null, ruleGroupKey: ruleGroupDetail.ruleGroupKey },
         attributes: ['resolutionActionKey'],
       });
-      console.log('ruleGroupResolutionAction====', ruleGroupResolutionAction);
       let resolutionActionKeys: any[];
       if (ruleGroupResolutionAction) {
         resolutionActionKeys = _.map(ruleGroupResolutionAction, 'resolutionActionKey');
       }
-      console.log('resolutionActionKeys============', resolutionActionKeys);
-      let whereCondition = {};
-      if (resolutionActionKeys.length) {
-        whereCondition = {
+
+      const whereCondition = {
+        where: {
           deletedAt: null,
-          resolutionActionKey: { [Op.notIn]: resolutionActionKeys },
-        };
-      } else {
-        whereCondition = {
-          deletedAt: null,
-        };
-      }
-      console.log('whreCondition=========', JSON.stringify(whereCondition));
-      const allResolutionAction: IResolutionAction[] = await this.resolutionAction.findAll({
-        where: { deletedAt: null },
-        include: [{ model: SudoryTemplateModel, as: 'sudoryTemplate' }],
-      });
-      console.log('allResolutionAction', allResolutionAction);
+          resolutionActionKey: {
+            [Op.in]: resolutionActionKeys,
+          },
+        },
+        include: [
+          {
+            model: SudoryTemplateModel,
+            as: 'sudoryTemplate',
+          },
+        ],
+      };
+
+      const allResolutionAction: IResolutionAction[] = await this.resolutionAction.findAll(whereCondition);
       return allResolutionAction;
     } catch (error) {
       console.log('error============', error);

@@ -81,6 +81,7 @@ data:
   NC_BN_URL: "http://nexclipper-bn.nc.svc.cluster.local:3000"
   NC_BN_NODE_BASE: "/predict_incident/"
   NC_BN_NODE_THRESHOLD: "0.7"
+  NC_BN_POD_THRESHOLD: "0.7"
   NC_BN_REFRESH_MODEL_PATH: "/refresh_model/"
   NC_TURN_OFF_TELEMETRY: "true"
   NC_LARI_DEFAULT_PASSWORD: "WOt7u7OGxr"

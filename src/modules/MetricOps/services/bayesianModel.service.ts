@@ -317,7 +317,7 @@ class BayesianModelServices {
     const removedTargetData = {};
     for (let i = 0; i < findTarget.length; i++) {
       const targetId = findTarget[i].anomalyMonitoringTargetId;
-      const removeTarget = await this.anomalyMonitoringTargetService.removeMonitoringTarget(targetId, partyId);
+      const removeTarget = await this.anomalyMonitoringTargetService.deleteMonitoringTarget(targetId, partyId);
       if (!removeTarget) throw new HttpException(505, 'Fail to remove monitoring target');
       removedTargetData[i] = { removeTarget };
     }

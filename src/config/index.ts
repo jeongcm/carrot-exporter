@@ -180,6 +180,7 @@ export default {
     ncBnUrl: process.env.NC_BN_URL,
     ncBnNodePath: process.env.NC_BN_NODE_PATH,
     ncBnNodeThreshold: process.env.NC_BN_NODE_THRESHOLD,
+    ncBnPodThreshold: process.env.NC_BN_POD_THRESHOLD,
     ncBnRefreshModelPath: process.env.NC_BN_REFRESH_MODEL_PATH,
   },
   oT: {

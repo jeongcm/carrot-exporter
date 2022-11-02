@@ -61,8 +61,7 @@ class IncidentService {
     const incidentKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentTable);
     const incidentActionTable = 'IncidentAction';
     const incidentActionKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentActionTable);
-    console.log(incidentKey);
-    console.log(incidentActionKey);
+
     let assigneeKey = null;
     try {
       return await DB.sequelize.transaction(async t => {

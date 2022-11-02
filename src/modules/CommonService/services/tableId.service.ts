@@ -19,28 +19,25 @@ class TableIdService {
    * @returns IResponseIssueTableIdDto
    * @author Jerry Lee jerry.lee@nexclipper.io
    */
-  public async issueTableId(tableIdTableName: string ): Promise<IResponseIssueTableIdDto> {
-
+  public async issueTableId(tableIdTableName: string): Promise<IResponseIssueTableIdDto> {
     if (isEmpty(tableIdTableName)) throw new HttpException(400, 'TableName Data cannot be blank');
 
     const getTableId: tableId = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
     if (!getTableId) throw new HttpException(409, "Can't find a matched tableId record");
 
     const currentDate = new Date();
-    console.log ("#######");
     const currentDay = currentDate.getUTCDate() + getTableId.tableDay;
 
     let currentDayText = currentDay.toString();
-    console.log ("currentDayText", currentDayText);
     if (currentDayText.length == 1) {
-      currentDayText = "0"+ currentDayText;
+      currentDayText = '0' + currentDayText;
     }
 
     const currentMonth = currentDate.getUTCMonth() + 1 + getTableId.tableMonth;
 
     let currentMonthText = currentMonth.toString();
     if (currentMonthText.length == 1) {
-      currentMonthText = "0"+ currentMonthText;
+      currentMonthText = '0' + currentMonthText;
     }
 
     const currentFullYear = currentDate.getUTCFullYear() + getTableId.tableYear;
@@ -59,12 +56,15 @@ class TableIdService {
 
     const internalAccountParty: IParty = await DB.Party.findOne({ where: { partyName: process.env.NC_LARI_SYSTEM_PARTY_NAME } });
 
-    let systemPartyId = "SYSTEM";
+    let systemPartyId = 'SYSTEM';
     if (internalAccountParty) systemPartyId = internalAccountParty.partyId;
 
-    const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: systemPartyId };
-
-
+    const updateDataSet = {
+      tableIdFinalIssued: idFinalIssued,
+      tableIdIssuedSequence: idIssuedSequence,
+      updatedAt: new Date(),
+      updatedBy: systemPartyId,
+    };
 
     await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
 
@@ -79,8 +79,7 @@ class TableIdService {
    * @returns IResponseIssueTableIdDtoBulk
    * @author Jerry Lee jerry.lee@nexclipper.io
    */
-   public async issueTableIdBulk(tableIdTableName: string, tableIdRange: number): Promise<IResponseIssueTableIdBulkDto> {
-
+  public async issueTableIdBulk(tableIdTableName: string, tableIdRange: number): Promise<IResponseIssueTableIdBulkDto> {
     //console.log(`tableIdRange:::${tableIdRange}`);
     const maxMillis = config.deadLock.maxMillis || 100;
     const minMillis = config.deadLock.minMillis || 1;
@@ -98,14 +97,14 @@ class TableIdService {
 
     let currentDayText = currentDay.toString();
     if (currentDayText.length == 1) {
-      currentDayText = "0"+ currentDayText;
+      currentDayText = '0' + currentDayText;
     }
 
     const currentMonth = currentDate.getMonth() + 1 + getTableId.tableMonth;
 
     let currentMonthText = currentMonth.toString();
     if (currentMonthText.length == 1) {
-      currentMonthText = "0"+ currentMonthText;
+      currentMonthText = '0' + currentMonthText;
     }
 
     const currentFullYear = currentDate.getFullYear() + getTableId.tableYear;
@@ -122,25 +121,33 @@ class TableIdService {
     const idFinalIssued = getTableId.tableIdHeader + currentYear + currentMonthText + currentDayText + currentSequenceText;
     const idIssuedSequence = currentSequence;
 
-    const updateDataSet = { tableIdFinalIssued: idFinalIssued, tableIdIssuedSequence: idIssuedSequence, updatedAt: new Date(), updatedBy: internalAccountParty.partyId};
+    const updateDataSet = {
+      tableIdFinalIssued: idFinalIssued,
+      tableIdIssuedSequence: idIssuedSequence,
+      updatedAt: new Date(),
+      updatedBy: internalAccountParty.partyId,
+    };
 
     try {
       await this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
     } catch (err) {
-      if (err && (err.code == "ER_LOCK_WAIT_TIMEOUT" || err.code == "ER_LOCK_TIMEOUT" || err.code == "ER_LOCK_DEADLOCK")) {
-        var sleepMillis = Math.floor((Math.random()*maxMillis)+minMillis);
-        setTimeout(function() {
+      if (err && (err.code == 'ER_LOCK_WAIT_TIMEOUT' || err.code == 'ER_LOCK_TIMEOUT' || err.code == 'ER_LOCK_DEADLOCK')) {
+        const sleepMillis = Math.floor(Math.random() * maxMillis + minMillis);
+        setTimeout(function () {
           this.tableId.update({ ...updateDataSet }, { where: { tableIdTableName: getTableId.tableIdTableName } });
-        },sleepMillis);
+        }, sleepMillis);
       } // end of second if
     } // end of catch
 
     const updateDBResult: IResponseIssueTableIdDto = await this.tableId.findOne({ where: { tableIdTableName: tableIdTableName } });
-    const updateResult: IResponseIssueTableIdBulkDto = {tableIdTableName:updateDBResult.tableIdTableName, tableIdFinalIssued:updateDBResult.tableIdFinalIssued, tableIdRange, tableIdSequenceDigit:updateDBResult.tableIdSequenceDigit};
+    const updateResult: IResponseIssueTableIdBulkDto = {
+      tableIdTableName: updateDBResult.tableIdTableName,
+      tableIdFinalIssued: updateDBResult.tableIdFinalIssued,
+      tableIdRange,
+      tableIdSequenceDigit: updateDBResult.tableIdSequenceDigit,
+    };
     return updateResult;
   }
-
-
 
   /**
    * getTableId information using TableName
