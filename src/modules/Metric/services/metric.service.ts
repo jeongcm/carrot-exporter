@@ -162,29 +162,17 @@ class MetricService extends ServiceExtension {
     const metricTypes: string[] = ["OS_CLUSTER_PM_TOTAL_CPU_COUNT", "OS_CLUSTER_PM_MEMORY_TOTAL_BYTES", "OS_CLUSTER_PM_MEMORY_USED_BYTES",
     "OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES", "OS_CLUSTER_PM_FILESYSTEM_USED_BYTES", "OS_CLUSTER_PM_NODE_UP_TIME", "OS_CLUSTER_PM_NODE_STATUS",
     "OS_CLUSTER_PM_CPU_USAGE", "OS_CLUSTER_PM_MEMORY_USAGE", "OS_CLUSTER_PM_FILESYSTEM_USAGE"]
-    const metrics = metricTypes.map(type => {
-      return Promise.resolve().then(async result => {
-        queryBody.query[0].type = type
-        const data = await this.getMetricP8S(customerAccountKey, queryBody);
-        const obj = {}
-        obj[type]= data
-        return obj
-      })
-    })
+    await Promise.all(metricTypes.map(async (metricType: string) => {
+      queryBody.query[0].type = metricType
+      resultList[metricType] = await this.getMetricP8S(customerAccountKey, queryBody)
+    }))
 
-
-    Promise.all(metrics).then(result => {
-      metricTypes.forEach(type => {
-        resultList[type] = result[type]
-      })
-    })
-
-    console.log(resultList)
 
     return resultList
   }
 
   public async getMetricP8S(customerAccountKey: number, queryBody: IMetricQueryBody) {
+    console.log(queryBody)
     const results: any = {};
 
     if (isEmpty(queryBody?.query)) {
