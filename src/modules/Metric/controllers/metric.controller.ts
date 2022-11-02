@@ -40,7 +40,7 @@ class MetricController {
       const customerAccountKey = req.customerAccountKey;
       const queryBody = req.body;
 
-      switch (queryBody.query.type) {
+      switch (queryBody.query[0].type) {
         case "VM_METRICS":
           findMetricData = await this.metricService.getMetricP8SVM(customerAccountKey, queryBody);
           break;
