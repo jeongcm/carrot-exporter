@@ -153,7 +153,7 @@ class MetricService extends ServiceExtension {
   }
 
   public async getMetricP8SVM(customerAccountKey: number, queryBody: IMetricQueryBody) {
-
+    return queryBody
   }
 
   public async getMetricP8SPM(customerAccountKey: number, queryBody: IMetricQueryBody) {
@@ -162,10 +162,10 @@ class MetricService extends ServiceExtension {
     const metricTypes: string[] = ["OS_CLUSTER_PM_TOTAL_CPU_COUNT", "OS_CLUSTER_PM_MEMORY_TOTAL_BYTES", "OS_CLUSTER_PM_MEMORY_USED_BYTES",
     "OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES", "OS_CLUSTER_PM_FILESYSTEM_USED_BYTES", "OS_CLUSTER_PM_NODE_UP_TIME", "OS_CLUSTER_PM_NODE_STATUS",
     "OS_CLUSTER_PM_CPU_USAGE", "OS_CLUSTER_PM_MEMORY_USAGE", "OS_CLUSTER_PM_FILESYSTEM_USAGE"]
+
     const promises = metricTypes.map(async metricType => {
       queryBody.query[0].type = metricType
-      const result = await this.getMetricP8S(customerAccountKey, queryBody).then(() => result)
-      return result
+      return await this.getMetricP8SVM(customerAccountKey, queryBody)
     })
 
     const results = await Promise.all(promises)
