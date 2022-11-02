@@ -165,9 +165,7 @@ class MetricService extends ServiceExtension {
     await Promise.all(metricTypes.map(async type => {
       const result: any = {};
       queryBody.query[0].type = type
-      const data = await this.getMetricP8S(customerAccountKey, queryBody)
-      result[type] = data[name].data.result
-      resultList.push(result)
+      resultList.push({type: type, data: await this.getMetricP8S(customerAccountKey, queryBody)})
     }))
 
     return resultList
