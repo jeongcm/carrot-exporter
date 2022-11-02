@@ -35,9 +35,22 @@ class MetricController {
 
   public getMetricP8S = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
+      let findMetricData: any = {};
+
       const customerAccountKey = req.customerAccountKey;
       const queryBody = req.body;
-      const findMetricData = await this.metricService.getMetricP8S(customerAccountKey, queryBody);
+
+      switch (queryBody.query.type) {
+        case "VM_METRICS":
+          findMetricData = await this.metricService.getMetricP8SVM(customerAccountKey, queryBody);
+          break;
+        case "PM_METRICS":
+          findMetricData = await this.metricService.getMetricP8SPM(customerAccountKey, queryBody);
+          break;
+        default:
+          findMetricData = await this.metricService.getMetricP8S(customerAccountKey, queryBody);
+      }
+
       res.status(200).json({ data: findMetricData, message: 'findAll' });
     } catch (error) {
       next(error);
