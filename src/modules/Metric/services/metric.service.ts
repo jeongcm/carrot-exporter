@@ -173,7 +173,7 @@ class MetricService extends ServiceExtension {
 
     Promise.all(result).then(result => {
       metricTypes.forEach(type => {
-        resultList[type] = resultList[type]
+        resultList[type] = result[type]
       })
     })
 
