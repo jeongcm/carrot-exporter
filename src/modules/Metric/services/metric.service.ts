@@ -162,16 +162,17 @@ class MetricService extends ServiceExtension {
     const metricTypes: string[] = ["OS_CLUSTER_PM_TOTAL_CPU_COUNT", "OS_CLUSTER_PM_MEMORY_TOTAL_BYTES", "OS_CLUSTER_PM_MEMORY_USED_BYTES",
     "OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES", "OS_CLUSTER_PM_FILESYSTEM_USED_BYTES", "OS_CLUSTER_PM_NODE_UP_TIME", "OS_CLUSTER_PM_NODE_STATUS",
     "OS_CLUSTER_PM_CPU_USAGE", "OS_CLUSTER_PM_MEMORY_USAGE", "OS_CLUSTER_PM_FILESYSTEM_USAGE"]
-    const result = metricTypes.map(type => {
+    const metrics = metricTypes.map(type => {
       return Promise.resolve().then(async result => {
         const data = await this.getMetricP8S(customerAccountKey, queryBody);
-        const obj = {type: type, data: data};
+        const obj = {}
+        obj[type]= data
         return obj
       })
     })
 
 
-    Promise.all(result).then(result => {
+    Promise.all(metrics).then(result => {
       metricTypes.forEach(type => {
         resultList[type] = result[type]
       })
