@@ -165,8 +165,8 @@ class MetricService extends ServiceExtension {
 
     metricTypes.map(async type => {
       queryBody.query[0].type = type
+      console.log("querybody:", queryBody)
       const data = await this.getMetricP8S(customerAccountKey, queryBody)
-      console.log(data)
       result[type] = data[name].data.result
     })
 
