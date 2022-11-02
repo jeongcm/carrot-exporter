@@ -1,8 +1,8 @@
 variables:
   APP_IMAGE_NAME: "nexclipper-api"
 
-  APP_VERSION_DEV: "0.9.27"
-  APP_VERSION_STG: "0.9.27"
+  APP_VERSION_DEV: "0.9.28"
+  APP_VERSION_STG: "0.9.28"
 
 default:
   tags:
