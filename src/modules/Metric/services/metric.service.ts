@@ -269,6 +269,7 @@ class MetricService extends ServiceExtension {
     const { type, promql: customPromQl, start, end, step, nodename } = query;
     const clusterUuid = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupUuid);
     const resourceName = resources?.map((resource: IResource) => resource.resourceName);
+    const resourceSpec = resources?.map((resource: IResource) => resource.resourceSpec);
     const resourceNamespace = resources?.map((resource: IResource) =>
       resource?.resourceType === 'NS' ? resource.resourceName : resource.resourceNamespace,
     );
@@ -1069,7 +1070,6 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_CPU_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename: resourceName,
         });
 
         promQl = `sort_desc(avg(1 - avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) by (nodename)) * 100)`
@@ -1077,7 +1077,6 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_MEMORY_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename: resourceName,
         });
 
         promQl =  `sort_desc((sum(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) / sum(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100)`
@@ -1085,7 +1084,6 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_DISK_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename: resourceName,
         });
 
         promQl = `sort_desc((sum(avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum(avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum(avg(nc:node_filesystem_avail_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum(avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum(avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename)))))`
@@ -1093,7 +1091,6 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_PM_RXTX_TOTAL_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
-          nodename: resourceName,
         });
 
         promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
