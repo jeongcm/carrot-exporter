@@ -158,6 +158,7 @@ class MetricService extends ServiceExtension {
 
   public async getMetricP8SPM(customerAccountKey: number, queryBody: IMetricQueryBody) {
     const result: any = {};
+    const name = queryBody.query[0].name
     const metricTypes: string[] = ["OS_CLUSTER_PM_TOTAL_CPU_COUNT", "OS_CLUSTER_PM_MEMORY_TOTAL_BYTES", "OS_CLUSTER_PM_MEMORY_USED_BYTES",
     "OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES", "OS_CLUSTER_PM_FILESYSTEM_USED_BYTES", "OS_CLUSTER_PM_NODE_UP_TIME", "OS_CLUSTER_PM_NODE_STATUS",
     "OS_CLUSTER_PM_CPU_USAGE", "OS_CLUSTER_PM_MEMORY_USAGE", "OS_CLUSTER_PM_FILESYSTEM_USAGE"]
@@ -165,7 +166,8 @@ class MetricService extends ServiceExtension {
     metricTypes.map(async type => {
       queryBody.query[0].type = type
       const data = await this.getMetricP8S(customerAccountKey, queryBody)
-      result[type] = data[queryBody.query[0].name].data.result
+      console.log(data)
+      result[type] = data[name].data.result
     })
 
     return result
