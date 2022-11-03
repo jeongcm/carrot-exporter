@@ -20,17 +20,11 @@ import { incidentSeverity, incidentStatus } from '@/common/types/index';
 import { IEvaluation } from '@/common/interfaces/evaluate.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
-import { BayesianModelTable } from '../models/bayesianModel.model';
-import { AnomalyMonitoringTargetTable } from '../models/monitoringTarget.model';
-import { logger } from '@/common/utils/logger';
 
-import { IResolutionAction } from '@/common/interfaces/resolutionAction.interface';
 import executorService from '@/modules/CommonService/services/executor.service';
+
+import { AnomalyMonitoringTargetTable } from '../models/monitoringTarget.model';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import { IPartyUser } from '@/common/interfaces/party.interface';
-import { DiagConsoleLogger } from '@opentelemetry/api';
-import { arrayBuffer } from 'stream/consumers';
-import LogController from '@/modules/Log/controllers/log.controller';
 
 const { Op } = require('sequelize');
 
@@ -312,6 +306,7 @@ class EvaluateServices {
         const updateErrorWhere = {
           where: { evaluationId: evaluationId },
         };
+        console.log(error);
         const resultEvaluationResult = this.evaluation.update(updateError, updateErrorWhere);
         throw new HttpException(500, `Unknown error to fetch the result of evaluation from nexclipper-bn: ${evaluationId}`);
       });
@@ -418,7 +413,7 @@ class EvaluateServices {
           include: [
             {
               model: ResourceGroupModel,
-              as: 'resourceGroup',
+              as: 'ResourceGroup',
               attributes: ['resourceGroupPrometheus', 'resourceGroupUuid'],
             },
           ],
@@ -426,10 +421,10 @@ class EvaluateServices {
         const resourceNamespace = getResource.resourceNamespace;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        const prometheusUrl = getResource.dataValues.resourceGroup.dataValues.resourceGroupPrometheus;
+        const prometheusUrl = getResource.dataValues.ResourceGroup.dataValues.resourceGroupPrometheus;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        const clusterUuid = getResource.dataValues.resourceGroup.dataValues.resourceGroupUuid;
+        const clusterUuid = getResource.dataValues.ResourceGroup.dataValues.resourceGroupUuid;
         console.log('prometheusUrl', prometheusUrl);
         console.log('clusterUuid', clusterUuid);
         //4.2. if any anomaly, create incident ticket

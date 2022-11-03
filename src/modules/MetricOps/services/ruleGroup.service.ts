@@ -108,7 +108,6 @@ class RuleGroupService {
 
     const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
       where: { ruleGroupId, deletedAt: null },
-      attributes: { exclude: ['deletedAt', 'updatedBy', 'createdBy'] },
     });
     if (!findRuleGroup) throw new HttpException(409, 'Rule Group Not found');
 

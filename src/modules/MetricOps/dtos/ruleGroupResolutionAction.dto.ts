@@ -8,14 +8,12 @@ export class RuleGroupResolutionActionDto {
   @IsArray()
   @IsNotEmpty()
   public resolutionActionIds: Array<{}>;
-
 }
 
 export class UnRegisterResolutionActionDto {
   @IsString()
   @IsNotEmpty()
   public ruleGroupId: string;
-
 
   @IsArray()
   @IsNotEmpty()
