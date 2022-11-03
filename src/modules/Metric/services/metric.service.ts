@@ -172,7 +172,7 @@ class MetricService extends ServiceExtension {
       ).then(async res => list.push(res))
 
       console.log("list:", list)
-
+      return list
     } catch (e) {
       return this.throwError('EXCEPTION', e);
     }
