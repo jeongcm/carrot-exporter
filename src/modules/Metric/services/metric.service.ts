@@ -1056,7 +1056,7 @@ class MetricService extends ServiceExtension {
           nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"]),
         });
 
-        promQl = `sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})`
+        promQl = `sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})`
         break;
 
       case 'OS_CLUSTER_VM_FILESYSTEM_TOTAL_BYTES':
@@ -1073,7 +1073,7 @@ class MetricService extends ServiceExtension {
           nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
         });
 
-        promQl = `sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename)) - sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename))`
+        promQl = `sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename)) - sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter|collector-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename))`
         break;
 
       case 'OS_CLUSTER_VM_CPU_USAGE':
@@ -1092,7 +1092,7 @@ class MetricService extends ServiceExtension {
           nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"]),
         });
 
-        promQl = `(sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) / sum(nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100`
+        promQl = `(sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100`
         break;
       case 'OS_CLUSTER_VM_FILESYSTEM_USAGE':
         labelString += getSelectorLabels({
@@ -1100,7 +1100,7 @@ class MetricService extends ServiceExtension {
           nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"]),
         });
 
-        promQl = `(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum by (nodename) (avg(nc:node_filesystem_avail_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))))`
+        promQl = `(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum by (nodename) (avg(nc:node_filesystem_avail_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))))`
         break;
 
       case 'OS_CLUSTER_VM_NETWORK_RECEIVED':
