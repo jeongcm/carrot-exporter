@@ -1,17 +1,19 @@
 import ServiceExtension from '@/common/extentions/service.extension';
-import { isEmpty } from 'lodash';
+import {isEmpty} from 'lodash';
 import VictoriaMetricService from './victoriaMetric.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+import MassUploaderService from '@/modules/CommonService/services/massUploader.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import { ICustomerAccount } from 'common/interfaces/customerAccount.interface';
-import { IResourceGroup } from 'common/interfaces/resourceGroup.interface';
-import { IResource } from 'common/interfaces/resource.interface';
+import {IResourceGroup} from 'common/interfaces/resourceGroup.interface';
+import {IResource} from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
+import P8sService from "@modules/Metric/services/p8sService";
 
 export interface IMetricQueryBodyQuery {
   name: string;
   type: string;
+  nodename: string;
   resourceId: string | string[];
   start?: string;
   end?: string;
@@ -27,9 +29,11 @@ export interface IMetricQueryBody {
 
 class MetricService extends ServiceExtension {
   private victoriaMetricService = new VictoriaMetricService();
+  private p8sService = new P8sService();
   private resourceService = new ResourceService();
   private resourceGroupService = new ResourceGroupService();
   private customerAccountService = new CustomerAccountService();
+  private massUploaderService = new MassUploaderService();
 
   constructor() {
     super({});
@@ -148,8 +152,151 @@ class MetricService extends ServiceExtension {
     return resultInOrder;
   }
 
+  public async getMetricP8SVM(customerAccountKey: number, queryBody: IMetricQueryBody) {
+
+  }
+
+  public async getMetricP8SPM(customerAccountKey: number, queryBody: IMetricQueryBody) {
+    const { name, start, end, step, resourceGroupUuid } = queryBody.query[0];
+    const metricTypes: string[] = ["OS_CLUSTER_PM_TOTAL_CPU_COUNT", "OS_CLUSTER_PM_MEMORY_TOTAL_BYTES", "OS_CLUSTER_PM_MEMORY_USED_BYTES",
+    "OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES", "OS_CLUSTER_PM_FILESYSTEM_USED_BYTES", "OS_CLUSTER_PM_NODE_UP_TIME", "OS_CLUSTER_PM_NODE_STATUS",
+    "OS_CLUSTER_PM_CPU_USAGE", "OS_CLUSTER_PM_MEMORY_USAGE", "OS_CLUSTER_PM_FILESYSTEM_USAGE"]
+
+    let pmMetricQuery: any = []
+    for (var index = 0; index < metricTypes.length; index++) {
+      pmMetricQuery[index] = {}
+      pmMetricQuery[index].name = name
+      pmMetricQuery[index].type = metricTypes[index]
+      pmMetricQuery[index].resourceGroupUuid = resourceGroupUuid
+      pmMetricQuery[index].step = step
+      pmMetricQuery[index].start = start
+      pmMetricQuery[index].end = end
+    }
+
+    let body: any = {
+      query: pmMetricQuery,
+      customerAccountKey: customerAccountKey
+    }
+
+    const data = await this.getMetricP8S(customerAccountKey, body)
+    console.log("return value: ",data)
+  }
+
+  public async getMetricP8S(customerAccountKey: number, queryBody: IMetricQueryBody) {
+    const results: any = {};
+
+    if (isEmpty(queryBody?.query)) {
+      return this.throwError('EXCEPTION', 'query[] is missing');
+    }
+
+    try {
+      await Promise.all(
+        queryBody.query.map(async (query: IMetricQueryBodyQuery) => {
+          const { name, start, end, step, resourceGroupUuid, resourceId, resourceGroupId, type } = query;
+
+          if (isEmpty(type)) {
+            return this.throwError('EXCEPTION', `type for '${name}' is missing`);
+          }
+          const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
+          let resources: IResource[] = null;
+          let resourceGroups: IResourceGroup[] = null;
+          if (resourceId) {
+            let idsToUse: string[] = [];
+            if (Array.isArray(resourceId)) {
+              idsToUse = resourceId;
+            } else {
+              idsToUse = [resourceId];
+            }
+            resources = await this.resourceService.getUserResourceByIds(customerAccountKey, idsToUse);
+
+            if (!resources || resources.length === 0) {
+              return this.throwError(`NOT_FOUND`, `No resource found with resourceId (${resourceId})`);
+            }
+
+            const resourceGroupKeys = resources?.map((resource: IResource) => resource.resourceGroupKey);
+
+            resourceGroups = await this.resourceGroupService.getUserResourceGroupByKeys(customerAccountKey, resourceGroupKeys);
+
+            if (!resourceGroups || resourceGroups.length === 0) {
+              return this.throwError('EXCEPTION', `No access to resourceGroups (accessed through resourceId)`);
+            }
+          } else if (resourceGroupUuid) {
+            const resourceGroup = await this.resourceGroupService.getUserResourceGroupByUuid(customerAccountKey, resourceGroupUuid);
+            if (!resourceGroup) {
+              return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupUuid})`);
+            }
+            resourceGroups = [resourceGroup];
+          } else if (resourceGroupId) {
+            let idsToUse: string[] = [];
+            if (Array.isArray(resourceGroupId)) {
+              idsToUse = resourceGroupId;
+            } else {
+              idsToUse = [resourceGroupId];
+            }
+            resourceGroups = await this.resourceGroupService.getResourceGroupByIds(idsToUse);
+            if (!resourceGroups) {
+              return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${idsToUse.join(', ')})`);
+            }
+          }
+
+          if (!resourceGroups && !resources) {
+            return this.throwError(
+              'NOT_FOUND',
+              `no resourceGroup nor resource found! Please make sure to pass resourceGroupId or resourceGroupUuid or resourceId`,
+            );
+          }
+
+          const promQl = this.getPromQlFromQuery(query, resources, resourceGroups);
+
+          if (!promQl.promQl) {
+            return this.throwError(`EXCEPTION`, `Invalid type ${type}`);
+          }
+
+          if (promQl.ranged) {
+            if (isEmpty(start) || isEmpty(end)) {
+              return this.throwError('EXCEPTION', 'start and end required for ranged query');
+            }
+          }
+
+          try {
+            let data: any = null;
+
+            if (start && end) {
+              data = await this.p8sService.queryRange(customerAccountId, `${promQl.promQl}`, `${start}`, `${end}`, step);
+            } else {
+              data = await this.p8sService.query(customerAccountId, `${promQl.promQl}`, step);
+            }
+
+            results[name] = {
+              ok: true,
+              data,
+              query: { ...promQl, step },
+            };
+          } catch (e) {
+            results[name] = {
+              ok: false,
+              reason: e,
+              query: { ...promQl, step },
+            };
+          }
+        }),
+      );
+    } catch (e) {
+      return this.throwError('EXCEPTION', e);
+    }
+
+    const resultInOrder = {};
+
+    queryBody.query.forEach((query: IMetricQueryBodyQuery) => {
+      const { name } = query;
+      resultInOrder[name] = results[name];
+    });
+
+    return resultInOrder;
+  }
+
   private getPromQlFromQuery(query: IMetricQueryBodyQuery, resources?: IResource[], resourceGroups?: IResourceGroup[]) {
-    const { type, promql: customPromQl, start, end, step } = query;
+    const { type, promql: customPromQl, start, end, step, nodename } = query;
     const clusterUuid = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupUuid);
     const resourceName = resources?.map((resource: IResource) => resource.resourceName);
     const resourceNamespace = resources?.map((resource: IResource) =>
@@ -746,6 +893,279 @@ class MetricService extends ServiceExtension {
           sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))
         )`;
         break;
+      // promql for openstack
+      case 'OS_CLUSTER_PM_TOTAL_CPU_COUNT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+
+        promQl = `count by (nodename) (nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode='system', __LABEL_PLACE_HOLDER__})`
+        break;
+      case 'OS_CLUSTER_PM_MEMORY_TOTAL_BYTES':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+
+        promQl = `sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`
+        break;
+      case 'OS_CLUSTER_PM_MEMORY_USED_BYTES':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+
+        promQl = `sum by (nodename)(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`
+        break;
+      case 'OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+        promQl = `sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter",fstype=~"xfs|ext.*", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename))`
+        break;
+      case 'OS_CLUSTER_PM_FILESYSTEM_USED_BYTES':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+
+        promQl = `sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter",fstype=~"xfs|ext.*", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename)) - sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter",fstype=~"xfs|ext.*", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename))`
+        break;
+      case 'OS_CLUSTER_PM_INFO':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `node_uname_info{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}`;
+        break;
+      case 'OS_CLUSTER_NOVA_AGENT_UP':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sum(last_over_time(openstack_nova_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_NOVA_AGENT_DOWN':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `count(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h])) -sum(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_CINDER_AGENT_UP':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sum(last_over_time(openstack_cinder_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_CINDER_AGENT_DOWN':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `count(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_NEUTRON_AGENT_UP':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sum(last_over_time(openstack_neutron_agent_state{adminState="up",__LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_NEUTRON_AGENT_DOWN':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `count(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_PM_NODE_UP_TIME':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+        promQl = `sum by (nodename) (time() - nc:node_boot_time_seconds{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`;
+        break;
+
+      case 'OS_CLUSTER_PM_NODE_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+        promQl = `nc:probe_success{__LABEL_PLACE_HOLDER__}`;
+        break;
+
+      case 'OS_CLUSTER_PM_CPU_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+
+        ranged = true;
+        promQl = `avg by (nodename) (1 - avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) by (nodename)) * 100`
+        break;
+
+      case 'OS_CLUSTER_PM_MEMORY_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+
+        promQl = `(sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100`
+        break;
+      case 'OS_CLUSTER_PM_FILESYSTEM_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+
+        promQl = `(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum by (nodename) (avg(nc:node_filesystem_avail_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))))`
+        break;
+
+      case 'OS_CLUSTER_PM_NETWORK_RECEIVED':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+
+        ranged = true;
+        promQl = `max(rate(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename)`
+        break;
+
+      case 'OS_CLUSTER_PM_NETWORK_TRANSMITTED':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resourceName,
+        });
+
+        ranged = true;
+        promQl = `max(rate(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename)`
+        break;
+
+      case 'OS_CLUSTER_VM_TOTAL_CPU_COUNT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"]),
+        });
+
+        promQl = `count by (nodename) (nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode='system', __LABEL_PLACE_HOLDER__})`
+        break;
+
+      case 'OS_CLUSTER_VM_MEMORY_TOTAL_BYTES':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"]),
+        });
+
+        promQl = `sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})`
+        break;
+
+      case 'OS_CLUSTER_VM_MEMORY_USED_BYTES':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"]),
+        });
+
+        promQl = `sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})`
+        break;
+
+      case 'OS_CLUSTER_VM_FILESYSTEM_TOTAL_BYTES':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"]),
+        });
+        promQl = `sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename))`
+        break;
+
+      case 'OS_CLUSTER_VM_FILESYSTEM_USED_BYTES':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+
+        promQl = `sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename)) - sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename))`
+        break;
+
+      case 'OS_CLUSTER_VM_CPU_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"]),
+        });
+
+        ranged = true;
+        promQl = `avg by (nodename) (1 - avg(rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) by (nodename)) * 100`
+        break;
+
+      case 'OS_CLUSTER_VM_MEMORY_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"]),
+        });
+
+        promQl = `(sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) / sum(nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100`
+        break;
+      case 'OS_CLUSTER_VM_FILESYSTEM_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"]),
+        });
+
+        promQl = `(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum by (nodename) (avg(nc:node_filesystem_avail_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))))`
+        break;
+
+      case 'OS_CLUSTER_VM_NETWORK_RECEIVED':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+
+        ranged = true;
+        promQl = `max(rate(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename)`
+        break;
+
+      case 'OS_CLUSTER_VM_NETWORK_TRANSMITTED':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+
+        ranged = true;
+        promQl = `max(rate(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename)`
+        break;
+
+      case 'OS_CLUSTER_PM_CPU_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sort_desc(avg by (nodename) (1 - avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) by (nodename)) * 100)`
+        break;
+
+      case 'OS_CLUSTER_PM_MEMORY_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl =  `sort_desc((sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100)`
+        break;
+
+      case 'OS_CLUSTER_PM_DISK_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sort_desc((sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum by (nodename) (avg(nc:node_filesystem_avail_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename)))))`
+        break;
+
+      case 'OS_CLUSTER_PM_RXTX_TOTAL_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
+        break;
     }
 
     promQl = promQl.replace(/__LABEL_PLACE_HOLDER__/g, labelString);
@@ -755,6 +1175,94 @@ class MetricService extends ServiceExtension {
       promQl,
       ranged,
     };
+  }
+
+  public async uploadResourcePM(customerAccountKey: number, queryBody: IMetricQueryBody) {
+    if (isEmpty(queryBody?.query)) {
+      return this.throwError('EXCEPTION', 'query[] is missing');
+    }
+
+    const metricName = queryBody.query[0].name;
+    const clusterUuid = queryBody.query[0].resourceGroupUuid
+    var uploadQuery = {};
+    var mergedQuery: any = {};
+    var tempQuery: any = {};
+
+    const result = await this.getMetricP8S(customerAccountKey, queryBody);
+    let length = result[metricName].data.result.length
+
+    for (var i=0; i<length; i++) {
+      // get pm status
+      const statusQuery: any = {
+        query: [
+          {
+            "name": "pm_status",
+            "resourceGroupUuid": clusterUuid,
+            "type": "OS_CLUSTER_PM_NODE_STATUS",
+            "nodename": result[metricName].data.result[i].metric.nodename
+          }
+        ]
+      }
+
+      const statusResult = await this.getMetricP8S(customerAccountKey, statusQuery)
+      let pmStatus: string = "UNKNOWN"
+      if (statusResult["pm_status"].data.result.length !== 0) {
+        const status = statusResult["pm_status"].data.result[0].value[1]
+        if (status === "1") {
+          pmStatus = "ACTIVE"
+        } else {
+          pmStatus = "SHUTOFF"
+        }
+      }
+
+      uploadQuery['resource_Name'] = result[metricName].data.result[i].metric.nodename;
+      uploadQuery['resource_Type'] = "PM";
+      uploadQuery['resource_Instance'] = result[metricName].data.result[i].metric.instance;
+      uploadQuery['resource_Spec'] = result[metricName].data.result[i].metric;
+      uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
+      uploadQuery['resource_Target_Uuid'] = result[metricName].data.result[i].metric.nodename;
+      uploadQuery['resource_Description'] = result[metricName].data.result[i].metric.version;
+      uploadQuery['resource_Status'] = pmStatus
+      uploadQuery['resource_Target_Created_At'] = null
+      uploadQuery['resource_Level1'] = "OS"; //Openstack
+      uploadQuery['resource_Level2'] = "PM";
+      uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
+      uploadQuery['resource_Rbac'] = true;
+      uploadQuery['resource_Anomaly_Monitor'] = false;
+      uploadQuery['resource_Active'] = true;
+
+      tempQuery = this.formatter_resource(i, length, "PM", clusterUuid, uploadQuery, mergedQuery);
+      mergedQuery = tempQuery;
+    }
+
+    if (JSON.stringify(mergedQuery) === JSON.stringify({})) {
+      return "no update"
+    }
+
+    return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
+  }
+
+  private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
+    let interimQuery = {};
+    try {
+      if (itemLength==1) {
+        interimQuery = '{"resource_Type": "' + resourceType + '", "resource_Group_Uuid": "' + cluster_uuid + '", ' + '"resource":[' + JSON.stringify(query) + "]}";
+      }
+      else {
+        if (i==0) {
+          interimQuery = '{"resource_Type": "' + resourceType + '", "resource_Group_Uuid": "' + cluster_uuid + '", ' + '"resource":[' + JSON.stringify(query);
+        }
+        else if (i==(itemLength-1)) {
+          interimQuery = mergedQuery + "," + JSON.stringify(query) + "]}";
+        }
+        else {
+          interimQuery = mergedQuery +  "," + JSON.stringify(query);
+        }
+      }
+    } catch (error) {
+      console.log("error due to unexpoected error: ", error.response);
+    }
+    return interimQuery;
   }
 }
 

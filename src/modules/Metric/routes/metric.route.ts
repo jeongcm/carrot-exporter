@@ -14,6 +14,7 @@ import MetricController from '../controllers/metric.controller';
 import MetricMetaController from '../controllers/metricMeta.controller';
 import MetricReceivedController from '../controllers/metricReceived.controller';
 import { MetricReceivedDto } from '../dtos/metricReceived.dto';
+import systemAuthMiddleware from "@modules/ApiGateway/middlewares/systemAuth.middleware";
 class MetricRoute implements Routes {
   public router = Router();
   public metricController = new MetricController();
@@ -27,6 +28,7 @@ class MetricRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post('/metric', authMiddleware, this.metricController.getMetric);
+    this.router.post('/metric/p8s', authMiddleware, this.metricController.getMetricP8S);
 
     this.router.get('/chart', authMiddleware, this.chartController.getAllCharts);
     this.router.get('/chart/:resourceGroupId', authMiddleware, this.chartController.getResourceGroupChart);
@@ -61,6 +63,7 @@ class MetricRoute implements Routes {
       this.metricReceivedController.updateMetricReceived,
     );
     this.router.delete('/metric/received/:metricReceivedId', authMiddleware, this.metricReceivedController.deleteMetricReceived);
+    this.router.post('/metric/upload/:resourceType', systemAuthMiddleware, this.metricController.uploadResource)
   }
 }
 

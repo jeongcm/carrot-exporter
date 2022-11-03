@@ -20,6 +20,7 @@ import TableIdService from './tableId.service';
 //import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
+import MetricService, {IMetricQueryBody} from "@modules/Metric/services/metric.service";
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
@@ -30,6 +31,7 @@ class executorService {
   public MetricMetaService = new MetricMetaService();
   public schedulerService = new SchedulerService();
   public incidentService = new IncidentService();
+  public metricService = new MetricService();
 
   public sudoryWebhook = DB.SudoryWebhook;
   public executorService = DB.ExecutorService;
@@ -164,7 +166,7 @@ class executorService {
     let sudoryCreateClusterResponse;
 
     await axios({
-      method: 'post',
+      method: 'POST',
       url: `${executorServerClusterUrl}`,
       data: sudoryCreateCluster,
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
@@ -183,7 +185,7 @@ class executorService {
     const sudoryCreateTokenData = { name: apiDataName, cluster_uuid: clusterUuid, summary: apiDataSummary };
 
     await axios({
-      method: 'post',
+      method: 'POST',
       url: `${executorServerTokenUrl}`,
       data: sudoryCreateTokenData,
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
@@ -940,6 +942,326 @@ class executorService {
 
   /**
    * @param {string} clusterUuid
+   * @param {number} customerAccountKey
+   * @param {string} sudoryNamespace
+   */
+  public async checkExecutorClientForOpenstack(clusterUuid: string, sudoryNamespace: string, customerAccountKey: number): Promise<object> {
+    let clientTrueFalse = false;
+    const resourceJobKey = [];
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession + '/cluster/' + clusterUuid + '/alive';
+
+    const resourceCron = config.resourceCron;
+    //const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`;
+    //executorServerUrl = executorServerUrl + sessionQueryParameter;
+    const subscribedChannelResource = config.sudoryApiDetail.channel_resource;
+    await axios({
+      method: 'get',
+      url: `${executorServerUrl}`,
+      headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
+    })
+      .then(async (res: any) => {
+        if (res.data == true) clientTrueFalse = true;
+        console.log(`Successful to run API to search Executor/Sudory client`);
+      })
+      .catch(error => {
+        //console.log(error);
+        throw new HttpException(500, `Sudory Server Error - ${JSON.stringify(error.response.data)} `);
+      });
+
+    //sudory namespace save...
+    const resourceGroupSet = { resourceGroupSudoryNamespace: sudoryNamespace };
+    await this.resourceGroup.update(resourceGroupSet, { where: { resourceGroupUuid: clusterUuid } });
+
+    // post PM Excute
+    let uploadPMQuery: any = {}
+    let metricQuery: any[] = []
+    metricQuery[0] = {}
+    metricQuery[0].name = "pm_info"
+    metricQuery[0].type = "OS_CLUSTER_PM_INFO"
+    metricQuery[0].resourceGroupUuid = clusterUuid
+
+    uploadPMQuery.query = metricQuery
+    const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, uploadPMQuery)
+    if (!resultPM) {console.log(resultPM)}
+
+    const resultPJ = await this.postExecuteService(
+      'openstack interface for PJList',
+      'openstack interface for PJList',
+      clusterUuid,
+      '50000000000000000000000000000002',
+      [{args: {credential_key: "openstack_token_0",}}],
+      customerAccountKey,
+      subscribedChannelResource,
+    );
+    if (!resultPJ) console.log(resultPJ);
+
+    const resultVM = await this.postExecuteService(
+      'openstack interface for VMList',
+      'openstack interface for VMList',
+      clusterUuid,
+      '50000000000000000000000000000004',
+      [{args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3"}}],
+      customerAccountKey,
+      subscribedChannelResource,
+    );
+    if (!resultVM) console.log(resultVM);
+
+// scheduleResource - PM
+    await this.scheduleResource(clusterUuid, customerAccountKey, 'PM', resourceCron)
+      .then(async (res: any) => {
+        resourceJobKey.push({ resourceType: 'PM', cronKey: res });
+        console.log(`Submitted resource PM schedule request on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        console.log(`confirmed the executor/sudory client installed but fail to submit resource PM schedule request for cluster:${clusterUuid}`);
+      });
+
+// // scheduleResource - HV
+//     await this.scheduleResource(clusterUuid, customerAccountKey, 'HV', resourceCron)
+//       .then(async (res: any) => {
+//         resourceJobKey.push({ resourceType: 'HV', cronKey: res });
+//         console.log(`Submitted resource Hypervisor schedule request on ${clusterUuid} cluster successfully`);
+//       })
+//       .catch(error => {
+//         console.log(error);
+//         console.log(`confirmed the executor/sudory client installed but fail to submit resource HV schedule request for cluster:${clusterUuid}`);
+//       }); //end of catch
+
+// scheduleResource - PJ
+    await this.scheduleResource(clusterUuid, customerAccountKey, 'PJ', resourceCron)
+      .then(async (res: any) => {
+        resourceJobKey.push({ resourceType: 'PJ', cronKey: res });
+        console.log(`Submitted resource Project schedule request on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        console.log(`confirmed the executor/sudory client installed but fail to submit resource PJ schedule request for cluster:${clusterUuid}`);
+      });
+
+// scheduleResource - VM
+    await this.scheduleResource(clusterUuid, customerAccountKey, 'VM', resourceCron)
+      .then(async (res: any) => {
+        resourceJobKey.push({ resourceType: 'VM', cronKey: res });
+        console.log(`Submitted resource virtualMachine schedule request on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        console.log(`confirmed the executor/sudory client installed but fail to submit resource VM schedule request for cluster:${clusterUuid}`);
+      });
+
+    const responseExecutorClientCheck = { clusterUuid, clientTrueFalse };
+    return responseExecutorClientCheck;
+  }
+
+  /**
+   * @param {string} clusterUuid
+   * @param {string} targetNamespace
+   */
+  public async installKpsOnResourceGroupForOpenstack(
+    clusterUuid: string,
+    customerAccountKey: number,
+    targetNamespace: string,
+    systemId: string,
+    kpsChartVersion: string,
+  ): Promise<object> {
+    const serviceUuid = [];
+    //const helmRepoUrl = config.helmRepoUrl;
+    const prometheusUrlHead = config.obsUrl.prometheusUrlHead;
+    const prometheusUrlTail = config.obsUrl.prometheusUrlTail;
+    const grafanaUrlHead = config.obsUrl.grafanaUrlHead;
+    const grafanaUrlTail = config.obsUrl.grafanaUrlTail;
+    const alertManagerUrlHead = config.obsUrl.alertManagerUrlHead;
+    const alertMangerUrlTail = config.obsUrl.alertManagerUrlTail;
+    const webhookChannel = config.sudoryApiDetail.channel_webhook;
+
+    const prometheus = prometheusUrlHead + targetNamespace + prometheusUrlTail;
+    const grafana = grafanaUrlHead + targetNamespace + grafanaUrlTail;
+    const alertManager = alertManagerUrlHead + targetNamespace + alertMangerUrlTail;
+
+    const resultKpsChart = await this.exporters.findAll({ where: { exporterType: 'HL' } });
+    const chartLength = resultKpsChart.length;
+    let kpsChartName = '';
+    let kpsChartVersionNew = '';
+    let kpsChartRepoUrl = '';
+
+    const resultResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    if (!resultResourceGroup) throw new HttpException(404, `can't find cluster - clusterUuid: ${clusterUuid}`);
+    const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
+
+    for (let i = 0; i < chartLength; i++) {
+      if (
+        resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack' &&
+        resultKpsChart[i].defaultChartYn === true &&
+        kpsChartVersion === ''
+      ) {
+        kpsChartName = resultKpsChart[i].exporterHelmChartName;
+        kpsChartVersionNew = resultKpsChart[i].exporterHelmChartVersion;
+        kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
+      } else if (
+        resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack' &&
+        resultKpsChart[i].defaultChartYn === false &&
+        resultKpsChart[i].exporterHelmChartVersion === kpsChartVersion
+      ) {
+        kpsChartName = resultKpsChart[i].exporterHelmChartName;
+        kpsChartVersionNew = kpsChartVersion;
+        kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
+      }
+    }
+    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
+    const kpsSteps = [
+      {
+        args: {
+          name: 'kps',
+          chart_name: kpsChartName,
+          repo_url: kpsChartRepoUrl,
+          namespace: targetNamespace,
+          chart_version: kpsChartVersionNew,
+          values: {
+            prometheus: {
+              extraSecret: {
+                name: 'vmmulti',
+                data: {
+                  username: 'I' + customerAccountId,
+                  password: customerAccountId,
+                },
+              },
+              prometheusSpec: {
+                externalLabels: {
+                  clusterUuid: clusterUuid,
+                },
+                remoteWrite: [
+                  {
+                    url: config.victoriaMetrics.vmMultiAuthUrl + '/api/v1/write',
+                    basicAuth: {
+                      username: {
+                        name: 'vmmulti',
+                        key: 'username',
+                      },
+                      password: {
+                        name: 'vmmulti',
+                        key: 'password',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+            'prometheus-node-exporter': {
+              hostRootFsMount: {
+                enabled: {},
+              },
+            },
+          },
+        },
+      },
+    ];
+
+    if (resourceGroupProvider == 'DD') {
+      kpsSteps[0].args.values['prometheus-node-exporter'].hostRootFsMount.enabled = false;
+    }
+
+    const kpsExecuteName = 'KPS Helm Installation';
+    const kpsExecuteSummary = 'KPS Helm Installation';
+    const kpsTemplateUuid = '20000000000000000000000000000001';
+    const executeKpsHelm = this.postExecuteService(
+      kpsExecuteName,
+      kpsExecuteSummary,
+      clusterUuid,
+      kpsTemplateUuid,
+      kpsSteps,
+      customerAccountKey,
+      webhookChannel,
+    );
+
+    if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
+
+    // update ResourceGroup - resourceGroupPrometheus
+    const resourceGroup = {
+      resourceGroupPrometheus: prometheus,
+      resourceGroupGrafana: grafana,
+      resourceGroupAlertManager: alertManager,
+      resourceGroupKpsLokiNamespace: targetNamespace,
+    };
+    // get system user id
+
+    try {
+      const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
+      console.log('Success to create ResponseGroup: ', ResponseResoureGroup.resourceGroupId);
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(500, `Error on creating cluster ${clusterUuid}`);
+    }
+
+    //schedule metricMeta
+    await this.scheduleMetricMeta(clusterUuid, customerAccountKey)
+      .then(async (res: any) => {
+        console.log(`Submitted metric meta feeds schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule MetricMeta ');
+      }); //end of catch
+
+    //schedule alert rules & received
+    await this.scheduleAlert(clusterUuid, customerAccountKey)
+      .then(async (res: any) => {
+        console.log(`Submitted alert feeds schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert feeds ');
+      }); //end of catch
+
+    //schdule SyncResource
+    const cronTabforResource = config.resourceCron;
+    await this.scheduleSyncResources(clusterUuid, cronTabforResource)
+      .then(async (res: any) => {
+        console.log(`Submitted resource sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
+      }); //end of catch
+
+    //schdule SyncAlerts
+    const cronTabforAlert = config.alertCron;
+    await this.scheduleSyncAlerts(clusterUuid, cronTabforAlert)
+      .then(async (res: any) => {
+        console.log(`Submitted Alert sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert sync');
+      }); //end of catch
+
+    //schdule SyncMetricMeta
+    const cronTabforMetricMeta = config.metricCron;
+    await this.scheduleSyncMetricMeta(clusterUuid, cronTabforMetricMeta)
+      .then(async (res: any) => {
+        console.log(`Submitted MetricMeta sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric meta sync');
+      }); //end of catch
+
+    if (config.metricReceivedSwitch === 'on') {
+      //schdule SyncMetricReceived
+      const cronTabforMetricReceived = config.metricReceivedCron;
+      await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
+        .then(async (res: any) => {
+          console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
+        })
+        .catch(error => {
+          console.log(error);
+          throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
+        }); //end of catch
+    }
+    return serviceUuid;
+  }
+  /**
+   * @param {string} clusterUuid
    * @param {string} templateUud
    * @param {string} name
    * @param {string} summary
@@ -974,7 +1296,7 @@ class executorService {
     };
     console.log(sudoryServiceData);
     const serviceData = await axios({
-      method: 'post',
+      method: 'POST',
       url: sudoryUrl,
       data: sudoryServiceData,
     })
@@ -1377,7 +1699,7 @@ class executorService {
     sudoryServiceData.steps.push(argsData);
     console.log(sudoryServiceData);
     await axios({
-      method: 'post',
+      method: 'POST',
       url: `${executorServerUrl}`,
       data: sudoryServiceData,
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
@@ -1517,7 +1839,7 @@ class executorService {
    */
   public async scheduleResource(clusterUuid: string, customerAccountKey: number, resourceType: string, newCrontab: string): Promise<object> {
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    let executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
     const subscribed_channel = config.sudoryApiDetail.channel_resource;
 
     //get customerAccountId
@@ -1546,6 +1868,12 @@ class executorService {
       { resourceName: 'Event', resourceType: 'EV', template_uuid: '00000000000000000000000000000008' }, //storageclass
       { resourceName: 'Job', resourceType: 'JO', template_uuid: '00000000000000000000000000005002' }, //job
       { resourceName: 'CronJob', resourceType: 'CJ', template_uuid: '00000000000000000000000000005003' }, //cron-job
+      { resourceName: 'PhysicalMachine', resourceType: 'PM'}, //pm
+      { resourceName: 'Project', resourceType: 'PJ', template_uuid: '50000000000000000000000000000002' }, //project
+      { resourceName: 'VM', resourceType: 'VM', template_uuid: '50000000000000000000000000000004' }, //vm
+      // { resourceName: 'Network', resourceType: 'NT', template_uuid: '50000000000000000000000000000006' }, // network
+      // { resourceName: 'Router', resourceType: 'RT', template_uuid: '50000000000000000000000000000008' }, // router
+      // { resourceName: 'Subnet', resourceType: 'SN', template_uuid: '50000000000000000000000000000010' }, // subnet
     ];
 
     const selectedTemplate = resource_template.find(template => {
@@ -1556,9 +1884,57 @@ class executorService {
       throw new HttpException(404, 'not supported resourceType');
     }
 
+    const steps = [];
+    let apiBody: {};
+
     const template_uuid = selectedTemplate.template_uuid;
-    const scheduleName = 'K8s interface for ' + selectedTemplate.resourceName;
-    const scheduleSummary = 'K8s interface for ' + selectedTemplate.resourceName;
+    let scheduleName = 'K8s interface for ' + selectedTemplate.resourceName;
+    let scheduleSummary = 'K8s interface for ' + selectedTemplate.resourceName;
+
+    apiBody = {
+      cluster_uuid: clusterUuid,
+      name: scheduleName,
+      template_uuid: template_uuid,
+      summary: scheduleSummary,
+      subscribed_channel: subscribed_channel,
+      on_completion: on_completion,
+      steps: steps,
+    }
+
+    switch (selectedTemplate.resourceType) {
+    case "PM":
+      scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
+      scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
+      executorServerUrl = config.appUrl + ':' + config.appPort + '/metric/upload/PM';
+
+      let uploadPMQuery: any = {}
+      let metricQuery: any[] = []
+      metricQuery[0] = {}
+      metricQuery[0].name = "pm_info"
+      metricQuery[0].type = "OS_CLUSTER_PM_INFO"
+      metricQuery[0].resourceGroupUuid = clusterUuid
+
+      uploadPMQuery = {
+        query: metricQuery,
+        customerAccountKey: customerAccountKey
+      }
+
+      apiBody = uploadPMQuery
+      break;
+    case "PJ":
+      scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
+      scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
+      steps.push({args: {credential_key: "openstack_token_0"}})
+      break;
+    case "VM":
+      scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
+      scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
+      steps.push({args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3"}})
+      break;
+    default:
+      scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;
+      scheduleSummary = 'K8S interface for ' + selectedTemplate.resourceName;
+    }
 
     const cronData = {
       name: scheduleName,
@@ -1571,21 +1947,7 @@ class executorService {
       scheduleTo: '',
       clusterId: clusterUuid,
       //accountId: customerAccountData.customerAccountId,
-      apiBody: {
-        cluster_uuid: clusterUuid,
-        name: scheduleName,
-        template_uuid: template_uuid,
-        summary: scheduleSummary,
-        subscribed_channel: subscribed_channel,
-        on_completion: on_completion,
-        steps: [
-          {
-            args: {
-              labels: {},
-            },
-          },
-        ],
-      },
+      apiBody: apiBody,
     };
     const resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId);
 

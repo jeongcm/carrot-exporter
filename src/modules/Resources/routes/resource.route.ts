@@ -43,6 +43,20 @@ class ResourceRoute implements Routes {
     );
 
     this.router.get(
+      '/resource/customerAccount/:customerAccountId/:resourceType',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceController.getResourcesByCustomerAccountIdAndResourceType,
+    );
+
+    this.router.get(
+      '/resource/:resourceId/detail',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceController.getResourceDetailByResourceID,
+    );
+
+    this.router.get(
       '/resource/resourceGroup/:resourceGroupId',
       validationMiddleware(ResourceQueryDTO, 'query'),
       authMiddleware,
@@ -88,6 +102,14 @@ class ResourceRoute implements Routes {
       createUserLogMiddleware,
       this.resourceController.getResourceDetail,
     );
+
+    this.router.get(
+      '/resource/:resourceType/count',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceController.getResourceCountByResourceType,
+    );
+
   }
 }
 

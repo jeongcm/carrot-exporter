@@ -42,6 +42,10 @@ export class ExecutorKpsDto {
   @IsString()
   @IsOptional()
   public lokiChartVersion: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public resourceType: string;
 }
 
 export class ExecutorUuidDto {

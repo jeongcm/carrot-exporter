@@ -85,8 +85,18 @@ class executorController {
       const clusterUuid = req.params.clusterUuid;
       const sudoryNamespace = req.params.sudoryNamespace;
       const customerAccountKey = req.customerAccountKey;
+      const platform = req.params.platform
+      let clientResponse
 
-      const clientResponse = await this.executorService.checkExecutorClient(clusterUuid, sudoryNamespace, customerAccountKey);
+      switch (platform) {
+        case "K8":
+          clientResponse = await this.executorService.checkExecutorClient(clusterUuid, sudoryNamespace, customerAccountKey);
+          break
+        case "OS":
+          clientResponse = await this.executorService.checkExecutorClientForOpenstack(clusterUuid, sudoryNamespace, customerAccountKey);
+          break
+        default:
+      }
 
       if (clientResponse) {
         res.status(200).json({ data: clientResponse, message: `Success to confirm Executor/Sudory client` });
@@ -111,18 +121,22 @@ class executorController {
       const lokiChartVersion = req.body.lokiChartVersion || '';
       const customerAccountKey = req.customerAccountKey;
       const systemId = req.systemId;
+      const platform = req.body.platform
+      let serviceUuids
 
-      const serviceUuids = await this.executorService.installKpsOnResourceGroup(
-        clusterUuid,
-        customerAccountKey,
-        targetNamespace,
-        systemId,
-        kpsChartVersion,
-        lokiChartVersion,
-      );
+      switch (platform) {
+        case "K8":
+          serviceUuids = await this.executorService.installKpsOnResourceGroup(clusterUuid, customerAccountKey, targetNamespace, systemId, kpsChartVersion, lokiChartVersion);
+          break
+        case "OS":
+          serviceUuids = await this.executorService.installKpsOnResourceGroupForOpenstack(clusterUuid, customerAccountKey, targetNamespace, systemId, kpsChartVersion);
+          break
+        default:
+      }
+
       res
         .status(200)
-        .json({ serviceUuid: serviceUuids, message: `Successfullyt submit kps stack installation service request on cluserUuid: ${clusterUuid}` });
+        .json({ serviceUuid: serviceUuids, message: `Successfully submit kps stack installation service request on cluserUuid: ${clusterUuid}` });
     } catch (error) {
       next(error);
     }
