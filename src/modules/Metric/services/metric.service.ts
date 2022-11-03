@@ -152,52 +152,6 @@ class MetricService extends ServiceExtension {
     return resultInOrder;
   }
 
-  public async getMetricP8SVM(customerAccountKey: number, queryBody: IMetricQueryBody) {
-
-  }
-
-  public async getMetricP8SPM(customerAccountKey: number, queryBody: IMetricQueryBody) {
-    const { name, start, end, step, resourceGroupUuid } = queryBody.query[0];
-    const metricTypes: string[] = ["OS_CLUSTER_PM_TOTAL_CPU_COUNT", "OS_CLUSTER_PM_MEMORY_TOTAL_BYTES", "OS_CLUSTER_PM_MEMORY_USED_BYTES",
-    "OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES", "OS_CLUSTER_PM_FILESYSTEM_USED_BYTES", "OS_CLUSTER_PM_NODE_UP_TIME", "OS_CLUSTER_PM_NODE_STATUS",
-    "OS_CLUSTER_PM_CPU_USAGE", "OS_CLUSTER_PM_MEMORY_USAGE", "OS_CLUSTER_PM_FILESYSTEM_USAGE"]
-
-    let list = [];
-    try {
-      await Promise.all(
-        metricTypes.map(async (metricType) => {
-          queryBody.query[0].type = metricType
-          return await this.getMetricP8S(customerAccountKey, queryBody)
-        })
-      ).then(async res => list.push(res))
-
-      console.log("list:", list)
-      return list
-    } catch (e) {
-      return this.throwError('EXCEPTION', e);
-    }
-
-    //
-    // let pmMetricQuery: any = []
-    // for (var index = 0; index < metricTypes.length; index++) {
-    //   pmMetricQuery[index] = {}
-    //   pmMetricQuery[index].name = name
-    //   pmMetricQuery[index].type = metricTypes[index]
-    //   pmMetricQuery[index].resourceGroupUuid = resourceGroupUuid
-    //   pmMetricQuery[index].step = step
-    //   pmMetricQuery[index].start = start
-    //   pmMetricQuery[index].end = end
-    // }
-    //
-    // let body: any = {
-    //   query: pmMetricQuery,
-    //   customerAccountKey: customerAccountKey
-    // }
-    //
-    // const data = await this.getMetricP8S(customerAccountKey, body)
-    // console.log("return value: ",data)
-  }
-
   public async getMetricP8S(customerAccountKey: number, queryBody: IMetricQueryBody) {
     const results: any = {};
 
