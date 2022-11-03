@@ -162,14 +162,14 @@ class MetricService extends ServiceExtension {
     "OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES", "OS_CLUSTER_PM_FILESYSTEM_USED_BYTES", "OS_CLUSTER_PM_NODE_UP_TIME", "OS_CLUSTER_PM_NODE_STATUS",
     "OS_CLUSTER_PM_CPU_USAGE", "OS_CLUSTER_PM_MEMORY_USAGE", "OS_CLUSTER_PM_FILESYSTEM_USAGE"]
 
-    metricTypes.map(async (type: string, index) => {
+    for (var index = 0; index < metricTypes.length; index++) {
       queryBody.query[index].name = query.name
-      queryBody.query[index].type = type
+      queryBody.query[index].type = metricTypes[index]
       queryBody.query[index].resourceGroupUuid = query.resourceGroupUuid
       queryBody.query[index].step = query.step
       queryBody.query[index].start = query.start
       queryBody.query[index].end = query.end
-    })
+    }
 
     console.log(queryBody)
     return await this.getMetricP8S(customerAccountKey, queryBody)
