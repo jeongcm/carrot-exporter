@@ -476,7 +476,7 @@ class EvaluateServices {
             resolutionActions.map(async (resolutionAction: any) => {
               //7. postExecuteService to sudory server
               const currentDate = new Date();
-              const start = new Date(currentDate.setHours(currentDate.getHours() - 1)).toISOString().substring(0.19);
+              const start = new Date(currentDate.setHours(currentDate.getHours() - 2)).toISOString().substring(0.19);
               const subscribed_channel = config.sudoryApiDetail.channel_webhook;
               const end = currentDate.toISOString().substring(0.19);
               const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;

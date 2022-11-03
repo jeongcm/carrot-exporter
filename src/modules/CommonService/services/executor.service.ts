@@ -2325,7 +2325,7 @@ class executorService {
         incidentActionAttachmentType: 'JS',
         incidentActionAttachmentFilename: `${resultSudoryWebhook.serviceName}.json`,
       };
-      await this.incidentService.createIncidentActionAttachment(
+      const resultAttachment = await this.incidentService.createIncidentActionAttachment(
         customerAccountKey,
         incidentId,
         incidentAction.incidentActionId,
@@ -2335,8 +2335,9 @@ class executorService {
         'SYSTEM',
         incidentActionAttachmentFile,
       );
+      console.log(resultAttachment);
     }
-    console.log(resultExecutorService);
+
     return resultSudoryWebhook;
   }
 
