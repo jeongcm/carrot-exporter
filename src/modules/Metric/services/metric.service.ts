@@ -173,8 +173,12 @@ class MetricService extends ServiceExtension {
       pmMetricQuery[index].end = end
     }
 
-    console.log(pmMetricQuery)
-    return await this.getMetricP8S(customerAccountKey, pmMetricQuery)
+    let body: any = {
+      query: pmMetricQuery,
+      customerAccountKey: customerAccountKey
+    }
+
+    return await this.getMetricP8S(customerAccountKey, body)
   }
 
   public async getMetricP8S(customerAccountKey: number, queryBody: IMetricQueryBody) {
