@@ -171,6 +171,7 @@ class MetricService extends ServiceExtension {
       queryBody.query[index].end = query.end
     })
 
+    console.log(queryBody)
     return await this.getMetricP8S(customerAccountKey, queryBody)
   }
 
