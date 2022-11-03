@@ -178,7 +178,8 @@ class MetricService extends ServiceExtension {
       customerAccountKey: customerAccountKey
     }
 
-    return await this.getMetricP8S(customerAccountKey, body)
+    const data = await this.getMetricP8S(customerAccountKey, body)
+    console.log("return value: ",data)
   }
 
   public async getMetricP8S(customerAccountKey: number, queryBody: IMetricQueryBody) {
@@ -1098,6 +1099,7 @@ class MetricService extends ServiceExtension {
         ranged = true;
         promQl = `max(rate(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename)`
         break;
+
       case 'OS_CLUSTER_VM_NETWORK_TRANSMITTED':
         labelString += getSelectorLabels({
           clusterUuid,
