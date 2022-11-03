@@ -3,7 +3,7 @@ import { HttpException } from '@common/exceptions/HttpException';
 import config from '@config/index';
 import { logger } from '@/common/utils/logger';
 
-let space = new AWS.S3({
+const space = new AWS.S3({
   endpoint: config.fileUpload.DOEndPoint,
   useAccelerateEndpoint: false,
   credentials: new AWS.Credentials(config.fileUpload.DOAccessKeyId, config.fileUpload.DOSecretAccessKey, null),
@@ -13,7 +13,7 @@ const BucketName = config.fileUpload.DOBucket;
 
 class fileUploadService {
   public async upload(req: any): Promise<any> {
-    let uploadParameters = {
+    const uploadParameters = {
       Bucket: BucketName,
       ContentType: req.query.content_type,
       Body: req.file.buffer,
@@ -31,7 +31,7 @@ class fileUploadService {
 
   public async uploadService(fileName: string, contentType: string, file: any): Promise<any> {
     try {
-      let uploadParameters = {
+      const uploadParameters = {
         Bucket: BucketName,
         ContentType: contentType,
         Body: file.buffer,
@@ -69,7 +69,7 @@ class fileUploadService {
   }
 
   public async get(req: any): Promise<any> {
-    let downloadParameters = {
+    const downloadParameters = {
       Bucket: BucketName,
       Key: req.params.fileName,
     };
@@ -84,7 +84,7 @@ class fileUploadService {
   }
 
   public async delete(req: any): Promise<any> {
-    let downloadParameters = {
+    const downloadParameters = {
       Bucket: BucketName,
       Key: req.query.fileName,
     };
@@ -98,7 +98,7 @@ class fileUploadService {
   }
 
   public async deleteAll(req: any): Promise<any> {
-    let downloadParameters = {
+    const downloadParameters = {
       Bucket: BucketName,
       Delete: {
         Objects: req.query.fileNames.map(fileNamesX => {

@@ -1,6 +1,7 @@
 import DB from '@/database';
 import axios from 'common/httpClient/axios';
 import config from '@config/index';
+import { Blob } from 'buffer';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
@@ -2227,14 +2228,17 @@ class executorService {
     const uuid = require('uuid');
     const sudoryWebhookId = uuid.v1();
     let serviceResult;
+    let serviceResultType;
     //step 1. process sudory fed data
     if (DataSetFromSudory.result === null) {
       serviceResult = [];
+      serviceResultType = 'JSON';
     } else {
       if (typeof DataSetFromSudory.result === 'string') {
         try {
           console.log('sudoryString');
           serviceResult = JSON.parse(DataSetFromSudory.result);
+          if (serviceResult.resultType?.matrix) serviceResultType = 'METRIC';
         } catch (e) {
           console.error(e);
           serviceResult = [];
@@ -2242,6 +2246,7 @@ class executorService {
       } else {
         console.log('sudoryObject');
         serviceResult = JSON.parse(JSON.stringify(DataSetFromSudory.result));
+        if (serviceResult.resultType?.matrix) serviceResultType = 'METRIC';
       }
     }
     //step 2. insert data into SudoryWebhook table
@@ -2307,7 +2312,7 @@ class executorService {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const incidentAction = await this.incidentService.createIncidentAction(customerAccountKey, incidentId, actionData, 'SYSTEM');
-
+      console.log('serviceResultType', serviceResultType);
       //create incident Action attachement
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -2318,7 +2323,7 @@ class executorService {
         lastModified: Date.now(),
         type: 'text/json',
       });
-
+      console.log('file well created');
       const actionAttachmentData = {
         incidentActionAttachmentName: resultSudoryWebhook.serviceName,
         incidentActionAttachmentDescription: resultSudoryWebhook.statusDescription,
