@@ -14,15 +14,14 @@ export class CreateBayesianModelDto {
   public bayesianModelResourceType: string;
 
   @IsOptional()
-  public bayesianModelScoreCard:JSON
+  public bayesianModelScoreCard: JSON;
 
   @IsString()
   @IsNotEmpty()
   public bayesianModelClusterId: string;
 
   @IsOptional()
-  public version:string;
- 
+  public version: string;
 }
 export class UpdateBayesianModelDto {
   @IsString()
@@ -41,11 +40,9 @@ export class UpdateBayesianModelDto {
   @IsOptional()
   public bayesianModelClusterId: string;
 
+  @IsOptional()
+  public bayesianModelScoreCard: JSON;
 
   @IsOptional()
-  public bayesianModelScoreCard:JSON;
-
-  @IsOptional()
-  public version:string;
-
+  public version: string;
 }

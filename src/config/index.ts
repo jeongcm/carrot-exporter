@@ -9,12 +9,12 @@ How to add config:
 // 1. For organization using nested objects
 // 2. For value control (default, computed)
 // 3. For security
+import '../dotenvConfig';
 import validateEnv from './validateEnv';
 import tableIds from '../../init/tableId.seeding.json';
 import api from '../../init/api.seeding.json';
 import role from '../../init/role.seeding.json';
 import exporters from '../../init/exporters.seeding.json';
-import { multiply } from 'lodash';
 
 validateEnv();
 
@@ -181,6 +181,7 @@ export default {
     ncBnUrl: process.env.NC_BN_URL,
     ncBnNodePath: process.env.NC_BN_NODE_PATH,
     ncBnNodeThreshold: process.env.NC_BN_NODE_THRESHOLD,
+    ncBnPodThreshold: process.env.NC_BN_POD_THRESHOLD,
     ncBnRefreshModelPath: process.env.NC_BN_REFRESH_MODEL_PATH,
   },
   oT: {

@@ -53,6 +53,7 @@ class EvaluateServices {
   public executorService = new executorService();
   public resourceGroupService = new ResourceGroupService();
   public partyUser = DB.PartyUser;
+  public resolutionAction = DB.ResolutionAction;
 
   /**
    * Evaluate anomaly using resourceKey
@@ -68,7 +69,7 @@ class EvaluateServices {
     let bayesianModel = {};
     let returnResponse = {};
     let bnData = {};
-    var evaluationResultStatus = '';
+    let evaluationResultStatus;
 
     // 1. Confirm resource as AnomalyTarget
     const resultMonitoringTarget = await this.monitoringTargetService.findMonitoringTargetsByResourceKeys(resourceKey);
@@ -78,6 +79,7 @@ class EvaluateServices {
 
     const resultResource: IResource = await this.resource.findOne({ where: { resourceKey } });
     if (!resultResource) throw new HttpException(400, `Can't find resource - ${resourceKey}`);
+
     const resourceType = resultResource.resourceType;
     const resourceName = resultResource.resourceName;
     const resourceId = resultResource.resourceId;
@@ -145,12 +147,13 @@ class EvaluateServices {
     // 3. Find firing alerts received
     let firedAlerts = [];
     const inputAlerts = {};
+    console.log('resourceType', resourceType);
     switch (resourceType) {
       case 'ND':
-        const alertRuleQuery = {
+        const alertRuleQueryNd = {
           where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null, alertReceivedState: 'firing', alertReceivedNode: resourceName },
         };
-        const resultAlertReceived: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQuery);
+        const resultAlertReceived: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQueryNd);
         if (resultAlertReceived.length === 0) {
           firedAlerts = [];
           //console.log ("no firing alert");
@@ -178,6 +181,43 @@ class EvaluateServices {
         }
         break;
       case 'SV':
+        firedAlerts = [];
+        //console.log ("no service alert");
+        evaluationResultStatus = 'NF';
+        break;
+      case 'PD':
+        const alertRuleQueryPd = {
+          where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null, alertReceivedState: 'firing', alertReceivedPod: resourceName },
+        };
+        const resultAlertReceivedPd: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQueryPd);
+        if (resultAlertReceivedPd.length === 0) {
+          firedAlerts = [];
+          //console.log ("no firing alert");
+          evaluationResultStatus = 'NF';
+        } else {
+          //console.log('resultAlertReceivedPd', resultAlertReceivedPd);
+          for (let i = 0; i < resultAlertReceivedPd.length; i++) {
+            const alertRuleKey = resultAlertReceivedPd[i].alertRuleKey;
+            firedAlerts[i] = {
+              alertRuleKey: resultAlertReceivedPd[i].alertRuleKey,
+              alertReceivedKey: resultAlertReceivedPd[i].alertReceivedKey,
+              alertReceivedId: resultAlertReceivedPd[i].alertReceivedId,
+              alertReceivedName: resultAlertReceivedPd[i].alertReceivedName,
+              alertReceivedNode: resultAlertReceivedPd[i].alertReceivedNode || '',
+              alertReceivedService: resultAlertReceivedPd[i].alertReceivedService || '',
+              alertReceivedPod: resultAlertReceivedPd[i].alertReceivedPod,
+            };
+            const resultAlertRule = await this.alertRule.findOne({ where: { alertRuleKey } });
+            const alertName = resultAlertReceivedPd[i].alertReceivedName;
+            let severity = resultAlertRule.alertRuleSeverity;
+            severity = severity.replace(/^./, severity[0].toUpperCase());
+            const duration = resultAlertRule.alertRuleDuration;
+            const alertName2 = alertName + severity + '_' + duration;
+            inputAlerts[alertName2] = 1;
+          }
+        }
+        break;
+      case 'SS' || 'DP':
         firedAlerts = [];
         //console.log ("no service alert");
         evaluationResultStatus = 'NF';
@@ -242,12 +282,9 @@ class EvaluateServices {
       inputAlerts: inputAlerts,
     };
 
-    let url = '';
+    const url = config.ncBnApiDetail.ncBnUrl + config.ncBnApiDetail.ncBnNodePath;
     let evaluationResult;
-    if (resourceType == 'ND') {
-      url = config.ncBnApiDetail.ncBnUrl + config.ncBnApiDetail.ncBnNodePath;
-    }
-    console.log(bnData);
+    console.log('bnData', bnData);
     await axios({
       method: 'post',
       url: url,
@@ -265,8 +302,7 @@ class EvaluateServices {
         //console.log(`got evaluation result -- ${evaluationResult}`);
       })
       .catch(error => {
-        console.log(error);
-
+        //console.log(error);
         const updateError = {
           evaluationStatus: 'FA',
           evaluated_at: new Date(),
@@ -277,7 +313,7 @@ class EvaluateServices {
           where: { evaluationId: evaluationId },
         };
         const resultEvaluationResult = this.evaluation.update(updateError, updateErrorWhere);
-        throw new HttpException(500, `Unknown error to fetch the result of evaluation: ${evaluationId}`);
+        throw new HttpException(500, `Unknown error to fetch the result of evaluation from nexclipper-bn: ${evaluationId}`);
       });
 
     const step7 = new Date().getTime();
@@ -286,13 +322,23 @@ class EvaluateServices {
 
     const predictedScore = evaluationResult.predicted_score;
     console.log('predictedScore: ', predictedScore);
-    console.log('threshold: ', config.ncBnApiDetail.ncBnNodeThreshold);
-    var evaluationResultStatus = '';
-    if (predictedScore * 100 >= Number(config.ncBnApiDetail.ncBnNodeThreshold)) {
-      evaluationResultStatus = 'AN';
-    } else {
-      evaluationResultStatus = 'OK';
-    }
+    const nodeThreshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
+    const podThreshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
+
+    // need to improve to process pod
+    if (resourceType === 'ND') {
+      if (predictedScore >= nodeThreshold) {
+        evaluationResultStatus = 'AN';
+      } else {
+        evaluationResultStatus = 'OK';
+      }
+    } else if (resourceType === 'PD') {
+      if (predictedScore >= podThreshold) {
+        evaluationResultStatus = 'AN';
+      } else {
+        evaluationResultStatus = 'OK';
+      }
+    } else evaluationResultStatus = 'OK'; // add the logic when workload will be added.
 
     const updateData = {
       evaluationResult: evaluationResult,
@@ -319,6 +365,7 @@ class EvaluateServices {
       evaluationResultStatus: evaluationResultStatus,
       evaluationRequest: resultEvaluation.evaluationRequest,
       evaluationResult: evaluationResult,
+      resourceType: resourceType,
     };
     // 7. Return the evaluation result back to caller
 
@@ -337,39 +384,55 @@ class EvaluateServices {
    * @author Jerry Lee
    */
 
-  public async initiateEvaluationProcess(customerAccountId: string): Promise<any> {
-    //0.pre
-    const userId = config.initialRecord.partyUser.userId;
-
-    const systemUser: IPartyUser = await this.partyUser.findOne({ where: { userId } });
-    if (!systemUser) throw new HttpException(400, `Can't find system account - ${systemUser}`);
-    const UserId = systemUser.partyUserId;
+  public async initiateEvaluationProcess(customerAccountId: string, userId: string): Promise<any> {
     console.log('STEP1');
-
     //1. validate customerAccountid
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
     if (!resultCustomerAccount) throw new HttpException(400, `Can't find customerAccount - ${customerAccountId}`);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
+    console.log('STEP2');
     //2. pull monitoring targets
     const resultMonitoringTarget: IAnomalyMonitoringTarget[] = await this.monitoringTargetService.findMonitoringTargetsByCustomerAccountKey(
       customerAccountKey,
     );
     if (!resultMonitoringTarget) throw new HttpException(401, `Can't find AnomalyTarget - ${customerAccountId}`);
 
+    console.log('STEP3');
     //3. call evaluateMonitorintTarget (ML)
-    console.log('resultMonitoringTarget', resultMonitoringTarget);
-    const clusterUuid = await this.resourceGroupService.getResourceGroupUuidByCustomerAcc(customerAccountKey);
+    //console.log('resultMonitoringTarget', resultMonitoringTarget);
     const resultReturn = {};
     for (let i = 0; i < resultMonitoringTarget.length; i++) {
       const resourceKey = resultMonitoringTarget[i].resourceKey;
 
       let resultEvaluation = await this.evaluateMonitoringTarget(resourceKey);
-      const { evaluationRequest, evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName } = resultEvaluation;
-      logger.info(`evaluationResultStatus------${evaluationResultStatus}`);
+      const { evaluationRequest, evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName, resourceType } = resultEvaluation;
+      console.log(`evaluationResultStatus------${evaluationResultStatus}`);
 
       if (evaluationResultStatus === 'AN') {
-        //4. if any anomaly, create incident ticket
+        console.log('STEP4 - ANOMALY');
+        //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
+        const getResource = await this.resource.findOne({
+          where: { resourceId: resourceId },
+          attributes: ['resourceNamespace'],
+          include: [
+            {
+              model: ResourceGroupModel,
+              as: 'resourceGroup',
+              attributes: ['resourceGroupPrometheus', 'resourceGroupUuid'],
+            },
+          ],
+        });
+        const resourceNamespace = getResource.resourceNamespace;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const prometheusUrl = getResource.dataValues.resourceGroup.dataValues.resourceGroupPrometheus;
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const clusterUuid = getResource.dataValues.resourceGroup.dataValues.resourceGroupUuid;
+        console.log('prometheusUrl', prometheusUrl);
+        console.log('clusterUuid', clusterUuid);
+        //4.2. if any anomaly, create incident ticket
         const incidentData = {
           incidentName: `MetricOps: ${JSON.stringify(resultEvaluation.evaluationRequest.bayesianModel.bayesianModelName)}`,
           incidentDescription: `MetricOps: evaluation Id ${JSON.stringify(resultEvaluation.evaluationResult.evaluation_id)}`,
@@ -378,62 +441,74 @@ class EvaluateServices {
           incidentDueDate: null,
           assigneeId: '',
         };
-
-        const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, UserId, incidentData);
+        const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, userId, incidentData);
         const incidentId = resultIncidentCreate.incidentId;
-
         const firedAlerts = resultEvaluation.evaluationRequest.firedAlerts;
-
         const firedAlertList = firedAlerts.map(a => a.alertReceivedId);
         const alertReceivedIds = { alertReceivedIds: firedAlertList };
 
+        console.log('STEP5');
         //5. attach the alerts (from the result) to the incident tickets
-        await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, alertReceivedIds, UserId);
-        logger.info(`incident ticket is created: ', ${incidentId}, 'Alert Attached - ', ${alertReceivedIds}`);
-        console.log('incident ticket is created: ', incidentId, 'Alert Attached - ', alertReceivedIds);
+        await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, alertReceivedIds, userId);
+        console.log(`incident ticket is created: ', ${incidentId}, 'Alert Attached - ', ${alertReceivedIds}`);
 
-        //6. execute any resolution actions if there are actions under rule group more than a threshhold
-        const threshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
+        console.log('STEP6');
+        //6. execute any resolution actions if there are actions under rule group more than a threshold
+        const nodeThreshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
+        const podThreshold = Number(config.ncBnApiDetail.ncBnPodThreshold);
+
         const ruleGroup = [];
         Object.entries(evaluationResult.alert_group_score).filter(([key, value]) => {
-          const ruleValue = Number(value) * 100;
-          if (ruleValue >= threshold) {
-            ruleGroup.push(key);
+          const ruleValue = Number(value);
+          if (resourceType == 'ND') {
+            if (ruleValue >= nodeThreshold) {
+              ruleGroup.push(key);
+            }
+          } else if (resourceType == 'PD') {
+            if (ruleValue >= podThreshold) {
+              ruleGroup.push(key);
+            } // TODO - else - for workload case later
           }
         });
-        logger.info(`ruleGroup===================, ${ruleGroup}`);
-        console.log('evaluationRequest=============', evaluationRequest);
-        evaluationRequest.ruleGroup.map(async (grp: any) => {
-          if (ruleGroup.indexOf(grp.ruleGroupName) !== -1) {
-            console.log('in iffffffffffffffff', grp);
-            // getResolutionActionByRuleGroupId
-            const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(grp.ruleGroupId);
-            console.log('=resolutionActions============', resolutionActions);
-            resolutionActions.length &&
-              resolutionActions.map(async (resolutionAction: any) => {
-                //7. postExecuteService to sudory server
-                const currentDate = new Date();
-                const start = new Date(currentDate.setHours(currentDate.getHours() - 1)).toDateString();
-                const subscribed_channel = config.sudoryApiDetail.channel_webhook;
-                const end = currentDate.toDateString();
-                const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
-                const resourceReplace = resolutionAction.resolutionActionTemplateSteps.replace('${resourceName}', resourceName);
-                const startReplace = resourceReplace.replace('${start}', start);
-                const steps = startReplace.replace('${end}', end);
-                console.log('steps=============', steps);
-                const serviceOutput: any = await this.executorService.postExecuteService(
-                  `METRICOPS-${resolutionAction?.resolutionActionName}/:CUST-${customerAccountKey}/:INC-${incidentId}`,
-                  `INC-${incidentId}`,
-                  clusterUuid,
-                  templateUuid,
-                  steps,
-                  customerAccountKey,
-                  subscribed_channel,
-                );
-                logger.info(`serviceOutput------${serviceOutput}`);
-              });
-          }
-        });
+        //console.log(`ruleGroup===================, ${ruleGroup}`);
+        //console.log('evaluationRequest=============', evaluationRequest);
+        console.log('RuleGroup:-----------', evaluationRequest.ruleGroup);
+        for (let i = 0; evaluationRequest.ruleGroup.length; i++) {
+          console.log('STEP7');
+          const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(evaluationRequest.ruleGroup[i].ruleGroupId);
+
+          resolutionActions.length &&
+            resolutionActions.map(async (resolutionAction: any) => {
+              //7. postExecuteService to sudory server
+              const currentDate = new Date();
+              const start = new Date(currentDate.setHours(currentDate.getHours() - 1)).toISOString().substring(0.19);
+              const subscribed_channel = config.sudoryApiDetail.channel_webhook;
+              const end = currentDate.toISOString().substring(0.19);
+              const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
+
+              // replace variables of ResolutionAction Query
+              let steps = JSON.stringify(resolutionAction.resolutionActionTemplateSteps);
+              steps = steps.replace('#namespace', resourceNamespace);
+              steps = steps.replace('#prometheusurl', prometheusUrl);
+              steps = steps.replace('#resourcename', resourceName);
+              steps = steps.replace('#name', resourceName);
+              steps = steps.replace('#start', start);
+              steps = steps.replace('#end', end);
+              steps = JSON.parse(steps);
+              const stepsEnd = [{ args: steps }];
+              console.log('Sudory STEPS', JSON.stringify(stepsEnd));
+
+              const serviceOutput: any = await this.executorService.postExecuteService(
+                `METRICOPS-${resolutionAction?.resolutionActionName}/:CUST-${customerAccountKey}/:INC-${incidentId}`,
+                `INC-${incidentId}`,
+                clusterUuid,
+                templateUuid,
+                stepsEnd,
+                customerAccountKey,
+                subscribed_channel,
+              );
+            });
+        }
 
         //8. save the communicaiton result to notification table
 

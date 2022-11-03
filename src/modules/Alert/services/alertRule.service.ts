@@ -247,7 +247,7 @@ class AlertRuleService {
 
   public async deleteAlertRuleByResourceGroupUuid(resourceGroupUuid: string): Promise<object> {
     if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid  must not be empty');
-
+    const result = [];
     const findAlertRule: IAlertRule[] = await this.alertRule.findAll({ where: { resourceGroupUuid: resourceGroupUuid } });
     if (!findAlertRule) {
       console.log('no alert rules');
@@ -266,8 +266,11 @@ class AlertRuleService {
 
       const deleteAlertReceived = await this.alertReceived.update({ deletedAt: new Date() }, queryIn);
       const deleteAlertRule = await this.alertRule.update({ deletedAt: new Date() }, { where: { resourceGroupUuid: resourceGroupUuid } });
+
+      result.push(deleteAlertReceived);
+      result.push(deleteAlertRule);
     }
-    return;
+    return result;
   }
 }
 

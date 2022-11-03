@@ -17,7 +17,7 @@ import SudoryService from '@/modules/CommonService/services/sudory.service';
 //import { Db } from 'mongodb';
 //import sequelize from 'sequelize';
 import config from '@config/index';
-import axios from '@/common/httpClient/axios';
+//import axios from '@/common/httpClient/axios';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
 class ResourceGroupService {

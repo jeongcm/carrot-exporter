@@ -49,9 +49,8 @@ class AnomalyMonitoringTargetRoute implements Routes {
       authMiddleware,
       //createUserLogMiddleware,
       //validationMiddleware(UpdateMonitoringTargetDto, 'body'),
-      this.anomalyMonitoringTargetController.removeMonitoringTargetById,
+      this.anomalyMonitoringTargetController.deleteMonitoringTargetById,
     );
-
   }
 }
 

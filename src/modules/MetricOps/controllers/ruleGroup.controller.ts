@@ -9,8 +9,8 @@ class RuleGroupController {
 
   public getRuleGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      
-      const findRuleGroupData: IRuleGroup[] = await this.ruleGroupService.getRuleGroup();
+      const customerAccountKey = req.customerAccountKey;
+      const findRuleGroupData: IRuleGroup[] = await this.ruleGroupService.getRuleGroup(customerAccountKey);
       res.status(200).json({ data: findRuleGroupData, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -19,7 +19,7 @@ class RuleGroupController {
   public getRuleGroupByModelId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const bayesianModelId = req.params.bayesianModelId;
-      
+
       const findRuleGroupData: IRuleGroup[] = await this.ruleGroupService.getRuleGroupByModelId(bayesianModelId);
       res.status(200).json({ data: findRuleGroupData, message: 'findAll' });
     } catch (error) {
@@ -37,19 +37,17 @@ class RuleGroupController {
     }
   };
 
-  public deleteRuleGroup = async (req:IRequestWithUser, res:Response, next:NextFunction) => {
-    try{
+  public deleteRuleGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
       const ruleGroupId: string = req.params.ruleGroupId;
       const deletedFlag = await this.ruleGroupService.deleteRuleGroup(ruleGroupId);
-      if (deletedFlag){
-        res.status(200).json({ data: deletedFlag, message: 'deleted' });
-      }else{
-        res.status(204).json({ data: deletedFlag, message: 'No Content' });
+      if (deletedFlag) {
+        res.status(200).json({ data: deletedFlag, message: 'deleted RuleGroup' });
       }
-    }catch(error){
+    } catch (error) {
       next(error);
     }
-  }
+  };
 
   public createRuleGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
@@ -71,11 +69,7 @@ class RuleGroupController {
         user: { partyId },
       } = req;
       const ruleGroupData: UpdateRuleGroupDto = req.body;
-      const updateRuleGroupUpdate: IRuleGroup = await this.ruleGroupService.updateRuleGroup(
-        ruleGroupId,
-        ruleGroupData,
-        partyId,
-      );
+      const updateRuleGroupUpdate: IRuleGroup = await this.ruleGroupService.updateRuleGroup(ruleGroupId, ruleGroupData, partyId);
       res.status(200).json({ data: updateRuleGroupUpdate, message: 'updated' });
     } catch (error) {
       next(error);

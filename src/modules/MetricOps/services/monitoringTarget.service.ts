@@ -62,7 +62,7 @@ class AnomalyMonitoringTargetService {
       catalogPlanProductKey: Number(process.env.CATALOGPLANPRODUCT_KEY) || 1,
       subscribedProductStatus: 'AC',
       subscribedProductFrom: new Date(),
-      subscribedProductTo: new Date('Fri, 31 Dec 9999 23:59:59'),
+      subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
       createdBy: systemId,
     };
     const subscribedProductDetail = await this.subscribedProduct.create(subscribedProductData);
@@ -96,32 +96,35 @@ class AnomalyMonitoringTargetService {
    * @returns Promise<object>
    * @author Jerry Lee
    */
-  public async removeMonitoringTarget(anomalyMonitoringTargetId: string, partyId: string): Promise<object> {
+  public async deleteMonitoringTarget(anomalyMonitoringTargetId: string, partyId: string): Promise<object> {
     let result = {};
+    if (isEmpty(anomalyMonitoringTargetId)) throw new HttpException(400, 'monitoringTargetId can not be blank');
+
+    const resultAnomalyMonitoringTarget = await this.findMonitoringTargetById(anomalyMonitoringTargetId);
+    if (isEmpty(resultAnomalyMonitoringTarget)) throw new HttpException(400, 'targetdata not found');
+
     try {
-      if (isEmpty(anomalyMonitoringTargetId)) throw new HttpException(400, 'monitoringTargetId can not be blank');
+      return await DB.sequelize.transaction(async t => {
+        const updateAMT = { updatedBy: partyId, updatedAt: new Date(), deletedAt: new Date(), anomalyMonitoringTargetStatus: 'CA' };
+        await this.AnomalyMonitoringTarget.update(updateAMT, { where: { anomalyMonitoringTargetId }, transaction: t });
+        const subscribedProductKey = resultAnomalyMonitoringTarget.subscribedProductKey;
 
-      const resultAnomalyMonitoringTarget = await this.findMonitoringTargetById(anomalyMonitoringTargetId);
-      if (isEmpty(resultAnomalyMonitoringTarget)) throw new HttpException(400, 'targetdata not found');
+        const updateSP = { updatedBy: partyId, updatedAt: new Date(), deletedAt: new Date(), subscribedProductTo: new Date() };
+        await this.subscribedProduct.update(updateSP, { where: { subscribedProductKey }, transaction: t });
 
-      const updateAMT = { updatedBy: partyId, updatedAt: new Date(), deletedAt: new Date(), anomalyMonitoringTargetStatus: 'CA' };
-      await this.AnomalyMonitoringTarget.update(updateAMT, { where: { anomalyMonitoringTargetId } });
-      const subscribedProductKey = resultAnomalyMonitoringTarget.subscribedProductKey;
-
-      const updateSP = { updatedBy: partyId, updatedAt: new Date(), deletedAt: new Date(), subscribedProductTo: new Date() };
-      await this.subscribedProduct.update(updateSP, { where: { subscribedProductKey } });
-
-      result = {
-        anomalyMonitoringTargetId: anomalyMonitoringTargetId,
-        resourceKey: resultAnomalyMonitoringTarget.resourceKey,
-        anomalyMonitoringTargetStatus: 'CA',
-        subscribedProductKey: subscribedProductKey,
-        subscribedProductTo: Date(),
-      };
+        result = {
+          anomalyMonitoringTargetId: anomalyMonitoringTargetId,
+          resourceKey: resultAnomalyMonitoringTarget.resourceKey,
+          anomalyMonitoringTargetStatus: 'CA',
+          subscribedProductKey: subscribedProductKey,
+          subscribedProductTo: Date(),
+        };
+        return result;
+      });
     } catch (error) {
       console.log(error);
+      throw new HttpException(500, 'Unknown error while deleting monitoring target');
     }
-    return result;
   }
 
   public async updateMonitoringTarget(

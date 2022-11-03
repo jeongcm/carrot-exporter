@@ -131,6 +131,22 @@ class ResourceService {
   /**
    * @param  {string} resourceId
    */
+  public async getAllStatusResourceById(resourceId: string): Promise<IResource> {
+    const resource: IResource = await this.resource.findOne({
+      where: { resourceId },
+      include: [
+        {
+          model: ResourceGroupModel,
+          required: true,
+        },
+      ],
+    });
+    return resource;
+  }
+
+  /**
+   * @param  {string} resourceId
+   */
   public async getResourceKeyById(resourceId: string): Promise<number> {
     const resource: IResource = await this.resource.findOne({
       where: { resourceId },
@@ -508,7 +524,7 @@ class ResourceService {
         })
 
         let pList = resultList.filter(pm => pm.resourceType === "PM")
-        let vList = resultList.filter(vm => (vm.resourceType === "VM" && vm.resourceNamespace === resource.resourceName))
+        let vList = resultList.filter(vm => (vm.resourceType === "VM" && vm.resourceNamespace === resource.resourceTargetUuid))
 
         let vmsInProject = [];
         for (let i = 0; i < vList.length; i++) {

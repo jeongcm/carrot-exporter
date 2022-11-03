@@ -74,16 +74,13 @@ class AnomalyMonitoringTargetController {
     }
   };
 
-  public removeMonitoringTargetById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public deleteMonitoringTargetById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const {
         user: { partyId },
-        params: { anomalyMonitoringTargetId }
+        params: { anomalyMonitoringTargetId },
       } = req;
-      const monitoringTargetData = await this.anomalyMonitoringTargetService.removeMonitoringTarget(
-        anomalyMonitoringTargetId,
-        partyId
-      );
+      const monitoringTargetData = await this.anomalyMonitoringTargetService.deleteMonitoringTarget(anomalyMonitoringTargetId, partyId);
       res.status(200).json({ data: monitoringTargetData, message: 'Remove target successfully' });
     } catch (error) {
       next(error);

@@ -149,16 +149,17 @@ class BayesianModelServices {
       include: [
         {
           model: ModelRuleScoreTable,
-          where: {deletedAt: null},
+          required: false,
+          where: { deletedAt: null },
           attributes: ['bayesianModelKey'],
           include: [
             {
               model: RuleGroupModel,
-              where: {deletedAt: null},
+              where: { deletedAt: null },
               include: [
                 {
                   model: RuleGroupAlertRuleModel,
-                  where: {deletedAt: null},
+                  where: { deletedAt: null },
                 },
               ],
             },
@@ -166,16 +167,13 @@ class BayesianModelServices {
         },
         {
           model: ResourceGroupModel,
-          where: {deletedAt: null},
+          where: { deletedAt: null },
           attributes: ['resourceGroupName', 'resourceGroupId'],
         },
         {
           model: AnomalyMonitoringTargetTable,
-          
-          include: [{ model: ResourceModel,
-                      where: {deletedAt: null},              
-                      include: [{ model: ResourceGroupModel }] 
-                   }],
+          required: false,
+          include: [{ model: ResourceModel, where: { deletedAt: null }, include: [{ model: ResourceGroupModel }] }],
         },
       ],
     });
@@ -319,7 +317,7 @@ class BayesianModelServices {
     const removedTargetData = {};
     for (let i = 0; i < findTarget.length; i++) {
       const targetId = findTarget[i].anomalyMonitoringTargetId;
-      const removeTarget = await this.anomalyMonitoringTargetService.removeMonitoringTarget(targetId, partyId);
+      const removeTarget = await this.anomalyMonitoringTargetService.deleteMonitoringTarget(targetId, partyId);
       if (!removeTarget) throw new HttpException(505, 'Fail to remove monitoring target');
       removedTargetData[i] = { removeTarget };
     }
