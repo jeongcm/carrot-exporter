@@ -163,15 +163,12 @@ class MetricService extends ServiceExtension {
     "OS_CLUSTER_PM_CPU_USAGE", "OS_CLUSTER_PM_MEMORY_USAGE", "OS_CLUSTER_PM_FILESYSTEM_USAGE"]
 
     let list = [];
-    let data
     await Promise.all(
       metricTypes.map(async (metricType) => {
         queryBody.query[0].type = metricType
-        data = await this.getMetricP8S(customerAccountKey, queryBody)
-        list.push(data)
+        return await this.getMetricP8S(customerAccountKey, queryBody)
       })
-    )
-
+    ).then(res => list.push(res))
 
     console.log("list:", list)
     //
