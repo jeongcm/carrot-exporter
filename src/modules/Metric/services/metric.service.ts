@@ -164,6 +164,7 @@ class MetricService extends ServiceExtension {
 
     let pmMetricQuery: IMetricQueryBody = null
     for (var index = 0; index < metricTypes.length; index++) {
+      pmMetricQuery[index] = {}
       pmMetricQuery[index].name = name
       pmMetricQuery[index].type = metricTypes[index]
       pmMetricQuery[index].resourceGroupUuid = resourceGroupUuid
