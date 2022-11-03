@@ -2228,25 +2228,32 @@ class executorService {
     const uuid = require('uuid');
     const sudoryWebhookId = uuid.v1();
     let serviceResult;
-    let incidentActionAttachmentType;
+    let incidentActionAttachmentType = 'JS';
     //step 1. process sudory fed data
     if (DataSetFromSudory.result === null) {
       serviceResult = [];
-      incidentActionAttachmentType = 'JS';
     } else {
       if (typeof DataSetFromSudory.result === 'string') {
         try {
           console.log('sudoryString');
           serviceResult = JSON.parse(DataSetFromSudory.result);
-          if (serviceResult.resultType?.matrix) incidentActionAttachmentType = 'MO';
+          const resultType = 'resultType' in serviceResult;
+          if (resultType) {
+            console.log('resultType', serviceResult.resultType?.matrix);
+            incidentActionAttachmentType = 'MO';
+          }
         } catch (e) {
           console.error(e);
           serviceResult = [];
         }
       } else {
-        console.log('sudoryObject');
+        console.log('sudoryJson');
         serviceResult = JSON.parse(JSON.stringify(DataSetFromSudory.result));
-        if (serviceResult.resultType?.matrix) incidentActionAttachmentType = 'MO';
+        const resultType = 'resultType' in serviceResult;
+        if (resultType) {
+          console.log('resultType', serviceResult.resultType?.matrix);
+          incidentActionAttachmentType = 'MO';
+        }
       }
     }
     //step 2. insert data into SudoryWebhook table
