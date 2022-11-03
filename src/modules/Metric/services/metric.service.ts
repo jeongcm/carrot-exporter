@@ -162,7 +162,7 @@ class MetricService extends ServiceExtension {
     "OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES", "OS_CLUSTER_PM_FILESYSTEM_USED_BYTES", "OS_CLUSTER_PM_NODE_UP_TIME", "OS_CLUSTER_PM_NODE_STATUS",
     "OS_CLUSTER_PM_CPU_USAGE", "OS_CLUSTER_PM_MEMORY_USAGE", "OS_CLUSTER_PM_FILESYSTEM_USAGE"]
 
-    let pmMetricQuery: IMetricQueryBody = null
+    let pmMetricQuery: any = []
     for (var index = 0; index < metricTypes.length; index++) {
       pmMetricQuery[index] = {}
       pmMetricQuery[index].name = name
