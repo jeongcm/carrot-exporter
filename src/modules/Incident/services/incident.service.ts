@@ -1,4 +1,4 @@
-import { IncidentActionAttachmentModel } from '@/modules/Incident/models/incidentActionAttachment.model';
+//import { IncidentActionAttachmentModel } from '@/modules/Incident/models/incidentActionAttachment.model';
 import { IIncidentActionAttachment, IIncidentActionAttachmentResponse } from './../../../common/interfaces/incidentActionAttachment.interface';
 import _ from 'lodash';
 import DB from '@/database';
@@ -13,13 +13,13 @@ import { CreateIncidentActionDto } from '@/modules/Incident/dtos/incidentAction.
 
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
-import { IncidentModel } from '@/modules/Incident/models/incident.model';
+//import { IncidentModel } from '@/modules/Incident/models/incident.model';
 import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
 import { IncidentActionModel } from '@/modules/Incident/models/incidentAction.model';
 
-import { IIncidentAlertReceived } from '@/common/interfaces/incidentAlertReceived.interface';
+//import { IIncidentAlertReceived } from '@/common/interfaces/incidentAlertReceived.interface';
 import { IIncidentCounts } from '@/common/interfaces/incidentCounts.interface';
-import sequelize from 'sequelize';
+//import sequelize from 'sequelize';
 import { Op } from 'sequelize';
 import { PartyModel } from '@/modules/Party/models/party.model';
 import PartyService from '@/modules/Party/services/party.service';
@@ -28,7 +28,7 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachment.dto';
-import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
+//import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
 
 import { logger } from '@/common/utils/logger';
 

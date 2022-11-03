@@ -2228,17 +2228,17 @@ class executorService {
     const uuid = require('uuid');
     const sudoryWebhookId = uuid.v1();
     let serviceResult;
-    let serviceResultType;
+    let incidentActionAttachmentType;
     //step 1. process sudory fed data
     if (DataSetFromSudory.result === null) {
       serviceResult = [];
-      serviceResultType = 'JSON';
+      incidentActionAttachmentType = 'JS';
     } else {
       if (typeof DataSetFromSudory.result === 'string') {
         try {
           console.log('sudoryString');
           serviceResult = JSON.parse(DataSetFromSudory.result);
-          if (serviceResult.resultType?.matrix) serviceResultType = 'METRIC';
+          if (serviceResult.resultType?.matrix) incidentActionAttachmentType = 'MO';
         } catch (e) {
           console.error(e);
           serviceResult = [];
@@ -2246,7 +2246,7 @@ class executorService {
       } else {
         console.log('sudoryObject');
         serviceResult = JSON.parse(JSON.stringify(DataSetFromSudory.result));
-        if (serviceResult.resultType?.matrix) serviceResultType = 'METRIC';
+        if (serviceResult.resultType?.matrix) incidentActionAttachmentType = 'MO';
       }
     }
     //step 2. insert data into SudoryWebhook table
@@ -2312,22 +2312,22 @@ class executorService {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const incidentAction = await this.incidentService.createIncidentAction(customerAccountKey, incidentId, actionData, 'SYSTEM');
-      console.log('serviceResultType', serviceResultType);
+      console.log('incidentActionAttachmentType', incidentActionAttachmentType);
       //create incident Action attachement
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      const parts = [new Blob([JSON.stringify(resultSudoryWebhook.serviceResult)], { type: 'text/json' })];
+      const parts = [new Blob([JSON.stringify(resultSudoryWebhook.serviceResult)], { type: 'application/json' })];
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const incidentActionAttachmentFile = new File(parts, `${resultSudoryWebhook.serviceName}.json`, {
         lastModified: Date.now(),
-        type: 'text/json',
+        type: 'application/json',
       });
       console.log('file well created');
       const actionAttachmentData = {
         incidentActionAttachmentName: resultSudoryWebhook.serviceName,
         incidentActionAttachmentDescription: resultSudoryWebhook.statusDescription,
-        incidentActionAttachmentType: 'JS',
+        incidentActionAttachmentType: incidentActionAttachmentType,
         incidentActionAttachmentFilename: `${resultSudoryWebhook.serviceName}.json`,
       };
       const resultAttachment = await this.incidentService.createIncidentActionAttachment(

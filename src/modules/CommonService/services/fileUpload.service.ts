@@ -1,7 +1,7 @@
 import AWS from 'aws-sdk';
 import { HttpException } from '@common/exceptions/HttpException';
 import config from '@config/index';
-import { logger } from '@/common/utils/logger';
+//import { logger } from '@/common/utils/logger';
 
 const space = new AWS.S3({
   endpoint: config.fileUpload.DOEndPoint,
