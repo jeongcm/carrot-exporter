@@ -163,14 +163,20 @@ class MetricService extends ServiceExtension {
     "OS_CLUSTER_PM_CPU_USAGE", "OS_CLUSTER_PM_MEMORY_USAGE", "OS_CLUSTER_PM_FILESYSTEM_USAGE"]
 
     let list = [];
-    await Promise.all(
-      metricTypes.map(async (metricType) => {
-        queryBody.query[0].type = metricType
-        return await this.getMetricP8S(customerAccountKey, queryBody)
-      })
-    ).then(res => list.push(res))
+    try {
+      await Promise.all(
+        metricTypes.map(async (metricType) => {
+          queryBody.query[0].type = metricType
+          return await this.getMetricP8S(customerAccountKey, queryBody)
+        })
+      ).then(async res => list.push(res))
 
-    console.log("list:", list)
+      console.log("list:", list)
+
+    } catch (e) {
+      return this.throwError('EXCEPTION', e);
+    }
+
     //
     // let pmMetricQuery: any = []
     // for (var index = 0; index < metricTypes.length; index++) {
