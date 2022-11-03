@@ -157,22 +157,23 @@ class MetricService extends ServiceExtension {
   }
 
   public async getMetricP8SPM(customerAccountKey: number, queryBody: IMetricQueryBody) {
-    const query = queryBody.query[0]
+    const { name, start, end, step, resourceGroupUuid } = queryBody.query[0];
     const metricTypes: string[] = ["OS_CLUSTER_PM_TOTAL_CPU_COUNT", "OS_CLUSTER_PM_MEMORY_TOTAL_BYTES", "OS_CLUSTER_PM_MEMORY_USED_BYTES",
     "OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES", "OS_CLUSTER_PM_FILESYSTEM_USED_BYTES", "OS_CLUSTER_PM_NODE_UP_TIME", "OS_CLUSTER_PM_NODE_STATUS",
     "OS_CLUSTER_PM_CPU_USAGE", "OS_CLUSTER_PM_MEMORY_USAGE", "OS_CLUSTER_PM_FILESYSTEM_USAGE"]
 
+    let pmMetricQuery: IMetricQueryBody = null
     for (var index = 0; index < metricTypes.length; index++) {
-      queryBody.query[index].name = query.name
-      queryBody.query[index].type = metricTypes[index]
-      queryBody.query[index].resourceGroupUuid = query.resourceGroupUuid
-      queryBody.query[index].step = query.step
-      queryBody.query[index].start = query.start
-      queryBody.query[index].end = query.end
+      pmMetricQuery[index].name = name
+      pmMetricQuery[index].type = metricTypes[index]
+      pmMetricQuery[index].resourceGroupUuid = resourceGroupUuid
+      pmMetricQuery[index].step = step
+      pmMetricQuery[index].start = start
+      pmMetricQuery[index].end = end
     }
 
-    console.log(queryBody)
-    return await this.getMetricP8S(customerAccountKey, queryBody)
+    console.log(pmMetricQuery)
+    return await this.getMetricP8S(customerAccountKey, pmMetricQuery)
   }
 
   public async getMetricP8S(customerAccountKey: number, queryBody: IMetricQueryBody) {
