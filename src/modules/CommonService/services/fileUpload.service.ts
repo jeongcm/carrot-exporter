@@ -67,7 +67,44 @@ class fileUploadService {
       };
     }
   }
+  public async uploadServiceWithJson(fileName: string, fileType: string, body: any): Promise<any> {
+    try {
+      const uploadParameters = {
+        Bucket: BucketName,
+        ContentType: fileType,
+        Body: body,
+        ACL: 'public-read',
+        Key: fileName,
+      };
 
+      console.log(uploadParameters);
+      console.log(config.fileUpload);
+
+      const result = space.upload(uploadParameters);
+      const promise = result.promise();
+
+      const data = await promise.then(
+        function (data) {
+          return {
+            status: 'ok',
+            data: data,
+          };
+        },
+        function (err) {
+          return {
+            status: 'error',
+            data: err,
+          };
+        },
+      );
+      return data;
+    } catch (err) {
+      return {
+        status: 'error',
+        data: err,
+      };
+    }
+  }
   public async get(req: any): Promise<any> {
     const downloadParameters = {
       Bucket: BucketName,

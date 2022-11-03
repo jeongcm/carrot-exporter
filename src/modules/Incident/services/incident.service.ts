@@ -606,6 +606,49 @@ class IncidentService {
     }
   }
 
+  public async createIncidentActionAttachmentFromService(
+    customerAccountKey: number,
+    incidentId: string,
+    actionId: string,
+    actionAttachmentData: CreateIncidentActionAttachmentDto,
+    logginedUserId: string,
+    incidentActionAttachmentBody: any,
+  ): Promise<IIncidentActionAttachment> {
+    if (isEmpty(actionAttachmentData)) throw new HttpException(400, 'Incident must not be empty');
+
+    const tableIdTableName = 'IncidentActionAttachment';
+    const moduleName = 'INC';
+
+    const { incidentActionKey } = await this.getIncidentActionKey(customerAccountKey, incidentId, actionId);
+
+    try {
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+
+      const fileName = moduleName + customerAccountKey + '-' + logginedUserId + '-' + responseTableIdData.tableIdFinalIssued;
+
+      const uploadedFilePath = await this.fileUploadService.uploadServiceWithJson(
+        fileName,
+        actionAttachmentData.incidentActionAttachmentFileType,
+        incidentActionAttachmentBody,
+      );
+
+      if (uploadedFilePath.status === 'ok') {
+        const createdActionAttachment: IIncidentActionAttachment = await this.incidentActionAttachment.create({
+          ...actionAttachmentData,
+          createdBy: logginedUserId,
+          incidentActionKey,
+          incidentActionAttachmentId: responseTableIdData.tableIdFinalIssued,
+          incidentActionAttachmentPath: uploadedFilePath.data.Key,
+        });
+        return createdActionAttachment;
+      } else {
+        throw new HttpException(500, uploadedFilePath.data);
+      }
+    } catch (error) {
+      throw new HttpException(400, 'Not able to attach this attachment.');
+    }
+  }
+
   public async getAttachmentById(customerAccountKey: number, attachmentId: string): Promise<IIncidentActionAttachment> {
     const attachment: IIncidentActionAttachment = await this.incidentActionAttachment.findOne({
       where: { deletedAt: null, incidentActionAttachmentId: attachmentId },

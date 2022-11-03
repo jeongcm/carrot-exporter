@@ -1,7 +1,7 @@
 import DB from '@/database';
 import axios from 'common/httpClient/axios';
 import config from '@config/index';
-import { Blob } from 'buffer';
+
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
@@ -21,6 +21,8 @@ import TableIdService from './tableId.service';
 //import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
+import { validateLocaleAndSetLanguage } from 'typescript';
+import { CreateIncidentActionAttachmentDto } from '@/modules/Incident/dtos/incidentActionAttachment.dto';
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
@@ -2251,7 +2253,7 @@ class executorService {
         serviceResult = JSON.parse(JSON.stringify(DataSetFromSudory.result));
         const resultType = 'resultType' in serviceResult;
         if (resultType) {
-          console.log('resultType', serviceResult.resultType?.matrix);
+          console.log('resultType', serviceResult.resultType);
           incidentActionAttachmentType = 'MO';
         }
       }
@@ -2321,23 +2323,27 @@ class executorService {
       const incidentAction = await this.incidentService.createIncidentAction(customerAccountKey, incidentId, actionData, 'SYSTEM');
       console.log('incidentActionAttachmentType', incidentActionAttachmentType);
       //create incident Action attachement
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      /*
       const parts = [new Blob([JSON.stringify(resultSudoryWebhook.serviceResult)], { type: 'application/json' })];
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+
+      console.log('parts', parts);
       const incidentActionAttachmentFile = new File(parts, `${resultSudoryWebhook.serviceName}.json`, {
         lastModified: Date.now(),
         type: 'application/json',
       });
+      */
+      const incidentActionAttachmentBody = JSON.stringify(resultSudoryWebhook.serviceResult);
       console.log('file well created');
+
       const actionAttachmentData = {
         incidentActionAttachmentName: resultSudoryWebhook.serviceName,
         incidentActionAttachmentDescription: resultSudoryWebhook.statusDescription,
         incidentActionAttachmentType: incidentActionAttachmentType,
         incidentActionAttachmentFilename: `${resultSudoryWebhook.serviceName}.json`,
+        incidentActionAttachmentContentType: 'application/json',
       };
-      const resultAttachment = await this.incidentService.createIncidentActionAttachment(
+
+      const resultAttachment = await this.incidentService.createIncidentActionAttachmentFromService(
         customerAccountKey,
         incidentId,
         incidentAction.incidentActionId,
@@ -2345,7 +2351,7 @@ class executorService {
         // @ts-ignore
         actionAttachmentData,
         'SYSTEM',
-        incidentActionAttachmentFile,
+        incidentActionAttachmentBody,
       );
       console.log(resultAttachment);
     }
