@@ -616,6 +616,8 @@ class IncidentService {
   ): Promise<IIncidentActionAttachment> {
     if (isEmpty(actionAttachmentData)) throw new HttpException(400, 'Incident must not be empty');
 
+    console.log('actionAttachmentData', actionAttachmentData);
+
     const tableIdTableName = 'IncidentActionAttachment';
     const moduleName = 'INC';
 

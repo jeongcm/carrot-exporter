@@ -77,7 +77,7 @@ class fileUploadService {
         Key: fileName,
       };
 
-      console.log(uploadParameters);
+      console.log('uploadParameters', uploadParameters);
       console.log(config.fileUpload);
 
       const result = space.upload(uploadParameters);
