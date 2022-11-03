@@ -20,11 +20,12 @@ class MetricController {
   public uploadResource = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const queryBody = req.body;
+      const customerAccountKey = req.body.customerAccountKey
 
       let result: any = null;
       switch (req.params.resourceType) {
         case "PM":
-          result = await this.metricService.uploadResourcePM(queryBody.customerAccountKey, queryBody);
+          result = await this.metricService.uploadResourcePM(customerAccountKey, queryBody);
       }
       res.status(200).json({ data: result, message: `upload Resource` });
     } catch (error) {

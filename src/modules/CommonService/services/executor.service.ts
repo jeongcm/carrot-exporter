@@ -983,19 +983,12 @@ class executorService {
     const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, uploadPMQuery)
     if (!resultPM) {console.log(resultPM)}
 
-    const openstackSteps = [
-      {
-        args: {
-          credential_key: "openstack_token_0",
-        }
-      }
-    ]
     const resultPJ = await this.postExecuteService(
       'openstack interface for PJList',
       'openstack interface for PJList',
       clusterUuid,
       '50000000000000000000000000000002',
-      openstackSteps,
+      [{args: {credential_key: "openstack_token_0",}}],
       customerAccountKey,
       subscribedChannelResource,
     );
@@ -1006,7 +999,7 @@ class executorService {
       'openstack interface for VMList',
       clusterUuid,
       '50000000000000000000000000000004',
-      openstackSteps,
+      [{args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}}}],
       customerAccountKey,
       subscribedChannelResource,
     );
@@ -1911,7 +1904,7 @@ class executorService {
     case "PM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      executorServerUrl = config.appUrl + ':' + config.appPort + '/metric/upload/PM'
+      executorServerUrl = config.appUrl + ':' + config.appPort + '/metric/upload/PM';
 
       let uploadPMQuery: any = {}
       let metricQuery: any[] = []
@@ -1920,21 +1913,23 @@ class executorService {
       metricQuery[0].type = "OS_CLUSTER_PM_INFO"
       metricQuery[0].resourceGroupUuid = clusterUuid
 
-      uploadPMQuery.query = metricQuery
-      uploadPMQuery.customerAccountKey = customerAccountKey
+      uploadPMQuery = {
+        query: metricQuery,
+        customerAccountKey: customerAccountKey
+      }
 
       apiBody = uploadPMQuery
-      break
+      break;
     case "PJ":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
       steps.push({args: {credential_key: "openstack_token_0"}})
-      break
+      break;
     case "VM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      steps.push({args: {credential_key: "openstack_token_0"}})
-      break
+      steps.push({args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}}})
+      break;
     default:
       scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'K8S interface for ' + selectedTemplate.resourceName;
