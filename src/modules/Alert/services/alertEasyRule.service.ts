@@ -287,6 +287,9 @@ class AlertEasyRuleService {
           alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
           alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
           alertEasyRuleThreshold2: alertEasyRule.alertEasyRuleThreshold2,
+          alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
+          alertEasyRuleThreshold2Unit: alertEasyRule.alertEasyRuleThreshold2Unit,
+
           alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
         };
         const createAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.create(createQuery);
