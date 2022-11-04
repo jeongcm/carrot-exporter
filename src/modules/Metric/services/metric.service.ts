@@ -1111,7 +1111,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(avg by (nodename) (1 - avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) by (nodename)) * 100)`
+        promQl = `sort_desc(avg by (nodename) (1 - avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[60m])) by (nodename)) * 100)`
         break;
 
       case 'OS_CLUSTER_PM_MEMORY_RANKING':
@@ -1119,7 +1119,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl =  `sort_desc((sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100)`
+        promQl = `sort_desc((sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100)`
         break;
 
       case 'OS_CLUSTER_PM_DISK_RANKING':
@@ -1136,6 +1136,56 @@ class MetricService extends ServiceExtension {
         });
 
         promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
+        break;
+
+      case 'OS_CLUSTER_VM_CPU_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sort_desc(avg by (nodename) (1 - avg(rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[60m])) by (nodename)) * 100)`
+        break;
+
+      case 'OS_CLUSTER_VM_MEMORY_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sort_desc((sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100)`
+        break;
+
+      case 'OS_CLUSTER_VM_DISK_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sort_desc((sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum by (nodename) (avg(nc:node_filesystem_avail_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename)))))`
+        break;
+
+      case 'OS_CLUSTER_VM_RXTX_TOTAL_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
+        break;
+
+      case 'OS_CLUSTER_VM_PROCESS_COUNT':
+        break;
+
+      case 'OS_CLUSTER_VM_PROCESS_FD_COUNT':
+        break;
+
+      case 'OS_CLUSTER_VM_PROCESS_CPU_USAGE':
+        break;
+
+      case 'OS_CLUSTER_VM_PROCESS_MEMORY_USAGE':
+        break;
+
+      case 'OS_CLUSTER_VM_PROCESS_FILESYSTEM_READ_BYTES':
+        break;
+
+      case 'OS_CLUSTER_VM_PROCESS_FILESYSTEM_WRITE_BYTES':
         break;
     }
 
