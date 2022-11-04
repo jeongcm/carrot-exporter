@@ -409,7 +409,7 @@ class EvaluateServices {
         //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
         const getResource = await this.resource.findOne({
           where: { resourceId: resourceId },
-          attributes: ['resourceNamespace'],
+          attributes: ['resourceNamespace', 'resourcePvcStorage'],
           include: [
             {
               model: ResourceGroupModel,
@@ -418,7 +418,20 @@ class EvaluateServices {
             },
           ],
         });
+        console.log('getResource', getResource);
         const resourceNamespace = getResource.resourceNamespace;
+
+        let volume = '';
+        let volumeVal = 0;
+        let volumeVal30 = 0;
+        let volumeVal30String = '';
+        if (getResource.resourcePvcStorage) {
+          volume = getResource.resourcePvcStorage?.requests.storage;
+          volumeVal = parseInt(volume.replace('Gi', ''));
+          volumeVal30 = volumeVal * 1.3;
+          volumeVal30String = volumeVal30.toString();
+        }
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const prometheusUrl = getResource.dataValues.ResourceGroup.dataValues.resourceGroupPrometheus;
@@ -489,6 +502,7 @@ class EvaluateServices {
               steps = steps.replace('#name', resourceName);
               steps = steps.replace('#start', start);
               steps = steps.replace('#end', end);
+              steps = steps.replace('#expandedvolume30%', volumeVal30String);
               steps = JSON.parse(steps);
               const stepsEnd = [{ args: steps }];
               console.log('Sudory STEPS', JSON.stringify(stepsEnd));

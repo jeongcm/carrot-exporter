@@ -89,6 +89,7 @@ class AlertEasyRuleService {
     });
     if (!findCustomerAccount) throw new HttpException(400, `couldn't find customerAccount information`);
     const customerAccountKey = findCustomerAccount.customerAccountKey;
+
     // step 1.2 find ResourceGroup
     const findResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
@@ -127,8 +128,14 @@ class AlertEasyRuleService {
         // if there is a same alert...
         alertGroup = findAlertRule.alertRuleGroup;
       }
+
+      console.log('ResourceGroupUuid', resourceGroupUuid);
+      console.log('prometheus', prometheus);
+
       const appName = prometheus.substring(7, prometheus.indexOf('.'));
       const prometheusRuleGroupName = appName.substring(0, appName.length - 11) + '-' + alertGroup;
+
+      console.log('prometheusRuleGroupName', prometheusRuleGroupName);
 
       const sudorySName = 'getPrometheusRule';
       const sudorySummary = 'getPrometheusRule';

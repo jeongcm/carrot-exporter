@@ -144,6 +144,20 @@ class ResolutionActionService {
       return [];
     }
   }
+
+  public async deleteResolutionActionByResolutionActionId(resolutionActionId: string): Promise<Object> {
+    let resultMsg = {};
+    if (isEmpty(resolutionActionId)) throw new HttpException(400, 'resolutionActionId cannot be blank');
+    const getResolutionAction: IResolutionAction = await this.resolutionAction.findOne({
+      where: { resolutionActionId: resolutionActionId, deletedAt: null },
+    });
+    if (!getResolutionAction) throw new HttpException(404, 'cannot find resolutin action');
+    const deleteResolutionAction = await this.resolutionAction.update({ deletedAt: new Date() }, { where: { resolutionActionId } });
+
+    console.log('deleteResolutionAction', deleteResolutionAction);
+    resultMsg = { result: 'delete success', requestedResolutionAction: resolutionActionId };
+    return resultMsg;
+  }
 }
 
 export default ResolutionActionService;

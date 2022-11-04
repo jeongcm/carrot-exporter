@@ -37,6 +37,11 @@ class ResolutionActionRoute implements Routes {
     );
 
     this.router.get('/resolutionActions/:ruleGroupId', authMiddleware, this.resoltutionActionController.getResolutionActionByRuleGroupId);
+    this.router.delete(
+      '/resolutionAction/:resolutionActionId',
+      authMiddleware,
+      this.resoltutionActionController.deleteResolutionActionByResolutionActionId,
+    );
   }
 }
 
