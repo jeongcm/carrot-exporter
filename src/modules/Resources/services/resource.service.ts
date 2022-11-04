@@ -126,10 +126,6 @@ class ResourceService {
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
       raw: true,
     });
-    const current = resource.resourcePvcStorage?.requests.storage;
-    const currentVal = parseInt(current.replace('Gi', ''));
-    console.log('volume--------------', currentVal);
-    console.log('volumex3--------------', currentVal * 1.3);
     return resource;
   }
 

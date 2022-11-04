@@ -402,8 +402,8 @@ class AlertEasyRuleService {
         alertRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
       },
     });
-    if (!findResourceGroup) throw new HttpException(405, `couldn't find existing alert rule information`);
-
+    if (!findAlertRule) throw new HttpException(405, `couldn't find existing alert rule information`);
+    console.log('findAlertRule', findAlertRule);
     const prometheusNamespace = findResourceGroup.resourceGroupKpsLokiNamespace;
     const prometheus = findResourceGroup.resourceGroupPrometheus;
 

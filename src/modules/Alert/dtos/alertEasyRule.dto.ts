@@ -49,6 +49,9 @@ export class UpdateAlertEasyRuleDto {
   public alertEasyRuleId: string;
   @IsString()
   @IsOptional()
+  public alertEasyRuleName: string;
+  @IsString()
+  @IsOptional()
   public alertEasyRuleDescription: string;
   @IsString()
   @IsOptional()
