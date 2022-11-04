@@ -633,7 +633,7 @@ class IncidentService {
         actionAttachmentData.incidentActionAttachmentFileType,
         incidentActionAttachmentBody,
       );
-
+      console.log('uploadedFilePath', uploadedFilePath);
       if (uploadedFilePath.status === 'ok') {
         const createdActionAttachment: IIncidentActionAttachment = await this.incidentActionAttachment.create({
           ...actionAttachmentData,
@@ -642,6 +642,7 @@ class IncidentService {
           incidentActionAttachmentId: responseTableIdData.tableIdFinalIssued,
           incidentActionAttachmentPath: uploadedFilePath.data.Key,
         });
+        console.log('createdActionAttachment', createdActionAttachment);
         return createdActionAttachment;
       } else {
         throw new HttpException(500, uploadedFilePath.data);
