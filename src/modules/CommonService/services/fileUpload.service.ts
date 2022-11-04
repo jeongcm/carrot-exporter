@@ -76,10 +76,8 @@ class fileUploadService {
         ACL: 'public-read',
         Key: fileName,
       };
-
       console.log('uploadParameters', uploadParameters);
       console.log(config.fileUpload);
-
       const result = space.upload(uploadParameters);
       const promise = result.promise();
 

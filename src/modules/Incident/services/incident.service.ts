@@ -635,6 +635,7 @@ class IncidentService {
       );
       console.log('uploadedFilePath', uploadedFilePath);
       if (uploadedFilePath.status === 'ok') {
+        console.log('file upload is done');
         const createdActionAttachment: IIncidentActionAttachment = await this.incidentActionAttachment.create({
           ...actionAttachmentData,
           createdBy: logginedUserId,
