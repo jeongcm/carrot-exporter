@@ -975,7 +975,7 @@ class MetricService extends ServiceExtension {
         });
 
         ranged = true;
-        promQl = `avg by (nodename) (1 - avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) by (nodename)) * 100`
+        promQl = `100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) * 100`
         break;
 
       case 'OS_CLUSTER_PM_MEMORY_USAGE':
@@ -1066,7 +1066,7 @@ class MetricService extends ServiceExtension {
         });
 
         ranged = true;
-        promQl = `avg by (nodename) (1 - avg(rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) by (nodename)) * 100`
+        promQl = `100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) * 100)`
         break;
 
       case 'OS_CLUSTER_VM_MEMORY_USAGE':
@@ -1111,7 +1111,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(avg by (nodename) (1 - avg(rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[60m])) by (nodename)) * 100)`
+        promQl = `sort_desc(100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) * 100)`
         break;
 
       case 'OS_CLUSTER_PM_MEMORY_RANKING':
@@ -1143,7 +1143,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(avg by (nodename) (1 - avg(rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[60m])) by (nodename)) * 100)`
+        promQl = `sort_desc(100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) * 100))`
         break;
 
       case 'OS_CLUSTER_VM_MEMORY_RANKING':
@@ -1170,22 +1170,52 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
         break;
 
-      case 'OS_CLUSTER_VM_PROCESS_COUNT':
+      case 'OS_CLUSER_VM_PROCESS_COUNT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_FD_COUNT':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_CPU_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_MEMORY_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_FILESYSTEM_READ_BYTES':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_FILESYSTEM_WRITE_BYTES':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+
         break;
     }
 
