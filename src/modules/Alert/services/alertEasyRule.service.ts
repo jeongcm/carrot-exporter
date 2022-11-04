@@ -304,7 +304,7 @@ class AlertEasyRuleService {
         {
           model: ResourceGroupModel,
           required: true,
-          attributes: ['resourceGroupName', 'resourceGroupUuid'],
+          attributes: ['resourceGroupName', 'resourceGroupUuid', 'resourceGroupId'],
           where: { deletedAt: null },
         },
         {
@@ -335,7 +335,7 @@ class AlertEasyRuleService {
         {
           model: ResourceGroupModel,
           required: true,
-          attributes: ['resourceGroupName', 'resourceGroupUuid'],
+          attributes: ['resourceGroupName', 'resourceGroupUuid', 'resourceGroupId', 'resourceGroupProvider'],
           where: { deletedAt: null },
         },
         {
