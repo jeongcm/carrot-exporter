@@ -16,6 +16,8 @@ export interface IAlertEasyRule {
   alertEasyRuleThreshold2: string;
   alertEasyRuleThreshold1Unit: string;
   alertEasyRuleThreshold2Unit: string;
+  alertEasyRuleThreshold1Max: string;
+  alertEasyRuleThreshold2Max: string;
   alertEasyRuleQuery: string;
   alertEasyRuleGroup: string;
   alertEasyRuleSeverity: string;
