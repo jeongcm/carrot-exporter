@@ -564,19 +564,20 @@ class ResourceService {
    */
   public async getResourceCountByResourceType(resourceType: string, customerAccountKey: number, query?: any): Promise<number> {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType };
+    let result: any = {};
 
     if (query?.resourceGroupId) {
       let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId);
       resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
-      return await this.resource.count({
+      result = await this.resource.count({
+        where: resourceWhereCondition,
+      });
+    } else {
+      result = await this.resource.count({
         where: resourceWhereCondition,
       });
     }
-
-    return await this.resource.count({
-      where: resourceWhereCondition,
-    });
-    ;
+    return result;
   }
 
   /**
