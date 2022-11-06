@@ -31,7 +31,10 @@ export class CreateAlertEasyRuleDto {
   public alertEasyRuleThreshold1Unit: string;
   @IsString()
   public alertEasyRuleThreshold2Unit: string;
-
+  @IsString()
+  public alertEasyRuleThreshold1Max: string;
+  @IsString()
+  public alertEasyRuleThreshold2Max: string;
   @IsString()
   @IsNotEmpty()
   public alertEasyRuleQuery: string;
@@ -80,7 +83,12 @@ export class UpdateAlertEasyRuleDto {
   @IsString()
   @IsOptional()
   public alertEasyRuleThreshold2Unit: string;
-
+  @IsString()
+  @IsOptional()
+  public alertEasyRuleThreshold1Max: string;
+  @IsString()
+  @IsOptional()
+  public alertEasyRuleThreshold2Max: string;
   @IsString()
   @IsNotEmpty()
   public resourceGroupUuid: string;
