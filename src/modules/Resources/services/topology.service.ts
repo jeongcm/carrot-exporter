@@ -55,10 +55,24 @@ class TopologyService extends ServiceExtension {
   }
 
   public async getAllTopology(type: string, customerAccountKey: number) {
+    let where: any = {
+      resourceGroupPlatform: 'K8',
+    };
+
+    switch (type) {
+      case 'pj-vms':
+      case 'pms':
+        where = {
+          resourceGroupPlatform: 'OS',
+        };
+        break;
+    }
+
     const accountResourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
       where: {
         customerAccountKey,
         deletedAt: null,
+        ...where,
       },
     });
 
@@ -72,7 +86,8 @@ class TopologyService extends ServiceExtension {
       accountResourceGroups.map(async (resourceGroup: IResourceGroup) => {
         const children = await this.getResourceGroupTopology(type, resourceGroup, customerAccountKey);
 
-        const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider,resourceGroupUuid } = resourceGroup;
+        const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider, resourceGroupUuid } =
+          resourceGroup;
 
         topologyPerGroupId[resourceGroup.resourceGroupId] = {
           resourceGroup: {
@@ -81,7 +96,7 @@ class TopologyService extends ServiceExtension {
             resourceGroupDescription,
             resourceGroupPlatform,
             resourceGroupProvider,
-            resourceGroupUuid
+            resourceGroupUuid,
           },
           children,
         };
@@ -98,6 +113,12 @@ class TopologyService extends ServiceExtension {
     let queryOptions: any = {};
 
     switch (type) {
+      case 'pj-vms':
+        resourceType = ['PJ', 'VM'];
+        break;
+      case 'pms':
+        resourceType = ['PM'];
+        break;
       case 'nodes':
         resourceType = ['ND'];
         break;
@@ -134,6 +155,10 @@ class TopologyService extends ServiceExtension {
     }
 
     switch (type) {
+      case 'pj-vms':
+        return await this.createPjVmTopology(resources);
+      case 'pms':
+        return await this.createPmTopology(resources);
       case 'nodes':
         return await this.createNodeTopology(resources);
       case 'workload-pods':
@@ -143,6 +168,20 @@ class TopologyService extends ServiceExtension {
     }
   }
 
+  public async createPmTopology(resources: IResource[]) {
+    const topologyItems = [];
+
+    resources.forEach((resource: IResource) => {
+      topologyItems.push({
+        id: resource.resourceId,
+        name: resource.resourceName,
+        resourceStatus: resource.resourceStatus,
+      });
+    });
+
+    return topologyItems;
+  }
+
   public async createNodeTopology(resources: IResource[]) {
     const topologyItems = [];
 
@@ -150,6 +189,7 @@ class TopologyService extends ServiceExtension {
       topologyItems.push({
         id: resource.resourceId,
         name: resource.resourceName,
+        resource,
       });
     });
 
@@ -210,7 +250,7 @@ class TopologyService extends ServiceExtension {
           }
 
           owners?.map((owner: any) => {
-           // TODO: Add DaemonSet, StatefulSet, Deployment?
+            // TODO: Add DaemonSet, StatefulSet, Deployment?
             if (owner.uid) {
               if (!podsPerUid[namespace]) {
                 podsPerUid[namespace] = {};
@@ -237,8 +277,6 @@ class TopologyService extends ServiceExtension {
     });
 
     Object.keys(podsPerUid).forEach((namespace: string) => {
-      console.log(podsPerUid[namespace]);
-      console.log(sets[namespace]);
       Object.keys(podsPerUid[namespace]).forEach((key: string) => {
         if (sets[namespace] && sets[namespace][key]) {
           sets[namespace][key].children = podsPerUid[namespace][key];
@@ -260,7 +298,18 @@ class TopologyService extends ServiceExtension {
   }
 
   public async countResources(customerAccountKey: number, resourceTypes: string[]): Promise<GroupedCountResultItem[]> {
-    const counts: GroupedCountResultItem[] = await this.resource.count({
+    const resourceGroupTypes: string[] = [];
+    if (resourceTypes.indexOf('OS') > -1) {
+      resourceGroupTypes.push('OS');
+      resourceTypes.splice(resourceTypes.indexOf('OS'), 1);
+    }
+
+    if (resourceTypes.indexOf('K8') > -1) {
+      resourceGroupTypes.push('K8');
+      resourceTypes.splice(resourceTypes.indexOf('K8'), 1);
+    }
+
+    let counts: GroupedCountResultItem[] = await this.resource.count({
       where: {
         customerAccountKey,
         resourceType: resourceTypes,
@@ -270,12 +319,33 @@ class TopologyService extends ServiceExtension {
       group: 'resourceType',
     });
 
+    if (resourceGroupTypes.length > 0) {
+      let resourceCounts: GroupedCountResultItem[] = await this.resourceGroup.count({
+        where: {
+          customerAccountKey,
+          resourceGroupPlatform: resourceGroupTypes,
+          deletedAt: null,
+        },
+        attributes: ['resourceGroupPlatform'],
+        group: 'resourceGroupPlatform',
+      });
+
+      resourceCounts = resourceCounts.map((resource: GroupedCountResultItem) => {
+        return {
+          resourceType: resource.resourceGroupPlatform,
+          count: resource.count,
+        };
+      });
+
+      counts = [...counts, ...resourceCounts];
+    }
+
     return counts;
   }
 
   public async countPodResources(customerAccountKey: number): Promise<any> {
     const podPerNamespace: any = await this.getAllTopology('workload-pods', customerAccountKey);
-    let myCounts = {
+    const myCounts = {
       Clusters: 0,
       Namespaces: 0,
       Pods: 0,
@@ -335,6 +405,46 @@ class TopologyService extends ServiceExtension {
     });
 
     return topologyItems;
+  }
+
+  public async createPjVmTopology(resources: IResource[]) {
+    const sets: any = {};
+
+    resources.forEach((resource: IResource) => {
+      let projectUid = '';
+      switch (resource.resourceType) {
+        case 'PJ':
+          projectUid = resource.resourceTargetUuid;
+          break;
+        case 'VM':
+          projectUid = resource.resourceNamespace;
+          break;
+      }
+
+      if (!sets[projectUid]) {
+        sets[projectUid] = {
+          level: 'PJ',
+          projectUid,
+          resourceType: 'PJ',
+          resourceName: resource.resourceName,
+          resourceDescription: resource.resourceDescription,
+          children: [],
+        };
+      }
+
+      if (resource.resourceType === 'VM') {
+        sets[projectUid].children.push({
+          level: 'VM',
+          projectUid,
+          resourceType: 'VM',
+          resourceName: resource.resourceName,
+          resourceDescription: resource.resourceDescription,
+          resourceStatus: resource.resourceStatus,
+        });
+      }
+    });
+
+    return Object.values(sets);
   }
 
   public async getRelatedResources(resourceKey: number, customerAccountKey?: number): Promise<IRelatedResourceResultDto> {
