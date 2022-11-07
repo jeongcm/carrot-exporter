@@ -1224,7 +1224,7 @@ class MetricService extends ServiceExtension {
         });
 
         ranged = true;
-        promQl = `rate(nc:namedprocess_namegroup_read_bytes_total{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])`
+        promQl = `rate(nc:namedprocess_namegroup_write_bytes_total{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])`
         break;
     }
 
