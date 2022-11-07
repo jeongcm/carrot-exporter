@@ -297,7 +297,7 @@ class TopologyService extends ServiceExtension {
     return Object.values(sets);
   }
 
-  public async countResources(customerAccountKey: number, resourceTypes: string[]): Promise<GroupedCountResultItem[]> {
+  public async countResources(customerAccountKey: number, resourceTypes: string[], resourceGroupIds?: string[]): Promise<GroupedCountResultItem[]> {
     const resourceGroupTypes: string[] = [];
     if (resourceTypes.indexOf('OS') > -1) {
       resourceGroupTypes.push('OS');
@@ -309,11 +309,31 @@ class TopologyService extends ServiceExtension {
       resourceTypes.splice(resourceTypes.indexOf('K8'), 1);
     }
 
+    let where: any = {};
+    if (resourceGroupIds) {
+      const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+        where: {
+          customerAccountKey,
+          resourceGroupId: resourceGroupIds,
+        },
+        attributes: ['resourceGroupKey'],
+      });
+
+      if (resourceGroups && resourceGroups.length > 0) {
+        where = {
+          resourceGroupKey: resourceGroups.map((resourceGroup: IResourceGroup) => {
+            return resourceGroup.resourceGroupKey;
+          }),
+        };
+      }
+    }
+
     let counts: GroupedCountResultItem[] = await this.resource.count({
       where: {
         customerAccountKey,
         resourceType: resourceTypes,
         deletedAt: null,
+        ...where,
       },
       attributes: ['resourceType'],
       group: 'resourceType',
@@ -436,6 +456,7 @@ class TopologyService extends ServiceExtension {
         sets[projectUid].children.push({
           level: 'VM',
           projectUid,
+          resourceId: resource.resourceId,
           resourceType: 'VM',
           resourceName: resource.resourceName,
           resourceDescription: resource.resourceDescription,
