@@ -20,6 +20,7 @@ class massUploaderController {
       next(error);
     }
   };
+
 }
 
 export default massUploaderController;

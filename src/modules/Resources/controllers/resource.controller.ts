@@ -91,8 +91,9 @@ class ResourceController {
     try {
       const { customerAccountKey } = req;
       const resourceTypes = req.query.resourceType as string[];
+      const resourceGroupIds = req.query.resourceGroupId as string[];
 
-      const resourceCount: GroupedCountResultItem[] = await this.topologyService.countResources(customerAccountKey, resourceTypes);
+      const resourceCount: GroupedCountResultItem[] = await this.topologyService.countResources(customerAccountKey, resourceTypes, resourceGroupIds);
 
       res.status(200).json({ data: resourceCount, message: 'findAll' });
     } catch (error) {
@@ -206,7 +207,7 @@ class ResourceController {
 
     try {
       const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId(resourceType, customerAccountId);
-      res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resoruceType ${resource}` });
+      res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resourceType ${resource}` });
     } catch (error) {
       next(error);
     }
