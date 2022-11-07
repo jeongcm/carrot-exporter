@@ -1185,7 +1185,7 @@ class MetricService extends ServiceExtension {
           nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
         });
 
-        promQl = `sum by (groupname) (nc:namedprocess_namegroup_open_filedesc{job=~"vm-process-exporter", is_ops_vm="Y", __LABEL_PLACE_HOLDER__})`
+        promQl = `nc:namedprocess_namegroup_open_filedesc{job=~"vm-process-exporter", is_ops_vm="Y", __LABEL_PLACE_HOLDER__}`
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_CPU_USAGE':
