@@ -313,13 +313,13 @@ class AlertEasyRuleService {
         {
           model: AlertTargetSubGroupModel,
           required: true,
-          attributes: ['alertTargetSubGroupName', 'alertTargetSubGroupDescription'],
+          attributes: ['alertTargetSubGroupName', 'alertTargetSubGroupDescription', 'alertTargetSubGroupId'],
           where: { deletedAt: null },
           include: [
             {
               model: AlertTargetGroupModel,
               required: true,
-              attributes: ['alertTargetGroupName', 'alertTargetGroupDescription'],
+              attributes: ['alertTargetGroupName', 'alertTargetGroupDescription', 'alertTargetGroupId'],
               where: { deletedAt: null },
             },
           ],
@@ -344,13 +344,13 @@ class AlertEasyRuleService {
         {
           model: AlertTargetSubGroupModel,
           required: true,
-          attributes: ['alertTargetSubGroupName', 'alertTargetSubGroupDescription'],
+          attributes: ['alertTargetSubGroupName', 'alertTargetSubGroupDescription', 'alertTargetSubGroupId'],
           where: { deletedAt: null },
           include: [
             {
               model: AlertTargetGroupModel,
               required: true,
-              attributes: ['alertTargetGroupName', 'alertTargetGroupDescription'],
+              attributes: ['alertTargetGroupName', 'alertTargetGroupDescription', 'alertTargetGroupId'],
               where: { deletedAt: null },
             },
           ],
@@ -382,8 +382,6 @@ class AlertEasyRuleService {
     if (!findAlertEasyRule) throw new HttpException(404, `No Easy Alert Rule`);
     const customerAccountKey = findAlertEasyRule.customerAccountKey;
     const existingAlertEasyRuleSeverity = findAlertEasyRule.alertEasyRuleSeverity;
-    console.log('findAlertEasyRule', findAlertEasyRule);
-    console.log('findAlertEasyRule - duration', findAlertEasyRule.alertEasyRuleDuration);
 
     const findAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
       where: { alertTargetSubGroupId: alertEasyRule.alertTargetSubGroupId, deletedAt: null },
