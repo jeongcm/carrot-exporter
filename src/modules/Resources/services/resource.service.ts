@@ -1,18 +1,17 @@
 import DB from '@/database';
-import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
-import { IRquestMassUploaderMongo } from '@/common/interfaces/massUploader.interface';
-import { ResourceDto, ResourceDetailQueryDTO } from '../dtos/resource.dto';
-import { HttpException } from '@/common/exceptions/HttpException';
-import { isEmpty } from '@/common/utils/util';
+import {IResource, IResourceTargetUuid} from '@/common/interfaces/resource.interface';
+import {IRquestMassUploaderMongo} from '@/common/interfaces/massUploader.interface';
+import {ResourceDetailQueryDTO, ResourceDto} from '../dtos/resource.dto';
+import {HttpException} from '@/common/exceptions/HttpException';
+import {isEmpty} from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
-import { IMassUploaderMongoUpdateDto } from '@modules/CommonService/dtos/massUploaderMongo.dto';
-import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import {IResourceGroup} from '@/common/interfaces/resourceGroup.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import { Op } from 'sequelize';
-import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
-import { ResourceGroupModel } from '../models/resourceGroup.model';
+import {Op} from 'sequelize';
+import {IAnomalyMonitoringTarget} from '@/common/interfaces/monitoringTarget.interface';
+import {ResourceGroupModel} from '../models/resourceGroup.model';
 
 class ResourceService {
   public resource = DB.Resource;
@@ -258,8 +257,10 @@ class ResourceService {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
+
     const allResources: IResource[] = await this.resource.findAll({
-      where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey },
+      where: resourceWhereCondition,
     });
 
     return allResources;
@@ -563,19 +564,20 @@ class ResourceService {
    */
   public async getResourceCountByResourceType(resourceType: string, customerAccountKey: number, query?: any): Promise<number> {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType };
+    let result: any = {};
 
     if (query?.resourceGroupId) {
       let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId);
       resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
-      return await this.resource.count({
+      result = await this.resource.count({
+        where: resourceWhereCondition,
+      });
+    } else {
+      result = await this.resource.count({
         where: resourceWhereCondition,
       });
     }
-
-    return await this.resource.count({
-      where: resourceWhereCondition,
-    });
-    ;
+    return result;
   }
 
   /**

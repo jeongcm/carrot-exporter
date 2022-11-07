@@ -47,6 +47,7 @@ class ExecutorRoute implements Routes {
       //      createUserLogMiddleware,
       this.executorController.registerExecutorClient,
     );
+
     this.router.post(
       '/executor/kpsInstall',
       authMiddleware,
@@ -54,6 +55,7 @@ class ExecutorRoute implements Routes {
       //      createUserLogMiddleware,
       this.executorController.installKpsOnResourceGroup,
     );
+
     this.router.post(
       '/executor/schedule/metricReceived',
       authMiddleware,

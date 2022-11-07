@@ -1,13 +1,12 @@
 import ServiceExtension from '@/common/extentions/service.extension';
-import { isEmpty } from 'lodash';
+import {isEmpty} from 'lodash';
 import VictoriaMetricService from './victoriaMetric.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import MassUploaderService from '@/modules/CommonService/services/massUploader.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import { ICustomerAccount } from 'common/interfaces/customerAccount.interface';
-import { IResourceGroup } from 'common/interfaces/resourceGroup.interface';
-import { IResource } from 'common/interfaces/resource.interface';
+import {IResourceGroup} from 'common/interfaces/resourceGroup.interface';
+import {IResource} from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
 import P8sService from "@modules/Metric/services/p8sService";
 
@@ -22,6 +21,11 @@ export interface IMetricQueryBodyQuery {
   promql?: string;
   resourceGroupId?: string | string[];
   resourceGroupUuid?: string;
+  promqlOps?: {
+    topk?: number;
+    sort?: 'asc' | 'desc';
+    ranged?: boolean;
+  },
 }
 
 export interface IMetricQueryBody {
@@ -267,7 +271,7 @@ class MetricService extends ServiceExtension {
   }
 
   private getPromQlFromQuery(query: IMetricQueryBodyQuery, resources?: IResource[], resourceGroups?: IResourceGroup[]) {
-    const { type, promql: customPromQl, start, end, step, nodename } = query;
+    const { type, promql: customPromQl, start, end, step, nodename, promqlOps = {} } = query;
     const clusterUuid = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupUuid);
     const resourceName = resources?.map((resource: IResource) => resource.resourceName);
     const resourceNamespace = resources?.map((resource: IResource) =>
@@ -1228,6 +1232,19 @@ class MetricService extends ServiceExtension {
         break;
     }
 
+    // Apply PromQL operators
+    if (promqlOps?.sort) {
+      promQl = `sort_${promqlOps.sort}(${promQl})`;
+    }
+
+    if (promqlOps?.topk) {
+      promQl = `topk(${promqlOps.topk}, ${promQl})`;
+    }
+
+    if (typeof promqlOps?.ranged === 'boolean') {
+      ranged = promqlOps?.ranged;
+    }
+
     promQl = promQl.replace(/__LABEL_PLACE_HOLDER__/g, labelString);
     console.log(promQl);
 
@@ -1243,7 +1260,7 @@ class MetricService extends ServiceExtension {
     }
 
     const metricName = queryBody.query[0].name;
-    const clusterUuid = queryBody.query[0].resourceGroupUuid
+    const clusterUuid = queryBody.query[0].resourceGroupUuid;
     var uploadQuery = {};
     var mergedQuery: any = {};
     var tempQuery: any = {};
