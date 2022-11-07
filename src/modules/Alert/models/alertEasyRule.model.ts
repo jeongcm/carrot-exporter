@@ -16,6 +16,10 @@ export type AlertEasyRuleCreationAttributes = Optional<
   | 'alertEasyRuleDuration'
   | 'alertEasyRuleThreshold1'
   | 'alertEasyRuleThreshold2'
+  | 'alertEasyRuleThreshold1Unit'
+  | 'alertEasyRuleThreshold2Unit'
+  | 'alertEasyRuleThreshold1Max'
+  | 'alertEasyRuleThreshold2Max'
   | 'resourceGroupUuid'
   | 'resourceGroupKey'
   | 'alertTargetSubGroupKey'
@@ -41,6 +45,10 @@ export class AlertEasyRuleModel extends Model<IAlertEasyRule, AlertEasyRuleCreat
   public alertEasyRuleDuration: string;
   public alertEasyRuleThreshold1: string;
   public alertEasyRuleThreshold2: string;
+  public alertEasyRuleThreshold1Unit: string;
+  public alertEasyRuleThreshold2Unit: string;
+  public alertEasyRuleThreshold1Max: string;
+  public alertEasyRuleThreshold2Max: string;
   public alertEasyRuleQuery: string;
   public customerAccountKey: number;
   public alertEasyRuleGroup: string;
@@ -114,6 +122,22 @@ export default function (sequelize: Sequelize): typeof AlertEasyRuleModel {
         allowNull: false,
       },
       alertEasyRuleThreshold2: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
+      alertEasyRuleThreshold1Unit: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
+      alertEasyRuleThreshold2Unit: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
+      alertEasyRuleThreshold1Max: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
+      alertEasyRuleThreshold2Max: {
         type: DataTypes.STRING(50),
         allowNull: true,
       },

@@ -1,6 +1,7 @@
 import DB from '@/database';
 import axios from 'common/httpClient/axios';
 import config from '@config/index';
+
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
@@ -21,6 +22,8 @@ import TableIdService from './tableId.service';
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
 import MetricService, {IMetricQueryBody} from "@modules/Metric/services/metric.service";
+import { validateLocaleAndSetLanguage } from 'typescript';
+import { CreateIncidentActionAttachmentDto } from '@/modules/Incident/dtos/incidentActionAttachment.dto';
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
@@ -2589,6 +2592,7 @@ class executorService {
     const uuid = require('uuid');
     const sudoryWebhookId = uuid.v1();
     let serviceResult;
+    let incidentActionAttachmentType = 'JS';
     //step 1. process sudory fed data
     if (DataSetFromSudory.result === null) {
       serviceResult = [];
@@ -2597,13 +2601,23 @@ class executorService {
         try {
           console.log('sudoryString');
           serviceResult = JSON.parse(DataSetFromSudory.result);
+          const resultType = 'resultType' in serviceResult;
+          if (resultType) {
+            console.log('resultType', serviceResult.resultType?.matrix);
+            incidentActionAttachmentType = 'MO';
+          }
         } catch (e) {
           console.error(e);
           serviceResult = [];
         }
       } else {
-        console.log('sudoryObject');
+        console.log('sudoryJson');
         serviceResult = JSON.parse(JSON.stringify(DataSetFromSudory.result));
+        const resultType = 'resultType' in serviceResult;
+        if (resultType) {
+          console.log('resultType', serviceResult.resultType);
+          incidentActionAttachmentType = 'MO';
+        }
       }
     }
     //step 2. insert data into SudoryWebhook table
@@ -2669,25 +2683,29 @@ class executorService {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const incidentAction = await this.incidentService.createIncidentAction(customerAccountKey, incidentId, actionData, 'SYSTEM');
-
+      console.log('incidentActionAttachmentType', incidentActionAttachmentType);
       //create incident Action attachement
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const parts = [new Blob([JSON.stringify(resultSudoryWebhook.serviceResult)], { type: 'text/json' })];
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      /*
+      const parts = [new Blob([JSON.stringify(resultSudoryWebhook.serviceResult)], { type: 'application/json' })];
+
+      console.log('parts', parts);
       const incidentActionAttachmentFile = new File(parts, `${resultSudoryWebhook.serviceName}.json`, {
         lastModified: Date.now(),
-        type: 'text/json',
+        type: 'application/json',
       });
+      */
+      const incidentActionAttachmentBody = JSON.stringify(resultSudoryWebhook.serviceResult);
+      console.log('file well created');
 
       const actionAttachmentData = {
         incidentActionAttachmentName: resultSudoryWebhook.serviceName,
         incidentActionAttachmentDescription: resultSudoryWebhook.statusDescription,
-        incidentActionAttachmentType: 'JS',
+        incidentActionAttachmentType: incidentActionAttachmentType,
         incidentActionAttachmentFilename: `${resultSudoryWebhook.serviceName}.json`,
+        incidentActionAttachmentFileType: 'application/json',
       };
-      await this.incidentService.createIncidentActionAttachment(
+      console.log('actionAttachmentData', actionAttachmentData);
+      const resultAttachment = await this.incidentService.createIncidentActionAttachmentFromService(
         customerAccountKey,
         incidentId,
         incidentAction.incidentActionId,
@@ -2695,10 +2713,11 @@ class executorService {
         // @ts-ignore
         actionAttachmentData,
         'SYSTEM',
-        incidentActionAttachmentFile,
+        incidentActionAttachmentBody,
       );
+      console.log(resultAttachment);
     }
-    console.log(resultExecutorService);
+
     return resultSudoryWebhook;
   }
 
