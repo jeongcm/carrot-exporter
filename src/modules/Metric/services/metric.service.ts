@@ -1176,6 +1176,7 @@ class MetricService extends ServiceExtension {
           nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
         });
 
+        promQl = `nc:namedprocess_namegroup_num_procs{job=~"vm-process-exporter", is_ops_vm="Y", __LABEL_PLACE_HOLDER__}`
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_FD_COUNT':
@@ -1184,6 +1185,7 @@ class MetricService extends ServiceExtension {
           nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
         });
 
+        promQl = `nc:namedprocess_namegroup_open_filedesc{job=~"vm-process-exporter", is_ops_vm="Y", __LABEL_PLACE_HOLDER__}`
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_CPU_USAGE':
@@ -1192,6 +1194,8 @@ class MetricService extends ServiceExtension {
           nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
         });
 
+        ranged = true;
+        promQl = `avg by (groupname)(rate(nc:namedprocess_namegroup_cpu_seconds_total{job="vm-process-exporter", is_ops_vm=~"Y", mode="system", __LABEL_PLACE_HOLDER__}[${step}])) * 100`
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_MEMORY_USAGE':
@@ -1200,6 +1204,7 @@ class MetricService extends ServiceExtension {
           nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
         });
 
+        promQl = `nc:namedprocess_namegroup_memory_bytes{job="vm-process-exporter", is_ops_vm=~"Y", memtype="virtual", __LABEL_PLACE_HOLDER__}`
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_FILESYSTEM_READ_BYTES':
@@ -1208,6 +1213,8 @@ class MetricService extends ServiceExtension {
           nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
         });
 
+        ranged = true;
+        promQl = `rate(nc:namedprocess_namegroup_read_bytes_total{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])`
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_FILESYSTEM_WRITE_BYTES':
@@ -1216,6 +1223,8 @@ class MetricService extends ServiceExtension {
           nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
         });
 
+        ranged = true;
+        promQl = `rate(nc:namedprocess_namegroup_read_bytes_total{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])`
         break;
     }
 
