@@ -12,6 +12,7 @@ import ResourceGroupService from '@/modules/Resources/services/resourceGroup.ser
 import {Op} from 'sequelize';
 import {IAnomalyMonitoringTarget} from '@/common/interfaces/monitoringTarget.interface';
 import {ResourceGroupModel} from '../models/resourceGroup.model';
+import AlertReceivedService from "@modules/Alert/services/alertReceived.service";
 
 class ResourceService {
   public resource = DB.Resource;
@@ -20,6 +21,7 @@ class ResourceService {
   public partyResource = DB.PartyResource;
   public subscribedProduct = DB.SubscribedProduct;
   public TableIdService = new TableIdService();
+  public AlertReceivedService = new AlertReceivedService();
   public customerAccountService = new CustomerAccountService();
   public resourceGroupService = new ResourceGroupService();
 
@@ -444,6 +446,8 @@ class ResourceService {
       vm.resourceSpec.projectName = project.resourceName
     }
 
+    // get vm's alert
+
     return vm
   }
 
@@ -488,6 +492,15 @@ class ResourceService {
       where: {resourceGroupKey: resource.resourceGroupKey}
     })
 
+    const sql = `SELECT * FROM Resource A, ResourceGroup B
+              WHERE A.customer_account_key = ${customerAccountKey}
+                and A.ResourceId = ${resourceId}
+                and A.resource_group_key = B.resource_group_key
+                and A.deleted_at is null
+                and B.deleted_at is null`;
+    const [result, metadata] = await DB.sequelize.query(sql);
+
+    console.log("query:", result)
     switch (resource.resourceType) {
       case "VM":
         return await this.getVMDetails(resource)
