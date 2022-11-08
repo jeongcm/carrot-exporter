@@ -63,6 +63,8 @@ class AlertReceivedService extends ServiceExtension {
                 A.alert_received_active_at as alertReceivedActiveAt,
                 A.alert_received_summary alertReceivedSummary,
                 A.alert_received_description alertReceivedDescription,
+                A.alert_received_affected_resource_type alertReceivedAffectedResourceType,
+                A.alert_received_affected_resource_name alertReceivedAffectedResourceName,
                 A.created_at as createdAt,
                 A.updated_at as updatedAt,
                 B.alert_rule_id as alertRuleId,
@@ -106,6 +108,13 @@ class AlertReceivedService extends ServiceExtension {
         case 'alertReceivedService':
           where = ` ${op} alert_received_service ${symbol} "${value.value}"`;
           break;
+        case 'alertReceivedAffectedResourceType':
+            where = ` ${op} alert_received_affected_resource_type ${symbol} "${value.value}"`;
+            break;
+        case 'alertReceivedAffectedResourceName':
+            where = ` ${op} alert_received_affected_resource_name ${symbol} "${value.value}"`;
+            break;
+      
         case 'persistentVolumeClaim':
           where = ` ${op} JSON_CONTAINS(alert_received_labels, '"${value.value}"', '$.persistentvolumeclaim')`;
           break;
@@ -176,6 +185,8 @@ class AlertReceivedService extends ServiceExtension {
         recent_alerts.alert_received_instance as alertReceivedInstance,
         recent_alerts.alert_received_labels as alertReceivedLabels,
         recent_alerts.alert_received_pinned as alertReceivedPinned,
+        recent_alerts.alert_received_affected_resource_type alertReceivedAffectedResourceType,
+        recent_alerts.alert_received_affected_resource_name alertReceivedAffectedResourceName,
         JSON_OBJECT(
           'alertRuleId', AlertRule.alert_rule_id
         ) AS alertRule,
