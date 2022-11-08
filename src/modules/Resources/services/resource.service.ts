@@ -494,7 +494,7 @@ class ResourceService {
 
     const sql = `SELECT * FROM Resource A, ResourceGroup B
               WHERE A.customer_account_key = ${customerAccountKey}
-                and A.resource_id is ${resourceId}
+                and A.resource_id = '${resourceId}'
                 and A.resource_group_key = B.resource_group_key
                 and A.deleted_at is null
                 and B.deleted_at is null`;
