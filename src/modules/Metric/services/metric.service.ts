@@ -417,7 +417,7 @@ class MetricService extends ServiceExtension {
 
         ranged = false;
 
-        promQl = `sort_desc(sum by (pod, clusterUuid) (increase(container_network_receive_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]) + increase(container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m])))`;
+        promQl = `sort_desc(sum by (pod, clusterUuid) (rate(container_network_receive_bytes_total{id!="/", container=~".*",__LABEL_PLACE_HOLDER__}[5m]) + rate(container_network_transmit_bytes_total{id!="/",container=~".*",__LABEL_PLACE_HOLDER__}[5m])))`;
         break;
 
       case 'POD_RXTX_TOTAL':
@@ -743,7 +743,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
         promQl = `sort_desc(
-          sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))
+          sum by (node) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[5m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[5m]))
         )`;
         break;
     }
