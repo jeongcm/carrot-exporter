@@ -1199,7 +1199,7 @@ class MetricService extends ServiceExtension {
         });
 
         ranged = true;
-        promQl = `avg by (groupname)(rate(nc:namedprocess_namegroup_cpu_seconds_total{job="vm-process-exporter", is_ops_vm=~"Y", mode="system", __LABEL_PLACE_HOLDER__}[${step}])) * 100`
+        promQl = `rate(nc:namedprocess_namegroup_cpu_seconds_total{job="vm-process-exporter", is_ops_vm=~"Y", mode="system", __LABEL_PLACE_HOLDER__}[${step}])`
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_MEMORY_USAGE':
