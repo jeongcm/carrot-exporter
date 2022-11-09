@@ -57,7 +57,13 @@ class AnomalyMonitoringTargetService {
     const { anomalyMonitoringTargetDescription, anomalyMonitoringTargetName, anomalyMonitoringTargetStatus, bayesianModelId, resourceId } =
       targetData;
     const resourceDetail: IResource = await this.resource.findOne({ where: { resourceId } });
-    if (isEmpty(resourceDetail)) throw new HttpException(400, `Resource doesn't exist with ${resourceId}`);
+    if (isEmpty(resourceDetail)) throw new HttpException(401, `Resource doesn't exist with ${resourceId}`);
+    const resourceKey = resourceDetail.resourceKey;
+    const checkResourceInAnomalyTarget: IAnomalyMonitoringTarget = await this.AnomalyMonitoringTarget.findOne({
+      where: { resourceKey, deletedAt: null },
+    });
+    if (checkResourceInAnomalyTarget) throw new HttpException(402, `Resource is already registered as Monitoring Target ${resourceId}`);
+
     const resourceType = resourceDetail.resourceType;
 
     const subscribedProductId = await this.getTableId('SubscribedProduct');

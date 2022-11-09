@@ -32,7 +32,7 @@ export class BayesianModelTable extends Model<IBayesianDBModel, BayesianModelAtt
   public customerAccountKey: number;
   public resourceGroupKey: number;
   public bayesianModelScoreCard: JSON;
-  public bayesianModelResourceType: 'ND' | 'SV' | 'PD';
+  public bayesianModelResourceType: 'ND' | 'SV' | 'PD' | 'PC';
   public version: string;
 
   public readonly createdAt!: Date;
@@ -95,8 +95,8 @@ export default function (sequelize: Sequelize): typeof BayesianModelTable {
         type: DataTypes.STRING(2),
         validate: {
           isIn: {
-            args: [['ND', 'SV', 'PD']],
-            msg: "bayesianModelResourceType must be of type  [ 'ND'|'SV'|'PD']  Where  - ND (Node)  - SV (Service) - PD (Pod)",
+            args: [['ND', 'SV', 'PD', 'PC']],
+            msg: "bayesianModelResourceType must be of type  [ 'ND'|'SV'|'PD'|'PC' ]  Where  - ND (Node)  - SV (Service) - PD (Pod) - PC (PVC)",
           },
         },
       },
