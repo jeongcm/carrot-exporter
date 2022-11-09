@@ -56,4 +56,12 @@ export class AlertReceivedDto {
 
   @IsString()
   public alertReceivedEndpoint: string;
+
+  @IsString()
+  @IsOptional()
+  public alertReceivedAffectedResourceType: string;
+
+  @IsString()
+  @IsOptional()
+  public alertReceivedAffectedResourceName: string;
 }
