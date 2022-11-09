@@ -15,6 +15,10 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { CatalogPlanModel } from '@/modules/ProductCatalog/models/catalogPlan.model';
 import { IsURLOptions } from 'express-validator/src/options';
 import { SubscribedProductModel } from '../models/subscribedProduct.model';
+import { CatalogPlanProductModel } from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
+import { CatalogPlanProductPriceModel } from '@/modules/ProductCatalog/models/catalogPlanProductPrice.model';
+import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
+import { ResourceModel } from '@/modules/Resources/models/resource.model';
 
 class SubscriptionService {
   public subscription = DB.Subscription;
@@ -36,9 +40,19 @@ class SubscriptionService {
         customerAccountKey,
       },
       include: [
+        { model: CatalogPlanModel, where: { deletedAt: null } },
         {
           model: SubscribedProductModel,
+          where: { deletedAt: null },
           attributes: { exclude: ['subscribedProductKey', 'deletedAt'] },
+          include: [
+            {
+              model: CatalogPlanProductModel,
+              where: { deletedAt: null },
+              include: [{ model: CatalogPlanProductPriceModel, where: { deletedAt: null } }],
+            },
+            { model: ResourceModel, where: { deletedAt: null }, include: [{ model: ResourceGroupModel, where: { deletedAt: null } }] },
+          ],
         },
       ],
     });
