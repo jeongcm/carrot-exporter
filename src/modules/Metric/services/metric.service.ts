@@ -9,6 +9,7 @@ import {IResourceGroup} from 'common/interfaces/resourceGroup.interface';
 import {IResource} from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
 import P8sService from "@modules/Metric/services/p8sService";
+import config from 'config';
 
 export interface IMetricQueryBodyQuery {
   name: string;
@@ -33,8 +34,8 @@ export interface IMetricQueryBody {
 }
 
 class MetricService extends ServiceExtension {
+  private telemetryService = null
   private victoriaMetricService = new VictoriaMetricService();
-  private p8sService = new P8sService();
   private resourceService = new ResourceService();
   private resourceGroupService = new ResourceGroupService();
   private customerAccountService = new CustomerAccountService();
@@ -159,9 +160,14 @@ class MetricService extends ServiceExtension {
 
   public async getMetricP8S(customerAccountKey: number, queryBody: IMetricQueryBody) {
     const results: any = {};
-
     if (isEmpty(queryBody?.query)) {
       return this.throwError('EXCEPTION', 'query[] is missing');
+    }
+
+    if (config.victoriaMetrics.vmOpenstackSwitch === "off") {
+      this.telemetryService = new P8sService()
+    } else {
+      this.telemetryService = new VictoriaMetricService()
     }
 
     try {
@@ -237,9 +243,9 @@ class MetricService extends ServiceExtension {
             let data: any = null;
 
             if (start && end) {
-              data = await this.p8sService.queryRange(customerAccountId, `${promQl.promQl}`, `${start}`, `${end}`, step);
+              data = await this.telemetryService.queryRange(customerAccountId, `${promQl.promQl}`, `${start}`, `${end}`, step);
             } else {
-              data = await this.p8sService.query(customerAccountId, `${promQl.promQl}`, step);
+              data = await this.telemetryService.query(customerAccountId, `${promQl.promQl}`, step);
             }
 
             results[name] = {
