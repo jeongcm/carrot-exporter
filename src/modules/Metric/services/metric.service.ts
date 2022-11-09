@@ -1128,7 +1128,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) * 100))`
+        promQl = `sort_desc(100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) * 100))`
         break;
 
       case 'OS_CLUSTER_PM_MEMORY_RANKING':
@@ -1152,7 +1152,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
+        promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[30m])+ increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[30m])))`
         break;
 
       case 'OS_CLUSTER_VM_CPU_RANKING':
@@ -1160,7 +1160,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) * 100))`
+        promQl = `sort_desc(100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) * 100))`
         break;
 
       case 'OS_CLUSTER_VM_MEMORY_RANKING':
@@ -1184,7 +1184,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
+        promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[30m])+ increase(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[30m])))`
         break;
 
       case 'OS_CLUSTER_VM_PROCESS_UP_TIME':
