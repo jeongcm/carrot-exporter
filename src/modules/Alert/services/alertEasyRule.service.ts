@@ -180,7 +180,7 @@ class AlertEasyRuleService {
             });
           });
           indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
-          indexRules = rules.findIndex(element => element.alert == alertEasyRule.alertEasyRuleName);
+          indexRules = rules.findIndex(element => element.alert == alertEasyRule.alertEasyRuleName && element.severity == alertEasyRuleSeverity);
           maxIndexRuleGroup = ruleGroup.length - 1;
           maxIndexRules = rules.length;
           i = 100; //exit for

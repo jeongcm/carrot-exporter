@@ -30,6 +30,9 @@ export interface IAlertReceived {
   alertReceivedReason: string;
   alertReceivedUid: string;
   alertReceivedHash: string;
+  alertReceivedAffectedResourceType: string;
+  alertReceivedAffectedResourceName: string;
+
 }
 
 export interface IAlertReceivedDetailed extends IAlertReceived {
