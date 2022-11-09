@@ -1174,6 +1174,15 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
         break;
 
+      case 'OS_CLUSER_VM_PROCESS_UP_TIME':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+
+        promQl = `time() - (avg by (groupname) (nc:namedprocess_namegroup_oldest_start_time_seconds{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} > 0))`
+        break;
+
       case 'OS_CLUSER_VM_PROCESS_COUNT':
         labelString += getSelectorLabels({
           clusterUuid,
