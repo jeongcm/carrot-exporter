@@ -18,20 +18,15 @@ class ResolutionActionController {
     }
   };
 
-  // public deleteResolutionAction = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-  //   try {
-  //     const billingAccountId: string = req.params.billingAccountId;
-  //     const customerAccountKey = req.customerAccountKey;
-  //     const deletedFlag = await this.billingAccountService.deleteBillingAccount(customerAccountKey, billingAccountId);
-  //     if (deletedFlag) {
-  //       res.status(200).json({ data: deletedFlag, message: 'deleted' });
-  //     } else {
-  //       res.status(204).json({ data: deletedFlag, message: 'No Content' });
-  //     }
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // };
+  public deleteResolutionActionByResolutionActionId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const resolutionActionId: string = req.params.resolutionActionId;
+      const deleted = await this.resolutionActionService.deleteResolutionActionByResolutionActionId(resolutionActionId);
+      res.status(200).json({ data: deleted, message: 'deleted' });
+    } catch (error) {
+      next(error);
+    }
+  };
 
   public createResolutionAction = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {

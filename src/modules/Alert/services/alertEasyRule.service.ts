@@ -89,6 +89,7 @@ class AlertEasyRuleService {
     });
     if (!findCustomerAccount) throw new HttpException(400, `couldn't find customerAccount information`);
     const customerAccountKey = findCustomerAccount.customerAccountKey;
+
     // step 1.2 find ResourceGroup
     const findResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
@@ -127,8 +128,14 @@ class AlertEasyRuleService {
         // if there is a same alert...
         alertGroup = findAlertRule.alertRuleGroup;
       }
+
+      console.log('ResourceGroupUuid', resourceGroupUuid);
+      console.log('prometheus', prometheus);
+
       const appName = prometheus.substring(7, prometheus.indexOf('.'));
       const prometheusRuleGroupName = appName.substring(0, appName.length - 11) + '-' + alertGroup;
+
+      console.log('prometheusRuleGroupName', prometheusRuleGroupName);
 
       const sudorySName = 'getPrometheusRule';
       const sudorySummary = 'getPrometheusRule';
@@ -280,6 +287,9 @@ class AlertEasyRuleService {
           alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
           alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
           alertEasyRuleThreshold2: alertEasyRule.alertEasyRuleThreshold2,
+          alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
+          alertEasyRuleThreshold2Unit: alertEasyRule.alertEasyRuleThreshold2Unit,
+
           alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
         };
         const createAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.create(createQuery);
@@ -297,7 +307,7 @@ class AlertEasyRuleService {
         {
           model: ResourceGroupModel,
           required: true,
-          attributes: ['resourceGroupName', 'resourceGroupUuid'],
+          attributes: ['resourceGroupName', 'resourceGroupUuid', 'resourceGroupId'],
           where: { deletedAt: null },
         },
         {
@@ -328,7 +338,7 @@ class AlertEasyRuleService {
         {
           model: ResourceGroupModel,
           required: true,
-          attributes: ['resourceGroupName', 'resourceGroupUuid'],
+          attributes: ['resourceGroupName', 'resourceGroupUuid', 'resourceGroupId', 'resourceGroupProvider'],
           where: { deletedAt: null },
         },
         {
@@ -392,8 +402,8 @@ class AlertEasyRuleService {
         alertRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
       },
     });
-    if (!findResourceGroup) throw new HttpException(405, `couldn't find existing alert rule information`);
-
+    if (!findAlertRule) throw new HttpException(405, `couldn't find existing alert rule information`);
+    console.log('findAlertRule', findAlertRule);
     const prometheusNamespace = findResourceGroup.resourceGroupKpsLokiNamespace;
     const prometheus = findResourceGroup.resourceGroupPrometheus;
 

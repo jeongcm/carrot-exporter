@@ -20,17 +20,11 @@ import { incidentSeverity, incidentStatus } from '@/common/types/index';
 import { IEvaluation } from '@/common/interfaces/evaluate.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
-import { BayesianModelTable } from '../models/bayesianModel.model';
-import { AnomalyMonitoringTargetTable } from '../models/monitoringTarget.model';
-import { logger } from '@/common/utils/logger';
 
-import { IResolutionAction } from '@/common/interfaces/resolutionAction.interface';
 import executorService from '@/modules/CommonService/services/executor.service';
+
+import { AnomalyMonitoringTargetTable } from '../models/monitoringTarget.model';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import { IPartyUser } from '@/common/interfaces/party.interface';
-import { DiagConsoleLogger } from '@opentelemetry/api';
-import { arrayBuffer } from 'stream/consumers';
-import LogController from '@/modules/Log/controllers/log.controller';
 
 const { Op } = require('sequelize');
 
@@ -312,6 +306,7 @@ class EvaluateServices {
         const updateErrorWhere = {
           where: { evaluationId: evaluationId },
         };
+        console.log(error);
         const resultEvaluationResult = this.evaluation.update(updateError, updateErrorWhere);
         throw new HttpException(500, `Unknown error to fetch the result of evaluation from nexclipper-bn: ${evaluationId}`);
       });
@@ -414,22 +409,35 @@ class EvaluateServices {
         //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
         const getResource = await this.resource.findOne({
           where: { resourceId: resourceId },
-          attributes: ['resourceNamespace'],
+          attributes: ['resourceNamespace', 'resourcePvcStorage'],
           include: [
             {
               model: ResourceGroupModel,
-              as: 'resourceGroup',
+              as: 'ResourceGroup',
               attributes: ['resourceGroupPrometheus', 'resourceGroupUuid'],
             },
           ],
         });
+        console.log('getResource', getResource);
         const resourceNamespace = getResource.resourceNamespace;
+
+        let volume = '';
+        let volumeVal = 0;
+        let volumeVal30 = 0;
+        let volumeVal30String = '';
+        if (getResource.resourcePvcStorage) {
+          volume = getResource.resourcePvcStorage?.requests.storage;
+          volumeVal = parseInt(volume.replace('Gi', ''));
+          volumeVal30 = volumeVal * 1.3;
+          volumeVal30String = volumeVal30.toString();
+        }
+
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        const prometheusUrl = getResource.dataValues.resourceGroup.dataValues.resourceGroupPrometheus;
+        const prometheusUrl = getResource.dataValues.ResourceGroup.dataValues.resourceGroupPrometheus;
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        const clusterUuid = getResource.dataValues.resourceGroup.dataValues.resourceGroupUuid;
+        const clusterUuid = getResource.dataValues.ResourceGroup.dataValues.resourceGroupUuid;
         console.log('prometheusUrl', prometheusUrl);
         console.log('clusterUuid', clusterUuid);
         //4.2. if any anomaly, create incident ticket
@@ -481,7 +489,7 @@ class EvaluateServices {
             resolutionActions.map(async (resolutionAction: any) => {
               //7. postExecuteService to sudory server
               const currentDate = new Date();
-              const start = new Date(currentDate.setHours(currentDate.getHours() - 1)).toISOString().substring(0.19);
+              const start = new Date(currentDate.setHours(currentDate.getHours() - 2)).toISOString().substring(0.19);
               const subscribed_channel = config.sudoryApiDetail.channel_webhook;
               const end = currentDate.toISOString().substring(0.19);
               const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
@@ -494,6 +502,7 @@ class EvaluateServices {
               steps = steps.replace('#name', resourceName);
               steps = steps.replace('#start', start);
               steps = steps.replace('#end', end);
+              steps = steps.replace('#expandedvolume30%', volumeVal30String);
               steps = JSON.parse(steps);
               const stepsEnd = [{ args: steps }];
               console.log('Sudory STEPS', JSON.stringify(stepsEnd));

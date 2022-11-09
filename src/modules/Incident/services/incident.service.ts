@@ -1,4 +1,4 @@
-import { IncidentActionAttachmentModel } from '@/modules/Incident/models/incidentActionAttachment.model';
+//import { IncidentActionAttachmentModel } from '@/modules/Incident/models/incidentActionAttachment.model';
 import { IIncidentActionAttachment, IIncidentActionAttachmentResponse } from './../../../common/interfaces/incidentActionAttachment.interface';
 import _ from 'lodash';
 import DB from '@/database';
@@ -13,13 +13,13 @@ import { CreateIncidentActionDto } from '@/modules/Incident/dtos/incidentAction.
 
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
-import { IncidentModel } from '@/modules/Incident/models/incident.model';
+//import { IncidentModel } from '@/modules/Incident/models/incident.model';
 import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
 import { IncidentActionModel } from '@/modules/Incident/models/incidentAction.model';
 
-import { IIncidentAlertReceived } from '@/common/interfaces/incidentAlertReceived.interface';
+//import { IIncidentAlertReceived } from '@/common/interfaces/incidentAlertReceived.interface';
 import { IIncidentCounts } from '@/common/interfaces/incidentCounts.interface';
-import sequelize from 'sequelize';
+//import sequelize from 'sequelize';
 import { Op } from 'sequelize';
 import { PartyModel } from '@/modules/Party/models/party.model';
 import PartyService from '@/modules/Party/services/party.service';
@@ -28,7 +28,7 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachment.dto';
-import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
+//import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
 
 import { logger } from '@/common/utils/logger';
 
@@ -597,6 +597,53 @@ class IncidentService {
           incidentActionAttachmentId: responseTableIdData.tableIdFinalIssued,
           incidentActionAttachmentPath: uploadedFilePath.data.Key,
         });
+        return createdActionAttachment;
+      } else {
+        throw new HttpException(500, uploadedFilePath.data);
+      }
+    } catch (error) {
+      throw new HttpException(400, 'Not able to attach this attachment.');
+    }
+  }
+
+  public async createIncidentActionAttachmentFromService(
+    customerAccountKey: number,
+    incidentId: string,
+    actionId: string,
+    actionAttachmentData: CreateIncidentActionAttachmentDto,
+    logginedUserId: string,
+    incidentActionAttachmentBody: any,
+  ): Promise<IIncidentActionAttachment> {
+    if (isEmpty(actionAttachmentData)) throw new HttpException(400, 'Incident must not be empty');
+
+    console.log('actionAttachmentData', actionAttachmentData);
+
+    const tableIdTableName = 'IncidentActionAttachment';
+    const moduleName = 'INC';
+
+    const { incidentActionKey } = await this.getIncidentActionKey(customerAccountKey, incidentId, actionId);
+
+    try {
+      const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+
+      const fileName = moduleName + customerAccountKey + '-' + logginedUserId + '-' + responseTableIdData.tableIdFinalIssued;
+
+      const uploadedFilePath = await this.fileUploadService.uploadServiceWithJson(
+        fileName,
+        actionAttachmentData.incidentActionAttachmentFileType,
+        incidentActionAttachmentBody,
+      );
+      console.log('uploadedFilePath', uploadedFilePath);
+      if (uploadedFilePath.status === 'ok') {
+        console.log('file upload is done');
+        const createdActionAttachment: IIncidentActionAttachment = await this.incidentActionAttachment.create({
+          ...actionAttachmentData,
+          createdBy: logginedUserId,
+          incidentActionKey,
+          incidentActionAttachmentId: responseTableIdData.tableIdFinalIssued,
+          incidentActionAttachmentPath: uploadedFilePath.data.Key,
+        });
+        console.log('createdActionAttachment', createdActionAttachment);
         return createdActionAttachment;
       } else {
         throw new HttpException(500, uploadedFilePath.data);

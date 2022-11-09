@@ -42,12 +42,8 @@ class RuleGroupResolutionActionController {
         user: { partyId },
       } = req;
       const unRegisterResolutionActionData: UnRegisterResolutionActionDto = req.body;
-      const flag: boolean = await this.ruleGroupResolutionActionService.unregisterResolutionAction(unRegisterResolutionActionData, partyId);
-      if (flag) {
-        res.status(201).json({ data: flag, message: 'deleted' });
-      } else {
-        res.status(204).json({ data: flag, message: 'No Content' });
-      }
+      const response = await this.ruleGroupResolutionActionService.unregisterResolutionAction(unRegisterResolutionActionData, partyId);
+      res.status(201).json({ data: response, message: 'deleted' });
     } catch (error) {
       next(error);
     }
