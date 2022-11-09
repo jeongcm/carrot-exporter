@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsDate, isNotEmpty, IsObject } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsDate, isNotEmpty, IsObject } from 'class-validator';
 
 export class AlertReceivedDto {
   @IsString()

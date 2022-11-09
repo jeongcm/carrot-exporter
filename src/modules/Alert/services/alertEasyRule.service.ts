@@ -313,13 +313,13 @@ class AlertEasyRuleService {
         {
           model: AlertTargetSubGroupModel,
           required: true,
-          attributes: ['alertTargetSubGroupName', 'alertTargetSubGroupDescription'],
+          attributes: ['alertTargetSubGroupName', 'alertTargetSubGroupDescription', 'alertTargetSubGroupId'],
           where: { deletedAt: null },
           include: [
             {
               model: AlertTargetGroupModel,
               required: true,
-              attributes: ['alertTargetGroupName', 'alertTargetGroupDescription'],
+              attributes: ['alertTargetGroupName', 'alertTargetGroupDescription', 'alertTargetGroupId'],
               where: { deletedAt: null },
             },
           ],
@@ -344,13 +344,13 @@ class AlertEasyRuleService {
         {
           model: AlertTargetSubGroupModel,
           required: true,
-          attributes: ['alertTargetSubGroupName', 'alertTargetSubGroupDescription'],
+          attributes: ['alertTargetSubGroupName', 'alertTargetSubGroupDescription', 'alertTargetSubGroupId'],
           where: { deletedAt: null },
           include: [
             {
               model: AlertTargetGroupModel,
               required: true,
-              attributes: ['alertTargetGroupName', 'alertTargetGroupDescription'],
+              attributes: ['alertTargetGroupName', 'alertTargetGroupDescription', 'alertTargetGroupId'],
               where: { deletedAt: null },
             },
           ],
@@ -375,25 +375,30 @@ class AlertEasyRuleService {
     const resourceGroupUuid = alertEasyRule.resourceGroupUuid;
     const alertEasyRuleId = alertEasyRule.alertEasyRuleId;
     const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+
+    //step 1-1. Confirm alertEasyRule
     const findAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.findOne({
       where: { alertEasyRuleId: alertEasyRuleId },
     });
-
     if (!findAlertEasyRule) throw new HttpException(404, `No Easy Alert Rule`);
+
     const customerAccountKey = findAlertEasyRule.customerAccountKey;
     const existingAlertEasyRuleSeverity = findAlertEasyRule.alertEasyRuleSeverity;
 
+    //step 1-2. Confirm alertTargetSubGroup
     const findAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
       where: { alertTargetSubGroupId: alertEasyRule.alertTargetSubGroupId, deletedAt: null },
     });
     if (!findAlertTargetSubGroup) throw new HttpException(402, `couldn't find alert target sub group`);
     const alertTargetSubGroupKey = findAlertTargetSubGroup.alertTargetSubGroupKey;
 
+    //step 1-3. Confirm resoruceGroup
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
       where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null },
     });
     if (!findResourceGroup) throw new HttpException(401, `couldn't find cluster information`);
 
+    //step 1-4 Confirm existance of AlertRule - name + severity combination
     const findAlertRule: IAlertRule = await this.alertRule.findOne({
       where: {
         resourceGroupUuid: resourceGroupUuid,
@@ -403,7 +408,8 @@ class AlertEasyRuleService {
       },
     });
     if (!findAlertRule) throw new HttpException(405, `couldn't find existing alert rule information`);
-    console.log('findAlertRule', findAlertRule);
+
+    //Step 2-1 Prepare for Prometheus Rule patch
     const prometheusNamespace = findResourceGroup.resourceGroupKpsLokiNamespace;
     const prometheus = findResourceGroup.resourceGroupPrometheus;
 
@@ -417,33 +423,38 @@ class AlertEasyRuleService {
 
     // alertEasyRuleDescription
     let alertEasyRuleDescription;
-    if (alertEasyRule.alertEasyRuleDescription === '') {
+    let alertEasyRuleDescriptionForDb;
+    if (!alertEasyRule.alertEasyRuleDescription || alertEasyRule.alertEasyRuleDescription === '') {
       alertEasyRuleDescription = findAlertEasyRule.alertEasyRuleDescription.replace('alertEasyRuleThreshold1', alertEasyRule.alertEasyRuleThreshold1);
+      alertEasyRuleDescriptionForDb = findAlertEasyRule.alertEasyRuleDescription;
     } else {
       alertEasyRuleDescription = alertEasyRule.alertEasyRuleDescription.replace('alertEasyRuleThreshold1', alertEasyRule.alertEasyRuleThreshold1);
+      alertEasyRuleDescriptionForDb = alertEasyRule.alertEasyRuleDescription;
     }
-    alertEasyRuleDescription = alertEasyRuleDescription.replace('alertEasyRuleThreshold2', alertEasyRule.alertEasyRuleThreshold2);
+    //alertEasyRuleDescription = alertEasyRuleDescription.replace('alertEasyRuleThreshold2', alertEasyRule.alertEasyRuleThreshold2);
 
     // alertEasyRuleQuery
     let alertEasyRuleQuery;
-    if (alertEasyRule.alertEasyRuleQuery === '') {
+    let alertEasyRuleQueryForDb;
+    if (!alertEasyRule.alertEasyRuleQuery || alertEasyRule.alertEasyRuleQuery === '') {
       alertEasyRuleQuery = findAlertEasyRule.alertEasyRuleQuery.replace('alertEasyRuleThreshold1', alertEasyRule.alertEasyRuleThreshold1);
+      alertEasyRuleQueryForDb = findAlertEasyRule.alertEasyRuleQuery;
     } else {
       alertEasyRuleQuery = alertEasyRule.alertEasyRuleQuery.replace('alertEasyRuleThreshold1', alertEasyRule.alertEasyRuleThreshold1);
+      alertEasyRuleQueryForDb = alertEasyRule.alertEasyRuleQuery;
     }
-    alertEasyRuleQuery = alertEasyRuleQuery.replace('alertEasyRuleThreshold2', alertEasyRule.alertEasyRuleThreshold2);
+    //alertEasyRuleQuery = alertEasyRuleQuery.replace('alertEasyRuleThreshold2', alertEasyRule.alertEasyRuleThreshold2);
 
     // alertEasyRuleDuration
     let alertEasyRuleDuration;
-    if (alertEasyRule.alertEasyRuleDuration === '') {
+    if (!alertEasyRule.alertEasyRuleDuration || alertEasyRule.alertEasyRuleDuration === '') {
       alertEasyRuleDuration = findAlertEasyRule.alertEasyRuleDuration;
     } else {
       alertEasyRuleDuration = alertEasyRule.alertEasyRuleDuration;
     }
-
     // alertEasyRuleSummary
     let alertEasyRuleSummary;
-    if (alertEasyRule.alertEasyRuleSummary === '') {
+    if (!alertEasyRule.alertEasyRuleSummary || alertEasyRule.alertEasyRuleSummary === '') {
       alertEasyRuleSummary = findAlertEasyRule.alertEasyRuleSummary;
     } else {
       alertEasyRuleSummary = alertEasyRule.alertEasyRuleSummary;
@@ -467,6 +478,8 @@ class AlertEasyRuleService {
     const clusterUuid = resourceGroupUuid;
     const getTemplateUuid = '00000000000000000000000000004003';
     const getStep = [{ args: { name: prometheusRuleGroupName, namespace: prometheusNamespace } }];
+
+    //Step 2-2 Get Prometheus Rule
     const getPrometheusRule = await this.sudoryService.postSudoryService(
       sudorySName,
       sudorySummary,
@@ -478,6 +491,7 @@ class AlertEasyRuleService {
     );
     let getSudoryWebhook: ISudoryWebhook;
 
+    //Step 2-3 Wait & Process Prometheus Rule thru SudoryWebhook
     if (alertEasyRule.alertEasyRuleSeverity === '' || alertEasyRule.alertEasyRuleSeverity === existingAlertEasyRuleSeverity) {
       // Prometheus Alert Rule update only case
       alertEasyRuleSeverity = existingAlertEasyRuleSeverity;
@@ -503,12 +517,16 @@ class AlertEasyRuleService {
             });
           });
           indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
+          console.log('ruleGroup', ruleGroup);
+          console.log('indexRuleGroup', indexRuleGroup);
+          indexRules = rules.findIndex(element => element.alert == findAlertEasyRule.alertEasyRuleName && element.severity == alertEasyRuleSeverity);
           console.log('rules', rules);
-          indexRules = rules.findIndex(element => element.alert == findAlertEasyRule.alertEasyRuleName || element.severity == alertEasyRuleSeverity);
+          console.log('indexRules', indexRules);
           maxIndexRuleGroup = ruleGroup.length - 1;
           maxIndexRules = rules.length;
           i = 100; //exit for
         }
+        console.log('i-------------replace', i);
       }
       if (!getSudoryWebhook) throw new HttpException(500, `Error on retrieving Prometheus Alert Rule`);
       step = [
@@ -547,7 +565,7 @@ class AlertEasyRuleService {
           },
         },
       ];
-      console.log('step1', step);
+      console.log('step1', JSON.stringify(step));
     } else {
       alertEasyRuleSeverity = alertEasyRule.alertEasyRuleSeverity;
       for (i = 0; i < 6; i++) {
@@ -571,11 +589,12 @@ class AlertEasyRuleService {
             });
           });
           indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
-          indexRules = rules.findIndex(element => element.alert == findAlertEasyRule.alertEasyRuleName || element.severity == alertEasyRuleSeverity);
+          indexRules = rules.findIndex(element => element.alert == findAlertEasyRule.alertEasyRuleName && element.severity == alertEasyRuleSeverity);
           maxIndexRuleGroup = ruleGroup.length - 1;
           maxIndexRules = rules.length;
           i = 100; //exit for
         }
+        console.log('i-------------in new rule', i);
       }
 
       step = [
@@ -602,7 +621,7 @@ class AlertEasyRuleService {
       ];
     }
 
-    // update alertRule as Requested
+    //Step 2-4 Patch Prometheus Rule
     await this.sudoryService.postSudoryService(
       sudoryServiceName,
       summary,
@@ -619,14 +638,19 @@ class AlertEasyRuleService {
       updatedBy: partyId,
       updatedAt: currentDate,
       deletedAt: null,
-      alertEasyRuleDescription: alertEasyRuleDescription,
+      alertEasyRuleQuery: alertEasyRuleQueryForDb,
+      alertEasyRuleDuration: alertEasyRuleDuration,
+      alertEasyRuleDescription: alertEasyRuleDescriptionForDb,
       alertEasyRuleSummary: alertEasyRuleSummary,
       alertEasyRuleSeverity: alertEasyRuleSeverity,
-      alertEasyRuleDuration: alertEasyRuleDuration,
       alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
       alertEasyRuleThreshold2: alertEasyRule.alertEasyRuleThreshold2,
-      alertEasyRuleQuery: alertEasyRuleQuery,
+      alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
+      alertEasyRuleThreshold2Unit: alertEasyRule.alertEasyRuleThreshold2Unit,
+      alertEasyRuleThreshold1Max: alertEasyRule.alertEasyRuleThreshold1Max,
+      alertEasyRuleThreshold2Max: alertEasyRule.alertEasyRuleThreshold2Max,
     };
+    console.log(updateQuery);
     const createAlertEasyRule = await this.alertEasyRule.update(updateQuery, { where: { alertEasyRuleId } });
 
     result.push(updateQuery);
