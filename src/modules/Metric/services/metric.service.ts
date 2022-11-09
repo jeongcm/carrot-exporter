@@ -158,6 +158,7 @@ class MetricService extends ServiceExtension {
     return resultInOrder;
   }
 
+  //TODO: 추후 getMetric 으로 통합될때 Metric api의 endpoint에 Cluster_Type(OS or K8S)로 구분하여 telemetry service가 뭐로 정해질지 구분해야합니다.
   public async getMetricP8S(customerAccountKey: number, queryBody: IMetricQueryBody) {
     const results: any = {};
     if (isEmpty(queryBody?.query)) {
