@@ -8,7 +8,6 @@ import { CreateSubscribedProductDto, CreateSubscriptionDto } from '../dtos/subsc
 class SubscriptionController {
   public subscriptionService = new SubscriptionService();
 
-
   public getAllSubscriptions = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const allSubscriptions: ISubscriptions[] = await this.subscriptionService.findSubscriptions(req.customerAccountKey);
@@ -19,15 +18,18 @@ class SubscriptionController {
   };
 
   public createSubscriptions = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    
-    console.log("########start");
+    console.log('########start');
     console.log(req);
     try {
       const subscriptionData: CreateSubscriptionDto = req.body;
       const { user: { partyId } = {}, systemId, customerAccountKey } = req;
-      console.log("########0000");
-      console.log(customerAccountKey); 
-      const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(subscriptionData, partyId || systemId, customerAccountKey);
+      console.log('########0000');
+      console.log(customerAccountKey);
+      const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(
+        subscriptionData,
+        partyId || systemId,
+        customerAccountKey,
+      );
       res.status(201).json({ data: newSubscription, message: 'success' });
     } catch (error) {
       next(error);
@@ -46,10 +48,15 @@ class SubscriptionController {
 
   public updateSubscription = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const { params: { subscriptionId }, body, user: { partyId }, systemId } = req
+      const {
+        params: { subscriptionId },
+        body,
+        user: { partyId },
+        systemId,
+      } = req;
       const updated: ISubscriptions = await this.subscriptionService.updateSubscription(subscriptionId, body, partyId, systemId);
       if (body.subscriptionCommitmentType || body.subscriptionStatus) {
-        this.subscriptionService.createSubscriptionHistory(body, subscriptionId, partyId, systemId)
+        this.subscriptionService.createSubscriptionHistory(body, subscriptionId, partyId, systemId);
       }
       res.status(200).json({ updated });
     } catch (error) {
@@ -57,58 +64,59 @@ class SubscriptionController {
     }
   };
 
-  public createSubscribeProduct = async (req: IRequestWithUser, res: Response, next: NextFunction)=>{
-    try{
+  public createSubscribeProduct = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
       const productData: CreateSubscribedProductDto = req.body;
-      const { user: { partyId }, systemId, customerAccountKey } = req;
+      const {
+        user: { partyId },
+        systemId,
+        customerAccountKey,
+      } = req;
       const newSubscribedProduct = await this.subscriptionService.createSubscribedProduct(productData, partyId, systemId, customerAccountKey);
-      if(newSubscribedProduct.error){
+      if (newSubscribedProduct.error) {
         return res.status(400).json(newSubscribedProduct);
       }
       res.status(201).json(newSubscribedProduct);
-    }catch(error){
+    } catch (error) {
       res.status(400).json({ error, message: 'failure' });
     }
-  }
+  };
 
-
-  public getSubscribeProduct = async (req: IRequestWithUser, res: Response, next: NextFunction)=>{
+  public getSubscribeProduct = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const subscribedProductId = req.params.subscribedProductId;
       const subscribedProduct: ISubscribedProduct = await this.subscriptionService.findSubscribedProduct(subscribedProductId);
-      if(subscribedProduct == null){
-        return res.status(200).json({message: 'No data Found' });
-      }else{
+      if (subscribedProduct == null) {
+        return res.status(200).json({ message: 'No data Found' });
+      } else {
         return res.status(200).json({ data: subscribedProduct, message: 'success' });
       }
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  
-  public updateSubscribedProduct = async (req: IRequestWithUser, res: Response, next: NextFunction)=>{
+  public updateSubscribedProduct = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-     const {body, user:{partyId}, systemId, params:{subscribedProductId}} = req
-      const updatedData = await this.subscriptionService.updateSubscribedProduct(subscribedProductId,body, partyId, systemId);
-      if(updatedData.error){
-        return res.status(400).json(updatedData)
+      const {
+        body,
+        user: { partyId },
+        systemId,
+        params: { subscribedProductId },
+      } = req;
+      const updatedData = await this.subscriptionService.updateSubscribedProduct(subscribedProductId, body, partyId, systemId);
+      if (updatedData.error) {
+        return res.status(400).json(updatedData);
       }
-      if(updatedData == null){
-        return res.status(200).json({message: 'No data Found' });
-      }else{
-
-        return   res.status(200).json(updatedData);
+      if (updatedData == null) {
+        return res.status(200).json({ message: 'No data Found' });
+      } else {
+        return res.status(200).json(updatedData);
       }
     } catch (error) {
       next(error);
     }
-  }
-
-
-
-
-
+  };
 }
 
 export default SubscriptionController;

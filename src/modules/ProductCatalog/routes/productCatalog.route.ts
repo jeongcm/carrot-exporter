@@ -63,6 +63,12 @@ class ProductCatalogRoute implements Routes {
       createUserLogMiddleware,
       this.productCatalogController.createPlanProductPricing,
     );
+    this.router.delete(
+      '/catalogPlanProduct/:catalogPlanProductId',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.productCatalogController.deleteCatalogPlanProductById,
+    );
   }
 }
 

@@ -8,9 +8,11 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { CatalogPlanProductModel } from '../models/catalogPlanProduct.model';
 import { Op } from 'sequelize';
 import { ConsoleSpanExporter } from '@opentelemetry/tracing';
+import { ISubscribedProduct } from '@/common/interfaces/subscription.interface';
 
 class ProductCatlogService {
   public catalogPlan = DB.CatalogPlan;
+  public subscribedProduct = DB.SubscribedProduct;
   public catalogPlanProduct = DB.CatalogPlanProduct;
   public catalogPlanProductPrice = DB.CatalogPlanProductPrice;
   public tableIdService = new tableIdService();
@@ -270,9 +272,6 @@ class ProductCatlogService {
     const catalogPlanProductMonthlyPriceFromString: string = catalogPlanProductMonthlyPriceFrom.toString();
     const dateFrom = Date.parse(catalogPlanProductMonthlyPriceFromString);
     const dateNow = Date.parse(currentDate.toISOString());
-    console.log('catalogPlanProductMonthlyPriceFrom', Date.parse(catalogPlanProductMonthlyPriceFromString));
-
-    console.log(dateFrom > dateNow);
 
     if (dateFrom < dateNow) throw new HttpException(409, 'from date should be future date');
 
@@ -284,7 +283,7 @@ class ProductCatlogService {
       catalogPlanProductKey,
       createdBy: partyId || systemId,
     };
-    console.log('createData-------', createData);
+
     const findActiveCatalogPlanProduct: ICatalogPlanProductPrice[] = await this.catalogPlanProductPrice.findAll(findActivePriceQuery);
     if (!findActiveCatalogPlanProduct) {
       newData = await this.catalogPlanProductPrice.create(createData);
@@ -310,6 +309,39 @@ class ProductCatlogService {
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
     return responseTableIdData.tableIdFinalIssued;
   };
+
+  /**
+   * @function  {deleteCatalogPlanById} delete catalog Plan Data using id
+   * @param  {string} catalogPlanProductId
+   * @param  {number} partyId
+   * @returns Promise<catalogPlan>
+   */
+  public async deleteCatalogPlanProductById(catalogPlanProductId: string, partyId: string): Promise<Object> {
+    if (isEmpty(catalogPlanProductId)) throw new HttpException(400, 'CatalogPlaProductId is null');
+    const findCataPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
+      where: { catalogPlanProductId, deletedAt: null },
+    });
+
+    if (!findCataPlanProduct) throw new HttpException(404, "Catalog Plan Product doesn't exist");
+    const catalogPlanProductKey = findCataPlanProduct.catalogPlanProductKey;
+    console.log('catalogPlanProductKey', catalogPlanProductKey);
+
+    const findSubscribedProduct: ISubscribedProduct[] = await this.subscribedProduct.findAll({ where: { catalogPlanProductKey, deletedAt: null } });
+    console.log('findSubscribedProduct', findSubscribedProduct);
+    if (findSubscribedProduct.length > 0) throw new HttpException(409, 'Active Subscriptions under product');
+
+    const updatedcCtalogPlanData = {
+      updatedBy: partyId,
+      updatedAt: new Date(),
+      deletedAt: new Date(),
+    };
+
+    await this.catalogPlanProduct.update(updatedcCtalogPlanData, { where: { catalogPlanProductId } });
+
+    const updateData = { deletedCatalogPlanProduct: catalogPlanProductId };
+
+    return updateData;
+  }
 }
 
 export default ProductCatlogService;

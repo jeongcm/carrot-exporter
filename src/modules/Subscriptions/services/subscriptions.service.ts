@@ -216,7 +216,7 @@ class SubscriptionService {
     customerAccountKey: number,
     productCode?: string,
   ) => {
-    let createObj = [];
+    const createObj = [];
     productData.map(async (data: CreateSubscribedProductDto) => {
       const { subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId } = data;
       const subscribedProductId = await this.getTableId('SubscribedProduct');
