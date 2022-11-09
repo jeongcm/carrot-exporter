@@ -6,6 +6,8 @@ import { CreateCatalogPlanDto, CreateCatalogPlanProductDto, CreateProductPricing
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { CatalogPlanProductModel } from '../models/catalogPlanProduct.model';
+import { Op } from 'sequelize';
+import { ConsoleSpanExporter } from '@opentelemetry/tracing';
 
 class ProductCatlogService {
   public catalogPlan = DB.CatalogPlan;
@@ -141,8 +143,10 @@ class ProductCatlogService {
     catalogPlanKey: number,
     partyId: string,
     systemId: string,
-  ): Promise<ICatalogPlanProduct> {
+  ): Promise<Object> {
+    const result = [];
     const catalogPlanProductId = await this.getTableId('CatalogPlanProduct');
+    const catalogPlanProductPriceId = await this.getTableId('CatalogPlanProductPrice');
     const {
       catalogPlanProductCurrency,
       catalogPlanProductDescription,
@@ -151,7 +155,8 @@ class ProductCatlogService {
       catalogPlanProductUOM,
       catalogPlanProductType,
     } = newData;
-    const createData = {
+
+    const createPlanProduct = {
       catalogPlanProductId,
       catalogPlanKey,
       catalogPlanProductCurrency,
@@ -162,9 +167,30 @@ class ProductCatlogService {
       catalogPlanProductType,
       createdBy: partyId || systemId,
     };
-    const newCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.create(createData);
-    console.log('newCatalogPlanProduct', newCatalogPlanProduct);
-    return newCatalogPlanProduct;
+    try {
+      return await DB.sequelize.transaction(async t => {
+        const newCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.create(createPlanProduct, { transaction: t });
+
+        const createPlanProductPrice = {
+          catalogPlanProductPriceId,
+          catalogPlanProductKey: newCatalogPlanProduct.catalogPlanProductKey,
+          catalogPlanProductMonthlyPriceFrom: new Date(),
+          catalogPlanProductMonthlyPriceTo: new Date(Date.parse('31 Dec 9999 23:59:59 UTC')),
+          catalogPlanProductMonthlyPrice,
+          createdAt: new Date(),
+          createdBy: partyId || systemId,
+        };
+
+        const newCatalogPlanProductPrice: ICatalogPlanProductPrice = await this.catalogPlanProductPrice.create(createPlanProductPrice, {
+          transaction: t,
+        });
+        result.push(newCatalogPlanProduct);
+        result.push(newCatalogPlanProductPrice);
+        return result;
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -227,18 +253,51 @@ class ProductCatlogService {
     partyId: string,
     systemId: string,
   ): Promise<ICatalogPlanProductPrice> {
-    const catalogPlanProductPricingId = await this.getTableId('CatalogPlanProductPrice');
+    const findActivePriceQuery = {
+      where: {
+        catalogPlanProductKey,
+        catalogPlanProductMonthlyPriceTo: {
+          [Op.gt]: new Date(),
+        },
+        deletedAt: null,
+      },
+    };
+
+    let newData;
+    const currentDate = new Date();
+    const catalogPlanProductPriceId = await this.getTableId('CatalogPlanProductPrice');
     const { catalogPlanProductMonthlyPrice, catalogPlanProductMonthlyPriceFrom, catalogPlanProductMonthlyPriceTo } = pricingData;
+    const catalogPlanProductMonthlyPriceFromString: string = catalogPlanProductMonthlyPriceFrom.toString();
+    const dateFrom = Date.parse(catalogPlanProductMonthlyPriceFromString);
+    const dateNow = Date.parse(currentDate.toISOString());
+    console.log('catalogPlanProductMonthlyPriceFrom', Date.parse(catalogPlanProductMonthlyPriceFromString));
+
+    console.log(dateFrom > dateNow);
+
+    if (dateFrom < dateNow) throw new HttpException(409, 'from date should be future date');
 
     const createData = {
-      catalogPlanProductPricingId,
+      catalogPlanProductPriceId,
       catalogPlanProductMonthlyPrice,
       catalogPlanProductMonthlyPriceFrom,
       catalogPlanProductMonthlyPriceTo,
       catalogPlanProductKey,
       createdBy: partyId || systemId,
     };
-    const newData: ICatalogPlanProductPrice = await this.catalogPlanProductPrice.create(createData);
+    console.log('createData-------', createData);
+    const findActiveCatalogPlanProduct: ICatalogPlanProductPrice[] = await this.catalogPlanProductPrice.findAll(findActivePriceQuery);
+    if (!findActiveCatalogPlanProduct) {
+      newData = await this.catalogPlanProductPrice.create(createData);
+    } else {
+      const planProductPriceKey = findActiveCatalogPlanProduct.map(x => x.catalogPlanProductPriceKey);
+
+      const updateCatalogPlanProduct = await this.catalogPlanProductPrice.update(
+        { deletedAt: currentDate, catalogPlanProductMonthlyPriceTo: catalogPlanProductMonthlyPriceFrom },
+        { where: { catalogPlanProductPriceKey: planProductPriceKey } },
+      );
+      newData = await this.catalogPlanProductPrice.create(createData);
+    }
+
     return newData;
   }
 

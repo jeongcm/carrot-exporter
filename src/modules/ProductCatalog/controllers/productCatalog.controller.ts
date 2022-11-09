@@ -83,7 +83,7 @@ class ProductCatalogController {
       if (!catalogPlanDetails) {
         res.status(409).json({ message: "Catalog Plan doesn't exist" });
       }
-      const newCatalogPlan: ICatalogPlanProduct = await this.productCatalogService.createCatalogPlanProduct(
+      const newCatalogPlan = await this.productCatalogService.createCatalogPlanProduct(
         productData,
         catalogPlanDetails.catalogPlanKey,
         partyId,
