@@ -445,6 +445,7 @@ class TopologyService extends ServiceExtension {
         sets[projectUid] = {
           level: 'PJ',
           projectUid,
+          resourceId: resource.resourceId,
           resourceType: 'PJ',
           resourceName: resource.resourceName,
           resourceDescription: resource.resourceDescription,

@@ -33,6 +33,9 @@ export type AlertReceivedCreationAttributes = Optional<
   | 'alertReceivedReason'
   | 'alertReceivedUid'
   | 'alertReceivedHash'
+  | 'alertReceivedAffectedResourceType'
+  | 'alertReceivedAffectedResourceName'
+
 >;
 
 export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreationAttributes> implements IAlertReceived {
@@ -64,6 +67,9 @@ export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreat
   public alertReceivedEndpoint: string;
   public alertReceivedReason: string;
   public alertReceivedUid: string;
+  public alertReceivedAffectedResourceType: string;
+  public alertReceivedAffectedResourceName: string;
+
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -191,6 +197,15 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
+      alertReceivedAffectedResourceType: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+      },
+      alertReceivedAffectedResourceName: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+      },
+
     },
     {
       indexes: [
