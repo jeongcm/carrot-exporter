@@ -48,6 +48,7 @@ class ProductCatalogRoute implements Routes {
       createUserLogMiddleware,
       this.productCatalogController.getCatalogProductPlanById,
     );
+    this.router.get('/catalogPlans/available', authMiddleware, createUserLogMiddleware, this.productCatalogController.getAvailableCatalogPlans);
     this.router.put(
       '/catalogPlanProduct/:catalogPlanProductId',
       systemAuthMiddleware,

@@ -105,6 +105,16 @@ class ProductCatalogController {
     }
   };
 
+  public getAvailableCatalogPlans = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.user.customerAccountKey;
+      const catalogPlans: ICatalogPlan[] = await this.productCatalogService.getAvailableCatalogPlans(customerAccountKey);
+      res.status(200).json({ data: catalogPlans, message: 'success' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public deleteCatalogPlanProductById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const catalogPlanProductId = req.params.catalogPlanProductId;

@@ -8,10 +8,14 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { CatalogPlanProductModel } from '../models/catalogPlanProduct.model';
 import { Op } from 'sequelize';
 import { ConsoleSpanExporter } from '@opentelemetry/tracing';
-import { ISubscribedProduct } from '@/common/interfaces/subscription.interface';
+import { ISubscribedProduct, ISubscriptions } from '@/common/interfaces/subscription.interface';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { CatalogPlanProductPriceModel } from '../models/catalogPlanProductPrice.model';
 
 class ProductCatlogService {
+  public customerAccount = DB.CustomerAccount;
   public catalogPlan = DB.CatalogPlan;
+  public subscription = DB.Subscription;
   public subscribedProduct = DB.SubscribedProduct;
   public catalogPlanProduct = DB.CatalogPlanProduct;
   public catalogPlanProductPrice = DB.CatalogPlanProductPrice;
@@ -341,6 +345,43 @@ class ProductCatlogService {
     const updateData = { deletedCatalogPlanProduct: catalogPlanProductId };
 
     return updateData;
+  }
+
+  public async getAvailableCatalogPlans(customerAccountKey: number): Promise<ICatalogPlan[]> {
+    const returnPlan = [];
+    const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
+    if (!findCustomerAccount) throw new HttpException(404, 'Cannot find customer account');
+
+    const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+    if (findSubscription.length == 0) {
+      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+        where: { deletedAt: null },
+        include: [
+          {
+            model: CatalogPlanProductModel,
+            where: { deletedAt: null },
+            include: [{ model: CatalogPlanProductPriceModel, where: { deletedAt: null } }],
+          },
+        ],
+      });
+      returnPlan.push(findCatalogPlan);
+    } else {
+      const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
+      console.log(catalogPlanKey);
+      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+        where: { deletedAt: null, catalogPlanKey: { [Op.notIn]: catalogPlanKey } },
+        include: [
+          {
+            model: CatalogPlanProductModel,
+            where: { deletedAt: null },
+            include: [{ model: CatalogPlanProductPriceModel, where: { deletedAt: null } }],
+          },
+        ],
+      });
+      returnPlan.push(findCatalogPlan);
+    }
+
+    return returnPlan;
   }
 }
 
