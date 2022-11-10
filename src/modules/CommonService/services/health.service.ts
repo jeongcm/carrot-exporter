@@ -175,7 +175,7 @@ class healthService {
    * @param {string} cronTab
    */
   public async scheduleMonitorMetricOpsByCustomerAccountId(customerAccountId: string, cronTab: string): Promise<object> {
-    const nexclipperApiUrl = config.appUrl + ':' + config.appPort + '/evaluate/customer';
+    const nexclipperApiUrl = config.appUrl + ':' + config.appPort + '/evaluate/customerAccount';
     const cronData = {
       name: 'monitorMetricOpsJob',
       summary: 'monitorMetricOpsJob',
