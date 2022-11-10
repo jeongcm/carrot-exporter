@@ -89,6 +89,13 @@ class TopologyService extends ServiceExtension {
         const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider, resourceGroupUuid } =
           resourceGroup;
 
+        const resource = await this.resource.findOne({
+          where: {
+            customerAccountKey,
+            resourceTargetUuid: resourceGroupUuid
+          }
+        })
+
         topologyPerGroupId[resourceGroup.resourceGroupId] = {
           resourceGroup: {
             resourceGroupId,
@@ -98,6 +105,7 @@ class TopologyService extends ServiceExtension {
             resourceGroupProvider,
             resourceGroupUuid,
           },
+          resource,
           children,
         };
       }),
