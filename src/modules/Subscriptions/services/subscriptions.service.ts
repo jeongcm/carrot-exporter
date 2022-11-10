@@ -2,7 +2,7 @@ import DB from '@/database';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import { ISubscribedProduct, ISubscriptions } from '@/common/interfaces/subscription.interface';
-import { ICatalogPlanProduct } from '@/common/interfaces/productCatalog.interface';
+import { ICatalogPlan, ICatalogPlanProduct } from '@/common/interfaces/productCatalog.interface';
 import {
   CreateSubscribedProductDto,
   CreateSubscriptionDto,

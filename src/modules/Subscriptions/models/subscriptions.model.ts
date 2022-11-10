@@ -30,9 +30,9 @@ export class SubscriptionModel extends Model<ISubscriptions, SubscriptionCreatio
   public updatedBy: string;
   public subscriptionActivatedAt: Date;
   public subscriptionTerminatedAt: Date;
-  public subscriptionStatus: 'AC' | 'SP' | 'TM';
+  public subscriptionStatus: string;
   public subscriptionConsent: boolean;
-  public subscriptionCommitmentType: 'AC' | 'MM';
+  public subscriptionCommitmentType: string;
   public updatedAt: Date;
   public readonly createdAt!: Date;
 }
