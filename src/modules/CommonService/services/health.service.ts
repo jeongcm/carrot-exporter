@@ -51,7 +51,10 @@ class healthService {
     const syncAlerts = resultCron.filter(x => x.scheduleName == 'SyncAlerts');
     const syncResources = resultCron.filter(x => x.scheduleName == 'SyncResources');
     const syncMetricReceived = resultCron.filter(x => x.scheduleName == 'SyncMetricReceived');
+    const checkHeathByCustomerAccountIdFiltered = resultCron.filter(x => x.scheduleName == 'checkHeathByCustomerAccountId');
+    const monitorMetricOpsJobFiltered = resultCron.filter(x => x.scheduleName == 'monitorMetricOpsJob');
 
+    //4.1. check schedule by cluster and rerun if the schedule cron is not running
     const clusterStatus = [];
     for (let i = 0; i < responseResourceGroup.length; i++) {
       //4. check sudoryclient
@@ -129,6 +132,16 @@ class healthService {
       }
     } // end of for
 
+    //4.2 check schedule by account id
+
+    if (checkHeathByCustomerAccountIdFiltered.length === 0) {
+      const resultScheduleCheckHealth = await this.scheduleCheckHealthByCustomerAccountId(customerAccountId, config.alertCron);
+    }
+
+    if (monitorMetricOpsJobFiltered.length === 0) {
+      const resultScheduleMonitorMetricOps = await this.scheduleMonitorMetricOpsByCustomerAccountId(customerAccountId, config.alertCron);
+    }
+
     return clusterStatus;
   }
 
@@ -150,7 +163,31 @@ class healthService {
       clusterId: '',
       apiBody: {
         customerAccountId: customerAccountId,
-        cronTab: cronTab,
+      },
+    };
+    const resultSchedule = await this.schedulerService.createScheduler(cronData, customerAccountId);
+    console.log(resultSchedule);
+    return resultSchedule;
+  }
+
+  /**
+   * @param {string} customerAccountId
+   * @param {string} cronTab
+   */
+  public async scheduleMonitorMetricOpsByCustomerAccountId(customerAccountId: string, cronTab: string): Promise<object> {
+    const nexclipperApiUrl = config.appUrl + ':' + config.appPort + '/evaluate/customer';
+    const cronData = {
+      name: 'monitorMetricOpsJob',
+      summary: 'monitorMetricOpsJob',
+      cronTab: cronTab,
+      apiUrl: nexclipperApiUrl,
+      apiType: 'POST',
+      reRunRequire: true,
+      scheduleFrom: '',
+      scheduleTo: '',
+      clusterId: '',
+      apiBody: {
+        customerAccountId: customerAccountId,
       },
     };
     const resultSchedule = await this.schedulerService.createScheduler(cronData, customerAccountId);
