@@ -12,6 +12,7 @@ import ResourceGroupService from '@/modules/Resources/services/resourceGroup.ser
 import {Op} from 'sequelize';
 import {IAnomalyMonitoringTarget} from '@/common/interfaces/monitoringTarget.interface';
 import {ResourceGroupModel} from '../models/resourceGroup.model';
+import AlertReceivedService from "@modules/Alert/services/alertReceived.service";
 
 class ResourceService {
   public resource = DB.Resource;

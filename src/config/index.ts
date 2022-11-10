@@ -161,6 +161,7 @@ export default {
     vmMultiSecret: process.env.NC_VM_MULTI_SECRET || 'vm-auth-victoria-metrics-auth',
     vmMultiClusterUuid: process.env.NC_VM_MULTI_CLUSTER_UUID,
     vmOption: process.env.NC_VM_OPTION || 'MULTI',
+    vmOpenstackSwitch: process.env.NC_VM_OPENSTACK_SWITCH || 'off',
   },
   alerthub: {
     baseUrl: process.env.NC_ALERTHUB_URL,

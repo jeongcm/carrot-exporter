@@ -9,6 +9,7 @@ import {IResourceGroup} from 'common/interfaces/resourceGroup.interface';
 import {IResource} from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
 import P8sService from "@modules/Metric/services/p8sService";
+import config from 'config';
 
 export interface IMetricQueryBodyQuery {
   name: string;
