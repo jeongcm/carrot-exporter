@@ -42,9 +42,9 @@ export class ResourceEventModel extends Model<IResourceEvent, ResourceEventCreat
   public resourceEventName: string;
   public resourceEventDescription: string;
   public resourceEventType: string;
-  public resourceEventNamespace: string
-  public resourceEventTargetCreatedAt: Date
-  public resourceEventTargetUuid: string
+  public resourceEventNamespace: string;
+  public resourceEventTargetCreatedAt: Date;
+  public resourceEventTargetUuid: string;
   public resourceEventInvolvedObjectKind: string;
   public resourceEventInvolvedObjectName: string;
   public resourceEventInvolvedObjectNamespace: string;
@@ -58,7 +58,7 @@ export class ResourceEventModel extends Model<IResourceEvent, ResourceEventCreat
   public customerAccountKey: number;
   public resourceGroupUuid: string;
   public resourceKey: number;
-  public resourceGroupKey: number
+  public resourceGroupKey: number;
 
   public updatedAt: Date;
 
@@ -169,6 +169,11 @@ export default function (sequelize: Sequelize): typeof ResourceEventModel {
       },
     },
     {
+      indexes: [
+        {
+          fields: ['created_at'],
+        },
+      ],
       tableName: 'ResourceEvent',
       modelName: 'ResourceEvent',
       sequelize,
