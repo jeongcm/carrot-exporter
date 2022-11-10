@@ -182,7 +182,7 @@ class SubscriptionService {
     partyId: string,
     systemId: string,
     customerAccountKey: number,
-    productCode?: string,
+    catalogPlanProductId?: string,
   ) => {
     const { subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId } = productData;
     const subscribedProductId = await this.getTableId('SubscribedProduct');
@@ -201,10 +201,10 @@ class SubscriptionService {
         catalogPlanProductType: productData.catalogPlanProductType,
       },
     });
-    if (productCode) {
+    if (catalogPlanProductId) {
       fuseBillProduct = await this.catalogPlanProduct.findOne({
         where: {
-          catalogPlanProductId: productCode,
+          catalogPlanProductId: catalogPlanProductId,
         },
       });
     }

@@ -10,9 +10,9 @@ export interface ISubscriptions {
   updatedBy: string;
   subscriptionActivatedAt: Date;
   subscriptionTerminatedAt: Date;
-  subscriptionStatus: 'AC' | 'SP' | 'TM';
+  subscriptionStatus: string;
   subscriptionConsent: boolean;
-  subscriptionCommitmentType: 'AC' | 'MM';
+  subscriptionCommitmentType: string;
 }
 
 export interface ISubscriptionHistory {
