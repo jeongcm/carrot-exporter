@@ -449,7 +449,7 @@ class TopologyService extends ServiceExtension {
           break;
       }
 
-      if (!sets[projectUid]) {
+      if (!sets[projectUid] && resource.resourceType == "PJ") {
         sets[projectUid] = {
           level: 'PJ',
           projectUid,
