@@ -301,7 +301,7 @@ class massUploaderService {
               catalogPlanProductIdForMo = findCatalogPlanProduct.catalogPlanProductId;
             }
           }
-
+          //register node as new subscribedProduct
           for (let i = 0; i < getResourceNode.length; i++) {
             const resourceId = getResourceNode[i].resourceId;
             const subscribedProduct = {
@@ -326,6 +326,15 @@ class massUploaderService {
       //for deleted Nodes - delete subscribedProduct, anomaly target if exists
       //to be coded
       //
+    }
+    // if pod is deleted, but a new pod with the same app is comming, replace it.
+    // if pod is deleted but there is no new pod, make the subscribed product status 'SP'
+    if (resourceType === 'PD') {
+      //to be coded
+    }
+    // if pbc is deleted, make the subscribed product stauts 'SP'
+    if (resourceType === 'PC') {
+      //to be coded
     }
 
     return 'successful DB update ';
