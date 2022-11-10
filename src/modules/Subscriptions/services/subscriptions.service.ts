@@ -36,32 +36,27 @@ class SubscriptionService {
   public async findSubscriptions(customerAccountKey: number): Promise<ISubscriptions[]> {
     const allSubscriptions: ISubscriptions[] = await this.subscription.findAll({
       where: {
-        deletedAt: null,
         customerAccountKey,
       },
       include: [
-        { model: CatalogPlanModel, where: { deletedAt: null }, attributes: ['catalogPlanId', 'catalogPlanName'], required: true },
+        { model: CatalogPlanModel, attributes: ['catalogPlanId', 'catalogPlanName'], required: true },
         {
           model: SubscribedProductModel,
-          where: { deletedAt: null },
           attributes: { exclude: ['subscribedProductKey', 'deletedAt'] },
           required: false,
           include: [
             {
               model: CatalogPlanProductModel,
               attributes: ['catalogPlanProductId', 'catalogPlanProductName', 'catalogPlanProductCurrency'],
-              where: { deletedAt: null },
-              include: [{ model: CatalogPlanProductPriceModel, where: { deletedAt: null } }],
+              include: [{ model: CatalogPlanProductPriceModel }],
             },
             {
               model: ResourceModel,
               attributes: ['resourceId', 'resourceName', 'resourceType'],
-              where: { deletedAt: null },
               include: [
                 {
                   model: ResourceGroupModel,
                   attributes: ['resourceGroupId', 'resourceGroupName', 'resourceGroupUuid', 'resourceGroupProvider'],
-                  where: { deletedAt: null },
                 },
               ],
             },
