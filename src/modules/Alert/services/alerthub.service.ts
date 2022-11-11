@@ -115,6 +115,8 @@ class AlerthubService {
           headers: { x_auth_token: `${config.alerthub.authToken}` },
         },
       );
+      console.log(alertRuleSettingData)
+      console.log(data)
 
       if (data.data && data.message === 'success') {
         return data.data;
