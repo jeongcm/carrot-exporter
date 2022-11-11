@@ -237,8 +237,6 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
         break;
 
       case 'PD':
-        logger.info('PD: ' + _nodeId);
-        console.log('bugfix1', resource.resourceOwnerReferences);
         if (resource.resourceOwnerReferences) {
           if (!Array.isArray(resource.resourceOwnerReferences)) {
             if (typeof resource.resourceOwnerReferences === 'string') {
@@ -252,23 +250,30 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
           } else {
             resourceOwnerReferences = resource.resourceOwnerReferences;
           }
-          const owner = resourceOwnerReferences;
-          //const type = TYPE_PER_NAME[(owner.kind || '').toLowerCase()];
-          const uid = owner.uid;
-          const target = `${resourceNamespace}.${uid}`;
 
-          addEdge(
-            resourceNamespace,
-            {
-              source: _nodeId,
-              target,
-            },
-            nsNodes,
-            existingEdgeIds,
-            resourcePerNodeId,
-          );
+          let owners = resourceOwnerReferences;
+
+          if (!Array.isArray(owners)) {
+            owners = [owners];
+          }
+
+          owners.forEach((owner: any) => {
+            const uid = owner.uid;
+            const target = `${resourceNamespace}.${uid}`;
+
+            addEdge(
+              resourceNamespace,
+              {
+                source: _nodeId,
+                target,
+              },
+              nsNodes,
+              existingEdgeIds,
+              resourcePerNodeId,
+            );
+          })
         }
-        console.log('bugfix2', resource.resourcePodVolume);
+
         if (resource.resourcePodVolume) {
           if (!Array.isArray(resource.resourcePodVolume)) {
             if (typeof resource.resourcePodVolume === 'string') {
@@ -282,7 +287,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
           } else {
             resourcePodVolume = resource.resourcePodVolume;
           }
-          console.log(resourcePodVolume);
+
           resourcePodVolume.forEach((volume: any) => {
             let target = '';
             if (volume.persistentVolumeClaim) {
@@ -305,7 +310,7 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
             );
           });
         }
-        console.log('bugfix3', resource.resourcePodContainer);
+
         if (resource.resourcePodContainer) {
           if (!Array.isArray(resource.resourcePodContainer)) {
             if (typeof resource.resourcePodContainer === 'string') {
