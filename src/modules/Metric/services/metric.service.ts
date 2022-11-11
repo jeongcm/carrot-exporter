@@ -19,6 +19,11 @@ export interface IMetricQueryBodyQuery {
   promql?: string;
   resourceGroupId?: string | string[];
   resourceGroupUuid?: string;
+  promqlOps?: {
+    topk?: number;
+    sort?: 'asc' | 'desc';
+    ranged?: boolean;
+  };
 }
 
 export interface IMetricQueryBody {
@@ -149,7 +154,7 @@ class MetricService extends ServiceExtension {
   }
 
   private getPromQlFromQuery(query: IMetricQueryBodyQuery, resources?: IResource[], resourceGroups?: IResourceGroup[]) {
-    const { type, promql: customPromQl, start, end, step } = query;
+    const { type, promql: customPromQl, start, end, step, promqlOps = {} } = query;
     const clusterUuid = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupUuid);
     const resourceName = resources?.map((resource: IResource) => resource.resourceName);
     const resourceNamespace = resources?.map((resource: IResource) =>
@@ -423,6 +428,7 @@ class MetricService extends ServiceExtension {
       case 'POD_RXTX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
+          pod: resourceName,
         });
 
         promQl = `sum by (pod, clusterUuid) (rate(container_network_receive_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]) + rate(container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]))`;
@@ -747,6 +753,24 @@ class MetricService extends ServiceExtension {
         )`;
         break;
     }
+
+    // Apply PromQL operators
+    if (promqlOps?.sort === 'desc') {
+      promQl = `sort_desc(${promQl})`;
+    }
+
+    if (promqlOps?.sort === 'asc') {
+      promQl = `sort(${promQl})`;
+    }
+
+    if (promqlOps?.topk) {
+      promQl = `topk(${promqlOps.topk}, ${promQl})`;
+    }
+
+    if (typeof promqlOps?.ranged === 'boolean') {
+      ranged = promqlOps?.ranged;
+    }
+
 
     promQl = promQl.replace(/__LABEL_PLACE_HOLDER__/g, labelString);
     console.log(promQl);

@@ -54,11 +54,43 @@ class TopologyService extends ServiceExtension {
     });
   }
 
-  public async getAllTopology(type: string, customerAccountKey: number) {
+  public async getAllTopology(type: string, customerAccountKey: number, resourceGroupId?: string[], resourceId?: string[]) {
+    let where: any = {};
+    let extraResourceGroupKey: number[] = [];
+
+    if (resourceId && resourceId.length > 0) {
+      const resources: IResource[] = await this.resource.findAll({
+        where: {
+          resourceId,
+          customerAccountKey,
+          deletedAt: null,
+        },
+        attributes: ['resourceGroupKey'],
+      });
+
+      extraResourceGroupKey = resources?.map((resource: IResource) => {
+        return resource.resourceGroupKey;
+      });
+
+      where = {
+        [Op.or]: {
+          resourceGroupKey: extraResourceGroupKey,
+        },
+      };
+    }
+
+    if (resourceGroupId && resourceGroupId.length > 0) {
+      where = {
+        ...where,
+        resourceGroupId,
+      };
+    }
+
     const accountResourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
       where: {
         customerAccountKey,
         deletedAt: null,
+        ...where,
       },
     });
 
@@ -70,9 +102,9 @@ class TopologyService extends ServiceExtension {
 
     await Promise.all(
       accountResourceGroups.map(async (resourceGroup: IResourceGroup) => {
-        const children = await this.getResourceGroupTopology(type, resourceGroup, customerAccountKey);
+        const children = await this.getResourceGroupTopology(type, resourceGroup, customerAccountKey, resourceId);
 
-        const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider,resourceGroupUuid } = resourceGroup;
+        const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider, resourceGroupUuid } = resourceGroup;
 
         topologyPerGroupId[resourceGroup.resourceGroupId] = {
           resourceGroup: {
@@ -81,7 +113,7 @@ class TopologyService extends ServiceExtension {
             resourceGroupDescription,
             resourceGroupPlatform,
             resourceGroupProvider,
-            resourceGroupUuid
+            resourceGroupUuid,
           },
           children,
         };
@@ -91,7 +123,7 @@ class TopologyService extends ServiceExtension {
     return Object.values(topologyPerGroupId);
   }
 
-  public async getResourceGroupTopology(type: string, resourceGroup: IResourceGroup, customerAccountKey: number) {
+  public async getResourceGroupTopology(type: string, resourceGroup: IResourceGroup, customerAccountKey: number, resourceId?: string[]) {
     const { resourceGroupKey } = resourceGroup;
 
     let resourceType: string[] = [];
@@ -137,7 +169,7 @@ class TopologyService extends ServiceExtension {
       case 'nodes':
         return await this.createNodeTopology(resources);
       case 'workload-pods':
-        return await this.createWorkloadPodTopology(resources);
+        return await this.createWorkloadPodTopology(resources, resourceId || []);
       case 'ns-services':
         return await this.createNsServiceTopology(resources, resourceGroup);
     }
@@ -156,7 +188,7 @@ class TopologyService extends ServiceExtension {
     return topologyItems;
   }
 
-  public async createWorkloadPodTopology(resources: IResource[]) {
+  public async createWorkloadPodTopology(resources: IResource[], resourceId: string[]) {
     const sets: any = {};
     const podsPerUid: any = {};
 
@@ -180,15 +212,17 @@ class TopologyService extends ServiceExtension {
 
           workload += 1;
 
-          sets[namespace][resource.resourceTargetUuid] = {
-            resourceNamespace: namespace,
-            resourceName: resource.resourceName,
-            resourceId: resource.resourceId,
-            resourceTargetUuid: resource.resourceTargetUuid,
-            resourceType: resource.resourceType,
-            level: 'workload',
-            children: [],
-          };
+          if (resourceId.length === 0 || resourceId.indexOf(resource.resourceId) > -1) {
+            sets[namespace][resource.resourceTargetUuid] = {
+              resourceNamespace: namespace,
+              resourceName: resource.resourceName,
+              resourceId: resource.resourceId,
+              resourceTargetUuid: resource.resourceTargetUuid,
+              resourceType: resource.resourceType,
+              level: 'workload',
+              children: [],
+            };
+          }
           break;
         case 'PD':
           pod += 1;
@@ -210,7 +244,6 @@ class TopologyService extends ServiceExtension {
           }
 
           owners?.map((owner: any) => {
-           // TODO: Add DaemonSet, StatefulSet, Deployment?
             if (owner.uid) {
               if (!podsPerUid[namespace]) {
                 podsPerUid[namespace] = {};
@@ -237,8 +270,6 @@ class TopologyService extends ServiceExtension {
     });
 
     Object.keys(podsPerUid).forEach((namespace: string) => {
-      console.log(podsPerUid[namespace]);
-      console.log(sets[namespace]);
       Object.keys(podsPerUid[namespace]).forEach((key: string) => {
         if (sets[namespace] && sets[namespace][key]) {
           sets[namespace][key].children = podsPerUid[namespace][key];
