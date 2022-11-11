@@ -137,7 +137,6 @@ class IncidentService {
   }
 
   public async getMyAllIncidents(customerAccountKey: number, partyUser: IPartyUser): Promise<IIncident[]> {
-
     const allIncidents: IIncident[] = await this.incident.findAll({
       where: { deletedAt: null, customerAccountKey, [Op.or]: [{createdBy: partyUser.partyUserId}, {assigneeKey: partyUser.partyKey}]},
       order: [['createdAt', 'DESC']],
