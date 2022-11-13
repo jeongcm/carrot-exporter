@@ -48,11 +48,7 @@ class ResolutionActionController {
     try {
       const { user: { partyId } = {}, params: { resolutionActionId } = {} } = req;
       const resolutionActionData: UpdateResolutionActionDto = req.body;
-      const updateResolutionActionData: IResolutionAction = await this.resolutionActionService.updateResolutionAction(
-        resolutionActionId,
-        resolutionActionData,
-        partyId,
-      );
+      const updateResolutionActionData = await this.resolutionActionService.updateResolutionAction(resolutionActionId, resolutionActionData, partyId);
       res.status(200).json({ data: updateResolutionActionData, message: 'updated' });
     } catch (error) {
       next(error);
@@ -65,7 +61,7 @@ class ResolutionActionController {
         user: { partyId },
         params: { resolutionActionId },
       } = req;
-      const resolutionActionData: IResolutionAction = await this.resolutionActionService.findResolutionActionById(resolutionActionId);
+      const resolutionActionData = await this.resolutionActionService.findResolutionActionById(resolutionActionId);
       res.status(200).json({ data: resolutionActionData, message: 'find' });
     } catch (error) {
       next(error);
