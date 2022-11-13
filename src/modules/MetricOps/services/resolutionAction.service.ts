@@ -45,7 +45,14 @@ class ResolutionActionService {
     const tableIdName = 'ResolutionAction';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const resolutionActionId: string = responseTableIdData.tableIdFinalIssued;
-    const { resolutionActionName, resolutionActionDescription, sudoryTemplateId, resolutionActionTemplateSteps } = resolutionActionData;
+    const {
+      resolutionActionName,
+      resolutionActionDescription,
+      sudoryTemplateId,
+      resolutionActionTemplateSteps,
+      resolutionActionType,
+      resolutionActionPrerequisiteKey,
+    } = resolutionActionData;
     const sudoryTemplateDetails = await this.sudoryTemplate.findOne({ where: { sudoryTemplateId: sudoryTemplateId } });
     if (!sudoryTemplateDetails) throw new HttpException(400, 'SudoryTemplate is not found');
     const currentDate = new Date();
@@ -57,6 +64,8 @@ class ResolutionActionService {
       resolutionActionName,
       resolutionActionDescription,
       resolutionActionTemplateSteps,
+      resolutionActionType,
+      resolutionActionPrerequisiteNumber: resolutionActionPrerequisiteKey || null,
       sudoryTemplateKey: sudoryTemplateDetails.sudoryTemplateKey,
     };
     const newresolutionAction: IResolutionAction = await this.resolutionAction.create(resolutionAction);

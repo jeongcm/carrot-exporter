@@ -10,4 +10,6 @@ export interface IResolutionAction {
   resolutionActionDescription: string;
   sudoryTemplateKey: number;
   resolutionActionTemplateSteps: JSON;
+  resolutionActionType: string; //MO - metricOps only, IA - metricOps + incidentAction
+  resolutionActionPrerequisiteKey: number;
 }

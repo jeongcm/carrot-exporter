@@ -31,8 +31,9 @@ class ResolutionActionController {
   public createResolutionAction = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { user: { partyId } = {}, systemId, customerAccountKey } = req;
-      console.log('customerAccountKey', customerAccountKey);
       const resolutionActionData: CreateResolutionActionDto = req.body;
+      const resolutionActionType = req.body.resolutionActionType || 'MO';
+      resolutionActionData.resolutionActionType = resolutionActionType;
       const newResolutionAction: IResolutionAction = await this.resolutionActionService.createResolutionAction(
         resolutionActionData,
         systemId || partyId,
