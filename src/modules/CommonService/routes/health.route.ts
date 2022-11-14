@@ -26,14 +26,11 @@ class HealthRoute implements Routes {
   private initializeRoutes() {
     this.router.post(
       '/health/customerAccount',
-      authMiddleware,
+      //authMiddleware,
       //validationMiddleware(ExecutorResourceListDto, 'body'),
       //      createUserLogMiddleware,
       this.healthController.checkHealthByCustomerAccountId,
     );
-
-
-
   }
 }
 

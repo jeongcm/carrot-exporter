@@ -48,6 +48,7 @@ class ProductCatalogRoute implements Routes {
       createUserLogMiddleware,
       this.productCatalogController.getCatalogProductPlanById,
     );
+    this.router.get('/catalogPlans/available', authMiddleware, createUserLogMiddleware, this.productCatalogController.getAvailableCatalogPlans);
     this.router.put(
       '/catalogPlanProduct/:catalogPlanProductId',
       systemAuthMiddleware,
@@ -62,6 +63,12 @@ class ProductCatalogRoute implements Routes {
       validationMiddleware(CreateProductPricingDto, 'body'),
       createUserLogMiddleware,
       this.productCatalogController.createPlanProductPricing,
+    );
+    this.router.delete(
+      '/catalogPlanProduct/:catalogPlanProductId',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.productCatalogController.deleteCatalogPlanProductById,
     );
   }
 }

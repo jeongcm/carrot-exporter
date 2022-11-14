@@ -6,9 +6,17 @@ import { CreateCatalogPlanDto, CreateCatalogPlanProductDto, CreateProductPricing
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { CatalogPlanProductModel } from '../models/catalogPlanProduct.model';
+import { Op } from 'sequelize';
+import { ConsoleSpanExporter } from '@opentelemetry/tracing';
+import { ISubscribedProduct, ISubscriptions } from '@/common/interfaces/subscription.interface';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { CatalogPlanProductPriceModel } from '../models/catalogPlanProductPrice.model';
 
 class ProductCatlogService {
+  public customerAccount = DB.CustomerAccount;
   public catalogPlan = DB.CatalogPlan;
+  public subscription = DB.Subscription;
+  public subscribedProduct = DB.SubscribedProduct;
   public catalogPlanProduct = DB.CatalogPlanProduct;
   public catalogPlanProductPrice = DB.CatalogPlanProductPrice;
   public tableIdService = new tableIdService();
@@ -141,8 +149,10 @@ class ProductCatlogService {
     catalogPlanKey: number,
     partyId: string,
     systemId: string,
-  ): Promise<ICatalogPlanProduct> {
+  ): Promise<Object> {
+    const result = [];
     const catalogPlanProductId = await this.getTableId('CatalogPlanProduct');
+    const catalogPlanProductPriceId = await this.getTableId('CatalogPlanProductPrice');
     const {
       catalogPlanProductCurrency,
       catalogPlanProductDescription,
@@ -151,7 +161,8 @@ class ProductCatlogService {
       catalogPlanProductUOM,
       catalogPlanProductType,
     } = newData;
-    const createData = {
+
+    const createPlanProduct = {
       catalogPlanProductId,
       catalogPlanKey,
       catalogPlanProductCurrency,
@@ -162,9 +173,30 @@ class ProductCatlogService {
       catalogPlanProductType,
       createdBy: partyId || systemId,
     };
-    const newCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.create(createData);
-    console.log('newCatalogPlanProduct', newCatalogPlanProduct);
-    return newCatalogPlanProduct;
+    try {
+      return await DB.sequelize.transaction(async t => {
+        const newCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.create(createPlanProduct, { transaction: t });
+
+        const createPlanProductPrice = {
+          catalogPlanProductPriceId,
+          catalogPlanProductKey: newCatalogPlanProduct.catalogPlanProductKey,
+          catalogPlanProductMonthlyPriceFrom: new Date(),
+          catalogPlanProductMonthlyPriceTo: new Date(Date.parse('31 Dec 9999 23:59:59 UTC')),
+          catalogPlanProductMonthlyPrice,
+          createdAt: new Date(),
+          createdBy: partyId || systemId,
+        };
+
+        const newCatalogPlanProductPrice: ICatalogPlanProductPrice = await this.catalogPlanProductPrice.create(createPlanProductPrice, {
+          transaction: t,
+        });
+        result.push(newCatalogPlanProduct);
+        result.push(newCatalogPlanProductPrice);
+        return result;
+      });
+    } catch (error) {
+      throw error;
+    }
   }
 
   /**
@@ -227,18 +259,48 @@ class ProductCatlogService {
     partyId: string,
     systemId: string,
   ): Promise<ICatalogPlanProductPrice> {
-    const catalogPlanProductPricingId = await this.getTableId('CatalogPlanProductPrice');
+    const findActivePriceQuery = {
+      where: {
+        catalogPlanProductKey,
+        catalogPlanProductMonthlyPriceTo: {
+          [Op.gt]: new Date(),
+        },
+        deletedAt: null,
+      },
+    };
+
+    let newData;
+    const currentDate = new Date();
+    const catalogPlanProductPriceId = await this.getTableId('CatalogPlanProductPrice');
     const { catalogPlanProductMonthlyPrice, catalogPlanProductMonthlyPriceFrom, catalogPlanProductMonthlyPriceTo } = pricingData;
+    const catalogPlanProductMonthlyPriceFromString: string = catalogPlanProductMonthlyPriceFrom.toString();
+    const dateFrom = Date.parse(catalogPlanProductMonthlyPriceFromString);
+    const dateNow = Date.parse(currentDate.toISOString());
+
+    if (dateFrom < dateNow) throw new HttpException(409, 'from date should be future date');
 
     const createData = {
-      catalogPlanProductPricingId,
+      catalogPlanProductPriceId,
       catalogPlanProductMonthlyPrice,
       catalogPlanProductMonthlyPriceFrom,
       catalogPlanProductMonthlyPriceTo,
       catalogPlanProductKey,
       createdBy: partyId || systemId,
     };
-    const newData: ICatalogPlanProductPrice = await this.catalogPlanProductPrice.create(createData);
+
+    const findActiveCatalogPlanProduct: ICatalogPlanProductPrice[] = await this.catalogPlanProductPrice.findAll(findActivePriceQuery);
+    if (!findActiveCatalogPlanProduct) {
+      newData = await this.catalogPlanProductPrice.create(createData);
+    } else {
+      const planProductPriceKey = findActiveCatalogPlanProduct.map(x => x.catalogPlanProductPriceKey);
+
+      const updateCatalogPlanProduct = await this.catalogPlanProductPrice.update(
+        { deletedAt: currentDate, catalogPlanProductMonthlyPriceTo: catalogPlanProductMonthlyPriceFrom },
+        { where: { catalogPlanProductPriceKey: planProductPriceKey } },
+      );
+      newData = await this.catalogPlanProductPrice.create(createData);
+    }
+
     return newData;
   }
 
@@ -251,6 +313,76 @@ class ProductCatlogService {
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
     return responseTableIdData.tableIdFinalIssued;
   };
+
+  /**
+   * @function  {deleteCatalogPlanById} delete catalog Plan Data using id
+   * @param  {string} catalogPlanProductId
+   * @param  {number} partyId
+   * @returns Promise<catalogPlan>
+   */
+  public async deleteCatalogPlanProductById(catalogPlanProductId: string, partyId: string): Promise<Object> {
+    if (isEmpty(catalogPlanProductId)) throw new HttpException(400, 'CatalogPlaProductId is null');
+    const findCataPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
+      where: { catalogPlanProductId, deletedAt: null },
+    });
+
+    if (!findCataPlanProduct) throw new HttpException(404, "Catalog Plan Product doesn't exist");
+    const catalogPlanProductKey = findCataPlanProduct.catalogPlanProductKey;
+    console.log('catalogPlanProductKey', catalogPlanProductKey);
+
+    const findSubscribedProduct: ISubscribedProduct[] = await this.subscribedProduct.findAll({ where: { catalogPlanProductKey, deletedAt: null } });
+    console.log('findSubscribedProduct', findSubscribedProduct);
+    if (findSubscribedProduct.length > 0) throw new HttpException(409, 'Active Subscriptions under product');
+
+    const updatedcCtalogPlanData = {
+      updatedBy: partyId,
+      updatedAt: new Date(),
+      deletedAt: new Date(),
+    };
+
+    await this.catalogPlanProduct.update(updatedcCtalogPlanData, { where: { catalogPlanProductId } });
+
+    const updateData = { deletedCatalogPlanProduct: catalogPlanProductId };
+
+    return updateData;
+  }
+
+  public async getAvailableCatalogPlans(customerAccountKey: number): Promise<ICatalogPlan[]> {
+    const returnPlan = [];
+    const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
+    if (!findCustomerAccount) throw new HttpException(404, 'Cannot find customer account');
+
+    const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+    if (findSubscription.length == 0) {
+      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+        where: { deletedAt: null },
+        include: [
+          {
+            model: CatalogPlanProductModel,
+            where: { deletedAt: null },
+            include: [{ model: CatalogPlanProductPriceModel, where: { deletedAt: null } }],
+          },
+        ],
+      });
+      returnPlan.push(findCatalogPlan);
+    } else {
+      const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
+      console.log(catalogPlanKey);
+      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+        where: { deletedAt: null, catalogPlanKey: { [Op.notIn]: catalogPlanKey } },
+        include: [
+          {
+            model: CatalogPlanProductModel,
+            where: { deletedAt: null },
+            include: [{ model: CatalogPlanProductPriceModel, where: { deletedAt: null } }],
+          },
+        ],
+      });
+      returnPlan.push(findCatalogPlan);
+    }
+
+    return returnPlan;
+  }
 }
 
 export default ProductCatlogService;

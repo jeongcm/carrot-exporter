@@ -109,11 +109,11 @@ class AlertReceivedService extends ServiceExtension {
           where = ` ${op} alert_received_service ${symbol} "${value.value}"`;
           break;
         case 'alertReceivedAffectedResourceType':
-            where = ` ${op} alert_received_affected_resource_type ${symbol} "${value.value}"`;
-            break;
+          where = ` ${op} alert_received_affected_resource_type ${symbol} "${value.value}"`;
+          break;
         case 'alertReceivedAffectedResourceName':
-            where = ` ${op} alert_received_affected_resource_name ${symbol} "${value.value}"`;
-            break;
+          where = ` ${op} alert_received_affected_resource_name ${symbol} "${value.value}"`;
+          break;
 
         case 'persistentVolumeClaim':
           where = ` ${op} JSON_CONTAINS(alert_received_labels, '"${value.value}"', '$.persistentvolumeclaim')`;

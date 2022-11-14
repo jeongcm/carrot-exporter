@@ -14,6 +14,8 @@ export type ResolutionActionAttributes = Optional<
   | 'resolutionActionDescription'
   | 'sudoryTemplateKey'
   | 'resolutionActionTemplateSteps'
+  | 'resolutionActionType'
+  | 'resolutionActionPrerequisiteKey'
 >;
 export class ResolutionActionModel extends Model<IResolutionAction, ResolutionActionAttributes> implements IResolutionAction {
   public resolutionActionKey: number;
@@ -25,7 +27,8 @@ export class ResolutionActionModel extends Model<IResolutionAction, ResolutionAc
   public resolutionActionDescription: string;
   public sudoryTemplateKey: number;
   public resolutionActionTemplateSteps: JSON;
-
+  public resolutionActionType: string; // 'IA' - incident action + metricOps, 'MO' - metricOps
+  public resolutionActionPrerequisiteKey: number;
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
 }
@@ -78,6 +81,14 @@ export default function (sequelize: Sequelize): typeof ResolutionActionModel {
       sudoryTemplateKey: {
         type: DataTypes.INTEGER,
         allowNull: false,
+      },
+      resolutionActionType: {
+        type: DataTypes.STRING(2),
+        allowNull: true,
+      },
+      resolutionActionPrerequisiteKey: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {

@@ -26,7 +26,7 @@ export interface IMetricQueryBodyQuery {
     topk?: number;
     sort?: 'asc' | 'desc';
     ranged?: boolean;
-  },
+  };
 }
 
 export interface IMetricQueryBody {
@@ -546,15 +546,16 @@ class MetricService extends ServiceExtension {
 
         ranged = false;
 
-        promQl = `sort_desc(sum by (pod, clusterUuid) (increase(container_network_receive_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]) + increase(container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m])))`;
+        promQl = `sort_desc(sum by (pod, clusterUuid) (rate(container_network_receive_bytes_total{id!="/", container=~".*",__LABEL_PLACE_HOLDER__}[5m]) + rate(container_network_transmit_bytes_total{id!="/",container=~".*",__LABEL_PLACE_HOLDER__}[5m])))`;
         break;
 
       case 'POD_RXTX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
+          pod: resourceName,
         });
 
-        promQl = `sum by (pod, clusterUuid) (increase(container_network_receive_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]) + increase(container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]))`;
+        promQl = `sum by (pod, clusterUuid) (rate(container_network_receive_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]) + rate(container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]))`;
         break;
 
       case 'POD_NETWORK_RX':
@@ -834,7 +835,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))`;
+        promQl = `sum by (node) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))`;
         break;
 
       // Node Ranking
@@ -872,7 +873,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
         promQl = `sort_desc(
-          sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))
+          sum by (node) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[5m]) + rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[5m]))
         )`;
         break;
 
@@ -1264,6 +1265,23 @@ class MetricService extends ServiceExtension {
     // Apply PromQL operators
     if (promqlOps?.sort) {
       promQl = `sort_${promqlOps.sort}(${promQl})`;
+    }
+
+    if (promqlOps?.topk) {
+      promQl = `topk(${promqlOps.topk}, ${promQl})`;
+    }
+
+    if (typeof promqlOps?.ranged === 'boolean') {
+      ranged = promqlOps?.ranged;
+    }
+
+    // Apply PromQL operators
+    if (promqlOps?.sort === 'desc') {
+      promQl = `sort_desc(${promQl})`;
+    }
+
+    if (promqlOps?.sort === 'asc') {
+      promQl = `sort(${promQl})`;
     }
 
     if (promqlOps?.topk) {

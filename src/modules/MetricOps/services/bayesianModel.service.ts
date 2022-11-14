@@ -172,6 +172,7 @@ class BayesianModelServices {
         },
         {
           model: AnomalyMonitoringTargetTable,
+          where: { deletedAt: null },
           required: false,
           include: [{ model: ResourceModel, where: { deletedAt: null }, include: [{ model: ResourceGroupModel }] }],
         },
