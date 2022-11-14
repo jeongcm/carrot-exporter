@@ -81,7 +81,18 @@ class ResolutionActionService {
    * @returns Promise<IResolutionAction>
    * @author Shrishti Raj
    */
-  public async findResolutionActionById(resolutionActionId: string): Promise<Object> {
+  public async findResolutionActionById(resolutionActionId: string): Promise<IResolutionAction> {
+    if (isEmpty(resolutionActionId)) throw new HttpException(400, 'Not a valid resolutionActionId');
+    const findResolutionAction: IResolutionAction = await this.resolutionAction.findOne({
+      where: { resolutionActionId, deletedAt: null },
+      include: [{ model: SudoryTemplateModel, as: 'sudoryTemplate' }],
+    });
+    if (!resolutionActionId) throw new HttpException(409, 'resolutionAction Id Not found');
+
+    return findResolutionAction;
+  }
+
+  public async findResolutionActionWithPreById(resolutionActionId: string): Promise<Object> {
     if (isEmpty(resolutionActionId)) throw new HttpException(400, 'Not a valid resolutionActionId');
     const returnResult = [];
     const findResolutionAction: IResolutionAction = await this.resolutionAction.findOne({

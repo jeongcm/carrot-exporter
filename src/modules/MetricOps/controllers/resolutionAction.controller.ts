@@ -61,12 +61,26 @@ class ResolutionActionController {
         user: { partyId },
         params: { resolutionActionId },
       } = req;
-      const resolutionActionData = await this.resolutionActionService.findResolutionActionById(resolutionActionId);
+      const resolutionActionData: IResolutionAction = await this.resolutionActionService.findResolutionActionById(resolutionActionId);
       res.status(200).json({ data: resolutionActionData, message: 'find' });
     } catch (error) {
       next(error);
     }
   };
+
+  public findResolutionActionWithPreById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {
+        user: { partyId },
+        params: { resolutionActionId },
+      } = req;
+      const resolutionActionData = await this.resolutionActionService.findResolutionActionWithPreById(resolutionActionId);
+      res.status(200).json({ data: resolutionActionData, message: 'find' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getResolutionActionByRuleGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const {
