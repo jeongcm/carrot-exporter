@@ -183,6 +183,7 @@ class TopologyService extends ServiceExtension {
       topologyItems.push({
         id: resource.resourceId,
         name: resource.resourceName,
+        createdAt: resource.createdAt,
         resourceStatus: resource.resourceStatus,
       });
     });
@@ -285,8 +286,6 @@ class TopologyService extends ServiceExtension {
     });
 
     Object.keys(podsPerUid).forEach((namespace: string) => {
-      console.log(podsPerUid[namespace]);
-      console.log(sets[namespace]);
       Object.keys(podsPerUid[namespace]).forEach((key: string) => {
         if (sets[namespace] && sets[namespace][key]) {
           sets[namespace][key].children = podsPerUid[namespace][key];
@@ -440,17 +439,13 @@ class TopologyService extends ServiceExtension {
   public async createPjVmTopology(resources: IResource[]) {
     const sets: any = {};
 
-    resources.forEach((resource: IResource) => {
-      let projectUid = '';
-      switch (resource.resourceType) {
-        case 'PJ':
-          projectUid = resource.resourceTargetUuid;
-          break;
-        case 'VM':
-          projectUid = resource.resourceNamespace;
-          break;
-      }
+    let pjs = resources.filter(resource => resource.resourceType === "PJ")
+    let vms = resources.filter(resource => resource.resourceType === "VM")
 
+    // set project
+    pjs.forEach((resource: IResource) => {
+      let projectUid = '';
+      projectUid = resource.resourceTargetUuid;
       if (!sets[projectUid]) {
         sets[projectUid] = {
           level: 'PJ',
@@ -459,22 +454,27 @@ class TopologyService extends ServiceExtension {
           resourceType: 'PJ',
           resourceName: resource.resourceName,
           resourceDescription: resource.resourceDescription,
+          createdAt: resource.createdAt,
           children: [],
         };
       }
+    })
 
-      if (resource.resourceType === 'VM') {
-        sets[projectUid].children.push({
-          level: 'VM',
-          projectUid,
-          resourceId: resource.resourceId,
-          resourceType: 'VM',
-          resourceName: resource.resourceName,
-          resourceDescription: resource.resourceDescription,
-          resourceStatus: resource.resourceStatus,
-        });
-      }
-    });
+    vms.forEach((resource: IResource) => {
+      let projectUid = '';
+      projectUid = resource.resourceNamespace;
+
+      sets[projectUid].children.push({
+        level: 'VM',
+        projectUid,
+        resourceId: resource.resourceId,
+        resourceType: 'VM',
+        resourceName: resource.resourceName,
+        resourceDescription: resource.resourceDescription,
+        createdAt: resource.createdAt,
+        resourceStatus: resource.resourceStatus,
+      });
+    })
 
     return Object.values(sets);
   }
