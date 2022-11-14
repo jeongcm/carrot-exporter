@@ -258,6 +258,9 @@ DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'
 DB.CatalogPlanProduct.hasMany(DB.CatalogPlanProductPrice, { foreignKey: 'catalog_plan_product_key' });
 DB.CatalogPlanProductPrice.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
 
+DB.CatalogPlanProduct.hasMany(DB.SubscribedProduct, { foreignKey: 'catalog_plan_product_key' });
+DB.SubscribedProduct.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
+
 DB.CatalogPlan.hasOne(DB.Subscription, { foreignKey: 'catalog_plan_key' });
 DB.Subscription.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key' });
 
@@ -307,6 +310,9 @@ DB.RuleGroupResolutionAction.belongsTo(DB.ResolutionAction, { foreignKey: 'resol
 
 DB.Resource.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'resource_key' });
 DB.AnomalyMonitoringTarget.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
+
+DB.Resource.hasMany(DB.SubscribedProduct, { foreignKey: 'resource_key' });
+DB.SubscribedProduct.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
 
 DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resource_group_key' });
 DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });

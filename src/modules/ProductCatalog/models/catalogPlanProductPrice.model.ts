@@ -3,8 +3,8 @@ import {ICatalogPlanProductPrice } from '@/common/interfaces/productCatalog.inte
 
 export type CatalogPlanProductPricingCreationAttributes = Optional<
     ICatalogPlanProductPrice,
-    "catalogPlanProductKey"
-    |"catalogPlanProductPricingId"
+    | "catalogPlanProductKey"
+    |"catalogPlanProductPriceId"
     |"createdAt"
     |"updatedAt"
     |"createdBy"
@@ -16,7 +16,7 @@ export type CatalogPlanProductPricingCreationAttributes = Optional<
 
 export class CatalogPlanProductPriceModel extends Model<ICatalogPlanProductPrice, CatalogPlanProductPricingCreationAttributes> implements ICatalogPlanProductPrice {
     public catalogPlanProductKey:number;
-    public catalogPlanProductPricingId:string;
+    public catalogPlanProductPriceId:string;
     public catalogPlanProductMonthlyPriceFrom:Date;
     public catalogPlanProductMonthlyPriceTo:Date;
     public catalogPlanProductMonthlyPrice:number
@@ -38,7 +38,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
         allowNull: false,
         primaryKey: true,
       },
-      catalogPlanProductPricingId: {
+      catalogPlanProductPriceId: {
         primaryKey: false,
         allowNull: false,
         type: DataTypes.STRING(16),
@@ -84,12 +84,6 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
       },
     },
     {
-      indexes: [
-        {
-          unique: true,
-          fields: ['catalog_plan_product_pricing_id'],
-        }
-      ],
       tableName: 'CatalogPlanProductPrice',
       modelName: 'CatalogPlanProductPrice',
       sequelize,

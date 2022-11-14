@@ -211,10 +211,37 @@ class EvaluateServices {
           }
         }
         break;
-      case 'SS' || 'DP':
-        firedAlerts = [];
-        //console.log ("no service alert");
-        evaluationResultStatus = 'NF';
+      case 'PC':
+        const alertRuleQueryPc = {
+          where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null, alertReceivedState: 'firing', alertReceivedPod: resourceName },
+        };
+        const resultAlertReceivedPc: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQueryPc);
+        if (resultAlertReceivedPc.length === 0) {
+          firedAlerts = [];
+          //console.log ("no firing alert");
+          evaluationResultStatus = 'NF';
+        } else {
+          //console.log('resultAlertReceivedPd', resultAlertReceivedPd);
+          for (let i = 0; i < resultAlertReceivedPc.length; i++) {
+            const alertRuleKey = resultAlertReceivedPc[i].alertRuleKey;
+            firedAlerts[i] = {
+              alertRuleKey: resultAlertReceivedPc[i].alertRuleKey,
+              alertReceivedKey: resultAlertReceivedPc[i].alertReceivedKey,
+              alertReceivedId: resultAlertReceivedPc[i].alertReceivedId,
+              alertReceivedName: resultAlertReceivedPc[i].alertReceivedName,
+              alertReceivedNode: resultAlertReceivedPc[i].alertReceivedNode || '',
+              alertReceivedService: resultAlertReceivedPc[i].alertReceivedService || '',
+              alertReceivedPod: resultAlertReceivedPc[i].alertReceivedPod,
+            };
+            const resultAlertRule = await this.alertRule.findOne({ where: { alertRuleKey } });
+            const alertName = resultAlertReceivedPc[i].alertReceivedName;
+            let severity = resultAlertRule.alertRuleSeverity;
+            severity = severity.replace(/^./, severity[0].toUpperCase());
+            const duration = resultAlertRule.alertRuleDuration;
+            const alertName2 = alertName + severity + '_' + duration;
+            inputAlerts[alertName2] = 1;
+          }
+        }
         break;
     }
 

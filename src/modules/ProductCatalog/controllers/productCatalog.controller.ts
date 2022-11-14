@@ -8,7 +8,7 @@ import { IRequestWithUser } from '@/common/interfaces/party.interface';
 class ProductCatalogController {
   public productCatalogService = new ProductCatalogService();
 
-  public getCatalogPlans = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getCatalogPlans = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const allCatalogPlans: ICatalogPlan[] = await this.productCatalogService.findAllCatalogPlans();
       res.status(200).json({ data: allCatalogPlans, message: 'findAll' });
@@ -29,7 +29,7 @@ class ProductCatalogController {
     }
   };
 
-  public getCatalogPlanById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getCatalogPlanById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const catalogPlanId = req.params.catalogPlanId;
 
@@ -61,7 +61,7 @@ class ProductCatalogController {
     }
   };
 
-  public getCatalogPlanProducts = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getCatalogPlanProducts = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { catalogPlanId } = req.params;
       const allCatalogPlanProducts: ICatalogPlanProduct[] = await this.productCatalogService.getCatalogPlanProducts(catalogPlanId);
@@ -83,7 +83,7 @@ class ProductCatalogController {
       if (!catalogPlanDetails) {
         res.status(409).json({ message: "Catalog Plan doesn't exist" });
       }
-      const newCatalogPlan: ICatalogPlanProduct = await this.productCatalogService.createCatalogPlanProduct(
+      const newCatalogPlan = await this.productCatalogService.createCatalogPlanProduct(
         productData,
         catalogPlanDetails.catalogPlanKey,
         partyId,
@@ -95,10 +95,31 @@ class ProductCatalogController {
     }
   };
 
-  public getCatalogProductPlanById = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public getCatalogProductPlanById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const catalogPlanProductId = req.params.catalogPlanProductId;
       const planProduct: ICatalogPlanProduct = await this.productCatalogService.getCatalogPlanProductById(catalogPlanProductId);
+      res.status(200).json({ data: planProduct, message: 'success' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAvailableCatalogPlans = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.user.customerAccountKey;
+      const catalogPlans: ICatalogPlan[] = await this.productCatalogService.getAvailableCatalogPlans(customerAccountKey);
+      res.status(200).json({ data: catalogPlans, message: 'success' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteCatalogPlanProductById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const catalogPlanProductId = req.params.catalogPlanProductId;
+      const partyId = req.user.partyId;
+      const planProduct = await this.productCatalogService.deleteCatalogPlanProductById(catalogPlanProductId, partyId);
       res.status(200).json({ data: planProduct, message: 'success' });
     } catch (error) {
       next(error);

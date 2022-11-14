@@ -21,6 +21,7 @@ class ResourceService {
   public partyResource = DB.PartyResource;
   public subscribedProduct = DB.SubscribedProduct;
   public TableIdService = new TableIdService();
+  public AlertReceivedService = new AlertReceivedService();
   public customerAccountService = new CustomerAccountService();
   public resourceGroupService = new ResourceGroupService();
 
@@ -444,6 +445,8 @@ class ResourceService {
     } else {
       vm.resourceSpec.projectName = project.resourceName
     }
+
+    // get vm's alert
 
     return vm
   }

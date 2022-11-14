@@ -21,7 +21,6 @@ const createUserLogMiddleware = async (req, res: Response, next: NextFunction) =
     const partyUserId = req?.user?.partyId ? req?.user?.partyId : req?.systemId;
     const apiEndPoint1 = req.method;
     const apiEndPoint2 = req?.route?.path;
-    console.log(partyUserId);
 
     const findPartyUser: IPartyUser = await DB.PartyUser.findOne({
       where: {
