@@ -133,7 +133,9 @@ class healthService {
     } // end of for
 
     //4.2 check schedule by account id
-
+    console.log('healthService-------------------', healthService);
+    console.log('checkHeathByCustomerAccountIdFiltered-------------------', checkHeathByCustomerAccountIdFiltered);
+    console.log('monitorMetricOpsJobFiltered-------------------', monitorMetricOpsJobFiltered);
     if (checkHeathByCustomerAccountIdFiltered.length === 0) {
       const resultScheduleCheckHealth = await this.scheduleCheckHealthByCustomerAccountId(customerAccountId, config.alertCron);
     }
