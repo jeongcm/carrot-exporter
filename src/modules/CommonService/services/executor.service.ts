@@ -1888,20 +1888,19 @@ class executorService {
     }
 
     const steps = [];
-    let apiBody: {};
 
     const template_uuid = selectedTemplate.template_uuid;
     let scheduleName = 'K8s interface for ' + selectedTemplate.resourceName;
     let scheduleSummary = 'K8s interface for ' + selectedTemplate.resourceName;
 
-    apiBody = {
+    let apiBody = {
       cluster_uuid: clusterUuid,
       name: scheduleName,
       template_uuid: template_uuid,
       summary: scheduleSummary,
       subscribed_channel: subscribed_channel,
       on_completion: on_completion,
-      steps: steps,
+      steps: []
     }
 
     switch (selectedTemplate.resourceType) {
@@ -1927,12 +1926,16 @@ class executorService {
     case "PJ":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      steps.push({args: {credential_key: "openstack_token_0"}})
+      apiBody.name = scheduleName,
+      apiBody.summary = scheduleSummary,
+      apiBody.steps.push({args: {credential_key: "openstack_token_0"}})
       break;
     case "VM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      steps.push({args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3"}})
+      apiBody.name = scheduleName,
+      apiBody.summary = scheduleSummary,
+      apiBody.steps.push({args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3"}})
       break;
     default:
       scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;
