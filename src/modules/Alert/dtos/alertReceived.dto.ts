@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsNumber, IsDate, isNotEmpty, IsObject } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsNumber, IsDate, isNotEmpty, IsObject } from 'class-validator';
 
 export class AlertReceivedDto {
   @IsString()
@@ -56,4 +56,12 @@ export class AlertReceivedDto {
 
   @IsString()
   public alertReceivedEndpoint: string;
+
+  @IsString()
+  @IsOptional()
+  public alertReceivedAffectedResourceType: string;
+
+  @IsString()
+  @IsOptional()
+  public alertReceivedAffectedResourceName: string;
 }

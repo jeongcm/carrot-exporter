@@ -12,6 +12,7 @@ import ResourceGroupService from '@/modules/Resources/services/resourceGroup.ser
 import {Op} from 'sequelize';
 import {IAnomalyMonitoringTarget} from '@/common/interfaces/monitoringTarget.interface';
 import {ResourceGroupModel} from '../models/resourceGroup.model';
+import AlertReceivedService from "@modules/Alert/services/alertReceived.service";
 
 class ResourceService {
   public resource = DB.Resource;
@@ -20,6 +21,7 @@ class ResourceService {
   public partyResource = DB.PartyResource;
   public subscribedProduct = DB.SubscribedProduct;
   public TableIdService = new TableIdService();
+  public AlertReceivedService = new AlertReceivedService();
   public customerAccountService = new CustomerAccountService();
   public resourceGroupService = new ResourceGroupService();
 
@@ -443,6 +445,8 @@ class ResourceService {
     } else {
       vm.resourceSpec.projectName = project.resourceName
     }
+
+    // get vm's alert
 
     return vm
   }

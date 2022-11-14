@@ -9,6 +9,7 @@ import {IResourceGroup} from 'common/interfaces/resourceGroup.interface';
 import {IResource} from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
 import P8sService from "@modules/Metric/services/p8sService";
+import config from 'config';
 
 export interface IMetricQueryBodyQuery {
   name: string;
@@ -33,8 +34,8 @@ export interface IMetricQueryBody {
 }
 
 class MetricService extends ServiceExtension {
+  private telemetryService = null
   private victoriaMetricService = new VictoriaMetricService();
-  private p8sService = new P8sService();
   private resourceService = new ResourceService();
   private resourceGroupService = new ResourceGroupService();
   private customerAccountService = new CustomerAccountService();
@@ -157,11 +158,17 @@ class MetricService extends ServiceExtension {
     return resultInOrder;
   }
 
+  //TODO: 추후 getMetric 으로 통합될때 Metric api의 endpoint에 Cluster_Type(OS or K8S)로 구분하여 telemetry service가 뭐로 정해질지 구분해야합니다.
   public async getMetricP8S(customerAccountKey: number, queryBody: IMetricQueryBody) {
     const results: any = {};
-
     if (isEmpty(queryBody?.query)) {
       return this.throwError('EXCEPTION', 'query[] is missing');
+    }
+
+    if (config.victoriaMetrics.vmOpenstackSwitch === "off") {
+      this.telemetryService = new P8sService()
+    } else {
+      this.telemetryService = new VictoriaMetricService()
     }
 
     try {
@@ -237,9 +244,9 @@ class MetricService extends ServiceExtension {
             let data: any = null;
 
             if (start && end) {
-              data = await this.p8sService.queryRange(customerAccountId, `${promQl.promQl}`, `${start}`, `${end}`, step);
+              data = await this.telemetryService.queryRange(customerAccountId, `${promQl.promQl}`, `${start}`, `${end}`, step);
             } else {
-              data = await this.p8sService.query(customerAccountId, `${promQl.promQl}`, step);
+              data = await this.telemetryService.query(customerAccountId, `${promQl.promQl}`, step);
             }
 
             results[name] = {
@@ -868,6 +875,7 @@ class MetricService extends ServiceExtension {
           sum by (node) (increase(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + increase(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))
         )`;
         break;
+
       // promql for openstack
       case 'OS_CLUSTER_PM_TOTAL_CPU_COUNT':
         labelString += getSelectorLabels({
@@ -877,6 +885,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `count by (nodename) (nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode='system', __LABEL_PLACE_HOLDER__})`
         break;
+
       case 'OS_CLUSTER_PM_MEMORY_TOTAL_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -885,6 +894,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`
         break;
+
       case 'OS_CLUSTER_PM_MEMORY_USED_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -893,6 +903,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by (nodename)(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`
         break;
+
       case 'OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -914,6 +925,7 @@ class MetricService extends ServiceExtension {
         });
         promQl = `node_uname_info{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}`;
         break;
+
       case 'OS_CLUSTER_NOVA_AGENT_UP':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -921,6 +933,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum(last_over_time(openstack_nova_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
         break;
+
       case 'OS_CLUSTER_NOVA_AGENT_DOWN':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -928,6 +941,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `count(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h])) -sum(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
         break;
+
       case 'OS_CLUSTER_CINDER_AGENT_UP':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -935,6 +949,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum(last_over_time(openstack_cinder_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
         break;
+
       case 'OS_CLUSTER_CINDER_AGENT_DOWN':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -942,6 +957,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `count(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
         break;
+
       case 'OS_CLUSTER_NEUTRON_AGENT_UP':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -949,6 +965,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum(last_over_time(openstack_neutron_agent_state{adminState="up",__LABEL_PLACE_HOLDER__}[1h]))`;
         break;
+
       case 'OS_CLUSTER_NEUTRON_AGENT_DOWN':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -956,6 +973,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `count(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h]))`;
         break;
+
       case 'OS_CLUSTER_PM_NODE_UP_TIME':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -990,6 +1008,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `(sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100`
         break;
+
       case 'OS_CLUSTER_PM_FILESYSTEM_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1081,6 +1100,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `(sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100`
         break;
+
       case 'OS_CLUSTER_VM_FILESYSTEM_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1115,7 +1135,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) * 100))`
+        promQl = `sort_desc(100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) * 100))`
         break;
 
       case 'OS_CLUSTER_PM_MEMORY_RANKING':
@@ -1139,7 +1159,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
+        promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[30m])+ increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[30m])))`
         break;
 
       case 'OS_CLUSTER_VM_CPU_RANKING':
@@ -1147,7 +1167,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) * 100))`
+        promQl = `sort_desc(100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) * 100))`
         break;
 
       case 'OS_CLUSTER_VM_MEMORY_RANKING':
@@ -1171,7 +1191,16 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[60m])+ increase(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[60m])))`
+        promQl = `sort_desc(sum by (nodename) (increase(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[30m])+ increase(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[30m])))`
+        break;
+
+      case 'OS_CLUSTER_VM_PROCESS_UP_TIME':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+
+        promQl = `time() - (avg by (groupname) (nc:namedprocess_namegroup_oldest_start_time_seconds{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} > 0))`
         break;
 
       case 'OS_CLUSER_VM_PROCESS_COUNT':

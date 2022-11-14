@@ -58,24 +58,24 @@ class ResourceGroupService {
         ...resourceGroupData,
       });
 
-      console.log(createResourceGroup);
       const uuid = require('uuid');
       const apiId = uuid.v1();
+
       const resourceData = {
         resourceId: apiId,
         customerAccountKey: customerAccountKey,
-        resourceType: 'K8',
         resourceName: resourceGroupData.resourceGroupName,
         resourceDescription: resourceGroupData.resourceGroupDescription,
         resourceTargetUuid: resourceGroupData.resourceGroupUuid,
         resourceGroupKey: createResourceGroup.resourceGroupKey,
-        resourceLevelType: 'K8',
-        resourceLevel1: 'K8',
         resourceRbac: true,
         resourceAnomalyMonitor: false,
         resourceActive: true,
         resourceStatusUpdatedAt: new Date(),
         resourceInstance: '',
+        resourceType: '',
+        resourceLevelType: '',
+        resourceLevel1: '',
         resourceLevel2: '',
         resourceLevel3: '',
         resourceLevel4: '',
@@ -87,6 +87,19 @@ class ResourceGroupService {
         createdAt: new Date(),
         createdBy: currentUserId,
       };
+
+      switch (resourceGroupData.resourceGroupPlatform) {
+        case "K8":
+          resourceData.resourceType = 'K8'
+          resourceData.resourceLevelType = 'K8'
+          resourceData.resourceLevel1 = 'K8'
+          break;
+        case "OS":
+          resourceData.resourceType = 'OS'
+          resourceData.resourceLevelType = 'OS'
+          resourceData.resourceLevel1 = 'OS'
+          break;
+      }
 
       const createResource: IResource = await this.resource.create(resourceData);
 

@@ -31,6 +31,7 @@ import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachm
 //import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
 
 import { logger } from '@/common/utils/logger';
+import {IPartyUser} from "@common/interfaces/party.interface";
 
 /**
  * @memberof Incident
@@ -110,6 +111,35 @@ class IncidentService {
   public async getAllIncidents(customerAccountKey: number): Promise<IIncident[]> {
     const allIncidents: IIncident[] = await this.incident.findAll({
       where: { deletedAt: null, customerAccountKey },
+      order: [['createdAt', 'DESC']],
+      attributes: { exclude: ['incidentKey', 'customerAccountKey', 'assigneeKey', 'deletedAt'] },
+      include: [
+        {
+          as: 'assignee',
+          model: PartyModel,
+          attributes: ['partyId', 'partyName', 'partyDescription', 'partyType'],
+          include: [
+            {
+              model: PartyUserModel,
+              attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
+            },
+          ],
+        },
+        {
+          as: 'createdByDetail',
+          model: PartyUserModel,
+          attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
+          association: DB.PartyUser.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
+        },
+      ],
+    });
+    return allIncidents;
+  }
+
+  public async getMyAllIncidents(customerAccountKey: number, partyUser: IPartyUser): Promise<IIncident[]> {
+
+    const allIncidents: IIncident[] = await this.incident.findAll({
+      where: { deletedAt: null, customerAccountKey, [Op.or]: [{createdBy: partyUser.partyUserId}, {assigneeKey: partyUser.partyKey}]},
       order: [['createdAt', 'DESC']],
       attributes: { exclude: ['incidentKey', 'customerAccountKey', 'assigneeKey', 'deletedAt'] },
       include: [
@@ -802,8 +832,8 @@ class IncidentService {
 
       return foundIncidentWithAlerts?.alertReceived;
     */
-      const sql = `SELECT 
-                  A.alert_received_id as alertReceivedId, 
+      const sql = `SELECT
+                  A.alert_received_id as alertReceivedId,
                   A.alert_received_state as alertReceivedState,
                   A.alert_received_value as alertReceivedValue,
                   A.alert_received_name as alertReceivedName,
@@ -822,7 +852,7 @@ class IncidentService {
                 WHERE D.incident_key = ${incidentKey}
                   and A.alert_rule_key = B.alert_rule_key
                   and B.resource_group_uuid = C.resource_group_uuid
-                  and B.deleted_at is null 
+                  and B.deleted_at is null
                   and C.deleted_at is null
                   and D.deleted_at is null
                   and A.alert_received_key = D.alert_received_key`;
