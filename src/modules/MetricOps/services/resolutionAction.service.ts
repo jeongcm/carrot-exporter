@@ -10,6 +10,7 @@ import { IResolutionAction } from '@/common/interfaces/resolutionAction.interfac
 import { SudoryTemplateModel } from '../models/sudoryTemplate.model';
 const { Op } = require('sequelize');
 import _ from 'lodash';
+import { IRuleGroupResolutionAction } from '@/common/interfaces/ruleGroupResolutionAction.interface';
 class ResolutionActionService {
   public resolutionAction = DB.ResolutionAction;
   public sudoryTemplate = DB.SudoryTemplate;
@@ -45,7 +46,14 @@ class ResolutionActionService {
     const tableIdName = 'ResolutionAction';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const resolutionActionId: string = responseTableIdData.tableIdFinalIssued;
-    const { resolutionActionName, resolutionActionDescription, sudoryTemplateId, resolutionActionTemplateSteps } = resolutionActionData;
+    const {
+      resolutionActionName,
+      resolutionActionDescription,
+      sudoryTemplateId,
+      resolutionActionTemplateSteps,
+      resolutionActionType,
+      resolutionActionPrerequisiteKey,
+    } = resolutionActionData;
     const sudoryTemplateDetails = await this.sudoryTemplate.findOne({ where: { sudoryTemplateId: sudoryTemplateId } });
     if (!sudoryTemplateDetails) throw new HttpException(400, 'SudoryTemplate is not found');
     const currentDate = new Date();
@@ -57,6 +65,8 @@ class ResolutionActionService {
       resolutionActionName,
       resolutionActionDescription,
       resolutionActionTemplateSteps,
+      resolutionActionType,
+      resolutionActionPrerequisiteNumber: resolutionActionPrerequisiteKey || null,
       sudoryTemplateKey: sudoryTemplateDetails.sudoryTemplateKey,
     };
     const newresolutionAction: IResolutionAction = await this.resolutionAction.create(resolutionAction);
@@ -73,7 +83,6 @@ class ResolutionActionService {
    */
   public async findResolutionActionById(resolutionActionId: string): Promise<IResolutionAction> {
     if (isEmpty(resolutionActionId)) throw new HttpException(400, 'Not a valid resolutionActionId');
-
     const findResolutionAction: IResolutionAction = await this.resolutionAction.findOne({
       where: { resolutionActionId, deletedAt: null },
       include: [{ model: SudoryTemplateModel, as: 'sudoryTemplate' }],
@@ -81,6 +90,28 @@ class ResolutionActionService {
     if (!resolutionActionId) throw new HttpException(409, 'resolutionAction Id Not found');
 
     return findResolutionAction;
+  }
+
+  public async findResolutionActionWithPreById(resolutionActionId: string): Promise<Object> {
+    if (isEmpty(resolutionActionId)) throw new HttpException(400, 'Not a valid resolutionActionId');
+    const returnResult = [];
+    const findResolutionAction: IResolutionAction = await this.resolutionAction.findOne({
+      where: { resolutionActionId, deletedAt: null },
+      include: [{ model: SudoryTemplateModel, as: 'sudoryTemplate' }],
+    });
+    if (!resolutionActionId) throw new HttpException(409, 'resolutionAction Id Not found');
+    returnResult.push(findResolutionAction);
+    if (findResolutionAction.resolutionActionPrerequisiteKey) {
+      const findPrerequisiteResolutionAction = await this.resolutionAction.findOne({
+        where: {
+          resolutionActionKey: findResolutionAction.resolutionActionPrerequisiteKey,
+          deletedAt: null,
+        },
+      });
+      returnResult.push(findPrerequisiteResolutionAction);
+    }
+
+    return returnResult;
   }
 
   /**
@@ -94,7 +125,7 @@ class ResolutionActionService {
     resolutionActionId: string,
     resolutionActionData: UpdateResolutionActionDto,
     systemId: string,
-  ): Promise<IResolutionAction> {
+  ): Promise<Object> {
     if (isEmpty(UpdateResolutionActionDto)) throw new HttpException(400, 'resolutionAction Data cannot be blank');
     const findResolutionAction: IResolutionAction = await this.resolutionAction.findOne({ where: { resolutionActionId } });
     if (!findResolutionAction) throw new HttpException(409, "resolutionAction doesn't exist");
@@ -152,6 +183,14 @@ class ResolutionActionService {
       where: { resolutionActionId: resolutionActionId, deletedAt: null },
     });
     if (!getResolutionAction) throw new HttpException(404, 'cannot find resolutin action');
+    const resolutionActionKey = getResolutionAction.resolutionActionKey;
+
+    const findRuleGroupResolutionAction: IRuleGroupResolutionAction[] = await this.ruleGroupResolutionAction.findAll({
+      where: { resolutionActionKey, deletedAt: null },
+    });
+    if (findRuleGroupResolutionAction)
+      throw new HttpException(409, `The resolution action is associated with rule group: ${findRuleGroupResolutionAction[0].ruleGroupKey}`);
+
     const deleteResolutionAction = await this.resolutionAction.update({ deletedAt: new Date() }, { where: { resolutionActionId } });
 
     console.log('deleteResolutionAction', deleteResolutionAction);

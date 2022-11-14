@@ -5,7 +5,14 @@ import resourceGroupService from '@/modules/Resources/services/resourceGroup.ser
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 //import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
-import { IResourceTargetUuid } from '@/common/interfaces/resource.interface';
+import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
+import DB from '@/database';
+import { Op } from 'sequelize';
+import { ICatalogPlan, ICatalogPlanProduct } from '@/common/interfaces/productCatalog.interface';
+import { ISubscriptions } from '@/common/interfaces/subscription.interface';
+import { SubscribedProductModel } from '@/modules/Subscriptions/models/subscribedProduct.model';
+import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
+
 //import { condition } from 'sequelize';
 //import Connection from 'mysql2/typings/mysql/lib/Connection';
 //import DB from '@/database';
@@ -15,6 +22,12 @@ class massUploaderService {
   public tableIdService = new tableIdService();
   public resourceGroupService = new resourceGroupService();
   public resourceService = new resourceService();
+  public subscriptionService = new SubscriptionService();
+
+  public resource = DB.Resource;
+  public catalogPlan = DB.CatalogPlan;
+  public subscription = DB.Subscription;
+  public catalogPlanProduct = DB.CatalogPlanProduct;
 
   public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<string> {
     const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -257,6 +270,75 @@ class massUploaderService {
       throw err`error on sql execution: ${resourceType}`;
     }
     await mysqlConnection.end();
+
+    // Subscribed Product for new nodes - If nodes are deleted, expire the subscribedProducts
+    if (resourceType === 'ND') {
+      //for new Nodes
+      const newNode = newResourceReceived.filter(o1 => !currentResource.includes(o1));
+      if (newNode.length > 0) {
+        const getResourceNode: IResource[] = await this.resource.findAll({ where: { resourceTargetUuid: { [Op.in]: newNode } } });
+        let catalogPlanProductIdForOb;
+        let catalogPlanProductIdForMo;
+        if (getResourceNode.length > 0) {
+          //find subscription for CatalogPlanProductId
+          const findSubsription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+          //find catalogPlanProduct Id
+          for (let i = 0; i < findSubsription.length; i++) {
+            const findCatalogPlan: ICatalogPlan = await this.catalogPlan.findOne({
+              where: {
+                catalogPlanKey: findSubsription[i].catalogPlanKey,
+                deletedAt: null,
+              },
+            });
+            const findCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
+              where: {
+                catalogPlanKey: findSubsription[i].catalogPlanKey,
+                catalogPlanProductType: resourceType,
+                deletedAt: null,
+              },
+            });
+            if (findCatalogPlan.catalogPlanType === 'OB') {
+              catalogPlanProductIdForOb = findCatalogPlanProduct.catalogPlanProductId;
+            } else if (findCatalogPlan.catalogPlanType === 'MO') {
+              catalogPlanProductIdForMo = findCatalogPlanProduct.catalogPlanProductId;
+            }
+          }
+          //register node as new subscribedProduct
+          for (let i = 0; i < getResourceNode.length; i++) {
+            const resourceId = getResourceNode[i].resourceId;
+            const subscribedProduct = {
+              subscribedProductFrom: new Date(),
+              subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
+              catalogPlanProductType: resourceType,
+              subscribedProductStatus: 'AC',
+              resourceId,
+            };
+            //insert SubsvcribedProduct
+            const createSubscribedProduct = await this.subscriptionService.createSubscribedProduct(
+              subscribedProduct,
+              'SYSTEM',
+              'SYSTEM',
+              customerAccountKey,
+              catalogPlanProductIdForOb,
+            );
+            console.log('new node registered:', createSubscribedProduct);
+          }
+        }
+      }
+      //for deleted Nodes - delete subscribedProduct, anomaly target if exists
+      //to be coded
+      //
+    }
+    // if pod is deleted, but a new pod with the same app is comming, replace it.
+    // if pod is deleted but there is no new pod, make the subscribed product status 'SP'
+    if (resourceType === 'PD') {
+      //to be coded
+    }
+    // if pbc is deleted, make the subscribed product stauts 'SP'
+    if (resourceType === 'PC') {
+      //to be coded
+    }
+
     return 'successful DB update ';
   } // end of massUploadResource
 }

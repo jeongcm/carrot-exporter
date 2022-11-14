@@ -1,37 +1,46 @@
 import { IsString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateResolutionActionDto {
-    @IsString()
-    @IsNotEmpty()
-    public resolutionActionName: string;
+  @IsString()
+  @IsNotEmpty()
+  public resolutionActionName: string;
 
-    @IsString()
-    @IsNotEmpty()
-    public resolutionActionDescription: string;
+  @IsString()
+  @IsNotEmpty()
+  public resolutionActionDescription: string;
 
-    @IsString()
-    @IsNotEmpty()
-    public sudoryTemplateId: string;
+  @IsString()
+  @IsNotEmpty()
+  public sudoryTemplateId: string;
 
-    @IsOptional()
-    public resolutionActionTemplateSteps: JSON;
+  @IsOptional()
+  public resolutionActionTemplateSteps: JSON;
 
+  @IsOptional()
+  public resolutionActionType: string;
+
+  @IsOptional()
+  public resolutionActionPrerequisiteKey: number;
 }
 export class UpdateResolutionActionDto {
-    @IsString()
-    @IsOptional()
-    public resolutionActionName: string;
+  @IsString()
+  @IsOptional()
+  public resolutionActionName: string;
 
-    @IsString()
-    @IsOptional()
-    public resolutionActionDescription: string;
+  @IsString()
+  @IsOptional()
+  public resolutionActionDescription: string;
 
-    @IsString()
-    @IsOptional()
-    public sudoryTemplateId: string;
-    
-    @IsOptional()
-    public resolutionActionTemplateSteps: JSON;
+  @IsString()
+  @IsOptional()
+  public sudoryTemplateId: string;
 
+  @IsOptional()
+  public resolutionActionTemplateSteps: JSON;
 
+  @IsOptional()
+  public resolutionActionType: string;
+
+  @IsOptional()
+  public resolutionActionPrerequisiteKey: number;
 }

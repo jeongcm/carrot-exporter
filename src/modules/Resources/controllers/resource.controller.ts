@@ -391,7 +391,12 @@ class ResourceController {
       const customerAccountKey = req.customerAccountKey;
 
       // TODO: Define ITopology
-      const topology: any = await this.topologyService.getAllTopology(topologyType, customerAccountKey);
+      const topology: any = await this.topologyService.getAllTopology(
+        topologyType,
+        customerAccountKey,
+        req.query.resourceGroupId as string[],
+        req.query.resourceId as string[],
+      );
 
       res.status(200).json({ data: topology, message: 'get all topology' });
     } catch (error) {

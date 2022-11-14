@@ -84,7 +84,7 @@ export class CreateProductPricingDto {
   @IsNotEmpty()
   public catalogPlanProductMonthlyPriceTo: Date;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
   public catalogPlanProductMonthlyPrice: number;
 
