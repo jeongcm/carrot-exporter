@@ -139,7 +139,7 @@ class AnomalyMonitoringTargetService {
           updatedAt: new Date(),
           deletedAt: new Date(),
           subscribedProductTo: new Date(),
-          sbuscribedProductStatus: 'CA',
+          subscribedProductStatus: 'CA',
         };
         const updateSubscribedProduct = await this.subscribedProduct.update(updateSP, { where: { subscribedProductKey }, transaction: t });
         console.log('update result:', updateSubscribedProduct);

@@ -136,9 +136,10 @@ class PartyController {
     }
   };
 
-  public login = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+  public login = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const loginData: LoginDto = req.body;
+      //const customerAccountKey = req.customerAccountKey;
       const { cookie, findUser, token } = await this.partyService.login(loginData);
 
       const loggedInUser = {
