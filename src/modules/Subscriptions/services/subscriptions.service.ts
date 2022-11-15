@@ -185,43 +185,29 @@ class SubscriptionService {
     }
   };
 
-  public createSubscribedProduct = async (
-    productData: CreateSubscribedProductDto,
-    partyId: string,
-    systemId: string,
-    customerAccountKey: number,
-    catalogPlanProductId?: string,
-  ) => {
-    const { subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId } = productData;
+  public createSubscribedProduct = async (productData: CreateSubscribedProductDto, partyId: string, systemId: string, customerAccountKey: number) => {
+    const { subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId, subscriptionId, catalogPlanProductId } = productData;
     const subscribedProductId = await this.getTableId('SubscribedProduct');
-    const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { customerAccountKey } });
+    const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { subscriptionId } });
     if (!subscriptionDetail) {
       return { error: true, message: 'Subscription not found' };
     }
-    let fuseBillProduct;
+    const subscriptionKey = subscriptionDetail.subscriptionKey;
+
     const resourceDetail = await this.resource.findOne({ where: { resourceId } });
     if (!resourceDetail) {
       return { error: true, message: 'Resource not found' };
     }
-    const catalogPlanProductDetails: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
-      where: {
-        catalogPlanKey: subscriptionDetail.catalogPlanKey,
-        catalogPlanProductType: productData.catalogPlanProductType,
-      },
-    });
-    if (catalogPlanProductId) {
-      fuseBillProduct = await this.catalogPlanProduct.findOne({
-        where: {
-          catalogPlanProductId: catalogPlanProductId,
-        },
-      });
-    }
+    const catalogPlanProductDetails: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({ where: { catalogPlanProductId } });
+    if (!catalogPlanProductDetails) return { error: true, message: 'CatalogPlanProduct not found' };
+
+    const catalogPlanProductKey = catalogPlanProductDetails.catalogPlanProductKey;
     const createObj = {
       subscribedProductId,
       resourceKey: resourceDetail.resourceKey,
       customerAccountKey,
-      subscriptionKey: subscriptionDetail.subscriptionKey,
-      catalogPlanProductKey: catalogPlanProductDetails?.catalogPlanProductKey || fuseBillProduct.catalogPlanProductKey,
+      subscriptionKey,
+      catalogPlanProductKey,
       subscribedProductStatus,
       subscribedProductFrom,
       subscribedProductTo,

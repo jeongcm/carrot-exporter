@@ -3,12 +3,13 @@ import config from '@config/index';
 import { isEmpty } from '@/common/utils/util';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { CreateCustomerAccountDto } from '@/modules/CustomerAccount/dtos/customerAccount.dto';
-import { customerAccountType, ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { AddressModel } from '@/modules/Address/models/address.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import SendMailService from '@/modules/Messaging/services/sendMail.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
+//import HealthService from '@/modules/CommonService/services/health.service';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { CreateUserDto } from '@/modules/Party/dtos/party.dto';
 import axios from 'common/httpClient/axios';
@@ -30,6 +31,7 @@ class CustomerAccountService {
   public tableIdService = new tableIdService();
   public sendMailService = new SendMailService();
   public sudoryService = new SudoryService();
+  //public healthService = new HealthService();
 
   /**
    * @param {CreateCustomerAccountDto} customerAccountData
@@ -279,7 +281,10 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
         await this.sendMailService.sendMailGeneral(mailOptions);
         emailSent = true;
         console.log('email sent to new customer');
-        //6. return message
+        //6. set customer health check scheduling
+        //const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
+        //console.log('operation schedules setup:', scheduleHealthService);
+        //7. return message
         return {
           customerAccountId: createdCustomerAccount.customerAccountId,
           customerAccountKey: createdCustomerAccount.customerAccountKey,

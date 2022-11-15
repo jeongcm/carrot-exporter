@@ -94,6 +94,14 @@ export class CreateSubscribedProductDto {
   @IsString()
   @IsNotEmpty()
   public resourceId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public subscriptionId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public catalogPlanProductId: string;
 }
 
 /**

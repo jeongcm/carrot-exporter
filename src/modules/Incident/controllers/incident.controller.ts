@@ -54,6 +54,22 @@ class IncidentController {
     }
   };
 
+  public getMyIncidents = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey = req.customerAccountKey;
+    const partyUser = req.user.PartyUser
+
+    if (!partyUser) {
+      res.status(404).json({ message: 'NOT_FOUND USER' });
+    }
+
+    try {
+      const incidentsAll: IIncident[] = await this.incidentService.getMyAllIncidents(customerAccountKey, partyUser);
+      res.status(200).json({ data: incidentsAll, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getIncident = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey = req.customerAccountKey;
     const incidentId = req.params.incidentId;
