@@ -59,6 +59,11 @@ class healthService {
       for (let i = 0; i < responseResourceGroup.length; i++) {
         //4. check sudoryclient
         const clusterUuid = responseResourceGroup[i].resourceGroupUuid;
+        const unRebounceList = ["b6303f3cc6d243acb677d33e6b49960e", "c98b9009d6734e1ba5e07bd231a8ec41", "ead00aecf36f4924989b468e72150b44"]
+        if (unRebounceList.indexOf(clusterUuid) != -1) {
+          continue
+        }
+
         const resultExecutorClient: ISudoryClient = await this.sudoryService.checkSudoryClient(clusterUuid);
         console.log('Sudory Client Check:', resultExecutorClient);
         if (!resultExecutorClient || resultExecutorClient.validClient == false) {
