@@ -286,6 +286,10 @@ class ResourceService {
     const vms: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
+      order: [
+        ["resourceGroupKey", "ASC"],
+        ["resourceName", "ASC"]
+      ],
     });
 
     const vmsWithDetails = [];
@@ -320,6 +324,10 @@ class ResourceService {
     const resultList: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
+      order: [
+        ["resourceGroupKey", "ASC"],
+        ["resourceName", "ASC"]
+      ],
     });
 
     let pms = resultList.filter(pm => pm.resourceType === "PM")
@@ -364,6 +372,10 @@ class ResourceService {
     const resultList: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
+      order: [
+        ["resourceGroupKey", "ASC"],
+        ["resourceName", "ASC"]
+      ],
     });
 
     const projects = resultList.filter(pj => pj.resourceType === "PJ")
