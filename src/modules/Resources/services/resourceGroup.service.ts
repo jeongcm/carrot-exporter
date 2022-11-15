@@ -58,9 +58,9 @@ class ResourceGroupService {
         ...resourceGroupData,
       });
 
+      console.log(createResourceGroup);
       const uuid = require('uuid');
       const apiId = uuid.v1();
-
       const resourceData = {
         resourceId: apiId,
         customerAccountKey: customerAccountKey,

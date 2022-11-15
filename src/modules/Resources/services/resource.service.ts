@@ -259,10 +259,8 @@ class ResourceService {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
-    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
-
     const allResources: IResource[] = await this.resource.findAll({
-      where: resourceWhereCondition,
+      where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey },
     });
 
     return allResources;

@@ -9,9 +9,11 @@ import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.int
 import DB from '@/database';
 import { Op } from 'sequelize';
 import { ICatalogPlan, ICatalogPlanProduct } from '@/common/interfaces/productCatalog.interface';
-import { ISubscriptions } from '@/common/interfaces/subscription.interface';
+import { ISubscribedProduct, ISubscriptions } from '@/common/interfaces/subscription.interface';
 import { SubscribedProductModel } from '@/modules/Subscriptions/models/subscribedProduct.model';
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
+import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
+import sequelize from 'sequelize';
 
 //import { condition } from 'sequelize';
 //import Connection from 'mysql2/typings/mysql/lib/Connection';
@@ -28,6 +30,7 @@ class massUploaderService {
   public catalogPlan = DB.CatalogPlan;
   public subscription = DB.Subscription;
   public catalogPlanProduct = DB.CatalogPlanProduct;
+  public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
 
   public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<string> {
     const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -87,7 +90,8 @@ class massUploaderService {
                       resource_pv_storage, resource_pv_claim_ref, resource_pv_storage_class_name, resource_pv_volume_mode,
                       resource_sc_provisioner, resource_sc_reclaim_policy, resource_sc_allow_volume_expansion, resource_sc_volume_binding_mode,
                       resource_rbac, resource_anomaly_monitor, resource_active,
-                      customer_account_key, resource_group_key
+                      customer_account_key, resource_group_key,
+                      resource_app
                       ) VALUES ?
                       ON DUPLICATE KEY UPDATE
                       resource_active=VALUES(resource_active),
@@ -135,7 +139,8 @@ class massUploaderService {
                       resource_group_key=VALUES(resource_group_key),
                       resource_status_updated_at=VALUES(created_at),
                       updated_at=VALUES(created_at),
-                      updated_by=VALUES(created_by)
+                      updated_by=VALUES(created_by),
+                      resource_app=VALUES(resource_app)
                       `;
     const query2 = [];
     for (let i = 0; i < sizeOfInput; i++) {
@@ -168,6 +173,7 @@ class massUploaderService {
       const resource_ingress_rules = JSON.stringify(resourceMassFeed.resource[i].resource_Ingress_Rules);
       const resource_pv_claim_ref = JSON.stringify(resourceMassFeed.resource[i].resource_Pv_Claim_Ref);
       const resource_spec = JSON.stringify(resourceMassFeed.resource[i].resource_Spec);
+      const resource_app = resourceMassFeed.resource[i].resource_App;
 
       query2[i] = [
         //1st line
@@ -226,6 +232,7 @@ class massUploaderService {
         resourceMassFeed.resource[i].resource_Active,
         customerAccountKey, //customer_Account_Key
         resourceGroupKey, //resource_Group_Kep 17 total columns
+        resource_app,
       ];
       //resource_Target_Created_At = null;
     }
@@ -277,13 +284,15 @@ class massUploaderService {
       const newNode = newResourceReceived.filter(o1 => !currentResource.includes(o1));
       if (newNode.length > 0) {
         const getResourceNode: IResource[] = await this.resource.findAll({ where: { resourceTargetUuid: { [Op.in]: newNode } } });
-        let catalogPlanProductIdForOb;
-        let catalogPlanProductIdForMo;
+        let catalogPlanProductIdForOb: string;
+        let catalogPlanProductIdForMo: string;
         if (getResourceNode.length > 0) {
           //find subscription for CatalogPlanProductId
           const findSubsription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+          let subscriptionId;
           //find catalogPlanProduct Id
           for (let i = 0; i < findSubsription.length; i++) {
+            subscriptionId = findSubsription[i].subscriptionId;
             const findCatalogPlan: ICatalogPlan = await this.catalogPlan.findOne({
               where: {
                 catalogPlanKey: findSubsription[i].catalogPlanKey,
@@ -309,9 +318,11 @@ class massUploaderService {
             const subscribedProduct = {
               subscribedProductFrom: new Date(),
               subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
+              subscriptionId,
               catalogPlanProductType: resourceType,
               subscribedProductStatus: 'AC',
               resourceId,
+              catalogPlanProductId: catalogPlanProductIdForOb,
             };
             //insert SubsvcribedProduct
             const createSubscribedProduct = await this.subscriptionService.createSubscribedProduct(
@@ -319,7 +330,6 @@ class massUploaderService {
               'SYSTEM',
               'SYSTEM',
               customerAccountKey,
-              catalogPlanProductIdForOb,
             );
             console.log('new node registered:', createSubscribedProduct);
           }
@@ -333,6 +343,33 @@ class massUploaderService {
     // if pod is deleted but there is no new pod, make the subscribed product status 'SP'
     if (resourceType === 'PD') {
       //to be coded
+      /*
+      const deletedPod = currentResource.filter(o1 => !newResourceReceived.includes(o1));
+      if (deletedPod.length > 0) {
+        const getDeletedResourcePod: IResource[] = await this.resource.findAll({
+          attributes: [
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            [sequelize.fn('JSON_VALUE', sequelize.col(resourcePodContainer), '$.name'), 'appName'],
+            'resourceId',
+            'resourceKey',
+            'resourceGroupKey',
+          ],
+          where: { resourceTargetUuid: { [Op.in]: deletedPod } },
+        });
+        if (getDeletedResourcePod.length > 0)
+          for (let i = 0; i > getDeletedResourcePod.length; i++) {
+            const resourceKey = getDeletedResourcePod[i].resourceKey;
+            const getAnomalTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.findOne({
+              where: { deletedAt: null, resourceKey },
+            });
+            if (getAnomalTarget) {
+              //update anomaly target if there is a registered pod
+              //first, is there any  pod newly registered using the same app name
+            }
+          }
+      }
+      */
     }
     // if pbc is deleted, make the subscribed product stauts 'SP'
     if (resourceType === 'PC') {

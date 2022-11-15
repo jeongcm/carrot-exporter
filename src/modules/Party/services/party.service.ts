@@ -9,6 +9,7 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import { PartyUserModel } from '../models/partyUser.model';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
+//import HealthService from '@/modules/CommonService/services/health.service';
 import { IDataStoredInToken, IParty, IPartyUser, IPartyUserAPILog, IPartyUserResponse, ITokenData } from '@/common/interfaces/party.interface';
 import { CreateUserDto, UpdateUserDto, LoginDto } from '@/modules/Party/dtos/party.dto';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
@@ -19,6 +20,7 @@ import urlJoin from 'url-join';
 import { logger } from '@/common/utils/logger';
 import { ApiModel } from '@/modules/Api/models/api.models';
 import TokenService from '@/modules/Token/token.service';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 //import moment from 'moment-timezone';
 
@@ -43,6 +45,7 @@ class PartyService {
 
   public tableIdService = new tableIdService();
   public tokenService = new TokenService();
+  //public healthSerivce = new HealthService();
 
   public async findPartyByEmail(email: string): Promise<IPartyUser> {
     if (isEmpty(email)) throw new HttpException(400, "User doen't exist");
@@ -244,6 +247,10 @@ class PartyService {
     const cookie = this.createCookie(tokenData);
 
     await this.partyUser.update({ lastAccessAt: new Date() }, { where: { userId: loginData.userId } });
+    //const findCustoemrAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
+    //const customerAccountId = findCustoemrAccount.customerAccountId;
+    //const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
+    //console.log('operation schedules setup:', scheduleHealthService);
 
     return { cookie, findUser, token: tokenData.token };
   }

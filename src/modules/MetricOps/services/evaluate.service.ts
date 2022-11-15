@@ -96,7 +96,7 @@ class EvaluateServices {
 
     const resultModelRuleScore: IModelRuleScore[] = await this.modelRuleScoreService.getModelScoreByBayesianModelKey(bayesianModelKey);
     const ruleGroupKey = resultModelRuleScore.map(x => x.ruleGroupKey);
-
+    //console.log('ruleGroupKey----', JSON.stringify(ruleGroupKey));
     const ruleGroupQuery = {
       where: { ruleGroupKey: { [Op.in]: ruleGroupKey }, deletedAt: null },
     };
@@ -107,6 +107,7 @@ class EvaluateServices {
 
     const ruleGroup = [];
     const resultRuleGroup = await this.ruleGroup.findAll(ruleGroupQuery);
+    console.log('length:---------', resultRuleGroup.length);
     for (let i = 0; i < resultRuleGroup.length; i++) {
       ruleGroup[i] = {
         ruleGroupId: resultRuleGroup[i].ruleGroupId,
@@ -516,10 +517,14 @@ class EvaluateServices {
             resolutionActions.map(async (resolutionAction: any) => {
               //7. postExecuteService to sudory server
               const currentDate = new Date();
-              const start = new Date(currentDate.setHours(currentDate.getHours() - 2)).toISOString().substring(0.19);
+              const currentDate2 = new Date();
+              const start = new Date(currentDate.setHours(currentDate.getHours() - 12)).toISOString().substring(0.19);
               const subscribed_channel = config.sudoryApiDetail.channel_webhook;
-              const end = currentDate.toISOString().substring(0.19);
+              const end = currentDate2.toISOString().substring(0.19);
               const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
+
+              console.log('start-----', start);
+              console.log('end-----', end);
 
               // replace variables of ResolutionAction Query
               let steps = JSON.stringify(resolutionAction.resolutionActionTemplateSteps);
