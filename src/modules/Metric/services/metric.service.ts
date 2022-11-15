@@ -1315,6 +1315,11 @@ class MetricService extends ServiceExtension {
     const result = await this.getMetricP8S(customerAccountKey, queryBody);
     let length = result[metricName].data.result.length
 
+    if (length === 0) {
+      console.log("no update in upload PM")
+      return result[metricName].query
+    }
+
     for (var i=0; i<length; i++) {
       // get pm status
       const statusQuery: any = {
@@ -1357,10 +1362,6 @@ class MetricService extends ServiceExtension {
 
       tempQuery = this.formatter_resource(i, length, "PM", clusterUuid, uploadQuery, mergedQuery);
       mergedQuery = tempQuery;
-    }
-
-    if (JSON.stringify(mergedQuery) === JSON.stringify({})) {
-      return "no update"
     }
 
     return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
