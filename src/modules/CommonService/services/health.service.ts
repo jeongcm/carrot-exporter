@@ -11,6 +11,7 @@ import ExecutorService from '@/modules/CommonService/services/executor.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 
 class healthService {
   //    public tableIdService = new TableIdService();
@@ -22,6 +23,22 @@ class healthService {
   public catalogPlan = DB.CatalogPlan;
   public resourceGroup = DB.ResourceGroup;
 
+  public async checkHealth(): Promise<object> {
+    const result = [];
+    const getCustomerAccount: ICustomerAccount[] = await this.customerAccount.findAll({ where: { deletedAt: null } });
+
+    if (getCustomerAccount.length > 0) {
+      console.log('getCustomerAccount--', getCustomerAccount.length);
+      for (let i = 0; i < getCustomerAccount.length; i++) {
+        const customerAccountId = getCustomerAccount[i].customerAccountId;
+        const response = await this.checkHealthByCustomerAccountId(customerAccountId);
+        console.log('customerAccountId--', customerAccountId);
+        console.log('response-----------', response);
+        result.push(response);
+      }
+    }
+    return result;
+  }
   /**
    * @param {string} customerAccountId
    */
@@ -59,6 +76,11 @@ class healthService {
       for (let i = 0; i < responseResourceGroup.length; i++) {
         //4. check sudoryclient
         const clusterUuid = responseResourceGroup[i].resourceGroupUuid;
+        const unRebounceList = ["b6303f3cc6d243acb677d33e6b49960e", "c98b9009d6734e1ba5e07bd231a8ec41", "ead00aecf36f4924989b468e72150b44"]
+        if (unRebounceList.indexOf(clusterUuid) != -1) {
+          continue
+        }
+
         const resultExecutorClient: ISudoryClient = await this.sudoryService.checkSudoryClient(clusterUuid);
         console.log('Sudory Client Check:', resultExecutorClient);
         if (!resultExecutorClient || resultExecutorClient.validClient == false) {
@@ -135,14 +157,16 @@ class healthService {
       //4.2 check schedule by account id
       if (checkHeathByCustomerAccountIdFiltered.length === 0) {
         const resultScheduleCheckHealth = await this.scheduleCheckHealthByCustomerAccountId(customerAccountId, config.alertCron);
+        clusterStatus.push({ CustomerHealthCheck: 'added' });
       }
 
       if (monitorMetricOpsJobFiltered.length === 0) {
+        console.log('MetricOpsJob is cancalled --------- ');
         const resultMetricOpsSubscription: ISubscriptions[] = await this.subscription.findAll({
           where: { deletedAt: null, customerAccountKey, subscriptionStatus: 'AC' },
         });
         if (resultMetricOpsSubscription.length > 0) {
-          for (let i = 0; i > resultMetricOpsSubscription.length; i++) {
+          for (let i = 0; i < resultMetricOpsSubscription.length; i++) {
             const catalogPlanKey = resultMetricOpsSubscription[i].catalogPlanKey;
             const getCatallogPlan: ICatalogPlan = await this.catalogPlan.findOne({
               where: { catalogPlanKey, deletedAt: null },
@@ -151,6 +175,7 @@ class healthService {
               const resultScheduleMonitorMetricOps = await this.scheduleMonitorMetricOpsByCustomerAccountId(customerAccountId, config.alertCron);
               i = resultMetricOpsSubscription.length;
               console.log('MetricOps Evaluation Scheduled', resultScheduleMonitorMetricOps);
+              clusterStatus.push({ MonitorMetricOps: 'added' });
             }
           }
         }

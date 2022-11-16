@@ -142,10 +142,21 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
       resourceGroupUuid: {
         type: DataTypes.STRING(100),
         allowNull: false,
-        unique: true,
       },
     },
     {
+      indexes: [
+        {
+          unique: true,
+          fields: ['alert_rule_id'],
+        },
+        {
+          fields: ['deleted_at'],
+        },
+        {
+          fields: ['resource_group_uuid'],
+        },
+      ],
       tableName: 'AlertRule',
       modelName: 'AlertRule',
       sequelize,

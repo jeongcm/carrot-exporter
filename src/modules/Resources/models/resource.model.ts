@@ -56,6 +56,7 @@ export type ResourceCreationAttributes = Optional<
   | 'resourceTargetCreatedAt'
   | 'resourceTargetUuid'
   | 'resourceOwnerReferences'
+  | 'resourceApp'
 >;
 
 export class ResourceModel extends Model<IResource, ResourceCreationAttributes> implements IResource {
@@ -110,6 +111,7 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceTargetUuid: string;
   public resourceTargetCreatedAt: Date;
   public resourceOwnerReferences: any;
+  public resourceApp: string;
 
   public updatedAt: Date;
 
@@ -363,6 +365,9 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       resourceOwnerReferences: {
         type: DataTypes.JSON,
       },
+      resourceApp: {
+        type: DataTypes.STRING(100),
+      },
     },
     {
       indexes: [
@@ -370,6 +375,12 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
           name: 'unique_index',
           unique: true,
           fields: ['resourceTargetUuid', 'resourceGroupKey', 'deletedAt', 'resourceType'],
+        },
+        {
+          fields: ['resource_name'],
+        },
+        {
+          fields: ['resource_type'],
         },
       ],
       tableName: 'Resource',

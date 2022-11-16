@@ -23,6 +23,20 @@ class healthController {
       next(error);
     }
   }; // end of method
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public checkHealth = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      //const customerAccountId = req.body.customerAccountId;
+      const healthServiceResult = await this.healthService.checkHealth();
+      res.status(200).json({ data: healthServiceResult, message: `Healthcheck finished successfuly ` });
+    } catch (error) {
+      next(error);
+    }
+  }; // end of method
 } // end of class
 
 export default healthController;
