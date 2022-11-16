@@ -33,7 +33,7 @@ export interface ICatalogPlanProduct {
 
 export interface ICatalogPlanProductPrice {
   catalogPlanProductKey: number;
-  catalogPlanProductPricingId: string;
+  catalogPlanProductPriceId: string;
   catalogPlanProductPriceKey: number;
   createdAt: Date;
   updatedAt: Date;

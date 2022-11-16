@@ -11,14 +11,14 @@ import CustomerAccountService from '@/modules/CustomerAccount/services/customerA
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
+//import HealthService from '@/modules/CommonService/services/health.service';
 
 import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
-//import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
 import IncidentService from '@/modules/Incident/services/incident.service';
 import TableIdService from './tableId.service';
-//import { IResponseIssueTableIdDto } from '../dtos/tableId.dto';
+
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
 import MetricService, {IMetricQueryBody} from "@modules/Metric/services/metric.service";
@@ -41,10 +41,12 @@ class executorService {
   public resourceGroup = DB.ResourceGroup;
   public exporters = DB.Exporters;
   public incident = DB.Incident;
+  public customerAccount = DB.CustomerAccount;
   public tableIdService = new TableIdService();
   public incidentAction = DB.IncidentAction;
   public incidentActionAttachment = DB.IncidentActionAttachment;
   public fileUploadService = new UploadService();
+  //public healthService = new HealthService();
 
   /**
    * @param {string} serviceUuid
@@ -169,7 +171,7 @@ class executorService {
     let sudoryCreateClusterResponse;
 
     await axios({
-      method: 'POST',
+      method: 'post',
       url: `${executorServerClusterUrl}`,
       data: sudoryCreateCluster,
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
@@ -188,7 +190,7 @@ class executorService {
     const sudoryCreateTokenData = { name: apiDataName, cluster_uuid: clusterUuid, summary: apiDataSummary };
 
     await axios({
-      method: 'POST',
+      method: 'post',
       url: `${executorServerTokenUrl}`,
       data: sudoryCreateTokenData,
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
@@ -759,7 +761,8 @@ class executorService {
         lokiChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
       }
     }
-    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
+    const customerAccountId = getCustomerAccount.customerAccountId;
     const kpsSteps = [
       {
         args: {
@@ -940,6 +943,10 @@ class executorService {
           throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
         }); //end of catch
     }
+
+    // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
+    // console.log('operation schedules setup:', scheduleHealthService);
+
     return serviceUuid;
   }
 
@@ -1111,7 +1118,8 @@ class executorService {
         kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
       }
     }
-    const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
+    const customerAccountId = getCustomerAccount.customerAccountId;
     const kpsSteps = [
       {
         args: {
@@ -1299,7 +1307,7 @@ class executorService {
     };
     console.log(sudoryServiceData);
     const serviceData = await axios({
-      method: 'POST',
+      method: 'post',
       url: sudoryUrl,
       data: sudoryServiceData,
     })
@@ -1702,7 +1710,7 @@ class executorService {
     sudoryServiceData.steps.push(argsData);
     console.log(sudoryServiceData);
     await axios({
-      method: 'POST',
+      method: 'post',
       url: `${executorServerUrl}`,
       data: sudoryServiceData,
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
@@ -1731,7 +1739,7 @@ class executorService {
     //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090";
     const subscribe_channel = config.sudoryApiDetail.channel_metric;
     //get customerAccountId
-    const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
     if (!customerAccountData) {
       throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
     }
@@ -1791,7 +1799,7 @@ class executorService {
 
     //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090";
     //get customerAccountId
-    const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
     if (!customerAccountData) {
       throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
     }
@@ -1846,7 +1854,7 @@ class executorService {
     const subscribed_channel = config.sudoryApiDetail.channel_resource;
 
     //get customerAccountId
-    const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
     if (!customerAccountData) {
       throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
     }
@@ -1888,20 +1896,19 @@ class executorService {
     }
 
     const steps = [];
-    let apiBody: {};
 
     const template_uuid = selectedTemplate.template_uuid;
     let scheduleName = 'K8s interface for ' + selectedTemplate.resourceName;
     let scheduleSummary = 'K8s interface for ' + selectedTemplate.resourceName;
 
-    apiBody = {
+    let apiBody = {
       cluster_uuid: clusterUuid,
       name: scheduleName,
       template_uuid: template_uuid,
       summary: scheduleSummary,
       subscribed_channel: subscribed_channel,
       on_completion: on_completion,
-      steps: steps,
+      steps: []
     }
 
     switch (selectedTemplate.resourceType) {
@@ -1927,12 +1934,16 @@ class executorService {
     case "PJ":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      steps.push({args: {credential_key: "openstack_token_0"}})
+      apiBody.name = scheduleName,
+      apiBody.summary = scheduleSummary,
+      apiBody.steps.push({args: {credential_key: "openstack_token_0"}})
       break;
     case "VM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      steps.push({args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3"}})
+      apiBody.name = scheduleName,
+      apiBody.summary = scheduleSummary,
+      apiBody.steps.push({args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3"}})
       break;
     default:
       scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;
@@ -1971,7 +1982,7 @@ class executorService {
     const cronJobKey = [];
 
     //get customerAccountId
-    const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(customerAccountKey);
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
     if (!customerAccountData) {
       throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
     }
@@ -2051,7 +2062,8 @@ class executorService {
       },
     };
     const getResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
-    const getCustomerAccount = await this.customerAccountService.getCustomerAccountByKey(getResourceGroup.customerAccountKey);
+    const customerAccountKey = getResourceGroup.customerAccountKey;
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
     const resultSchedule = await this.schedulerService.createScheduler(cronData, getCustomerAccount.customerAccountId);
     console.log(resultSchedule);
     return resultSchedule;
@@ -2079,7 +2091,8 @@ class executorService {
       },
     };
     const getResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
-    const getCustomerAccount = await this.customerAccountService.getCustomerAccountByKey(getResourceGroup.customerAccountKey);
+    const customerAccountKey = getResourceGroup.customerAccountKey;
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
     const resultSchedule = await this.schedulerService.createScheduler(cronData, getCustomerAccount.customerAccountId);
     console.log(resultSchedule);
     return resultSchedule;
@@ -2107,7 +2120,8 @@ class executorService {
       },
     };
     const getResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
-    const getCustomerAccount = await this.customerAccountService.getCustomerAccountByKey(getResourceGroup.customerAccountKey);
+    const customerAccountKey = getResourceGroup.customerAccountKey;
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
     const resultSchedule = await this.schedulerService.createScheduler(cronData, getCustomerAccount.customerAccountId);
     console.log(resultSchedule);
     return resultSchedule;
@@ -2135,7 +2149,8 @@ class executorService {
       },
     };
     const getResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
-    const getCustomerAccount = await this.customerAccountService.getCustomerAccountByKey(getResourceGroup.customerAccountKey);
+    const customerAccountKey = getResourceGroup.customerAccountKey;
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
     const resultSchedule = await this.schedulerService.createScheduler(cronData, getCustomerAccount.customerAccountId);
     console.log(resultSchedule);
     return resultSchedule;
@@ -2162,7 +2177,9 @@ class executorService {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
     const prometheus = responseResourceGroup.resourceGroupPrometheus;
-    const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(responseResourceGroup.customerAccountKey);
+
+    const customerAccountKey = responseResourceGroup.customerAccountKey;
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
 
     //pull metric target
     targetJobDb = await this.MetricMetaService.getDistinctJobOfMetricMetabyUuid(clusterUuid);
@@ -2334,7 +2351,8 @@ class executorService {
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
-    const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(responseResourceGroup.customerAccountKey);
+    const customerAccountKey = responseResourceGroup.customerAccountKey;
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountKey } });
 
     console.log('######## target job from db');
     console.log(targetJobDb);
@@ -2424,7 +2442,8 @@ class executorService {
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
-    const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(responseResourceGroup.customerAccountKey);
+    const customerAccountKey = responseResourceGroup.customerAccountKey;
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
     const prometheus = responseResourceGroup.resourceGroupPrometheus;
 
     console.log('######## target job from db');
@@ -2513,7 +2532,8 @@ class executorService {
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
-    const customerAccountData = await this.customerAccountService.getCustomerAccountByKey(responseResourceGroup.customerAccountKey);
+    const customerAccountKey = responseResourceGroup.customerAccountKey;
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountKey } });
     const prometheus = responseResourceGroup.resourceGroupPrometheus;
 
     console.log('######## target job from db');
@@ -2775,7 +2795,7 @@ class executorService {
    * @param {string} customerAccountId
    */
   public async getExecutorServicebyCustomerAccountId(customerAccountId: string): Promise<IExecutorService[]> {
-    const getCustomerAccount: ICustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountId } });
     const customerAccountKey = getCustomerAccount.customerAccountKey;
 
     const getExecutorServiceAll: IExecutorService[] = await this.executorService.findAll({ where: { customerAccountKey } });

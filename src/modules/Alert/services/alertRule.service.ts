@@ -66,12 +66,14 @@ class AlertRuleService {
           'updatedAt',
         ],
       },
+      /*
       group: [
         'alertRuleId',
         Sequelize.col('AlertReceiveds.alert_received_node'),
         Sequelize.col('AlertReceiveds.alert_received_service'),
         Sequelize.col('AlertReceiveds.alert_received_pod'),
       ],
+      */
       include: [
         {
           model: this.alertReceived,
@@ -79,6 +81,7 @@ class AlertRuleService {
           attributes: ['alertReceivedNode', 'alertReceivedService', 'alertReceivedPod'],
           required: false,
           where: {
+            deletedAt: null,
             alertReceivedState: status,
             alertReceivedActiveAt: {
               [Op.gt]: ago,

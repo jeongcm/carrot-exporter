@@ -35,7 +35,6 @@ export type AlertReceivedCreationAttributes = Optional<
   | 'alertReceivedHash'
   | 'alertReceivedAffectedResourceType'
   | 'alertReceivedAffectedResourceName'
-
 >;
 
 export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreationAttributes> implements IAlertReceived {
@@ -69,7 +68,6 @@ export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreat
   public alertReceivedUid: string;
   public alertReceivedAffectedResourceType: string;
   public alertReceivedAffectedResourceName: string;
-
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -152,14 +150,17 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
       alertReceivedNode: {
         type: DataTypes.STRING(100),
         allowNull: true,
+        defaultValue: '',
       },
       alertReceivedService: {
         type: DataTypes.STRING(100),
         allowNull: true,
+        defaultValue: '',
       },
       alertReceivedPod: {
         type: DataTypes.STRING(100),
         allowNull: true,
+        defaultValue: '',
       },
       alertReceivedInstance: {
         type: DataTypes.STRING(100),
@@ -200,12 +201,13 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
       alertReceivedAffectedResourceType: {
         type: DataTypes.STRING(50),
         allowNull: true,
+        defaultValue: '',
       },
       alertReceivedAffectedResourceName: {
         type: DataTypes.STRING(100),
         allowNull: true,
+        defaultValue: '',
       },
-
     },
     {
       indexes: [
@@ -232,6 +234,18 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
         {
           unique: false,
           fields: ['alert_received_active_at'],
+        },
+        {
+          unique: false,
+          fields: ['alert_received_node'],
+        },
+        {
+          unique: false,
+          fields: ['alert_received_service'],
+        },
+        {
+          unique: false,
+          fields: ['alert_received_pod'],
         },
       ],
       tableName: 'AlertReceived',

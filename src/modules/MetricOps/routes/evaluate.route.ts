@@ -21,7 +21,7 @@ class EvaluateRoute implements Routes {
 
     this.router.post(
       '/evaluate/customerAccount/',
-      authMiddleware,
+      //authMiddleware,
       //createUserLogMiddleware,
       //validationMiddleware(CreateBayesianModelDto, 'body'),
       this.evaluateController.initiateEvaluationProcess,

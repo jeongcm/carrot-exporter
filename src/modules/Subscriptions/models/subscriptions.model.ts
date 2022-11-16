@@ -30,9 +30,9 @@ export class SubscriptionModel extends Model<ISubscriptions, SubscriptionCreatio
   public updatedBy: string;
   public subscriptionActivatedAt: Date;
   public subscriptionTerminatedAt: Date;
-  public subscriptionStatus: 'AC' | 'SP' | 'TM';
+  public subscriptionStatus: string;
   public subscriptionConsent: boolean;
-  public subscriptionCommitmentType: 'AC' | 'MM';
+  public subscriptionCommitmentType: string;
   public updatedAt: Date;
   public readonly createdAt!: Date;
 }
@@ -70,12 +70,6 @@ export default function (sequelize: Sequelize): typeof SubscriptionModel {
       subscriptionStatus: {
         allowNull: false,
         type: DataTypes.STRING(2),
-        validate: {
-          isIn: {
-            args: [['AC', 'SP', 'TM']],
-            msg: " subscriptionStatus must be of type  ['AC' |'SP' | 'TM'] AC: Active| 계약중, SP: Suspended| 일시정지, TM: Terminated, 해지",
-          },
-        },
       },
       subscriptionConsent: {
         allowNull: false,
@@ -84,12 +78,6 @@ export default function (sequelize: Sequelize): typeof SubscriptionModel {
       subscriptionCommitmentType: {
         allowNull: false,
         type: DataTypes.STRING(2),
-        validate: {
-          isIn: {
-            args: [['AC', 'MM']],
-            msg: " subscriptionCommitmentType must be of type  ['AC' ,'MM'] AC: Annual Contract | 연간계약, MM : Month to Month|월간계약",
-          },
-        },
       },
       deletedAt: {
         allowNull: true,

@@ -183,6 +183,7 @@ class TopologyService extends ServiceExtension {
       topologyItems.push({
         id: resource.resourceId,
         name: resource.resourceName,
+        createdAt: resource.createdAt,
         resourceStatus: resource.resourceStatus,
       });
     });
@@ -455,6 +456,7 @@ class TopologyService extends ServiceExtension {
           resourceType: 'PJ',
           resourceName: resource.resourceName,
           resourceDescription: resource.resourceDescription,
+          createdAt: resource.createdAt,
           children: [],
         };
       }
@@ -471,6 +473,7 @@ class TopologyService extends ServiceExtension {
         resourceType: 'VM',
         resourceName: resource.resourceName,
         resourceDescription: resource.resourceDescription,
+        createdAt: resource.createdAt,
         resourceStatus: resource.resourceStatus,
       });
     })

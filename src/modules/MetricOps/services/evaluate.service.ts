@@ -96,7 +96,7 @@ class EvaluateServices {
 
     const resultModelRuleScore: IModelRuleScore[] = await this.modelRuleScoreService.getModelScoreByBayesianModelKey(bayesianModelKey);
     const ruleGroupKey = resultModelRuleScore.map(x => x.ruleGroupKey);
-
+    //console.log('ruleGroupKey----', JSON.stringify(ruleGroupKey));
     const ruleGroupQuery = {
       where: { ruleGroupKey: { [Op.in]: ruleGroupKey }, deletedAt: null },
     };
@@ -107,6 +107,7 @@ class EvaluateServices {
 
     const ruleGroup = [];
     const resultRuleGroup = await this.ruleGroup.findAll(ruleGroupQuery);
+    console.log('length:---------', resultRuleGroup.length);
     for (let i = 0; i < resultRuleGroup.length; i++) {
       ruleGroup[i] = {
         ruleGroupId: resultRuleGroup[i].ruleGroupId,
@@ -183,6 +184,7 @@ class EvaluateServices {
         const alertRuleQueryPd = {
           where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null, alertReceivedState: 'firing', alertReceivedPod: resourceName },
         };
+        console.log('alertRuleQueryPd-------------', JSON.stringify(alertRuleQueryPd));
         const resultAlertReceivedPd: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQueryPd);
         if (resultAlertReceivedPd.length === 0) {
           firedAlerts = [];
@@ -211,10 +213,37 @@ class EvaluateServices {
           }
         }
         break;
-      case 'SS' || 'DP':
-        firedAlerts = [];
-        //console.log ("no service alert");
-        evaluationResultStatus = 'NF';
+      case 'PC':
+        const alertRuleQueryPc = {
+          where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null, alertReceivedState: 'firing', alertReceivedPod: resourceName },
+        };
+        const resultAlertReceivedPc: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQueryPc);
+        if (resultAlertReceivedPc.length === 0) {
+          firedAlerts = [];
+          //console.log ("no firing alert");
+          evaluationResultStatus = 'NF';
+        } else {
+          //console.log('resultAlertReceivedPd', resultAlertReceivedPd);
+          for (let i = 0; i < resultAlertReceivedPc.length; i++) {
+            const alertRuleKey = resultAlertReceivedPc[i].alertRuleKey;
+            firedAlerts[i] = {
+              alertRuleKey: resultAlertReceivedPc[i].alertRuleKey,
+              alertReceivedKey: resultAlertReceivedPc[i].alertReceivedKey,
+              alertReceivedId: resultAlertReceivedPc[i].alertReceivedId,
+              alertReceivedName: resultAlertReceivedPc[i].alertReceivedName,
+              alertReceivedNode: resultAlertReceivedPc[i].alertReceivedNode || '',
+              alertReceivedService: resultAlertReceivedPc[i].alertReceivedService || '',
+              alertReceivedPod: resultAlertReceivedPc[i].alertReceivedPod,
+            };
+            const resultAlertRule = await this.alertRule.findOne({ where: { alertRuleKey } });
+            const alertName = resultAlertReceivedPc[i].alertReceivedName;
+            let severity = resultAlertRule.alertRuleSeverity;
+            severity = severity.replace(/^./, severity[0].toUpperCase());
+            const duration = resultAlertRule.alertRuleDuration;
+            const alertName2 = alertName + severity + '_' + duration;
+            inputAlerts[alertName2] = 1;
+          }
+        }
         break;
     }
 
@@ -489,10 +518,14 @@ class EvaluateServices {
             resolutionActions.map(async (resolutionAction: any) => {
               //7. postExecuteService to sudory server
               const currentDate = new Date();
-              const start = new Date(currentDate.setHours(currentDate.getHours() - 2)).toISOString().substring(0.19);
+              const currentDate2 = new Date();
+              const start = new Date(currentDate.setHours(currentDate.getHours() - 12)).toISOString().substring(0.19);
               const subscribed_channel = config.sudoryApiDetail.channel_webhook;
-              const end = currentDate.toISOString().substring(0.19);
+              const end = currentDate2.toISOString().substring(0.19);
               const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
+
+              console.log('start-----', start);
+              console.log('end-----', end);
 
               // replace variables of ResolutionAction Query
               let steps = JSON.stringify(resolutionAction.resolutionActionTemplateSteps);

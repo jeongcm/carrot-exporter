@@ -259,10 +259,8 @@ class ResourceService {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
-    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType,};
-
     const allResources: IResource[] = await this.resource.findAll({
-      where: resourceWhereCondition,
+      where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey },
     });
 
     return allResources;
@@ -286,6 +284,10 @@ class ResourceService {
     const vms: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
+      order: [
+        ["resourceGroupKey", "ASC"],
+        ["resourceName", "ASC"]
+      ],
     });
 
     const vmsWithDetails = [];
@@ -320,6 +322,10 @@ class ResourceService {
     const resultList: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
+      order: [
+        ["resourceGroupKey", "ASC"],
+        ["resourceName", "ASC"]
+      ],
     });
 
     let pms = resultList.filter(pm => pm.resourceType === "PM")
@@ -364,6 +370,10 @@ class ResourceService {
     const resultList: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
+      order: [
+        ["resourceGroupKey", "ASC"],
+        ["resourceName", "ASC"]
+      ],
     });
 
     const projects = resultList.filter(pj => pj.resourceType === "PJ")
