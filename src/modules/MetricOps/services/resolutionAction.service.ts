@@ -64,7 +64,7 @@ class ResolutionActionService {
       updatedAt: currentDate,
       resolutionActionName,
       resolutionActionDescription,
-      resolutionActionTemplateSteps,
+      resolutionActionTemplateSteps: JSON.parse(JSON.stringify(resolutionActionTemplateSteps)),
       resolutionActionType,
       resolutionActionPrerequisiteNumber: resolutionActionPrerequisiteKey || null,
       sudoryTemplateKey: sudoryTemplateDetails.sudoryTemplateKey,
