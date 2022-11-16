@@ -2,7 +2,7 @@ import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IEvaluation } from '@/common/interfaces/evaluate.interface';
 
 export type EvaluationAttribute = Optional<
-IEvaluation,
+  IEvaluation,
   | 'evaluationKey'
   | 'evaluationId'
   | 'createdBy'
@@ -10,8 +10,8 @@ IEvaluation,
   | 'createdAt'
   | 'updatedAt'
   | 'deletedAt'
-  | 'evaluatedAt'  
-  | 'requestedAt'  
+  | 'evaluatedAt'
+  | 'requestedAt'
   | 'evaluationRequest'
   | 'evaluationResult'
   | 'evaluationResultStatus'
@@ -33,18 +33,17 @@ export class EvaluationModel extends Model<IEvaluation, EvaluationAttribute> imp
   public requestedAt: Date;
   public evaluationResultStatus: string;
   public evaluationStatus: string;
-  public evaluationRequest:JSON
-  public evaluationResult:JSON
+  public evaluationRequest: JSON;
+  public evaluationResult: JSON;
   public readonly createdAt!: Date;
   public anomalyMonitoringTargetKey: number;
   public customerAccountKey: number;
   public bayesianModelKey: number;
   public resourceGroupKey: number;
-  
 }
 
 export default function (sequelize: Sequelize): typeof EvaluationModel {
-    EvaluationModel.init(
+  EvaluationModel.init(
     {
       evaluationKey: {
         type: DataTypes.INTEGER,
@@ -55,7 +54,7 @@ export default function (sequelize: Sequelize): typeof EvaluationModel {
       evaluationId: {
         allowNull: false,
         type: DataTypes.STRING(16),
-        unique: true
+        unique: true,
       },
       createdBy: {
         allowNull: false,
@@ -106,6 +105,16 @@ export default function (sequelize: Sequelize): typeof EvaluationModel {
       },
     },
     {
+      indexes: [
+        {
+          unique: false,
+          fields: ['customer_account_key'],
+        },
+        {
+          unique: false,
+          fields: ['resource_group_key'],
+        },
+      ],
       tableName: 'Evaluation',
       modelName: 'Evaluation',
       sequelize,

@@ -2,7 +2,7 @@ import DB from '@/database';
 import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import { ISubscribedProduct, ISubscriptions } from '@/common/interfaces/subscription.interface';
-import { ICatalogPlanProduct } from '@/common/interfaces/productCatalog.interface';
+import { ICatalogPlan, ICatalogPlanProduct } from '@/common/interfaces/productCatalog.interface';
 import {
   CreateSubscribedProductDto,
   CreateSubscriptionDto,
@@ -15,6 +15,10 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { CatalogPlanModel } from '@/modules/ProductCatalog/models/catalogPlan.model';
 import { IsURLOptions } from 'express-validator/src/options';
 import { SubscribedProductModel } from '../models/subscribedProduct.model';
+import { CatalogPlanProductModel } from '@/modules/ProductCatalog/models/catalogPlanProduct.model';
+import { CatalogPlanProductPriceModel } from '@/modules/ProductCatalog/models/catalogPlanProductPrice.model';
+import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
+import { ResourceModel } from '@/modules/Resources/models/resource.model';
 
 class SubscriptionService {
   public subscription = DB.Subscription;
@@ -32,13 +36,31 @@ class SubscriptionService {
   public async findSubscriptions(customerAccountKey: number): Promise<ISubscriptions[]> {
     const allSubscriptions: ISubscriptions[] = await this.subscription.findAll({
       where: {
-        deletedAt: null,
         customerAccountKey,
       },
       include: [
+        { model: CatalogPlanModel, attributes: ['catalogPlanId', 'catalogPlanName'], required: true },
         {
           model: SubscribedProductModel,
           attributes: { exclude: ['subscribedProductKey', 'deletedAt'] },
+          required: false,
+          include: [
+            {
+              model: CatalogPlanProductModel,
+              attributes: ['catalogPlanProductId', 'catalogPlanProductName', 'catalogPlanProductCurrency'],
+              include: [{ model: CatalogPlanProductPriceModel }],
+            },
+            {
+              model: ResourceModel,
+              attributes: ['resourceId', 'resourceName', 'resourceType'],
+              include: [
+                {
+                  model: ResourceGroupModel,
+                  attributes: ['resourceGroupId', 'resourceGroupName', 'resourceGroupUuid', 'resourceGroupProvider'],
+                },
+              ],
+            },
+          ],
         },
       ],
     });
@@ -163,43 +185,29 @@ class SubscriptionService {
     }
   };
 
-  public createSubscribedProduct = async (
-    productData: CreateSubscribedProductDto,
-    partyId: string,
-    systemId: string,
-    customerAccountKey: number,
-    productCode?: string,
-  ) => {
-    const { subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId } = productData;
+  public createSubscribedProduct = async (productData: CreateSubscribedProductDto, partyId: string, systemId: string, customerAccountKey: number) => {
+    const { subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId, subscriptionId, catalogPlanProductId } = productData;
     const subscribedProductId = await this.getTableId('SubscribedProduct');
-    const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { customerAccountKey } });
+    const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { subscriptionId } });
     if (!subscriptionDetail) {
       return { error: true, message: 'Subscription not found' };
     }
-    let fuseBillProduct;
+    const subscriptionKey = subscriptionDetail.subscriptionKey;
+
     const resourceDetail = await this.resource.findOne({ where: { resourceId } });
     if (!resourceDetail) {
       return { error: true, message: 'Resource not found' };
     }
-    const catalogPlanProductDetails: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
-      where: {
-        catalogPlanKey: subscriptionDetail.catalogPlanKey,
-        catalogPlanProductType: productData.catalogPlanProductType,
-      },
-    });
-    if (productCode) {
-      fuseBillProduct = await this.catalogPlanProduct.findOne({
-        where: {
-          catalogPlanProductId: productCode,
-        },
-      });
-    }
+    const catalogPlanProductDetails: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({ where: { catalogPlanProductId } });
+    if (!catalogPlanProductDetails) return { error: true, message: 'CatalogPlanProduct not found' };
+
+    const catalogPlanProductKey = catalogPlanProductDetails.catalogPlanProductKey;
     const createObj = {
       subscribedProductId,
       resourceKey: resourceDetail.resourceKey,
       customerAccountKey,
-      subscriptionKey: subscriptionDetail.subscriptionKey,
-      catalogPlanProductKey: catalogPlanProductDetails?.catalogPlanProductKey || fuseBillProduct.catalogPlanProductKey,
+      subscriptionKey,
+      catalogPlanProductKey,
       subscribedProductStatus,
       subscribedProductFrom,
       subscribedProductTo,
@@ -216,7 +224,7 @@ class SubscriptionService {
     customerAccountKey: number,
     productCode?: string,
   ) => {
-    let createObj = [];
+    const createObj = [];
     productData.map(async (data: CreateSubscribedProductDto) => {
       const { subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId } = data;
       const subscribedProductId = await this.getTableId('SubscribedProduct');

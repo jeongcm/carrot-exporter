@@ -28,6 +28,13 @@ class ResolutionActionRoute implements Routes {
       createUserLogMiddleware,
       this.resoltutionActionController.getResolutionActionById,
     );
+    this.router.get(
+      '/resolutionActionWithPre/:resolutionActionId',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resoltutionActionController.findResolutionActionWithPreById,
+    );
+
     this.router.put(
       '/resolutionAction/:resolutionActionId',
       authMiddleware,

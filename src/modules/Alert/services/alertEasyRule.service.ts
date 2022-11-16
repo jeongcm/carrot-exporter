@@ -495,7 +495,6 @@ class AlertEasyRuleService {
     if (alertEasyRule.alertEasyRuleSeverity === '' || alertEasyRule.alertEasyRuleSeverity === existingAlertEasyRuleSeverity) {
       // Prometheus Alert Rule update only case
       alertEasyRuleSeverity = existingAlertEasyRuleSeverity;
-      console.log('alertEasyRuleSeverity', alertEasyRuleSeverity);
       for (i = 0; i < 6; i++) {
         await sleep(1000);
         getSudoryWebhook = await this.sudoryWebhook.findOne({
@@ -517,16 +516,11 @@ class AlertEasyRuleService {
             });
           });
           indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
-          console.log('ruleGroup', ruleGroup);
-          console.log('indexRuleGroup', indexRuleGroup);
           indexRules = rules.findIndex(element => element.alert == findAlertEasyRule.alertEasyRuleName && element.severity == alertEasyRuleSeverity);
-          console.log('rules', rules);
-          console.log('indexRules', indexRules);
           maxIndexRuleGroup = ruleGroup.length - 1;
           maxIndexRules = rules.length;
           i = 100; //exit for
         }
-        console.log('i-------------replace', i);
       }
       if (!getSudoryWebhook) throw new HttpException(500, `Error on retrieving Prometheus Alert Rule`);
       step = [
@@ -594,7 +588,6 @@ class AlertEasyRuleService {
           maxIndexRules = rules.length;
           i = 100; //exit for
         }
-        console.log('i-------------in new rule', i);
       }
 
       step = [

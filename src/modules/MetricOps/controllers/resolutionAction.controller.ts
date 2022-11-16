@@ -31,8 +31,9 @@ class ResolutionActionController {
   public createResolutionAction = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const { user: { partyId } = {}, systemId, customerAccountKey } = req;
-      console.log('customerAccountKey', customerAccountKey);
       const resolutionActionData: CreateResolutionActionDto = req.body;
+      const resolutionActionType = req.body.resolutionActionType || 'MO';
+      resolutionActionData.resolutionActionType = resolutionActionType;
       const newResolutionAction: IResolutionAction = await this.resolutionActionService.createResolutionAction(
         resolutionActionData,
         systemId || partyId,
@@ -47,11 +48,7 @@ class ResolutionActionController {
     try {
       const { user: { partyId } = {}, params: { resolutionActionId } = {} } = req;
       const resolutionActionData: UpdateResolutionActionDto = req.body;
-      const updateResolutionActionData: IResolutionAction = await this.resolutionActionService.updateResolutionAction(
-        resolutionActionId,
-        resolutionActionData,
-        partyId,
-      );
+      const updateResolutionActionData = await this.resolutionActionService.updateResolutionAction(resolutionActionId, resolutionActionData, partyId);
       res.status(200).json({ data: updateResolutionActionData, message: 'updated' });
     } catch (error) {
       next(error);
@@ -70,6 +67,20 @@ class ResolutionActionController {
       next(error);
     }
   };
+
+  public findResolutionActionWithPreById = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {
+        user: { partyId },
+        params: { resolutionActionId },
+      } = req;
+      const resolutionActionData = await this.resolutionActionService.findResolutionActionWithPreById(resolutionActionId);
+      res.status(200).json({ data: resolutionActionData, message: 'find' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getResolutionActionByRuleGroupId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const {

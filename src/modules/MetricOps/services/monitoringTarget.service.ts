@@ -8,15 +8,20 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 import { ResourceModel } from '@/modules/Resources/models/resource.model';
 import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
-import { ISubscribedProduct } from '@/common/interfaces/subscription.interface';
+import { ISubscribedProduct, ISubscriptions } from '@/common/interfaces/subscription.interface';
 import Op from 'sequelize/types/operators';
 import { BayesianModelTable } from '../models/bayesianModel.model';
+import { IResource } from '@/common/interfaces/resource.interface';
+import { ICatalogPlan, ICatalogPlanProduct } from '@/common/interfaces/productCatalog.interface';
 
 class AnomalyMonitoringTargetService {
   public AnomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
   public bayesianModel = DB.BayesianModel;
   public resource = DB.Resource;
+  public subscription = DB.Subscription;
   public subscribedProduct = DB.SubscribedProduct;
+  public catalogPlan = DB.CatalogPlan;
+  public catalogPlanProduct = DB.CatalogPlanProduct;
   public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
 
@@ -51,15 +56,35 @@ class AnomalyMonitoringTargetService {
     const anomalyMonitoringTargetId = await this.getTableId('AnomalyMonitoringTarget');
     const { anomalyMonitoringTargetDescription, anomalyMonitoringTargetName, anomalyMonitoringTargetStatus, bayesianModelId, resourceId } =
       targetData;
-    const resourceDetail = await this.resource.findOne({ where: { resourceId } });
-    if (isEmpty(resourceDetail)) throw new HttpException(400, `Resource doesn't exist with ${resourceId}`);
+    const resourceDetail: IResource = await this.resource.findOne({ where: { resourceId } });
+    if (isEmpty(resourceDetail)) throw new HttpException(401, `Resource doesn't exist with ${resourceId}`);
+    const resourceKey = resourceDetail.resourceKey;
+    const checkResourceInAnomalyTarget: IAnomalyMonitoringTarget = await this.AnomalyMonitoringTarget.findOne({
+      where: { resourceKey, deletedAt: null },
+    });
+    if (checkResourceInAnomalyTarget) throw new HttpException(402, `Resource is already registered as Monitoring Target ${resourceId}`);
+
+    const resourceType = resourceDetail.resourceType;
+
     const subscribedProductId = await this.getTableId('SubscribedProduct');
+    //find subscription Key and plan product key //
+
+    //find subscription, catalogplanproduct key
+    const findCatalogPlan: ICatalogPlan = await this.catalogPlan.findOne({ where: { deletedAt: null, catalogPlanType: 'MO' } });
+    if (isEmpty(findCatalogPlan)) throw new HttpException(410, `Catalog plan issue - no MetricOps Plan`);
+    const catalogPlanKey = findCatalogPlan.catalogPlanKey;
+    const findSubscription: ISubscriptions = await this.subscription.findOne({ where: { deletedAt: null, customerAccountKey, catalogPlanKey } });
+    if (isEmpty(findCatalogPlan)) throw new HttpException(411, `Cannot found subscribed MetricOps Plan`);
+    const subscriptionKey = findSubscription.subscriptionKey;
+    const findCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({ where: { deletedAt: null, catalogPlanKey } });
+    if (isEmpty(findCatalogPlan)) throw new HttpException(412, `Cannot found catalog plan product for resource type: ${resourceType}`);
+    const catalogPlanProductKey = findCatalogPlanProduct.catalogPlanProductKey;
     const subscribedProductData = {
       subscribedProductId,
       resourceKey: resourceDetail.resourceKey,
       customerAccountKey,
-      subscriptionKey: Number(process.env.SUBSCRIPTION_KEY) || 1,
-      catalogPlanProductKey: Number(process.env.CATALOGPLANPRODUCT_KEY) || 1,
+      subscriptionKey: subscriptionKey,
+      catalogPlanProductKey: catalogPlanProductKey,
       subscribedProductStatus: 'AC',
       subscribedProductFrom: new Date(),
       subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
@@ -109,8 +134,15 @@ class AnomalyMonitoringTargetService {
         await this.AnomalyMonitoringTarget.update(updateAMT, { where: { anomalyMonitoringTargetId }, transaction: t });
         const subscribedProductKey = resultAnomalyMonitoringTarget.subscribedProductKey;
 
-        const updateSP = { updatedBy: partyId, updatedAt: new Date(), deletedAt: new Date(), subscribedProductTo: new Date() };
-        await this.subscribedProduct.update(updateSP, { where: { subscribedProductKey }, transaction: t });
+        const updateSP = {
+          updatedBy: partyId,
+          updatedAt: new Date(),
+          deletedAt: new Date(),
+          subscribedProductTo: new Date(),
+          subscribedProductStatus: 'CA',
+        };
+        const updateSubscribedProduct = await this.subscribedProduct.update(updateSP, { where: { subscribedProductKey }, transaction: t });
+        console.log('update result:', updateSubscribedProduct);
 
         result = {
           anomalyMonitoringTargetId: anomalyMonitoringTargetId,
@@ -152,6 +184,7 @@ class AnomalyMonitoringTargetService {
       where: { anomalyMonitoringTargetId, deletedAt: null },
       include: [{ model: ResourceModel, include: [{ model: ResourceGroupModel }] }, { model: BayesianModelTable }],
     });
+    console.log('find monitoring target', findMonitoringTarget);
     if (!findMonitoringTarget) throw new HttpException(409, 'AnomalyMonitoringTarget Id Not found');
 
     return findMonitoringTarget;

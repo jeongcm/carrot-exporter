@@ -258,6 +258,9 @@ DB.CatalogPlanProduct.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key'
 DB.CatalogPlanProduct.hasMany(DB.CatalogPlanProductPrice, { foreignKey: 'catalog_plan_product_key' });
 DB.CatalogPlanProductPrice.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
 
+DB.CatalogPlanProduct.hasMany(DB.SubscribedProduct, { foreignKey: 'catalog_plan_product_key' });
+DB.SubscribedProduct.belongsTo(DB.CatalogPlanProduct, { foreignKey: 'catalog_plan_product_key' });
+
 DB.CatalogPlan.hasOne(DB.Subscription, { foreignKey: 'catalog_plan_key' });
 DB.Subscription.belongsTo(DB.CatalogPlan, { foreignKey: 'catalog_plan_key' });
 
@@ -307,6 +310,9 @@ DB.RuleGroupResolutionAction.belongsTo(DB.ResolutionAction, { foreignKey: 'resol
 
 DB.Resource.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'resource_key' });
 DB.AnomalyMonitoringTarget.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
+
+DB.Resource.hasMany(DB.SubscribedProduct, { foreignKey: 'resource_key' });
+DB.SubscribedProduct.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
 
 DB.ResourceGroup.hasMany(DB.Resource, { foreignKey: 'resource_group_key' });
 DB.Resource.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
@@ -466,7 +472,7 @@ DB.sequelize
     const trigger2 =
       'CREATE TRIGGER nc_api.tr_AlertReceivedCreatedAt BEFORE INSERT ON nc_api.AlertReceived FOR EACH ROW SET NEW.alert_received_ui_flag = mod(minute(NEW.created_at),10); ';
     const sp1 = `
-        CREATE PROCEDURE IF NOT EXISTS nc_api.sp_upsertSudoryTemplate() 
+        CREATE PROCEDURE IF NOT EXISTS nc_api.sp_upsertSudoryTemplate()
         BEGIN
         INSERT INTO nc_api.SudoryTemplate (
         sudory_template_id,
@@ -506,6 +512,58 @@ DB.sequelize
         UPDATE nc_api.SudoryTemplate
         SET subscribed_channel = 'nc_metric_received'
         WHERE sudory_template_uuid IN ('10000000000000000000000000000001', '10000000000000000000000000000002') and subscribed_channel = "";
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'PD'
+        WHERE sudory_template_name like 'kubernetes_pods%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'NS'
+        WHERE sudory_template_name like 'kubernetes_namespaces%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'CM'
+        WHERE sudory_template_name like 'kubernetes_configmap%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'ND'
+        WHERE sudory_template_name like 'kubernetes_node%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'PV'
+        WHERE sudory_template_name like 'kubernetes_persistentvolumes_%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'PC'
+        WHERE sudory_template_name like 'kubernetes_persistentvolumeclaims_%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'SV'
+        WHERE sudory_template_name like 'kubernetes_service%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'EP'
+        WHERE sudory_template_name like 'kubernetes_endpoint_%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'DP'
+        WHERE sudory_template_name like 'kubernetes_deploy%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'IG'
+        WHERE sudory_template_name like 'kubernetes_ingress_%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'SE'
+        WHERE sudory_template_name like 'kubernetes_secret%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'SC'
+        WHERE sudory_template_name like 'kubernetes_storage%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'SS'
+        WHERE sudory_template_name like 'kubernetes_stateful%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'CJ'
+        WHERE sudory_template_name like 'kubernetes_cronjob%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'RS'
+        WHERE sudory_template_name like 'kubernetes_replica%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'JO'
+        WHERE sudory_template_name like 'kubernetes_job%' and (resource_type is null OR resource_type = '');
+        UPDATE nc_api.SudoryTemplate
+        SET resource_type = 'DS'
+        WHERE sudory_template_name like 'kubernetes_daemon%' and (resource_type is null OR resource_type = '');
+
         END;
     `;
 
@@ -514,7 +572,7 @@ DB.sequelize
         BEGIN
             DECLARE counter INT DEFAULT 1;
             REPEAT
-                delete from nc_api.AlertReceived 
+                delete from nc_api.AlertReceived
                 where day(created_at) < day (current_date())-1 limit 100000; commit;
                 SET counter = counter + 1;
                 SELECT SLEEP(2);
@@ -529,8 +587,8 @@ DB.sequelize
                     STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY)
                     DO CALL nc_api.sp_upsertSudoryTemplate();`;
     const event2pre = `DROP EVENT IF EXISTS nc_api.ev_sp_deleteAlertReceived;`;
-    const event2 = `CREATE EVENT nc_api.ev_sp_deleteAlertReceived 
-                    ON SCHEDULE EVERY 1 DAY 
+    const event2 = `CREATE EVENT nc_api.ev_sp_deleteAlertReceived
+                    ON SCHEDULE EVERY 1 DAY
                     STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY + INTERVAL 1 HOUR)
                     DO CALL nc_api.sp_deleteAlertReceived()`;
 
