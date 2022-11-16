@@ -14,6 +14,7 @@ import { SubscribedProductModel } from '@/modules/Subscriptions/models/subscribe
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 import sequelize from 'sequelize';
+import { IBayesianModel } from '@/common/interfaces/bayesianModel.interface';
 
 //import { condition } from 'sequelize';
 //import Connection from 'mysql2/typings/mysql/lib/Connection';
@@ -29,6 +30,7 @@ class massUploaderService {
   public resource = DB.Resource;
   public catalogPlan = DB.CatalogPlan;
   public subscription = DB.Subscription;
+  public subscribedProduct = DB.SubscribedProduct;
   public catalogPlanProduct = DB.CatalogPlanProduct;
   public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
 
@@ -336,44 +338,210 @@ class massUploaderService {
         }
       }
       //for deleted Nodes - delete subscribedProduct, anomaly target if exists
-      //to be coded
-      //
+      const deletedNode = currentResource.filter(o1 => !newResourceReceived.includes(o1));
+      if (deletedNode.length > 0) {
+        console.log('deletednode------', deletedNode);
+        const getDeletedNodeResource: IResource[] = await this.resource.findAll({ where: { resourceTargetUuid: { [Op.in]: deletedNode } } });
+        if (getDeletedNodeResource.length > 0) {
+          const resourceKey = getDeletedNodeResource.map(x => x.resourceKey);
+          const deleteQuerySp = {
+            subscribedProductStatus: 'CA',
+            deletedAt: new Date(),
+            subscribedProductTo: new Date(),
+            updatedAt: new Date(),
+            updatedBy: 'SYSTEM',
+          };
+          const deleteQueryAmt = {
+            anomaly_monitoring_target_status: 'CA',
+            deletedAt: new Date(),
+            updatedAt: new Date(),
+            updatedBy: 'SYSTEM',
+          };
+
+          try {
+            return await DB.sequelize.transaction(async t => {
+              const conditionQuery = { where: { resourceKey: resourceKey }, transaction: t };
+              const deleteSubscribedProduct = await this.subscribedProduct.update(deleteQuerySp, conditionQuery);
+              const deleteAnomalyTarget = await this.anomalyMonitoringTarget.update(deleteQueryAmt, conditionQuery);
+
+              console.log(`deleted subscribedProduct - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteSubscribedProduct}`);
+              console.log(`deleted anomalyTarget - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteAnomalyTarget}`);
+              const result = `sucess to delete subscribedProduct, anomalyTarget - ${JSON.stringify(resourceKey)}`;
+              return result;
+            });
+          } catch (error) {
+            console.log(`error on deleteing subscribedProduct and anomalyTarget - ${JSON.stringify(resourceKey)}`);
+          }
+        }
+      }
     }
-    // if pod is deleted, but a new pod with the same app is comming, replace it.
+    // if pod is deleted, but a new pod with the same app is provisoning, replace it for subscribed product & metricOps target
     // if pod is deleted but there is no new pod, make the subscribed product status 'SP'
     if (resourceType === 'PD') {
-      //to be coded
-      /*
+      // for deleted pod
       const deletedPod = currentResource.filter(o1 => !newResourceReceived.includes(o1));
       if (deletedPod.length > 0) {
         const getDeletedResourcePod: IResource[] = await this.resource.findAll({
-          attributes: [
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            [sequelize.fn('JSON_VALUE', sequelize.col(resourcePodContainer), '$.name'), 'appName'],
-            'resourceId',
-            'resourceKey',
-            'resourceGroupKey',
-          ],
           where: { resourceTargetUuid: { [Op.in]: deletedPod } },
         });
-        if (getDeletedResourcePod.length > 0)
-          for (let i = 0; i > getDeletedResourcePod.length; i++) {
-            const resourceKey = getDeletedResourcePod[i].resourceKey;
-            const getAnomalTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.findOne({
-              where: { deletedAt: null, resourceKey },
-            });
-            if (getAnomalTarget) {
-              //update anomaly target if there is a registered pod
-              //first, is there any  pod newly registered using the same app name
+        let resourceApp;
+        if (getDeletedResourcePod.length > 0) {
+          //get unique resourceApp information to identify pods having the same resourceApp
+          resourceApp = Array.from(new Set(getDeletedResourcePod.map((pod: any) => pod.resourceApp)));
+        }
+        //search pod list with unique resourceApp information
+        const getPodWithSameApp: IResource[] = await this.resource.findAll({
+          where: { resourceApp: { [Op.in]: resourceApp } },
+        });
+
+        if (getPodWithSameApp.length > 0) {
+          //check customer's subscription to MO
+          const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { deletedAt: null, customerAccountKey } });
+          let catalogPlanProductKey = 0;
+          let subscriptionKey = 0;
+          let bayesianModelKey = 0;
+
+          if (findSubscription.length > 0) {
+            for (let i = 0; i < findSubscription.length; i++) {
+              const catalogPlanKey = findSubscription[i].catalogPlanKey;
+              const findCatalogPlan: ICatalogPlan = await this.catalogPlan.findOne({ where: { deletedAt: null, catalogPlanKey } });
+              if (findCatalogPlan.catalogPlanType == 'MO') {
+                const findCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
+                  where: { deletedAt: null, catalogPlanKey, catalogPlanProductType: resourceType },
+                });
+                subscriptionKey = findSubscription[i].subscriptionKey;
+                catalogPlanProductKey = findCatalogPlanProduct.catalogPlanProductKey;
+                const findSubscribedProduct: ISubscribedProduct = await this.subscribedProduct.findOne({
+                  where: { subscriptionKey, catalogPlanProductKey },
+                });
+                const subscribedProductKey = findSubscribedProduct.subscribedProductKey;
+                const findAnomalyMonitoringTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.findOne({
+                  where: { subscribedProductKey },
+                });
+                bayesianModelKey = findAnomalyMonitoringTarget.bayesianModelKey;
+                i = findSubscription.length;
+              }
             }
           }
-      }
-      */
-    }
+          //process pod by pod
+          for (let i = 0; i < getPodWithSameApp.length; i++) {
+            const resourceKey = getPodWithSameApp[i].resourceKey;
+            const resourceName = getPodWithSameApp[i].resourceName;
+
+            const deleteQuerySp = {
+              subscribedProductStatus: 'CA',
+              deletedAt: new Date(),
+              subscribedProductTo: new Date(),
+              updatedAt: new Date(),
+              updatedBy: 'SYSTEM',
+            };
+            const deleteQueryAmt = {
+              anomaly_monitoring_target_status: 'CA',
+              deletedAt: new Date(),
+              updatedAt: new Date(),
+              updatedBy: 'SYSTEM',
+            };
+            //remove all of pods from subscription
+            try {
+              return await DB.sequelize.transaction(async t => {
+                const conditionQuery = { where: { resourceKey: resourceKey }, transaction: t };
+
+                const deleteSubscribedProduct = await this.subscribedProduct.update(deleteQuerySp, conditionQuery);
+                const deleteAnomalyTarget = await this.anomalyMonitoringTarget.update(deleteQueryAmt, conditionQuery);
+
+                console.log(`deleted subscribedProduct - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteSubscribedProduct}`);
+                console.log(`deleted anomalyTarget - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteAnomalyTarget}`);
+                const result = `sucess to delete subscribedProduct, anomalyTarget - ${JSON.stringify(resourceKey)}`;
+                return result;
+              });
+            } catch (error) {
+              console.log(`error on deleteing subscribedProduct and anomalyTarget - ${JSON.stringify(resourceKey)}`);
+            }
+            // add newly added pods with the Pods to subscribedProduct & anomalymonitoringtarget if the customer has MO subscription
+            if (catalogPlanProductKey != 0) {
+              const uuid = require('uuid');
+              //insert data to SubscribedProduct & AnomalyTarget
+              try {
+                return await DB.sequelize.transaction(async t => {
+                  const conditionQuery = { transaction: t };
+                  const insertQuerySp = {
+                    subscribedProductId: uuid.v1(),
+                    resourceKey,
+                    catalogPlanProductKey,
+                    subscriptionKey,
+                    subscribedProductFrom: new Date(),
+                    subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
+                    subscribedProductStatus: 'AC',
+                    createdAt: new Date(),
+                    createdBy: 'SYSTEM',
+                  };
+                  const createSubscribedProduct: ISubscribedProduct = await this.subscribedProduct.create(insertQuerySp, conditionQuery);
+                  const insertQueryAmt = {
+                    customerAccountKey,
+                    anomalyMonitoringTargetId: uuid.v1(),
+                    resourceKey,
+                    subscribedProductKey: createSubscribedProduct.subscribedProductKey,
+                    bayesianModelKey,
+                    anomalyMonitoringTargetName: 'AnomalyMonitor' + resourceName,
+                    anomalyMonitoringTargetDescription: resourceName,
+                    anomaly_monitoring_target_status: 'AC',
+                    createdAt: new Date(),
+                    createdBy: 'SYSTEM',
+                  };
+                  const createAnomalyTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.create(insertQueryAmt, conditionQuery);
+
+                  console.log(`deleted subscribedProduct - ${JSON.stringify(resourceKey)}, updatedRow: ${createSubscribedProduct}`);
+                  console.log(`deleted anomalyTarget - ${JSON.stringify(resourceKey)}, updatedRow: ${createAnomalyTarget}`);
+                  const result = `sucess to create subscribedProduct, anomalyTarget - ${JSON.stringify(resourceKey)}`;
+                  return result;
+                });
+              } catch (error) {
+                console.log(`error on creating subscribedProduct and anomalyTarget - ${JSON.stringify(resourceKey)}`);
+              }
+            }
+          } // end of for
+        }
+      } // end of if (deletedPod.length > 0)
+    } // end of pod
     // if pbc is deleted, make the subscribed product stauts 'SP'
     if (resourceType === 'PC') {
-      //to be coded
+      //for deleted pvc
+      const deletedPvc = currentResource.filter(o1 => !newResourceReceived.includes(o1));
+      if (deletedPvc.length > 0) {
+        console.log('deletedPvc------', deletedPvc);
+        const getDeletedPvcResource: IResource[] = await this.resource.findAll({ where: { resourceTargetUuid: { [Op.in]: deletedPvc } } });
+        if (getDeletedPvcResource.length > 0) {
+          const resourceKey = getDeletedPvcResource.map(x => x.resourceKey);
+          const deleteQuerySp = {
+            subscribedProductStatus: 'CA',
+            deletedAt: new Date(),
+            subscribedProductTo: new Date(),
+            updatedAt: new Date(),
+            updatedBy: 'SYSTEM',
+          };
+          const deleteQueryAmt = {
+            anomaly_monitoring_target_status: 'CA',
+            deletedAt: new Date(),
+            updatedAt: new Date(),
+            updatedBy: 'SYSTEM',
+          };
+
+          try {
+            return await DB.sequelize.transaction(async t => {
+              const conditionQuery = { where: { resourceKey: resourceKey }, transaction: t };
+              const deleteSubscribedProduct = await this.subscribedProduct.update(deleteQuerySp, conditionQuery);
+              const deleteAnomalyTarget = await this.anomalyMonitoringTarget.update(deleteQueryAmt, conditionQuery);
+
+              console.log(`deleted subscribedProduct - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteSubscribedProduct}`);
+              console.log(`deleted anomalyTarget - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteAnomalyTarget}`);
+              const result = `sucess to delete subscribedProduct, anomalyTarget - ${JSON.stringify(resourceKey)}`;
+              return result;
+            });
+          } catch (error) {
+            console.log(`error on deleteing subscribedProduct and anomalyTarget - ${JSON.stringify(resourceKey)}`);
+          }
+        }
+      }
     }
 
     return 'successful DB update ';

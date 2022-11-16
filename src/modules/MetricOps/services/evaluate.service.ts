@@ -184,6 +184,7 @@ class EvaluateServices {
         const alertRuleQueryPd = {
           where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null, alertReceivedState: 'firing', alertReceivedPod: resourceName },
         };
+        console.log('alertRuleQueryPd-------------', JSON.stringify(alertRuleQueryPd));
         const resultAlertReceivedPd: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQueryPd);
         if (resultAlertReceivedPd.length === 0) {
           firedAlerts = [];

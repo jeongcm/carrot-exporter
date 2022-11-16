@@ -4,11 +4,10 @@ import massUploaderController from '@/modules/CommonService/controllers/massUplo
 //import AuthService from '@/modules/UserTenancy/services/auth.service';
 //import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 
-
 class massUploaderRoute implements Routes {
   public router = Router();
   public massUploaderController = new massUploaderController();
- // public authservice = new AuthService();
+  // public authservice = new AuthService();
   constructor() {
     this.initializeRoutes();
   }
