@@ -71,6 +71,7 @@ class ResolutionActionService {
     };
     const newresolutionAction: IResolutionAction = await this.resolutionAction.create(resolutionAction);
     console.log('newresolutionAction', newresolutionAction);
+    console.log(typeof newresolutionAction.resolutionActionTemplateSteps)
     return newresolutionAction;
   }
 
