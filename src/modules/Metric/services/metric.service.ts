@@ -1331,15 +1331,17 @@ class MetricService extends ServiceExtension {
     })
 
     pms.forEach(pm => {
+      console.log(pm.resourceName)
       let is_exist = false;
       for (var index = 0; index < length; index++) {
         if (pm.resourceTargetUuid === result[metricName].data.result[index].metric.nodename) {
+          console.log(pm.resourceTargetUuid)
           is_exist = true;
           break;
         }
       }
 
-      if (!is_exist) {
+      if (is_exist === false) {
         console.log("is not exist")
         uploadQuery['resource_Name'] = pm.resourceName;
         uploadQuery['resource_Type'] = "PM";
