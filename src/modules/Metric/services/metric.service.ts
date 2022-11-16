@@ -1340,6 +1340,7 @@ class MetricService extends ServiceExtension {
       }
 
       if (!is_exist) {
+        console.log("is not exist")
         uploadQuery['resource_Name'] = pm.resourceName;
         uploadQuery['resource_Type'] = "PM";
         uploadQuery['resource_Instance'] = pm.resourceInstance;
@@ -1361,6 +1362,7 @@ class MetricService extends ServiceExtension {
       }
     })
 
+    console.log("first mergedQuery:", mergedQuery)
     for (var i=0; i<length; i++) {
       // get pm status
       const statusQuery: any = {
@@ -1405,7 +1407,7 @@ class MetricService extends ServiceExtension {
       mergedQuery = tempQuery;
     }
 
-    console.log(mergedQuery)
+    console.log("second:", mergedQuery)
     return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
   }
 
