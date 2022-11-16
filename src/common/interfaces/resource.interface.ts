@@ -52,6 +52,7 @@ export interface IResource {
   parentResourceId: string;
   resourceNamespace: string;
   resourceOwnerReferences: any;
+  resourceApp: string;
 }
 
 export interface IResourceTargetUuid {

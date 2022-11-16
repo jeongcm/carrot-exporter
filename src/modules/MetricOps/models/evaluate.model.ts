@@ -110,6 +110,10 @@ export default function (sequelize: Sequelize): typeof EvaluationModel {
           unique: false,
           fields: ['customer_account_key'],
         },
+        {
+          unique: false,
+          fields: ['resource_group_key'],
+        },
       ],
       tableName: 'Evaluation',
       modelName: 'Evaluation',

@@ -150,14 +150,17 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
       alertReceivedNode: {
         type: DataTypes.STRING(100),
         allowNull: true,
+        defaultValue: '',
       },
       alertReceivedService: {
         type: DataTypes.STRING(100),
         allowNull: true,
+        defaultValue: '',
       },
       alertReceivedPod: {
         type: DataTypes.STRING(100),
         allowNull: true,
+        defaultValue: '',
       },
       alertReceivedInstance: {
         type: DataTypes.STRING(100),
@@ -198,10 +201,12 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
       alertReceivedAffectedResourceType: {
         type: DataTypes.STRING(50),
         allowNull: true,
+        defaultValue: '',
       },
       alertReceivedAffectedResourceName: {
         type: DataTypes.STRING(100),
         allowNull: true,
+        defaultValue: '',
       },
     },
     {
@@ -229,6 +234,18 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
         {
           unique: false,
           fields: ['alert_received_active_at'],
+        },
+        {
+          unique: false,
+          fields: ['alert_received_node'],
+        },
+        {
+          unique: false,
+          fields: ['alert_received_service'],
+        },
+        {
+          unique: false,
+          fields: ['alert_received_pod'],
         },
       ],
       tableName: 'AlertReceived',
