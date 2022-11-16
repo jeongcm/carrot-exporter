@@ -1327,22 +1327,23 @@ class MetricService extends ServiceExtension {
 
     // pm이 조회되지 않았을때 삭제하지 않고 resource status 를 SHUTOFF로 Update
     const pms = await this.resourceService.resource.findAll({
-        where: { resourceGroupKey: resourceGroup.resourceGroupKey, deletedAt: null, customerAccountKey: customerAccountKey, resourceType: "PM"},
+      where: { resourceGroupKey: resourceGroup.resourceGroupKey, deletedAt: null, customerAccountKey: customerAccountKey, resourceType: "PM"},
     })
 
-    pms.forEach(pm => {
-      console.log(pm.resourceName)
+    for (const pm of pms) {
+      const pmIndex = pms.indexOf(pm);
       let is_exist = false;
+      var tmp: any
+
       for (var index = 0; index < length; index++) {
         if (pm.resourceTargetUuid === result[metricName].data.result[index].metric.nodename) {
-          console.log(pm.resourceTargetUuid)
           is_exist = true;
+          tmp = result[metricName].data.result[index].metric
           break;
         }
       }
 
       if (is_exist === false) {
-        console.log("is not exist")
         uploadQuery['resource_Name'] = pm.resourceName;
         uploadQuery['resource_Type'] = "PM";
         uploadQuery['resource_Instance'] = pm.resourceInstance;
@@ -1358,58 +1359,95 @@ class MetricService extends ServiceExtension {
         uploadQuery['resource_Rbac'] = true;
         uploadQuery['resource_Anomaly_Monitor'] = false;
         uploadQuery['resource_Active'] = true;
-
-        tempQuery = this.formatter_resource(i, length, "PM", clusterUuid, uploadQuery, mergedQuery);
-        mergedQuery = tempQuery;
-      }
-    })
-
-    console.log("first mergedQuery:", mergedQuery)
-    for (var i=0; i<length; i++) {
-      // get pm status
-      const statusQuery: any = {
-        query: [
-          {
-            "name": "pm_status",
-            "resourceGroupUuid": clusterUuid,
-            "type": "OS_CLUSTER_PM_NODE_STATUS",
-            "nodename": result[metricName].data.result[i].metric.nodename
-          }
-        ]
-      }
-
-      const statusResult = await this.getMetricP8S(customerAccountKey, statusQuery)
-      let pmStatus: string = "UNKNOWN"
-      if (statusResult["pm_status"].data.result.length !== 0) {
-        const status = statusResult["pm_status"].data.result[0].value[1]
-        if (status === "1") {
-          pmStatus = "ACTIVE"
-        } else {
-          pmStatus = "INACTIVE"
+      } else {
+        // get pm status
+        const statusQuery: any = {
+          query: [
+            {
+              "name": "pm_status",
+              "resourceGroupUuid": clusterUuid,
+              "type": "OS_CLUSTER_PM_NODE_STATUS",
+              "nodename": tmp.nodename
+            }
+          ]
         }
+
+        const statusResult = await this.getMetricP8S(customerAccountKey, statusQuery)
+        let pmStatus: string = "UNKNOWN"
+        if (statusResult["pm_status"].data.result.length !== 0) {
+          const status = statusResult["pm_status"].data.result[0].value[1]
+          if (status === "1") {
+            pmStatus = "ACTIVE"
+          } else {
+            pmStatus = "INACTIVE"
+          }
+        }
+
+        uploadQuery['resource_Name'] = tmp.nodename;
+        uploadQuery['resource_Type'] = "PM";
+        uploadQuery['resource_Instance'] = tmp.instance;
+        uploadQuery['resource_Spec'] = tmp;
+        uploadQuery['resource_Group_Uuid'] = tmp.clusterUuid;
+        uploadQuery['resource_Target_Uuid'] = tmp.nodename;
+        uploadQuery['resource_Description'] = tmp.version;
+        uploadQuery['resource_Status'] = pmStatus
+        uploadQuery['resource_Target_Created_At'] = null
+        uploadQuery['resource_Level1'] = "OS"; //Openstack
+        uploadQuery['resource_Level2'] = "PM";
+        uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
+        uploadQuery['resource_Rbac'] = true;
+        uploadQuery['resource_Anomaly_Monitor'] = false;
+        uploadQuery['resource_Active'] = true;
       }
 
-      uploadQuery['resource_Name'] = result[metricName].data.result[i].metric.nodename;
-      uploadQuery['resource_Type'] = "PM";
-      uploadQuery['resource_Instance'] = result[metricName].data.result[i].metric.instance;
-      uploadQuery['resource_Spec'] = result[metricName].data.result[i].metric;
-      uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
-      uploadQuery['resource_Target_Uuid'] = result[metricName].data.result[i].metric.nodename;
-      uploadQuery['resource_Description'] = result[metricName].data.result[i].metric.version;
-      uploadQuery['resource_Status'] = pmStatus
-      uploadQuery['resource_Target_Created_At'] = null
-      uploadQuery['resource_Level1'] = "OS"; //Openstack
-      uploadQuery['resource_Level2'] = "PM";
-      uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
-      uploadQuery['resource_Rbac'] = true;
-      uploadQuery['resource_Anomaly_Monitor'] = false;
-      uploadQuery['resource_Active'] = true;
-
-      tempQuery = this.formatter_resource(i, length, "PM", clusterUuid, uploadQuery, mergedQuery);
+      tempQuery = this.formatter_resource(pmIndex, pms.length, "PM", clusterUuid, uploadQuery, mergedQuery);
       mergedQuery = tempQuery;
     }
+    // for (var i=0; i<length; i++) {
+    //   // get pm status
+    //   const statusQuery: any = {
+    //     query: [
+    //       {
+    //         "name": "pm_status",
+    //         "resourceGroupUuid": clusterUuid,
+    //         "type": "OS_CLUSTER_PM_NODE_STATUS",
+    //         "nodename": result[metricName].data.result[i].metric.nodename
+    //       }
+    //     ]
+    //   }
+    //
+    //   const statusResult = await this.getMetricP8S(customerAccountKey, statusQuery)
+    //   let pmStatus: string = "UNKNOWN"
+    //   if (statusResult["pm_status"].data.result.length !== 0) {
+    //     const status = statusResult["pm_status"].data.result[0].value[1]
+    //     if (status === "1") {
+    //       pmStatus = "ACTIVE"
+    //     } else {
+    //       pmStatus = "INACTIVE"
+    //     }
+    //   }
+    //
+    //   uploadQuery['resource_Name'] = result[metricName].data.result[i].metric.nodename;
+    //   uploadQuery['resource_Type'] = "PM";
+    //   uploadQuery['resource_Instance'] = result[metricName].data.result[i].metric.instance;
+    //   uploadQuery['resource_Spec'] = result[metricName].data.result[i].metric;
+    //   uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
+    //   uploadQuery['resource_Target_Uuid'] = result[metricName].data.result[i].metric.nodename;
+    //   uploadQuery['resource_Description'] = result[metricName].data.result[i].metric.version;
+    //   uploadQuery['resource_Status'] = pmStatus
+    //   uploadQuery['resource_Target_Created_At'] = null
+    //   uploadQuery['resource_Level1'] = "OS"; //Openstack
+    //   uploadQuery['resource_Level2'] = "PM";
+    //   uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
+    //   uploadQuery['resource_Rbac'] = true;
+    //   uploadQuery['resource_Anomaly_Monitor'] = false;
+    //   uploadQuery['resource_Active'] = true;
+    //
+    //   tempQuery = this.formatter_resource(i, length, "PM", clusterUuid, uploadQuery, mergedQuery);
+    //   mergedQuery = tempQuery;
+    // }
 
-    console.log("second:", mergedQuery)
+    console.log("query:", mergedQuery)
     return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
   }
 
