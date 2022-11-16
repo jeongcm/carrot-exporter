@@ -1346,7 +1346,7 @@ class MetricService extends ServiceExtension {
         uploadQuery['resource_Group_Uuid'] = clusterUuid;
         uploadQuery['resource_Target_Uuid'] = pm.resourceTargetUuid;
         uploadQuery['resource_Description'] = pm.resourceDescription;
-        uploadQuery['resource_Status'] = "SHUTOFF"
+        uploadQuery['resource_Status'] = "INACTIVE"
         uploadQuery['resource_Target_Created_At'] = null
         uploadQuery['resource_Level1'] = "OS"; //Openstack
         uploadQuery['resource_Level2'] = "PM";
@@ -1380,7 +1380,7 @@ class MetricService extends ServiceExtension {
         if (status === "1") {
           pmStatus = "ACTIVE"
         } else {
-          pmStatus = "SHUTOFF"
+          pmStatus = "INACTIVE"
         }
       }
 
