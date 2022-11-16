@@ -369,6 +369,8 @@ class TopologyService extends ServiceExtension {
       counts = [...counts, ...resourceCounts];
     }
 
+
+
     return counts;
   }
 
