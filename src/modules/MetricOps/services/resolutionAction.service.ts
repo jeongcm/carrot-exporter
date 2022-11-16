@@ -64,14 +64,13 @@ class ResolutionActionService {
       updatedAt: currentDate,
       resolutionActionName,
       resolutionActionDescription,
-      resolutionActionTemplateSteps: JSON.parse(JSON.stringify(resolutionActionTemplateSteps)),
+      resolutionActionTemplateSteps,
       resolutionActionType,
       resolutionActionPrerequisiteNumber: resolutionActionPrerequisiteKey || null,
       sudoryTemplateKey: sudoryTemplateDetails.sudoryTemplateKey,
     };
     const newresolutionAction: IResolutionAction = await this.resolutionAction.create(resolutionAction);
     console.log('newresolutionAction', newresolutionAction);
-    console.log(typeof newresolutionAction.resolutionActionTemplateSteps)
     return newresolutionAction;
   }
 
