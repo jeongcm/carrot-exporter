@@ -1335,6 +1335,7 @@ class MetricService extends ServiceExtension {
       for (var index = 0; index < length; index++) {
         if (pm.resourceTargetUuid === result[metricName].data.result[index].metric.nodename) {
           is_exist = true;
+          break;
         }
       }
 
@@ -1404,6 +1405,7 @@ class MetricService extends ServiceExtension {
       mergedQuery = tempQuery;
     }
 
+    console.log(mergedQuery)
     return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
   }
 
