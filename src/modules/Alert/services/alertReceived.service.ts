@@ -147,8 +147,8 @@ class AlertReceivedService extends ServiceExtension {
     if (isEmpty(alertHash)) throw new HttpException(400, 'Not a valid AlertReceivedHash');
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       limit: 100,
-      where: { alertReceivedHash: alertHash, alertReceivedUiFlag: 0 },
-      order: [['createdAt', 'DESC']],
+      where: { alertReceivedHash: alertHash },
+      order: [['alertReceivedActiveAt', 'DESC']],
     });
     return allAlertReceived;
   }
