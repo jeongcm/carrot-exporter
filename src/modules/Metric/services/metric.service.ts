@@ -1264,8 +1264,9 @@ class MetricService extends ServiceExtension {
       case 'OS_CLUSTER_VM_NODE_STATUS':
         labelString += getSelectorLabels({
           clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
         });
-        promQl = `probe_success{job=~"vm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
+        promQl = `nc:probe_success{job=~"vm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
         break;
 
       case 'OS_CLUSTER_VM_NODE_AC01_STATUS':
