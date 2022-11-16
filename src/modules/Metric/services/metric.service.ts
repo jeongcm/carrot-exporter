@@ -1260,6 +1260,14 @@ class MetricService extends ServiceExtension {
         ranged = true;
         promQl = `rate(nc:namedprocess_namegroup_write_bytes_total{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])`
         break;
+
+      case 'OS_CLUSTER_VM_NODE_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+        promQl = `nc:probe_success{__LABEL_PLACE_HOLDER__}`;
+        break;
     }
 
     // Apply PromQL operators
