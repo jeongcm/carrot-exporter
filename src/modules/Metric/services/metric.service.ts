@@ -1290,7 +1290,7 @@ class MetricService extends ServiceExtension {
         promQl = `probe_success{job=~"vm-blackbox-exporter-icmp(cs_svr01)", __LABEL_PLACE_HOLDER__}`;
         break;
 
-      case 'OS_CLUSTER_PM_NODE_PC01_STATUS':
+      case 'OS_CLUSTER_PM_NODE_PC02_STATUS':
         labelString += getSelectorLabels({
           clusterUuid,
         });
