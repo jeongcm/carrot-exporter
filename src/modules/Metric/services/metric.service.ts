@@ -1320,6 +1320,46 @@ class MetricService extends ServiceExtension {
       return result[metricName].query
     }
 
+    const resourceGroup = await this.resourceGroupService.resourceGroup.findOne({
+      attributes: ['resourceGroupKey'],
+      where: {resourceGroupUuid: clusterUuid}
+    })
+
+    // pm이 조회되지 않았을때 삭제하지 않고 resource status 를 SHUTOFF로 Update
+    const pms = await this.resourceService.resource.findAll({
+        where: { resourceGroupKey: resourceGroup.resourceGroupKey, deletedAt: null, customerAccountKey: customerAccountKey, resourceType: "PM"},
+    })
+
+    pms.forEach(pm => {
+      let is_exist = false;
+      for (var index = 0; index < length; index++) {
+        if (pm.resourceTargetUuid === result[metricName].data.result[i].metric.nodename) {
+          is_exist = true;
+        }
+      }
+
+      if (!is_exist) {
+        uploadQuery['resource_Name'] = pm.resourceName;
+        uploadQuery['resource_Type'] = "PM";
+        uploadQuery['resource_Instance'] = pm.resourceInstance;
+        uploadQuery['resource_Spec'] = pm.resourceSpec;
+        uploadQuery['resource_Group_Uuid'] = clusterUuid;
+        uploadQuery['resource_Target_Uuid'] = pm.resourceTargetUuid;
+        uploadQuery['resource_Description'] = pm.resourceDescription;
+        uploadQuery['resource_Status'] = "SHUTOFF"
+        uploadQuery['resource_Target_Created_At'] = null
+        uploadQuery['resource_Level1'] = "OS"; //Openstack
+        uploadQuery['resource_Level2'] = "PM";
+        uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
+        uploadQuery['resource_Rbac'] = true;
+        uploadQuery['resource_Anomaly_Monitor'] = false;
+        uploadQuery['resource_Active'] = true;
+
+        tempQuery = this.formatter_resource(i, length, "PM", clusterUuid, uploadQuery, mergedQuery);
+        mergedQuery = tempQuery;
+      }
+    })
+
     for (var i=0; i<length; i++) {
       // get pm status
       const statusQuery: any = {
