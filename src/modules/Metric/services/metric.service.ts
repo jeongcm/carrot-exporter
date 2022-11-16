@@ -983,14 +983,6 @@ class MetricService extends ServiceExtension {
         promQl = `sum by (nodename) (time() - nc:node_boot_time_seconds{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`;
         break;
 
-      case 'OS_CLUSTER_PM_NODE_STATUS':
-        labelString += getSelectorLabels({
-          clusterUuid,
-          nodename,
-        });
-        promQl = `nc:probe_success{job=~"pm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
-        break;
-
       case 'OS_CLUSTER_PM_CPU_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1295,6 +1287,14 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
         promQl = `probe_success{job="pm-blackbox-exporter-icmp(p-com-02)", __LABEL_PLACE_HOLDER__}`;
+        break;
+
+      case 'OS_CLUSTER_PM_NODE_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+        promQl = `nc:probe_success{job=~"pm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
         break;
     }
 
