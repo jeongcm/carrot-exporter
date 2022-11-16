@@ -15,6 +15,7 @@ import ResourceService from '@/modules/Resources/services/resource.service';
 import { IAlertTargetGroup } from '@/common/interfaces/alertTargetGroup.interface';
 import { IAlertTargetSubGroup } from '@/common/interfaces/alertTargetSubGroup.interface';
 import { IAlertEasyRule } from '@/common/interfaces/alertEasyRule.interface';
+import { IAlertRuleSettingData } from '@/common/interfaces/alertReceived.interface';
 
 class AlertRuleController extends ControllerExtension {
   public alertRuleService = new AlertRuleService();
@@ -59,8 +60,8 @@ class AlertRuleController extends ControllerExtension {
     try {
       const customerAccountKey = req.customerAccountKey;
       const { alertRuleIds } = req.body;
-      const findAllAlertReceived: IAlertRule[] = await this.alerthubService.getAllAlertRuleIdsSettingData(alertRuleIds, customerAccountKey);
-      res.status(200).json({ data: findAllAlertReceived, message: 'findAll' });
+      const settings: IAlertRuleSettingData[] = await this.alerthubService.getAllAlertRuleIdsSettingData(alertRuleIds, customerAccountKey);
+      res.status(200).json({ data: settings, message: 'findAll' });
     } catch (error) {
       next(error);
     }
