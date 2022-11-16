@@ -988,7 +988,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
           nodename,
         });
-        promQl = `nc:probe_success{__LABEL_PLACE_HOLDER__}`;
+        promQl = `nc:probe_success{job=~"pm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
         break;
 
       case 'OS_CLUSTER_PM_CPU_USAGE':
@@ -1259,6 +1259,42 @@ class MetricService extends ServiceExtension {
 
         ranged = true;
         promQl = `rate(nc:namedprocess_namegroup_write_bytes_total{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])`
+        break;
+
+      case 'OS_CLUSTER_VM_NODE_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename: resources?.map((resource: IResource) => resource.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+        });
+        promQl = `nc:probe_success{job=~"vm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
+        break;
+
+      case 'OS_CLUSTER_VM_NODE_AC01_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `probe_success{job="vm-blackbox-exporter-icmp(acct-svr01)", __LABEL_PLACE_HOLDER__}`;
+        break;
+
+      case 'OS_CLUSTER_VM_NODE_AC02_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `probe_success{job="vm-blackbox-exporter-icmp(acct-svr02)", __LABEL_PLACE_HOLDER__}`;
+        break;
+
+      case 'OS_CLUSTER_VM_NODE_CS01_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `probe_success{job="vm-blackbox-exporter-icmp(cs_svr01)", __LABEL_PLACE_HOLDER__}`;
+        break;
+
+      case 'OS_CLUSTER_PM_NODE_PC02_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `probe_success{job="pm-blackbox-exporter-icmp(p-com-02)", __LABEL_PLACE_HOLDER__}`;
         break;
     }
 
