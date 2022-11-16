@@ -1333,7 +1333,7 @@ class MetricService extends ServiceExtension {
     pms.forEach(pm => {
       let is_exist = false;
       for (var index = 0; index < length; index++) {
-        if (pm.resourceTargetUuid === result[metricName].data.result[i].metric.nodename) {
+        if (pm.resourceTargetUuid === result[metricName].data.result[index].metric.nodename) {
           is_exist = true;
         }
       }
