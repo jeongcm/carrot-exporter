@@ -16,7 +16,7 @@ interface IHashedResources {
 const TEMP_REAL_RESOURCE_NAMES = [
   // VMs
   'acct-svr01',
-  'acct-svt02',
+  'acct-svr02',
   'collector-SaaS',
   'cs_svr01',
   'db_scv01',
