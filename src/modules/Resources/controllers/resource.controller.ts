@@ -227,6 +227,7 @@ class ResourceController {
       const { vmStatusPerName, pmStatusPerName } = await this.topologyService.tempGetStatus(req.customerAccountKey, req.query.resourceGroupId || []);
 
       console.log(vmStatusPerName);
+      console.log(pmStatusPerName);
 
       switch (resourceType) {
         case 'VM':
@@ -237,6 +238,9 @@ class ResourceController {
           break;
         case 'PM':
           resources = await this.resourceService.getPMListByCustomerAccountId(customerAccountId, req.query);
+
+          // TEMP:
+          resources = this.topologyService.tempInjectStatus(pmStatusPerName, resources);
 
           // TEMP:
           resources = resources.map((r: any) => {
@@ -259,8 +263,13 @@ class ResourceController {
               r.resourceSpec.vms = this.topologyService.tempInjectStatus(vmStatusPerName, r.resourceSpec.vms);
             }
 
+            if (r?.resourceSpec?.pms) {
+              r.resourceSpec.pms = this.topologyService.tempInjectStatus(pmStatusPerName, r.resourceSpec.pms);
+            }
+
             return r;
           });
+
           break;
         default:
       }
@@ -290,6 +299,16 @@ class ResourceController {
 
       // TEMP:
       const [convertedResource] = this.topologyService.tempInjectStatus(vmStatusPerName, [resource]);
+
+      // TEMP:
+      if (convertedResource?.resourceSpec?.vms) {
+        convertedResource.resourceSpec.vms = this.topologyService.tempInjectStatus(vmStatusPerName, convertedResource.resourceSpec.vms);
+      }
+
+      if (convertedResource?.resourceSpec?.pms) {
+        convertedResource.resourceSpec.pms = this.topologyService.tempInjectStatus(pmStatusPerName, convertedResource.resourceSpec.pms);
+      }
+
 
       // TEMP:
       res.status(200).json({ data: convertedResource, message: `find resource with and resourceId ${resourceId}` });

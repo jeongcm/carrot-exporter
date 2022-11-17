@@ -23,10 +23,11 @@ const TEMP_REAL_RESOURCE_NAMES = [
   'prd-svr01',
   'prd-svr02',
   'web-svr01',
+
   // PMs
-  // 'openstack-server',
-  // 'p-com-01',
-  // 'p-com-02',
+  'openstack-server',
+  'p-com-01',
+  'p-com-02',
 ];
 
 export const TYPE_PER_NAME: any = {
@@ -188,7 +189,8 @@ class TopologyService extends ServiceExtension {
         // TEMP:
         return await this.createPjVmTopology(this.tempInjectStatus(vmStatusPerName, resources));
       case 'pms':
-        return await this.createPmTopology(resources);
+        return await this.createPmTopology(this.tempInjectStatus(pmStatusPerName, resources));
+        w
       case 'nodes':
         return await this.createNodeTopology(resources);
       case 'workload-pods':
