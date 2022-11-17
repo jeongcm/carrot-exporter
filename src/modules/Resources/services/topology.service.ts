@@ -190,7 +190,6 @@ class TopologyService extends ServiceExtension {
         return await this.createPjVmTopology(this.tempInjectStatus(vmStatusPerName, resources));
       case 'pms':
         return await this.createPmTopology(this.tempInjectStatus(pmStatusPerName, resources));
-        w
       case 'nodes':
         return await this.createNodeTopology(resources);
       case 'workload-pods':
