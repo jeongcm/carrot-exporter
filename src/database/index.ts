@@ -468,7 +468,7 @@ DB.sequelize
     const trigger1pre = 'DROP TRIGGER IF EXISTS nc_api.tr_AlertReceivedHash;';
     const trigger2pre = 'DROP TRIGGER IF EXISTS nc_api.tr_AlertReceivedCreatedAt;';
     const trigger1 =
-      'CREATE TRIGGER nc_api.tr_AlertReceivedHash BEFORE INSERT ON nc_api.AlertReceived FOR EACH ROW SET NEW.alert_received_hash = SHA1(CONCAT(NEW.alert_rule_key, NEW.alert_received_namespace, NEW.alert_received_node, NEW.alert_received_service, NEW.alert_received_pod));';
+      'CREATE TRIGGER nc_api.tr_AlertReceivedHash BEFORE INSERT ON nc_api.AlertReceived FOR EACH ROW SET NEW.alert_received_hash = SHA1(CONCAT(NEW.alert_rule_key, NEW.alert_received_namespace, NEW.alert_received_node, NEW.alert_received_service, NEW.alert_received_pod, NEW.alert_received_affected_resource_type, NEW.alert_received_affected_resource_name));';
     const trigger2 =
       'CREATE TRIGGER nc_api.tr_AlertReceivedCreatedAt BEFORE INSERT ON nc_api.AlertReceived FOR EACH ROW SET NEW.alert_received_ui_flag = mod(minute(NEW.created_at),10); ';
     const sp1 = `
