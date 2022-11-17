@@ -277,6 +277,8 @@ class TopologyService extends ServiceExtension {
     return (resources || []).map((resource: any) => {
       const status = statusPerName[resource.resourceName];
 
+      console.log(resource.resourceName, status, TEMP_REAL_RESOURCE_NAMES.indexOf(resource.resourceName) > -1);
+
       if (TEMP_REAL_RESOURCE_NAMES.indexOf(resource.resourceName) > -1) {
         if (typeof status !== 'undefined') {
           resource.resourceStatus = status ? 'ACTIVE' : 'INACTIVE';
