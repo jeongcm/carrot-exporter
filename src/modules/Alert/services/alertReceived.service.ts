@@ -136,7 +136,7 @@ class AlertReceivedService extends ServiceExtension {
     if (!currentAlertRule) throw new HttpException(404, 'AlertRuleId is not found');
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null, alertRuleKey: currentAlertRuleKey },
-      order: [['alertReceivedActiveAt', 'DESC']],
+      order: [ ['createdAt', 'DESC'], ['alertReceivedActiveAt', 'DESC']],
     });
     return allAlertReceived;
 
@@ -148,7 +148,10 @@ class AlertReceivedService extends ServiceExtension {
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       limit: 100,
       where: { alertReceivedHash: alertHash },
-      order: [['alertReceivedActiveAt', 'DESC']],
+      order: [
+        ['createdAt', 'DESC'],
+        ['alertReceivedActiveAt', 'DESC']
+      ],
     });
     return allAlertReceived;
   }

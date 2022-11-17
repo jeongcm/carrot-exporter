@@ -89,6 +89,7 @@ class AlertRuleService {
           },
         },
       ],
+      order: [["alertRuleGroup", "ASC"], ["alertRuleName", "ASC"]],
     });
     return allAlertRules;
   }
