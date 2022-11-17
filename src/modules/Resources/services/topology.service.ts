@@ -189,6 +189,7 @@ class TopologyService extends ServiceExtension {
         // TEMP:
         return await this.createPjVmTopology(this.tempInjectStatus(vmStatusPerName, resources));
       case 'pms':
+        // TEMP:
         return await this.createPmTopology(this.tempInjectStatus(pmStatusPerName, resources));
       case 'nodes':
         return await this.createNodeTopology(resources);
@@ -200,7 +201,23 @@ class TopologyService extends ServiceExtension {
   }
 
   // TEMP:
-  public async tempGetStatus(customerAccountKey: number, resourceGroupId: any) {
+  public async tempGetStatus(customerAccountKey: number, resourceGroupIdIn: any) {
+    let resourceGroupId = resourceGroupIdIn;
+
+    if (!resourceGroupId || resourceGroupId.length === 0) {
+      const accountResourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+        where: {
+          customerAccountKey,
+          deletedAt: null,
+          resourceGroupPlatform: 'OS',
+        },
+      });
+
+      resourceGroupId = accountResourceGroups.map((rg: any) => {
+        return rg.resourceGroupId;
+      });
+    }
+
     const metrics: any = await this.metricService.getMetricP8S(customerAccountKey, {
       query: [
         {
