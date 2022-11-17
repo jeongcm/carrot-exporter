@@ -14,8 +14,8 @@ import config from 'config';
 export interface IMetricQueryBodyQuery {
   name: string;
   type: string;
-  nodename: string;
-  resourceId: string | string[];
+  nodename?: string;
+  resourceId?: string | string[];
   start?: string;
   end?: string;
   step?: string;
@@ -160,6 +160,7 @@ class MetricService extends ServiceExtension {
 
   //TODO: 추후 getMetric 으로 통합될때 Metric api의 endpoint에 Cluster_Type(OS or K8S)로 구분하여 telemetry service가 뭐로 정해질지 구분해야합니다.
   public async getMetricP8S(customerAccountKey: number, queryBody: IMetricQueryBody) {
+
     const results: any = {};
     if (isEmpty(queryBody?.query)) {
       return this.throwError('EXCEPTION', 'query[] is missing');
@@ -1295,6 +1296,13 @@ class MetricService extends ServiceExtension {
           nodename,
         });
         promQl = `nc:probe_success{job=~"pm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
+        break;
+
+      case 'OS_CLUSTER_PM_VM_ALL_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `{__name__=~"probe_success|nc:probe_success", __LABEL_PLACE_HOLDER__}`;
         break;
     }
 
