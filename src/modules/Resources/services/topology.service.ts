@@ -16,7 +16,7 @@ interface IHashedResources {
 const TEMP_REAL_RESOURCE_NAMES = [
   // VMs
   'acct-svr01',
-  'acct-svt02',
+  'acct-svr02',
   'collector-SaaS',
   'cs_svr01',
   'db_scv01',
@@ -189,6 +189,7 @@ class TopologyService extends ServiceExtension {
         // TEMP:
         return await this.createPjVmTopology(this.tempInjectStatus(vmStatusPerName, resources));
       case 'pms':
+        // TEMP:
         return await this.createPmTopology(this.tempInjectStatus(pmStatusPerName, resources));
       case 'nodes':
         return await this.createNodeTopology(resources);
@@ -200,7 +201,23 @@ class TopologyService extends ServiceExtension {
   }
 
   // TEMP:
-  public async tempGetStatus(customerAccountKey: number, resourceGroupId: any) {
+  public async tempGetStatus(customerAccountKey: number, resourceGroupIdIn: any) {
+    let resourceGroupId = resourceGroupIdIn;
+
+    if (!resourceGroupId || resourceGroupId.length === 0) {
+      const accountResourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+        where: {
+          customerAccountKey,
+          deletedAt: null,
+          resourceGroupPlatform: 'OS',
+        },
+      });
+
+      resourceGroupId = accountResourceGroups.map((rg: any) => {
+        return rg.resourceGroupId;
+      });
+    }
+
     const metrics: any = await this.metricService.getMetricP8S(customerAccountKey, {
       query: [
         {
@@ -259,6 +276,8 @@ class TopologyService extends ServiceExtension {
   public tempInjectStatus(statusPerName: any, resources: any[]) {
     return (resources || []).map((resource: any) => {
       const status = statusPerName[resource.resourceName];
+
+      console.log(resource.resourceName, status, TEMP_REAL_RESOURCE_NAMES.indexOf(resource.resourceName) > -1);
 
       if (TEMP_REAL_RESOURCE_NAMES.indexOf(resource.resourceName) > -1) {
         if (typeof status !== 'undefined') {

@@ -298,7 +298,12 @@ class ResourceController {
       const { vmStatusPerName, pmStatusPerName } = await this.topologyService.tempGetStatus(req.customerAccountKey, req.query.resourceGroupId || []);
 
       // TEMP:
-      const [convertedResource] = this.topologyService.tempInjectStatus(vmStatusPerName, [resource]);
+      let statusPerName: any = vmStatusPerName;
+      if (resource.resourceType === 'PM') {
+        statusPerName = pmStatusPerName;
+      }
+
+      const [convertedResource] = this.topologyService.tempInjectStatus(statusPerName, [resource]);
 
       // TEMP:
       if (convertedResource?.resourceSpec?.vms) {
@@ -308,7 +313,6 @@ class ResourceController {
       if (convertedResource?.resourceSpec?.pms) {
         convertedResource.resourceSpec.pms = this.topologyService.tempInjectStatus(pmStatusPerName, convertedResource.resourceSpec.pms);
       }
-
 
       // TEMP:
       res.status(200).json({ data: convertedResource, message: `find resource with and resourceId ${resourceId}` });
