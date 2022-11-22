@@ -221,22 +221,62 @@ class ResourceController {
   public getResourcesByCustomerAccountIdAndResourceType = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const resourceType: string = req.params.resourceType;
     const customerAccountId: string = req.params.customerAccountId;
-    let resources: IResource[]
+    let resources: IResource[];
     try {
+      // TEMP:
+      const { vmStatusPerName, pmStatusPerName } = await this.topologyService.tempGetStatus(req.customerAccountKey, req.query.resourceGroupId || []);
+
+      console.log(vmStatusPerName);
+      console.log(pmStatusPerName);
+
       switch (resourceType) {
-        case "VM":
+        case 'VM':
           resources = await this.resourceService.getVMListByCustomerAccountId(customerAccountId, req.query);
+
+          // TEMP:
+          resources = this.topologyService.tempInjectStatus(vmStatusPerName, resources);
           break;
-        case "PM":
+        case 'PM':
           resources = await this.resourceService.getPMListByCustomerAccountId(customerAccountId, req.query);
+
+          // TEMP:
+          resources = this.topologyService.tempInjectStatus(pmStatusPerName, resources);
+
+          // TEMP:
+          resources = resources.map((r: any) => {
+            if (r?.resourceSpec?.vms) {
+              r.resourceSpec.vms = this.topologyService.tempInjectStatus(vmStatusPerName, r.resourceSpec.vms);
+              console.log(r.resourceSpec?.vms.length)
+            }
+
+            return r;
+          });
+          console.log(0)
+
           break;
-        case "PJ":
+        case 'PJ':
           resources = await this.resourceService.getPJListByCustomerAccountId(customerAccountId, req.query);
-          break
+
+          // TEMP:
+          resources = resources.map((r: any) => {
+            if (r?.resourceSpec?.vms) {
+              r.resourceSpec.vms = this.topologyService.tempInjectStatus(vmStatusPerName, r.resourceSpec.vms);
+            }
+
+            if (r?.resourceSpec?.pms) {
+              r.resourceSpec.pms = this.topologyService.tempInjectStatus(pmStatusPerName, r.resourceSpec.pms);
+            }
+
+            return r;
+          });
+
+          break;
         default:
       }
 
-      res.status(200).json({ data: resources, message: `find resources with customerAccountId(${customerAccountId}) and resourceType ${resourceType}` });
+      res
+        .status(200)
+        .json({ data: resources, message: `find resources with customerAccountId(${customerAccountId}) and resourceType ${resourceType}` });
     } catch (error) {
       next(error);
     }
@@ -253,7 +293,29 @@ class ResourceController {
 
     try {
       const resource: IResource = await this.resourceService.getResourceByTypeCustomerAccountKeyResourceId(resourceId, customerAccountKey);
-      res.status(200).json({ data: resource, message: `find resource with and resourceId ${resourceId}` });
+
+      // TEMP:
+      const { vmStatusPerName, pmStatusPerName } = await this.topologyService.tempGetStatus(req.customerAccountKey, req.query.resourceGroupId || []);
+
+      // TEMP:
+      let statusPerName: any = vmStatusPerName;
+      if (resource.resourceType === 'PM') {
+        statusPerName = pmStatusPerName;
+      }
+
+      const [convertedResource] = this.topologyService.tempInjectStatus(statusPerName, [resource]);
+
+      // TEMP:
+      if (convertedResource?.resourceSpec?.vms) {
+        convertedResource.resourceSpec.vms = this.topologyService.tempInjectStatus(vmStatusPerName, convertedResource.resourceSpec.vms);
+      }
+
+      if (convertedResource?.resourceSpec?.pms) {
+        convertedResource.resourceSpec.pms = this.topologyService.tempInjectStatus(pmStatusPerName, convertedResource.resourceSpec.pms);
+      }
+
+      // TEMP:
+      res.status(200).json({ data: convertedResource, message: `find resource with and resourceId ${resourceId}` });
     } catch (error) {
       next(error);
     }
@@ -265,7 +327,7 @@ class ResourceController {
 
     try {
       const count: number = await this.resourceService.getResourceCountByResourceType(resourceType, customerAccountKey, req.query);
-      res.status(200).json({ count: count, message: `get  resource count with resourceType(${resourceType})`});
+      res.status(200).json({ count: count, message: `get  resource count with resourceType(${resourceType})` });
     } catch (error) {
       next(error);
     }
