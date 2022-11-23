@@ -81,11 +81,14 @@ class AlerthubService {
     }
   }
 
-  public async getAllAlertRuleIdsSettingData(alertRuleIds: string[], customerAccountKey: number): Promise<IAlertRuleSettingData[]> {
+  public async getAllAlertRuleIdsSettingData(alertRuleIds: string[], customerAccountKey: number): Promise<IAlertRule[]> {
     if (isEmpty(alertRuleIds)) throw new HttpException(400, 'Alert Rule Ids must be valid or not empty');
-    const alertRuleIdPerKey = await this.alertRuleService.findAlertRuleIdPerKey(alertRuleIds, customerAccountKey);
-    const alertRuleKeys: number[] = Object.keys(alertRuleIdPerKey || {}).map((key: any) => parseInt(key));
-
+    const alertRuleKey: IAlertRule[] = await this.alertRuleService.findAlertRuleKeyByIds(alertRuleIds, customerAccountKey);
+    const alertRuleKeys: number[] = alertRuleKey.map(alertRuleKeyX => {
+      return alertRuleKeyX.alertRuleKey;
+    });
+    console.log('alert rule key---', alertRuleKey);
+    console.log('alert rule keys---', alertRuleKeys);
     try {
       const { data } = await axios.post(
         `${config.alerthub.baseUrl}/v1/alertNotiSetAlertRule/${customerAccountKey}`,
@@ -96,17 +99,13 @@ class AlerthubService {
       );
 
       if (data.data && data.message === 'success') {
-        return data.data.map((as: IAlertRuleSettingData) => {
-          as.alertRuleId = alertRuleIdPerKey[as.alertRuleKey];
-          delete as.alertRuleKey;
-
-          return as;
-        });
+        return data.data;
       }
     } catch (e) {
+      console.log('error', e);
       throw e;
     }
-    return [];
+    return alertRuleKey;
   }
 
   public async upsertAlertRuleSetting(alertRuleSettingData: IAlertRuleSettingData, customerAccountKey: number): Promise<IAlertRule[]> {

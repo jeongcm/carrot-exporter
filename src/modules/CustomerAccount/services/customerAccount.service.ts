@@ -14,6 +14,7 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { CreateUserDto } from '@/modules/Party/dtos/party.dto';
 import axios from 'common/httpClient/axios';
 import { IParty, IPartyUser } from '@/common/interfaces/party.interface';
+import bcrypt from 'bcrypt';
 const handlebars = require('handlebars');
 const fs = require('fs');
 const path = require('path');
@@ -65,9 +66,10 @@ class CustomerAccountService {
     //id creation for api user
     responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
     const partyIdApi = responseTableIdData.tableIdFinalIssued;
-
+    let customerAccountKey;
+    let returnResult;
     try {
-      return await DB.sequelize.transaction(async t => {
+      await DB.sequelize.transaction(async t => {
         //1. create a customer account
         const createdCustomerAccount: ICustomerAccount = await this.customerAccount.create(
           {
@@ -77,57 +79,7 @@ class CustomerAccountService {
           },
           { transaction: t },
         );
-        const customerAccountKey = createdCustomerAccount.customerAccountKey;
-
-        //1-1. create multi-tenant VM secret data
-        const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
-          where: { deletedAt: null },
-        });
-        let auth = '\n' + `users: ` + '\n';
-        getActiveCustomerAccounts.forEach(customerAccount => {
-          auth =
-            auth +
-            `- username: "S${customerAccount.customerAccountId}"
-password: "${customerAccount.customerAccountId}"
-url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountKey}/prometheus/"
-- username: "I${customerAccount.customerAccountId}"
-password: "${customerAccount.customerAccountId}"
-url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
-            '\n';
-        });
-        const authBuff = Buffer.from(auth);
-        const base64Auth = authBuff.toString('base64');
-        //call sudory to patch VM multiline secret file
-        const sudoryServiceName = 'Update VM Secret';
-        const summary = 'Update VM Secret';
-        const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
-        const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
-        const step = [
-          {
-            args: {
-              name: config.victoriaMetrics.vmMultiSecret,
-              namespace: config.victoriaMetrics.vmMultiNamespaces,
-              patch_type: 'json',
-              patch_data: [
-                {
-                  op: 'replace',
-                  path: '/data/auth.yml',
-                  value: base64Auth,
-                },
-              ],
-            },
-          },
-        ];
-        const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-        await this.sudoryService.postSudoryService(
-          sudoryServiceName,
-          summary,
-          clusterUuid,
-          templateUuid,
-          step,
-          customerAccountKey,
-          subscribedChannel,
-        );
+        customerAccountKey = createdCustomerAccount.customerAccountKey;
 
         //2. create a party & party user
         const createdParty: IParty = await this.party.create(
@@ -146,6 +98,7 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
 
         const partyKey = createdParty.partyKey;
         const password = config.defaultPassword;
+        const hashedPassword = await bcrypt.hash(password, 10);
         const createdPartyUser: IPartyUser = await this.partyUser.create(
           {
             partyUserId: partyId,
@@ -155,7 +108,7 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
             lastName: lastName,
             userId: userId,
             mobile: mobile,
-            password: password,
+            password: hashedPassword,
             email: email,
             timezone: timeZone,
             isEmailValidated: false,
@@ -242,10 +195,12 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
         console.log('fuseBill End');
         //4. prep sending email to customer
         console.log('sending email to customer Start');
-        const emailTemplateSource = fs.readFileSync(
-          path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'),
-          'utf8',
-        );
+        let emailTemplateSource;
+        try {
+          emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'), 'utf8');
+        } catch (err) {
+          console.log('email error-----', err);
+        }
         const template = handlebars.compile(emailTemplateSource);
         const name = createdPartyUser.firstName;
         const htmlToSend = template({ name });
@@ -285,7 +240,7 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
         //const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
         //console.log('operation schedules setup:', scheduleHealthService);
         //7. return message
-        return {
+        returnResult = {
           customerAccountId: createdCustomerAccount.customerAccountId,
           customerAccountKey: createdCustomerAccount.customerAccountKey,
           customerAccountName: createdCustomerAccount.customerAccountName,
@@ -304,6 +259,51 @@ url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.cu
       console.log(err);
       throw new HttpException(500, 'Unknown error while creating account');
     }
+
+    //. create multi-tenant VM secret data
+    const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
+      where: { deletedAt: null },
+    });
+    let auth = '\n' + `users: ` + '\n';
+    getActiveCustomerAccounts.forEach(customerAccount => {
+      auth =
+        auth +
+        `- username: "S${customerAccount.customerAccountId}"
+  password: "${customerAccount.customerAccountId}"
+  url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountKey}/prometheus/"
+- username: "I${customerAccount.customerAccountId}"
+  password: "${customerAccount.customerAccountId}"
+  url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
+        '\n';
+    });
+    console.log('auth-----', auth);
+    const authBuff = Buffer.from(auth);
+    const base64Auth = authBuff.toString('base64');
+    //call sudory to patch VM multiline secret file
+    const sudoryServiceName = 'Update VM Secret';
+    const summary = 'Update VM Secret';
+    const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
+    const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
+    const step = [
+      {
+        args: {
+          name: config.victoriaMetrics.vmMultiSecret,
+          namespace: config.victoriaMetrics.vmMultiNamespaces,
+          patch_type: 'json',
+          patch_data: [
+            {
+              op: 'replace',
+              path: '/data/auth.yml',
+              value: base64Auth,
+            },
+          ],
+        },
+      },
+    ];
+    const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+    console.log('CUSTOMER# - step', JSON.stringify(step));
+    await this.sudoryService.postSudoryService(sudoryServiceName, summary, clusterUuid, templateUuid, step, customerAccountKey, subscribedChannel);
+    return returnResult;
   }
 
   public async getCustomerAccounts(): Promise<ICustomerAccount[]> {

@@ -8,19 +8,16 @@ import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import config from '@config/index';
 
-
-
 class massUploaderMongoService {
+  public resource = DB.Resource;
+  public resourceGroup = DB.ResourceGroup;
+  public tableIdService = new TableIdService();
+  public resourceService = new ResourceService();
+  public resourceGroupService = new ResourceGroupService();
 
-    public resource = DB.Resource;
-    public resourceGroup = DB.ResourceGroup;
-    public tableIdService = new TableIdService();
-    public resourceService = new ResourceService();
-    public resourceGroupService = new ResourceGroupService();
-
-    public async massUploadResourceMongo(resourceMassFeed: any): Promise<object> {
-        var returnResult;
-        /*
+  public async massUploadResourceMongo(resourceMassFeed: any): Promise<object> {
+    let returnResult;
+    /*
         //Mongodb access - need to change to make this configurable
         const mongoUrl = config.db.mongodb.url;
         const client = new MongoClient(mongoUrl);
@@ -123,40 +120,38 @@ class massUploaderMongoService {
             await client.close();
         }
         */
-        return returnResult;
-    } // end of massUploadResourceMongo method
+    return returnResult;
+  } // end of massUploadResourceMongo method
 
-
-
-    public async massUpdoadMetricReceived(metricReceivedMassFeed: string, clusterUuid: string): Promise<object> {
-
-        const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-            where: { resourceGroupUuid: clusterUuid },
-        });
-        if (!resultResourceGroup) {
-            throw new HttpException(400, `cluster uuid ${clusterUuid} doesn't exist`);
-        }
-
-        const victoriaMetricsAddress = config.victoriaMetrics.NC_LARI_VM_ADDRESS;
-        const victoriaMetricsApiImport = config.victoriaMetrics.NC_LARI_VM_API + clusterUuid;
-        const apiUrl = victoriaMetricsAddress + victoriaMetricsApiImport;
-        var result;
-
-        await axios(
-            {
-              method: 'post',
-              url: `${apiUrl}`,
-              data: metricReceivedMassFeed
-            }).then(async (res: any) => {
-              console.log(`Sucess to call ${apiUrl} for MetricReceived Feed, status code: ${res.status} `);
-              result = {"response code: ": res.status}
-            }).catch(error => {
-              console.log(error);
-              throw new HttpException(500, "Unknown error to call Victoriametrics api");
-            });
-
-        return result;
+  public async massUpdoadMetricReceived(metricReceivedMassFeed: string, clusterUuid: string): Promise<object> {
+    const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+      where: { resourceGroupUuid: clusterUuid },
+    });
+    if (!resultResourceGroup) {
+      throw new HttpException(400, `cluster uuid ${clusterUuid} doesn't exist`);
     }
+
+    const victoriaMetricsAddress = config.victoriaMetrics.NC_LARI_VM_ADDRESS;
+    const victoriaMetricsApiImport = config.victoriaMetrics.NC_LARI_VM_API + clusterUuid;
+    const apiUrl = victoriaMetricsAddress + victoriaMetricsApiImport;
+    let result;
+
+    await axios({
+      method: 'post',
+      url: `${apiUrl}`,
+      data: metricReceivedMassFeed,
+    })
+      .then(async (res: any) => {
+        console.log(`Sucess to call ${apiUrl} for MetricReceived Feed, status code: ${res.status} `);
+        result = { 'response code: ': res.status };
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Unknown error to call Victoriametrics api');
+      });
+
+    return result;
+  }
 } // end of massUploaderMongoService class
 
 export default massUploaderMongoService;

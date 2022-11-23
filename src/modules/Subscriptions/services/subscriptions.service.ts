@@ -43,6 +43,7 @@ class SubscriptionService {
         {
           model: SubscribedProductModel,
           attributes: { exclude: ['subscribedProductKey', 'deletedAt'] },
+          order: [['createdAt', 'DESC']],
           required: false,
           include: [
             {

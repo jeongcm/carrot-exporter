@@ -25,14 +25,17 @@ export class CreateAlertEasyRuleDto {
   public alertEasyRuleDuration: string;
   @IsString()
   public alertEasyRuleThreshold1: string;
+  @IsOptional()
   @IsString()
   public alertEasyRuleThreshold2: string;
   @IsString()
   public alertEasyRuleThreshold1Unit: string;
+  @IsOptional()
   @IsString()
   public alertEasyRuleThreshold2Unit: string;
   @IsString()
   public alertEasyRuleThreshold1Max: string;
+  @IsOptional()
   @IsString()
   public alertEasyRuleThreshold2Max: string;
   @IsString()
@@ -112,4 +115,53 @@ export class CreateAlertTargetSubGroupDto {
   @IsString()
   @IsNotEmpty()
   public alertTargetGroupId: string;
+}
+
+export class CreateAlertEasyRuleForClusterDto {
+  @IsString()
+  @IsNotEmpty()
+  public alertTargetSubGroupId: string;
+  @IsString()
+  @IsNotEmpty()
+  public alertEasyRuleName: string;
+  @IsString()
+  @IsNotEmpty()
+  public alertEasyRuleDescription: string;
+  @IsString()
+  @IsNotEmpty()
+  public alertEasyRuleSummary: string;
+  @IsString()
+  @IsNotEmpty()
+  public alertEasyRuleSeverity: string;
+  @IsString()
+  @IsNotEmpty()
+  public alertEasyRuleGroup: string;
+
+  @IsString()
+  @IsNotEmpty()
+  public alertEasyRuleDuration: string;
+  @IsString()
+  public alertEasyRuleThreshold1: string;
+  @IsOptional()
+  @IsString()
+  public alertEasyRuleThreshold2: string;
+  @IsString()
+  public alertEasyRuleThreshold1Unit: string;
+  @IsOptional()
+  @IsString()
+  public alertEasyRuleThreshold2Unit: string;
+  @IsString()
+  public alertEasyRuleThreshold1Max: string;
+  @IsOptional()
+  @IsString()
+  public alertEasyRuleThreshold2Max: string;
+  @IsString()
+  @IsNotEmpty()
+  public alertEasyRuleQuery: string;
+  @IsString()
+  @IsNotEmpty()
+  public customerAccountId: string;
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupUuid: string;
 }

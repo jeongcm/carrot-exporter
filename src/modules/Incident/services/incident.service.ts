@@ -32,7 +32,6 @@ import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachm
 
 import { logger } from '@/common/utils/logger';
 import {IPartyUser} from "@common/interfaces/party.interface";
-
 /**
  * @memberof Incident
  */

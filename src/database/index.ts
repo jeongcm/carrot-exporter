@@ -467,10 +467,16 @@ DB.sequelize
   .then(async () => {
     const trigger1pre = 'DROP TRIGGER IF EXISTS nc_api.tr_AlertReceivedHash;';
     const trigger2pre = 'DROP TRIGGER IF EXISTS nc_api.tr_AlertReceivedCreatedAt;';
+
     const trigger1 =
-      'CREATE TRIGGER nc_api.tr_AlertReceivedHash BEFORE INSERT ON nc_api.AlertReceived FOR EACH ROW SET NEW.alert_received_hash = SHA1(CONCAT(NEW.alert_rule_key, NEW.alert_received_namespace, NEW.alert_received_node, NEW.alert_received_service, NEW.alert_received_pod, NEW.alert_received_affected_resource_type, NEW.alert_received_affected_resource_name));';
+      'CREATE TRIGGER nc_api.tr_AlertReceivedHash BEFORE INSERT ON nc_api.AlertReceived FOR EACH ROW SET NEW.alert_received_hash = SHA1(CONCAT(NEW.alert_rule_key, NEW.alert_received_namespace, NEW.alert_received_node, NEW.alert_received_service, NEW.alert_received_pod, NEW.alert_received_affected_resource_type,  NEW.alert_received_affected_resource_name ));';
     const trigger2 =
       'CREATE TRIGGER nc_api.tr_AlertReceivedCreatedAt BEFORE INSERT ON nc_api.AlertReceived FOR EACH ROW SET NEW.alert_received_ui_flag = mod(minute(NEW.created_at),10); ';
+
+    const sp1pre = `DROP PROCEDURE IF EXISTS nc_api.sp_create_resolved;`;
+    const sp2pre = `DROP PROCEDURE IF EXISTS nc_api.sp_upsertSudoryTemplate;`;
+    const sp3pre = `DROP PROCEDURE IF EXISTS nc_api.sp_deleteAlertReceived;`;
+
     const sp1 = `
         CREATE PROCEDURE IF NOT EXISTS nc_api.sp_upsertSudoryTemplate()
         BEGIN
@@ -581,6 +587,92 @@ DB.sequelize
         END;
     `;
 
+    const sp3 = `
+        CREATE PROCEDURE IF NOT EXISTS nc_api.sp_create_resolved()
+        BEGIN
+            DECLARE EXIT HANDLER FOR SQLEXCEPTION
+            BEGIN
+                  ROLLBACK;
+            END;
+            START TRANSACTION;
+                INSERT INTO nc_api.AlertReceived
+                    (
+                    alert_received_id,
+                    customer_account_key,
+                    alert_rule_key,
+                    created_by,
+                    updated_by,
+                    created_at,
+                    updated_at,
+                    alert_received_name,
+                    alert_received_value,
+                    alert_received_state,
+                    alert_received_namespace,
+                    alert_received_severity,
+                    alert_received_description,
+                    alert_received_summary,
+                    alert_received_active_at,
+                    alert_received_node,
+                    alert_received_service,
+                    alert_received_pod,
+                    alert_received_instance,
+                    alert_received_labels,
+                    alert_received_pinned,
+                    alert_received_container,
+                    alert_received_endpoint,
+                    alert_received_reason,
+                    alert_received_uid,
+                    alert_received_hash,
+                    alert_received_ui_flag,
+                    alert_received_affected_resource_name,
+                    alert_received_affected_resource_type
+                    )
+                SELECT
+                    UUID(), /* alert_received_id */
+                    customer_account_key,
+                    alert_rule_key,
+                    created_by,
+                    created_by, /* updated_by */
+                    created_at,
+                    current_timestamp(), /* updated_at */
+                    alert_received_name,
+                    alert_received_value,
+                    'resolved', /* alert_received_state */
+                    alert_received_namespace,
+                    alert_received_severity,
+                    alert_received_description,
+                    alert_received_summary,
+                    alert_received_active_at,
+                    alert_received_node,
+                    alert_received_service,
+                    alert_received_pod,
+                    alert_received_instance,
+                    alert_received_labels,
+                    alert_received_pinned,
+                    alert_received_container,
+                    alert_received_endpoint,
+                    alert_received_reason,
+                    alert_received_uid,
+                    alert_received_hash,
+                    0, /* alert_received_ui_flag */
+                    alert_received_affected_resource_name,
+                    alert_received_affected_resource_type
+                FROM AlertReceived
+                WHERE deleted_at IS NULL
+                AND alert_received_state = 'firing'
+                AND created_at <= NOW() - INTERVAL 5 MINUTE;
+
+                UPDATE nc_api.AlertReceived
+                SET
+                    deleted_at = current_timestamp(),
+                    updated_at = current_timestamp(),
+                    updated_by =  AlertReceived.created_by
+                WHERE deleted_at IS NULL
+                AND alert_received_state = 'firing'
+                AND created_at <= NOW() - INTERVAL 5 MINUTE;
+            COMMIT;
+        END;
+    `;
     const event1pre = `DROP EVENT IF EXISTS nc_api.ev_sp_upsertSudoryTemplate;`;
     const event1 = `CREATE EVENT nc_api.ev_sp_upsertSudoryTemplate
                     ON SCHEDULE EVERY '1' DAY
@@ -591,17 +683,27 @@ DB.sequelize
                     ON SCHEDULE EVERY 1 DAY
                     STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY + INTERVAL 1 HOUR)
                     DO CALL nc_api.sp_deleteAlertReceived()`;
+    const event3pre = `DROP EVENT IF EXISTS nc_api.ev_sp_create_resolved;`;
+    const event3 = `CREATE EVENT nc_api.ev_sp_create_resolved
+                    ON SCHEDULE EVERY 5 MINUTE
+                    DO CALL nc_api.sp_create_resolved();`;
 
     sequelize.query(trigger1pre);
     sequelize.query(trigger2pre);
     sequelize.query(trigger1);
     sequelize.query(trigger2);
+    sequelize.query(sp1pre);
+    sequelize.query(sp2pre);
+    sequelize.query(sp3pre);
     sequelize.query(sp1);
     sequelize.query(sp2);
+    sequelize.query(sp3);
     sequelize.query(event1pre);
     sequelize.query(event2pre);
+    sequelize.query(event3pre);
     sequelize.query(event1);
     sequelize.query(event2);
+    sequelize.query(event3);
 
     const initialRecordService = new InitialRecordService();
     initialRecordService.insertInitialRecords().then(() => {

@@ -63,6 +63,7 @@ export default function (sequelize: Sequelize): typeof AlertTargetGroupModel {
       alertTargetGroupName: {
         type: DataTypes.STRING(100),
         allowNull: false,
+        unique: true, //don't drop unique index of roleName
       },
       alertTargetGroupDescription: {
         type: DataTypes.STRING(500),

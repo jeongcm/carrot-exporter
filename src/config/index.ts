@@ -15,6 +15,9 @@ import tableIds from '../../init/tableId.seeding.json';
 import api from '../../init/api.seeding.json';
 import role from '../../init/role.seeding.json';
 import exporters from '../../init/exporters.seeding.json';
+import alertTargetGroup from '../../init/alertTargetGroup.seeding.json';
+import alertTargetSubGroup from '../../init/alertTargetSubGroup.seeding.json';
+import alertEasyRule from '../../init/alertEasyRule.seeding.json';
 
 validateEnv();
 
@@ -111,6 +114,9 @@ export default {
     api,
     role,
     exporters,
+    alertTargetGroup,
+    alertTargetSubGroup,
+    alertEasyRule,
   },
   deadLock: {
     retries: Number(process.env.NC_LARI_DEADLOCK_RETRIES) || 5,

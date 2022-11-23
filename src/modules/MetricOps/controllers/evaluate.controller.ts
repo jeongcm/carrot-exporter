@@ -43,7 +43,9 @@ class EvaluateController {
   public getEvaluationHistoryAll = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountId = req.params.customerAccountId;
-      const evalatiaonResult = await this.evaluateService.getEvaluationHistoryAll(customerAccountId);
+      const limit = parseInt(req.params.limit) || 500;
+      const offset = parseInt(req.params.offset) || 0;
+      const evalatiaonResult = await this.evaluateService.getEvaluationHistoryAll(customerAccountId, limit, offset);
       res.status(200).json({ data: evalatiaonResult, message: `Evaluation result by customerAccountId - ${customerAccountId}` });
     } catch (error) {
       next(error);

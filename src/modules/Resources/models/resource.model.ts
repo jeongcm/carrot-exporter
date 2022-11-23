@@ -382,6 +382,9 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         {
           fields: ['resource_type'],
         },
+        {
+          fields: ['resource_app'],
+        },
       ],
       tableName: 'Resource',
       modelName: 'Resource',
