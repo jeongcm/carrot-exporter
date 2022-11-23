@@ -20,7 +20,7 @@ class AnomalyMonitoringTargetController {
     try {
       const { user: { partyId } = {}, systemId, customerAccountKey } = req;
       const monitoringTargetData: CreateMonitoringTargetDto = req.body;
-      const newMonitoringData: IAnomalyMonitoringTarget = await this.anomalyMonitoringTargetService.createMonitoringTarget(
+      const newMonitoringData = await this.anomalyMonitoringTargetService.createMonitoringTarget(
         monitoringTargetData,
         systemId || partyId,
         customerAccountKey,
