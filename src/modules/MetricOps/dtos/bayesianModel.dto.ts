@@ -16,9 +16,8 @@ export class CreateBayesianModelDto {
   @IsOptional()
   public bayesianModelScoreCard: JSON;
 
-  @IsString()
   @IsNotEmpty()
-  public bayesianModelClusterId: string;
+  public resourceGroupUuid: string;
 
   @IsOptional()
   public version: string;
@@ -36,9 +35,8 @@ export class UpdateBayesianModelDto {
   @IsOptional()
   public bayesianModelResourceType: string;
 
-  @IsString()
-  @IsOptional()
-  public bayesianModelClusterId: string;
+  @IsNotEmpty()
+  public resourceGroupUuid: string;
 
   @IsOptional()
   public bayesianModelScoreCard: JSON;

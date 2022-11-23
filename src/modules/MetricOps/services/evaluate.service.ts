@@ -510,7 +510,7 @@ class EvaluateServices {
         //console.log(`ruleGroup===================, ${ruleGroup}`);
         //console.log('evaluationRequest=============', evaluationRequest);
         console.log('RuleGroup:-----------', evaluationRequest.ruleGroup);
-        for (let i = 0; evaluationRequest.ruleGroup.length; i++) {
+        for (let i = 0; i < evaluationRequest.ruleGroup.length; i++) {
           console.log('STEP7');
           const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(evaluationRequest.ruleGroup[i].ruleGroupId);
 
@@ -586,13 +586,16 @@ class EvaluateServices {
    * @returns Promise<IEvaluation[]>
    * @author Jerry Lee
    */
-  public async getEvaluationHistoryAll(customerAccountId: string): Promise<IEvaluation[]> {
+  public async getEvaluationHistoryAll(customerAccountId: string, limit: number, offset: number): Promise<IEvaluation[]> {
     //1. validate CustomerAccount
     const resultCustomerAccount: ICustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
     if (!resultCustomerAccount) throw new HttpException(400, `Can't find customer Account - ${customerAccountId}`);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
     //2. pull evaluation history
     const queryCondition = {
+      limit: limit,
+      offset: offset,
+      order: [['createdAt', 'DESC']],
       where: {
         deletedAt: null,
         customerAccountKey: customerAccountKey,
@@ -607,6 +610,8 @@ class EvaluateServices {
         },
       ],
     };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const resultEvaluation: IEvaluation[] = await this.evaluation.findAll(queryCondition);
 
     return resultEvaluation;

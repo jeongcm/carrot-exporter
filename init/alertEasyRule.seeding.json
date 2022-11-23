@@ -1,0 +1,72 @@
+[
+    {
+        "alertTargetGroupName": "Kubernetes Node",
+        "alertTargetSubGroupName": "Node CPU Utilization",
+        "alertEasyRuleName": "HostHighCpuLoadMax",
+        "alertEasyRuleQuery": "100 - (avg by(node) (rate(node_cpu_seconds_total{mode=\"idle\"}[2m])) * 100) > alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "5m",
+        "alertEasyRuleThreshold1": "90",
+        "alertEasyRuleDescription": "CPU load is > alertEasyRuleThreshold1% \n VALUE = {{ $value }} \n LABELS = {{ $labels }}",
+        "alertEasyRuleSummary": "Host high CPU load (node {{ $labels.node }})",        
+        "alertEasyRuleGroup": "awesomehost",
+        "alertEasyRuleSeverity": "critical",
+        "alertEasyRuleThreshold1Unit": "percentage",
+        "alertEasyRuleThreshold1Max": "100"
+    },
+    {
+        "alertTargetGroupName": "Kubernetes Node",
+        "alertTargetSubGroupName": "Node Memory Utilization",
+        "alertEasyRuleName": "HostOutOfMemoryMax",
+        "alertEasyRuleQuery": "(1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "5m",
+        "alertEasyRuleThreshold1": "90",
+        "alertEasyRuleDescription": "Node memory is filling up (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
+        "alertEasyRuleSummary": "Host out of memory (node {{ $labels.node }})",
+        "alertEasyRuleGroup": "awesomehost",
+        "alertEasyRuleSeverity": "critical",
+        "alertEasyRuleThreshold1Unit": "percentage",
+        "alertEasyRuleThreshold1Max": "100"
+    },    
+    {
+        "alertTargetGroupName": "Kubernetes Pod",
+        "alertTargetSubGroupName": "Pod CPU Utilization",
+        "alertEasyRuleName": "PodCPUThresholdOver",
+        "alertEasyRuleQuery": "sum by(pod, namespace, node) (rate(container_cpu_usage_seconds_total{image!=\"\",container=~\".*\"}[5m])) * 1000> alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "5m",
+        "alertEasyRuleThreshold1": "1000",
+        "alertEasyRuleDescription": "Pod CPU usage is > alertEasyRuleThreshold1m \n VALUE = {{ $value }}\n LABELS = {{ $labels }}",
+        "alertEasyRuleSummary": "Pod CPU usage is over threshold (pod {{ $labels.pod }})",
+        "alertEasyRuleGroup": "awesomehost",
+        "alertEasyRuleSeverity": "critical",
+        "alertEasyRuleThreshold1Unit": "core",
+        "alertEasyRuleThreshold1Max": "2000"
+    },
+    {
+        "alertTargetGroupName": "Kubernetes Pod",
+        "alertTargetSubGroupName": "Pod Memory Utilization",
+        "alertEasyRuleName": "PodMemoryThresholdOver",
+        "alertEasyRuleQuery": "sum(container_memory_working_set_bytes{pod!=\"\", container!=\"\", container=~\".*\"}) BY (pod, namespace, node) > alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "5m",
+        "alertEasyRuleThreshold1": "2000000000",
+        "alertEasyRuleDescription": "Pod memory usage is > alertEasyRuleThreshold1 byte /n VALUE = {{ $value }} /n LABELS = {{ $labels }}",
+        "alertEasyRuleSummary": "Pod memory usage is over threshold (pod {{ $labels.pod }})",
+        "alertEasyRuleGroup": "awesomehost",
+        "alertEasyRuleSeverity": "critical",
+        "alertEasyRuleThreshold1Unit": "byte",
+        "alertEasyRuleThreshold1Max": "3000000000"
+    },
+    {
+        "alertTargetGroupName": "Kubernetes Volume",
+        "alertTargetSubGroupName": "Volume Utilization",
+        "alertEasyRuleName": "VolumeOutOfSpace",
+        "alertEasyRuleQuery": "sum by(persistentvolumeclaim,namespace) (kubelet_volume_stats_used_bytes/kubelet_volume_stats_capacity_bytes) * 100 > alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "0m",
+        "alertEasyRuleThreshold1": "80",
+        "alertEasyRuleDescription": "Volume is almost full > alertEasyRuleThreshold1% \n VALUE = {{ $value }} \n LABELS = {{ $labels.persistentvolumeclaim }}",
+        "alertEasyRuleSummary": "Kubernetes Volume alomost full {{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }}",
+        "alertEasyRuleGroup": "awesomehost",
+        "alertEasyRuleSeverity": "critical",
+        "alertEasyRuleThreshold1Unit": "percentage",
+        "alertEasyRuleThreshold1Max": "100"
+    }
+  ]

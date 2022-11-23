@@ -76,9 +76,9 @@ class BayesianModelServices {
     const tableIdName = 'BayesianModel';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const BayesianModelId: string = responseTableIdData.tableIdFinalIssued;
-    const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, bayesianModelClusterId } = bayesianModelData;
+    const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, resourceGroupUuid } = bayesianModelData;
 
-    const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: bayesianModelClusterId } });
+    const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: resourceGroupUuid } });
     if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
 
@@ -126,7 +126,7 @@ class BayesianModelServices {
       customerAccountKey,
       bayesianModelResourceType,
       bayesianModelScoreCard,
-      bayesianModelClusterId,
+      resourceGroupUuid,
       version,
     };
 
@@ -269,11 +269,11 @@ class BayesianModelServices {
     const findBayesianModel: IBayesianDBModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
     const bayesianModelKey = findBayesianModel.bayesianModelKey;
     if (!findBayesianModel) throw new HttpException(409, "BayesianModel doesn't exist");
-    const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, bayesianModelScoreCard, bayesianModelClusterId, version } =
+    const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, bayesianModelScoreCard, resourceGroupUuid, version } =
       bayesianModelData;
     let resourceGroupKey;
-    if (bayesianModelClusterId) {
-      const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: bayesianModelClusterId } });
+    if (resourceGroupUuid) {
+      const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: resourceGroupUuid } });
       if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
       resourceGroupKey = resultResourceGroup.resourceGroupKey;
     }

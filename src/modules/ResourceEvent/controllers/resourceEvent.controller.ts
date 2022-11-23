@@ -24,8 +24,8 @@ class resourceEventController {
   public getResourceEventByResourceGroupUuid = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
     try {
       const resourceGroupUuid = req.params.resourceGroupUuid;
-      const limit = parseInt(req.params.limit);
-      const offset = parseInt(req.params.offset);
+      const limit = parseInt(req.params.limit) || 1000;
+      const offset = parseInt(req.params.offset) || 0;
 
       const resourceEvent = await this.resourceEventService.getResourceEventByResourceGroupUuid(resourceGroupUuid, limit, offset);
 

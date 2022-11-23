@@ -18,12 +18,9 @@ class SubscriptionController {
   };
 
   public createSubscriptions = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    console.log('########start');
-    console.log(req);
     try {
       const subscriptionData: CreateSubscriptionDto = req.body;
       const { user: { partyId } = {}, systemId, customerAccountKey } = req;
-      console.log('########0000');
       console.log(customerAccountKey);
       const newSubscription: ISubscriptions = await this.subscriptionService.createSubscription(
         subscriptionData,

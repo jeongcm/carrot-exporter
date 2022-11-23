@@ -20,7 +20,7 @@ import urlJoin from 'url-join';
 import { logger } from '@/common/utils/logger';
 import { ApiModel } from '@/modules/Api/models/api.models';
 import TokenService from '@/modules/Token/token.service';
-import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+//import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 //import moment from 'moment-timezone';
 
@@ -243,6 +243,7 @@ class PartyService {
     if (loginData.password === config.defaultPassword) {
       throw new HttpException(401, `Please Reset your password before login`);
     }
+
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);
 
@@ -283,7 +284,8 @@ class PartyService {
       subject: 'Password Reset - NexClipper',
       html: htmlToSend,
     };
-    const a = await sendMail(findUser, mailOptions);
+    await sendMail(findUser, mailOptions);
+
     const resultEmail = {
       to: findUser.email,
       from: 'service@nexclipper.io',
@@ -339,13 +341,22 @@ class PartyService {
       subject: 'Password Reset - NexClipper',
       html: htmlToSend,
     };
-    const a = await sendMail(findUser, mailOptions);
+    await sendMail(findUser, mailOptions);
     const loginData = {
       userId: findUser.userId,
       password: password,
     };
     const loggedIn = await this.login(loginData);
     return loggedIn;
+  }
+
+  public async resetPasswordByAdmin(userId: string, password: string, adminCode: string): Promise<string> {
+    if (adminCode == config.defaultPassword) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      await this.partyUser.update({ password: hashedPassword }, { where: { userId: userId } });
+      console.log('password updated');
+      return 'success';
+    } else return 'failed';
   }
 
   public createToken(user: IPartyUser): ITokenData {
@@ -368,16 +379,17 @@ const sendMail = async (user: any, mailOptions: any) => {
       domain: config.email.mailgun.domain,
     };
     const mailgunAuth = { auth };
+    console.log('#EMAIL Auth---', auth);
     const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
     smtpTransport.sendMail(mailOptions, function (error, response) {
       if (error && Object.keys(error).length) {
-        logger.error(`Error while sending mail`, error);
+        console.log(`#EMAIL Error while sending mail`, error);
       } else {
-        logger.info(`Successfully sent email.`);
+        console.log(`#EMAIL Successfully sent email.`, response);
       }
     });
   } catch (err) {
-    return { message: 'Error while sending mail', error: err };
+    return { message: '#EMAIl Error while sending mail', error: err };
   }
 };
 

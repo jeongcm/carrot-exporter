@@ -207,6 +207,18 @@ class PartyController {
       next(error);
     }
   };
+
+  public resetPasswordByAdmin = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {
+        body: { userId, password, adminCode },
+      } = req;
+      const resultRequest = await this.partyService.resetPasswordByAdmin(userId, password, adminCode);
+      res.status(200).json({ data: resultRequest, message: 'success' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default PartyController;

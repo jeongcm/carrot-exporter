@@ -16,7 +16,6 @@ const auth = {
   domain: config.email.mailgun.domain,
 };
 class MailService {
-
   public sendMail = (req, res) => {
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../templates/emails/email-body/verifyEmail.hbs'), 'utf8');
     const mailgunAuth = { auth };
@@ -58,6 +57,7 @@ class MailService {
         if (error && Object.keys(error).length) {
           console.log(error);
         } else {
+          console.log('success to send mail');
           msg = { response: 'success', details: response.Message };
         }
       });

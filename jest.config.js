@@ -1,6 +1,6 @@
 const { pathsToModuleNameMapper } = require('ts-jest');
 const { compilerOptions } = require('./tsconfig.json');
-const {defaults} = require('jest-config')
+const { defaults } = require('jest-config');
 
 module.exports = {
   preset: 'ts-jest',
@@ -8,16 +8,8 @@ module.exports = {
   setupFiles: ['dotenv/config'],
   roots: ['<rootDir>/src'],
   verbose: true,
-    moduleFileExtensions: [
-        'js',
-        'ts',
-        'tsx',
-        'json',
-        'node',
-    ],
-    testPathIgnorePatterns: [
-        '/node_modules/',
-    ],
+  moduleFileExtensions: ['js', 'ts', 'tsx', 'json', 'node'],
+  testPathIgnorePatterns: ['/node_modules/'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },

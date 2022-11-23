@@ -344,15 +344,17 @@ class TopologyService extends ServiceExtension {
 
           workload += 1;
 
-          sets[namespace][resource.resourceTargetUuid] = {
-            resourceNamespace: namespace,
-            resourceName: resource.resourceName,
-            resourceId: resource.resourceId,
-            resourceTargetUuid: resource.resourceTargetUuid,
-            resourceType: resource.resourceType,
-            level: 'workload',
-            children: [],
-          };
+          if (resourceId.length === 0 || resourceId.indexOf(resource.resourceId) > -1) {
+            sets[namespace][resource.resourceTargetUuid] = {
+              resourceNamespace: namespace,
+              resourceName: resource.resourceName,
+              resourceId: resource.resourceId,
+              resourceTargetUuid: resource.resourceTargetUuid,
+              resourceType: resource.resourceType,
+              level: 'workload',
+              children: [],
+            };
+          }
           break;
         case 'PD':
           pod += 1;
@@ -374,7 +376,6 @@ class TopologyService extends ServiceExtension {
           }
 
           owners?.map((owner: any) => {
-            // TODO: Add DaemonSet, StatefulSet, Deployment?
             if (owner.uid) {
               if (!podsPerUid[namespace]) {
                 podsPerUid[namespace] = {};

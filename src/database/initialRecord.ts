@@ -2,14 +2,15 @@ import DB from '@/database';
 
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdBulkDto, IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
-import { ITableId } from '@/common/interfaces/tableId.interface';
+//import { ITableId } from '@/common/interfaces/tableId.interface';
 import config from '@config/index';
-import { IApi } from '@/common/interfaces/api.interface';
+//import { IApi } from '@/common/interfaces/api.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { IParty } from '@/common/interfaces/party.interface';
-import sequelize from 'sequelize';
+//import sequelize from 'sequelize';
 import bcrypt from 'bcrypt';
-import { IRole } from '@/common/interfaces/role.interface';
+import { IAlertTargetGroup } from '@/common/interfaces/alertTargetGroup.interface';
+//import { IRole } from '@/common/interfaces/role.interface';
 
 /**
  * @memberof InitialRecordService
@@ -22,11 +23,24 @@ class InitialRecordService {
   public partyUser = DB.PartyUser;
   public role = DB.Role;
   public exporters = DB.Exporters;
+  public alertTargetGroup = DB.AlertTargetGroup;
+  public alertTargetSubGroup = DB.AlertTargetSubGroup;
 
   public tableIdService = new tableIdService();
 
   public async insertInitialRecords(): Promise<void> {
-    const { tableIds, customerAccount, party, partyUser, api: apiList, role: roleList, exporters: exportersList } = config.initialRecord;
+    const {
+      tableIds,
+      customerAccount,
+      party,
+      partyUser,
+      api: apiList,
+      role: roleList,
+      exporters: exportersList,
+      alertTargetGroup: alertTargetGroupList,
+      alertTargetSubGroup: alertTargetSubGroupList,
+    } = config.initialRecord;
+    const uuid = require('uuid');
     const { customerAccountName, customerAccountDescription } = customerAccount;
     const { partyName, partyDescription } = party;
     const { firstName, lastName, userId, password, email } = partyUser;
@@ -218,6 +232,48 @@ class InitialRecordService {
       });
     } catch (error) {
       console.log('bulk create error: ', error);
+    }
+
+    const alertTargetGroupData = [];
+    for (const alertTargetGroup of alertTargetGroupList) {
+      alertTargetGroupData.push({
+        createdBy: 'SYSTEM',
+        createdAt: new Date(),
+        alertTargetGroupId: uuid.v1(),
+        alertTargetGroupName: alertTargetGroup.alertTargetGroupName,
+        alertTargetGroupDescription: alertTargetGroup.alertTargetGroupDescription,
+      });
+    }
+
+    try {
+      await this.alertTargetGroup.bulkCreate(alertTargetGroupData, {
+        updateOnDuplicate: ['alertTargetGroupName'],
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    const alertTargetSubGroupData = [];
+    for (const alertTargetSubGroup of alertTargetSubGroupList) {
+      const getAlertTargetGroup: IAlertTargetGroup = await this.alertTargetGroup.findOne({
+        where: { deletedAt: null, alertTargetGroupName: alertTargetSubGroup.alertTargetGroupName },
+      });
+      alertTargetSubGroupData.push({
+        createdBy: 'SYSTEM',
+        createdAt: new Date(),
+        alertTargetGroupKey: getAlertTargetGroup.alertTargetGroupKey,
+        alertTargetSubGroupId: uuid.v1(),
+        alertTargetSubGroupName: alertTargetSubGroup.alertTargetSubGroupName,
+        alertTargetSubGroupDescription: alertTargetSubGroup.alertTargetSubGroupDescription,
+      });
+    }
+
+    try {
+      await this.alertTargetSubGroup.bulkCreate(alertTargetSubGroupData, {
+        updateOnDuplicate: ['alertTargetGroupKey', 'alertTargetSubGroupName'],
+      });
+    } catch (error) {
+      console.log(error);
     }
   } // end of method
 } // end of class

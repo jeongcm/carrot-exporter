@@ -1,18 +1,18 @@
 import DB from '@/database';
-import {IResource, IResourceTargetUuid} from '@/common/interfaces/resource.interface';
-import {IRquestMassUploaderMongo} from '@/common/interfaces/massUploader.interface';
-import {ResourceDetailQueryDTO, ResourceDto} from '../dtos/resource.dto';
-import {HttpException} from '@/common/exceptions/HttpException';
-import {isEmpty} from '@/common/utils/util';
+import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
+import { IRquestMassUploaderMongo } from '@/common/interfaces/massUploader.interface';
+import { ResourceDto, ResourceDetailQueryDTO } from '../dtos/resource.dto';
+import { HttpException } from '@/common/exceptions/HttpException';
+import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
-import {IResourceGroup} from '@/common/interfaces/resourceGroup.interface';
+import { IMassUploaderMongoUpdateDto } from '@modules/CommonService/dtos/massUploaderMongo.dto';
+import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import {Op} from 'sequelize';
-import {IAnomalyMonitoringTarget} from '@/common/interfaces/monitoringTarget.interface';
-import {ResourceGroupModel} from '../models/resourceGroup.model';
-import AlertReceivedService from "@modules/Alert/services/alertReceived.service";
+import { Op } from 'sequelize';
+import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
+import { ResourceGroupModel } from '../models/resourceGroup.model';
 
 class ResourceService {
   public resource = DB.Resource;
@@ -21,7 +21,6 @@ class ResourceService {
   public partyResource = DB.PartyResource;
   public subscribedProduct = DB.SubscribedProduct;
   public TableIdService = new TableIdService();
-  public AlertReceivedService = new AlertReceivedService();
   public customerAccountService = new CustomerAccountService();
   public resourceGroupService = new ResourceGroupService();
 
@@ -681,6 +680,7 @@ class ResourceService {
               resourceReplicas: { [Op.ne]: 0 },
             },
           ],
+          resourceType: { [Op.in]: ['SS', 'RS', 'DS', 'JO', 'CJ'] },
           deletedAt: null,
           resourceLevel4: 'WL',
           resourceGroupKey: resourceGroupKey,

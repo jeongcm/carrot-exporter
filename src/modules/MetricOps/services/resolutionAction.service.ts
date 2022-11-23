@@ -188,8 +188,9 @@ class ResolutionActionService {
     const findRuleGroupResolutionAction: IRuleGroupResolutionAction[] = await this.ruleGroupResolutionAction.findAll({
       where: { resolutionActionKey, deletedAt: null },
     });
-    if (findRuleGroupResolutionAction)
-      throw new HttpException(409, `The resolution action is associated with rule group: ${findRuleGroupResolutionAction[0].ruleGroupKey}`);
+
+    if (findRuleGroupResolutionAction.length > 0)
+      throw new HttpException(409, `The resolution action is associated with rule group: ${findRuleGroupResolutionAction[0]?.ruleGroupKey}`);
 
     const deleteResolutionAction = await this.resolutionAction.update({ deletedAt: new Date() }, { where: { resolutionActionId } });
 

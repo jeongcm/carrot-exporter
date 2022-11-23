@@ -7,7 +7,6 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
 import { IExecutorClient, ExecutorResultDto, ExecutorResourceListDto, SudoryWebhookDto } from '@/modules/CommonService/dtos/executor.dto';
 
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import MetricMetaService from '@/modules/Metric/services/metricMeta.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
@@ -17,10 +16,12 @@ import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import IncidentService from '@/modules/Incident/services/incident.service';
+import AlertEasyRuleService from '@/modules/Alert/services/alertEasyRule.service';
 import TableIdService from './tableId.service';
 
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
+import { IAlertTargetSubGroup } from '@/common/interfaces/alertTargetSubGroup.interface';
 import MetricService, {IMetricQueryBody} from "@modules/Metric/services/metric.service";
 import { validateLocaleAndSetLanguage } from 'typescript';
 import { CreateIncidentActionAttachmentDto } from '@/modules/Incident/dtos/incidentActionAttachment.dto';
@@ -29,7 +30,6 @@ import { CreateIncidentActionAttachmentDto } from '@/modules/Incident/dtos/incid
 
 class executorService {
   //    public tableIdService = new TableIdService();
-  public customerAccountService = new CustomerAccountService();
   public resourceGroupService = new ResourceGroupService();
   public MetricMetaService = new MetricMetaService();
   public schedulerService = new SchedulerService();
@@ -47,6 +47,8 @@ class executorService {
   public incidentActionAttachment = DB.IncidentActionAttachment;
   public fileUploadService = new UploadService();
   //public healthService = new HealthService();
+  public alertTargetSubGroup = DB.AlertTargetSubGroup;
+  public alertEasyRuleService = new AlertEasyRuleService();
 
   /**
    * @param {string} serviceUuid
@@ -731,8 +733,8 @@ class executorService {
     for (let i = 0; i < chartLength; i++) {
       if (
         resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack' &&
-        resultKpsChart[i].defaultChartYn === true &&
-        kpsChartVersion === ''
+        resultKpsChart[i].defaultChartYn === true
+        // && kpsChartVersion === ''
       ) {
         kpsChartName = resultKpsChart[i].exporterHelmChartName;
         kpsChartVersionNew = resultKpsChart[i].exporterHelmChartVersion;
@@ -747,7 +749,11 @@ class executorService {
         kpsChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
       }
 
-      if (resultKpsChart[i].exporterHelmChartName === 'loki-stack' && resultKpsChart[i].defaultChartYn === true && lokiChartVersion === '') {
+      if (
+        resultKpsChart[i].exporterHelmChartName === 'loki-stack' &&
+        resultKpsChart[i].defaultChartYn === true
+        //  && lokiChartVersion === ''
+      ) {
         lokiChartName = resultKpsChart[i].exporterHelmChartName;
         lokiChartVersionNew = resultKpsChart[i].exporterHelmChartVersion;
         lokiChartRepoUrl = resultKpsChart[i].exporterHelmChartRepoUrl;
@@ -816,7 +822,7 @@ class executorService {
     if (resourceGroupProvider == 'DD') {
       kpsSteps[0].args.values['prometheus-node-exporter'].hostRootFsMount.enabled = false;
     }
-
+    console.log('kps-step--------', JSON.stringify(kpsSteps));
     const kpsExecuteName = 'KPS Helm Instllation';
     const kpsExecuteSummary = 'KPS Helm Installation';
     const kpsTemplateUuid = '20000000000000000000000000000001';
@@ -942,6 +948,46 @@ class executorService {
           console.log(error);
           throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
         }); //end of catch
+    }
+    //provision alert easy rule for the cluster
+    const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
+
+    let waitSec = 60;
+    for (const alertEasyRule of alertEasyRuleList) {
+      if (waitSec <= 0) waitSec = 0;
+      const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
+        where: { deletedAt: null, alertTargetSubGroupName: alertEasyRule.alertTargetSubGroupName },
+      });
+      const alertEasyRuleData = {
+        createdBy: 'SYSTEM',
+        createdAt: new Date(),
+        alertTargetSubGroupId: getAlertTargetSubGroup.alertTargetSubGroupId,
+        alertEasyRuleName: alertEasyRule.alertEasyRuleName,
+        alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
+        alertEasyRuleSummary: alertEasyRule.alertEasyRuleSummary,
+        alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
+        alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
+        alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
+        alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
+        alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
+        alertEasyRuleThreshold1Max: alertEasyRule.alertEasyRuleThreshold1Max,
+        alertEasyRuleThreshold2: '',
+        alertEasyRuleThreshold2Unit: '',
+        alertEasyRuleThreshold2Max: '',
+
+        alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
+        customerAccountId: customerAccountId,
+        resourceGroupUuid: clusterUuid,
+      };
+      try {
+        console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
+        console.log('#ALERTEASYRULE - waitmin', waitSec);
+        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec);
+        console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
+      } catch (error) {
+        console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
+      }
+      waitSec = waitSec - 5;
     }
 
     // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
@@ -1271,6 +1317,7 @@ class executorService {
     }
     return serviceUuid;
   }
+
   /**
    * @param {string} clusterUuid
    * @param {string} templateUud

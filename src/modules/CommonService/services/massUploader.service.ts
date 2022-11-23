@@ -33,6 +33,7 @@ class massUploaderService {
   public subscribedProduct = DB.SubscribedProduct;
   public catalogPlanProduct = DB.CatalogPlanProduct;
   public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
+  public bayesianModel = DB.BayesianModel;
 
   public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<string> {
     const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -280,6 +281,7 @@ class massUploaderService {
     }
     await mysqlConnection.end();
 
+    // Subscription & MetricOps Part
     // Subscribed Product for new nodes - If nodes are deleted, expire the subscribedProducts
     if (resourceType === 'ND') {
       //for new Nodes
@@ -385,123 +387,179 @@ class massUploaderService {
           where: { resourceTargetUuid: { [Op.in]: deletedPod } },
         });
         let resourceApp;
+        let createNewAMT = 'N';
+        let filteredDeletedResourceKey;
         if (getDeletedResourcePod.length > 0) {
-          //get unique resourceApp information to identify pods having the same resourceApp
-          resourceApp = Array.from(new Set(getDeletedResourcePod.map((pod: any) => pod.resourceApp)));
+          const deletedResourceKey = getDeletedResourcePod.map(pod => pod.resourceKey);
+
+          const findAnomalyMonitoringTarget: IAnomalyMonitoringTarget[] = await this.anomalyMonitoringTarget.findAll({
+            where: { resourceKey: { [Op.in]: deletedResourceKey }, deletedAt: null },
+          });
+          if (findAnomalyMonitoringTarget.length > 0) {
+            createNewAMT = 'Y';
+            filteredDeletedResourceKey = findAnomalyMonitoringTarget.map(x => x.resourceKey);
+          }
+          console.log('METRICOPS# - deleted Pod Key', deletedResourceKey);
+          console.log('METRICOPS# - deleted Pod Key', filteredDeletedResourceKey);
+
+          // delete SubscribedProduct & AnomalyMonitorTarget
+          const deleteQuerySp = {
+            subscribedProductStatus: 'CA',
+            deletedAt: new Date(),
+            subscribedProductTo: new Date(),
+            updatedAt: new Date(),
+            updatedBy: 'SYSTEM',
+          };
+          const deleteQueryAmt = {
+            anomaly_monitoring_target_status: 'CA',
+            deletedAt: new Date(),
+            updatedAt: new Date(),
+            updatedBy: 'SYSTEM',
+          };
+          //remove all of pods from subscription
+          try {
+            await DB.sequelize.transaction(async t => {
+              const conditionQuery = { where: { resourceKey: { [Op.in]: deletedResourceKey } }, transaction: t };
+
+              const deleteSubscribedProduct = await this.subscribedProduct.update(deleteQuerySp, conditionQuery);
+              const deleteAnomalyTarget = await this.anomalyMonitoringTarget.update(deleteQueryAmt, conditionQuery);
+
+              console.log(`METRICOPS# - deleted subscribedProduct - ${JSON.stringify(deletedResourceKey)}, updatedRow: ${deleteSubscribedProduct}`);
+              console.log(`METRICOPS# - deleted anomalyTarget - ${JSON.stringify(deletedResourceKey)}, updatedRow: ${deleteAnomalyTarget}`);
+              //const result = `sucess to delete subscribedProduct, anomalyTarget - ${JSON.stringify(deletedResourceKey)}`;
+            });
+          } catch (error) {
+            console.log(`error on deleteing subscribedProduct and anomalyTarget - ${JSON.stringify(deletedResourceKey)}`);
+          }
         }
-        //search pod list with unique resourceApp information
-        const getPodWithSameApp: IResource[] = await this.resource.findAll({
-          where: { resourceApp: { [Op.in]: resourceApp } },
-        });
+        //if we need to create new AMT,
+        console.log('METRICOPS# - createNewAMT', createNewAMT);
+        if (createNewAMT === 'Y') {
+          const findFilteredDeletedResource: IResource[] = await this.resource.findAll({
+            where: { resourceKey: { [Op.in]: filteredDeletedResourceKey } },
+          });
 
-        if (getPodWithSameApp.length > 0) {
-          //check customer's subscription to MO
-          const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { deletedAt: null, customerAccountKey } });
-          let catalogPlanProductKey = 0;
-          let subscriptionKey = 0;
-          let bayesianModelKey = 0;
+          //get unique resourceApp information to identify pods having the same resourceApp
+          resourceApp = Array.from(new Set(findFilteredDeletedResource.map((pod: any) => pod.resourceApp)));
+          console.log('METRICOPS# resourceApp - unique value', resourceApp);
 
-          if (findSubscription.length > 0) {
-            for (let i = 0; i < findSubscription.length; i++) {
-              const catalogPlanKey = findSubscription[i].catalogPlanKey;
-              const findCatalogPlan: ICatalogPlan = await this.catalogPlan.findOne({ where: { deletedAt: null, catalogPlanKey } });
-              if (findCatalogPlan.catalogPlanType == 'MO') {
-                const findCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
-                  where: { deletedAt: null, catalogPlanKey, catalogPlanProductType: resourceType },
-                });
-                subscriptionKey = findSubscription[i].subscriptionKey;
-                catalogPlanProductKey = findCatalogPlanProduct.catalogPlanProductKey;
-                const findSubscribedProduct: ISubscribedProduct = await this.subscribedProduct.findOne({
-                  where: { subscriptionKey, catalogPlanProductKey },
-                });
-                const subscribedProductKey = findSubscribedProduct.subscribedProductKey;
-                const findAnomalyMonitoringTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.findOne({
-                  where: { subscribedProductKey },
-                });
-                bayesianModelKey = findAnomalyMonitoringTarget.bayesianModelKey;
-                i = findSubscription.length;
+          //search pod list with unique resourceApp information
+          const getPodWithSameApp: IResource[] = await this.resource.findAll({
+            where: { resourceApp: { [Op.in]: resourceApp }, deletedAt: null },
+          });
+          const sameResourceKey = getPodWithSameApp.map(x => x.resourceKey);
+          console.log('METRICOPS# - ResourceKey with the sameApp', sameResourceKey);
+
+          if (getPodWithSameApp.length > 0) {
+            //check customer's subscription to MO
+            const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { deletedAt: null, customerAccountKey } });
+            let catalogPlanProductKey = 0;
+            let subscriptionKey = 0;
+            let bayesianModelKey = 0;
+            let moOk = 'N';
+            if (findSubscription.length > 0) {
+              for (let i = 0; i < findSubscription.length; i++) {
+                const catalogPlanKey = findSubscription[i].catalogPlanKey;
+                const findCatalogPlan: ICatalogPlan = await this.catalogPlan.findOne({ where: { deletedAt: null, catalogPlanKey } });
+                if (findCatalogPlan.catalogPlanType == 'MO') {
+                  const findCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
+                    where: { deletedAt: null, catalogPlanKey, catalogPlanProductType: resourceType },
+                  });
+                  subscriptionKey = findSubscription[i].subscriptionKey;
+                  console.log('METRICOPS# MO subscriptionKey-----', subscriptionKey);
+
+                  catalogPlanProductKey = findCatalogPlanProduct.catalogPlanProductKey;
+                  console.log('METRICOPS# catalogPlanProductKey-----', catalogPlanProductKey);
+
+                  const findBayesianModel: IBayesianModel = await this.bayesianModel.findOne({
+                    where: { deletedAt: null, bayesianModelResourceType: resourceType, resourceGroupKey },
+                  });
+                  bayesianModelKey = findBayesianModel.bayesianModelKey;
+                  moOk = 'Y';
+                  i = findSubscription.length;
+                }
               }
+
+              //process pod by pod
+              if (moOk === 'Y') {
+                for (let i = 0; i < getPodWithSameApp.length; i++) {
+                  const resourceKey = getPodWithSameApp[i].resourceKey;
+                  const resourceName = getPodWithSameApp[i].resourceName;
+
+                  // add newly added pods with the Pods to subscribedProduct & anomalymonitoringtarget if the customer has MO subscription
+                  if (catalogPlanProductKey != 0) {
+                    console.log('METRICOPS# catalogPlanProductKey2----', catalogPlanProductKey);
+                    const uuid = require('uuid');
+                    //insert data to SubscribedProduct & AnomalyTarget
+                    try {
+                      await DB.sequelize.transaction(async t => {
+                        const conditionQuery = { transaction: t };
+                        const insertQuerySp = {
+                          subscribedProductId: uuid.v1(),
+                          resourceKey,
+                          catalogPlanProductKey,
+                          subscriptionKey,
+                          subscribedProductFrom: new Date(),
+                          subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
+                          subscribedProductStatus: 'AC',
+                          createdAt: new Date(),
+                          createdBy: 'SYSTEM',
+                        };
+                        console.log('METRICOPS# -- insertQuerySP', insertQuerySp);
+                        const createSubscribedProduct: ISubscribedProduct = await this.subscribedProduct.create(insertQuerySp, conditionQuery);
+                        console.log(`METRICOPS# - created subscribedProduct}, updatedRow: ${createSubscribedProduct}`);
+                        const insertQueryAmt = {
+                          customerAccountKey,
+                          anomalyMonitoringTargetId: uuid.v1(),
+                          resourceKey,
+                          subscribedProductKey: createSubscribedProduct.subscribedProductKey,
+                          bayesianModelKey,
+                          anomalyMonitoringTargetName: 'POD: ' + resourceName,
+                          anomalyMonitoringTargetDescription: resourceName,
+                          anomalyMonitoringTargetStatus: 'AC',
+                          createdAt: new Date(),
+                          createdBy: 'SYSTEM',
+                        };
+                        console.log('METRICOPS# -- insertQueryAmt', insertQueryAmt);
+                        const createAnomalyTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.create(
+                          insertQueryAmt,
+                          conditionQuery,
+                        );
+                        console.log(`METRICOPS# - created anomalyTarget }, updatedRow: ${createAnomalyTarget}`);
+                        //const result = `success to create subscribedProduct, anomalyTarget - ${JSON.stringify(resourceKey)}`;
+                      });
+                    } catch (error) {
+                      console.log(`METRICOPS# - error on creating subscribedProduct and anomalyTarget - ${JSON.stringify(error)}`);
+                    }
+                  }
+                } // end of for
+              } //if (moOk === 'Y')
             }
           }
-          //process pod by pod
-          for (let i = 0; i < getPodWithSameApp.length; i++) {
-            const resourceKey = getPodWithSameApp[i].resourceKey;
-            const resourceName = getPodWithSameApp[i].resourceName;
-
-            const deleteQuerySp = {
-              subscribedProductStatus: 'CA',
-              deletedAt: new Date(),
-              subscribedProductTo: new Date(),
-              updatedAt: new Date(),
-              updatedBy: 'SYSTEM',
-            };
-            const deleteQueryAmt = {
-              anomaly_monitoring_target_status: 'CA',
-              deletedAt: new Date(),
-              updatedAt: new Date(),
-              updatedBy: 'SYSTEM',
-            };
-            //remove all of pods from subscription
-            try {
-              return await DB.sequelize.transaction(async t => {
-                const conditionQuery = { where: { resourceKey: resourceKey }, transaction: t };
-
-                const deleteSubscribedProduct = await this.subscribedProduct.update(deleteQuerySp, conditionQuery);
-                const deleteAnomalyTarget = await this.anomalyMonitoringTarget.update(deleteQueryAmt, conditionQuery);
-
-                console.log(`deleted subscribedProduct - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteSubscribedProduct}`);
-                console.log(`deleted anomalyTarget - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteAnomalyTarget}`);
-                const result = `sucess to delete subscribedProduct, anomalyTarget - ${JSON.stringify(resourceKey)}`;
-                return result;
-              });
-            } catch (error) {
-              console.log(`error on deleteing subscribedProduct and anomalyTarget - ${JSON.stringify(resourceKey)}`);
-            }
-            // add newly added pods with the Pods to subscribedProduct & anomalymonitoringtarget if the customer has MO subscription
-            if (catalogPlanProductKey != 0) {
-              const uuid = require('uuid');
-              //insert data to SubscribedProduct & AnomalyTarget
-              try {
-                return await DB.sequelize.transaction(async t => {
-                  const conditionQuery = { transaction: t };
-                  const insertQuerySp = {
-                    subscribedProductId: uuid.v1(),
-                    resourceKey,
-                    catalogPlanProductKey,
-                    subscriptionKey,
-                    subscribedProductFrom: new Date(),
-                    subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
-                    subscribedProductStatus: 'AC',
-                    createdAt: new Date(),
-                    createdBy: 'SYSTEM',
-                  };
-                  const createSubscribedProduct: ISubscribedProduct = await this.subscribedProduct.create(insertQuerySp, conditionQuery);
-                  const insertQueryAmt = {
-                    customerAccountKey,
-                    anomalyMonitoringTargetId: uuid.v1(),
-                    resourceKey,
-                    subscribedProductKey: createSubscribedProduct.subscribedProductKey,
-                    bayesianModelKey,
-                    anomalyMonitoringTargetName: 'AnomalyMonitor' + resourceName,
-                    anomalyMonitoringTargetDescription: resourceName,
-                    anomaly_monitoring_target_status: 'AC',
-                    createdAt: new Date(),
-                    createdBy: 'SYSTEM',
-                  };
-                  const createAnomalyTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.create(insertQueryAmt, conditionQuery);
-
-                  console.log(`deleted subscribedProduct - ${JSON.stringify(resourceKey)}, updatedRow: ${createSubscribedProduct}`);
-                  console.log(`deleted anomalyTarget - ${JSON.stringify(resourceKey)}, updatedRow: ${createAnomalyTarget}`);
-                  const result = `sucess to create subscribedProduct, anomalyTarget - ${JSON.stringify(resourceKey)}`;
-                  return result;
-                });
-              } catch (error) {
-                console.log(`error on creating subscribedProduct and anomalyTarget - ${JSON.stringify(resourceKey)}`);
-              }
-            }
-          } // end of for
         }
       } // end of if (deletedPod.length > 0)
+      // for newly added pod
+      // if a newly added pod is a replicas of pod in the anomaly monitoring target, add the pod into subscribed product & anomaly target
+      const newPod = newResourceReceived.filter(o1 => !currentResource.includes(o1));
+      if (newPod.length > 0) {
+        //find MetricOps Subscription
+        //To Be Coded
+        /*
+        //search added resources and get unqiue resourceApp
+        const getNewlyResourcePod: IResource[] = await this.resource.findAll({
+          where: { resourceTargetUuid: { [Op.in]: newPod } },
+        });
+        // get unique resourceApp from newly added pods
+        const resourceApp = Array.from(new Set(getNewlyResourcePod.map((pod: any) => pod.resourceApp)));
+        console.log('METRICOPS# resourceApp - unique value from newly added pod', resourceApp);
+        // search pods with unique resourceApp
+        const getResourcePodusingResourceApp: IResource[] = await this.resource.findAll({
+          where: { resourceApp: { [Op.in]: resourceApp } },
+        });
+        //search anomaly monitor with found resource key from ResourceApp
+        //if there is anomaly monitor with the resource, the new pod needs to be registerd as monitoring target
+        */
+      } // end of new pod
     } // end of pod
     // if pbc is deleted, make the subscribed product stauts 'SP'
     if (resourceType === 'PC') {
