@@ -155,7 +155,7 @@ class executorService {
     const resourceGroupSudoryNamespace = requestExecutorClient.resourceGroupSudoryNamespace || '';
     const resourceGroupKpsLokiNamespace = requestExecutorClient.resourceGroupKpsLokiNamespace || '';
 
-    const customerAccountData = await this.customerAccountService.getCustomerAccountById(customerAccountId);
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
     if (!customerAccountData) {
       throw new HttpException(404, `customerAccountId ${customerAccountId} not found`);
     }
