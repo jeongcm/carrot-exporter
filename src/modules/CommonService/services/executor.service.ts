@@ -22,9 +22,7 @@ import TableIdService from './tableId.service';
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
 import { IAlertTargetSubGroup } from '@/common/interfaces/alertTargetSubGroup.interface';
-import MetricService, {IMetricQueryBody} from "@modules/Metric/services/metric.service";
-import { validateLocaleAndSetLanguage } from 'typescript';
-import { CreateIncidentActionAttachmentDto } from '@/modules/Incident/dtos/incidentActionAttachment.dto';
+import MetricService from "@modules/Metric/services/metric.service";
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
