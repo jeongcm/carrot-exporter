@@ -9,7 +9,6 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import SubscriptionsService from '@/modules/Subscriptions/services/subscriptions.service';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
@@ -19,6 +18,7 @@ import SudoryService from '@/modules/CommonService/services/sudory.service';
 import config from '@config/index';
 //import axios from '@/common/httpClient/axios';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { IAlertEasyRule } from '@/common/interfaces/alertEasyRule.interface';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
@@ -30,10 +30,10 @@ class ResourceGroupService {
   public anomalyTarget = DB.AnomalyMonitoringTarget;
   public alertRule = DB.AlertRule;
   public alertReceived = DB.AlertReceived;
+  public alertEasyRule = DB.AlertEasyRule;
   public customerAccount = DB.CustomerAccount;
 
   public tableIdService = new TableIdService();
-  public customerAccountService = new CustomerAccountService();
 
   public schedulerService = new SchedulerService();
   public subscriptionsService = new SubscriptionsService();
@@ -195,7 +195,7 @@ class ResourceGroupService {
    * @returns Promise
    */
   public async getResourceGroupByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResourceGroup[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const resultCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountId } });
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
     const resourceGroupWhereCondition = {
@@ -204,11 +204,11 @@ class ResourceGroupService {
     };
 
     if (query?.platform) {
-      resourceGroupWhereCondition['resourceGroupPlatform'] = query.platform
+      resourceGroupWhereCondition['resourceGroupPlatform'] = query.platform;
     }
 
     if (query?.resourceGroupId) {
-      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId
+      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId;
     }
 
     const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
@@ -224,7 +224,7 @@ class ResourceGroupService {
    * @returns Promise
    */
   public async getResourceGroupByCustomerAccountIdForOpenstack(customerAccountId: string, platform: string, query?: any): Promise<IResourceGroupUi[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const resultCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountId } });
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
     const resourceGroupWhereCondition = {
@@ -234,7 +234,7 @@ class ResourceGroupService {
     };
 
     if (query?.resourceGroupId) {
-      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId
+      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId;
     }
 
     console.log("query:", resourceGroupWhereCondition)
@@ -400,11 +400,11 @@ class ResourceGroupService {
 
         if (findMetricMeta) {
           const resultDeleteMetricReceived = await this.metricReceived.update(deleteData, {
-            where: { metricMetaKey: findMetricMeta.metricMetaKey },
+            where: { metricMetaKey: findMetricMeta.metricMetaKey, deletedAt: null },
             transaction: t,
           });
           const resultDeleteMetricMeta = await this.metricMeta.update(deleteData, {
-            where: { resourceGroupUuid: resourceGroupUuid },
+            where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null },
             transaction: t,
           });
           console.log('metric deleted - ', resourceGroupUuid);
@@ -437,9 +437,12 @@ class ResourceGroupService {
         console.log(queryIn);
         const deleteResultPartyResource = await this.partyResource.update(deleteData, queryIn);
         console.log('PartyResource deleted - ', resourceGroupUuid);
-        const deleteResultSubscribedProduct = await this.subscribedProduct.update(deleteData, queryIn);
+        const deleteResultSubscribedProduct = await this.subscribedProduct.update(
+          { deletedAt: new Date(), subscribedProductStatus: 'SP', subscribedProductTo: new Date() },
+          queryIn,
+        );
         console.log('SubscribedProduct deleted - ', resourceGroupUuid);
-        const deleteResultAnomalyTarget = await this.anomalyTarget.update(deleteData, queryIn);
+        const deleteResultAnomalyTarget = await this.anomalyTarget.update({ deletedAt: new Date(), anomalyMonitoringTargetStatus: 'SP' }, queryIn);
         console.log('AnomalyTarget deleted - ', resourceGroupUuid);
 
         const updatedResource = {
@@ -462,14 +465,14 @@ class ResourceGroupService {
         if (!resultResourceGroup) throw new HttpException(500, `Issue on deleting ResourceGroup ${resourceGroupUuid}`);
         console.log('ResourceGroup deleted- ', resourceGroupUuid);
 
-        // 4. Billing Interface- To Be Coded
+        // 4 any to-be items
 
         // 5. scheduler
         const resultCancelScheduler = await this.schedulerService.cancelCronScheduleByResourceGroupUuid(resourceGroupUuid);
         console.log('Scheduler - cancalled - ', resourceGroupUuid);
 
         // 6. AlertRule, AlertReceived
-        const findAlertRule: IAlertRule[] = await this.alertRule.findAll({ where: { resourceGroupUuid: resourceGroupUuid } });
+        const findAlertRule: IAlertRule[] = await this.alertRule.findAll({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
         if (!findAlertRule) {
           console.log('no alert rules');
         } else {
@@ -480,15 +483,33 @@ class ResourceGroupService {
           const queryIn = {
             where: {
               alertRuleKey: { [Op.in]: alertRuleKey },
+              deletedAt: null,
             },
             transaction: t,
           };
           const deleteAlertReceived = await this.alertReceived.update(deleteData, queryIn);
-          const deleteAlertRule = await this.alertRule.update(deleteData, { where: { resourceGroupUuid: resourceGroupUuid }, transaction: t });
+          const deleteAlertRule = await this.alertRule.update(deleteData, {
+            where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null },
+            transaction: t,
+          });
         }
         console.log('alert deleted - ', resourceGroupUuid);
 
-        //7. sudoryclient?
+        //6-1. Alert Easy Rule
+        const findAlertEasyRule: IAlertEasyRule[] = await this.alertEasyRule.findAll({
+          where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null },
+        });
+        if (findAlertEasyRule.length > 0) {
+          const deleteAlertEasyRule = await this.alertEasyRule.update(deleteData, {
+            where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null },
+            transaction: t,
+          });
+          console.log('alert easy rule deleted - ', resourceGroupUuid);
+        }
+
+        //7. billing interface - to be coded
+
+        //8. sudoryclient?
         const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
         const nameSudoryClient = 'sudory uninstall';
         const summarySudoryClient = 'sudory uninstall';
@@ -524,7 +545,7 @@ class ResourceGroupService {
 
         console.log('sudory client - uninstalled - ', resourceGroupUuid);
 
-        //8. sudoryserver?
+        //9. sudoryserver?
         const executeServerClusterUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateCluster + '/' + resourceGroupUuid;
         const nameSudoryCluster = 'Delete Sudory Cluster';
         const summarySudoryCluster = 'Delete Sudory Cluster';
@@ -553,9 +574,9 @@ class ResourceGroupService {
         console.log('sudory - delete cluster data map:', uninstallSudoryClient);
         const resultCreateSchedulerDeleteCluster = await this.schedulerService.createScheduler(deleteSudoryCluster, customerAccountId);
 
-        //9. Customer Notification (To Be Coded)
+        //10. Customer Notification (To Be Coded)
 
-        //10. return
+        //11. return
         return resultResourceGroup;
       });
     } catch (err) {

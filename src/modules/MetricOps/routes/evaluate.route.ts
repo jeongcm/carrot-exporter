@@ -36,7 +36,7 @@ class EvaluateRoute implements Routes {
     );
 
     this.router.get(
-      '/evaluate/customerAccount/:customerAccountId',
+      '/evaluate/customerAccount/:customerAccountId/:offset/:limit',
       authMiddleware,
       //createUserLogMiddleware,
       //validationMiddleware(CreateBayesianModelDto, 'body'),

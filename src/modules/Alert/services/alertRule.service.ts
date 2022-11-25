@@ -137,7 +137,7 @@ class AlertRuleService {
   public async findAlertRuleKeyByIds(alertRuleIds: string[], customerAccountKey: number): Promise<IAlertRule[]> {
     if (isEmpty(alertRuleIds)) throw new HttpException(400, 'Not a valid Alert Rule');
     const findAlertRule: IAlertRule[] = await this.alertRule.findAll({
-      where: { alertRuleId: { [Op.or]: alertRuleIds }, customerAccountKey: 2 },
+      where: { alertRuleId: { [Op.or]: alertRuleIds }, customerAccountKey: customerAccountKey },
       attributes: {
         exclude: [
           'customerAccountKey',

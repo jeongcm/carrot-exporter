@@ -11,6 +11,7 @@ import {
   UpdateSubscriptionDto,
 } from '../dtos/subscriptions.dto';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
+import BayesianModelService from '@/modules/MetricOps/services/bayesianModel.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { CatalogPlanModel } from '@/modules/ProductCatalog/models/catalogPlan.model';
 import { IsURLOptions } from 'express-validator/src/options';
@@ -19,6 +20,8 @@ import { CatalogPlanProductModel } from '@/modules/ProductCatalog/models/catalog
 import { CatalogPlanProductPriceModel } from '@/modules/ProductCatalog/models/catalogPlanProductPrice.model';
 import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
 import { ResourceModel } from '@/modules/Resources/models/resource.model';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { Op } from 'sequelize';
 
 class SubscriptionService {
   public subscription = DB.Subscription;
@@ -27,7 +30,10 @@ class SubscriptionService {
   public subscriptionHistory = DB.SubscriptionHistory;
   public subscribedProduct = DB.SubscribedProduct;
   public resource = DB.Resource;
+  public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
+  public customerAccount = DB.CustomerAccount;
   public tableIdService = new tableIdService();
+  public bayesianModelService = new BayesianModelService();
 
   /**
    * @function {findSubscriptions} find the all catalog Data
@@ -43,6 +49,7 @@ class SubscriptionService {
         {
           model: SubscribedProductModel,
           attributes: { exclude: ['subscribedProductKey', 'deletedAt'] },
+          order: [['createdAt', 'DESC']],
           required: false,
           include: [
             {
@@ -68,17 +75,34 @@ class SubscriptionService {
   }
 
   public async createSubscription(data: CreateSubscriptionDto, createdBy: string, customerAccountKey: number): Promise<ISubscriptions> {
+    const findCatalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: data.catalogPlanId, deletedAt: null } });
+    if (!findCatalogPlan) throw new HttpException(400, "Catalog plan doesn't exist");
+    const catalogPlanKey = findCatalogPlan.catalogPlanKey;
+
+    const findSubscription: ISubscriptions = await this.subscription.findOne({ where: { catalogPlanKey, customerAccountKey, deletedAt: null } });
+    if (findSubscription) throw new HttpException(400, 'Already have the same subscription');
+
+    const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
+    if (!findCustomerAccount) throw new HttpException(401, "CustomerAccount doesn't exist");
+    const customerAccountId = findCustomerAccount.customerAccountId;
+
+    const catalogPlanType = findCatalogPlan.catalogPlanType;
     const subscriptionId = await this.getTableId('Subscription');
-    const catalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: data.catalogPlanId } });
+
     const createObj = {
       ...data,
       subscriptionId,
-      catalogPlanKey: catalogPlan.catalogPlanKey,
+      catalogPlanKey,
       customerAccountKey,
       createdBy,
     };
+
     const newSubscription: ISubscriptions = await this.subscription.create(createObj);
     delete newSubscription.subscriptionKey;
+    //if subscribes MetricOps, provison the base models for BayesianModel operations
+    if (catalogPlanType === 'MO') {
+      await this.bayesianModelService.provisionBayesianModel(customerAccountId);
+    }
     return newSubscription;
   }
 
@@ -302,6 +326,62 @@ class SubscriptionService {
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
     return responseTableIdData.tableIdFinalIssued;
   };
+
+  public async cancelSubscription(subscriptionId: string): Promise<object> {
+    const findSubscription: ISubscriptions = await this.subscription.findOne({ where: { subscriptionId, deletedAt: null } });
+    if (!findSubscription) throw new HttpException(404, 'cannot find subscription');
+    const customerAccountKey = findSubscription.customerAccountKey;
+    const subscriptionKey = findSubscription.subscriptionKey;
+
+    const findCatalogPlan: ICatalogPlan = await this.catalogPlan.findOne({
+      where: { catalogPlanKey: findSubscription.catalogPlanKey, deletedAt: null },
+    });
+    if (!findCatalogPlan) throw new HttpException(400, "Catalog plan doesn't exist");
+    const catalogPlanType = findCatalogPlan.catalogPlanType;
+
+    const findCatalogPlanProduct: ICatalogPlanProduct[] = await this.catalogPlanProduct.findAll({
+      where: { catalogPlanKey: findSubscription.catalogPlanKey, deletedAt: null },
+    });
+    if (findCatalogPlanProduct.length === 0) throw new HttpException(409, 'cannot find catalog plan product');
+    const catalogPlanProductKey = findCatalogPlanProduct.map(x => x.catalogPlanProductKey);
+
+    const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
+    if (!findCustomerAccount) throw new HttpException(401, "CustomerAccount doesn't exist");
+    const customerAccountId = findCustomerAccount.customerAccountId;
+
+    try {
+      await DB.sequelize.transaction(async t => {
+        //subcribedProduct
+        const findSubscribedProduct: ISubscribedProduct[] = await this.subscribedProduct.findAll({
+          where: { catalogPlanProductKey: { [Op.in]: catalogPlanProductKey }, subscriptionKey },
+        });
+        const subscribedProductKey = findSubscribedProduct.map(x => x.subscribedProductKey);
+
+        await this.subscribedProduct.update(
+          { subscribedProductStatus: 'CA', subscribedProductTo: new Date(), deletedAt: new Date() },
+          { where: { catalogPlanProductKey: { [Op.in]: catalogPlanProductKey }, subscriptionKey }, transaction: t },
+        );
+        //anomalytarget for MetricOps
+        if (catalogPlanType === 'MO') {
+          await this.anomalyMonitoringTarget.update(
+            { deletedAt: new Date(), anomalyMonitoringTargetStatus: 'CA' },
+            { where: { $subscribedProductKey$: { [Op.in]: subscribedProductKey }, deletedAt: null }, transaction: t },
+          );
+        }
+        //subscription
+        await this.subscription.update(
+          { subscriptionStatus: 'CA', subscriptionTerminatedAt: new Date(), deletedAt: new Date() },
+          { where: { subscriptionKey }, transaction: t },
+        );
+      });
+    } catch (error) {}
+
+    if (catalogPlanType === 'MO') {
+      await this.bayesianModelService.deprovisionBayesianModel(customerAccountId);
+    }
+
+    return;
+  }
 }
 
 export default SubscriptionService;

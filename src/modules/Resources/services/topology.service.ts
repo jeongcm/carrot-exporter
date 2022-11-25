@@ -6,6 +6,7 @@ import ServiceExtension from '@/common/extentions/service.extension';
 import { Op, GroupedCountResultItem } from 'sequelize';
 import createK8sGraph from './create-k8s-graph';
 import filterRelatedGraph from './filter-related-graph';
+import { ConsoleSpanExporter } from '@opentelemetry/tracing';
 import MetricService from '@/modules/Metric/services/metric.service';
 
 interface IHashedResources {
@@ -74,7 +75,7 @@ class TopologyService extends ServiceExtension {
     });
   }
 
-  public async getAllTopology(type: string, customerAccountKey: number) {
+  public async getAllTopology(type: string, customerAccountKey: number, resourceGroupId?: string[], resourceId?: string[]) {
     let where: any = {
       resourceGroupPlatform: 'K8',
     };
@@ -104,7 +105,7 @@ class TopologyService extends ServiceExtension {
 
     await Promise.all(
       accountResourceGroups.map(async (resourceGroup: IResourceGroup) => {
-        const children = await this.getResourceGroupTopology(type, resourceGroup, customerAccountKey);
+        const children = await this.getResourceGroupTopology(type, resourceGroup, customerAccountKey, resourceId);
 
         const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider, resourceGroupUuid } =
           resourceGroup;
@@ -134,7 +135,7 @@ class TopologyService extends ServiceExtension {
     return Object.values(topologyPerGroupId);
   }
 
-  public async getResourceGroupTopology(type: string, resourceGroup: IResourceGroup, customerAccountKey: number) {
+  public async getResourceGroupTopology(type: string, resourceGroup: IResourceGroup, customerAccountKey: number, resourceId?: string[]) {
     const { resourceGroupKey } = resourceGroup;
 
     let resourceType: string[] = [];
@@ -194,7 +195,7 @@ class TopologyService extends ServiceExtension {
       case 'nodes':
         return await this.createNodeTopology(resources);
       case 'workload-pods':
-        return await this.createWorkloadPodTopology(resources);
+        return await this.createWorkloadPodTopology(resources, resourceId || []);
       case 'ns-services':
         return await this.createNsServiceTopology(resources, resourceGroup);
     }
@@ -313,14 +314,13 @@ class TopologyService extends ServiceExtension {
       topologyItems.push({
         id: resource.resourceId,
         name: resource.resourceName,
-        resource,
       });
     });
 
     return topologyItems;
   }
 
-  public async createWorkloadPodTopology(resources: IResource[]) {
+  public async createWorkloadPodTopology(resources: IResource[], resourceId: string[]) {
     const sets: any = {};
     const podsPerUid: any = {};
 
@@ -344,15 +344,17 @@ class TopologyService extends ServiceExtension {
 
           workload += 1;
 
-          sets[namespace][resource.resourceTargetUuid] = {
-            resourceNamespace: namespace,
-            resourceName: resource.resourceName,
-            resourceId: resource.resourceId,
-            resourceTargetUuid: resource.resourceTargetUuid,
-            resourceType: resource.resourceType,
-            level: 'workload',
-            children: [],
-          };
+          if (resourceId.length === 0 || resourceId.indexOf(resource.resourceId) > -1) {
+            sets[namespace][resource.resourceTargetUuid] = {
+              resourceNamespace: namespace,
+              resourceName: resource.resourceName,
+              resourceId: resource.resourceId,
+              resourceTargetUuid: resource.resourceTargetUuid,
+              resourceType: resource.resourceType,
+              level: 'workload',
+              children: [],
+            };
+          }
           break;
         case 'PD':
           pod += 1;
@@ -374,7 +376,6 @@ class TopologyService extends ServiceExtension {
           }
 
           owners?.map((owner: any) => {
-            // TODO: Add DaemonSet, StatefulSet, Deployment?
             if (owner.uid) {
               if (!podsPerUid[namespace]) {
                 podsPerUid[namespace] = {};
@@ -457,7 +458,6 @@ class TopologyService extends ServiceExtension {
         customerAccountKey,
         resourceType: resourceTypes,
         deletedAt: null,
-        ...where,
       },
       attributes: ['resourceType'],
       group: 'resourceType',

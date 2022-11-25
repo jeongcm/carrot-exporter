@@ -114,6 +114,10 @@ export default function (sequelize: Sequelize): typeof EvaluationModel {
           unique: false,
           fields: ['resource_group_key'],
         },
+        {
+          unique: false,
+          fields: ['anomaly_monitoring_target_key'],
+        },
       ],
       tableName: 'Evaluation',
       modelName: 'Evaluation',

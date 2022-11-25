@@ -46,39 +46,44 @@ class AnomalyMonitoringTargetService {
    * @returns Promise<IAnomalyMonitoringTarget>
    * @author Shrishti Raj
    */
-  public async createMonitoringTarget(
-    targetData: CreateMonitoringTargetDto,
-    systemId: string,
-    customerAccountKey: number,
-  ): Promise<IAnomalyMonitoringTarget> {
+  public async createMonitoringTarget(targetData: CreateMonitoringTargetDto, systemId: string, customerAccountKey: number): Promise<Object> {
     if (isEmpty(targetData)) throw new HttpException(400, 'AnomalyMonitoringTarget Data cannot be blank');
 
+    const subscribedProductId = await this.getTableId('SubscribedProduct');
     const anomalyMonitoringTargetId = await this.getTableId('AnomalyMonitoringTarget');
     const { anomalyMonitoringTargetDescription, anomalyMonitoringTargetName, anomalyMonitoringTargetStatus, bayesianModelId, resourceId } =
       targetData;
-    const resourceDetail: IResource = await this.resource.findOne({ where: { resourceId } });
+
+    //check the resource is active
+    const resourceDetail: IResource = await this.resource.findOne({ where: { resourceId, deletedAt: null } });
     if (isEmpty(resourceDetail)) throw new HttpException(401, `Resource doesn't exist with ${resourceId}`);
     const resourceKey = resourceDetail.resourceKey;
+
+    //check the resource is already target
     const checkResourceInAnomalyTarget: IAnomalyMonitoringTarget = await this.AnomalyMonitoringTarget.findOne({
       where: { resourceKey, deletedAt: null },
     });
     if (checkResourceInAnomalyTarget) throw new HttpException(402, `Resource is already registered as Monitoring Target ${resourceId}`);
 
     const resourceType = resourceDetail.resourceType;
+    console.log('METRICOPS# - requested monitoring target resource type--', resourceType);
 
-    const subscribedProductId = await this.getTableId('SubscribedProduct');
-    //find subscription Key and plan product key //
-
-    //find subscription, catalogplanproduct key
+    //find subscription, catalogplanproduct, bayesianmodel key
     const findCatalogPlan: ICatalogPlan = await this.catalogPlan.findOne({ where: { deletedAt: null, catalogPlanType: 'MO' } });
     if (isEmpty(findCatalogPlan)) throw new HttpException(410, `Catalog plan issue - no MetricOps Plan`);
     const catalogPlanKey = findCatalogPlan.catalogPlanKey;
     const findSubscription: ISubscriptions = await this.subscription.findOne({ where: { deletedAt: null, customerAccountKey, catalogPlanKey } });
     if (isEmpty(findCatalogPlan)) throw new HttpException(411, `Cannot found subscribed MetricOps Plan`);
     const subscriptionKey = findSubscription.subscriptionKey;
-    const findCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({ where: { deletedAt: null, catalogPlanKey } });
+    const findCatalogPlanProduct: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({
+      where: { deletedAt: null, catalogPlanKey, catalogPlanProductType: resourceType },
+    });
     if (isEmpty(findCatalogPlan)) throw new HttpException(412, `Cannot found catalog plan product for resource type: ${resourceType}`);
     const catalogPlanProductKey = findCatalogPlanProduct.catalogPlanProductKey;
+    const bayesianModelDetails = await this.bayesianModel.findOne({ where: { bayesianModelId } });
+    if (isEmpty(bayesianModelDetails)) throw new HttpException(400, `Bayesian model doesn't exist with ${bayesianModelId}`);
+    const bayesianModelKey = bayesianModelDetails.bayesianModelKey;
+
     const subscribedProductData = {
       subscribedProductId,
       resourceKey: resourceDetail.resourceKey,
@@ -90,27 +95,36 @@ class AnomalyMonitoringTargetService {
       subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
       createdBy: systemId,
     };
-    const subscribedProductDetail = await this.subscribedProduct.create(subscribedProductData);
-    console.log('subscribeProductDetails', subscribedProductDetail);
-    const bayesianModelDetails = await this.bayesianModel.findOne({ where: { bayesianModelId } });
-    if (isEmpty(bayesianModelDetails)) throw new HttpException(400, `Bayesian model doesn't exist with ${bayesianModelId}`);
+    const returnResult = [];
+    try {
+      return await DB.sequelize.transaction(async t => {
+        const newsubscribedProduct = await this.subscribedProduct.create(subscribedProductData);
+        console.log('METRICOPS# - subscribeProductDetails', newsubscribedProduct);
+        returnResult.push(newsubscribedProduct);
+        const currentDate = new Date();
+        const anomalyMonitoringTarget = {
+          anomalyMonitoringTargetId,
+          createdBy: systemId,
+          createdAt: currentDate,
+          updatedAt: currentDate,
+          anomalyMonitoringTargetDescription,
+          anomalyMonitoringTargetName,
+          bayesianModelKey,
+          anomalyMonitoringTargetStatus,
+          resourceKey: resourceDetail.resourceKey,
+          customerAccountKey: customerAccountKey,
+          subscribedProductKey: newsubscribedProduct.subscribedProductKey,
+        };
+        const newresolutionAction: IAnomalyMonitoringTarget = await this.AnomalyMonitoringTarget.create(anomalyMonitoringTarget);
+        returnResult.push(newresolutionAction);
+        console.log('METRICOPS# - subscribeProductDetails', newresolutionAction);
+        return returnResult;
+      });
+    } catch (error) {
+      console.log(`error on creating subscribedProduct and anomalyTarget`);
+    }
 
-    const currentDate = new Date();
-    const anomalyMonitoringTarget = {
-      anomalyMonitoringTargetId,
-      createdBy: systemId,
-      createdAt: currentDate,
-      updatedAt: currentDate,
-      anomalyMonitoringTargetDescription,
-      anomalyMonitoringTargetName,
-      bayesianModelKey: bayesianModelDetails.bayesianModelKey,
-      anomalyMonitoringTargetStatus,
-      resourceKey: resourceDetail.resourceKey,
-      customerAccountKey: customerAccountKey,
-      subscribedProductKey: subscribedProductDetail.subscribedProductKey,
-    };
-    const newresolutionAction: IAnomalyMonitoringTarget = await this.AnomalyMonitoringTarget.create(anomalyMonitoringTarget);
-    return newresolutionAction;
+    return returnResult;
   }
 
   /**

@@ -4,7 +4,12 @@ import validationMiddleware from '@/common/middlewares/validation.middleware';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import BayesianModelController from '../controllers/bayesianModel.controller';
 import ModelRuleScoreController from '../controllers/modelRuleScore.controller';
-import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
+import {
+  CreateBayesianModelDto,
+  UpdateBayesianModelDto,
+  ProvisionBayesianModelDto,
+  ProvisionBayesianModelforClusterDto,
+} from '../dtos/bayesianModel.dto';
 import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
 import { AttachRuleGroupDto, DetachRuleGroupDto, UpdateAttachRuleGroupDto } from '../dtos/modelRuleScore.dto';
 
@@ -24,6 +29,26 @@ class BayesianModelRoute implements Routes {
       validationMiddleware(CreateBayesianModelDto, 'body'),
       this.bayesianModelController.createBayesianModel,
     );
+    this.router.post(
+      '/bayesianModelProvision',
+      authMiddleware,
+      createUserLogMiddleware,
+      validationMiddleware(ProvisionBayesianModelDto, 'body'),
+      this.bayesianModelController.provisionBayesianModel,
+    );
+    this.router.post(
+      '/bayesianModelProvisionCluster',
+      authMiddleware,
+      createUserLogMiddleware,
+      validationMiddleware(ProvisionBayesianModelforClusterDto, 'body'),
+      this.bayesianModelController.provisionBayesianModelforCluster,
+    );
+    this.router.delete(
+      '/bayesianModelDeprovisionCluster/:resourceGroupId',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.bayesianModelController.deprovisionBayesianModelforCluster,
+    );
     this.router.get('/bayesianModels', authMiddleware, createUserLogMiddleware, this.bayesianModelController.getAllBayesianModel);
     this.router.get(
       '/bayesianModels/:resourceType',
@@ -32,13 +57,6 @@ class BayesianModelRoute implements Routes {
       this.bayesianModelController.getBayesianModelByResourceType,
     );
     this.router.get('/bayesianModel/:bayesianModelId', authMiddleware, createUserLogMiddleware, this.bayesianModelController.getBayesianModelById);
-    this.router.put(
-      '/bayesianModel/:bayesianModelId',
-      authMiddleware,
-      createUserLogMiddleware,
-      validationMiddleware(UpdateBayesianModelDto, 'body'),
-      this.bayesianModelController.updateBayesianModel,
-    );
     this.router.put(
       '/bayesianModel/:bayesianModelId',
       authMiddleware,

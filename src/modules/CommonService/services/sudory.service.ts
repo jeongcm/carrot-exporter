@@ -70,8 +70,10 @@ class sudoryService {
       steps: JSON.parse(JSON.stringify(steps)),
       subscribed_channel: sudoryChannel,
     };
+    console.log('SUDORY# - insert Data to ExecutorService', insertData);
 
     const resultSudoryService: IExecutorService = await this.executorService.create(insertData);
+    console.log('SUDORY# - inserted', resultSudoryService);
     return resultSudoryService;
   }
 

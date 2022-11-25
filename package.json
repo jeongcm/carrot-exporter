@@ -1,6 +1,6 @@
 {
   "name": "nexclipper-api",
-  "version": "0.9.28",
+  "version": "0.9.32",
   "description": "TypeScript + Sequelize + MySQL + Express API Server",
   "author": "NexClipper Inc.",
   "license": "ISC",
@@ -109,6 +109,7 @@
     "@typescript-eslint/parser": "^5.19.0",
     "better-docs": "^2.7.2",
     "core-js": "^3.22.0",
+    "cpx": "^1.5.0",
     "cross-env": "^7.0.3",
     "eslint": "^8.13.0",
     "eslint-config-prettier": "^8.5.0",
