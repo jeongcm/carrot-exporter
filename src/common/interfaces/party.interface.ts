@@ -169,3 +169,16 @@ export interface IRequestWithUser extends Request {
 export interface IRequestWithSystem extends Request {
   systemId: string;
 }
+
+export interface IPartyUserPassword {
+  partyUserPasswordKey: number;
+  partyUserPasswordId: string;
+  partyUserKey: number;
+  createdBy: string;
+  updatedBy: string;
+  updatedAt: Date;
+  deletedAt: Date;
+  password: string;
+  partyUserPasswordStatus: string;
+  createdAt: Date;
+}

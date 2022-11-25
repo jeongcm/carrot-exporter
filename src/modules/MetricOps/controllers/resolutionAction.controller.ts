@@ -10,8 +10,8 @@ class ResolutionActionController {
 
   public getAllResolutionAction = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const customerAccountKey = req.customerAccountKey;
-      const resolutionActionList: IResolutionAction[] = await this.resolutionActionService.findAllResolutionAction();
+      const customerAccountId = req.params.customerAccountId;
+      const resolutionActionList: IResolutionAction[] = await this.resolutionActionService.findAllResolutionAction(customerAccountId);
       res.status(200).json({ data: resolutionActionList, message: 'findAll' });
     } catch (error) {
       next(error);
@@ -30,7 +30,7 @@ class ResolutionActionController {
 
   public createResolutionAction = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const { user: { partyId } = {}, systemId, customerAccountKey } = req;
+      const { user: { partyId } = {}, systemId } = req;
       const resolutionActionData: CreateResolutionActionDto = req.body;
       const resolutionActionType = req.body.resolutionActionType || 'MO';
       resolutionActionData.resolutionActionType = resolutionActionType;

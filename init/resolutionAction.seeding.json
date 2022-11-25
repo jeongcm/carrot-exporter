@@ -1,0 +1,42 @@
+[
+    {
+        "ruleGroupName": "IssueNodeCPU",
+        "resolutionActionName": "GetNodeCpuMetrics",
+        "resolutionActionDescription": "Get Node Cpu Metrics",
+        "rresolutionActionTemplateSteps": {"url":"#prometheusurl","query":"avg(rate(node_cpu_seconds_total{job=\"node-exporter\", node=\"#name\", mode=~\"user|system|iowait\"}[5m]))  * 100","start":"#start","end":"#end","step":"5m"},
+        "resolutionActionType": "MO",
+        "sudorytemplateUuid": "10000000000000000000000000000002"
+    },
+    {
+        "ruleGroupName": "KubernetesPodCPU",
+        "resolutionActionName": "GetPodCpuMetrics",
+        "resolutionActionDescription": "Get Pod Cpu Metrics",
+        "rresolutionActionTemplateSteps": {"url":"#prometheusurl","query":"sum by(pod) (rate(container_cpu_usage_seconds_total{image!=\"\",container=~\".*\", pod=\"#name\",namespace=\"#namespace\"}[5m] ) )","start":"#start","end":"#end","step":"5m"},
+        "resolutionActionType": "MO",
+        "sudorytemplateUuid": "10000000000000000000000000000002"
+    },
+    {
+        "ruleGroupName": "KubernetesPodMemory",
+        "resolutionActionName": "GetPodMemoryMetrics",
+        "resolutionActionDescription": "Get Pod Memory Metrics",
+        "rresolutionActionTemplateSteps": {"url":"#prometheusurl","query":"sum by(pod) (container_memory_working_set_bytes{container=~\".*\",container!=\"\",container!=\"POD\", pod=\"#name\",namespace=\"#namespace\"})","start":"#start","end":"#end","step":"5m"},
+        "resolutionActionType": "MO",
+        "sudorytemplateUuid": "10000000000000000000000000000002"
+    },
+    {
+        "ruleGroupName": "KubernetesPodMemory",
+        "resolutionActionName": "RestartPod",
+        "resolutionActionDescription": "Restart Pod",
+        "rresolutionActionTemplateSteps": {"namespace":"#namespace","name":"#name"},
+        "resolutionActionType": "IA",
+        "sudorytemplateUuid": "00000000000000000000000000000031"
+    },
+    {
+        "ruleGroupName": "KubernetesVolume",
+        "resolutionActionName": "ExpandKubernetesVolume30%",
+        "resolutionActionDescription": "Expand Kubernetes Volume 30%",
+        "rresolutionActionTemplateSteps": {"namespace": "#namespace", "name": "#name", "patch_type": "json", "patch_data": [{"path": "/spec/resources/requests/storage", "op": "replace", "value": "#expandedvolume30%"}]},
+        "resolutionActionType": "IA",
+        "sudorytemplateUuid": "00000000000000000000000000000033"
+    }
+  ]

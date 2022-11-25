@@ -16,6 +16,7 @@ export type ResolutionActionAttributes = Optional<
   | 'resolutionActionTemplateSteps'
   | 'resolutionActionType'
   | 'resolutionActionPrerequisiteKey'
+  | 'customerAccountKey'
 >;
 export class ResolutionActionModel extends Model<IResolutionAction, ResolutionActionAttributes> implements IResolutionAction {
   public resolutionActionKey: number;
@@ -30,7 +31,8 @@ export class ResolutionActionModel extends Model<IResolutionAction, ResolutionAc
   public resolutionActionType: string; // 'IA' - incident action + metricOps, 'MO' - metricOps
   public resolutionActionPrerequisiteKey: number;
   public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public updatedAt: Date;
+  public customerAccountKey: number;
 }
 
 export default function (sequelize: Sequelize): typeof ResolutionActionModel {
@@ -44,7 +46,7 @@ export default function (sequelize: Sequelize): typeof ResolutionActionModel {
       },
       resolutionActionId: {
         allowNull: false,
-        type: DataTypes.STRING(16),
+        type: DataTypes.STRING(100),
         unique: true,
       },
       createdBy: {
@@ -70,6 +72,7 @@ export default function (sequelize: Sequelize): typeof ResolutionActionModel {
       resolutionActionName: {
         type: DataTypes.STRING(100),
         allowNull: false,
+        unique: true,
       },
       resolutionActionDescription: {
         type: DataTypes.STRING(500),
@@ -90,14 +93,17 @@ export default function (sequelize: Sequelize): typeof ResolutionActionModel {
         type: DataTypes.INTEGER,
         allowNull: true,
       },
+      customerAccountKey: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     },
     {
       tableName: 'ResolutionAction',
       modelName: 'ResolutionAction',
       indexes: [
         {
-          unique: true,
-          fields: ['resolution_action_id'],
+          fields: ['customer_account_key'],
         },
       ],
       sequelize,

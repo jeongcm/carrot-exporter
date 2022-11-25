@@ -48,7 +48,7 @@ export default function (sequelize: Sequelize): typeof AnomalyMonitoringTargetTa
       },
       anomalyMonitoringTargetId: {
         allowNull: false,
-        type: DataTypes.STRING(16),
+        type: DataTypes.STRING(100),
         unique: true,
       },
       bayesianModelKey: {

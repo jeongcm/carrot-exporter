@@ -16,28 +16,25 @@ export type RuleGroupAttributes = Optional<
   | 'resourceGroupKey'
 >;
 
-export class RuleGroupModel extends Model<IRuleGroup, RuleGroupAttributes > implements IRuleGroup {
+export class RuleGroupModel extends Model<IRuleGroup, RuleGroupAttributes> implements IRuleGroup {
+  public ruleGroupKey: number;
+  public ruleGroupId: string;
+  public createdBy: string;
+  public updatedBy: string;
+  public deletedAt: Date;
+  public ruleGroupName: string;
+  public ruleGroupDescription: string;
+  public ruleGroupStatus: string;
+  public resourceGroupKey: number;
+  public updatedAt: Date;
 
-    public ruleGroupKey: number;
-    public ruleGroupId: string;
-    public createdBy: string;
-    public updatedBy: string;
-    public deletedAt: Date;
-    public ruleGroupName: string; 
-    public ruleGroupDescription: string;
-    public ruleGroupStatus: string;
-    public resourceGroupKey: number;
-    public updatedAt: Date;
-
-    public readonly createdAt!: Date;
-    
-
+  public readonly createdAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof RuleGroupModel {
-    RuleGroupModel.init(
+  RuleGroupModel.init(
     {
-        ruleGroupKey: {
+      ruleGroupKey: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
@@ -45,8 +42,9 @@ export default function (sequelize: Sequelize): typeof RuleGroupModel {
       },
       ruleGroupId: {
         allowNull: false,
-        type: DataTypes.STRING(16),
-      },     
+        type: DataTypes.STRING(100),
+        unique: true,
+      },
       createdBy: {
         type: DataTypes.STRING(16),
         allowNull: false,
@@ -54,7 +52,7 @@ export default function (sequelize: Sequelize): typeof RuleGroupModel {
       updatedBy: {
         type: DataTypes.STRING(16),
         allowNull: true,
-      },            
+      },
       createdAt: {
         type: DataTypes.DATE(),
         allowNull: false,
@@ -62,17 +60,17 @@ export default function (sequelize: Sequelize): typeof RuleGroupModel {
       updatedAt: {
         type: DataTypes.DATE(),
         allowNull: true,
-      },      
+      },
       deletedAt: {
         type: DataTypes.DATE(),
         allowNull: true,
-      },      
+      },
       ruleGroupName: {
         type: DataTypes.STRING(100),
         allowNull: false,
       },
       ruleGroupDescription: {
-        type: DataTypes.STRING(500)
+        type: DataTypes.STRING(500),
       },
       ruleGroupStatus: {
         type: DataTypes.STRING(2),
@@ -81,7 +79,7 @@ export default function (sequelize: Sequelize): typeof RuleGroupModel {
       resourceGroupKey: {
         type: DataTypes.INTEGER,
         allowNull: true,
-      }
+      },
     },
 
     {
