@@ -1,6 +1,5 @@
 import config from '@config/index';
 import { IResponseMassUploader, IRequestMassUploader } from '@/common/interfaces/massUploader.interface';
-import resourceService from '@/modules/Resources/services/resource.service';
 import resourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 //import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/tableId.dto';
@@ -24,7 +23,6 @@ import { IBayesianModel } from '@/common/interfaces/bayesianModel.interface';
 class massUploaderService {
   public tableIdService = new tableIdService();
   public resourceGroupService = new resourceGroupService();
-  public resourceService = new resourceService();
   public subscriptionService = new SubscriptionService();
 
   public resource = DB.Resource;
@@ -56,11 +54,11 @@ class massUploaderService {
 
     // mass upload #1
     // update resource deactivated if there is no matched resoure in NC database.
-    const currentResourceFiltered: IResourceTargetUuid[] = await this.resourceService.getResourceForMass(
-      resourceType,
-      resourceGroupKey,
-      customerAccountKey,
-    );
+    const currentResourceFiltered: IResourceTargetUuid[] = await this.resource.findAll({
+      where: { resourceType, resourceGroupKey, customerAccountKey, deletedAt: null },
+      attributes: ['resourceTargetUuid', 'deletedAt'],
+    });
+
     const sizeOfCurrentResource = currentResourceFiltered.length;
 
     const currentResource = [];

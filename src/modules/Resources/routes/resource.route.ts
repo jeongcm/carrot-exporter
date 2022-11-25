@@ -110,6 +110,8 @@ class ResourceRoute implements Routes {
       this.resourceController.getResourceCountByResourceType,
     );
 
+    this.router.post('/resource/upload/:resourceType', systemAuthMiddleware, this.resourceController.uploadResource)
+
   }
 }
 

@@ -45,7 +45,7 @@ export class ExecutorKpsDto {
 
   @IsString()
   @IsNotEmpty()
-  public resourceType: string;
+  public platform: string;
 }
 
 export class ExecutorUuidDto {

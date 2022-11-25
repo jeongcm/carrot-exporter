@@ -207,7 +207,7 @@ class ResourceController {
 
     try {
       const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId(resourceType, customerAccountId);
-      res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resoruceType ${resource}` });
+      res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resourceType ${resource}` });
     } catch (error) {
       next(error);
     }
@@ -223,53 +223,15 @@ class ResourceController {
     const customerAccountId: string = req.params.customerAccountId;
     let resources: IResource[];
     try {
-      // TEMP:
-      const { vmStatusPerName, pmStatusPerName } = await this.topologyService.tempGetStatus(req.customerAccountKey, req.query.resourceGroupId || []);
-
-      console.log(vmStatusPerName);
-      console.log(pmStatusPerName);
-
       switch (resourceType) {
         case 'VM':
           resources = await this.resourceService.getVMListByCustomerAccountId(customerAccountId, req.query);
-
-          // TEMP:
-          resources = this.topologyService.tempInjectStatus(vmStatusPerName, resources);
           break;
         case 'PM':
           resources = await this.resourceService.getPMListByCustomerAccountId(customerAccountId, req.query);
-
-          // TEMP:
-          resources = this.topologyService.tempInjectStatus(pmStatusPerName, resources);
-
-          // TEMP:
-          resources = resources.map((r: any) => {
-            if (r?.resourceSpec?.vms) {
-              r.resourceSpec.vms = this.topologyService.tempInjectStatus(vmStatusPerName, r.resourceSpec.vms);
-              console.log(r.resourceSpec?.vms.length)
-            }
-
-            return r;
-          });
-          console.log(0)
-
           break;
         case 'PJ':
           resources = await this.resourceService.getPJListByCustomerAccountId(customerAccountId, req.query);
-
-          // TEMP:
-          resources = resources.map((r: any) => {
-            if (r?.resourceSpec?.vms) {
-              r.resourceSpec.vms = this.topologyService.tempInjectStatus(vmStatusPerName, r.resourceSpec.vms);
-            }
-
-            if (r?.resourceSpec?.pms) {
-              r.resourceSpec.pms = this.topologyService.tempInjectStatus(pmStatusPerName, r.resourceSpec.pms);
-            }
-
-            return r;
-          });
-
           break;
         default:
       }
@@ -293,29 +255,7 @@ class ResourceController {
 
     try {
       const resource: IResource = await this.resourceService.getResourceByTypeCustomerAccountKeyResourceId(resourceId, customerAccountKey);
-
-      // TEMP:
-      const { vmStatusPerName, pmStatusPerName } = await this.topologyService.tempGetStatus(req.customerAccountKey, req.query.resourceGroupId || []);
-
-      // TEMP:
-      let statusPerName: any = vmStatusPerName;
-      if (resource.resourceType === 'PM') {
-        statusPerName = pmStatusPerName;
-      }
-
-      const [convertedResource] = this.topologyService.tempInjectStatus(statusPerName, [resource]);
-
-      // TEMP:
-      if (convertedResource?.resourceSpec?.vms) {
-        convertedResource.resourceSpec.vms = this.topologyService.tempInjectStatus(vmStatusPerName, convertedResource.resourceSpec.vms);
-      }
-
-      if (convertedResource?.resourceSpec?.pms) {
-        convertedResource.resourceSpec.pms = this.topologyService.tempInjectStatus(pmStatusPerName, convertedResource.resourceSpec.pms);
-      }
-
-      // TEMP:
-      res.status(200).json({ data: convertedResource, message: `find resource with and resourceId ${resourceId}` });
+      res.status(200).json({ data: resource, message: `find resource with and resourceId ${resourceId}` });
     } catch (error) {
       next(error);
     }
@@ -476,6 +416,23 @@ class ResourceController {
       const topology: any = await this.topologyService.getRelatedResources(resourceKey, customerAccountKey);
 
       res.status(200).json({ data: topology, message: 'get all topology' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  // this need for upload resource, because of resource that sudory doesn't provide
+  public uploadResource = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const queryBody = req.body;
+      const customerAccountKey = req.body.customerAccountKey
+
+      let result: any = null;
+      switch (req.params.resourceType) {
+        case "PM":
+          result = await this.resourceService.uploadResourcePM(customerAccountKey, queryBody);
+      }
+      res.status(200).json({ data: result, message: `upload Resource` });
     } catch (error) {
       next(error);
     }

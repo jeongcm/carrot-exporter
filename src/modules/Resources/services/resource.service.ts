@@ -1,18 +1,19 @@
-import DB from '@/database';
-import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
-import { IRquestMassUploaderMongo } from '@/common/interfaces/massUploader.interface';
-import { ResourceDto, ResourceDetailQueryDTO } from '../dtos/resource.dto';
-import { HttpException } from '@/common/exceptions/HttpException';
-import { isEmpty } from '@/common/utils/util';
-import TableIdService from '@/modules/CommonService/services/tableId.service';
-import { IMassUploaderMongoUpdateDto } from '@modules/CommonService/dtos/massUploaderMongo.dto';
-import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import DB from "@/database";
+import { IResource, IResourceTargetUuid } from "@/common/interfaces/resource.interface";
+import { IRquestMassUploaderMongo } from "@/common/interfaces/massUploader.interface";
+import { ResourceDetailQueryDTO, ResourceDto } from "../dtos/resource.dto";
+import { HttpException } from "@/common/exceptions/HttpException";
+import { isEmpty } from "@/common/utils/util";
+import TableIdService from "@/modules/CommonService/services/tableId.service";
+import { IResourceGroup } from "@/common/interfaces/resourceGroup.interface";
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
-import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import { Op } from 'sequelize';
-import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
-import { ResourceGroupModel } from '../models/resourceGroup.model';
+import CustomerAccountService from "@/modules/CustomerAccount/services/customerAccount.service";
+import ResourceGroupService from "@/modules/Resources/services/resourceGroup.service";
+import { Op } from "sequelize";
+import { IAnomalyMonitoringTarget } from "@/common/interfaces/monitoringTarget.interface";
+import { ResourceGroupModel } from "../models/resourceGroup.model";
+import MetricService, { IMetricQueryBody } from "@modules/Metric/services/metric.service";
+import MassUploaderService from "@modules/CommonService/services/massUploader.service";
 
 class ResourceService {
   public resource = DB.Resource;
@@ -23,6 +24,8 @@ class ResourceService {
   public TableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
   public resourceGroupService = new ResourceGroupService();
+  public metricService = new MetricService();
+  public massUploaderService = new MassUploaderService();
 
   /**
    * @param  {ResourceDto} resourceData
@@ -311,14 +314,14 @@ class ResourceService {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
-    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ["PM", "VM"],};
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ["PM"],};
 
     if (query?.resourceGroupId) {
       let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
       resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
     }
 
-    const resultList: IResource[] = await this.resource.findAll({
+    const pms: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
       order: [
@@ -327,28 +330,12 @@ class ResourceService {
       ],
     });
 
-    let pms = resultList.filter(pm => pm.resourceType === "PM")
-    let vms = resultList.filter(pm => pm.resourceType === "VM")
+    let result: IResource[] = [];
+    await Promise.all(pms.map(async (pm) => {
+      result.push(await this.getPMDetails(pm))
+    }))
 
-    for (let i = 0; i < pms.length; i++) {
-      // get resourceGroup
-      pms[i].resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
-        attributes: ['resourceGroupId', 'resourceGroupName'],
-        where: {resourceGroupKey: pms[i].resourceGroupKey}
-      })
-
-      let vmsInPM = [];
-
-      for (let j = 0; j < vms.length; j++) {
-        if (pms[i].resourceTargetUuid === vms[j].parentResourceId) {
-          vmsInPM.push(await this.getVMDetails(vms[j]))
-        }
-      }
-
-      pms[i].resourceSpec.vms = vmsInPM
-    }
-
-    return pms;
+    return result;
   }
 
   /**
@@ -423,6 +410,10 @@ class ResourceService {
   public async getVMDetails(vm: IResource): Promise<IResource> {
     const resourceGroupKey = vm.resourceGroupKey;
 
+    // get vm's status
+    vm.resourceStatus = await this.getResourceStatus(vm.customerAccountKey, vm.resourceGroupKey, vm.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+
+    // get pm's name
     let PM = await this.resource.findOne({
       attributes: ['resourceName'],
       where: {
@@ -434,11 +425,12 @@ class ResourceService {
     });
 
     if (!PM) {
-      vm.resourceSpec.PMName = "unknown"
+      vm.resourceSpec.PMName = vm.resourceSpec["OS-EXT-SRV-ATTR:host"]
     } else {
       vm.resourceSpec.PMName = PM.resourceName
     }
 
+    // get project's name
     let project = await this.resource.findOne({
       attributes: ['resourceName'],
       where: {
@@ -462,6 +454,8 @@ class ResourceService {
 
   public async getPMDetails(pm: IResource): Promise<IResource> {
     const resourceGroupKey = pm.resourceGroupKey;
+
+     pm.resourceStatus = await this.getResourceStatus(pm.customerAccountKey, resourceGroupKey, pm.resourceTargetUuid)
 
     let vms = await this.resource.findAll({
       where: {
@@ -506,24 +500,7 @@ class ResourceService {
         return await this.getVMDetails(resource)
 
       case "PM":
-        let vms = await this.resource.findAll({
-          where: {
-            deletedAt: null,
-            resourceType: "VM",
-            resourceGroupKey: resource.resourceGroupKey,
-            parentResourceId: resource.resourceTargetUuid
-          },
-          attributes: { exclude: ['resourceKey', 'deletedAt'] },
-        });
-
-        const vmsInPM = [];
-        for (let i = 0; i < vms.length; i ++) {
-          vmsInPM.push(await this.getVMDetails(vms[i]))
-        }
-
-        resource.resourceSpec.vms = vmsInPM
-
-        break
+        return await this.getPMDetails(resource)
 
       case "PJ":
         // get VM info from PJ
@@ -1023,6 +1000,147 @@ class ResourceService {
     console.log(deleteResultResource);
 
     return deleteResultResource;
+  }
+
+  public async getResourceStatus(customerAccountKey: number, resourceGroupKey: number, name: string): Promise<String> {
+    let status = 'UNKNOWN'
+    // find resourceGroup uuid
+    const resourceGroup = await this.resourceGroup.findOne({
+      where: { resourceGroupKey },
+    })
+
+    // get status
+    const statusQuery: any = {
+      query: [
+        {
+          "name": "status",
+          "resourceGroupUuid": resourceGroup.resourceGroupUuid,
+          "type": "OS_CLUSTER_NODE_STATUS",
+          "nodename": name
+        }
+      ]
+    }
+
+    const statusResult = await this.metricService.getMetricP8S(customerAccountKey, statusQuery)
+    if (statusResult["status"].data.result.length !== 0) {
+      const value = statusResult["status"].data.result[0].value[1]
+      if (value === "1") {
+        status = "ACTIVE"
+      } else {
+        status = "INACTIVE"
+      }
+    }
+
+    return status
+  }
+
+  public async uploadResourcePM(customerAccountKey: number, queryBody: IMetricQueryBody) {
+    if (isEmpty(queryBody?.query)) {
+      throw new HttpException(400, 'query[] is missing')
+    }
+
+    const metricName = queryBody.query[0].name;
+    const clusterUuid = queryBody.query[0].resourceGroupUuid;
+    var uploadQuery = {};
+    var mergedQuery: any = {};
+    var tempQuery: any = {};
+
+    const result = await this.metricService.getMetricP8S(customerAccountKey, queryBody);
+    let length = result[metricName].data.result.length
+
+    if (length === 0) {
+      console.log("no update in upload PM")
+      return result[metricName].query
+    }
+
+    const resourceGroup = await this.resourceGroup.findOne({
+      attributes: ['resourceGroupKey'],
+      where: {resourceGroupUuid: clusterUuid}
+    })
+
+    // pm이 조회되지 않았을때 삭제하지 않고 resource status 를 SHUTOFF로 Update
+    const pms = await this.resource.findAll({
+      where: { resourceGroupKey: resourceGroup.resourceGroupKey, deletedAt: null, customerAccountKey: customerAccountKey, resourceType: "PM"},
+    })
+
+    for (const pm of pms) {
+      const pmIndex = pms.indexOf(pm);
+      let is_exist = false;
+      var tmp: any
+
+      for (var index = 0; index < length; index++) {
+        if (pm.resourceTargetUuid === result[metricName].data.result[index].metric.nodename) {
+          is_exist = true;
+          tmp = result[metricName].data.result[index].metric
+          break;
+        }
+      }
+
+      if (is_exist === false) {
+        uploadQuery['resource_Name'] = pm.resourceName;
+        uploadQuery['resource_Type'] = "PM";
+        uploadQuery['resource_Instance'] = pm.resourceInstance;
+        uploadQuery['resource_Spec'] = pm.resourceSpec;
+        uploadQuery['resource_Group_Uuid'] = clusterUuid;
+        uploadQuery['resource_Target_Uuid'] = pm.resourceTargetUuid;
+        uploadQuery['resource_Description'] = pm.resourceDescription;
+        uploadQuery['resource_Status'] = "INACTIVE"
+        uploadQuery['resource_Target_Created_At'] = null
+        uploadQuery['resource_Level1'] = "OS"; //Openstack
+        uploadQuery['resource_Level2'] = "PM";
+        uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
+        uploadQuery['resource_Rbac'] = true;
+        uploadQuery['resource_Anomaly_Monitor'] = false;
+        uploadQuery['resource_Active'] = true;
+      } else {
+        // get pm status
+        const pmStatus = this.getResourceStatus(customerAccountKey, resourceGroup.resourceGroupKey, tmp.nodename)
+
+        uploadQuery['resource_Name'] = tmp.nodename;
+        uploadQuery['resource_Type'] = "PM";
+        uploadQuery['resource_Instance'] = tmp.instance;
+        uploadQuery['resource_Spec'] = tmp;
+        uploadQuery['resource_Group_Uuid'] = tmp.clusterUuid;
+        uploadQuery['resource_Target_Uuid'] = tmp.nodename;
+        uploadQuery['resource_Description'] = tmp.version;
+        uploadQuery['resource_Status'] = pmStatus
+        uploadQuery['resource_Target_Created_At'] = null
+        uploadQuery['resource_Level1'] = "OS"; //Openstack
+        uploadQuery['resource_Level2'] = "PM";
+        uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
+        uploadQuery['resource_Rbac'] = true;
+        uploadQuery['resource_Anomaly_Monitor'] = false;
+        uploadQuery['resource_Active'] = true;
+      }
+
+      tempQuery = this.formatter_resource(pmIndex, pms.length, "PM", clusterUuid, uploadQuery, mergedQuery);
+      mergedQuery = tempQuery;
+    }
+
+    return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
+  }
+
+  private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
+    let interimQuery = {};
+    try {
+      if (itemLength==1) {
+        interimQuery = '{"resource_Type": "' + resourceType + '", "resource_Group_Uuid": "' + cluster_uuid + '", ' + '"resource":[' + JSON.stringify(query) + "]}";
+      }
+      else {
+        if (i==0) {
+          interimQuery = '{"resource_Type": "' + resourceType + '", "resource_Group_Uuid": "' + cluster_uuid + '", ' + '"resource":[' + JSON.stringify(query);
+        }
+        else if (i==(itemLength-1)) {
+          interimQuery = mergedQuery + "," + JSON.stringify(query) + "]}";
+        }
+        else {
+          interimQuery = mergedQuery +  "," + JSON.stringify(query);
+        }
+      }
+    } catch (error) {
+      console.log("error due to unexpoected error: ", error.response);
+    }
+    return interimQuery;
   }
 }
 

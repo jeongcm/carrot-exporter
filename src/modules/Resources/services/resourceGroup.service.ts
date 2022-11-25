@@ -9,6 +9,7 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
+import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import SubscriptionsService from '@/modules/Subscriptions/services/subscriptions.service';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
@@ -34,6 +35,7 @@ class ResourceGroupService {
   public customerAccount = DB.CustomerAccount;
 
   public tableIdService = new TableIdService();
+  public customerAccountService = new CustomerAccountService();
 
   public schedulerService = new SchedulerService();
   public subscriptionsService = new SubscriptionsService();
@@ -90,14 +92,14 @@ class ResourceGroupService {
 
       switch (resourceGroupData.resourceGroupPlatform) {
         case "K8":
-          resourceData.resourceType = 'K8'
-          resourceData.resourceLevelType = 'K8'
-          resourceData.resourceLevel1 = 'K8'
+          resourceData.resourceType = 'K8';
+          resourceData.resourceLevelType = 'K8';
+          resourceData.resourceLevel1 = 'K8';
           break;
         case "OS":
-          resourceData.resourceType = 'OS'
-          resourceData.resourceLevelType = 'OS'
-          resourceData.resourceLevel1 = 'OS'
+          resourceData.resourceType = 'OS';
+          resourceData.resourceLevelType = 'OS';
+          resourceData.resourceLevel1 = 'OS';
           break;
       }
 
@@ -195,7 +197,7 @@ class ResourceGroupService {
    * @returns Promise
    */
   public async getResourceGroupByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResourceGroup[]> {
-    const resultCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountId } });
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
     const resourceGroupWhereCondition = {
@@ -204,11 +206,11 @@ class ResourceGroupService {
     };
 
     if (query?.platform) {
-      resourceGroupWhereCondition['resourceGroupPlatform'] = query.platform;
+      resourceGroupWhereCondition['resourceGroupPlatform'] = query.platform
     }
 
     if (query?.resourceGroupId) {
-      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId;
+      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId
     }
 
     const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
@@ -224,7 +226,7 @@ class ResourceGroupService {
    * @returns Promise
    */
   public async getResourceGroupByCustomerAccountIdForOpenstack(customerAccountId: string, platform: string, query?: any): Promise<IResourceGroupUi[]> {
-    const resultCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountId } });
+    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
     const resourceGroupWhereCondition = {
@@ -234,7 +236,7 @@ class ResourceGroupService {
     };
 
     if (query?.resourceGroupId) {
-      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId;
+      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId
     }
 
     console.log("query:", resourceGroupWhereCondition)

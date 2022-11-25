@@ -23,6 +23,7 @@ const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
 import { IAlertTargetSubGroup } from '@/common/interfaces/alertTargetSubGroup.interface';
 import MetricService from "@modules/Metric/services/metric.service";
+import ResourceService from "@modules/Resources/services/resource.service";
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
@@ -32,7 +33,7 @@ class executorService {
   public MetricMetaService = new MetricMetaService();
   public schedulerService = new SchedulerService();
   public incidentService = new IncidentService();
-  public metricService = new MetricService();
+  public resourceService = new ResourceService();
 
   public sudoryWebhook = DB.SudoryWebhook;
   public executorService = DB.ExecutorService;
@@ -1035,7 +1036,7 @@ class executorService {
     metricQuery[0].resourceGroupUuid = clusterUuid
 
     uploadPMQuery.query = metricQuery
-    const resultPM = await this.metricService.uploadResourcePM(customerAccountKey, uploadPMQuery)
+    const resultPM = await this.resourceService.uploadResourcePM(customerAccountKey, uploadPMQuery)
     if (!resultPM) {console.log(resultPM)}
 
     const resultPJ = await this.postExecuteService(
@@ -1313,6 +1314,50 @@ class executorService {
           throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
         }); //end of catch
     }
+    //provision alert easy rule for the cluster
+    const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
+
+    let waitSec = 60;
+    for (const alertEasyRule of alertEasyRuleList) {
+      if (waitSec <= 0) waitSec = 0;
+      const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
+        where: { deletedAt: null, alertTargetSubGroupName: alertEasyRule.alertTargetSubGroupName },
+      });
+      const alertEasyRuleData = {
+        createdBy: 'SYSTEM',
+        createdAt: new Date(),
+        alertTargetSubGroupId: getAlertTargetSubGroup.alertTargetSubGroupId,
+        alertEasyRuleName: alertEasyRule.alertEasyRuleName,
+        alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
+        alertEasyRuleSummary: alertEasyRule.alertEasyRuleSummary,
+        alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
+        alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
+        alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
+        alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
+        alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
+        alertEasyRuleThreshold1Max: alertEasyRule.alertEasyRuleThreshold1Max,
+        alertEasyRuleThreshold2: '',
+        alertEasyRuleThreshold2Unit: '',
+        alertEasyRuleThreshold2Max: '',
+
+        alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
+        customerAccountId: customerAccountId,
+        resourceGroupUuid: clusterUuid,
+      };
+      try {
+        console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
+        console.log('#ALERTEASYRULE - waitmin', waitSec);
+        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec);
+        console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
+      } catch (error) {
+        console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
+      }
+      waitSec = waitSec - 5;
+    }
+
+    // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
+    // console.log('operation schedules setup:', scheduleHealthService);
+
     return serviceUuid;
   }
 
@@ -1960,7 +2005,7 @@ class executorService {
     case "PM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
-      executorServerUrl = config.appUrl + ':' + config.appPort + '/metric/upload/PM';
+      executorServerUrl = config.appUrl + ':' + config.appPort + '/resource/upload/PM';
 
       let uploadPMQuery: any = {}
       let metricQuery: any[] = []

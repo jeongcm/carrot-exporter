@@ -6,7 +6,6 @@ import ServiceExtension from '@/common/extentions/service.extension';
 import { Op, GroupedCountResultItem } from 'sequelize';
 import createK8sGraph from './create-k8s-graph';
 import filterRelatedGraph from './filter-related-graph';
-import { ConsoleSpanExporter } from '@opentelemetry/tracing';
 import MetricService from '@/modules/Metric/services/metric.service';
 
 interface IHashedResources {
@@ -89,6 +88,35 @@ class TopologyService extends ServiceExtension {
         break;
     }
 
+    let extraResourceGroupKey: number[] = [];
+
+    if (resourceId && resourceId.length > 0) {
+      const resources: IResource[] = await this.resource.findAll({
+        where: {
+          resourceId,
+          customerAccountKey,
+          deletedAt: null,
+        },
+        attributes: ['resourceGroupKey'],
+      });
+
+      extraResourceGroupKey = resources?.map((resource: IResource) => {
+        return resource.resourceGroupKey;
+      });
+
+      where = {
+        [Op.or]: {
+          resourceGroupKey: extraResourceGroupKey,
+        },
+      };
+    }
+
+    if (resourceGroupId && resourceGroupId.length > 0) {
+      where = {
+        ...where,
+        resourceGroupId,
+      };
+    }
     const accountResourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
       where: {
         customerAccountKey,
@@ -458,6 +486,7 @@ class TopologyService extends ServiceExtension {
         customerAccountKey,
         resourceType: resourceTypes,
         deletedAt: null,
+        ...where,
       },
       attributes: ['resourceType'],
       group: 'resourceType',

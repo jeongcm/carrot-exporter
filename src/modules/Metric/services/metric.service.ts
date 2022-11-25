@@ -10,6 +10,7 @@ import {IResource} from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
 import P8sService from "@modules/Metric/services/p8sService";
 import config from 'config';
+import DB from 'database';
 
 export interface IMetricQueryBodyQuery {
   name: string;
@@ -34,12 +35,13 @@ export interface IMetricQueryBody {
 }
 
 class MetricService extends ServiceExtension {
+  private resource = DB.Resource
+  private resourceGroup = DB.ResourceGroup
   private telemetryService = null
   private victoriaMetricService = new VictoriaMetricService();
   private resourceService = new ResourceService();
   private resourceGroupService = new ResourceGroupService();
   private customerAccountService = new CustomerAccountService();
-  private massUploaderService = new MassUploaderService();
 
   constructor() {
     super({});
@@ -1262,40 +1264,20 @@ class MetricService extends ServiceExtension {
         promQl = `nc:probe_success{job=~"vm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
         break;
 
-      case 'OS_CLUSTER_VM_NODE_AC01_STATUS':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-        promQl = `probe_success{job="vm-blackbox-exporter-icmp(acct-svr01)", __LABEL_PLACE_HOLDER__}`;
-        break;
-
-      case 'OS_CLUSTER_VM_NODE_AC02_STATUS':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-        promQl = `probe_success{job="vm-blackbox-exporter-icmp(acct-svr02)", __LABEL_PLACE_HOLDER__}`;
-        break;
-
-      case 'OS_CLUSTER_VM_NODE_CS01_STATUS':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-        promQl = `probe_success{job="vm-blackbox-exporter-icmp(cs_svr01)", __LABEL_PLACE_HOLDER__}`;
-        break;
-
-      case 'OS_CLUSTER_PM_NODE_PC02_STATUS':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-        promQl = `probe_success{job="pm-blackbox-exporter-icmp(p-com-02)", __LABEL_PLACE_HOLDER__}`;
-        break;
-
       case 'OS_CLUSTER_PM_NODE_STATUS':
         labelString += getSelectorLabels({
           clusterUuid,
           nodename,
         });
         promQl = `nc:probe_success{job=~"pm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
+        break;
+
+      case 'OS_CLUSTER_NODE_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          nodename,
+        });
+        promQl = `nc:probe_success{job=~"pm-blackbox-exporter-icmp|vm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
         break;
 
       case 'OS_CLUSTER_PM_VM_ALL_STATUS':
@@ -1343,179 +1325,6 @@ class MetricService extends ServiceExtension {
       promQl,
       ranged,
     };
-  }
-
-  public async uploadResourcePM(customerAccountKey: number, queryBody: IMetricQueryBody) {
-    if (isEmpty(queryBody?.query)) {
-      return this.throwError('EXCEPTION', 'query[] is missing');
-    }
-
-    const metricName = queryBody.query[0].name;
-    const clusterUuid = queryBody.query[0].resourceGroupUuid;
-    var uploadQuery = {};
-    var mergedQuery: any = {};
-    var tempQuery: any = {};
-
-    const result = await this.getMetricP8S(customerAccountKey, queryBody);
-    let length = result[metricName].data.result.length
-
-    if (length === 0) {
-      console.log("no update in upload PM")
-      return result[metricName].query
-    }
-
-    const resourceGroup = await this.resourceGroupService.resourceGroup.findOne({
-      attributes: ['resourceGroupKey'],
-      where: {resourceGroupUuid: clusterUuid}
-    })
-
-    // pm이 조회되지 않았을때 삭제하지 않고 resource status 를 SHUTOFF로 Update
-    const pms = await this.resourceService.resource.findAll({
-      where: { resourceGroupKey: resourceGroup.resourceGroupKey, deletedAt: null, customerAccountKey: customerAccountKey, resourceType: "PM"},
-    })
-
-    for (const pm of pms) {
-      const pmIndex = pms.indexOf(pm);
-      let is_exist = false;
-      var tmp: any
-
-      for (var index = 0; index < length; index++) {
-        if (pm.resourceTargetUuid === result[metricName].data.result[index].metric.nodename) {
-          is_exist = true;
-          tmp = result[metricName].data.result[index].metric
-          break;
-        }
-      }
-
-      if (is_exist === false) {
-        uploadQuery['resource_Name'] = pm.resourceName;
-        uploadQuery['resource_Type'] = "PM";
-        uploadQuery['resource_Instance'] = pm.resourceInstance;
-        uploadQuery['resource_Spec'] = pm.resourceSpec;
-        uploadQuery['resource_Group_Uuid'] = clusterUuid;
-        uploadQuery['resource_Target_Uuid'] = pm.resourceTargetUuid;
-        uploadQuery['resource_Description'] = pm.resourceDescription;
-        uploadQuery['resource_Status'] = "INACTIVE"
-        uploadQuery['resource_Target_Created_At'] = null
-        uploadQuery['resource_Level1'] = "OS"; //Openstack
-        uploadQuery['resource_Level2'] = "PM";
-        uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
-        uploadQuery['resource_Rbac'] = true;
-        uploadQuery['resource_Anomaly_Monitor'] = false;
-        uploadQuery['resource_Active'] = true;
-      } else {
-        // get pm status
-        const statusQuery: any = {
-          query: [
-            {
-              "name": "pm_status",
-              "resourceGroupUuid": clusterUuid,
-              "type": "OS_CLUSTER_PM_NODE_STATUS",
-              "nodename": tmp.nodename
-            }
-          ]
-        }
-
-        const statusResult = await this.getMetricP8S(customerAccountKey, statusQuery)
-        let pmStatus: string = "UNKNOWN"
-        if (statusResult["pm_status"].data.result.length !== 0) {
-          const status = statusResult["pm_status"].data.result[0].value[1]
-          if (status === "1") {
-            pmStatus = "ACTIVE"
-          } else {
-            pmStatus = "INACTIVE"
-          }
-        }
-
-        uploadQuery['resource_Name'] = tmp.nodename;
-        uploadQuery['resource_Type'] = "PM";
-        uploadQuery['resource_Instance'] = tmp.instance;
-        uploadQuery['resource_Spec'] = tmp;
-        uploadQuery['resource_Group_Uuid'] = tmp.clusterUuid;
-        uploadQuery['resource_Target_Uuid'] = tmp.nodename;
-        uploadQuery['resource_Description'] = tmp.version;
-        uploadQuery['resource_Status'] = pmStatus
-        uploadQuery['resource_Target_Created_At'] = null
-        uploadQuery['resource_Level1'] = "OS"; //Openstack
-        uploadQuery['resource_Level2'] = "PM";
-        uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
-        uploadQuery['resource_Rbac'] = true;
-        uploadQuery['resource_Anomaly_Monitor'] = false;
-        uploadQuery['resource_Active'] = true;
-      }
-
-      tempQuery = this.formatter_resource(pmIndex, pms.length, "PM", clusterUuid, uploadQuery, mergedQuery);
-      mergedQuery = tempQuery;
-    }
-    // for (var i=0; i<length; i++) {
-    //   // get pm status
-    //   const statusQuery: any = {
-    //     query: [
-    //       {
-    //         "name": "pm_status",
-    //         "resourceGroupUuid": clusterUuid,
-    //         "type": "OS_CLUSTER_PM_NODE_STATUS",
-    //         "nodename": result[metricName].data.result[i].metric.nodename
-    //       }
-    //     ]
-    //   }
-    //
-    //   const statusResult = await this.getMetricP8S(customerAccountKey, statusQuery)
-    //   let pmStatus: string = "UNKNOWN"
-    //   if (statusResult["pm_status"].data.result.length !== 0) {
-    //     const status = statusResult["pm_status"].data.result[0].value[1]
-    //     if (status === "1") {
-    //       pmStatus = "ACTIVE"
-    //     } else {
-    //       pmStatus = "INACTIVE"
-    //     }
-    //   }
-    //
-    //   uploadQuery['resource_Name'] = result[metricName].data.result[i].metric.nodename;
-    //   uploadQuery['resource_Type'] = "PM";
-    //   uploadQuery['resource_Instance'] = result[metricName].data.result[i].metric.instance;
-    //   uploadQuery['resource_Spec'] = result[metricName].data.result[i].metric;
-    //   uploadQuery['resource_Group_Uuid'] = result[metricName].data.result[i].metric.clusterUuid;
-    //   uploadQuery['resource_Target_Uuid'] = result[metricName].data.result[i].metric.nodename;
-    //   uploadQuery['resource_Description'] = result[metricName].data.result[i].metric.version;
-    //   uploadQuery['resource_Status'] = pmStatus
-    //   uploadQuery['resource_Target_Created_At'] = null
-    //   uploadQuery['resource_Level1'] = "OS"; //Openstack
-    //   uploadQuery['resource_Level2'] = "PM";
-    //   uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
-    //   uploadQuery['resource_Rbac'] = true;
-    //   uploadQuery['resource_Anomaly_Monitor'] = false;
-    //   uploadQuery['resource_Active'] = true;
-    //
-    //   tempQuery = this.formatter_resource(i, length, "PM", clusterUuid, uploadQuery, mergedQuery);
-    //   mergedQuery = tempQuery;
-    // }
-
-    console.log("query:", mergedQuery)
-    return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
-  }
-
-  private formatter_resource(i, itemLength, resourceType, cluster_uuid, query, mergedQuery) {
-    let interimQuery = {};
-    try {
-      if (itemLength==1) {
-        interimQuery = '{"resource_Type": "' + resourceType + '", "resource_Group_Uuid": "' + cluster_uuid + '", ' + '"resource":[' + JSON.stringify(query) + "]}";
-      }
-      else {
-        if (i==0) {
-          interimQuery = '{"resource_Type": "' + resourceType + '", "resource_Group_Uuid": "' + cluster_uuid + '", ' + '"resource":[' + JSON.stringify(query);
-        }
-        else if (i==(itemLength-1)) {
-          interimQuery = mergedQuery + "," + JSON.stringify(query) + "]}";
-        }
-        else {
-          interimQuery = mergedQuery +  "," + JSON.stringify(query);
-        }
-      }
-    } catch (error) {
-      console.log("error due to unexpoected error: ", error.response);
-    }
-    return interimQuery;
   }
 }
 
