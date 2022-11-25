@@ -66,6 +66,7 @@ import ResourceEventModel from '@/modules/ResourceEvent/models/resourceEvent.mod
 import AlertTargetGroupModel from '@/modules/Alert/models/alertTargetGroup.model';
 import AlertTargetSubGroupModel from '@/modules/Alert/models/alertTargetSubGroup.model';
 import AlertEasyRuleModel from '@/modules/Alert/models/alertEasyRule.model';
+import PartyUserPasswordModel from '@/modules/Party/models/partyUserPassword.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -175,6 +176,7 @@ const DB = {
   AlertTargetGroup: AlertTargetGroupModel(sequelize),
   AlertTargetSubGroup: AlertTargetSubGroupModel(sequelize),
   AlertEasyRule: AlertEasyRuleModel(sequelize),
+  PartyUserPassword: PartyUserPasswordModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 
@@ -455,6 +457,12 @@ DB.AlertEasyRule.belongsTo(DB.AlertTargetSubGroup, { foreignKey: 'alertTargetSub
 
 DB.ResourceGroup.hasMany(DB.AlertEasyRule, { foreignKey: 'resourceGroupKey' });
 DB.AlertEasyRule.belongsTo(DB.ResourceGroup, { foreignKey: 'resourceGroupKey' });
+
+DB.PartyUser.hasMany(DB.PartyUserPassword, { foreignKey: 'partyUserKey' });
+DB.PartyUserPassword.belongsTo(DB.PartyUser, { foreignKey: 'partyUserKey' });
+
+DB.CustomerAccount.hasMany(DB.ResolutionAction, { foreignKey: 'customer_account_key' });
+DB.ResolutionAction.belongsTo(DB.CustomerAccount, { foreignKey: 'customer_account_key' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

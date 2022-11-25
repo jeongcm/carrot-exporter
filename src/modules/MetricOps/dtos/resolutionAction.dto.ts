@@ -21,6 +21,10 @@ export class CreateResolutionActionDto {
 
   @IsOptional()
   public resolutionActionPrerequisiteKey: number;
+
+  @IsString()
+  @IsNotEmpty()
+  public customerAccountId: string;
 }
 export class UpdateResolutionActionDto {
   @IsString()
@@ -43,4 +47,8 @@ export class UpdateResolutionActionDto {
 
   @IsOptional()
   public resolutionActionPrerequisiteKey: number;
+
+  @IsString()
+  @IsNotEmpty()
+  public customerAccountId: string;
 }

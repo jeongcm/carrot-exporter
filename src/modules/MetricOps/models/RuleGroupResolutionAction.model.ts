@@ -53,7 +53,8 @@ export default function (sequelize: Sequelize): typeof RuleGroupResolutionAction
       },
       ruleGroupResolutionActionId: {
         allowNull: false,
-        type: DataTypes.STRING(16),
+        type: DataTypes.STRING(100),
+        unique: true,
       },
       createdBy: {
         type: DataTypes.STRING(16),

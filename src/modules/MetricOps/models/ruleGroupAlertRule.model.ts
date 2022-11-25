@@ -42,13 +42,14 @@ export default function (sequelize: Sequelize): typeof RuleGroupAlertRuleModel {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      alertRuleKey:{
+      alertRuleKey: {
         allowNull: false,
         type: DataTypes.INTEGER,
       },
-      ruleGroupAlertRuleId:{
+      ruleGroupAlertRuleId: {
         allowNull: false,
-        type: DataTypes.STRING(16),
+        type: DataTypes.STRING(100),
+        unique: true,
       },
       createdBy: {
         type: DataTypes.STRING(16),
@@ -73,7 +74,7 @@ export default function (sequelize: Sequelize): typeof RuleGroupAlertRuleModel {
       ruleGroupAlertRuleStatus: {
         type: DataTypes.STRING(2),
         allowNull: false,
-      }
+      },
     },
 
     {

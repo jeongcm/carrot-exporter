@@ -14,6 +14,7 @@ import { IRuleGroupResolutionAction } from '@/common/interfaces/ruleGroupResolut
 class ResolutionActionService {
   public resolutionAction = DB.ResolutionAction;
   public sudoryTemplate = DB.SudoryTemplate;
+  public customerAccount = DB.CustomerAccount;
   public ruleGroup = DB.RuleGroup;
   public ruleGroupResolutionAction = DB.RuleGroupResolutionAction;
   public customerAccountService = new CustomerAccountService();
@@ -22,12 +23,17 @@ class ResolutionActionService {
   /**
    * Find all resolutionAction List
    *
+   * @param {string} customerAccountId
    * @returns Promise<IResolutionAction[]>
    * @author Shrishti Raj
    */
-  public async findAllResolutionAction(): Promise<IResolutionAction[]> {
+  public async findAllResolutionAction(customerAccountId: string): Promise<IResolutionAction[]> {
+    const customerAccountDetails = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    if (!customerAccountDetails) throw new HttpException(401, 'customer account is not found');
+    const customerAccountKey = customerAccountDetails.customerAccountKey;
+
     const resolutionActionList: IResolutionAction[] = await this.resolutionAction.findAll({
-      where: { deletedAt: null },
+      where: { deletedAt: null, customerAccountKey },
       include: [{ model: SudoryTemplateModel, as: 'sudoryTemplate' }],
     });
     return resolutionActionList;
@@ -53,10 +59,16 @@ class ResolutionActionService {
       resolutionActionTemplateSteps,
       resolutionActionType,
       resolutionActionPrerequisiteKey,
+      customerAccountId,
     } = resolutionActionData;
-    const sudoryTemplateDetails = await this.sudoryTemplate.findOne({ where: { sudoryTemplateId: sudoryTemplateId } });
+    const sudoryTemplateDetails = await this.sudoryTemplate.findOne({ where: { sudoryTemplateId: sudoryTemplateId, deletedAt: null } });
     if (!sudoryTemplateDetails) throw new HttpException(400, 'SudoryTemplate is not found');
+    const customerAccountDetails = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    if (!customerAccountDetails) throw new HttpException(401, 'customer account is not found');
+    const customerAccountKey = customerAccountDetails.customerAccountKey;
+
     const currentDate = new Date();
+
     const resolutionAction = {
       resolutionActionId: resolutionActionId,
       createdBy: systemId,
@@ -68,6 +80,7 @@ class ResolutionActionService {
       resolutionActionType,
       resolutionActionPrerequisiteNumber: resolutionActionPrerequisiteKey || null,
       sudoryTemplateKey: sudoryTemplateDetails.sudoryTemplateKey,
+      customerAccountKey,
     };
     const newresolutionAction: IResolutionAction = await this.resolutionAction.create(resolutionAction);
     console.log('newresolutionAction', newresolutionAction);
