@@ -53,7 +53,7 @@ export default function (sequelize: Sequelize): typeof EvaluationModel {
       },
       evaluationId: {
         allowNull: false,
-        type: DataTypes.STRING(16),
+        type: DataTypes.STRING(100),
         unique: true,
       },
       createdBy: {

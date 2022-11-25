@@ -169,7 +169,7 @@ class ModelRuleScoreService {
   public async getAllRuleGroupsByModelId(bayesianModelId: string): Promise<any> {
     const findBayesianModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
 
-    let bayesianModelKey = findBayesianModel.bayesianModelKey;
+    const bayesianModelKey = findBayesianModel.bayesianModelKey;
     const findData = await this.modelRuleScore.findAll({
       where: {
         bayesianModelKey: bayesianModelKey,

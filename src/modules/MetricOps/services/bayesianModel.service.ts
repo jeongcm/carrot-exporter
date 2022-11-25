@@ -22,6 +22,15 @@ import { ResourceModel } from '@/modules/Resources/models/resource.model';
 import config from '@config/index';
 import { AlertRuleModel } from '@/modules/Alert/models/alertRule.model';
 import MetricOpsUtilService from './metricOpsUtill.service';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { IRuleGroup } from '@/common/interfaces/ruleGroup.interface';
+import { IAlertRule } from '@/common/interfaces/alertRule.interface';
+import { ISudoryTemplate } from '@/common/interfaces/sudoryTemplate.interface';
+import { IResolutionAction } from '@/common/interfaces/resolutionAction.interface';
+import { IRuleGroupAlertRule } from '@/common/interfaces/ruleGroupAlertRule.interface';
+import { IRuleGroupResolutionAction } from '@/common/interfaces/ruleGroupResolutionAction.interface';
+import { IModelRuleScore } from '@/common/interfaces/modelRuleScore.interface';
+import { bool } from 'aws-sdk/clients/signer';
 
 class BayesianModelServices {
   public bayesianModel = DB.BayesianModel;
@@ -29,7 +38,13 @@ class BayesianModelServices {
   public subscribedProduct = DB.SubscribedProduct;
   public monitoringTarget = DB.AnomalyMonitoringTarget;
   public resourceGroup = DB.ResourceGroup;
+  public ruleGroup = DB.RuleGroup;
+  public resolutionAction = DB.ResolutionAction;
+  public ruleGroupResolutionAction = DB.RuleGroupResolutionAction;
   public ruleGroupAlertRule = DB.RuleGroupAlertRule;
+  public alertRule = DB.AlertRule;
+  public customerAccount = DB.CustomerAccount;
+  public sudoryTemplate = DB.SudoryTemplate;
   public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
   public anomalyMonitoringTargetService = new AnomalyMonitoringTargetService();
@@ -110,6 +125,7 @@ class BayesianModelServices {
       bayesianModelScoreCard,
       //resourceGroupKey,
       version,
+      standardModelId,
     } = newBayesianModel;
 
     const returnNewBaysianModel = {
@@ -128,6 +144,7 @@ class BayesianModelServices {
       bayesianModelScoreCard,
       resourceGroupUuid,
       version,
+      standardModelId,
     };
 
     return returnNewBaysianModel;
@@ -269,11 +286,11 @@ class BayesianModelServices {
     const findBayesianModel: IBayesianDBModel = await this.bayesianModel.findOne({ where: { bayesianModelId } });
     const bayesianModelKey = findBayesianModel.bayesianModelKey;
     if (!findBayesianModel) throw new HttpException(409, "BayesianModel doesn't exist");
-    const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, bayesianModelScoreCard, resourceGroupUuid, version } =
+    const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, bayesianModelScoreCard, resourceGroupId, version } =
       bayesianModelData;
     let resourceGroupKey;
-    if (resourceGroupUuid) {
-      const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: resourceGroupUuid } });
+    if (resourceGroupId) {
+      const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: resourceGroupId } });
       if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
       resourceGroupKey = resultResourceGroup.resourceGroupKey;
     }
@@ -355,6 +372,553 @@ class BayesianModelServices {
     //5 interface to delete the model in ML engine
 
     return returnResult;
+  }
+
+  /**
+   * provision BaysianModel to multiple clusters by subscription
+   *
+   * @param  {string} customerAccountId
+   * @returns Promise<IBayesianDBModel>
+   * @author Jerry Lee
+   */
+  public async provisionBayesianModel(customerAccountId: string): Promise<object> {
+    //step1. find customerAccount
+    const uuid = require('uuid');
+    const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    if (!findCustomerAccount) throw new HttpException(400, "CustomerAccount doesn't exist");
+    const customerAccountKey = findCustomerAccount.customerAccountKey;
+
+    //step2. find available ResourceGroup
+    const findResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({ where: { customerAccountKey, deletedAt: null } });
+    if (findResourceGroup.length == 0) throw new HttpException(401, "Target Resource Group / Cluster for BM model provision doesn't exist");
+
+    //step3. load ini model data
+    const {
+      bm: bmList,
+      bmRuleGroup: bmRuleGroupList,
+      ruleGroup: ruleGroupList,
+      alertRule: alertRuleList,
+      resolutionAction: resolutionActionList,
+    } = config.initialRecord.metricOps;
+
+    let returnMessage;
+
+    //step4-0. Create ResolutionAction
+    const resolutionActionData = [];
+    for (const x of resolutionActionList) {
+      const findSudoryTemplate: ISudoryTemplate = await this.sudoryTemplate.findOne({
+        where: { deletedAt: null, sudoryTemplateUuid: x.sudorytemplateUuid },
+      });
+      const findResolutionAction: IResolutionAction = await this.resolutionAction.findOne({
+        where: { deletedAt: null, resolutionActionName: x.resolutionActionName },
+      });
+      if (findSudoryTemplate && !findResolutionAction) {
+        resolutionActionData.push({
+          createdBy: 'SYSTEM',
+          createdAt: new Date(),
+          resolutionActionId: uuid.v1(),
+          resolutionActionName: x.resolutionActionName,
+          resolutionActionDescription: x.resolutionActionDescription,
+          resolutionActionTemplateSteps: x.rresolutionActionTemplateSteps,
+          resolutionActionType: x.resolutionActionType,
+          sudoryTemplateKey: findSudoryTemplate.sudoryTemplateKey,
+          customerAccountKey: customerAccountKey,
+        });
+      } else console.log('MetricOps - issue to create resolution action', x);
+    }
+    try {
+      await this.resolutionAction.bulkCreate(resolutionActionData, { updateOnDuplicate: ['resolutionActionName'] });
+      returnMessage = { ...returnMessage, resolutionAction: 'created' };
+    } catch (error) {
+      console.log('resolutionAction bulkcreate error-', error);
+      returnMessage = { ...returnMessage, resolutionAction: 'failed' };
+    }
+
+    //loop in each resourceGroup
+    for (let i = 0; i < findResourceGroup.length; i++) {
+      const resourceGroupKey = findResourceGroup[i].resourceGroupKey;
+      const resourceGroupUuid = findResourceGroup[i].resourceGroupUuid;
+
+      //step4-1. prepare for ruleGroup insert data and bulkinsert
+      const ruleGroupData = [];
+      for (const x of ruleGroupList) {
+        const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
+          where: { deletedAt: null, ruleGroupName: x.ruleGroupName, resourceGroupKey: resourceGroupKey },
+        });
+        if (!findRuleGroup) {
+          ruleGroupData.push({
+            ruleGroupId: uuid.v1(),
+            ruleGroupName: x.ruleGroupName,
+            ruleGroupDescription: x.ruleGroupDescription,
+            ruleGroupStatus: 'AC',
+            resourceGroupKey: resourceGroupKey,
+            createdBy: 'SYSTEM',
+            createdAt: new Date(),
+          });
+        }
+      }
+      try {
+        await this.ruleGroup.bulkCreate(ruleGroupData);
+        returnMessage = { ...returnMessage, ruleGroup: 'created' };
+      } catch (error) {
+        console.log('ruleGroup bulkcreate error-', error);
+        returnMessage = { ...returnMessage, ruleGroup: 'failed' };
+      }
+
+      //step4-2. prepare for alertRule/ruleGroup insert data
+      const alertRuleData = [];
+      for (const x of alertRuleList) {
+        const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
+          where: { deletedAt: null, resourceGroupKey, ruleGroupName: x.ruleGroupName },
+        });
+        const ruleGroupKey = findRuleGroup?.ruleGroupKey;
+        const findAlertRule: IAlertRule = await this.alertRule.findOne({
+          where: { deletedAt: null, resourceGroupUuid, alertRuleName: x.alertRuleName, alertRuleSeverity: x.alertRuleSeverity },
+        });
+        const alertRuleKey = findAlertRule?.alertRuleKey;
+        const findRuleGroupAlertRule: IRuleGroupAlertRule = await this.ruleGroupAlertRule.findOne({
+          where: { deletedAt: null, ruleGroupKey, alertRuleKey },
+        });
+
+        if (findRuleGroup && findAlertRule && !findRuleGroupAlertRule) {
+          alertRuleData.push({
+            createdBy: 'SYSTEM',
+            createdAt: new Date(),
+            ruleGroupAlertRuleId: uuid.v1(),
+            ruleGroupAlertRuleStatus: 'AC',
+            ruleGroupKey: findRuleGroup.ruleGroupKey,
+            alertRuleKey: findAlertRule.alertRuleKey,
+          });
+        } else console.log('MetricOps - issue to register alertRule to RuleGroup', x);
+      }
+      try {
+        await this.ruleGroupAlertRule.bulkCreate(alertRuleData);
+        returnMessage = { ...returnMessage, ruleGroupAlertRule: 'created' };
+      } catch (error) {
+        console.log('ruleGroupAlertRule bulkcreate error-', error);
+        returnMessage = { ...returnMessage, ruleGroupAlertRule: 'failed' };
+      }
+
+      //step4-3. add resolution action to rulegroup
+      const ruleGroupResolutionActionData = [];
+      for (const x of resolutionActionList) {
+        const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
+          where: { deletedAt: null, resourceGroupKey, ruleGroupName: x.ruleGroupName },
+        });
+        const ruleGroupKey = findRuleGroup?.ruleGroupKey;
+        const findSudoryTemplate: ISudoryTemplate = await this.sudoryTemplate.findOne({
+          where: { deletedAt: null, sudoryTemplateUuid: x.sudorytemplateUuid },
+        });
+        const findResolutionAction: IResolutionAction = await this.resolutionAction.findOne({
+          where: { deletedAt: null, resolutionActionName: x.resolutionActionName },
+        });
+        const resolutionActionKey = findResolutionAction?.resolutionActionKey;
+
+        const findRuleGroupResolutionAction: IRuleGroupResolutionAction = await this.ruleGroupResolutionAction.findOne({
+          where: { deletedAt: null, ruleGroupKey, resolutionActionKey },
+        });
+
+        if (findRuleGroup && findSudoryTemplate && findResolutionAction && !findRuleGroupResolutionAction) {
+          ruleGroupResolutionActionData.push({
+            createdBy: 'SYSTEM',
+            createdAt: new Date(),
+            ruleGroupResolutionActionId: uuid.v1(),
+            ruleGroupKey: findRuleGroup.ruleGroupKey,
+            resolutionActionKey: findResolutionAction.resolutionActionKey,
+            resolutionActionDescription: findResolutionAction.resolutionActionDescription,
+            sudoryTemplateArgsOption: findSudoryTemplate.sudoryTemplateArgs,
+          });
+        } else console.log('MetricOps - issue to create/register resolution action', x);
+      }
+      try {
+        await this.ruleGroupResolutionAction.bulkCreate(ruleGroupResolutionActionData);
+        returnMessage = { ...returnMessage, ruleGroupResolutionAction: 'created' };
+      } catch (error) {
+        console.log('ruleGroupAlertRule bulkcreate error-', error);
+        returnMessage = { ...returnMessage, ruleGroupResolutionAction: 'failed' };
+      }
+
+      //step4-4. create bm
+      const bmData = [];
+      for (const x of bmList) {
+        const findBm: IBayesianModel = await this.bayesianModel.findOne({
+          where: { deletedAt: null, bayesianModelName: x.bayesianModelName, resourceGroupKey },
+        });
+        if (!findBm) {
+          bmData.push({
+            bayesianModelId: uuid.v1(),
+            bayesianModelName: x.bayesianModelName,
+            bayesianModelDescription: x.bayesianModelDescription,
+            bayesianModelStatus: 'AC',
+            bayesianModelScoreCard: x.bayesianModelScoreCard,
+            customerAccountKey: customerAccountKey,
+            resourceGroupKey: resourceGroupKey,
+            bayesianModelResourceType: x.bayesianModelResourceType,
+            createdBy: 'SYSTEM',
+            createdAt: new Date(),
+            standardModelId: x.standardModelId,
+          });
+        }
+      }
+      try {
+        await this.bayesianModel.bulkCreate(bmData);
+        returnMessage = { ...returnMessage, bayesianModel: 'created' };
+      } catch (error) {
+        console.log('BayesianModel bulkcreate error-', error);
+        returnMessage = { ...returnMessage, bayesianModel: 'failed' };
+      }
+
+      //step4-6. add rulegroup to bm
+      const bmRuleGroup = [];
+      for (const x of bmRuleGroupList) {
+        const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
+          where: { deletedAt: null, resourceGroupKey, ruleGroupName: x.ruleGroupName },
+        });
+        const ruleGroupKey = findRuleGroup?.ruleGroupKey;
+        const findBm: IBayesianModel = await this.bayesianModel.findOne({
+          where: { deletedAt: null, resourceGroupKey, bayesianModelName: x.bayesianModelName },
+        });
+        const bayesianModelKey = findBm?.bayesianModelKey;
+        const findModelRuleScore: IModelRuleScore = await this.modelRuleScore.findOne({
+          where: { deletedAt: null, ruleGroupKey, bayesianModelKey },
+        });
+
+        if (findRuleGroup && findBm && !findModelRuleScore) {
+          bmRuleGroup.push({
+            createdBy: 'SYSTEM',
+            createdAt: new Date(),
+            modelRuleScoreId: uuid.v1(),
+            ruleGroupAlertRuleStatus: 'AC',
+            ruleGroupKey: findRuleGroup.ruleGroupKey,
+            bayesianModelKey: findBm.bayesianModelKey,
+            scoreCard: x.scoreCard,
+          });
+        } else console.log('MetricOps - issue to register ruleGroup to BayesianModel', x);
+      }
+      try {
+        await this.modelRuleScore.bulkCreate(bmRuleGroup);
+        returnMessage = { ...returnMessage, modelRuleScore: 'created' };
+      } catch (error) {
+        console.log('modelRuleScore bulkcreate error-', error);
+        returnMessage = { ...returnMessage, modelRuleScore: 'failed' };
+      }
+    } //end of resourcGroup loop
+
+    return returnMessage;
+  }
+
+  /**
+   * provision BaysianModel to a new cluster
+   *
+   * @param  {string} resourceGroupId
+   * @returns Promise<IBayesianDBModel>
+   * @author Jerry Lee
+   */
+  public async provisionBayesianModelforCluster(resourceGroupId: string): Promise<object> {
+    const uuid = require('uuid');
+    //step1. find ResourceGroup
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId, deletedAt: null } });
+    if (!findResourceGroup) throw new HttpException(401, 'Target Resource Group / Cluster for BM model provision does not exist');
+    const customerAccountKey = findResourceGroup.customerAccountKey;
+
+    //step2. load ini model data
+    const {
+      bm: bmList,
+      bmRuleGroup: bmRuleGroupList,
+      ruleGroup: ruleGroupList,
+      alertRule: alertRuleList,
+      resolutionAction: resolutionActionList,
+    } = config.initialRecord.metricOps;
+
+    let returnMessage;
+    const resourceGroupKey = findResourceGroup.resourceGroupKey;
+    const resourceGroupUuid = findResourceGroup.resourceGroupUuid;
+
+    //step3-1. create resolution action if there is no action
+    const resolutionActionData = [];
+    for (const x of resolutionActionList) {
+      const findSudoryTemplate: ISudoryTemplate = await this.sudoryTemplate.findOne({
+        where: { deletedAt: null, sudoryTemplateUuid: x.sudorytemplateUuid },
+      });
+      const findResolutionAction: IResolutionAction = await this.resolutionAction.findOne({
+        where: { deletedAt: null, resolutionActionName: x.resolutionActionName },
+      });
+      //if there is resolutuonaction with the same name, skip this.
+      if (findSudoryTemplate && !findResolutionAction) {
+        resolutionActionData.push({
+          createdBy: 'SYSTEM',
+          createdAt: new Date(),
+          resolutionActionId: uuid.v1(),
+          resolutionActionName: x.resolutionActionName,
+          resolutionActionDescription: x.resolutionActionDescription,
+          resolutionActionTemplateSteps: x.rresolutionActionTemplateSteps,
+          resolutionActionType: x.resolutionActionType,
+          sudoryTemplateKey: findSudoryTemplate.sudoryTemplateKey,
+          customerAccountKey: customerAccountKey,
+        });
+      } else console.log('MetricOps - issue to create resolution action or existing resolution action', x);
+    }
+    try {
+      await this.resolutionAction.bulkCreate(resolutionActionData);
+      returnMessage = { ...returnMessage, resolutionAction: 'created' };
+    } catch (error) {
+      console.log('ruleGroupAlertRule bulkcreate error-', error);
+      returnMessage = { ...returnMessage, resolutionAction: 'failed' };
+    }
+
+    //step3-2. prepare for ruleGroup insert data and bulkinsert
+    const ruleGroupData = [];
+    for (const x of ruleGroupList) {
+      const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
+        where: { deletedAt: null, ruleGroupName: x.ruleGroupName, resourceGroupKey: resourceGroupKey },
+      });
+      if (!findRuleGroup) {
+        ruleGroupData.push({
+          ruleGroupId: uuid.v1(),
+          ruleGroupName: x.ruleGroupName,
+          ruleGroupDescription: x.ruleGroupDescription,
+          ruleGroupStatus: 'AC',
+          resourceGroupKey: resourceGroupKey,
+          createdBy: 'SYSTEM',
+          createdAt: new Date(),
+        });
+      } else console.log('MetricOps - issue to register ruleGroup or existing one', x);
+    }
+    try {
+      await this.ruleGroup.bulkCreate(ruleGroupData);
+      console.log('ruleGroup bulkcreate ok-', JSON.stringify(ruleGroupData));
+      returnMessage = { ...returnMessage, ruleGroup: 'created' };
+    } catch (error) {
+      console.log('ruleGroup bulkcreate error-', error);
+      returnMessage = { ...returnMessage, ruleGroup: 'failed' };
+    }
+
+    //step3-3. prepare for alertRule/ruleGroup insert data
+    const alertRuleData = [];
+    for (const x of alertRuleList) {
+      const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
+        where: { deletedAt: null, resourceGroupKey, ruleGroupName: x.ruleGroupName },
+      });
+      const ruleGroupKey = findRuleGroup?.ruleGroupKey;
+      const findAlertRule: IAlertRule = await this.alertRule.findOne({
+        where: { deletedAt: null, resourceGroupUuid, alertRuleName: x.alertRuleName, alertRuleSeverity: x.alertRuleSeverity },
+      });
+      const alertRuleKey = findAlertRule?.alertRuleKey;
+
+      const findRuleGroupAlertRule: IRuleGroupAlertRule = await this.ruleGroupAlertRule.findOne({
+        where: { deletedAt: null, ruleGroupKey, alertRuleKey },
+      });
+
+      if (findRuleGroup && findAlertRule && !findRuleGroupAlertRule) {
+        alertRuleData.push({
+          createdBy: 'SYSTEM',
+          createdAt: new Date(),
+          ruleGroupAlertRuleId: uuid.v1(),
+          ruleGroupAlertRuleStatus: 'AC',
+          ruleGroupKey: findRuleGroup.ruleGroupKey,
+          alertRuleKey: findAlertRule.alertRuleKey,
+        });
+      } else console.log('MetricOps - issue to register alertRule to RuleGroup or existing one', x);
+    }
+    try {
+      await this.ruleGroupAlertRule.bulkCreate(alertRuleData);
+      console.log('alertRuleData bulkcreate ok-', JSON.stringify(alertRuleData));
+      returnMessage = { ...returnMessage, ruleGroupAlertRule: 'created' };
+    } catch (error) {
+      console.log('ruleGroupAlertRule bulkcreate error-', error);
+      returnMessage = { ...returnMessage, ruleGroupAlertRule: 'failed' };
+    }
+
+    //step3-4. add resolution action to rulegroup
+    const ruleGroupResolutionActionData = [];
+    for (const x of resolutionActionList) {
+      const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
+        where: { deletedAt: null, resourceGroupKey, ruleGroupName: x.ruleGroupName },
+      });
+      const ruleGroupKey = findRuleGroup?.ruleGroupKey;
+      const findSudoryTemplate: ISudoryTemplate = await this.sudoryTemplate.findOne({
+        where: { deletedAt: null, sudoryTemplateUuid: x.sudorytemplateUuid },
+      });
+      const findResolutionAction: IResolutionAction = await this.resolutionAction.findOne({
+        where: { deletedAt: null, resolutionActionName: x.resolutionActionName },
+      });
+      const resolutionActionKey = findResolutionAction?.resolutionActionKey;
+
+      const findRuleGroupResolutionAction: IRuleGroupResolutionAction = await this.ruleGroupResolutionAction.findOne({
+        where: { deletedAt: null, ruleGroupKey, resolutionActionKey },
+      });
+
+      if (findRuleGroup && findSudoryTemplate && findResolutionAction && !findRuleGroupResolutionAction) {
+        ruleGroupResolutionActionData.push({
+          createdBy: 'SYSTEM',
+          createdAt: new Date(),
+          ruleGroupResolutionActionId: uuid.v1(),
+          ruleGroupKey: findRuleGroup.ruleGroupKey,
+          resolutionActionKey: findResolutionAction.resolutionActionKey,
+          resolutionActionDescription: findResolutionAction.resolutionActionDescription,
+          sudoryTemplateArgsOption: findSudoryTemplate.sudoryTemplateArgs,
+        });
+      } else console.log('MetricOps - issue to create/register resolution action or existing one', x);
+    }
+    try {
+      await this.ruleGroupResolutionAction.bulkCreate(ruleGroupResolutionActionData);
+      console.log('ruleGroupResolutionActionData bulkcreate ok-', JSON.stringify(ruleGroupResolutionActionData));
+
+      returnMessage = { ...returnMessage, ruleGroupResolutionAction: 'created' };
+    } catch (error) {
+      console.log('ruleGroupAlertRule bulkcreate error-', error);
+      returnMessage = { ...returnMessage, ruleGroupResolutionAction: 'failed' };
+    }
+
+    //step3-5. create bm
+    const bmData = [];
+    for (const x of bmList) {
+      const findBm: IBayesianModel = await this.bayesianModel.findOne({
+        where: { deletedAt: null, bayesianModelName: x.bayesianModelName, resourceGroupKey },
+      });
+      if (!findBm) {
+        bmData.push({
+          bayesianModelId: uuid.v1(),
+          bayesianModelName: x.bayesianModelName,
+          bayesianModelDescription: x.bayesianModelDescription,
+          bayesianModelStatus: 'AC',
+          bayesianModelScoreCard: x.bayesianModelScoreCard,
+          customerAccountKey: customerAccountKey,
+          resourceGroupKey: resourceGroupKey,
+          bayesianModelResourceType: x.bayesianModelResourceType,
+          createdBy: 'SYSTEM',
+          createdAt: new Date(),
+          standardModelId: x.standardModelId,
+        });
+      } else console.log('MetricOps - issue to create BayesianModel or existing one', x);
+    }
+    try {
+      await this.bayesianModel.bulkCreate(bmData);
+      returnMessage = { ...returnMessage, bayesianModel: 'created' };
+      console.log('bmData bulkcreate ok-', JSON.stringify(bmData));
+    } catch (error) {
+      console.log('BayesianModel bulkcreate error-', error);
+      returnMessage = { ...returnMessage, bayesianModel: 'failed' };
+    }
+
+    //step3-6. add rulegroup to bm
+    const bmRuleGroup = [];
+    for (const x of bmRuleGroupList) {
+      const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
+        where: { deletedAt: null, resourceGroupKey, ruleGroupName: x.ruleGroupName },
+      });
+      const ruleGroupKey = findRuleGroup?.ruleGroupKey;
+      const findBm: IBayesianModel = await this.bayesianModel.findOne({
+        where: { deletedAt: null, resourceGroupKey, bayesianModelName: x.bayesianModelName },
+      });
+      const bayesianModelKey = findBm?.bayesianModelKey;
+
+      const findModelRuleScore: IModelRuleScore = await this.modelRuleScore.findOne({
+        where: { deletedAt: null, ruleGroupKey, bayesianModelKey },
+      });
+
+      if (findRuleGroup && findBm && !findModelRuleScore) {
+        bmRuleGroup.push({
+          createdBy: 'SYSTEM',
+          createdAt: new Date(),
+          modelRuleScoreId: uuid.v1(),
+          ruleGroupAlertRuleStatus: 'AC',
+          ruleGroupKey: findRuleGroup.ruleGroupKey,
+          bayesianModelKey: findBm.bayesianModelKey,
+          scoreCard: x.scoreCard,
+        });
+      } else console.log('MetricOps - issue to register ruleGroup to BayesianModel or existing one', x);
+    }
+    try {
+      await this.modelRuleScore.bulkCreate(bmRuleGroup);
+      console.log('bmRuleGroup bulkcreate ok-', JSON.stringify(bmRuleGroup));
+
+      returnMessage = { ...returnMessage, modelRuleScore: 'created' };
+    } catch (error) {
+      console.log('modelRuleScore bulkcreate error-', error);
+      returnMessage = { ...returnMessage, modelRuleScore: 'failed' };
+    }
+
+    return returnMessage;
+  }
+
+  /**
+   * De-provision BaysianModel by unsubscription
+   *
+   * @param  {string} customerAccountId
+   * @returns Promise<IBayesianDBModel>
+   * @author Jerry Lee
+   */
+  public async deprovisionBayesianModel(customerAccountId: string): Promise<object> {
+    const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    if (!findCustomerAccount) throw new HttpException(400, "CustomerAccount doesn't exist");
+    const customerAccountKey = findCustomerAccount.customerAccountKey;
+
+    const findResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({ where: { customerAccountKey, deletedAt: null } });
+    if (findResourceGroup.length == 0) throw new HttpException(401, "Target Resource Group / Cluster for BM model provision doesn't exist");
+
+    for (let i = 0; i < findResourceGroup.length; i++) {
+      const resourceGroupId = findResourceGroup[i].resourceGroupId;
+      await this.deprovisionBayesianModelforCluster(resourceGroupId);
+    }
+
+    return { message: 'deprovisioned successfully' };
+  }
+  /**
+   * De-provision BaysianModel to a new cluster
+   *
+   * @param  {string} resourceGroupId
+   * @returns Promise<IBayesianDBModel>
+   * @author Jerry Lee
+   */
+  public async deprovisionBayesianModelforCluster(resourceGroupId: string): Promise<object> {
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId, deletedAt: null } });
+    if (!findResourceGroup) throw new HttpException(401, 'Target Resource Group / Cluster for BM model provision does not exist');
+    const resourceGroupKey = findResourceGroup.resourceGroupKey;
+    let ruleGroupExsitance = true;
+    const findRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({ where: { resourceGroupKey, deletedAt: null } });
+    if (findRuleGroup.length === 0) ruleGroupExsitance = false;
+    let returnMessage;
+    try {
+      //BayesianModel
+      await DB.sequelize.transaction(async t => {
+        const updateBayesianModel = await this.bayesianModel.update(
+          { deletedAt: new Date(), bayesianModelStatus: 'CA' },
+          { where: { deletedAt: null, resourceGroupKey }, transaction: t },
+        );
+        returnMessage = { ...returnMessage, bayesianModel: `deleted ${updateBayesianModel}` };
+
+        if (ruleGroupExsitance) {
+          for (let i = 0; i < findRuleGroup.length; i++) {
+            //ruleGroupResolutionAction
+            await this.ruleGroupResolutionAction.update(
+              { deletedAt: new Date() },
+              { where: { deletedAt: null, ruleGroupKey: findRuleGroup[i].ruleGroupKey }, transaction: t },
+            );
+            //ruleGroupAlertRule
+            await this.ruleGroupAlertRule.update(
+              { deletedAt: new Date(), ruleGroupAlertRuleStatus: 'CA' },
+              { where: { deletedAt: null, ruleGroupKey: findRuleGroup[i].ruleGroupKey }, transaction: t },
+            );
+            //ModelRuleScore
+            await this.modelRuleScore.update(
+              { deletedAt: new Date() },
+              { where: { deletedAt: null, ruleGroupKey: findRuleGroup[i].ruleGroupKey }, transaction: t },
+            );
+            //RuleGroup
+            await this.ruleGroup.update(
+              { deletedAt: new Date() },
+              { where: { deletedAt: null, ruleGroupKey: findRuleGroup[i].ruleGroupKey }, transaction: t },
+            );
+          }
+          returnMessage = { ...returnMessage, rueGroup: `deleted ${updateBayesianModel}` };
+        }
+      });
+    } catch (error) {
+      console.log('#MetricOps - error to deprovison metricOps components', error);
+      throw new HttpException(500, 'fail to de-porvison MetricOps components');
+    }
+    return returnMessage;
   }
 }
 

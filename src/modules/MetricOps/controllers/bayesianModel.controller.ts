@@ -89,6 +89,33 @@ class BayesianModelController {
       next(error);
     }
   };
+  public provisionBayesianModel = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountId = req.body.customerAccountId;
+      const response = await this.bayesianModelService.provisionBayesianModel(customerAccountId);
+      res.status(200).json({ data: response, message: 'provision model successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
+  public provisionBayesianModelforCluster = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const resourceGroupId = req.body.resourceGroupId;
+      const response = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
+      res.status(200).json({ data: response, message: 'provision model successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
+  public deprovisionBayesianModelforCluster = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const resourceGroupId = req.params.resourceGroupId;
+      const response = await this.bayesianModelService.deprovisionBayesianModelforCluster(resourceGroupId);
+      res.status(200).json({ data: response, message: 'deprovision model successfully' });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default BayesianModelController;

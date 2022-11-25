@@ -173,14 +173,15 @@ class RuleGroupService {
     try {
       return await DB.sequelize.transaction(async t => {
         let returnResult = {};
-        const deleteData1 = { deletedAt: new Date(), status: 'CA' };
+        const deleteData1 = { deletedAt: new Date(), ruleGroupStatus: 'CA' };
         const deleteData2 = { deletedAt: new Date() };
+        const deleteData3 = { deletedAt: new Date(), ruleGroupAlertRuleStatus: 'CA' };
 
         const updateRuleGroupResolutionAction = await this.ruleGroupResolutionAction.update(deleteData2, {
           where: { ruleGroupKey: ruleGroupKey },
           transaction: t,
         });
-        const updateRuleGroupAlertRule = await this.ruleGroupAlertRule.update(deleteData1, {
+        const updateRuleGroupAlertRule = await this.ruleGroupAlertRule.update(deleteData3, {
           where: { ruleGroupKey: ruleGroupKey },
           transaction: t,
         });

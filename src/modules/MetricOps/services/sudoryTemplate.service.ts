@@ -18,7 +18,7 @@ class SudoryTemplateService {
    */
   public async findAllSudoryTemplate(): Promise<ISudoryTemplate[]> {
     const sudoryTemplateList: ISudoryTemplate[] = await this.sudoryTemplate.findAll({
-      where: {deletedAt: null }
+      where: { deletedAt: null },
     });
     return sudoryTemplateList;
   }
@@ -30,17 +30,13 @@ class SudoryTemplateService {
    * @returns Promise<ISudoryTemplate>
    * @author Shrishti Raj
    */
-  public async createSudoryTemplate(
-    sudoryTemplateData: CreateSudoryTemplateDto,
-    systemId: string,
-  ): Promise<ISudoryTemplate> {
+  public async createSudoryTemplate(sudoryTemplateData: CreateSudoryTemplateDto, systemId: string): Promise<ISudoryTemplate> {
     if (isEmpty(sudoryTemplateData)) throw new HttpException(400, 'sudoryTemplate Data cannot be blank');
 
-
-    const tableIdName: string = 'SudoryTemplate';
+    const tableIdName = 'SudoryTemplate';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     const sudoryTemplateId: string = responseTableIdData.tableIdFinalIssued;
-    const {sudoryTemplateName, sudoryTemplateDescription, sudoryTemplateUuid, sudoryTemplateArgs} = sudoryTemplateData
+    const { sudoryTemplateName, sudoryTemplateDescription, sudoryTemplateUuid, sudoryTemplateArgs } = sudoryTemplateData;
     const currentDate = new Date();
     const sudoryTemplate = {
       sudoryTemplateId: sudoryTemplateId,
@@ -48,9 +44,9 @@ class SudoryTemplateService {
       createdAt: currentDate,
       updatedAt: currentDate,
       sudoryTemplateName,
-      sudoryTemplateDescription, 
+      sudoryTemplateDescription,
       sudoryTemplateUuid,
-      sudoryTemplateArgs
+      sudoryTemplateArgs,
     };
     const newsudoryTemplate: ISudoryTemplate = await this.sudoryTemplate.create(sudoryTemplate);
     return newsudoryTemplate;
@@ -74,12 +70,11 @@ class SudoryTemplateService {
     return findSudoryTemplate;
   }
 
-
   /**
-   * 
-   * @param {string} sudoryTemplateId 
-   * @param {object} sudoryTemplateData 
-   * @param {string} systemId 
+   *
+   * @param {string} sudoryTemplateId
+   * @param {object} sudoryTemplateData
+   * @param {string} systemId
    * @returns  Promise<ISudoryTemplate>
    */
   public async updateSudoryTemplate(
@@ -95,7 +90,7 @@ class SudoryTemplateService {
     const updatedChannelData = {
       ...sudoryTemplateData,
       updatedBy: systemId,
-      updatedAt: currentDate
+      updatedAt: currentDate,
     };
     await this.sudoryTemplate.update(updatedChannelData, { where: { sudoryTemplateId } });
 

@@ -72,9 +72,10 @@ class RuleGroupResolutionActionService {
     partyId: string,
   ): Promise<IRuleGroupResolutionAction[]> {
     if (isEmpty(ruleGroupResolutionActionData)) throw new HttpException(400, 'RuleGroup ResolutionAction cannot be blank');
-    const tableIdName = 'RuleGroupResolutionAction';
-    const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
-    const ruleGroupResolutionActionId: string = responseTableIdData.tableIdFinalIssued;
+    const uuid = require('uuid');
+    //const tableIdName = 'RuleGroupResolutionAction';
+    //const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
+    //const ruleGroupResolutionActionId: string = responseTableIdData.tableIdFinalIssued;
 
     // get ruleGroupKey based on ruleGroupId from RuleGroup table
     const ruleGroupData: IRuleGroup = await this.ruleGroupService.findRuleGroupById(ruleGroupResolutionActionData.ruleGroupId);
@@ -94,7 +95,7 @@ class RuleGroupResolutionActionService {
       newRuleGroupResolutionAction.push({
         resolutionActionDescription: resolutionAction.resolutionActionDescription,
         sudoryTemplateArgsOption: resolutionAction?.sudoryTemplate.sudoryTemplateArgs,
-        ruleGroupResolutionActionId,
+        ruleGroupResolutionActionId: uuid.v1(),
         ruleGroupKey: ruleGroupData.ruleGroupKey,
         resolutionActionKey: resolutionAction.resolutionActionKey,
         createdAt: currentDate,

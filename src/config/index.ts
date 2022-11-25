@@ -5,10 +5,6 @@ How to add config:
 3. define the type of the environment variable in validateEnv, IF the variable is required
 */
 
-// RYAN: we still need to use config to control all the environment variables
-// 1. For organization using nested objects
-// 2. For value control (default, computed)
-// 3. For security
 import '../dotenvConfig';
 import validateEnv from './validateEnv';
 import tableIds from '../../init/tableId.seeding.json';
@@ -18,6 +14,12 @@ import exporters from '../../init/exporters.seeding.json';
 import alertTargetGroup from '../../init/alertTargetGroup.seeding.json';
 import alertTargetSubGroup from '../../init/alertTargetSubGroup.seeding.json';
 import alertEasyRule from '../../init/alertEasyRule.seeding.json';
+
+import bm from '../../init/bm.seeding.json';
+import bmRuleGroup from '../../init/bmRuleGroup.seeding.json';
+import ruleGroup from '../../init/ruleGroup.seeding.json';
+import resolutionAction from '../../init/resolutionAction.seeding.json';
+import alertRule from '../../init/alertRule.seeding.json';
 
 validateEnv();
 
@@ -117,6 +119,13 @@ export default {
     alertTargetGroup,
     alertTargetSubGroup,
     alertEasyRule,
+    metricOps: {
+      bm,
+      bmRuleGroup,
+      ruleGroup,
+      alertRule,
+      resolutionAction,
+    },
   },
   deadLock: {
     retries: Number(process.env.NC_LARI_DEADLOCK_RETRIES) || 5,
@@ -186,9 +195,10 @@ export default {
   },
   ncBnApiDetail: {
     ncBnUrl: process.env.NC_BN_URL,
-    ncBnNodePath: process.env.NC_BN_NODE_PATH,
+    ncBnPredictPath: process.env.NC_BN_PREDICT_PATH,
     ncBnNodeThreshold: process.env.NC_BN_NODE_THRESHOLD,
     ncBnPodThreshold: process.env.NC_BN_POD_THRESHOLD,
+    ncBnPvcThreshold: process.env.NC_BN_PVC_THRESHOLD,
     ncBnRefreshModelPath: process.env.NC_BN_REFRESH_MODEL_PATH,
   },
   oT: {

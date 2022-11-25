@@ -77,15 +77,22 @@ class EvaluateServices {
     const resourceType = resultResource.resourceType;
     const resourceName = resultResource.resourceName;
     const resourceId = resultResource.resourceId;
-
+    console.log('#METRICOPS - resourceName', resourceName);
     const step1 = new Date().getTime();
     const elaps1 = (step1 - step0) / 1000;
-    console.log('step1 -', elaps1);
+    console.log('#METRICOPS step1 -', elaps1 + ' ' + resourceName);
 
     // 2. Pull model to find alert rules
     const bayesianModelKey = resultMonitoringTarget.bayesianModelKey;
     const resultBayesianModel: IBayesianDBModel = await this.bayesianModelService.findBayesianModelByKey(bayesianModelKey);
     const bayesianModelId = resultBayesianModel.bayesianModelId;
+    //if this model has a standard model id, use the standard model id instead of bayesian model id
+    let bayesianModelIdForBn;
+    if (resultBayesianModel?.standardModelId) {
+      bayesianModelIdForBn = resultBayesianModel.standardModelId;
+    } else {
+      bayesianModelIdForBn = resultBayesianModel.bayesianModelId;
+    }
     const resourceGroupKey = resultBayesianModel.resourceGroupKey;
 
     bayesianModel = {
@@ -103,11 +110,10 @@ class EvaluateServices {
 
     const step2 = new Date().getTime();
     const elaps2 = (step2 - step1) / 1000;
-    console.log('step2 -', elaps2);
+    console.log('#METRICOPS step2 -', elaps2 + ' ' + resourceName);
 
     const ruleGroup = [];
     const resultRuleGroup = await this.ruleGroup.findAll(ruleGroupQuery);
-    console.log('length:---------', resultRuleGroup.length);
     for (let i = 0; i < resultRuleGroup.length; i++) {
       ruleGroup[i] = {
         ruleGroupId: resultRuleGroup[i].ruleGroupId,
@@ -120,7 +126,7 @@ class EvaluateServices {
 
     const step3 = new Date().getTime();
     const elaps3 = (step3 - step2) / 1000;
-    console.log('step3 -', elaps3);
+    console.log('#METRICOPS step3 -', elaps3 + ' ' + resourceName);
 
     const ruleGroupAlertRule = [];
     const resultRuleGroupList = await this.ruleGroupAlertRule.findAll(ruleGroupQuery);
@@ -137,12 +143,11 @@ class EvaluateServices {
 
     const step4 = new Date().getTime();
     const elaps4 = (step4 - step3) / 1000;
-    console.log('step4 -', elaps4);
+    console.log('#METRICOPS step4 -', elaps4 + ' ' + resourceName);
 
     // 3. Find firing alerts received
     let firedAlerts = [];
     const inputAlerts = {};
-    console.log('resourceType', resourceType);
     switch (resourceType) {
       case 'ND':
         const alertRuleQueryNd = {
@@ -184,7 +189,7 @@ class EvaluateServices {
         const alertRuleQueryPd = {
           where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null, alertReceivedState: 'firing', alertReceivedPod: resourceName },
         };
-        console.log('alertRuleQueryPd-------------', JSON.stringify(alertRuleQueryPd));
+
         const resultAlertReceivedPd: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQueryPd);
         if (resultAlertReceivedPd.length === 0) {
           firedAlerts = [];
@@ -251,7 +256,7 @@ class EvaluateServices {
 
     const step5 = new Date().getTime();
     const elaps5 = (step5 - step4) / 1000;
-    console.log('step5 -', elaps5);
+    console.log('#METRICOPS step5 -', elaps5 + ' ' + resourceName);
 
     // 4. Save the request map to the db
     //use uuid instead of tableid due to performance reason
@@ -260,10 +265,6 @@ class EvaluateServices {
     //console.log (evaluationId);
     const uuid = require('uuid');
     const evaluationId = uuid.v1();
-
-    const step51 = new Date().getTime();
-    const elaps51 = (step51 - step5) / 1000;
-    console.log('step5.1 -', elaps51);
 
     const createEvaluation = {
       evaluationId: evaluationId,
@@ -284,7 +285,7 @@ class EvaluateServices {
 
     const step6 = new Date().getTime();
     const elaps6 = (step6 - step5) / 1000;
-    console.log('step6 -', elaps6);
+    console.log('#METRICOPS step6 -', elaps6 + ' ' + resourceName);
 
     if (evaluationResultStatus === 'NF') {
       returnResponse = {
@@ -294,18 +295,18 @@ class EvaluateServices {
         resourceName: resourceName,
         resourceId: resourceId,
       };
-      console.log('total elaps: ', elaps1 + elaps2 + elaps3 + elaps4 + elaps5 + elaps6);
+      console.log('#MetrcOps total elaps: ', elaps1 + elaps2 + elaps3 + elaps4 + elaps5 + elaps6 + ' ' + resourceName);
       return returnResponse;
     }
 
     // 5. Call NexClipper BN
     bnData = {
       evaluationId: evaluationId,
-      bayesianModelId: bayesianModelId,
+      bayesianModelId: bayesianModelIdForBn,
       inputAlerts: inputAlerts,
     };
 
-    const url = config.ncBnApiDetail.ncBnUrl + config.ncBnApiDetail.ncBnNodePath;
+    const url = config.ncBnApiDetail.ncBnUrl + config.ncBnApiDetail.ncBnPredictPath;
     let evaluationResult;
     console.log('bnData', bnData);
     await axios({
@@ -321,7 +322,7 @@ class EvaluateServices {
           return res;
         }
         evaluationResult = res.data;
-        console.log(res.data);
+        console.log('#METRICOPS 6-1 Success', res.data + ' ' + resourceName);
         //console.log(`got evaluation result -- ${evaluationResult}`);
       })
       .catch(error => {
@@ -335,19 +336,20 @@ class EvaluateServices {
         const updateErrorWhere = {
           where: { evaluationId: evaluationId },
         };
-        console.log(error);
+        console.log('#METRICOPS 6-2', error + ' ' + resourceName);
         const resultEvaluationResult = this.evaluation.update(updateError, updateErrorWhere);
         throw new HttpException(500, `Unknown error to fetch the result of evaluation from nexclipper-bn: ${evaluationId}`);
       });
 
     const step7 = new Date().getTime();
     const elaps7 = (step7 - step6) / 1000;
-    console.log('step7 -', elaps7);
+    console.log('#METRICOPS step7 -', elaps7 + ' ' + resourceName);
 
     const predictedScore = evaluationResult.predicted_score;
-    console.log('predictedScore: ', predictedScore);
+    console.log('#METRICOPS step7-1 evaluation result: ', evaluationResult + ' ' + resourceName);
     const nodeThreshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
-    const podThreshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
+    const podThreshold = Number(config.ncBnApiDetail.ncBnPodThreshold);
+    const pvcThreshold = Number(config.ncBnApiDetail.ncBnPvcThreshold);
 
     // need to improve to process pod
     if (resourceType === 'ND') {
@@ -358,6 +360,12 @@ class EvaluateServices {
       }
     } else if (resourceType === 'PD') {
       if (predictedScore >= podThreshold) {
+        evaluationResultStatus = 'AN';
+      } else {
+        evaluationResultStatus = 'OK';
+      }
+    } else if (resourceType === 'PC') {
+      if (predictedScore >= pvcThreshold) {
         evaluationResultStatus = 'AN';
       } else {
         evaluationResultStatus = 'OK';
@@ -395,8 +403,8 @@ class EvaluateServices {
 
     const step8 = new Date().getTime();
     const elaps8 = (step8 - step7) / 1000;
-    console.log('step8 -', elaps8);
-    console.log('total elaps: ', elaps1 + elaps2 + elaps3 + elaps4 + elaps5 + elaps6 + elaps7 + elaps8);
+    console.log('#METRICOPS step8 -', elaps8 + ' ' + resourceName);
+    console.log('#METRICOPS total elaps: ', elaps1 + elaps2 + elaps3 + elaps4 + elaps5 + elaps6 + elaps7 + elaps8 + ' ' + resourceName);
 
     return returnResponse;
   }
@@ -493,6 +501,7 @@ class EvaluateServices {
         //6. execute any resolution actions if there are actions under rule group more than a threshold
         const nodeThreshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
         const podThreshold = Number(config.ncBnApiDetail.ncBnPodThreshold);
+        const pvcThreshold = Number(config.ncBnApiDetail.ncBnPvcThreshold);
 
         const ruleGroup = [];
         Object.entries(evaluationResult.alert_group_score).filter(([key, value]) => {
@@ -504,7 +513,11 @@ class EvaluateServices {
           } else if (resourceType == 'PD') {
             if (ruleValue >= podThreshold) {
               ruleGroup.push(key);
-            } // TODO - else - for workload case later
+            }
+          } else if (resourceType == 'PC') {
+            if (ruleValue >= pvcThreshold) {
+              ruleGroup.push(key);
+            }
           }
         });
         //console.log(`ruleGroup===================, ${ruleGroup}`);

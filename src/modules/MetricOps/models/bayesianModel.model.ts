@@ -18,6 +18,7 @@ export type BayesianModelAttributes = Optional<
   | 'bayesianModelScoreCard'
   | 'resourceGroupKey'
   | 'version'
+  | 'standardModelId'
 >;
 
 export class BayesianModelTable extends Model<IBayesianDBModel, BayesianModelAttributes> implements IBayesianDBModel {
@@ -34,6 +35,7 @@ export class BayesianModelTable extends Model<IBayesianDBModel, BayesianModelAtt
   public bayesianModelScoreCard: JSON;
   public bayesianModelResourceType: 'ND' | 'SV' | 'PD' | 'PC';
   public version: string;
+  public standardModelId: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -50,7 +52,7 @@ export default function (sequelize: Sequelize): typeof BayesianModelTable {
       },
       bayesianModelId: {
         allowNull: false,
-        type: DataTypes.STRING(16),
+        type: DataTypes.STRING(100),
         unique: true,
       },
       createdBy: {
@@ -91,6 +93,11 @@ export default function (sequelize: Sequelize): typeof BayesianModelTable {
       customerAccountKey: {
         type: DataTypes.INTEGER,
       },
+      standardModelId: {
+        allowNull: true,
+        type: DataTypes.STRING(100),
+      },
+
       bayesianModelResourceType: {
         type: DataTypes.STRING(2),
         validate: {

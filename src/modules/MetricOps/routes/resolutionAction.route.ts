@@ -21,7 +21,12 @@ class ResolutionActionRoute implements Routes {
       validationMiddleware(CreateResolutionActionDto, 'body'),
       this.resoltutionActionController.createResolutionAction,
     );
-    this.router.get('/resolutionActions', authMiddleware, createUserLogMiddleware, this.resoltutionActionController.getAllResolutionAction);
+    this.router.get(
+      '/resolutionActions/:customerAccountId',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resoltutionActionController.getAllResolutionAction,
+    );
     this.router.get(
       '/resolutionAction/:resolutionActionId',
       authMiddleware,
