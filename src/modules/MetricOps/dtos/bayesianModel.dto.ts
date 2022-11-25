@@ -21,11 +21,18 @@ export class CreateBayesianModelDto {
 
   @IsOptional()
   public version: string;
+
+  @IsOptional()
+  public standardModelId: string;
 }
 export class UpdateBayesianModelDto {
   @IsString()
   @IsOptional()
   public bayesianModelName: string;
+
+  @IsString()
+  @IsOptional()
+  public bayesianModelId: string;
 
   @IsString()
   @IsOptional()
@@ -36,11 +43,26 @@ export class UpdateBayesianModelDto {
   public bayesianModelResourceType: string;
 
   @IsNotEmpty()
-  public resourceGroupUuid: string;
+  public resourceGroupId: string;
 
   @IsOptional()
   public bayesianModelScoreCard: JSON;
 
   @IsOptional()
   public version: string;
+
+  @IsOptional()
+  public standardModelId: string;
+}
+
+export class ProvisionBayesianModelDto {
+  @IsString()
+  @IsNotEmpty()
+  public customerAccountId: string;
+}
+
+export class ProvisionBayesianModelforClusterDto {
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupId: string;
 }
