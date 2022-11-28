@@ -145,10 +145,25 @@ class AlertReceivedService extends ServiceExtension {
 
   public async getAllAlertReceivedByAlertHash(alertHash?: string): Promise<any[]> {
     if (isEmpty(alertHash)) throw new HttpException(400, 'Not a valid AlertReceivedHash');
-    const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
+    let allAlertReceived;
+    const allAlertReceived1: IAlertReceived[] = await this.alertReceived.findAll({
       limit: 200,
-      where: { alertReceivedHash: alertHash, alertReceivedUiFlag: { [Op.in]: [0, 2, 4, 6, 8] } },
-      order: [['createdAt', 'DESC']],
+      where: {
+        alertReceivedHash: alertHash,
+        alertReceivedUiFlag: { [Op.in]: [0, 2, 4, 6, 8] },
+        alertReceivedState: { [Op.in]: ['pending', 'firing'] },
+      },
+    });
+    const allAlertReceived2: IAlertReceived[] = await this.alertReceived.findAll({
+      where: { alertReceivedHash: alertHash, alertReceivedState: 'resolved' },
+    });
+
+    allAlertReceived = allAlertReceived1.concat(allAlertReceived2);
+
+    allAlertReceived = allAlertReceived.sort(function (a, b) {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateA < dateB ? 1 : -1; //this is for Decending, for Acending, use -1: 1
     });
     return allAlertReceived;
   }
@@ -262,22 +277,26 @@ class AlertReceivedService extends ServiceExtension {
   }
 
   public async getAlertReceivedHistory(customerAccountKey: number, alertReceivedId: string): Promise<IAlertReceived[]> {
-    const alertFound: IAlertReceived = await this.alertReceived.findOne({
-      where: { customerAccountKey: customerAccountKey, alertReceivedId: alertReceivedId, deletedAt: null },
+    const findAlertReceived: IAlertReceived = await this.alertReceived.findOne({
+      where: { customerAccountKey: customerAccountKey, alertReceivedId: alertReceivedId },
     });
 
-    if (!alertFound) {
+    if (!findAlertReceived) {
       throw new HttpException(404, 'ALERT_NOT_FOUND');
     }
 
     // TODO: to add more criteria to identify a group of alerts
-    const query = { alertRuleKey: alertFound.alertRuleKey };
-
-    const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
-      where: { customerAccountKey: customerAccountKey, ...query },
-      order: [['createdAt', 'DESC']],
-      attributes: { exclude: ['alertReceivedKey', 'alertRuleKey', 'customerAccountKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+    const alertReceivedHash = findAlertReceived.alertReceivedHash;
+    let allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
+      where: { alertReceivedHash },
     });
+
+    allAlertReceived = allAlertReceived.sort(function (a, b) {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateA < dateB ? 1 : -1; //this is for Decending, for Acending, use -1: 1
+    });
+
     return allAlertReceived;
   }
 

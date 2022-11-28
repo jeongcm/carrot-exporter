@@ -17,12 +17,17 @@ import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import IncidentService from '@/modules/Incident/services/incident.service';
 import AlertEasyRuleService from '@/modules/Alert/services/alertEasyRule.service';
+import BayesianModelService from '@/modules/MetricOps/services/bayesianModel.service';
+
 import TableIdService from './tableId.service';
 
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
 import { IAlertTargetSubGroup } from '@/common/interfaces/alertTargetSubGroup.interface';
 import MetricService from "@modules/Metric/services/metric.service";
+import { ISubscriptions } from '@/common/interfaces/subscription.interface';
+import subscriptionHistoryModel from '@/modules/Subscriptions/models/subscriptionHistory.model';
+import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
@@ -33,8 +38,11 @@ class executorService {
   public schedulerService = new SchedulerService();
   public incidentService = new IncidentService();
   public metricService = new MetricService();
+  public bayesianModelService = new BayesianModelService();
 
   public sudoryWebhook = DB.SudoryWebhook;
+  public subscription = DB.Subscription;
+  public catalogPlan = DB.CatalogPlan;
   public executorService = DB.ExecutorService;
   public resourceGroup = DB.ResourceGroup;
   public exporters = DB.Exporters;
@@ -874,14 +882,8 @@ class executorService {
     };
     // get system user id
 
-    try {
-      const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
-      console.log('Success to create ResponseGroup: ', ResponseResoureGroup.resourceGroupId);
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(500, `Error on creating cluster ${clusterUuid}`);
-    }
-
+    const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
+    const resourceGroupId = ResponseResoureGroup.resourceGroupId;
     //schedule metricMeta
     await this.scheduleMetricMeta(clusterUuid, customerAccountKey)
       .then(async (res: any) => {
@@ -988,6 +990,19 @@ class executorService {
       waitSec = waitSec - 5;
     }
 
+    //provision metricOps rule if the customer has MetricOps subscription
+    const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+    if (findSubscription.length > 0) {
+      const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
+      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+        where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
+      });
+      const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
+      if (findMetricOps) {
+        const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
+        console.log('resultProvision', resultProvision);
+      }
+    }
     // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
     // console.log('operation schedules setup:', scheduleHealthService);
 
@@ -2842,8 +2857,22 @@ class executorService {
   public async getExecutorServicebyCustomerAccountId(customerAccountId: string): Promise<IExecutorService[]> {
     const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountId } });
     const customerAccountKey = getCustomerAccount.customerAccountKey;
+    const dateMinus = new Date();
+    dateMinus.setDate(dateMinus.getDate() - 1);
+    const date = new Date();
+    console.log('date', date);
+    console.log('dateMinus', dateMinus);
 
-    const getExecutorServiceAll: IExecutorService[] = await this.executorService.findAll({ where: { customerAccountKey } });
+    let getExecutorServiceAll: IExecutorService[] = await this.executorService.findAll({
+      //limit: 1000,
+      where: { customerAccountKey, createdAt: { [Op.and]: { [Op.gte]: dateMinus, [Op.lte]: date } } },
+    });
+    getExecutorServiceAll = getExecutorServiceAll.sort(function (a, b) {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return dateA < dateB ? 1 : -1; //this is for Decending, for Acending, use -1: 1
+    });
+
     return getExecutorServiceAll;
   }
 }

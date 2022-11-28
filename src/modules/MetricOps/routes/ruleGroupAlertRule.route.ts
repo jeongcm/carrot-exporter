@@ -36,6 +36,12 @@ class RuleGroupAlertRoute implements Routes {
       this.ruleGroupAlertRuleController.unregisterAlertRule,
     );
     this.router.post(
+      '/ruleGroup/alertRule/sync',
+      //authMiddleware,
+      //validationMiddleware(UnRegisterResolutionActionDto, 'body'),
+      this.ruleGroupAlertRuleController.syncMetricOpsAlertRule,
+    );
+    this.router.post(
       '/ruleGroup/resolutionAction/register',
       authMiddleware,
       validationMiddleware(RuleGroupResolutionActionDto, 'body'),

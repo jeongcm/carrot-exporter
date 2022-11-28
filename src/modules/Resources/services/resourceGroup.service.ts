@@ -12,6 +12,7 @@ import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.d
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import SubscriptionsService from '@/modules/Subscriptions/services/subscriptions.service';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
+import BayesianModelService from '@/modules/MetricOps/services/bayesianModel.service';
 
 //import { Db } from 'mongodb';
 //import sequelize from 'sequelize';
@@ -19,6 +20,8 @@ import config from '@config/index';
 //import axios from '@/common/httpClient/axios';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { IAlertEasyRule } from '@/common/interfaces/alertEasyRule.interface';
+import { ISubscriptions } from '@/common/interfaces/subscription.interface';
+import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
@@ -32,8 +35,11 @@ class ResourceGroupService {
   public alertReceived = DB.AlertReceived;
   public alertEasyRule = DB.AlertEasyRule;
   public customerAccount = DB.CustomerAccount;
+  public catalogPlan = DB.CatalogPlan;
+  public subscription = DB.Subscription;
 
   public tableIdService = new TableIdService();
+  public bayesianModelService = new BayesianModelService();
 
   public schedulerService = new SchedulerService();
   public subscriptionsService = new SubscriptionsService();
@@ -350,6 +356,7 @@ class ResourceGroupService {
     if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid  must not be empty');
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
     if (!findResourceGroup) throw new HttpException(400, "*ResourceGroup doesn't exist");
+    const resourceGroupId = findResourceGroup.resourceGroupId;
     const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey: customerAccountKey } });
     if (!findCustomerAccount) throw new HttpException(400, "*CustomerAccount doesn't exist");
     const customerAccountId = findCustomerAccount.customerAccountId;
@@ -574,9 +581,23 @@ class ResourceGroupService {
         console.log('sudory - delete cluster data map:', uninstallSudoryClient);
         const resultCreateSchedulerDeleteCluster = await this.schedulerService.createScheduler(deleteSudoryCluster, customerAccountId);
 
-        //10. Customer Notification (To Be Coded)
+        //10. Deprovision MetricOps Plan if has MetricOps subscription
 
-        //11. return
+        const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+        if (findSubscription.length > 0) {
+          const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
+          const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+            where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
+          });
+          const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
+          if (findMetricOps) {
+            const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
+            console.log('resultProvision', resultProvision);
+          }
+        }
+        //11. Customer Notification (To Be Coded)
+
+        //12. return
         return resultResourceGroup;
       });
     } catch (err) {

@@ -32,7 +32,6 @@ export interface IAlertReceived {
   alertReceivedHash: string;
   alertReceivedAffectedResourceType: string;
   alertReceivedAffectedResourceName: string;
-
 }
 
 export interface IAlertReceivedDetailed extends IAlertReceived {
