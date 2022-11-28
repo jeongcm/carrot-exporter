@@ -6,29 +6,12 @@ import ServiceExtension from '@/common/extentions/service.extension';
 import { Op, GroupedCountResultItem } from 'sequelize';
 import createK8sGraph from './create-k8s-graph';
 import filterRelatedGraph from './filter-related-graph';
-import MetricService from '@/modules/Metric/services/metric.service';
+import resourceService from "@modules/Resources/services/resource.service";
+import ResourceService from "@modules/Resources/services/resource.service";
 
 interface IHashedResources {
   [key: string]: IResource;
 }
-
-// TEMP:
-const TEMP_REAL_RESOURCE_NAMES = [
-  // VMs
-  'acct-svr01',
-  'acct-svr02',
-  'collector-SaaS',
-  'cs_svr01',
-  'db_scv01',
-  'prd-svr01',
-  'prd-svr02',
-  'web-svr01',
-
-  // PMs
-  'openstack-server',
-  'p-com-01',
-  'p-com-02',
-];
 
 export const TYPE_PER_NAME: any = {
   statefulset: 'SS',
@@ -66,7 +49,7 @@ export const NAME_PER_TYPE: any = {
 class TopologyService extends ServiceExtension {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
-  private metricService = new MetricService();
+  private resourceService = new ResourceService();
 
   constructor() {
     super({
@@ -211,15 +194,11 @@ class TopologyService extends ServiceExtension {
       return this.throwError('NOT_FOUND', 'no resources');
     }
 
-    const { vmStatusPerName, pmStatusPerName } = await this.tempGetStatus(customerAccountKey, [resourceGroup.resourceGroupId]);
-
     switch (type) {
       case 'pj-vms':
-        // TEMP:
-        return await this.createPjVmTopology(this.tempInjectStatus(vmStatusPerName, resources));
+        return await this.createPjVmTopology(resources);
       case 'pms':
-        // TEMP:
-        return await this.createPmTopology(this.tempInjectStatus(pmStatusPerName, resources));
+        return await this.createPmTopology(resources);
       case 'nodes':
         return await this.createNodeTopology(resources);
       case 'workload-pods':
@@ -229,106 +208,17 @@ class TopologyService extends ServiceExtension {
     }
   }
 
-  // TEMP:
-  public async tempGetStatus(customerAccountKey: number, resourceGroupIdIn: any) {
-    let resourceGroupId = resourceGroupIdIn;
-
-    if (!resourceGroupId || resourceGroupId.length === 0) {
-      const accountResourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
-        where: {
-          customerAccountKey,
-          deletedAt: null,
-          resourceGroupPlatform: 'OS',
-        },
-      });
-
-      resourceGroupId = accountResourceGroups.map((rg: any) => {
-        return rg.resourceGroupId;
-      });
-    }
-
-    const metrics: any = await this.metricService.getMetricP8S(customerAccountKey, {
-      query: [
-        {
-          name: 'tempStatus',
-          type: 'OS_CLUSTER_PM_VM_ALL_STATUS',
-          resourceGroupId: resourceGroupId,
-        },
-      ],
-    });
-
-    const vmStatusPerName = {};
-    const pmStatusPerName = {};
-
-    if (!metrics?.tempStatus?.data?.result) {
-      return {};
-    }
-
-    metrics?.tempStatus?.data?.result.forEach((item: any) => {
-      const metric = item.metric || {};
-      const value = item.value[1];
-      let nodename = metric.nodename;
-
-      switch (metric.job) {
-        case 'vm-blackbox-exporter-icmp(acct-svr01)':
-          nodename = 'acct-svr01';
-          break;
-        case 'vm-blackbox-exporter-icmp(acct-svr02)':
-          nodename = 'acct-svr02';
-          break;
-        case 'vm-blackbox-exporter-icmp(cs_svr01)':
-          nodename = 'cs_svr01';
-          break;
-        case 'pm-blackbox-exporter-icmp(p-com-02)':
-          nodename = 'p-com-02';
-          break;
-      }
-
-      if (nodename && metric.job.indexOf('exporter-icmp') > -1) {
-        if (metric.alert_resource_type === 'VM') {
-          vmStatusPerName[metric.nodename] = parseInt(value);
-        }
-
-        if (metric.alert_resource_type === 'PM') {
-          pmStatusPerName[metric.nodename] = parseInt(value);
-        }
-      }
-    });
-
-    return {
-      vmStatusPerName,
-      pmStatusPerName,
-    };
-  }
-
-  // TEMP:
-  public tempInjectStatus(statusPerName: any, resources: any[]) {
-    return (resources || []).map((resource: any) => {
-      const status = statusPerName[resource.resourceName];
-
-      console.log(resource.resourceName, status, TEMP_REAL_RESOURCE_NAMES.indexOf(resource.resourceName) > -1);
-
-      if (TEMP_REAL_RESOURCE_NAMES.indexOf(resource.resourceName) > -1) {
-        if (typeof status !== 'undefined') {
-          resource.resourceStatus = status ? 'ACTIVE' : 'INACTIVE';
-        } else {
-          resource.resourceStatus = 'UNKNOWN';
-        }
-      }
-
-      return resource;
-    });
-  }
-
   public async createPmTopology(resources: IResource[]) {
     const topologyItems = [];
 
     resources.forEach((resource: IResource) => {
+      const status = this.resourceService.getResourceStatus(resource.customerAccountKey, resource.resourceGroupKey, resource.resourceSpec["OS-EXT-SRV-ATTR:host"])
+
       topologyItems.push({
         id: resource.resourceId,
         name: resource.resourceName,
         createdAt: resource.createdAt,
-        resourceStatus: resource.resourceStatus,
+        resourceStatus: status,
       });
     });
 
@@ -607,7 +497,7 @@ class TopologyService extends ServiceExtension {
     vms.forEach((resource: IResource) => {
       let projectUid = '';
       projectUid = resource.resourceNamespace;
-
+      const status = this.resourceService.getResourceStatus(resource.customerAccountKey, resource.resourceGroupKey, resource.resourceSpec["OS-EXT-SRV-ATTR:host"])
       sets[projectUid].children.push({
         level: 'VM',
         projectUid,
@@ -616,7 +506,7 @@ class TopologyService extends ServiceExtension {
         resourceName: resource.resourceName,
         resourceDescription: resource.resourceDescription,
         createdAt: resource.createdAt,
-        resourceStatus: resource.resourceStatus,
+        resourceStatus: status,
       });
     });
 
