@@ -74,6 +74,10 @@ export default {
     mongodb: {
       url: process.env.NC_LARI_MONGO_URL,
     },
+    pagination: {
+      limit: process.env.NC_PAGINATION_LIMIT || 10,
+      offset: process.env.NC_PAGINATION_OFFSET || 0,
+    }
   },
   auth: {
     jwtSecretKey: process.env.NC_LARI_JWT_SECRET_KEY,
