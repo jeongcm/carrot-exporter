@@ -9,10 +9,10 @@ import { HttpException } from '@/common/exceptions/HttpException';
 import { isEmpty } from '@/common/utils/util';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import SchedulerService from '@/modules/Scheduler/services/scheduler.service';
 import SubscriptionsService from '@/modules/Subscriptions/services/subscriptions.service';
 import SudoryService from '@/modules/CommonService/services/sudory.service';
+import BayesianModelService from '@/modules/MetricOps/services/bayesianModel.service';
 
 //import { Db } from 'mongodb';
 //import sequelize from 'sequelize';
@@ -20,6 +20,8 @@ import config from '@config/index';
 //import axios from '@/common/httpClient/axios';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { IAlertEasyRule } from '@/common/interfaces/alertEasyRule.interface';
+import { ISubscriptions } from '@/common/interfaces/subscription.interface';
+import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 
 class ResourceGroupService {
   public resourceGroup = DB.ResourceGroup;
@@ -33,9 +35,11 @@ class ResourceGroupService {
   public alertReceived = DB.AlertReceived;
   public alertEasyRule = DB.AlertEasyRule;
   public customerAccount = DB.CustomerAccount;
+  public catalogPlan = DB.CatalogPlan;
+  public subscription = DB.Subscription;
 
   public tableIdService = new TableIdService();
-  public customerAccountService = new CustomerAccountService();
+  public bayesianModelService = new BayesianModelService();
 
   public schedulerService = new SchedulerService();
   public subscriptionsService = new SubscriptionsService();
@@ -92,14 +96,14 @@ class ResourceGroupService {
 
       switch (resourceGroupData.resourceGroupPlatform) {
         case "K8":
-          resourceData.resourceType = 'K8';
-          resourceData.resourceLevelType = 'K8';
-          resourceData.resourceLevel1 = 'K8';
+          resourceData.resourceType = 'K8'
+          resourceData.resourceLevelType = 'K8'
+          resourceData.resourceLevel1 = 'K8'
           break;
         case "OS":
-          resourceData.resourceType = 'OS';
-          resourceData.resourceLevelType = 'OS';
-          resourceData.resourceLevel1 = 'OS';
+          resourceData.resourceType = 'OS'
+          resourceData.resourceLevelType = 'OS'
+          resourceData.resourceLevel1 = 'OS'
           break;
       }
 
@@ -197,7 +201,7 @@ class ResourceGroupService {
    * @returns Promise
    */
   public async getResourceGroupByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResourceGroup[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const resultCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountId } });
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
     const resourceGroupWhereCondition = {
@@ -206,11 +210,11 @@ class ResourceGroupService {
     };
 
     if (query?.platform) {
-      resourceGroupWhereCondition['resourceGroupPlatform'] = query.platform
+      resourceGroupWhereCondition['resourceGroupPlatform'] = query.platform;
     }
 
     if (query?.resourceGroupId) {
-      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId
+      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId;
     }
 
     const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
@@ -226,7 +230,7 @@ class ResourceGroupService {
    * @returns Promise
    */
   public async getResourceGroupByCustomerAccountIdForOpenstack(customerAccountId: string, platform: string, query?: any): Promise<IResourceGroupUi[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+    const resultCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountId } });
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
     const resourceGroupWhereCondition = {
@@ -236,7 +240,7 @@ class ResourceGroupService {
     };
 
     if (query?.resourceGroupId) {
-      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId
+      resourceGroupWhereCondition['resourceGroupId'] = query.resourceGroupId;
     }
 
     console.log("query:", resourceGroupWhereCondition)
@@ -352,6 +356,7 @@ class ResourceGroupService {
     if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid  must not be empty');
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
     if (!findResourceGroup) throw new HttpException(400, "*ResourceGroup doesn't exist");
+    const resourceGroupId = findResourceGroup.resourceGroupId;
     const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey: customerAccountKey } });
     if (!findCustomerAccount) throw new HttpException(400, "*CustomerAccount doesn't exist");
     const customerAccountId = findCustomerAccount.customerAccountId;
@@ -576,9 +581,23 @@ class ResourceGroupService {
         console.log('sudory - delete cluster data map:', uninstallSudoryClient);
         const resultCreateSchedulerDeleteCluster = await this.schedulerService.createScheduler(deleteSudoryCluster, customerAccountId);
 
-        //10. Customer Notification (To Be Coded)
+        //10. Deprovision MetricOps Plan if has MetricOps subscription
 
-        //11. return
+        const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+        if (findSubscription.length > 0) {
+          const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
+          const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+            where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
+          });
+          const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
+          if (findMetricOps) {
+            const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
+            console.log('resultProvision', resultProvision);
+          }
+        }
+        //11. Customer Notification (To Be Coded)
+
+        //12. return
         return resultResourceGroup;
       });
     } catch (err) {

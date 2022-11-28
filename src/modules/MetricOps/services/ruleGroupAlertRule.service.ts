@@ -10,6 +10,8 @@ import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import RuleGroupService from './ruleGroup.service';
 import { IRuleGroup } from '@/common/interfaces/ruleGroup.interface';
 import { AlertRuleModel } from '@/modules/Alert/models/alertRule.model';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 
 const { Op } = require('sequelize');
 class RuleGroupAlertRuleService {
@@ -17,6 +19,8 @@ class RuleGroupAlertRuleService {
   public ruleGroup = DB.RuleGroup;
   public alertRule = DB.AlertRule;
   public ruleGroupAlertRule = DB.RuleGroupAlertRule;
+  public customerAccount = DB.CustomerAccount;
+  public resourceGroup = DB.ResourceGroup;
   public alertRuleService = new AlertRuleService();
   public ruleGroupService = new RuleGroupService();
 
@@ -107,6 +111,58 @@ class RuleGroupAlertRuleService {
     });
 
     return alertRuleList;
+  }
+
+  public async syncMetricOpsAlertRule(customerAccountId): Promise<object> {
+    //1. find alert rule key under MetricOps rule group
+    const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    if (!findCustomerAccount) throw new HttpException(404, 'Cannot find customerAccount');
+    const customerAccountKey = findCustomerAccount.customerAccountKey;
+
+    const findResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({ where: { customerAccountKey, deletedAt: null } });
+    if (findResourceGroup.length === 0) throw new HttpException(405, 'Cannot find customerAccount');
+    const resourceGroupKey = findResourceGroup.map(x => x.resourceGroupKey);
+
+    const findRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({ where: { resourceGroupKey, deletedAt: null } });
+    if (findRuleGroup.length === 0) throw new HttpException(406, 'Cannot find MetricOps RuleGroup');
+    const ruleGroupKey = findRuleGroup.map(x => x.ruleGroupKey);
+
+    const findRuleGroupAlertRule: IRuleGroupAlertRule[] = await this.ruleGroupAlertRule.findAll({ where: { ruleGroupKey, deletedAt: null } });
+    const alertRuleKey = findRuleGroupAlertRule.map(x => x.alertRuleKey);
+
+    //2. check AlertRule is still active
+    const findAlertRule: IAlertRule[] = await this.alertRule.findAll({ where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null } });
+    const alertRuleKeyActive = findAlertRule.map(x => x.alertRuleKey);
+
+    //3. find alertrule of RuleGroup - need to be deleted or replaced
+    const targetAlerRuleKey = alertRuleKey.filter(x => alertRuleKeyActive.indexOf(x) === -1); // alert rule to be replaced
+    const returnMessage = [];
+    for (let i = 0; i < targetAlerRuleKey.length; i++) {
+      const findAlertRule: IAlertRule = await this.alertRule.findOne({ where: { alertRuleKey: targetAlerRuleKey[i] } });
+      const alertRuleName = findAlertRule?.alertRuleName;
+      const alertRuleSeverity = findAlertRule?.alertRuleSeverity;
+      const resourceGroupUuid = findAlertRule?.resourceGroupUuid;
+
+      const findNewAlertRule: IAlertRule = await this.alertRule.findOne({
+        where: { alertRuleKey: { [Op.notIn]: targetAlerRuleKey[i] }, deletedAt: null, alertRuleName, alertRuleSeverity, resourceGroupUuid },
+      });
+      if (!findNewAlertRule) {
+        //delete RuleGroupAlertRule
+        await this.ruleGroupAlertRule.update(
+          { deletedAt: new Date(), ruleGroupAlertRuleStatus: 'CA' },
+          { where: { alertRuleKey: targetAlerRuleKey[i] } },
+        );
+        returnMessage.push({ deletedAlertRule: targetAlerRuleKey[i] });
+      } else {
+        //update RuleGroupAlertRule
+        await this.ruleGroupAlertRule.update(
+          { updatedAt: new Date(), updatedBy: 'SYSTEM', alertRuleKey: findNewAlertRule.alertRuleKey },
+          { where: { alertRuleKey: targetAlerRuleKey[i] } },
+        );
+        returnMessage.push({ updatedAlertRule: `from ${targetAlerRuleKey[i]} to ${findNewAlertRule.alertRuleKey}` });
+      }
+    }
+    return returnMessage;
   }
 }
 

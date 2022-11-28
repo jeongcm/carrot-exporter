@@ -23,7 +23,9 @@ class RuleGroupAlertRuleController {
 
   public listRegisterAlertRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const {params:{ruleGroupId}}= req;
+      const {
+        params: { ruleGroupId },
+      } = req;
       const findRuleGroupAlertRuleData: IRuleGroupAlertRule[] = await this.ruleGroupAlertRuleService.listRegisterAlertRule(ruleGroupId);
       res.status(200).json({ data: findRuleGroupAlertRuleData, message: 'findAll' });
     } catch (error) {
@@ -38,12 +40,23 @@ class RuleGroupAlertRuleController {
       } = req;
       const unRegisterAlertRule: UnRegisterRuleGroupAlertRuleDto = req.body;
       const flag: boolean = await this.ruleGroupAlertRuleService.unregisterAlertRule(unRegisterAlertRule, partyId);
-      if (flag){
+      if (flag) {
         res.status(201).json({ data: flag, message: 'deleted' });
-      }else{
+      } else {
         res.status(204).json({ data: flag, message: 'No Content' });
       }
-      
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public syncMetricOpsAlertRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {
+        body: { customerAccountId },
+      } = req;
+      const findRuleGroupAlertRuleData = await this.ruleGroupAlertRuleService.syncMetricOpsAlertRule(customerAccountId);
+      res.status(200).json({ data: findRuleGroupAlertRuleData, message: 'sync successfully' });
     } catch (error) {
       next(error);
     }

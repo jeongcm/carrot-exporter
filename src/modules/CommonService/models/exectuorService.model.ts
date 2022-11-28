@@ -1,20 +1,19 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IExecutorService } from '@/common/interfaces/executor.interface';
 
-
 export type ExecutorServiceUpdateAttributes = Optional<
-IExecutorService,
+  IExecutorService,
   | 'executorServiceKey'
   | 'executorServiceId'
   | 'customerAccountKey'
   | 'name'
   | 'summary'
-  | 'clusterUuid' 
-  | 'templateUuid' 
+  | 'clusterUuid'
+  | 'templateUuid'
   | 'serviceUuid'
   | 'onCompletion'
   | 'subscribedChannel'
-  | 'steps' 
+  | 'steps'
   | 'createdAt'
   | 'updatedAt'
   | 'createdBy'
@@ -38,14 +37,13 @@ export class ExecutorServiceModel extends Model<IExecutorService, ExecutorServic
   public steps: JSON;
   public status: number;
   public statusDescription: string;
-  
+
   public deletedAt: Date;
   public createdBy: string;
   public updatedBy: string;
   public updatedAt: Date;
 
   public readonly createdAt!: Date;
-
 }
 
 export default function (sequelize: Sequelize): typeof ExecutorServiceModel {
@@ -127,6 +125,12 @@ export default function (sequelize: Sequelize): typeof ExecutorServiceModel {
       },
     },
     {
+      indexes: [
+        {
+          fields: ['created_at'],
+        },
+      ],
+
       tableName: 'ExecutorService',
       modelName: 'ExecutorService',
       sequelize,
@@ -135,4 +139,3 @@ export default function (sequelize: Sequelize): typeof ExecutorServiceModel {
 
   return ExecutorServiceModel;
 }
-
