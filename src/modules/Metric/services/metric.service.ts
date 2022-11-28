@@ -2,8 +2,6 @@ import ServiceExtension from '@/common/extentions/service.extension';
 import {isEmpty} from 'lodash';
 import VictoriaMetricService from './victoriaMetric.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
-import MassUploaderService from '@/modules/CommonService/services/massUploader.service';
-import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import {IResourceGroup} from 'common/interfaces/resourceGroup.interface';
 import {IResource} from 'common/interfaces/resource.interface';
@@ -39,7 +37,6 @@ class MetricService extends ServiceExtension {
   private resourceGroup = DB.ResourceGroup
   private telemetryService = null
   private victoriaMetricService = new VictoriaMetricService();
-  private resourceService = new ResourceService();
   private resourceGroupService = new ResourceGroupService();
   private customerAccountService = new CustomerAccountService();
 
@@ -72,7 +69,10 @@ class MetricService extends ServiceExtension {
             } else {
               idsToUse = [resourceId];
             }
-            resources = await this.resourceService.getUserResourceByIds(customerAccountKey, idsToUse);
+            resources = await this.resource.findAll({
+              where: { resourceId: idsToUse, customerAccountKey },
+              attributes: { exclude: ['deletedAt'] },
+            });
 
             if (!resources || resources.length === 0) {
               return this.throwError(`NOT_FOUND`, `No resource found with resourceId (${resourceId})`);
@@ -192,7 +192,11 @@ class MetricService extends ServiceExtension {
             } else {
               idsToUse = [resourceId];
             }
-            resources = await this.resourceService.getUserResourceByIds(customerAccountKey, idsToUse);
+
+            resources = await this.resource.findAll({
+              where: { resourceId: idsToUse, customerAccountKey },
+              attributes: { exclude: ['deletedAt'] },
+            });
 
             if (!resources || resources.length === 0) {
               return this.throwError(`NOT_FOUND`, `No resource found with resourceId (${resourceId})`);
