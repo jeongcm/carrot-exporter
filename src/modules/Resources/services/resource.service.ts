@@ -668,7 +668,7 @@ class ResourceService {
     });
 
     // get resourceGroup
-    resource.resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
+    resource.resourceSpec.rg = await this.resourceGroup.findOne({
       attributes: ['resourceGroupId', 'resourceGroupName'],
       where: {resourceGroupKey: resource.resourceGroupKey}
     })
