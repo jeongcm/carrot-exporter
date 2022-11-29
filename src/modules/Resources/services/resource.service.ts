@@ -14,8 +14,6 @@ import { IAnomalyMonitoringTarget } from "@/common/interfaces/monitoringTarget.i
 import { ResourceGroupModel } from "../models/resourceGroup.model";
 import MetricService, { IMetricQueryBody } from "@modules/Metric/services/metric.service";
 import MassUploaderService from "@modules/CommonService/services/massUploader.service";
-import { indexOf } from "lodash";
-import { stringify } from "querystring";
 
 class ResourceService {
   public resource = DB.Resource;
