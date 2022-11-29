@@ -14,6 +14,8 @@ import { IAnomalyMonitoringTarget } from "@/common/interfaces/monitoringTarget.i
 import { ResourceGroupModel } from "../models/resourceGroup.model";
 import MetricService, { IMetricQueryBody } from "@modules/Metric/services/metric.service";
 import MassUploaderService from "@modules/CommonService/services/massUploader.service";
+import { indexOf } from "lodash";
+import { stringify } from "querystring";
 
 class ResourceService {
   public resource = DB.Resource;
@@ -342,18 +344,30 @@ class ResourceService {
    * @param  {number} customerAccountId
    * @param  {any} query
    */
-  public async getPJListByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResource[]> {
+  public async getPJListByCustomerAccountId(customerAccountId: string, query?: any): Promise<any[]> {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PJ', 'PM', 'VM'],};
 
+    const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: {customerAccountKey, deletedAt: null },
+      attributes: { exclude: ['deletedAt'] },
+    });
+
+    let condition = [];
     if (query?.resourceGroupId) {
-      let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
-      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+      query.resourceGroupId.map(id => {
+        resourceGroups.map(rg => {
+          if (id === rg.resourceGroupId) {
+            condition.push(rg.resourceGroupKey)
+          }
+        })
+      })
     }
 
-    const resultList: IResource[] = await this.resource.findAll({
+    resourceWhereCondition['resourceGroupKey'] = condition
+    const resources: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
       order: [
@@ -362,47 +376,74 @@ class ResourceService {
       ],
     });
 
-    const projects = resultList.filter(pj => pj.resourceType === "PJ")
-    const allPms = resultList.filter(pm => pm.resourceType === "PM")
-    const allVms = resultList.filter(vm => vm.resourceType === "VM")
+    const status = await this.getResourcesStatus(customerAccountKey, resourceGroups)
+    let projects: any = [];
+    let vms: object = {};
+    let pms: object = {};
+    resources.forEach((resource: IResource) => {
+      switch (resource.resourceType) {
+      case "PJ":
+        projects.push({
+          name: resource.resourceName,
+          description: resource.resourceDescription,
+          createdAt: resource.resourceTargetCreatedAt,
+          resourceTargetUuid: resource.resourceTargetUuid,
+          resourceGroupKey: resource.resourceGroupKey,
+          resourceGroupName: '',
+          status: resource.resourceStatus,
+          vms: {},
+          pms: {},
+        })
+        break;
+      case "VM":
+        var vmStatus = ''
+        if (typeof status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
+          vmStatus = 'UNKNOWN'
+        }  else if (status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
+          vmStatus = 'ACTIVE'
+        } else {
+          vmStatus = 'INACTIVE'
+        }
 
-    for (let i = 0; i < projects.length; i++) {
-      // get resourceGroup
-      projects[i].resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
-        attributes: ['resourceGroupId', 'resourceGroupName'],
-        where: {resourceGroupKey: projects[i].resourceGroupKey}
+        vms[resource.resourceId] = {
+          resourceName: resource.resourceName,
+          resourceNamespace: resource.resourceNamespace,
+          parentResourceId: resource.parentResourceId,
+          status: vmStatus
+        }
+
+        break;
+      case "PM":
+        pms[resource.resourceTargetUuid] = {
+          resourceName: resource.resourceName
+        }
+      }
+    })
+
+    // get status
+    projects.forEach((project: any) => {
+      for (const [key, value] of Object.entries(vms)) {
+        if (value.resourceNamespace === project.resourceTargetUuid) {
+          project.vms[key] = value
+        }
+      }
+
+      for (const v of Object.values(project.vms)) {
+        for (const [pk, pv] of Object.entries(pms)) {
+          if (pk === v.parentResourceId) {
+            project.pms[pk] = pv
+          }
+        }
+      }
+
+      const rg = resourceGroups.find(rg => {
+        if (project.resourceGroupKey === rg.resourceGroupKey) {
+          return rg.resourceGroupName
+        }
       })
 
-      // get vms in projects
-      const vms = allVms.map(vm => {
-        if (projects[i].resourceTargetUuid === vm.resourceNamespace) {
-          return vm
-        }
-      }).filter(n => n !== undefined)
-
-      let vmsInProject = [];
-      for (let j = 0; j < vms.length; j++) {
-        vmsInProject.push(await this.getVMDetails(vms[j]))
-      }
-
-      projects[i].resourceSpec.vms = vmsInProject
-
-      // get pms in project (by vms)
-      // get pm uuids in vms
-      let pmUUIDs = [... new Set(vmsInProject.map(vm => {return vm.parentResourceId}))]
-      const pms = allPms.map(pm => {
-        if (pmUUIDs.indexOf(pm.resourceTargetUuid) !== -1) {
-          return pm
-        }
-      }).filter(n => n !== undefined)
-
-      let pmsInProject = [];
-      for (let j = 0; j < pms.length; j++) {
-        pmsInProject.push(await this.getPMDetails(pms[j]))
-      }
-
-      projects[i].resourceSpec.pms = pmsInProject
-    }
+      project.resourceGroupName = rg.resourceGroupName
+    })
 
     return projects;
   }
@@ -1141,6 +1182,47 @@ class ResourceService {
       console.log("error due to unexpoected error: ", error.response);
     }
     return interimQuery;
+  }
+
+  public async getResourcesStatus(customerAccountKey: number, resourceGroups: IResourceGroup[]) {
+    const resourceGroupIds = resourceGroups.map((rg: any) => {
+      return rg.resourceGroupId;
+    });
+
+    const metrics: any = await this.metricService.getMetricP8S(customerAccountKey, {
+      query: [
+        {
+          name: 'nodeStatus',
+          type: 'OS_CLUSTER_NODE_STATUS',
+          resourceGroupId: resourceGroupIds,
+        },
+      ],
+    });
+
+    const vmStatusPerName = {};
+    const pmStatusPerName = {};
+
+    if (!metrics?.nodeStatus?.data?.result) {
+      return {};
+    }
+
+    metrics?.nodeStatus?.data?.result.forEach((item: any) => {
+      const metric = item.metric || {};
+      const value = item.value[1];
+
+      if (metric.is_ops_vm === 'Y') {
+        vmStatusPerName[metric.nodename] = parseInt(value);
+      }
+
+      if (metric.is_ops_pm === 'Y') {
+        pmStatusPerName[metric.nodename] = parseInt(value);
+      }
+    });
+
+    return {
+      vmStatusPerName,
+      pmStatusPerName,
+    };
   }
 }
 
