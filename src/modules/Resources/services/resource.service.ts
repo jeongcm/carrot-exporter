@@ -274,18 +274,30 @@ class ResourceService {
    * @param  {number} customerAccountId
    * @param  {any} query
    */
-  public async getVMListByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResource[]> {
+  public async getVMListByCustomerAccountId(customerAccountId: string, query?: any): Promise<any[]> {
     const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
-    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: "VM",};
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PJ','PM', 'VM'],};
 
+    const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: {customerAccountKey, deletedAt: null },
+      attributes: { exclude: ['deletedAt'] },
+    });
+
+    let condition = [];
     if (query?.resourceGroupId) {
-      let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId)
-      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+      query.resourceGroupId.map(id => {
+        resourceGroups.map(rg => {
+          if (id === rg.resourceGroupId) {
+            condition.push(rg.resourceGroupKey)
+          }
+        })
+      })
     }
 
-    const vms: IResource[] = await this.resource.findAll({
+    resourceWhereCondition['resourceGroupKey'] = condition
+    const resources: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
       order: [
@@ -294,18 +306,78 @@ class ResourceService {
       ],
     });
 
-    const vmsWithDetails = [];
-    for (let i = 0; i < vms.length; i ++) {
-      // get resourceGroup
-      vms[i].resourceSpec.rg = await this.resourceGroupService.resourceGroup.findOne({
-        attributes: ['resourceGroupId', 'resourceGroupName'],
-        where: {resourceGroupKey: vms[i].resourceGroupKey}
+    const status = await this.getResourcesStatus(customerAccountKey, resourceGroups)
+    let vms: any = [];
+    let projects: object = {};
+    let pms: object = {};
+    resources.forEach((resource: IResource) => {
+      switch (resource.resourceType) {
+        case "PJ":
+          projects[resource.resourceId] = {
+            resourceName: resource.resourceName,
+            description: resource.resourceDescription,
+            resourceTargetUuid: resource.resourceTargetUuid,
+            resourceGroupKey: resource.resourceGroupKey,
+            resourceGroupName: '',
+            resourceStatus: resource.resourceStatus,
+          }
+
+          break;
+        case "VM":
+          var vmStatus = ''
+          if (typeof status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
+            vmStatus = 'UNKNOWN'
+          }  else if (status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
+            vmStatus = 'ACTIVE'
+          } else {
+            vmStatus = 'INACTIVE'
+          }
+
+          vms.push({
+            resourceName: resource.resourceName,
+            resourceNamespace: resource.resourceNamespace,
+            parentResourceId: resource.parentResourceId,
+            resourceTargetUuid: resource.resourceTargetUuid,
+            resourceGroupKey: resource.resourceGroupKey,
+            createdAt: resource.resourceTargetCreatedAt,
+            resourceStatus: vmStatus,
+            projectName: '',
+            pmName: resource.resourceSpec['OS-EXT-SRV-ATTR:host'],
+          })
+          break;
+        case "PM":
+          pms[resource.resourceTargetUuid] = {
+            resourceName: resource.resourceName
+          }
+      }
+    })
+
+    // get status
+    vms.forEach((vm: any) => {
+      for (const value of Object.values(projects)) {
+        if (value.resourceTargetUuid === vm.resourceNamespace) {
+          vm.projectName = value.resourceName
+          break;
+        }
+      }
+
+      for (const value of Object.values(pms)) {
+        if (value.resourceTargetUuid === vm.parentResourceId) {
+          vm.pmName = value.resourceName
+          break;
+        }
+      }
+
+      const rg = resourceGroups.find(rg => {
+        if (vm.resourceGroupKey === rg.resourceGroupKey) {
+          return rg.resourceGroupName
+        }
       })
 
-      vmsWithDetails.push(await this.getVMDetails(vms[i]))
-    }
+      vm.resourceGroupName = rg.resourceGroupName
+    })
 
-    return vmsWithDetails;
+    return vms;
   }
 
   /**
@@ -381,7 +453,7 @@ class ResourceService {
             resourceGroupKey: resource.resourceGroupKey,
             resourceTargetUuid: resource.resourceTargetUuid,
             resourceInstance: resource.resourceInstance,
-            status: pmStatus,
+            resourceStatus: pmStatus,
             resourceGroupName: '',
             vms: {}
           })
@@ -451,13 +523,13 @@ class ResourceService {
       switch (resource.resourceType) {
       case "PJ":
         projects.push({
-          name: resource.resourceName,
+          resourceName: resource.resourceName,
           description: resource.resourceDescription,
           createdAt: resource.resourceTargetCreatedAt,
           resourceTargetUuid: resource.resourceTargetUuid,
           resourceGroupKey: resource.resourceGroupKey,
           resourceGroupName: '',
-          status: resource.resourceStatus,
+          resourceStatus: resource.resourceStatus,
           vms: {},
           pms: {},
         })
@@ -476,7 +548,7 @@ class ResourceService {
           resourceName: resource.resourceName,
           resourceNamespace: resource.resourceNamespace,
           parentResourceId: resource.parentResourceId,
-          status: vmStatus
+          resourceStatus: vmStatus
         }
 
         break;
