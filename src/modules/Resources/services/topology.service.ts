@@ -196,9 +196,9 @@ class TopologyService extends ServiceExtension {
 
     switch (type) {
       case 'pj-vms':
-        return await this.createPjVmTopology(resources);
+        return await this.createPjVmTopology(customerAccountKey, resourceGroup, resources);
       case 'pms':
-        return await this.createPmTopology(resources);
+        return await this.createPmTopology(customerAccountKey, resourceGroup, resources);
       case 'nodes':
         return await this.createNodeTopology(resources);
       case 'workload-pods':
@@ -208,17 +208,26 @@ class TopologyService extends ServiceExtension {
     }
   }
 
-  public async createPmTopology(resources: IResource[]) {
+  public async createPmTopology(customerAccountKey: number, resourceGroup: IResourceGroup, resources: IResource[]) {
     const topologyItems = [];
 
+    const status = await this.resourceService.getResourcesStatus(customerAccountKey, [resourceGroup])
+
     resources.forEach((resource: IResource) => {
-      const status = this.resourceService.getResourceStatus(resource.customerAccountKey, resource.resourceGroupKey, resource.resourceSpec["OS-EXT-SRV-ATTR:host"])
+      var pmStatus = ''
+      if (typeof status.pmStatusPerName[resource.resourceTargetUuid] === 'undefined') {
+        pmStatus = 'UNKNOWN'
+      }  else if (status.pmStatusPerName[resource.resourceTargetUuid] === 1) {
+        pmStatus = 'ACTIVE'
+      } else {
+        pmStatus = 'INACTIVE'
+      }
 
       topologyItems.push({
         id: resource.resourceId,
         name: resource.resourceName,
         createdAt: resource.createdAt,
-        resourceStatus: status,
+        resourceStatus: pmStatus,
       });
     });
 
@@ -470,9 +479,10 @@ class TopologyService extends ServiceExtension {
     return topologyItems;
   }
 
-  public async createPjVmTopology(resources: IResource[]) {
+  public async createPjVmTopology(customerAccountKey: number, resourceGroup: IResourceGroup, resources: IResource[]) {
     const sets: any = {};
 
+    const status = await this.resourceService.getResourcesStatus(customerAccountKey, [resourceGroup])
     const pjs = resources.filter(resource => resource.resourceType === 'PJ');
     const vms = resources.filter(resource => resource.resourceType === 'VM');
 
@@ -497,7 +507,14 @@ class TopologyService extends ServiceExtension {
     vms.forEach((resource: IResource) => {
       let projectUid = '';
       projectUid = resource.resourceNamespace;
-      const status = this.resourceService.getResourceStatus(resource.customerAccountKey, resource.resourceGroupKey, resource.resourceSpec["OS-EXT-SRV-ATTR:host"])
+      var vmStatus = ''
+      if (typeof status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
+        vmStatus = 'UNKNOWN'
+      }  else if (status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
+        vmStatus = 'ACTIVE'
+      } else {
+        vmStatus = 'INACTIVE'
+      }
       sets[projectUid].children.push({
         level: 'VM',
         projectUid,
@@ -506,7 +523,7 @@ class TopologyService extends ServiceExtension {
         resourceName: resource.resourceName,
         resourceDescription: resource.resourceDescription,
         createdAt: resource.createdAt,
-        resourceStatus: status,
+        resourceStatus: vmStatus,
       });
     });
 
