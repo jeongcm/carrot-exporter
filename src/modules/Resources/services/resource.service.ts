@@ -278,23 +278,30 @@ class ResourceService {
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PJ','PM', 'VM'],};
 
+    let resourceGroupIds: string[] = [];
+    if (query?.resourceGroupId) {
+      switch (Array.isArray(query.resourceGroupId)) {
+        case true:
+          resourceGroupIds = query.resourceGroupId.map(id => id)
+          break
+        case false:
+          resourceGroupIds.push(query.resourceGroupId)
+          break
+      }
+    }
+
+    let resourceGroupWhereCondition = {customerAccountKey, deletedAt: null }
+
+    if (resourceGroupIds.length > 0) {
+      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupIds
+    }
+
     const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
-      where: {customerAccountKey, deletedAt: null },
+      where: resourceGroupWhereCondition,
       attributes: { exclude: ['deletedAt'] },
     });
 
-    let condition = [];
-    if (query?.resourceGroupId) {
-      query.resourceGroupId.map(id => {
-        resourceGroups.map(rg => {
-          if (id === rg.resourceGroupId) {
-            condition.push(rg.resourceGroupKey)
-          }
-        })
-      })
-    }
-
-    resourceWhereCondition['resourceGroupKey'] = condition
+    resourceWhereCondition['resourceGroupKey'] = resourceGroups.map(rg => rg.resourceGroupKey)
     const resources: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
@@ -386,23 +393,30 @@ class ResourceService {
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PM', 'VM'],};
 
+    let resourceGroupIds: string[] = [];
+    if (query?.resourceGroupId) {
+      switch (Array.isArray(query.resourceGroupId)) {
+        case true:
+          resourceGroupIds = query.resourceGroupId.map(id => id)
+          break
+        case false:
+          resourceGroupIds.push(query.resourceGroupId)
+          break
+      }
+    }
+
+    let resourceGroupWhereCondition = {customerAccountKey, deletedAt: null }
+
+    if (resourceGroupIds.length > 0) {
+      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupIds
+    }
+
     const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
-      where: {customerAccountKey, deletedAt: null },
+      where: resourceGroupWhereCondition,
       attributes: { exclude: ['deletedAt'] },
     });
 
-    let condition = [];
-    if (query?.resourceGroupId) {
-      query.resourceGroupId.map(id => {
-        resourceGroups.map(rg => {
-          if (id === rg.resourceGroupId) {
-            condition.push(rg.resourceGroupKey)
-          }
-        })
-      })
-    }
-
-    resourceWhereCondition['resourceGroupKey'] = condition
+    resourceWhereCondition['resourceGroupKey'] = resourceGroups.map(rg => rg.resourceGroupKey)
     const resources: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
@@ -481,23 +495,30 @@ class ResourceService {
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PJ', 'PM', 'VM'],};
 
+    let resourceGroupIds: string[] = [];
+    if (query?.resourceGroupId) {
+      switch (Array.isArray(query.resourceGroupId)) {
+        case true:
+          resourceGroupIds = query.resourceGroupId.map(id => id)
+          break
+        case false:
+          resourceGroupIds.push(query.resourceGroupId)
+          break
+      }
+    }
+
+    let resourceGroupWhereCondition = {customerAccountKey, deletedAt: null }
+
+    if (resourceGroupIds.length > 0) {
+      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupIds
+    }
+
     const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
-      where: {customerAccountKey, deletedAt: null },
+      where: resourceGroupWhereCondition,
       attributes: { exclude: ['deletedAt'] },
     });
 
-    let condition = [];
-    if (query?.resourceGroupId) {
-      query.resourceGroupId.map(id => {
-        resourceGroups.map(rg => {
-          if (id === rg.resourceGroupId) {
-            condition.push(rg.resourceGroupKey)
-          }
-        })
-      })
-    }
-
-    resourceWhereCondition['resourceGroupKey'] = condition
+    resourceWhereCondition['resourceGroupKey'] = resourceGroups.map(rg => rg.resourceGroupKey)
     const resources: IResource[] = await this.resource.findAll({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
@@ -579,15 +600,15 @@ class ResourceService {
 
   public async getVMDetails(vm: IResource): Promise<IResource> {
     // get resourceGroup
-    let rg = await this.resourceGroup.findAll({
+    let rg = await this.resourceGroup.findOne({
       attributes: ['resourceGroupId', 'resourceGroupName'],
       where: {resourceGroupKey: vm.resourceGroupKey}
     })
 
-    vm.resourceSpec.resourceGroupName = rg[0].resourceGroupName
+    vm.resourceSpec.resourceGroupName = rg.resourceGroupName
 
     // get vm's status
-    const status = await this.getResourcesStatus(vm.customerAccountKey, rg)
+    const status = await this.getResourcesStatus(vm.customerAccountKey, [rg])
     if (typeof status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
       vm.resourceStatus = 'UNKNOWN'
     } else {
@@ -632,14 +653,14 @@ class ResourceService {
   }
 
   public async getPMDetails(customerAccountKey:number, pm: IResource): Promise<IResource> {
-    let rg = await this.resourceGroup.findAll({
+    let rg = await this.resourceGroup.findOne({
       attributes: ['resourceGroupId', 'resourceGroupName'],
       where: {resourceGroupKey: pm.resourceGroupKey}
     })
 
-    pm.resourceSpec.resourceGroupName = rg[0].resourceGroupName
+    pm.resourceSpec.resourceGroupName = rg.resourceGroupName
 
-    const status = await this.getResourcesStatus(customerAccountKey, rg)
+    const status = await this.getResourcesStatus(customerAccountKey, [rg])
 
     if (typeof status.pmStatusPerName[pm.resourceTargetUuid] === 'undefined') {
       pm.resourceStatus = 'UNKNOWN'
@@ -679,12 +700,12 @@ class ResourceService {
   }
 
   public async getPJDetails(customerAccountKey:number, project: IResource): Promise<IResource> {
-    let rg = await this.resourceGroup.findAll({
+    let rg = await this.resourceGroup.findOne({
       attributes: ['resourceGroupId', 'resourceGroupName'],
       where: {resourceGroupKey: project.resourceGroupKey}
     })
 
-    project.resourceSpec.resourceGroupName = rg[0].resourceGroupName
+    project.resourceSpec.resourceGroupName = rg.resourceGroupName
 
     // get VM info from PJ
     let resultList = await this.resource.findAll({
@@ -699,7 +720,7 @@ class ResourceService {
     let pms = resultList.filter(pm => pm.resourceType === "PM")
     let vms = resultList.filter(vm => (vm.resourceType === "VM" && vm.resourceNamespace === project.resourceTargetUuid))
 
-    const status = await this.getResourcesStatus(customerAccountKey, rg)
+    const status = await this.getResourcesStatus(customerAccountKey, [rg])
 
     for (let vm of vms) {
       if (typeof status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
