@@ -217,10 +217,8 @@ class TopologyService extends ServiceExtension {
       var pmStatus = ''
       if (typeof status.pmStatusPerName[resource.resourceTargetUuid] === 'undefined') {
         pmStatus = 'UNKNOWN'
-      }  else if (status.pmStatusPerName[resource.resourceTargetUuid] === 1) {
-        pmStatus = 'ACTIVE'
       } else {
-        pmStatus = 'INACTIVE'
+        pmStatus = status.pmStatusPerName[resource.resourceTargetUuid]
       }
 
       topologyItems.push({
@@ -510,10 +508,8 @@ class TopologyService extends ServiceExtension {
       var vmStatus = ''
       if (typeof status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
         vmStatus = 'UNKNOWN'
-      }  else if (status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
-        vmStatus = 'ACTIVE'
       } else {
-        vmStatus = 'INACTIVE'
+        vmStatus = status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
       }
       sets[projectUid].children.push({
         level: 'VM',

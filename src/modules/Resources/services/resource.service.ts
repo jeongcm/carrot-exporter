@@ -325,10 +325,8 @@ class ResourceService {
           var vmStatus = ''
           if (typeof status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
             vmStatus = 'UNKNOWN'
-          }  else if (status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
-            vmStatus = 'ACTIVE'
           } else {
-            vmStatus = 'INACTIVE'
+            vmStatus = status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
           }
 
           vms.push({
@@ -423,10 +421,8 @@ class ResourceService {
           var vmStatus = ''
           if (typeof status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
             vmStatus = 'UNKNOWN'
-          }  else if (status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
-            vmStatus = 'ACTIVE'
-          } else {
-            vmStatus = 'INACTIVE'
+          }  else {
+            vmStatus = status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
           }
 
           vms[resource.resourceId] = {
@@ -441,10 +437,8 @@ class ResourceService {
           var pmStatus = ''
           if (typeof status.pmStatusPerName[resource.resourceTargetUuid] === 'undefined') {
             pmStatus = 'UNKNOWN'
-          }  else if (status.pmStatusPerName[resource.resourceTargetUuid] === 1) {
-            pmStatus = 'ACTIVE'
           } else {
-            pmStatus = 'INACTIVE'
+            pmStatus = status.pmStatusPerName[resource.resourceTargetUuid]
           }
           pms.push({
             resourceName: resource.resourceName,
@@ -536,10 +530,8 @@ class ResourceService {
         var vmStatus = ''
         if (typeof status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
           vmStatus = 'UNKNOWN'
-        }  else if (status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
-          vmStatus = 'ACTIVE'
-        } else {
-          vmStatus = 'INACTIVE'
+        }  else {
+          vmStatus = status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
         }
 
         vms[resource.resourceId] = {
@@ -596,16 +588,11 @@ class ResourceService {
 
     // get vm's status
     const status = await this.getResourcesStatus(vm.customerAccountKey, rg)
-    var vmStatus = ''
     if (typeof status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
-      vmStatus = 'UNKNOWN'
-    }  else if (status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
-      vmStatus = 'ACTIVE'
+      vm.resourceStatus = 'UNKNOWN'
     } else {
-      vmStatus = 'INACTIVE'
+      vm.resourceStatus = status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
     }
-
-    vm.resourceStatus = vmStatus
 
     // get pm's name
     let PM = await this.resource.findOne({
@@ -654,16 +641,11 @@ class ResourceService {
 
     const status = await this.getResourcesStatus(customerAccountKey, rg)
 
-    var pmStatus = ''
     if (typeof status.pmStatusPerName[pm.resourceTargetUuid] === 'undefined') {
-      pmStatus = 'UNKNOWN'
-    }  else if (status.pmStatusPerName[pm.resourceTargetUuid] === 1) {
-      pmStatus = 'ACTIVE'
+      pm.resourceStatus = 'UNKNOWN'
     } else {
-      pmStatus = 'INACTIVE'
+      pm.resourceStatus = status.pmStatusPerName[pm.resourceTargetUuid]
     }
-
-    pm.resourceStatus = pmStatus
 
     let resultList = await this.resource.findAll({
       where: {
@@ -682,10 +664,8 @@ class ResourceService {
       var vmStatus = ''
       if (typeof status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
         vmStatus = 'UNKNOWN'
-      }  else if (status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
-        vmStatus = 'ACTIVE'
       } else {
-        vmStatus = 'INACTIVE'
+        vmStatus = status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
       }
 
       let pj = pjs.find(pj => vm.resourceNamespace === pj.resourceTargetUuid)
@@ -722,16 +702,11 @@ class ResourceService {
     const status = await this.getResourcesStatus(customerAccountKey, rg)
 
     for (let vm of vms) {
-      var vmStatus = ''
       if (typeof status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
-        vmStatus = 'UNKNOWN'
-      }  else if (status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
-        vmStatus = 'ACTIVE'
+        vm.resourceStatus = 'UNKNOWN'
       } else {
-        vmStatus = 'INACTIVE'
+        vm.resourceStatus = status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
       }
-
-      vm.resourceStatus = vmStatus
     }
 
     project.resourceSpec.vms = vms
@@ -748,16 +723,11 @@ class ResourceService {
 
     // get pm uuids in vms
     for (let pm of pmByVms) {
-      var pmStatus = ''
       if (typeof status.pmStatusPerName[pm.resourceTargetUuid] === 'undefined') {
-        pmStatus = 'UNKNOWN'
-      }  else if (status.pmStatusPerName[pm.resourceTargetUuid] === 1) {
-        pmStatus = 'ACTIVE'
+        pm.resourceStatus = 'UNKNOWN'
       } else {
-        pmStatus = 'INACTIVE'
+        pm.resourceStatus = status.pmStatusPerName[pm.resourceTargetUuid]
       }
-
-      pm.resourceStatus = pmStatus
     }
 
     project.resourceSpec.pms = pmByVms
@@ -1307,6 +1277,8 @@ class ResourceService {
       where: { resourceGroupKey: resourceGroup.resourceGroupKey, deletedAt: null, customerAccountKey: customerAccountKey, resourceType: "PM"},
     })
 
+    const status = await this.getResourcesStatus(customerAccountKey, [resourceGroup])
+
     for (const pm of pms) {
       const pmIndex = pms.indexOf(pm);
       let is_exist = false;
@@ -1338,7 +1310,12 @@ class ResourceService {
         uploadQuery['resource_Active'] = true;
       } else {
         // get pm status
-        const pmStatus = this.getResourceStatus(customerAccountKey, resourceGroup.resourceGroupKey, tmp.nodename)
+        var pmStatus = ''
+        if (typeof status.pmStatusPerName[tmp.nodename] === 'undefined') {
+          pmStatus = 'UNKNOWN'
+        } else {
+          pmStatus = status.pmStatusPerName[tmp.nodename]
+        }
 
         uploadQuery['resource_Name'] = tmp.nodename;
         uploadQuery['resource_Type'] = "PM";
@@ -1411,14 +1388,24 @@ class ResourceService {
 
     metrics?.nodeStatus?.data?.result.forEach((item: any) => {
       const metric = item.metric || {};
-      const value = item.value[1];
+      let value: string;
+      switch (parseInt(item.value[1])) {
+        case 1:
+          value = 'ACTIVE'
+          break;
+        case 0:
+          value = 'INACTIVE'
+          break;
+        default:
+          value = 'UNKNOWN'
+      }
 
       if (metric.is_ops_vm === 'Y') {
-        vmStatusPerName[metric.nodename] = parseInt(value);
+        vmStatusPerName[metric.nodename] = value;
       }
 
       if (metric.is_ops_pm === 'Y') {
-        pmStatusPerName[metric.nodename] = parseInt(value);
+        pmStatusPerName[metric.nodename] = value;
       }
     });
 
