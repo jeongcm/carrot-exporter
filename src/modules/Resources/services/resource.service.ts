@@ -427,7 +427,7 @@ class ResourceService {
     });
 
     const status = await this.getResourcesStatus(customerAccountKey, resourceGroups)
-    let vms: object = {};
+    let vms: any = [];
     let pms: any = [];
     resources.forEach((resource: IResource) => {
       switch (resource.resourceType) {
@@ -439,12 +439,13 @@ class ResourceService {
             vmStatus = status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
           }
 
-          vms[resource.resourceId] = {
+          vms.push({
+            resourceId: resource.resourceId,
             resourceName: resource.resourceName,
             resourceNamespace: resource.resourceNamespace,
             parentResourceId: resource.parentResourceId,
             status: vmStatus
-          }
+          })
 
           break;
         case "PM":
@@ -455,21 +456,22 @@ class ResourceService {
             pmStatus = status.pmStatusPerName[resource.resourceTargetUuid]
           }
           pms.push({
-            resourceName: resource.resourceName,
-            resourceGroupKey: resource.resourceGroupKey,
-            resourceTargetUuid: resource.resourceTargetUuid,
-            resourceInstance: resource.resourceInstance,
-            resourceStatus: pmStatus,
-            resourceGroupName: '',
-            vms: {}
-          })
+              resourceName: resource.resourceName,
+              resourceGroupKey: resource.resourceGroupKey,
+              resourceTargetUuid: resource.resourceTargetUuid,
+              resourceInstance: resource.resourceInstance,
+              resourceStatus: pmStatus,
+              resourceGroupName: '',
+              vms: []
+            }
+          )
       }
     })
 
     pms.forEach((pm: any) => {
-      for (const [key, value] of Object.entries(vms)) {
-        if (value.parentResourceId === pm.resourceTargetUuid) {
-          pm.vms[key] = value
+      for (const vm of vms) {
+        if (vm.parentResourceId === pm.resourceTargetUuid) {
+          pm.vms.push(vm)
         }
       }
 
@@ -530,8 +532,8 @@ class ResourceService {
 
     const status = await this.getResourcesStatus(customerAccountKey, resourceGroups)
     let projects: any = [];
-    let vms: object = {};
-    let pms: object = {};
+    let vms: any = [];
+    let pms: any = [];
     resources.forEach((resource: IResource) => {
       switch (resource.resourceType) {
       case "PJ":
@@ -543,8 +545,8 @@ class ResourceService {
           resourceGroupKey: resource.resourceGroupKey,
           resourceGroupName: '',
           resourceStatus: resource.resourceStatus,
-          vms: {},
-          pms: {},
+          vms: [],
+          pms: [],
         })
         break;
       case "VM":
@@ -555,34 +557,37 @@ class ResourceService {
           vmStatus = status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
         }
 
-        vms[resource.resourceId] = {
+        vms.push({
+          resourceId: resource.resourceId,
           resourceName: resource.resourceName,
           resourceNamespace: resource.resourceNamespace,
           parentResourceId: resource.parentResourceId,
           resourceStatus: vmStatus
-        }
+        })
 
         break;
       case "PM":
-        pms[resource.resourceTargetUuid] = {
-          resourceName: resource.resourceName
-        }
+        pms.push({
+          resourceName: resource.resourceName,
+          resourceTargetUuid: resource.resourceTargetUuid
+        })
       }
     })
 
     // get status
     projects.forEach((project: any) => {
-      for (const [key, value] of Object.entries(vms)) {
-        if (value.resourceNamespace === project.resourceTargetUuid) {
-          project.vms[key] = value
+      for (const vm of vms) {
+        if (vm.resourceNamespace === project.resourceTargetUuid) {
+          project.vms.push(vm)
         }
       }
 
-      for (const v of Object.values(project.vms)) {
-        for (const [pk, pv] of Object.entries(pms)) {
-          // @ts-ignore
-          if (pk === v.parentResourceId) {
-            project.pms[pk] = pv
+      for (const vm of project.vms) {
+        for (const pm of pms) {
+          if (pm.resourceTargetUuid === vm.parentResourceId) {
+            if (!project.pms.includes(pm)) {
+              project.pms.push(pm)
+            }
           }
         }
       }
