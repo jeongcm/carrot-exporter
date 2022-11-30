@@ -652,7 +652,7 @@ class ResourceService {
     return vm
   }
 
-  public async getPMDetails(customerAccountKey:number, pm: IResource): Promise<IResource> {
+  public async getPMDetails(pm: IResource): Promise<IResource> {
     let rg = await this.resourceGroup.findOne({
       attributes: ['resourceGroupId', 'resourceGroupName'],
       where: {resourceGroupKey: pm.resourceGroupKey}
@@ -660,7 +660,7 @@ class ResourceService {
 
     pm.resourceSpec.resourceGroupName = rg.resourceGroupName
 
-    const status = await this.getResourcesStatus(customerAccountKey, [rg])
+    const status = await this.getResourcesStatus(pm.customerAccountKey, [rg])
 
     if (typeof status.pmStatusPerName[pm.resourceTargetUuid] === 'undefined') {
       pm.resourceStatus = 'UNKNOWN'
@@ -699,7 +699,7 @@ class ResourceService {
     return pm
   }
 
-  public async getPJDetails(customerAccountKey:number, project: IResource): Promise<IResource> {
+  public async getPJDetails(project: IResource): Promise<IResource> {
     let rg = await this.resourceGroup.findOne({
       attributes: ['resourceGroupId', 'resourceGroupName'],
       where: {resourceGroupKey: project.resourceGroupKey}
@@ -720,7 +720,7 @@ class ResourceService {
     let pms = resultList.filter(pm => pm.resourceType === "PM")
     let vms = resultList.filter(vm => (vm.resourceType === "VM" && vm.resourceNamespace === project.resourceTargetUuid))
 
-    const status = await this.getResourcesStatus(customerAccountKey, [rg])
+    const status = await this.getResourcesStatus(project.customerAccountKey, [rg])
 
     for (let vm of vms) {
       if (typeof status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
@@ -773,10 +773,10 @@ class ResourceService {
         return await this.getVMDetails(resource)
 
       case "PM":
-        return await this.getPMDetails(customerAccountKey, resource)
+        return await this.getPMDetails(resource)
 
       case "PJ":
-        return await this.getPJDetails(customerAccountKey, resource)
+        return await this.getPJDetails(resource)
       default:
     }
 
