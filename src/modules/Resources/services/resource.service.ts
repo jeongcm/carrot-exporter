@@ -439,9 +439,9 @@ class ResourceService {
           break;
         case "PM":
           var pmStatus = ''
-          if (typeof status.vmStatusPerName[resource.resourceTargetUuid] === 'undefined') {
+          if (typeof status.pmStatusPerName[resource.resourceTargetUuid] === 'undefined') {
             pmStatus = 'UNKNOWN'
-          }  else if (status.vmStatusPerName[resource.resourceTargetUuid] === 1) {
+          }  else if (status.pmStatusPerName[resource.resourceTargetUuid] === 1) {
             pmStatus = 'ACTIVE'
           } else {
             pmStatus = 'INACTIVE'
@@ -586,10 +586,26 @@ class ResourceService {
   }
 
   public async getVMDetails(vm: IResource): Promise<IResource> {
-    const resourceGroupKey = vm.resourceGroupKey;
+    // get resourceGroup
+    let rg = await this.resourceGroup.findAll({
+      attributes: ['resourceGroupId', 'resourceGroupName'],
+      where: {resourceGroupKey: vm.resourceGroupKey}
+    })
+
+    vm.resourceSpec.resourceGroupName = rg[0].resourceGroupName
 
     // get vm's status
-    vm.resourceStatus = await this.getResourceStatus(vm.customerAccountKey, vm.resourceGroupKey, vm.resourceSpec["OS-EXT-SRV-ATTR:hostname"])
+    const status = await this.getResourcesStatus(vm.customerAccountKey, rg)
+    var vmStatus = ''
+    if (typeof status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
+      vmStatus = 'UNKNOWN'
+    }  else if (status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
+      vmStatus = 'ACTIVE'
+    } else {
+      vmStatus = 'INACTIVE'
+    }
+
+    vm.resourceStatus = vmStatus
 
     // get pm's name
     let PM = await this.resource.findOne({
@@ -597,7 +613,7 @@ class ResourceService {
       where: {
         deletedAt: null,
         resourceType: "PM",
-        resourceGroupKey: resourceGroupKey,
+        resourceGroupKey: vm.resourceGroupKey,
         resourceTargetUuid: vm.parentResourceId
       },
     });
@@ -614,7 +630,7 @@ class ResourceService {
       where: {
         deletedAt: null,
         resourceType: "PJ",
-        resourceGroupKey: resourceGroupKey,
+        resourceGroupKey: vm.resourceGroupKey,
         resourceTargetUuid: vm.resourceNamespace
       },
     });
@@ -625,34 +641,128 @@ class ResourceService {
       vm.resourceSpec.projectName = project.resourceName
     }
 
-    // get vm's alert
-
     return vm
   }
 
-  public async getPMDetails(pm: IResource): Promise<IResource> {
-    const resourceGroupKey = pm.resourceGroupKey;
+  public async getPMDetails(customerAccountKey:number, pm: IResource): Promise<IResource> {
+    let rg = await this.resourceGroup.findAll({
+      attributes: ['resourceGroupId', 'resourceGroupName'],
+      where: {resourceGroupKey: pm.resourceGroupKey}
+    })
 
-     pm.resourceStatus = await this.getResourceStatus(pm.customerAccountKey, resourceGroupKey, pm.resourceTargetUuid)
+    pm.resourceSpec.resourceGroupName = rg[0].resourceGroupName
 
-    let vms = await this.resource.findAll({
+    const status = await this.getResourcesStatus(customerAccountKey, rg)
+
+    var pmStatus = ''
+    if (typeof status.pmStatusPerName[pm.resourceTargetUuid] === 'undefined') {
+      pmStatus = 'UNKNOWN'
+    }  else if (status.pmStatusPerName[pm.resourceTargetUuid] === 1) {
+      pmStatus = 'ACTIVE'
+    } else {
+      pmStatus = 'INACTIVE'
+    }
+
+    pm.resourceStatus = pmStatus
+
+    let resultList = await this.resource.findAll({
       where: {
         deletedAt: null,
-        resourceType: "VM",
-        resourceGroupKey: resourceGroupKey,
-        parentResourceId: pm.resourceTargetUuid
+        resourceType: ["VM", "PJ"],
+        resourceGroupKey: pm.resourceGroupKey,
       },
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
 
+    let pjs = resultList.filter(pj => pj.resourceType === "PJ")
+    let vms = resultList.filter(vm => (vm.resourceType === "VM" && vm.parentResourceId === pm.resourceTargetUuid))
+
     // pm 별 vm의 정보
-    const resultVms = [];
-    for (let i = 0; i < vms.length; i++) {
-      resultVms.push(await this.getVMDetails(vms[i]))
+    for (let vm of vms) {
+      var vmStatus = ''
+      if (typeof status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
+        vmStatus = 'UNKNOWN'
+      }  else if (status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
+        vmStatus = 'ACTIVE'
+      } else {
+        vmStatus = 'INACTIVE'
+      }
+
+      let pj = pjs.find(pj => vm.resourceNamespace === pj.resourceTargetUuid)
+      vm.resourceSpec.projectName = pj.resourceName
+      vm.resourceSpec.pmName = pm.resourceName
+      vm.resourceStatus = vmStatus
     }
 
-    pm.resourceSpec.vms = resultVms
+    pm.resourceSpec.vms = vms
     return pm
+  }
+
+  public async getPJDetails(customerAccountKey:number, project: IResource): Promise<IResource> {
+    let rg = await this.resourceGroup.findAll({
+      attributes: ['resourceGroupId', 'resourceGroupName'],
+      where: {resourceGroupKey: project.resourceGroupKey}
+    })
+
+    project.resourceSpec.resourceGroupName = rg[0].resourceGroupName
+
+    // get VM info from PJ
+    let resultList = await this.resource.findAll({
+      where: {
+        deletedAt: null,
+        resourceType: ['VM', 'PM'],
+        resourceGroupKey: project.resourceGroupKey,
+      },
+      attributes: { exclude: ['resourceKey', 'deletedAt'] },
+    })
+
+    let pms = resultList.filter(pm => pm.resourceType === "PM")
+    let vms = resultList.filter(vm => (vm.resourceType === "VM" && vm.resourceNamespace === project.resourceTargetUuid))
+
+    const status = await this.getResourcesStatus(customerAccountKey, rg)
+
+    for (let vm of vms) {
+      var vmStatus = ''
+      if (typeof status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
+        vmStatus = 'UNKNOWN'
+      }  else if (status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 1) {
+        vmStatus = 'ACTIVE'
+      } else {
+        vmStatus = 'INACTIVE'
+      }
+
+      vm.resourceStatus = vmStatus
+    }
+
+    project.resourceSpec.vms = vms
+    // get PM info in project
+
+    // find vms group by pm_id
+    // get pms in project (by vms)
+    let pmUUIDs = [... new Set(vms.map(vm => {return vm.parentResourceId}))]
+    let pmByVms = pms.map(pm => {
+      if (pmUUIDs.indexOf(pm.resourceTargetUuid) !== -1) {
+        return pm
+      }
+    }).filter(n => n !== undefined)
+
+    // get pm uuids in vms
+    for (let pm of pmByVms) {
+      var pmStatus = ''
+      if (typeof status.pmStatusPerName[pm.resourceTargetUuid] === 'undefined') {
+        pmStatus = 'UNKNOWN'
+      }  else if (status.pmStatusPerName[pm.resourceTargetUuid] === 1) {
+        pmStatus = 'ACTIVE'
+      } else {
+        pmStatus = 'INACTIVE'
+      }
+
+      pm.resourceStatus = pmStatus
+    }
+
+    project.resourceSpec.pms = pmByVms
+
+    return project
   }
 
   /**
@@ -662,64 +772,20 @@ class ResourceService {
   public async getResourceByTypeCustomerAccountKeyResourceId(resourceId: string, customerAccountKey: number): Promise<IResource> {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceId: resourceId,};
 
-    const resource: IResource = await this.resource.findOne({
+    let resource: IResource = await this.resource.findOne({
       where: resourceWhereCondition,
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
     });
-
-    // get resourceGroup
-    resource.resourceSpec.rg = await this.resourceGroup.findOne({
-      attributes: ['resourceGroupId', 'resourceGroupName'],
-      where: {resourceGroupKey: resource.resourceGroupKey}
-    })
 
     switch (resource.resourceType) {
       case "VM":
         return await this.getVMDetails(resource)
 
       case "PM":
-        return await this.getPMDetails(resource)
+        return await this.getPMDetails(customerAccountKey, resource)
 
       case "PJ":
-        // get VM info from PJ
-        let resultList = await this.resource.findAll({
-          where: {
-            deletedAt: null,
-            resourceType: ['VM', 'PM'],
-            resourceGroupKey: resource.resourceGroupKey,
-          },
-          attributes: { exclude: ['resourceKey', 'deletedAt'] },
-        })
-
-        let pList = resultList.filter(pm => pm.resourceType === "PM")
-        let vList = resultList.filter(vm => (vm.resourceType === "VM" && vm.resourceNamespace === resource.resourceTargetUuid))
-
-        let vmsInProject = [];
-        for (let i = 0; i < vList.length; i++) {
-          vmsInProject.push(await this.getVMDetails(vList[i]))
-        }
-
-        resource.resourceSpec.vms = vmsInProject
-        // get PM info in project
-
-        // find vms group by pm_id
-        // get pms in project (by vms)
-        let pmUUIDs = [... new Set(vmsInProject.map(vm => {return vm.parentResourceId}))]
-        let pmList = pList.map(pm => {
-          if (pmUUIDs.indexOf(pm.resourceTargetUuid) !== -1) {
-            return pm
-          }
-        }).filter(n => n !== undefined)
-
-        // get pm uuids in vms
-        let pmsInProject = [];
-        for (let i = 0; i < pmList.length; i++) {
-          pmsInProject.push(await this.getPMDetails(pmList[i]))
-        }
-
-        resource.resourceSpec.pms = pmsInProject
-        break
-
+        return await this.getPJDetails(customerAccountKey, resource)
       default:
     }
 
@@ -1200,7 +1266,7 @@ class ResourceService {
     }
 
     const statusResult = await this.metricService.getMetricP8S(customerAccountKey, statusQuery)
-    if (statusResult["status"].data.result.length !== 0) {
+    if (statusResult["status"]?.data?.result) {
       const value = statusResult["status"].data.result[0].value[1]
       if (value === "1") {
         status = "ACTIVE"
