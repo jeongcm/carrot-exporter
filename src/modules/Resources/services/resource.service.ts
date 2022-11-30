@@ -580,6 +580,7 @@ class ResourceService {
 
       for (const v of Object.values(project.vms)) {
         for (const [pk, pv] of Object.entries(pms)) {
+          // @ts-ignore
           if (pk === v.parentResourceId) {
             project.pms[pk] = pv
           }
