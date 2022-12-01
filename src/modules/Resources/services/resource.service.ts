@@ -540,7 +540,7 @@ class ResourceService {
         projects.push({
           resourceName: resource.resourceName,
           description: resource.resourceDescription,
-          createdAt: resource.resourceTargetCreatedAt,
+          createdAt: resource.createdAt,
           resourceTargetUuid: resource.resourceTargetUuid,
           resourceGroupKey: resource.resourceGroupKey,
           resourceGroupName: '',
