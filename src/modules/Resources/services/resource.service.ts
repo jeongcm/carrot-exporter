@@ -463,6 +463,7 @@ class ResourceService {
           pms.push({
               resourceId: resource.resourceId,
               resourceName: resource.resourceName,
+              createdAt: resource.createdAt,
               resourceGroupKey: resource.resourceGroupKey,
               resourceTargetUuid: resource.resourceTargetUuid,
               resourceInstance: resource.resourceInstance,
