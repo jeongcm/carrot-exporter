@@ -337,6 +337,7 @@ class ResourceService {
           }
 
           vms.push({
+            resourceId: resource.resourceId,
             resourceName: resource.resourceName,
             resourceNamespace: resource.resourceNamespace,
             parentResourceId: resource.parentResourceId,
