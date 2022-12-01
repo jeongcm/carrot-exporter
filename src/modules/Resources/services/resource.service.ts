@@ -545,6 +545,7 @@ class ResourceService {
       switch (resource.resourceType) {
       case "PJ":
         projects.push({
+          resourceId: resource.resourceId,
           resourceName: resource.resourceName,
           description: resource.resourceDescription,
           createdAt: resource.createdAt,
