@@ -365,11 +365,16 @@ class AlertEasyRuleService {
     };
 
     const findAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.findOne(querySql);
-    console.log(querySql);
+
     if (!findAlertEasyRule) throw new HttpException(404, `can't find alert easy rule`);
     returnResponse = { AlertEasyRule: findAlertEasyRule };
     const querySql2 = {
-      where: { deletedAt: null, alertRuleName: findAlertEasyRule.alertEasyRuleName, alertRuleSeverity: findAlertEasyRule.alertEasyRuleSeverity },
+      where: {
+        deletedAt: null,
+        alertRuleName: findAlertEasyRule.alertEasyRuleName,
+        alertRuleSeverity: findAlertEasyRule.alertEasyRuleSeverity,
+        resourceGroupUuid: findAlertEasyRule.resourceGroupUuid,
+      },
     };
     const getAlertRule: IAlertRule = await this.alertRule.findOne(querySql2);
     returnResponse = { ...returnResponse, alert: getAlertRule };
