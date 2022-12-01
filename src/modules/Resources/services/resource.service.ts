@@ -461,6 +461,7 @@ class ResourceService {
             pmStatus = status.pmStatusPerName[resource.resourceTargetUuid]
           }
           pms.push({
+              resourceId: resource.resourceId,
               resourceName: resource.resourceName,
               resourceGroupKey: resource.resourceGroupKey,
               resourceTargetUuid: resource.resourceTargetUuid,
