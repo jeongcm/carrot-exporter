@@ -343,9 +343,11 @@ class ResourceService {
             resourceTargetUuid: resource.resourceTargetUuid,
             resourceGroupKey: resource.resourceGroupKey,
             createdAt: resource.resourceTargetCreatedAt,
+            pmName: resource.resourceSpec['OS-EXT-SRV-ATTR:host'],
+            hostname: resource.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
+            resourceInstance: resource.resourceInstance,
             resourceStatus: vmStatus,
             projectName: '',
-            pmName: resource.resourceSpec['OS-EXT-SRV-ATTR:host'],
           })
           break;
         case "PM":
@@ -444,6 +446,9 @@ class ResourceService {
             resourceName: resource.resourceName,
             resourceNamespace: resource.resourceNamespace,
             parentResourceId: resource.parentResourceId,
+            hostname: resource.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
+            resourceTargetUuid: resource.resourceTargetUuid,
+            resourceInstance: resource.resourceInstance,
             status: vmStatus
           })
 
@@ -562,6 +567,9 @@ class ResourceService {
           resourceName: resource.resourceName,
           resourceNamespace: resource.resourceNamespace,
           parentResourceId: resource.parentResourceId,
+          hostname: resource.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
+          resourceTargetUuid: resource.resourceTargetUuid,
+          resourceInstance: resource.resourceInstance,
           resourceStatus: vmStatus
         })
 
