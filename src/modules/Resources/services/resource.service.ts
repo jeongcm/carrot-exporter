@@ -346,7 +346,7 @@ class ResourceService {
             createdAt: resource.resourceTargetCreatedAt,
             pmName: resource.resourceSpec['OS-EXT-SRV-ATTR:host'],
             hostname: resource.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
-            resourceInstance: resource.resourceInstance,
+            resourceInstance: resource.resourceSpec['addresses'],
             resourceStatus: vmStatus,
             projectName: '',
           })
@@ -449,7 +449,7 @@ class ResourceService {
             parentResourceId: resource.parentResourceId,
             hostname: resource.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
             resourceTargetUuid: resource.resourceTargetUuid,
-            resourceInstance: resource.resourceInstance,
+            resourceInstance: resource.resourceSpec['addresses'],
             status: vmStatus
           })
 
@@ -573,7 +573,7 @@ class ResourceService {
           parentResourceId: resource.parentResourceId,
           hostname: resource.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
           resourceTargetUuid: resource.resourceTargetUuid,
-          resourceInstance: resource.resourceInstance,
+          resourceInstance: resource.resourceSpec['addresses'],
           resourceStatus: vmStatus
         })
 
