@@ -766,6 +766,7 @@ class ResourceService {
         resourceName: vm.resourceName,
         resourceNamespace: vm.resourceNamespace,
         parentResourceId: vm.parentResourceId,
+        pmName: vm.resourceSpec['OS-EXT-SRV-ATTR:host'],
         hostname: vm.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
         resourceTargetUuid: vm.resourceTargetUuid,
         resourceInstance: vm.resourceSpec['addresses'],
