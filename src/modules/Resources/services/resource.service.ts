@@ -707,6 +707,7 @@ class ResourceService {
       } else {
         vmStatus = status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
       }
+      var pj = pjs.find(pj => vm.resourceNamespace === pj.resourceTargetUuid)
 
       vmInPm.push({
         resourceId: vm.resourceId,
@@ -720,7 +721,7 @@ class ResourceService {
         hostname: vm.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
         resourceInstance: vm.resourceSpec['addresses'],
         resourceStatus: vmStatus,
-        projectName: pjs.find(pj => vm.resourceNamespace === pj.resourceTargetUuid),
+        projectName: pj.resourceName,
       })
     }
 
