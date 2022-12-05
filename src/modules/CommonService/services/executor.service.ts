@@ -2012,7 +2012,8 @@ class executorService {
       summary: scheduleSummary,
       subscribed_channel: subscribed_channel,
       on_completion: on_completion,
-      steps: []
+      steps: [
+      ]
     }
 
     switch (selectedTemplate.resourceType) {
@@ -2052,6 +2053,7 @@ class executorService {
     default:
       scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'K8S interface for ' + selectedTemplate.resourceName;
+      apiBody.steps.push({ args: { labels: {}, }})
     }
 
     const cronData = {
