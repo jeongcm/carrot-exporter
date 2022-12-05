@@ -36,8 +36,8 @@ class CustomerAccountRoute implements Routes {
 
     this.router.get(
       '/customerAccount/:customerAccountId',
-      systemAuthMiddleware,
-      createUserLogMiddleware,
+      authMiddleware,
+      //createUserLogMiddleware,
       this.customerAccountController.getCustomerAccountById,
     );
 
@@ -76,6 +76,14 @@ class CustomerAccountRoute implements Routes {
       authMiddleware,
       createUserLogMiddleware,
       this.customerAccountController.dropCustomerAddress,
+    );
+
+    this.router.delete(
+      '/customerAccount/:customerAccountId/:clusterDeleteOption',
+      authMiddleware,
+      //validationMiddleware(CreateCustomerAccountDto, 'body'),
+      //createUserLogMiddleware,
+      this.customerAccountController.deleteCustomerAccount,
     );
   }
 }

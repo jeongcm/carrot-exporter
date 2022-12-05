@@ -2,7 +2,6 @@ import DB from '@/database';
 import { CreateResolutionActionDto, UpdateResolutionActionDto } from '../dtos/resolutionAction.dto';
 import { isEmpty } from '@/common/utils/util';
 import { HttpException } from '@/common/exceptions/HttpException';
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { ResolutionActionModel } from '../models/resolutionAction.model';
@@ -17,7 +16,6 @@ class ResolutionActionService {
   public customerAccount = DB.CustomerAccount;
   public ruleGroup = DB.RuleGroup;
   public ruleGroupResolutionAction = DB.RuleGroupResolutionAction;
-  public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
 
   /**

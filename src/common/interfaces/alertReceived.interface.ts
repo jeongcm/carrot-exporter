@@ -32,6 +32,7 @@ export interface IAlertReceived {
   alertReceivedHash: string;
   alertReceivedAffectedResourceType: string;
   alertReceivedAffectedResourceName: string;
+  alertReceivedPersistentvolumeclaim: string;
 }
 
 export interface IAlertReceivedDetailed extends IAlertReceived {
@@ -44,22 +45,8 @@ export interface IAlertRuleId {
 }
 
 export interface IAlertRuleSettingData {
-  alertNotiSettingKey: number;
   alertNotiSettingEnabled: boolean;
   alertNotiSettingSilentFrom?: Date;
   alertNotiSettingSilentUntil?: Date;
-  alertNotiSettingRepeatIntervalMin?: number;
-
-  customerAccountKey: number;
-  resourceGroupKey?: number;
-
-  alertRuleKey?: number;
-  alertRuleId?: string;
-
-  createdBy: string;
-  updatedBy?: string;
-  deletedBy?: string;
-  deletedAt?: Date;
-  createdAt: Date;
-  updatedAt?: Date;
+  alertRuleKey: number;
 }

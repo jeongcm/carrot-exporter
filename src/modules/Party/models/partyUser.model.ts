@@ -55,6 +55,7 @@ export class PartyUserModel extends Model<IPartyUser, PartyUserCreationAttribute
   public systemYn: boolean;
   public updatedAt: Date;
   public language: string;
+  public oldPassword: any;
 
   public readonly createdAt!: Date;
 }
@@ -105,6 +106,7 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       userId: {
         type: DataTypes.STRING(50),
         allowNull: false,
+        unique: true,
       },
       mobile: {
         type: DataTypes.STRING(50),
@@ -116,6 +118,7 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       email: {
         type: DataTypes.STRING(50),
         allowNull: false,
+        unique: true,
       },
       socialProviderId: {
         allowNull: true,
@@ -137,8 +140,8 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
         defaultValue: 'AC',
         validate: {
           isIn: {
-            args: [['DR', 'AC', 'IN']], // DRAFT, ACTIVE, INACTIVE
-            msg: " subscriptionStatus must be of type  ['DR' | 'AC' | 'IN']",
+            args: [['DR', 'AC', 'CA']], // DRAFT, ACTIVE, CANCELLED
+            msg: " subscriptionStatus must be of type  ['DR' | 'AC' | 'CA']",
           },
         },
       },
@@ -162,6 +165,10 @@ export default function (sequelize: Sequelize): typeof PartyUserModel {
       language: {
         type: DataTypes.STRING(2),
         defaultValue: 'EN', //EN, KR,
+      },
+      oldPassword: {
+        type: DataTypes.JSON,
+        // defaultValue: [],
       },
     },
     {

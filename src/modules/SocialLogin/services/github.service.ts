@@ -43,6 +43,7 @@ class Github {
                     email: '',
                     customerAccountApiKey: encodedApiKey,
                     customerAccountApiKeyIssuedAt: new Date(),
+                    externalBillingCustomerId: '',
                   },
                   {
                     email: '',

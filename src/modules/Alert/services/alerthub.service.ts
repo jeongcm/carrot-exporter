@@ -12,6 +12,7 @@ import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import { IAlertRuleSettingData } from '@/common/interfaces/alertReceived.interface';
 
 import _ from 'lodash';
+import { IAlertEasyRule } from '@/common/interfaces/alertEasyRule.interface';
 
 dayjs.extend(utc);
 
@@ -106,6 +107,25 @@ class AlerthubService {
       throw e;
     }
     return alertRuleKey;
+  }
+
+  public async getAllAlertRuleKeysSettingData(alertRuleKeys: number[], customerAccountKey: number): Promise<IAlertRule[]> {
+    try {
+      const { data } = await axios.post(
+        `${config.alerthub.baseUrl}/v1/alertNotiSetAlertRule/${customerAccountKey}`,
+        { alertRuleKeys },
+        {
+          headers: { x_auth_token: `${config.alerthub.authToken}` },
+        },
+      );
+
+      if (data.data && data.message === 'success') {
+        return data.data;
+      }
+    } catch (e) {
+      console.log('error', e);
+      throw e;
+    }
   }
 
   public async upsertAlertRuleSetting(alertRuleSettingData: IAlertRuleSettingData, customerAccountKey: number): Promise<IAlertRule[]> {

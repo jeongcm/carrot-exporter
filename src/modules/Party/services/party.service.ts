@@ -20,6 +20,8 @@ import urlJoin from 'url-join';
 import { logger } from '@/common/utils/logger';
 import { ApiModel } from '@/modules/Api/models/api.models';
 import TokenService from '@/modules/Token/token.service';
+import { validatePassword } from '@/common/utils/passwordValidation';
+import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 //import moment from 'moment-timezone';
@@ -39,7 +41,10 @@ class PartyService {
   public partyRelation = DB.PartyRelation;
   public resource = DB.Resource;
   public partyResource = DB.PartyResource;
+  public partyChannel = DB.PartyChannel;
+
   public partyUserLogs = DB.PartyUserLogs;
+  public partyUserPassword = DB.PartyUserPassword;
   public customerAccount = DB.CustomerAccount;
   public api = DB.Api;
 
@@ -101,25 +106,29 @@ class PartyService {
     return party.partyKey;
   }
 
-  public async createUser(
-    createPartyUserData: CreateUserDto,
-    customerAccountKey: number,
-    systemId: string,
-    socialProviderId?: string,
-  ): Promise<IPartyUserResponse> {
-    const tableIdTableName = 'PartyUser';
+  public async createUser(createPartyUserData: CreateUserDto, systemId: string, socialProviderId?: string): Promise<IPartyUserResponse> {
+    const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({
+      where: { customerAccountId: createPartyUserData.customerAccountId },
+    });
+    if (!findCustomerAccount) throw new HttpException(404, `couldn't find existing customer account information`);
+    const customerAccountKey = findCustomerAccount.customerAccountKey;
 
-    //const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-    //if (!tableId) {
-    //  return;
-    //}
+    const validatedPassword = await validatePassword(createPartyUserData.password, createPartyUserData);
+    console.log('validatedPassword in creating user', validatedPassword);
+    if (typeof validatedPassword !== 'boolean')
+      throw new HttpException(
+        500,
+        `cound't pass password validation logic - don't include first/last name, old password and must include one capitcal letter, number `,
+      );
+
+    const tableIdTableName = 'PartyUser';
     const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     //const tz = moment.tz.guess();
 
     try {
       return await DB.sequelize.transaction(async t => {
-        let hashedPassword;
+        let hashedPassword: string;
         if (createPartyUserData && createPartyUserData.password) {
           hashedPassword = await bcrypt.hash(createPartyUserData.password, 10);
         }
@@ -154,6 +163,7 @@ class PartyService {
             systemYn: false,
             adminYn: false,
             partyUserStatus: createPartyUserData.partyUserStatus,
+            oldPassword: [hashedPassword],
           },
           { transaction: t },
         );
@@ -176,9 +186,11 @@ class PartyService {
           adminYn: createdPartyUser.adminYn,
           systemYn: createdPartyUser.systemYn,
           partyUserStatus: createdPartyUser.partyUserStatus,
+          errors: [],
         };
       });
     } catch (error) {
+      return error;
       console.log(error);
     }
   }
@@ -315,19 +327,26 @@ class PartyService {
     if (isEmpty(email)) throw new HttpException(400, 'No email address provided');
     const findUser: IPartyUser = await this.partyUser.findOne({ where: { email: email } });
     if (!findUser) throw new HttpException(401, `No user information found with the provided email address`);
+    //validate password
+    const validatedPassword = await validatePassword(password, findUser);
+
+    if (typeof validatedPassword !== 'boolean') {
+      throw new HttpException(500, validatedPassword);
+    }
+
     if (oldPassword) {
       const oldHashedPassword = await bcrypt.compare(oldPassword, findUser.password);
       if (!oldHashedPassword) {
         throw new HttpException(500, `Old password entered is wrong .Please check`);
       }
     }
-
     //1. validate the password rule
-    let hashedPassword;
+    let hashedPassword: string;
     if (password) {
       hashedPassword = await bcrypt.hash(password, 10);
+      const oldPassArr = findUser.oldPassword.concat(hashedPassword);
+      await this.partyUser.update({ password: hashedPassword, oldPassword: oldPassArr }, { where: { email } });
     }
-    await this.partyUser.update({ password: hashedPassword }, { where: { email } });
 
     //2.send mail of password reset
     const emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/passwordReset.hbs'), 'utf8');
@@ -359,6 +378,42 @@ class PartyService {
     } else return 'failed';
   }
 
+  public async deleteParty(partyId: string): Promise<string> {
+    const findParty: IParty = await this.party.findOne({ where: { partyId, deletedAt: null } });
+    if (!findParty) throw new HttpException(404, 'Cannot find customerAccount');
+    const partyKey = findParty.partyKey;
+    const partyType = findParty.partyType;
+
+    try {
+      await DB.sequelize.transaction(async t => {
+        if (partyType === 'US') {
+          const findPartyUser: IPartyUser = await this.partyUser.findOne({ where: { partyKey, deletedAt: null } });
+          const partyUserKey = findPartyUser.partyUserKey;
+          await this.partyUser.update({ deletedAt: new Date(), partyUserStatus: 'CA' }, { where: { partyUserKey }, transaction: t });
+          await this.partyUserLogs.update({ deletedAt: new Date() }, { where: { partyUserKey }, transaction: t });
+          await this.partyUserPassword.update({ deletedAt: new Date() }, { where: { partyUserKey }, transaction: t });
+          await this.partyRelation.update(
+            { deletedAt: new Date(), partyRelationTo: new Date() },
+            { where: { partyChildKey: partyKey }, transaction: t },
+          );
+        } else if (partyType === 'AG') {
+          await this.partyRelation.update(
+            { deletedAt: new Date(), partyRelationTo: new Date() },
+            { where: { partyParentKey: partyKey }, transaction: t },
+          );
+          await this.partyResource.update({ deletedAt: new Date() }, { where: { partyKey }, transaction: t });
+          await this.partyChannel.update({ deletedAt: new Date(), partyChannelTo: new Date() }, { where: { partyKey }, transaction: t });
+        }
+        await this.party.update({ deletedAt: new Date() }, { where: { partyKey }, transaction: t });
+      });
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(500, 'Unknown error while deleting party');
+    }
+
+    return 'success to delete party';
+  }
+
   public createToken(user: IPartyUser): ITokenData {
     const dataStoredInToken: IDataStoredInToken = { partyUserKey: user.partyUserKey, customerAccountKey: 0 };
     const secretKey: string = config.auth.jwtSecretKey;
@@ -381,7 +436,7 @@ const sendMail = async (user: any, mailOptions: any) => {
     const mailgunAuth = { auth };
     console.log('#EMAIL Auth---', auth);
     const smtpTransport = nodeMailer.createTransport(mg(mailgunAuth));
-    smtpTransport.sendMail(mailOptions, function (error, response) {
+    smtpTransport.sendMail(mailOptions, function (error: {}, response: any) {
       if (error && Object.keys(error).length) {
         console.log(`#EMAIL Error while sending mail`, error);
       } else {

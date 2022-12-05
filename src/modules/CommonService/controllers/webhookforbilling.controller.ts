@@ -48,6 +48,7 @@ class webhookForBillingController {
             email: primaryEmail,
             customerAccountApiKey: encodedApiKey,
             customerAccountApiKeyIssuedAt: new Date(),
+            externalBillingCustomerId: '',
           };
           const partyData = {
             partyName: companyName || `${firstName} ${lastName}`,

@@ -64,4 +64,8 @@ export class AlertReceivedDto {
   @IsString()
   @IsOptional()
   public alertReceivedAffectedResourceName: string;
+
+  @IsString()
+  @IsOptional()
+  public alertReceivedPersistentvolumeclaim: string;
 }

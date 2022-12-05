@@ -12,6 +12,12 @@ if [[ -f /vault/secrets/nc-mailgun ]]; then
     export NC_LARI_MAILGUN_API_KEY="${NC_LARI_MAILGUN_API_KEY}"
 fi
 
+if [[ -f /vault/secrets/nc-fusebill ]]; then
+    source /vault/secrets/nc-fusebill
+    export FUSEBILL_API_KEY="${FUSEBILL_API_KEY}"
+fi
+
+
 if [[ -f /vault/secrets/ncDoKeys ]]; then
     source /vault/secrets/ncDoKeys
     export NC_LARI_DO_ACCESS_KEY_ID="${NC_LARI_DO_ACCESS_KEY_ID}"

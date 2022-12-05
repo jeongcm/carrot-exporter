@@ -52,6 +52,7 @@ class SystemSubscriptionController {
             email: primaryEmail,
             customerAccountApiKey: encodedApiKey,
             customerAccountApiKeyIssuedAt: new Date(),
+            externalBillingCustomerId: '',
           };
 
           const partyData: CreateUserDto = {
