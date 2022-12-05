@@ -32,4 +32,7 @@ export class CreateCustomerAccountDto {
 
   @IsOptional()
   customerAccountApiKeyIssuedAt: Date;
+
+  @IsOptional()
+  externalBillingCustomerId: string;
 }

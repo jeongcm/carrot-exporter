@@ -32,6 +32,7 @@ export interface IAlertReceived {
   alertReceivedHash: string;
   alertReceivedAffectedResourceType: string;
   alertReceivedAffectedResourceName: string;
+  alertReceivedPersistentvolumeclaim: string;
 }
 
 export interface IAlertReceivedDetailed extends IAlertReceived {

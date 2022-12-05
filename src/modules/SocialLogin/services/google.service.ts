@@ -43,6 +43,7 @@ class Google {
                   email: profile.emails[0].value,
                   customerAccountApiKey: encodedApiKey,
                   customerAccountApiKeyIssuedAt: new Date(),
+                  externalBillingCustomerId: '',
                 },
                 {
                   email: profile.emails[0].value,

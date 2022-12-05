@@ -8,6 +8,7 @@ import createK8sGraph from './create-k8s-graph';
 import filterRelatedGraph from './filter-related-graph';
 import resourceService from "@modules/Resources/services/resource.service";
 import ResourceService from "@modules/Resources/services/resource.service";
+import { ConsoleSpanExporter } from '@opentelemetry/tracing';
 
 interface IHashedResources {
   [key: string]: IResource;

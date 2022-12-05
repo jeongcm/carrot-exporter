@@ -16,6 +16,7 @@ export type CustomerAccountCreationAttributes = Optional<
   | 'customerAccountType'
   | 'customerAccountApiKey'
   | 'customerAccountApiKeyIssuedAt'
+  | 'externalBillingCustomerId'
 >;
 
 export class CustomerAccountModel extends Model<ICustomerAccount, CustomerAccountCreationAttributes> implements ICustomerAccount {
@@ -24,6 +25,7 @@ export class CustomerAccountModel extends Model<ICustomerAccount, CustomerAccoun
   public createdBy: string;
   public updatedBy: string;
   public deletedAt: Date;
+  public externalBillingCustomerId: string;
 
   public customerAccountName: string;
   public customerAccountDescription: string;
@@ -73,6 +75,10 @@ export default function (sequelize: Sequelize): typeof CustomerAccountModel {
       customerAccountName: {
         type: DataTypes.STRING(100),
         allowNull: false,
+      },
+      externalBillingCustomerId: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
       },
       customerAccountDescription: {
         type: DataTypes.STRING(500),

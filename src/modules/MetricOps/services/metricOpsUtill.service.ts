@@ -1,5 +1,4 @@
 import DB from '@/database';
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { logger } from '@/common/utils/logger';
 import config from '@config/index';
@@ -10,7 +9,6 @@ class MetricOpsUtilService {
   public modelRuleScore = DB.ModelRuleScore;
   public ruleGroup = DB.RuleGroup;
   public bayesianModel = DB.BayesianModel;
-  public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
   public async updateBayesianNetwork(bayesianModelKey: number): Promise<object> {
     try {

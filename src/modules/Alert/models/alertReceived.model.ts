@@ -35,6 +35,7 @@ export type AlertReceivedCreationAttributes = Optional<
   | 'alertReceivedHash'
   | 'alertReceivedAffectedResourceType'
   | 'alertReceivedAffectedResourceName'
+  | 'alertReceivedPersistentvolumeclaim'
 >;
 
 export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreationAttributes> implements IAlertReceived {
@@ -68,6 +69,7 @@ export class AlertReceivedModel extends Model<IAlertReceived, AlertReceivedCreat
   public alertReceivedUid: string;
   public alertReceivedAffectedResourceType: string;
   public alertReceivedAffectedResourceName: string;
+  public alertReceivedPersistentvolumeclaim: string;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -204,6 +206,11 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
         defaultValue: '',
       },
       alertReceivedAffectedResourceName: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+        defaultValue: '',
+      },
+      alertReceivedPersistentvolumeclaim: {
         type: DataTypes.STRING(100),
         allowNull: true,
         defaultValue: '',

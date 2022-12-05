@@ -2,7 +2,7 @@ import DB from '@/database';
 import { CreateMonitoringTargetDto, UpdateMonitoringTargetDto } from '../dtos/monitoringTarget.dto';
 import { isEmpty } from '@/common/utils/util';
 import { HttpException } from '@/common/exceptions/HttpException';
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+//import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
@@ -22,7 +22,7 @@ class AnomalyMonitoringTargetService {
   public subscribedProduct = DB.SubscribedProduct;
   public catalogPlan = DB.CatalogPlan;
   public catalogPlanProduct = DB.CatalogPlanProduct;
-  public customerAccountService = new CustomerAccountService();
+  //public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
 
   /**

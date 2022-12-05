@@ -46,12 +46,13 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
       catalogPlanId: {
         primaryKey: false,
         allowNull: false,
-        type: DataTypes.STRING(16),
-        // unique:true
+        type: DataTypes.STRING(100),
+        unique: true,
       },
       catalogPlanName: {
         allowNull: false,
         type: DataTypes.STRING(100),
+        unique: true,
       },
       catalogPlanDescription: {
         allowNull: false,
@@ -96,12 +97,6 @@ export default function (sequelize: Sequelize): typeof CatalogPlanModel {
     {
       tableName: 'CatalogPlan',
       modelName: 'CatalogPlan',
-      indexes: [
-        {
-          unique: true,
-          fields: ['catalog_plan_id'],
-        },
-      ],
       sequelize,
     },
   );
