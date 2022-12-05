@@ -78,7 +78,9 @@ class AlertReceivedService extends ServiceExtension {
                 and B.resource_group_uuid = C.resource_group_uuid
                 and A.deleted_at is null
                 and B.deleted_at is null
-                and C.deleted_at is null`;
+                and C.deleted_at is null
+              ORDER BY A.created_at DESC;
+                `;
     const [result, metadata] = await DB.sequelize.query(sql);
     //return allAlertReceived;
     return result;
