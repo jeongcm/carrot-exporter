@@ -16,6 +16,7 @@ import { isEmpty } from '@/common/utils/util';
 //import { IncidentModel } from '@/modules/Incident/models/incident.model';
 import { IIncidentAction } from '@/common/interfaces/incidentAction.interface';
 import { IncidentActionModel } from '@/modules/Incident/models/incidentAction.model';
+import { IncidentAlertReceivedModel } from '@/modules/Incident/models/incidentAlertReceived.model';
 
 //import { IIncidentAlertReceived } from '@/common/interfaces/incidentAlertReceived.interface';
 import { IIncidentCounts } from '@/common/interfaces/incidentCounts.interface';
@@ -28,7 +29,7 @@ import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { PartyUserModel } from '@/modules/Party/models/partyUser.model';
 import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachment.dto';
-//import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
+import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
 
 import { logger } from '@/common/utils/logger';
 import {IPartyUser} from "@common/interfaces/party.interface";
@@ -129,6 +130,11 @@ class IncidentService {
           model: PartyUserModel,
           attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
           association: DB.PartyUser.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
+        },
+        {
+          model: this.alertReceived,
+          required: false,
+          as: 'alertReceived',
         },
       ],
     });
