@@ -445,6 +445,39 @@ class AlertRuleController extends ControllerExtension {
       next(error);
     }
   };
+
+  public updateAlertEasyRuleMute = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.user.customerAccountKey;
+
+      const { alertEasyRuleId } = req.params;
+
+      const opts: any = await this.alertEasyRuleService.getAlertEasyRuleById(alertEasyRuleId);
+
+      if (!opts || !opts.AlertEasyRule || !opts.alert) {
+        throw new Error(`No alertEasyRule nor AlertRule under alertEasyRule ID ${alertEasyRuleId}`);
+      }
+
+      const status = await this.alerthubService.upsertAlertRuleSetting(
+        {
+          alertNotiSettingEnabled: req?.body?.muted,
+          alertRuleKey: opts.alert?.alertRuleKey,
+        },
+        customerAccountKey,
+      );
+      res.status(200).json({ data: status, message: 'update alertEasyRule mute' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public getAllAlertEasyRuleMute = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AlertRuleController;
