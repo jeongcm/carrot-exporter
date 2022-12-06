@@ -150,6 +150,7 @@ class AlertReceivedService extends ServiceExtension {
     let allAlertReceived;
     const allAlertReceived1: IAlertReceived[] = await this.alertReceived.findAll({
       limit: 200,
+      order: [['createdAt', 'DESC']],
       where: {
         alertReceivedHash: alertHash,
         alertReceivedUiFlag: { [Op.in]: [0, 2, 4, 6, 8] },
