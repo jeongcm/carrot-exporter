@@ -132,9 +132,9 @@ class IncidentService {
           association: DB.PartyUser.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
         },
         {
+          as: 'alertReceived',
           model: this.alertReceived,
           required: false,
-          as: 'alertReceived',
         },
       ],
     });
