@@ -20,6 +20,8 @@ import bmRuleGroup from '../../init/bmRuleGroup.seeding.json';
 import ruleGroup from '../../init/ruleGroup.seeding.json';
 import resolutionAction from '../../init/resolutionAction.seeding.json';
 import alertRule from '../../init/alertRule.seeding.json';
+import catalogPlan from '../../init/catalogPlan.seeding.json';
+import catalogPlanProduct from '../../init/catalogPlanProduct.seeding.json';
 
 validateEnv();
 
@@ -33,6 +35,7 @@ export default {
   helmRepoUrl: process.env.NC_LARI_HELM_REPO_URL,
   resourceCron: process.env.NC_LARI_RESOURCE_CRON || `*/10 * * * *`,
   alertCron: process.env.NC_LARI_ALERT_CRON || `* * * * *`,
+  metricOpsCron: process.env.NC_LARI_METRICOPS_CRON || `*/2 * * * *`,
   metricCron: process.env.NC_LARI_METRIC_CRON || `*/5 * * * *`,
   metricReceivedCron: process.env.NC_LARI_METRIC_RECEIVED_CRON || `*/5 * * * *`,
   healthCron: process.env.NC_LARI_HEALTH_CRON || '*/5 * * * *',
@@ -119,6 +122,8 @@ export default {
     alertTargetGroup,
     alertTargetSubGroup,
     alertEasyRule,
+    catalogPlan,
+    catalogPlanProduct,
     metricOps: {
       bm,
       bmRuleGroup,
@@ -136,6 +141,7 @@ export default {
     apiKey: process.env.FUSEBILL_API_KEY,
     baseURL: process.env.FUSEBILL_BASE_URL || 'https://secure.fusebill.com/v1/',
     createCustomerUrl: process.env.FUSEBILL_API_CREATE_CUSTOMER_URL || 'https://secure.fusebill.com/v1/customers',
+    cancelCustomerUrl: process.env.FUSEBILL_API_CANCEL_CUSTOMER_URL || 'https://secure.fusebill.com/v1/CustomerCancellation',
   },
   ncCronApiDetail: {
     baseURL: process.env.NC_CRON_URL || 'http://localhost:5010',

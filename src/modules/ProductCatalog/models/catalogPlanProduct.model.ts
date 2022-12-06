@@ -51,7 +51,8 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
       catalogPlanProductId: {
         primaryKey: false,
         allowNull: false,
-        type: DataTypes.STRING(16),
+        type: DataTypes.STRING(100),
+        unique: true,
       },
       catalogPlanKey: {
         allowNull: false,
@@ -60,6 +61,7 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
       catalogPlanProductName: {
         allowNull: false,
         type: DataTypes.STRING(100),
+        unique: true,
       },
       catalogPlanProductDescription: {
         allowNull: false,
@@ -107,12 +109,6 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductModel {
       },
     },
     {
-      indexes: [
-        {
-          unique: true,
-          fields: ['catalog_plan_product_id'],
-        },
-      ],
       tableName: 'CatalogPlanProduct',
       modelName: 'CatalogPlanProduct',
       sequelize,

@@ -71,6 +71,7 @@ export interface IPartyUser {
   adminYn: boolean;
   systemYn: boolean;
   language: string;
+  oldPassword: any;
 }
 
 export interface IPartyResource {
@@ -113,6 +114,7 @@ export interface IPartyUserResponse {
   timezone: string;
   isEmailValidated: boolean;
   language: string;
+  errors: any;
 }
 
 export interface IPartyResponse {

@@ -9,7 +9,7 @@ import axios from 'common/httpClient/axios';
 import config from '@config/index';
 import { HttpException } from '@/common/exceptions/HttpException';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+//import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import IncidentService from '@/modules/Incident/services/incident.service';
 import MonitoringTargetService from '@/modules/MetricOps/services/monitoringTarget.service';
 import ResolutionActionService from '@/modules/MetricOps/services/resolutionAction.service';
@@ -25,6 +25,8 @@ import executorService from '@/modules/CommonService/services/executor.service';
 
 import { AnomalyMonitoringTargetTable } from '../models/monitoringTarget.model';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
+import { IResolutionAction } from '@/common/interfaces/resolutionAction.interface';
+import sequelize from 'sequelize';
 
 const { Op } = require('sequelize');
 
@@ -36,8 +38,9 @@ class EvaluateServices {
   public alertRule = DB.AlertRule;
   public alertReceived = DB.AlertReceived;
   public evaluation = DB.Evaluation;
+  public customerAccount = DB.CustomerAccount;
   public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
-  public customerAccountService = new CustomerAccountService();
+  //public customerAccountService = new CustomerAccountService();
   public monitoringTargetService = new MonitoringTargetService();
   public resolutionActionService = new ResolutionActionService();
   public bayesianModelService = new BayesianModelService();
@@ -52,13 +55,14 @@ class EvaluateServices {
   /**
    * Evaluate anomaly using resourceKey
    *
-   * @param  {number} resourceKey
+   * @param  {string} anomalyMonitoringTargetId
    * @returns Promise<object>
    * @author Jerry Lee
    */
-  public async evaluateMonitoringTarget(resourceKey: number): Promise<any> {
+  public async evaluateMonitoringTarget(anomalyMonitoringTargetId: string): Promise<any> {
+    console.log('#METRICOPS- anomalyMonitoringTargetId', anomalyMonitoringTargetId);
     const step0 = new Date().getTime();
-    console.log('step0 - ', step0);
+    console.log('#METRICOPS step0 - ', step0);
 
     let bayesianModel = {};
     let returnResponse = {};
@@ -66,10 +70,12 @@ class EvaluateServices {
     let evaluationResultStatus;
 
     // 1. Confirm resource as AnomalyTarget
-    const resultMonitoringTarget = await this.monitoringTargetService.findMonitoringTargetsByResourceKeys(resourceKey);
-    if (!resultMonitoringTarget) throw new HttpException(400, `Can't find anomaly target - ${resourceKey}`);
+
+    const resultMonitoringTarget = await this.monitoringTargetService.findMonitoringTargetById(anomalyMonitoringTargetId);
+    if (!resultMonitoringTarget) throw new HttpException(400, `Can't find anomaly target - ${anomalyMonitoringTargetId}`);
     const anomalyMonitoringTargetKey = resultMonitoringTarget.anomalyMonitoringTargetKey;
     const customerAccountKey = resultMonitoringTarget.customerAccountKey;
+    const resourceKey = resultMonitoringTarget.resourceKey;
 
     const resultResource: IResource = await this.resource.findOne({ where: { resourceKey } });
     if (!resultResource) throw new HttpException(400, `Can't find resource - ${resourceKey}`);
@@ -167,8 +173,9 @@ class EvaluateServices {
               alertReceivedId: resultAlertReceived[i].alertReceivedId,
               alertReceivedName: resultAlertReceived[i].alertReceivedName,
               alertReceivedNode: resultAlertReceived[i].alertReceivedNode,
-              alertReceivedService: resultAlertReceived[i].alertReceivedService,
-              alertReceivedPod: resultAlertReceived[i].alertReceivedPod,
+              alertReceivedService: resultAlertReceived[i].alertReceivedService || '',
+              alertReceivedPod: resultAlertReceived[i].alertReceivedPod || '',
+              alertReceivedPersistentvolume: resultAlertReceived[i].alertReceivedPersistentvolumeclaim || '',
             };
             const resultAlertRule = await this.alertRule.findOne({ where: { alertRuleKey } });
             const alertName = resultAlertReceived[i].alertReceivedName;
@@ -207,6 +214,7 @@ class EvaluateServices {
               alertReceivedNode: resultAlertReceivedPd[i].alertReceivedNode || '',
               alertReceivedService: resultAlertReceivedPd[i].alertReceivedService || '',
               alertReceivedPod: resultAlertReceivedPd[i].alertReceivedPod,
+              alertReceivedPersistentvolume: resultAlertReceivedPd[i].alertReceivedPersistentvolumeclaim || '',
             };
             const resultAlertRule = await this.alertRule.findOne({ where: { alertRuleKey } });
             const alertName = resultAlertReceivedPd[i].alertReceivedName;
@@ -220,7 +228,12 @@ class EvaluateServices {
         break;
       case 'PC':
         const alertRuleQueryPc = {
-          where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null, alertReceivedState: 'firing', alertReceivedPod: resourceName },
+          where: {
+            alertRuleKey: { [Op.in]: alertRuleKey },
+            deletedAt: null,
+            alertReceivedState: 'firing',
+            alertReceivedPersistentvolumeclaim: resourceName,
+          },
         };
         const resultAlertReceivedPc: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQueryPc);
         if (resultAlertReceivedPc.length === 0) {
@@ -238,7 +251,8 @@ class EvaluateServices {
               alertReceivedName: resultAlertReceivedPc[i].alertReceivedName,
               alertReceivedNode: resultAlertReceivedPc[i].alertReceivedNode || '',
               alertReceivedService: resultAlertReceivedPc[i].alertReceivedService || '',
-              alertReceivedPod: resultAlertReceivedPc[i].alertReceivedPod,
+              alertReceivedPod: resultAlertReceivedPc[i].alertReceivedPod || '',
+              alertReceivedPersistentvolume: resultAlertReceivedPc[i].alertReceivedPersistentvolumeclaim,
             };
             const resultAlertRule = await this.alertRule.findOne({ where: { alertRuleKey } });
             const alertName = resultAlertReceivedPc[i].alertReceivedName;
@@ -286,7 +300,7 @@ class EvaluateServices {
     const step6 = new Date().getTime();
     const elaps6 = (step6 - step5) / 1000;
     console.log('#METRICOPS step6 -', elaps6 + ' ' + resourceName);
-
+    console.log('#METRICOPS step6 - evaluationResultStatus', evaluationResultStatus);
     if (evaluationResultStatus === 'NF') {
       returnResponse = {
         evaluationId: evaluationId,
@@ -305,6 +319,7 @@ class EvaluateServices {
       bayesianModelId: bayesianModelIdForBn,
       inputAlerts: inputAlerts,
     };
+    console.log('#METRICOPS step6 - bnData', JSON.stringify(bnData));
 
     const url = config.ncBnApiDetail.ncBnUrl + config.ncBnApiDetail.ncBnPredictPath;
     let evaluationResult;
@@ -337,6 +352,7 @@ class EvaluateServices {
           where: { evaluationId: evaluationId },
         };
         console.log('#METRICOPS 6-2', error + ' ' + resourceName);
+        console.log('#METRICOPS 6-2 url', url);
         const resultEvaluationResult = this.evaluation.update(updateError, updateErrorWhere);
         throw new HttpException(500, `Unknown error to fetch the result of evaluation from nexclipper-bn: ${evaluationId}`);
       });
@@ -417,32 +433,33 @@ class EvaluateServices {
    */
 
   public async initiateEvaluationProcess(customerAccountId: string, userId: string): Promise<any> {
-    console.log('STEP1');
+    console.log('MOEVAL-STEP1');
     //1. validate customerAccountid
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
+    const resultCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
     if (!resultCustomerAccount) throw new HttpException(400, `Can't find customerAccount - ${customerAccountId}`);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
-    console.log('STEP2');
+    console.log('MOEVAL-STEP2');
     //2. pull monitoring targets
     const resultMonitoringTarget: IAnomalyMonitoringTarget[] = await this.monitoringTargetService.findMonitoringTargetsByCustomerAccountKey(
       customerAccountKey,
     );
     if (!resultMonitoringTarget) throw new HttpException(401, `Can't find AnomalyTarget - ${customerAccountId}`);
 
-    console.log('STEP3');
+    console.log('MOEVAL-STEP3');
     //3. call evaluateMonitorintTarget (ML)
     //console.log('resultMonitoringTarget', resultMonitoringTarget);
     const resultReturn = {};
     for (let i = 0; i < resultMonitoringTarget.length; i++) {
       const resourceKey = resultMonitoringTarget[i].resourceKey;
+      const anomalyMonitoringTargetId = resultMonitoringTarget[i].anomalyMonitoringTargetId;
 
-      let resultEvaluation = await this.evaluateMonitoringTarget(resourceKey);
+      let resultEvaluation = await this.evaluateMonitoringTarget(anomalyMonitoringTargetId);
       const { evaluationRequest, evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName, resourceType } = resultEvaluation;
       console.log(`evaluationResultStatus------${evaluationResultStatus}`);
 
       if (evaluationResultStatus === 'AN') {
-        console.log('STEP4 - ANOMALY');
+        console.log('MOEVAL-STEP4 - ANOMALY');
         //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
         const getResource = await this.resource.findOne({
           where: { resourceId: resourceId },
@@ -455,18 +472,49 @@ class EvaluateServices {
             },
           ],
         });
-        console.log('getResource', getResource);
         const resourceNamespace = getResource.resourceNamespace;
+        console.log('MOEVAL-STEP4 - PVC:', JSON.stringify(getResource.resourcePvcStorage));
 
         let volume = '';
         let volumeVal = 0;
+        let volumeVal10 = 0;
+        let volumeVal10String = '';
+        let volumeVal20 = 0;
+        let volumeVal20String = '';
         let volumeVal30 = 0;
         let volumeVal30String = '';
         if (getResource.resourcePvcStorage) {
           volume = getResource.resourcePvcStorage?.requests.storage;
-          volumeVal = parseInt(volume.replace('Gi', ''));
-          volumeVal30 = volumeVal * 1.3;
-          volumeVal30String = volumeVal30.toString();
+          console.log('MOEVAL-STEP4 - Volume:', volume);
+          if (volume.indexOf('Gi') > 0) {
+            volumeVal = parseFloat(volume.replace('Gi', ''));
+            volumeVal10 = Math.round(volumeVal * 1.1);
+            volumeVal10String = volumeVal10.toString() + 'Gi';
+            volumeVal20 = Math.round(volumeVal * 1.2);
+            volumeVal20String = volumeVal20.toString() + 'Gi';
+            volumeVal30 = Math.round(volumeVal * 1.3);
+            volumeVal30String = volumeVal30.toString() + 'Gi';
+            console.log('MOEVAL-STEP4 - Volume.indexOf Gi:', volume.indexOf('Gi'));
+          } else if (volume.indexOf('Mi') > 0) {
+            volumeVal = parseFloat(volume.replace('Mi', ''));
+            volumeVal10 = Math.round(volumeVal * 1.1);
+            volumeVal10String = volumeVal10.toString() + 'Mi';
+            volumeVal20 = Math.round(volumeVal * 1.2);
+            volumeVal20String = volumeVal20.toString() + 'Mi';
+            volumeVal30 = Math.round(volumeVal * 1.3);
+            volumeVal30String = volumeVal30.toString() + 'Mi';
+            console.log('MOEVAL-STEP4 - Volume.indexOf Mi:', volume.indexOf('Mi'));
+          } else {
+            volumeVal = parseFloat(volume);
+            volumeVal10 = Math.round(volumeVal * 1.1);
+            volumeVal10String = volumeVal10.toString();
+            volumeVal20 = Math.round(volumeVal * 1.2);
+            volumeVal20String = volumeVal20.toString();
+            volumeVal30 = Math.round(volumeVal * 1.3);
+            volumeVal30String = volumeVal30.toString();
+            console.log('MOEVAL-STEP4 - else case');
+          }
+          console.log('MOEVAL-STEP4 - volumeVal30String', volumeVal30String);
         }
 
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -492,12 +540,12 @@ class EvaluateServices {
         const firedAlertList = firedAlerts.map(a => a.alertReceivedId);
         const alertReceivedIds = { alertReceivedIds: firedAlertList };
 
-        console.log('STEP5');
+        console.log('MOEVAL-STEP5');
         //5. attach the alerts (from the result) to the incident tickets
         await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, alertReceivedIds, userId);
         console.log(`incident ticket is created: ', ${incidentId}, 'Alert Attached - ', ${alertReceivedIds}`);
 
-        console.log('STEP6');
+        console.log('MOEVAL-STEP6');
         //6. execute any resolution actions if there are actions under rule group more than a threshold
         const nodeThreshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
         const podThreshold = Number(config.ncBnApiDetail.ncBnPodThreshold);
@@ -524,7 +572,7 @@ class EvaluateServices {
         //console.log('evaluationRequest=============', evaluationRequest);
         console.log('RuleGroup:-----------', evaluationRequest.ruleGroup);
         for (let i = 0; i < evaluationRequest.ruleGroup.length; i++) {
-          console.log('STEP7');
+          console.log('MOEVAL-STEP7');
           const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(evaluationRequest.ruleGroup[i].ruleGroupId);
 
           resolutionActions.length &&
@@ -532,36 +580,47 @@ class EvaluateServices {
               //7. postExecuteService to sudory server
               const currentDate = new Date();
               const currentDate2 = new Date();
+              const fromDate = new Date(currentDate.setMinutes(currentDate.getMinutes() - 10)).toLocaleString();
+              const toDate = new Date().toLocaleString();
               const start = new Date(currentDate.setHours(currentDate.getHours() - 12)).toISOString().substring(0.19);
-              const subscribed_channel = config.sudoryApiDetail.channel_webhook;
               const end = currentDate2.toISOString().substring(0.19);
+              const subscribed_channel = config.sudoryApiDetail.channel_webhook;
               const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
+              const sqlLiteral = `template_uuid = ${templateUuid} AND status = 4 AND JSON_EXTRACT(steps, "$[*].args.name") = JSON_ARRAY(${resourceName})
+              AND created_at BETWEEN ${fromDate} AND ${toDate}`;
+              // don't execut resolution action if the action was executed within 10min
+              console.log('MOEVAL-STEP7-----sqlLiteral', sqlLiteral);
+              const findResolutionAction: IResolutionAction[] = await this.resolutionAction.findAll({
+                where: sequelize.literal(sqlLiteral),
+              });
+              console.log('MOEVAL-STEP7-----findResolutionAction', findResolutionAction);
+              if (findResolutionAction.length === 0) {
+                // replace variables of ResolutionAction Query
+                let steps = JSON.stringify(resolutionAction.resolutionActionTemplateSteps);
+                steps = steps.replace('#namespace', resourceNamespace);
+                steps = steps.replace('#prometheusurl', prometheusUrl);
+                steps = steps.replace('#resourcename', resourceName);
+                steps = steps.replace('#name', resourceName);
+                steps = steps.replace('#start', start);
+                steps = steps.replace('#end', end);
+                steps = steps.replace('#expandedvolume30%', volumeVal30String);
+                steps = steps.replace('#expandedvolume20%', volumeVal20String);
+                steps = steps.replace('#expandedvolume10%', volumeVal10String);
+                steps = JSON.parse(steps);
+                const stepsEnd = [{ args: steps }];
+                console.log('MOEVAL-STEP8 - ResolutionAction', JSON.stringify(stepsEnd));
 
-              console.log('start-----', start);
-              console.log('end-----', end);
-
-              // replace variables of ResolutionAction Query
-              let steps = JSON.stringify(resolutionAction.resolutionActionTemplateSteps);
-              steps = steps.replace('#namespace', resourceNamespace);
-              steps = steps.replace('#prometheusurl', prometheusUrl);
-              steps = steps.replace('#resourcename', resourceName);
-              steps = steps.replace('#name', resourceName);
-              steps = steps.replace('#start', start);
-              steps = steps.replace('#end', end);
-              steps = steps.replace('#expandedvolume30%', volumeVal30String);
-              steps = JSON.parse(steps);
-              const stepsEnd = [{ args: steps }];
-              console.log('Sudory STEPS', JSON.stringify(stepsEnd));
-
-              const serviceOutput: any = await this.executorService.postExecuteService(
-                `METRICOPS-${resolutionAction?.resolutionActionName}/:CUST-${customerAccountKey}/:INC-${incidentId}`,
-                `INC-${incidentId}`,
-                clusterUuid,
-                templateUuid,
-                stepsEnd,
-                customerAccountKey,
-                subscribed_channel,
-              );
+                const serviceOutput: any = await this.executorService.postExecuteService(
+                  `METRICOPS-${resolutionAction?.resolutionActionName}/:CUST-${customerAccountKey}/:INC-${incidentId}`,
+                  `INC-${incidentId}`,
+                  clusterUuid,
+                  templateUuid,
+                  stepsEnd,
+                  customerAccountKey,
+                  subscribed_channel,
+                );
+                console.log('MOEVAL-STEP9');
+              }
             });
         }
 
@@ -601,7 +660,8 @@ class EvaluateServices {
    */
   public async getEvaluationHistoryAll(customerAccountId: string, limit: number, offset: number): Promise<IEvaluation[]> {
     //1. validate CustomerAccount
-    const resultCustomerAccount: ICustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
+    //const resultCustomerAccount: ICustomerAccount = await this.customerAccountService.getCustomerAccountById(customerAccountId);
+    const resultCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
     if (!resultCustomerAccount) throw new HttpException(400, `Can't find customer Account - ${customerAccountId}`);
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
     //2. pull evaluation history

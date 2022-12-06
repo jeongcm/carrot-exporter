@@ -587,7 +587,9 @@ DB.sequelize
             DECLARE counter INT DEFAULT 1;
             REPEAT
                 delete from nc_api.AlertReceived
-                where day(created_at) < day (current_date())-1 limit 100000; commit;
+                where alert_received_key not in (select alert_received_key from nc_api.IncidentAlertReceived)
+                and day(ar.created_at) < day (current_date())-1
+                  limit 100000; commit;
                 SET counter = counter + 1;
                 SELECT SLEEP(2);
             UNTIL counter >= 200

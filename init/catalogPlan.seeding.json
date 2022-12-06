@@ -1,0 +1,12 @@
+[
+    {
+        "catalogPlanName": "NexClipper MetricOps",
+        "catalogPlanDescription": "Best Option! Observability service powered by Prometheus, ML OPS, Incident management and Alerthub",
+        "catalogPlanType": "MO"
+    },
+    {
+        "catalogPlanName": "NexClipper Observabilty",
+        "catalogPlanDescription": "Observability service powered by Prometheus. Incident management & Alerthub are included.",
+        "catalogPlanType": "OB"
+    }
+  ]

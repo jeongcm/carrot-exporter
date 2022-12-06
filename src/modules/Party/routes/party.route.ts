@@ -44,11 +44,10 @@ class partyRoute implements Routes {
       //createUserLogMiddleware,
       this.partyController.resetPasswordByAdmin,
     );
-
+    this.router.delete('/party/:partyId', authMiddleware, this.partyController.deleteParty);
     this.router.get('/party/me', authMiddleware, createUserLogMiddleware, this.partyController.getCurrentUser);
     this.router.get('/party/user', authMiddleware, createUserLogMiddleware, this.partyController.getUsers);
     this.router.get('/party/user/:partyUserId', authMiddleware, createUserLogMiddleware, this.partyController.getUser);
-
     this.router.put(
       '/party/user/:partyUserId',
       authMiddleware,

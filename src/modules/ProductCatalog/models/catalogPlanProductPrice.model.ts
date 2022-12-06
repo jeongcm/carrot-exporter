@@ -1,38 +1,41 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
-import {ICatalogPlanProductPrice } from '@/common/interfaces/productCatalog.interface';
+import { ICatalogPlanProductPrice } from '@/common/interfaces/productCatalog.interface';
 
 export type CatalogPlanProductPricingCreationAttributes = Optional<
-    ICatalogPlanProductPrice,
-    | "catalogPlanProductKey"
-    |"catalogPlanProductPriceId"
-    |"createdAt"
-    |"updatedAt"
-    |"createdBy"
-    |"updatedBy"
-    |"catalogPlanProductMonthlyPriceFrom"
-    |"catalogPlanProductMonthlyPriceTo"
-    |"catalogPlanProductMonthlyPrice"
+  ICatalogPlanProductPrice,
+  | 'catalogPlanProductKey'
+  | 'catalogPlanProductPriceId'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'createdBy'
+  | 'updatedBy'
+  | 'catalogPlanProductMonthlyPriceFrom'
+  | 'catalogPlanProductMonthlyPriceTo'
+  | 'catalogPlanProductMonthlyPrice'
 >;
 
-export class CatalogPlanProductPriceModel extends Model<ICatalogPlanProductPrice, CatalogPlanProductPricingCreationAttributes> implements ICatalogPlanProductPrice {
-    public catalogPlanProductKey:number;
-    public catalogPlanProductPriceId:string;
-    public catalogPlanProductMonthlyPriceFrom:Date;
-    public catalogPlanProductMonthlyPriceTo:Date;
-    public catalogPlanProductMonthlyPrice:number
-    public catalogPlanProductPriceKey :number
-    public deletedAt: Date;
-    public createdBy: string;
-    public updatedBy: string;
-    public updatedAt: Date;
+export class CatalogPlanProductPriceModel
+  extends Model<ICatalogPlanProductPrice, CatalogPlanProductPricingCreationAttributes>
+  implements ICatalogPlanProductPrice
+{
+  public catalogPlanProductKey: number;
+  public catalogPlanProductPriceId: string;
+  public catalogPlanProductMonthlyPriceFrom: Date;
+  public catalogPlanProductMonthlyPriceTo: Date;
+  public catalogPlanProductMonthlyPrice: number;
+  public catalogPlanProductPriceKey: number;
+  public deletedAt: Date;
+  public createdBy: string;
+  public updatedBy: string;
+  public updatedAt: Date;
 
-    public readonly createdAt!: Date;
+  public readonly createdAt!: Date;
 }
 
 export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceModel {
   CatalogPlanProductPriceModel.init(
     {
-        catalogPlanProductPriceKey: {
+      catalogPlanProductPriceKey: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false,
@@ -41,46 +44,46 @@ export default function (sequelize: Sequelize): typeof CatalogPlanProductPriceMo
       catalogPlanProductPriceId: {
         primaryKey: false,
         allowNull: false,
-        type: DataTypes.STRING(16),
-        unique:true
+        type: DataTypes.STRING(100),
+        unique: true,
       },
-      catalogPlanProductKey:{
+      catalogPlanProductKey: {
         allowNull: false,
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
       },
       catalogPlanProductMonthlyPriceFrom: {
         allowNull: false,
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
       catalogPlanProductMonthlyPriceTo: {
         allowNull: false,
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
       },
-      catalogPlanProductMonthlyPrice:{
+      catalogPlanProductMonthlyPrice: {
         allowNull: false,
         type: DataTypes.DOUBLE,
       },
       createdBy: {
         allowNull: false,
-        type: DataTypes.STRING(16)
+        type: DataTypes.STRING(16),
       },
       updatedBy: {
         allowNull: true,
-        type: DataTypes.STRING(16)
+        type: DataTypes.STRING(16),
       },
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE(),
-        defaultValue:new Date()
+        defaultValue: new Date(),
       },
       updatedAt: {
         allowNull: true,
         type: DataTypes.DATE(),
-        defaultValue:new Date()
+        defaultValue: new Date(),
       },
       deletedAt: {
         allowNull: true,
-        type: DataTypes.DATE()
+        type: DataTypes.DATE(),
       },
     },
     {

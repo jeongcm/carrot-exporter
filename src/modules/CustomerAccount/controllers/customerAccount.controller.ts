@@ -32,6 +32,7 @@ class CustomerAccountController {
         email,
         customerAccountApiKey: '',
         customerAccountApiKeyIssuedAt: null,
+        externalBillingCustomerId: '',
       };
 
       const partyData: CreateUserDto = {
@@ -195,6 +196,18 @@ class CustomerAccountController {
       await this.customerAccountService.dropCustomerAddress(customerAccountId, logginedUserId);
 
       res.status(204).json({ message: 'deleted' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteCustomerAccount = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountId = req.params.customerAccountId;
+    const clusterDeleteOption = req.params.clusterDeleteOption || '2';
+    try {
+      const result = await this.customerAccountService.deleteCustomerAccount(customerAccountId, clusterDeleteOption);
+
+      res.status(200).json({ data: result, message: 'deleted' });
     } catch (error) {
       next(error);
     }

@@ -12,7 +12,7 @@ class EvaluateRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post(
-      '/evaluate/resource/',
+      '/evaluate/anomalyMonitoringTarget/',
       authMiddleware,
       //createUserLogMiddleware,
       //validationMiddleware(CreateBayesianModelDto, 'body'),

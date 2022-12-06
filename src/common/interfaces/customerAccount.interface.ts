@@ -25,6 +25,7 @@ export interface ICustomerAccount {
   address?: IAddress[];
   customerAccountApiKey: string;
   customerAccountApiKeyIssuedAt: Date;
+  externalBillingCustomerId: string;
 }
 
 export interface ICustomerAccoutType {

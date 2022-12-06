@@ -32,6 +32,7 @@ export interface IAlertReceived {
   alertReceivedHash: string;
   alertReceivedAffectedResourceType: string;
   alertReceivedAffectedResourceName: string;
+  alertReceivedPersistentvolumeclaim: string;
 }
 
 export interface IAlertReceivedDetailed extends IAlertReceived {
@@ -44,7 +45,6 @@ export interface IAlertRuleId {
 }
 
 export interface IAlertRuleSettingData {
-  alertNotiSettingKey: number;
   alertNotiSettingEnabled: boolean;
   alertNotiSettingSilentFrom?: Date;
   alertNotiSettingSilentUntil?: Date;

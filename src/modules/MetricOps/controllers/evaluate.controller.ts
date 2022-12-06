@@ -11,9 +11,9 @@ class EvaluateController {
 
   public evaluateMonitoringTarget = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const resourceKey = parseInt(req.body.resourceKey);
-      const evalatiaonDetails = await this.evaluateService.evaluateMonitoringTarget(resourceKey);
-      res.status(200).json({ data: evalatiaonDetails, message: `Evaluation complate - ${resourceKey}` });
+      const anomalyMonitoringTargetId = req.body.anomalyMonitoringTargetId;
+      const evalatiaonDetails = await this.evaluateService.evaluateMonitoringTarget(anomalyMonitoringTargetId);
+      res.status(200).json({ data: evalatiaonDetails, message: `Evaluation complate - ${anomalyMonitoringTargetId}` });
     } catch (error) {
       next(error);
     }

@@ -3,7 +3,7 @@ import DB from '@/database';
 import { AttachRuleGroupDto } from '../dtos/modelRuleScore.dto';
 import { isEmpty } from '@/common/utils/util';
 import { HttpException } from '@/common/exceptions/HttpException';
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+//import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import TableIdService from '@/modules/CommonService/services/tableId.service';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
 import { BayesianModelTable } from '../models/bayesianModel.model';
@@ -14,7 +14,7 @@ class ModelRuleScoreService {
   public modelRuleScore = DB.ModelRuleScore;
   public ruleGroup = DB.RuleGroup;
   public bayesianModel = DB.BayesianModel;
-  public customerAccountService = new CustomerAccountService();
+  //public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
   public metricOpsUtilService = new MetricOpsUtilService();
   /**

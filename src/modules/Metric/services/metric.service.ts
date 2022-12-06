@@ -863,7 +863,7 @@ class MetricService extends ServiceExtension {
           (1 - avg(rate(node_cpu_seconds_total{__LABEL_PLACE_HOLDER__,mode="idle"}[1m])) by (node)) * 100
         )`;*/
         promQl = `sort_desc(
-          avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[5m])) by (node) * 100
+          avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[5m])) by (node, clusterUuid) * 100
         )`;
         break;
       case 'K8S_CLUSTER_NODE_DISK_RANKING':
@@ -880,7 +880,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
         promQl = `sort_desc(
-          sum by (node) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[5m]) + rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[5m]))
+          sum by (node, clusterUuid) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[5m]) + rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[5m]))
         )`;
         break;
 

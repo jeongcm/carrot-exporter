@@ -109,6 +109,25 @@ class AlerthubService {
     return alertRuleKey;
   }
 
+  public async getAllAlertRuleKeysSettingData(alertRuleKeys: number[], customerAccountKey: number): Promise<IAlertRule[]> {
+    try {
+      const { data } = await axios.post(
+        `${config.alerthub.baseUrl}/v1/alertNotiSetAlertRule/${customerAccountKey}`,
+        { alertRuleKeys },
+        {
+          headers: { x_auth_token: `${config.alerthub.authToken}` },
+        },
+      );
+
+      if (data.data && data.message === 'success') {
+        return data.data;
+      }
+    } catch (e) {
+      console.log('error', e);
+      throw e;
+    }
+  }
+
   public async upsertAlertRuleSetting(alertRuleSettingData: IAlertRuleSettingData, customerAccountKey: number): Promise<IAlertRule[]> {
     if (isEmpty(alertRuleSettingData)) throw new HttpException(400, 'Alert Rule setting must not be empty.');
     try {

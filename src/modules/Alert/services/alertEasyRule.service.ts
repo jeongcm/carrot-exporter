@@ -22,6 +22,7 @@ import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 //import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
+import AlerthubService from './alerthub.service';
 //import { arrayBuffer } from 'stream/consumers';
 //import path from 'path';
 //import { max } from 'lodash';
@@ -31,6 +32,7 @@ const uuid = require('uuid');
 
 class AlertEasyRuleService {
   private sudoryService = new SudoryService();
+  private alertHubService = new AlerthubService();
   private alertRule = DB.AlertRule;
   private resourceGroup = DB.ResourceGroup;
   private alertEasyRule = DB.AlertEasyRule;
@@ -376,6 +378,8 @@ class AlertEasyRuleService {
         resourceGroupUuid: findAlertEasyRule.resourceGroupUuid,
       },
     };
+    console.log(querySql2);
+
     const getAlertRule: IAlertRule = await this.alertRule.findOne(querySql2);
     returnResponse = { ...returnResponse, alert: getAlertRule };
     return returnResponse;
@@ -913,6 +917,68 @@ class AlertEasyRuleService {
     }
 
     return result;
+  }
+
+  public async getAlertEasyRuleAllMute(customerAccountKey: number) {
+    const start = Date.now();
+    const alertEasyRuleToMap = {};
+    const alertEasyRules: IAlertEasyRule[] = await this.getAlertEasyRuleAll(customerAccountKey);
+
+    const alertRuleWhere = {
+      alertRuleName: [],
+      alertRuleSeverity: [],
+      resourceGroupUuid: [],
+    };
+
+    alertEasyRules.forEach((alertEasyRule: IAlertEasyRule) => {
+      const { alertEasyRuleName, alertEasyRuleSeverity, resourceGroupUuid } = alertEasyRule;
+
+      const hash = `${alertEasyRuleName}${alertEasyRuleSeverity}${resourceGroupUuid}`;
+
+      alertEasyRuleToMap[hash] = {
+        alertEasyRule,
+      };
+
+      alertRuleWhere.alertRuleName.push(alertEasyRuleName);
+      alertRuleWhere.alertRuleSeverity.push(alertEasyRuleSeverity);
+      alertRuleWhere.resourceGroupUuid.push(resourceGroupUuid);
+    });
+
+    const alertRules: IAlertRule[] = await DB.AlertRule.findAll({
+      where: alertRuleWhere,
+    });
+
+    const alertRuleKeys: number[] = [];
+    const hashPerAlertRuleKeyToMap = {};
+
+    alertRules.forEach((ar: IAlertRule) => {
+      const hash = `${ar.alertRuleName}${ar.alertRuleSeverity}${ar.resourceGroupUuid}`;
+
+      if (alertEasyRuleToMap[hash]) {
+        hashPerAlertRuleKeyToMap[ar.alertRuleKey] = hash;
+        alertEasyRuleToMap[hash].alertRule = ar;
+        alertRuleKeys.push(ar.alertRuleKey);
+      }
+    });
+
+    const alertRuleSettings = await this.alertHubService.getAllAlertRuleKeysSettingData(alertRuleKeys, customerAccountKey);
+
+    alertRuleSettings.forEach((setting: any) => {
+      const hash = hashPerAlertRuleKeyToMap[setting.alertRuleKey];
+      if (alertEasyRuleToMap[hash]) {
+        alertEasyRuleToMap[hash].setting = setting;
+      }
+    });
+
+    const alertEasyRuleMute = {};
+    Object.keys(alertEasyRuleToMap).forEach((key: string) => {
+      const value = alertEasyRuleToMap[key];
+      alertEasyRuleMute[value?.alertEasyRule?.alertEasyRuleId] = value.setting?.alertNotiSettingEnabled;
+    });
+
+    console.log('getAlertEasyRuleAllMute: ', Date.now() - start, 'ms');
+
+    return alertEasyRuleMute;
   }
 }
 

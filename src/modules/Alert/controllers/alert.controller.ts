@@ -454,8 +454,12 @@ class AlertRuleController extends ControllerExtension {
 
       const opts: any = await this.alertEasyRuleService.getAlertEasyRuleById(alertEasyRuleId);
 
-      if (!opts || !opts.AlertEasyRule || !opts.alert) {
-        throw new Error(`No alertEasyRule nor AlertRule under alertEasyRule ID ${alertEasyRuleId}`);
+      if (!opts.AlertEasyRule) {
+        throw new Error(`No alertEasyRule under alertEasyRule ID ${alertEasyRuleId}`);
+      }
+
+      if (!opts.alert) {
+        throw new Error(`No AlertRule under alertEasyRule ID ${alertEasyRuleId}`);
       }
 
       const status = await this.alerthubService.upsertAlertRuleSetting(
@@ -471,9 +475,11 @@ class AlertRuleController extends ControllerExtension {
     }
   };
 
-  public getAllAlertEasyRuleMute = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public getAlertEasyRuleAllMute = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-
+      const customerAccountKey = req.user.customerAccountKey;
+      const setting = await this.alertEasyRuleService.getAlertEasyRuleAllMute(customerAccountKey);
+      res.status(200).json({ data: setting, message: 'find AlertEasyRules' });
     } catch (error) {
       next(error);
     }

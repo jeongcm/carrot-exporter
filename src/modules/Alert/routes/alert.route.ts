@@ -83,7 +83,7 @@ class AlertRoute implements Routes {
     this.router.delete('/alertTargetSubGroup/:alertTargetSubGroupId', authMiddleware, this.alertController.deleteAlertTargetSubGroup);
 
     this.router.put('/alertEasyRule/:alertEasyRuleId/mute', authMiddleware, this.alertController.updateAlertEasyRuleMute);
-    this.router.post('/alertEasyRule/getMutedStatus', authMiddleware, this.alertController.getAllAlertEasyRuleMute);
+    this.router.get('/alertEasyRule/all/mute', authMiddleware, this.alertController.getAlertEasyRuleAllMute);
   }
 }
 

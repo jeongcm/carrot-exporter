@@ -6,7 +6,7 @@ import DB from '@/database';
 import { CreateBayesianModelDto, UpdateBayesianModelDto } from '../dtos/bayesianModel.dto';
 import { isEmpty } from '@/common/utils/util';
 import { HttpException } from '@/common/exceptions/HttpException';
-import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+//import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import AnomalyMonitoringTargetService from '@/modules/MetricOps/services/monitoringTarget.service';
 import ModelRuleScoreService from '@/modules/MetricOps/services/modelRuleScore.service';
 import RuleGroupService from '@/modules/MetricOps/services/ruleGroup.service';
@@ -45,7 +45,7 @@ class BayesianModelServices {
   public alertRule = DB.AlertRule;
   public customerAccount = DB.CustomerAccount;
   public sudoryTemplate = DB.SudoryTemplate;
-  public customerAccountService = new CustomerAccountService();
+  //public customerAccountService = new CustomerAccountService();
   public tableIdService = new TableIdService();
   public anomalyMonitoringTargetService = new AnomalyMonitoringTargetService();
   public modelRuleScoreService = new ModelRuleScoreService();

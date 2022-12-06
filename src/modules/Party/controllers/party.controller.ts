@@ -9,6 +9,7 @@ import { CreateUserDto, UpdateUserDto, LoginDto, LoginApiDto } from '@/modules/P
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import { logger } from '@/common/utils/logger';
+import { validatePassword } from '@/common/utils/passwordValidation';
 
 class PartyController {
   public partyService = new PartyService();
@@ -83,12 +84,12 @@ class PartyController {
     }
 
     try {
-      const createdUser: IPartyUserResponse = await this.partyService.createUser(createUserData, customerAccountKey.customerAccountKey, req.systemId);
-
-      if (createdUser) {
+      const createdUser: IPartyUserResponse = await this.partyService.createUser(createUserData, req.systemId);
+      console.log('createdUser', createdUser);
+      if (!createdUser?.errors || !createdUser?.errors.length) {
         return res.status(201).json({ data: createdUser, message: 'created' });
       } else {
-        return res.status(500).json({ message: "user can't be created" });
+        return res.status(500).json({ message: createdUser?.errors[0].message });
       }
     } catch (error) {
       next(error);
@@ -214,6 +215,18 @@ class PartyController {
         body: { userId, password, adminCode },
       } = req;
       const resultRequest = await this.partyService.resetPasswordByAdmin(userId, password, adminCode);
+      res.status(200).json({ data: resultRequest, message: 'success' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteParty = async (req: RequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const {
+        params: { partyId },
+      } = req;
+      const resultRequest = await this.partyService.deleteParty(partyId);
       res.status(200).json({ data: resultRequest, message: 'success' });
     } catch (error) {
       next(error);

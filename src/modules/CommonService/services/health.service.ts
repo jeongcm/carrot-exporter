@@ -43,6 +43,7 @@ class healthService {
    * @param {string} customerAccountId
    */
   public async checkHealthByCustomerAccountId(customerAccountId: string): Promise<object> {
+    console.log('#HEALTH - start');
     const clusterStatus = [];
     //1. validateCustomerAccountId
     const queryCustomer = {
@@ -56,23 +57,26 @@ class healthService {
 
     //2. pull resourceGroupAll
     const responseResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({ where: { deletedAt: null, customerAccountKey } });
-    if (!responseResourceGroup) {
+    console.log('#HEALTH - Get ResourceGroup');
+
+    //3 bring cron job..
+    const resultCron = await this.schedulerService.getSchedulerByAccountId(customerAccountId);
+    console.log('#HEALTH - Get Scheduler');
+    const checkHealthByCustomerAccountIdFiltered = resultCron.filter(x => x.scheduleName == 'checkHealthByCustomerAccountId');
+    const monitorMetricOpsJobFiltered = resultCron.filter(x => x.scheduleName == 'monitorMetricOpsJob');
+    const syncAlertRuleFiltered = resultCron.filter(x => x.scheduleName == 'syncAlertRule');
+
+    if (responseResourceGroup.length === 0) {
       clusterStatus.push({ message: `No ResourceGroup with the customerAccountId: ${customerAccountId}` });
     } else {
-      //3. check sync services - resources, alerts, metricMeta, metricReceived
-      //3.1 bring cron job..
-      const resultCron = await this.schedulerService.getSchedulerByAccountId(customerAccountId);
-
-      //3.2 pull Sync jobs
+      //4. check sync services - resources, alerts, metricMeta, metricReceived
       const syncMetricMeta = resultCron.filter(x => x.scheduleName == 'SyncMetricMeta');
       const syncAlerts = resultCron.filter(x => x.scheduleName == 'SyncAlerts');
       const syncResources = resultCron.filter(x => x.scheduleName == 'SyncResources');
       const syncMetricReceived = resultCron.filter(x => x.scheduleName == 'SyncMetricReceived');
-      const checkHeathByCustomerAccountIdFiltered = resultCron.filter(x => x.scheduleName == 'checkHeathByCustomerAccountId');
-      const monitorMetricOpsJobFiltered = resultCron.filter(x => x.scheduleName == 'monitorMetricOpsJob');
+      console.log('#HEALTH - Get Sync jobs');
 
-      //4.1. check schedule by cluster and rerun if the schedule cron is not running
-
+      //5. check schedule by cluster and rerun if the schedule cron is not running
       for (let i = 0; i < responseResourceGroup.length; i++) {
         //4. check sudoryclient
         const clusterUuid = responseResourceGroup[i].resourceGroupUuid;
@@ -103,12 +107,13 @@ class healthService {
             customerAccountKey,
             subscribed_channel,
           );
-          console.log('Sudory Client Restart:', resultSuodryCall);
+          console.log('#HEALTH - Sudory Client Restart:', resultSuodryCall);
         } else {
           clusterStatus[i] = {
             resourceGroupUuid: clusterUuid,
             sudoryClient: true,
           };
+          console.log('#HEALTH - Sudory Client Status Good');
         }
 
         const syncMetricMetaFiltered = syncMetricMeta.filter(data => data.scheduleApiBody.clusterUuid === clusterUuid);
@@ -153,31 +158,37 @@ class healthService {
           clusterStatus[i].syncResources = true;
         }
       } // end of for
+    }
+    //4.2 check schedule by account id.. customerAccount level
+    if (checkHealthByCustomerAccountIdFiltered.length === 0) {
+      const resultScheduleCheckHealth = await this.scheduleCheckHealthByCustomerAccountId(customerAccountId, config.alertCron);
+      clusterStatus.push({ CustomerHealthCheck: 'added' });
+    }
+    console.log('#HEALTH - checkHealthByCustomerAccountJob');
 
-      //4.2 check schedule by account id
-      if (checkHeathByCustomerAccountIdFiltered.length === 0) {
-        const resultScheduleCheckHealth = await this.scheduleCheckHealthByCustomerAccountId(customerAccountId, config.alertCron);
-        clusterStatus.push({ CustomerHealthCheck: 'added' });
-      }
-
-      if (monitorMetricOpsJobFiltered.length === 0) {
-        console.log('MetricOpsJob is cancalled --------- ');
-        const resultMetricOpsSubscription: ISubscriptions[] = await this.subscription.findAll({
-          where: { deletedAt: null, customerAccountKey, subscriptionStatus: 'AC' },
+    //check whether the customer has metricOps Job
+    const resultMetricOpsSubscription: ISubscriptions[] = await this.subscription.findAll({
+      where: { deletedAt: null, customerAccountKey, subscriptionStatus: 'AC' },
+    });
+    if (resultMetricOpsSubscription.length > 0) {
+      for (let i = 0; i < resultMetricOpsSubscription.length; i++) {
+        const catalogPlanKey = resultMetricOpsSubscription[i].catalogPlanKey;
+        const getCatallogPlan: ICatalogPlan = await this.catalogPlan.findOne({
+          where: { catalogPlanKey, deletedAt: null },
         });
-        if (resultMetricOpsSubscription.length > 0) {
-          for (let i = 0; i < resultMetricOpsSubscription.length; i++) {
-            const catalogPlanKey = resultMetricOpsSubscription[i].catalogPlanKey;
-            const getCatallogPlan: ICatalogPlan = await this.catalogPlan.findOne({
-              where: { catalogPlanKey, deletedAt: null },
-            });
-            if (getCatallogPlan.catalogPlanType == 'MO') {
-              const resultScheduleMonitorMetricOps = await this.scheduleMonitorMetricOpsByCustomerAccountId(customerAccountId, config.alertCron);
-              i = resultMetricOpsSubscription.length;
-              console.log('MetricOps Evaluation Scheduled', resultScheduleMonitorMetricOps);
-              clusterStatus.push({ MonitorMetricOps: 'added' });
-            }
+        if (getCatallogPlan.catalogPlanType == 'MO') {
+          if (monitorMetricOpsJobFiltered.length === 0) {
+            console.log('MetricOpsJob is cancalled --------- ');
+            const resultScheduleMonitorMetricOps = await this.scheduleMonitorMetricOpsByCustomerAccountId(customerAccountId, config.metricOpsCron);
+            console.log('MetricOps Evaluation Scheduled', resultScheduleMonitorMetricOps);
           }
+          if (syncAlertRuleFiltered.length === 0) {
+            console.log('syncAlertRule is cancalled --------- ');
+            const resultSyncAlertRuleFiltered = await this.scheduleSyncAlertRuleByCustomerAccountId(customerAccountId, config.metricOpsCron);
+            console.log('syncAlertRule Scheduled', resultSyncAlertRuleFiltered);
+          }
+          i = resultMetricOpsSubscription.length;
+          clusterStatus.push({ MonitorMetricOps: 'added' });
         }
       }
     }
@@ -191,8 +202,8 @@ class healthService {
   public async scheduleCheckHealthByCustomerAccountId(customerAccountId: string, cronTab: string): Promise<object> {
     const nexclipperApiUrl = config.appUrl + ':' + config.appPort + '/health/customerAccount';
     const cronData = {
-      name: 'checkHeathByCustomerAccountId',
-      summary: 'checkHeathByCustomerAccountId',
+      name: 'checkHealthByCustomerAccountId',
+      summary: 'checkHealthByCustomerAccountId',
       cronTab: cronTab,
       apiUrl: nexclipperApiUrl,
       apiType: 'POST',
@@ -218,6 +229,31 @@ class healthService {
     const cronData = {
       name: 'monitorMetricOpsJob',
       summary: 'monitorMetricOpsJob',
+      cronTab: cronTab,
+      apiUrl: nexclipperApiUrl,
+      apiType: 'POST',
+      reRunRequire: true,
+      scheduleFrom: '',
+      scheduleTo: '',
+      clusterId: '',
+      apiBody: {
+        customerAccountId: customerAccountId,
+      },
+    };
+    const resultSchedule = await this.schedulerService.createScheduler(cronData, customerAccountId);
+    console.log(resultSchedule);
+    return resultSchedule;
+  }
+
+  /**
+   * @param {string} customerAccountId
+   * @param {string} cronTab
+   */
+  public async scheduleSyncAlertRuleByCustomerAccountId(customerAccountId: string, cronTab: string): Promise<object> {
+    const nexclipperApiUrl = config.appUrl + ':' + config.appPort + '/ruleGroup/alertRule/sync';
+    const cronData = {
+      name: 'syncAlertRule',
+      summary: 'syncAlertRule',
       cronTab: cronTab,
       apiUrl: nexclipperApiUrl,
       apiType: 'POST',

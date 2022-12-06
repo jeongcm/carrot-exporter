@@ -10,6 +10,7 @@ import { IParty } from '@/common/interfaces/party.interface';
 //import sequelize from 'sequelize';
 import bcrypt from 'bcrypt';
 import { IAlertTargetGroup } from '@/common/interfaces/alertTargetGroup.interface';
+import { ICatalogPlan, ICatalogPlanProduct, ICatalogPlanProductPrice } from '@/common/interfaces/productCatalog.interface';
 //import { IRole } from '@/common/interfaces/role.interface';
 
 /**
@@ -25,6 +26,9 @@ class InitialRecordService {
   public exporters = DB.Exporters;
   public alertTargetGroup = DB.AlertTargetGroup;
   public alertTargetSubGroup = DB.AlertTargetSubGroup;
+  public catalogPlan = DB.CatalogPlan;
+  public catalogPlanProduct = DB.CatalogPlanProduct;
+  public catalogPlanProductPrice = DB.CatalogPlanProductPrice;
 
   public tableIdService = new tableIdService();
 
@@ -39,6 +43,8 @@ class InitialRecordService {
       exporters: exportersList,
       alertTargetGroup: alertTargetGroupList,
       alertTargetSubGroup: alertTargetSubGroupList,
+      catalogPlan: catalogPlanList,
+      catalogPlanProduct: catalogPlanProductList,
     } = config.initialRecord;
     const uuid = require('uuid');
     const { customerAccountName, customerAccountDescription } = customerAccount;
@@ -234,6 +240,7 @@ class InitialRecordService {
       console.log('bulk create error: ', error);
     }
 
+    //load alert target group data
     const alertTargetGroupData = [];
     for (const alertTargetGroup of alertTargetGroupList) {
       alertTargetGroupData.push({
@@ -253,6 +260,7 @@ class InitialRecordService {
       console.log(error);
     }
 
+    //load alert target subgroup data
     const alertTargetSubGroupData = [];
     for (const alertTargetSubGroup of alertTargetSubGroupList) {
       const getAlertTargetGroup: IAlertTargetGroup = await this.alertTargetGroup.findOne({
@@ -275,6 +283,77 @@ class InitialRecordService {
     } catch (error) {
       console.log(error);
     }
+
+    //load catalog plan
+    const catalogPlanData = [];
+    for (const catalogPlan of catalogPlanList) {
+      catalogPlanData.push({
+        createdBy: 'SYSTEM',
+        createdAt: new Date(),
+        catalogPlanId: uuid.v1(),
+        catalogPlanName: catalogPlan.catalogPlanName,
+        catalogPlanDescription: catalogPlan.catalogPlanDescription,
+        catalogPlanType: catalogPlan.catalogPlanType,
+      });
+    }
+    try {
+      await this.catalogPlan.bulkCreate(catalogPlanData, {
+        updateOnDuplicate: ['catalogPlanName'],
+      });
+    } catch (error) {
+      console.log(error);
+    }
+
+    //load catalog plan product
+    const catalogPlanProductData = [];
+    for (const catalogPlanProduct of catalogPlanProductList) {
+      const getcatalogPlan: ICatalogPlan = await this.catalogPlan.findOne({
+        where: { deletedAt: null, catalogPlanName: catalogPlanProduct.catalogPlanName },
+      });
+      catalogPlanProductData.push({
+        createdBy: 'SYSTEM',
+        createdAt: new Date(),
+        catalogPlanKey: getcatalogPlan.catalogPlanKey,
+        catalogPlanProductId: uuid.v1(),
+        catalogPlanProductName: catalogPlanProduct.catalogPlanProductName,
+        catalogPlanProductDescription: catalogPlanProduct.catalogPlanProductDescription,
+        catalogPlanProductMonthlyPrice: catalogPlanProduct.catalogPlanProductMonthlyPrice,
+        catalogPlanProductUOM: catalogPlanProduct.catalogPlanProductUOM,
+        catalogPlanProductCurrency: catalogPlanProduct.catalogPlanProductCurrency,
+        catalogPlanProductType: catalogPlanProduct.catalogPlanProductType,
+      });
+    }
+    try {
+      await this.catalogPlanProduct.bulkCreate(catalogPlanProductData, {
+        updateOnDuplicate: ['catalogPlanProductName'],
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    //load catalog plan price
+    const findCatalogPlanProduct: ICatalogPlanProduct[] = await this.catalogPlanProduct.findAll({ where: { deletedAt: null } });
+    if (findCatalogPlanProduct.length > 0) {
+      for (let i = 0; i < findCatalogPlanProduct.length; i++) {
+        const catalogPlanProductKey = findCatalogPlanProduct[i].catalogPlanProductKey;
+        const catalogPlanProductMonthlyPrice = findCatalogPlanProduct[i].catalogPlanProductMonthlyPrice;
+        const findCatalogPlanProductPrice: ICatalogPlanProductPrice = await this.catalogPlanProductPrice.findOne({
+          where: { deletedAt: null, catalogPlanProductKey },
+        });
+        if (!findCatalogPlanProductPrice) {
+          const insertData = {
+            createdBy: 'SYSTEM',
+            createdAt: new Date(),
+            catalogPlanProductKey: catalogPlanProductKey,
+            catalogPlanProductPriceId: uuid.v1(),
+            catalogPlanProductMonthlyPrice,
+            catalogPlanProductMonthlyPriceFrom: new Date(),
+            catalogPlanProductMonthlyPriceTo: new Date('9999-12-31T23:59:59Z'),
+          };
+          await this.catalogPlanProductPrice.create(insertData);
+        }
+      }
+    }
+    //
   } // end of method
 } // end of class
 
