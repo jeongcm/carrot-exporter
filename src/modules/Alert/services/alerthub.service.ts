@@ -131,6 +131,9 @@ class AlerthubService {
   public async upsertAlertRuleSetting(alertRuleSettingData: IAlertRuleSettingData, customerAccountKey: number): Promise<IAlertRule[]> {
     if (isEmpty(alertRuleSettingData)) throw new HttpException(400, 'Alert Rule setting must not be empty.');
     try {
+
+      console.log(alertRuleSettingData);
+
       const { data } = await axios.put(
         `${config.alerthub.baseUrl}/v1/alertNotiSetAlertRule/${customerAccountKey}`,
         { ...alertRuleSettingData },

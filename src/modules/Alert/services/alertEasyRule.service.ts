@@ -367,7 +367,7 @@ class AlertEasyRuleService {
     };
 
     const findAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.findOne(querySql);
-    console.log(querySql);
+
     if (!findAlertEasyRule) throw new HttpException(404, `can't find alert easy rule`);
     returnResponse = { AlertEasyRule: findAlertEasyRule };
     const querySql2 = {
