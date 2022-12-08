@@ -346,7 +346,7 @@ class ResourceService {
             createdAt: resource.resourceTargetCreatedAt,
             pmName: resource.resourceSpec['OS-EXT-SRV-ATTR:host'],
             hostname: resource.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
-            resourceInstance: resource.resourceInstance,
+            resourceInstance: resource.resourceSpec['addresses'],
             resourceStatus: vmStatus,
             projectName: '',
           })
@@ -449,7 +449,7 @@ class ResourceService {
             parentResourceId: resource.parentResourceId,
             hostname: resource.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
             resourceTargetUuid: resource.resourceTargetUuid,
-            resourceInstance: resource.resourceInstance,
+            resourceInstance: resource.resourceSpec['addresses'],
             status: vmStatus
           })
 
@@ -573,7 +573,7 @@ class ResourceService {
           parentResourceId: resource.parentResourceId,
           hostname: resource.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
           resourceTargetUuid: resource.resourceTargetUuid,
-          resourceInstance: resource.resourceInstance,
+          resourceInstance: resource.resourceSpec['addresses'],
           resourceStatus: vmStatus
         })
 
@@ -698,6 +698,7 @@ class ResourceService {
     let pjs = resultList.filter(pj => pj.resourceType === "PJ")
     let vms = resultList.filter(vm => (vm.resourceType === "VM" && vm.parentResourceId === pm.resourceTargetUuid))
 
+    var vmInPm = [];
     // pm 별 vm의 정보
     for (let vm of vms) {
       var vmStatus = ''
@@ -706,14 +707,25 @@ class ResourceService {
       } else {
         vmStatus = status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
       }
+      var pj = pjs.find(pj => vm.resourceNamespace === pj.resourceTargetUuid)
 
-      let pj = pjs.find(pj => vm.resourceNamespace === pj.resourceTargetUuid)
-      vm.resourceSpec.projectName = pj.resourceName
-      vm.resourceSpec.pmName = pm.resourceName
-      vm.resourceStatus = vmStatus
+      vmInPm.push({
+        resourceId: vm.resourceId,
+        resourceName: vm.resourceName,
+        resourceNamespace: vm.resourceNamespace,
+        parentResourceId: vm.parentResourceId,
+        resourceTargetUuid: vm.resourceTargetUuid,
+        resourceGroupKey: vm.resourceGroupKey,
+        createdAt: vm.resourceTargetCreatedAt,
+        pmName: vm.resourceSpec['OS-EXT-SRV-ATTR:host'],
+        hostname: vm.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
+        resourceInstance: vm.resourceSpec['addresses'],
+        resourceStatus: vmStatus,
+        projectName: pj.resourceName,
+      })
     }
 
-    pm.resourceSpec.vms = vms
+    pm.resourceSpec.vms = vmInPm
     return pm
   }
 
@@ -738,17 +750,32 @@ class ResourceService {
     let pms = resultList.filter(pm => pm.resourceType === "PM")
     let vms = resultList.filter(vm => (vm.resourceType === "VM" && vm.resourceNamespace === project.resourceTargetUuid))
 
+    var vmInProject = [];
     const status = await this.getResourcesStatus(project.customerAccountKey, [rg])
 
     for (let vm of vms) {
+      var vmStatus = ''
       if (typeof status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
-        vm.resourceStatus = 'UNKNOWN'
-      } else {
-        vm.resourceStatus = status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
+        vmStatus = 'UNKNOWN'
+      }  else {
+        vmStatus = status.vmStatusPerName[vm.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
       }
+
+      vmInProject.push({
+        resourceId: vm.resourceId,
+        resourceName: vm.resourceName,
+        resourceNamespace: vm.resourceNamespace,
+        parentResourceId: vm.parentResourceId,
+        pmName: vm.resourceSpec['OS-EXT-SRV-ATTR:host'],
+        hostname: vm.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
+        createdAt: vm.resourceTargetCreatedAt,
+        resourceTargetUuid: vm.resourceTargetUuid,
+        resourceInstance: vm.resourceSpec['addresses'],
+        resourceStatus: vmStatus
+      })
     }
 
-    project.resourceSpec.vms = vms
+    project.resourceSpec.vms = vmInProject
     // get PM info in project
 
     // find vms group by pm_id
@@ -760,16 +787,29 @@ class ResourceService {
       }
     }).filter(n => n !== undefined)
 
+    var pmInProject = [];
     // get pm uuids in vms
     for (let pm of pmByVms) {
+      var pmStatus = ''
       if (typeof status.pmStatusPerName[pm.resourceTargetUuid] === 'undefined') {
-        pm.resourceStatus = 'UNKNOWN'
+        pmStatus = 'UNKNOWN'
       } else {
-        pm.resourceStatus = status.pmStatusPerName[pm.resourceTargetUuid]
+        pmStatus = status.pmStatusPerName[pm.resourceTargetUuid]
       }
+      pmInProject.push({
+          resourceId: pm.resourceId,
+          resourceName: pm.resourceName,
+          createdAt: pm.createdAt,
+          resourceGroupKey: pm.resourceGroupKey,
+          resourceTargetUuid: pm.resourceTargetUuid,
+          resourceInstance: pm.resourceInstance,
+          resourceStatus: pmStatus,
+        }
+      )
+
     }
 
-    project.resourceSpec.pms = pmByVms
+    project.resourceSpec.pms = pmInProject
 
     return project
   }
