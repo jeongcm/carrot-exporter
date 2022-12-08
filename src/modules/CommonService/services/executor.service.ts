@@ -2903,15 +2903,15 @@ class executorService {
   public async getExecutorServicebyCustomerAccountId(customerAccountId: string): Promise<IExecutorService[]> {
     const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountId } });
     const customerAccountKey = getCustomerAccount.customerAccountKey;
-    const dateMinus = new Date();
-    dateMinus.setDate(dateMinus.getDate() - 1);
-    const date = new Date();
-    console.log('date', date);
-    console.log('dateMinus', dateMinus);
+    // const dateMinus = new Date();
+    // dateMinus.setDate(dateMinus.getDate() - 1);
+    // const date = new Date();
+    // console.log('date', date);
+    // console.log('dateMinus', dateMinus);
 
     let getExecutorServiceAll: IExecutorService[] = await this.executorService.findAll({
       //limit: 1000,
-      where: { customerAccountKey, createdAt: { [Op.and]: { [Op.gte]: dateMinus, [Op.lte]: date } } },
+      where: { customerAccountKey, deletedAt: null },
     });
     getExecutorServiceAll = getExecutorServiceAll.sort(function (a, b) {
       const dateA = new Date(a.createdAt).getTime();
