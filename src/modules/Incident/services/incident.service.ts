@@ -134,7 +134,6 @@ class IncidentService {
         {
           as: 'alertReceived',
           model: this.alertReceived,
-          where: {deletedAt: null},
           required: false,
         },
       ],
