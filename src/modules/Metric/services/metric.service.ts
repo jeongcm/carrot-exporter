@@ -1280,7 +1280,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `{__name__="nc:probe_success", job=~"pm-blackbox-exporter-icmp|vm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
+        promQl = `{__name__="probe_success", job=~"pm-blackbox-exporter-icmp|vm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
         break;
 
       case 'OS_CLUSTER_PM_VM_ALL_STATUS':

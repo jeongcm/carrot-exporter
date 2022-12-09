@@ -215,12 +215,7 @@ class TopologyService extends ServiceExtension {
     const status = await this.resourceService.getResourcesStatus(customerAccountKey, [resourceGroup])
 
     resources.forEach((resource: IResource) => {
-      var pmStatus = ''
-      if (typeof status.pmStatusPerName[resource.resourceTargetUuid] === 'undefined') {
-        pmStatus = 'UNKNOWN'
-      } else {
-        pmStatus = status.pmStatusPerName[resource.resourceTargetUuid]
-      }
+      var pmStatus = this.resourceService.getPMStatus(resource, status)
 
       topologyItems.push({
         id: resource.resourceId,
@@ -506,12 +501,7 @@ class TopologyService extends ServiceExtension {
     vms.forEach((resource: IResource) => {
       let projectUid = '';
       projectUid = resource.resourceNamespace;
-      var vmStatus = ''
-      if (typeof status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
-        vmStatus = 'UNKNOWN'
-      } else {
-        vmStatus = status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
-      }
+      var vmStatus = this.resourceService.getVMStatus(resource, status)
       sets[projectUid].children.push({
         level: 'VM',
         projectUid,
