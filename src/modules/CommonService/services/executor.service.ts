@@ -2916,14 +2916,14 @@ class executorService {
       attributes: ['name', 'status', 'statusDescription', 'steps','createdAt', 'updatedAt'],
       include: [
         {
-          as: 'ResourceGroup',
+          as: 'resourceGroup',
           model: DB.ResourceGroup,
           where: {deletedAt: null},
           attributes: ['resourceGroupName'],
           association: DB.ExecutorService.belongsTo(DB.ResourceGroup, { foreignKey: 'clusterUuid', targetKey: 'resourceGroupUuid'}),
         },
         {
-          as: 'SudoryTemplate',
+          as: 'sudoryTemplate',
           model: DB.SudoryTemplate,
           where: {deletedAt: null},
           attributes: ['sudoryTemplateName', 'sudoryTemplateArgs'],
