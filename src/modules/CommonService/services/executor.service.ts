@@ -2926,7 +2926,7 @@ class executorService {
           as: 'sudoryTemplate',
           model: DB.SudoryTemplate,
           where: {deletedAt: null},
-          attributes: ['sudoryTemplateName', 'sudoryTemplateArgs'],
+          attributes: ['sudoryTemplateName'],
           association: DB.ExecutorService.belongsTo(DB.SudoryTemplate, { foreignKey: 'templateUuid', targetKey: 'sudoryTemplateUuid'}),
         },
       ],
