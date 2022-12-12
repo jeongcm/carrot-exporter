@@ -28,6 +28,7 @@ import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 import subscriptionHistoryModel from '@/modules/Subscriptions/models/subscriptionHistory.model';
 import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 import ResourceService from "@modules/Resources/services/resource.service";
+import { PartyUserModel } from "@modules/Party/models/partyUser.model";
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
@@ -2912,6 +2913,23 @@ class executorService {
     let getExecutorServiceAll: IExecutorService[] = await this.executorService.findAll({
       //limit: 1000,
       where: { customerAccountKey, deletedAt: null },
+      attributes: ['name', 'status', 'statusDescription', 'steps','createdAt', 'updatedAt'],
+      include: [
+        {
+          as: 'ResourceGroup',
+          model: DB.ResourceGroup,
+          where: {deletedAt: null},
+          attributes: ['resourceGroupName'],
+          association: DB.ExecutorService.belongsTo(DB.ResourceGroup, { foreignKey: 'clusterUuid', targetKey: 'resourceGroupUuid'}),
+        },
+        {
+          as: 'SudoryTemplate',
+          model: DB.SudoryTemplate,
+          where: {deletedAt: null},
+          attributes: ['sudoryTemplateName', 'sudoryTemplateArgs'],
+          association: DB.ExecutorService.belongsTo(DB.SudoryTemplate, { foreignKey: 'templateUuid', targetKey: 'sudoryTemplateUuid'}),
+        },
+      ],
     });
     getExecutorServiceAll = getExecutorServiceAll.sort(function (a, b) {
       const dateA = new Date(a.createdAt).getTime();
