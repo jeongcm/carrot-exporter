@@ -1425,9 +1425,6 @@ class ResourceService {
     Object.values(vm.resourceSpec['addresses']).forEach((values: any) => {
       values.forEach(value => {
         let key = rg.resourceGroupUuid+"-"+value.addr
-        console.log(key)
-        console.log(status)
-        console.log(status.vmStatusPerName[key])
         if (typeof status.vmStatusPerName[key] !== 'undefined') {
           result = status.vmStatusPerName[key]
         }
@@ -1446,8 +1443,6 @@ class ResourceService {
     })
 
     let key = rg.resourceGroupUuid+"-"+pm.resourceInstance
-    console.log(key)
-    console.log(status)
     if (typeof status.pmStatusPerName[key] !== 'undefined') {
       result = status.pmStatusPerName[key]
     }
