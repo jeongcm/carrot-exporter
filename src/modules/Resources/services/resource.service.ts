@@ -427,10 +427,10 @@ class ResourceService {
     const status = await this.getResourcesStatus(customerAccountKey, resourceGroups)
     let vms: any = [];
     let pms: any = [];
-    resources.forEach((resource: IResource) => {
+    for (const resource of resources) {
       switch (resource.resourceType) {
         case "VM":
-          var vmStatus = this.getVMStatus(resource, status)
+          var vmStatus = await this.getVMStatus(resource, status)
 
           vms.push({
             resourceId: resource.resourceId,
@@ -440,12 +440,12 @@ class ResourceService {
             hostname: resource.resourceSpec['OS-EXT-SRV-ATTR:hostname'],
             resourceTargetUuid: resource.resourceTargetUuid,
             resourceInstance: resource.resourceSpec['addresses'],
-            status: vmStatus
+            resourceStatus: vmStatus
           })
 
           break;
         case "PM":
-          var pmStatus = this.getPMStatus(resource, status)
+          var pmStatus = await this.getPMStatus(resource, status)
           pms.push({
               resourceId: resource.resourceId,
               resourceName: resource.resourceName,
@@ -459,7 +459,7 @@ class ResourceService {
             }
           )
       }
-    })
+    }
 
     pms.forEach((pm: any) => {
       for (const vm of vms) {
