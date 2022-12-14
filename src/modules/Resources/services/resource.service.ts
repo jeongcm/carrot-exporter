@@ -315,7 +315,7 @@ class ResourceService {
     let vms: any = [];
     let projects: object = {};
     let pms: object = {};
-    resources.forEach((resource: IResource) => {
+    for (const resource of resources) {
       switch (resource.resourceType) {
         case "PJ":
           projects[resource.resourceId] = {
@@ -329,7 +329,7 @@ class ResourceService {
 
           break;
         case "VM":
-          var vmStatus = this.getVMStatus(resource, status)
+          var vmStatus = await this.getVMStatus(resource, status)
 
           vms.push({
             resourceId: resource.resourceId,
@@ -351,7 +351,7 @@ class ResourceService {
             resourceName: resource.resourceName
           }
       }
-    })
+    }
 
     // get status
     vms.forEach((vm: any) => {
@@ -527,7 +527,7 @@ class ResourceService {
     let projects: any = [];
     let vms: any = [];
     let pms: any = [];
-    resources.forEach((resource: IResource) => {
+    for (const resource of resources) {
       switch (resource.resourceType) {
       case "PJ":
         projects.push({
@@ -544,7 +544,7 @@ class ResourceService {
         })
         break;
       case "VM":
-        var vmStatus = this.getVMStatus(resource, status)
+        var vmStatus = await this.getVMStatus(resource, status)
         vms.push({
           resourceId: resource.resourceId,
           resourceName: resource.resourceName,
@@ -563,7 +563,7 @@ class ResourceService {
           resourceTargetUuid: resource.resourceTargetUuid
         })
       }
-    })
+    }
 
     // get status
     projects.forEach((project: any) => {

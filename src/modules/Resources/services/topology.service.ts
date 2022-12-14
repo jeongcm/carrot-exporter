@@ -498,21 +498,21 @@ class TopologyService extends ServiceExtension {
       }
     });
 
-    vms.forEach((resource: IResource) => {
+    for (const vm of vms) {
       let projectUid = '';
-      projectUid = resource.resourceNamespace;
-      var vmStatus = this.resourceService.getVMStatus(resource, status)
+      projectUid = vm.resourceNamespace;
+      var vmStatus = await this.resourceService.getVMStatus(vm, status)
       sets[projectUid].children.push({
         level: 'VM',
         projectUid,
-        resourceId: resource.resourceId,
+        resourceId: vm.resourceId,
         resourceType: 'VM',
-        resourceName: resource.resourceName,
-        resourceDescription: resource.resourceDescription,
-        createdAt: resource.createdAt,
+        resourceName: vm.resourceName,
+        resourceDescription: vm.resourceDescription,
+        createdAt: vm.createdAt,
         resourceStatus: vmStatus,
       });
-    });
+    }
 
     return Object.values(sets);
   }
