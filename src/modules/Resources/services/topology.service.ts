@@ -214,8 +214,8 @@ class TopologyService extends ServiceExtension {
 
     const status = await this.resourceService.getResourcesStatus(customerAccountKey, [resourceGroup])
 
-    resources.forEach((resource: IResource) => {
-      var pmStatus = this.resourceService.getPMStatus(resource, status)
+    for (const resource of resources) {
+      var pmStatus = await this.resourceService.getPMStatus(resource, status)
 
       topologyItems.push({
         id: resource.resourceId,
@@ -223,7 +223,7 @@ class TopologyService extends ServiceExtension {
         createdAt: resource.createdAt,
         resourceStatus: pmStatus,
       });
-    });
+    }
 
     return topologyItems;
   }
