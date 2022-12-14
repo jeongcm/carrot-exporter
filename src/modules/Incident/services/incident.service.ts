@@ -135,6 +135,14 @@ class IncidentService {
           as: 'alertReceived',
           model: this.alertReceived,
           required: false,
+          include: [
+            {
+              as: 'alertRule',
+              model: DB.AlertRule,
+              required: true,
+              where: {deletedAt: null}
+            }
+          ]
         },
       ],
     });

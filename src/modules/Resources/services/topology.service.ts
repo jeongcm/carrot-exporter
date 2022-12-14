@@ -214,13 +214,8 @@ class TopologyService extends ServiceExtension {
 
     const status = await this.resourceService.getResourcesStatus(customerAccountKey, [resourceGroup])
 
-    resources.forEach((resource: IResource) => {
-      var pmStatus = ''
-      if (typeof status.pmStatusPerName[resource.resourceTargetUuid] === 'undefined') {
-        pmStatus = 'UNKNOWN'
-      } else {
-        pmStatus = status.pmStatusPerName[resource.resourceTargetUuid]
-      }
+    for (const resource of resources) {
+      var pmStatus = await this.resourceService.getPMStatus(resource, status)
 
       topologyItems.push({
         id: resource.resourceId,
@@ -228,7 +223,7 @@ class TopologyService extends ServiceExtension {
         createdAt: resource.createdAt,
         resourceStatus: pmStatus,
       });
-    });
+    }
 
     return topologyItems;
   }
@@ -503,26 +498,21 @@ class TopologyService extends ServiceExtension {
       }
     });
 
-    vms.forEach((resource: IResource) => {
+    for (const vm of vms) {
       let projectUid = '';
-      projectUid = resource.resourceNamespace;
-      var vmStatus = ''
-      if (typeof status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']] === 'undefined') {
-        vmStatus = 'UNKNOWN'
-      } else {
-        vmStatus = status.vmStatusPerName[resource.resourceSpec['OS-EXT-SRV-ATTR:hostname']]
-      }
+      projectUid = vm.resourceNamespace;
+      var vmStatus = await this.resourceService.getVMStatus(vm, status)
       sets[projectUid].children.push({
         level: 'VM',
         projectUid,
-        resourceId: resource.resourceId,
+        resourceId: vm.resourceId,
         resourceType: 'VM',
-        resourceName: resource.resourceName,
-        resourceDescription: resource.resourceDescription,
-        createdAt: resource.createdAt,
+        resourceName: vm.resourceName,
+        resourceDescription: vm.resourceDescription,
+        createdAt: vm.createdAt,
         resourceStatus: vmStatus,
       });
-    });
+    }
 
     return Object.values(sets);
   }
