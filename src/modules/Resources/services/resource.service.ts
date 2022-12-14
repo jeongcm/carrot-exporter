@@ -1416,35 +1416,43 @@ class ResourceService {
   }
 
   public async getVMStatus(vm: any, status: any) {
+    let result: string = "UNKNOWN"
     let rg = await this.resourceGroup.findOne({
-      attributes: ['resourceGroupId', 'resourceGroupName'],
+      attributes: ['resourceGroupId', 'resourceGroupUuid'],
       where: {resourceGroupKey: vm.resourceGroupKey}
     })
 
     Object.values(vm.resourceSpec['addresses']).forEach((values: any) => {
       values.forEach(value => {
         let key = rg.resourceGroupUuid+"-"+value.addr
-        if (typeof status[key] !== 'undefined') {
-          return status[key]
+        console.log(key)
+        console.log(status)
+        console.log(status.vmStatusPerName[key])
+        if (typeof status.vmStatusPerName[key] !== 'undefined') {
+          result = status.vmStatusPerName[key]
         }
       })
     })
 
-    return "UNKNOWN"
+    return result
   }
 
   public async getPMStatus(pm: any, status: any) {
+    let result: string = "UNKNOWN"
+
     let rg = await this.resourceGroup.findOne({
-      attributes: ['resourceGroupId', 'resourceGroupName'],
+      attributes: ['resourceGroupId', 'resourceGroupUuid'],
       where: {resourceGroupKey: pm.resourceGroupKey}
     })
 
     let key = rg.resourceGroupUuid+"-"+pm.resourceInstance
-    if (typeof status[key] !== 'undefined') {
-      return status[key]
+    console.log(key)
+    console.log(status)
+    if (typeof status.pmStatusPerName[key] !== 'undefined') {
+      result = status.pmStatusPerName[key]
     }
 
-    return "UNKNOWN"
+    return result
   }
 }
 
