@@ -735,7 +735,7 @@ class executorService {
     let lokiChartVersionNew = '';
     let lokiChartRepoUrl = '';
 
-    const resultResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const resultResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!resultResourceGroup) throw new HttpException(404, `can't find cluster - clusterUuid: ${clusterUuid}`);
     const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
 
@@ -859,7 +859,7 @@ class executorService {
         },
       },
     ];
-
+    /*
     const lokiExecuteName = 'Loki-Promtail Helm Instllation';
     const lokiExecuteSummary = 'Loki-Promtail Helm Installation';
     const lokiTemplateUuid = '20000000000000000000000000000001';
@@ -872,8 +872,10 @@ class executorService {
       customerAccountKey,
       webhookChannel,
     );
-    console.log('########### Loki chart installation');
     console.log(executeLokiHelm);
+*/
+    await this.scheduleLokiInstall(lokiSteps, clusterUuid, customerAccountId);
+    console.log('########### schedule Loki chart installation');
 
     // update ResourceGroup - resourceGroupPrometheus
     const resourceGroup = {
@@ -885,7 +887,7 @@ class executorService {
     };
     // get system user id
 
-    const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
+    const ResponseResoureGroup: IResourceGroupUi = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
     const resourceGroupId = ResponseResoureGroup.resourceGroupId;
     //schedule metricMeta
     await this.scheduleMetricMeta(clusterUuid, customerAccountKey)
@@ -1002,8 +1004,9 @@ class executorService {
       });
       const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
       if (findMetricOps) {
-        const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
-        console.log('resultProvision', resultProvision);
+        console.log('#DEBUG-resourceGroupId', resourceGroupId);
+        //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
+        //console.log('resultProvision', resultProvision);
       }
     }
     // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
@@ -1157,7 +1160,7 @@ class executorService {
     let kpsChartVersionNew = '';
     let kpsChartRepoUrl = '';
 
-    const resultResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const resultResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!resultResourceGroup) throw new HttpException(404, `can't find cluster - clusterUuid: ${clusterUuid}`);
     const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
 
@@ -1259,7 +1262,7 @@ class executorService {
     // get system user id
 
     try {
-      const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
+      const ResponseResoureGroup: IResourceGroupUi = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
       console.log('Success to create ResponseGroup: ', ResponseResoureGroup.resourceGroupId);
     } catch (error) {
       console.log(error);
@@ -1851,7 +1854,7 @@ class executorService {
       throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
     }
 
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
@@ -1911,7 +1914,7 @@ class executorService {
       throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
     }
 
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
@@ -2096,7 +2099,7 @@ class executorService {
       throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
     }
 
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
@@ -2494,7 +2497,7 @@ class executorService {
     ];
 
     //1. Validate clusterUuid and find customerAccountData
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
@@ -2585,7 +2588,7 @@ class executorService {
     const targetJobDb = ['Get Alert Rules & Alert Received'];
 
     //1. Validate clusterUuid and find customerAccountData
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
@@ -2675,7 +2678,7 @@ class executorService {
     const targetJobDb = ['Get MetricMeta'];
 
     //1. Validate clusterUuid and find customerAccountData
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }

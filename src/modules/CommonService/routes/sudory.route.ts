@@ -24,6 +24,7 @@ class SudoryRoute implements Routes {
       //     createUserLogMiddleware,
       this.sudoryController.checkSudoryClient,
     );
+
   }
 }
 

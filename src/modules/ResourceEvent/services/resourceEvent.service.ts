@@ -52,7 +52,7 @@ class ResourceEventService {
     //1. validate ResourceGroup
     const resourceGroupUuid = resourceEventData.resource_Group_Uuid;
     const resourceType = resourceEventData.resource_Type;
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
     if (!responseResourceGroup) {
       throw new HttpException(400, 'resourceGroup not found');
     }

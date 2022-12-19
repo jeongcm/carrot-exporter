@@ -1,5 +1,3 @@
-import { stringList } from "aws-sdk/clients/datapipeline";
-
 export interface IResourceGroup {
   resourceGroupKey: number;
   resourceGroupId: string;

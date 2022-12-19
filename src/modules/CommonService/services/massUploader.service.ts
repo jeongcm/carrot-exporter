@@ -1,6 +1,5 @@
 import config from '@config/index';
 import { IResponseMassUploader, IRequestMassUploader } from '@/common/interfaces/massUploader.interface';
-import resourceService from '@/modules/Resources/services/resource.service';
 import resourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 //import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/tableId.dto';
@@ -49,7 +48,7 @@ class massUploaderService {
     */
     // search for customerAccount & resourceGroup key
     const resourceGroupUuid = resourceMassFeed.resource_Group_Uuid;
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
     const customerAccountKey = responseResourceGroup.customerAccountKey;
     const resourceGroupKey = responseResourceGroup.resourceGroupKey;
     const resourceType = resourceMassFeed.resource_Type;
@@ -60,7 +59,6 @@ class massUploaderService {
       where: { resourceType, resourceGroupKey, customerAccountKey, deletedAt: null },
       attributes: ['resourceTargetUuid', 'deletedAt'],
     });
-
     const sizeOfCurrentResource = currentResourceFiltered.length;
 
     const currentResource = [];

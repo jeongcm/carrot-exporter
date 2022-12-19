@@ -102,6 +102,7 @@ class TopologyService extends ServiceExtension {
         resourceGroupId,
       };
     }
+
     const accountResourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
       where: {
         customerAccountKey,

@@ -161,7 +161,7 @@ class ResourceController {
     try {
       const resource: IResource = await this.resourceService.getResourceById(resourceId);
       console.log('resource', resource);
-      const resourceGroup: IResourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(
+      const resourceGroup: IResourceGroupUi = await this.resourceGroupService.getUserResourceGroupByKey(
         customerAccountKey,
         resource.resourceGroupKey,
       );

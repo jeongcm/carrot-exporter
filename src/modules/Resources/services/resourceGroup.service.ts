@@ -120,87 +120,388 @@ class ResourceGroupService {
   /**
    * @returns Promise
    */
-  public async getAllResourceGroups(customerAccountKey: number): Promise<IResourceGroup[]> {
-    const allResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
-      where: { deletedAt: null, customerAccountKey },
-      attributes: { exclude: ['deletedAt'] },
+  public async getAllResourceGroups(customerAccountKey: number): Promise<IResourceGroupUi[]> {
+    const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: { customerAccountKey: customerAccountKey, deletedAt: null },
     });
 
-    return allResourceGroup;
+    const numberOfResouceGroup = resultResourceGroup.length;
+
+    const resourceGroupResult = [];
+
+    for (let i = 0; i < numberOfResouceGroup; i++) {
+      let resourceGroupServerInterfaceStatus = true;
+      const resourceGroupKey = resultResourceGroup[i].resourceGroupKey;
+      const resultResource = await this.resource.findAll({
+        where: { deletedAt: null, resourceType: 'ND', resourceGroupKey: resourceGroupKey },
+      });
+      const numberOfNode = resultResource.length;
+
+      if (resultResourceGroup[i].resourceGroupLastServerUpdatedAt === null) {
+        resourceGroupServerInterfaceStatus = false;
+      } else {
+        const decisionMin = parseInt(config.clusterOutageDecisionMin);
+        const difference = new Date().getTime() - resultResourceGroup[i].resourceGroupLastServerUpdatedAt.getTime();
+        const differenceInMin = Math.round(difference / 60000);
+        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+      }
+
+      resourceGroupResult[i] = {
+        resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
+        resourceGroupId: resultResourceGroup[i].resourceGroupId,
+        customerAccountKey: resultResourceGroup[i].customerAccountKey,
+        createdBy: resultResourceGroup[i].createdBy,
+        updatedBy: resultResourceGroup[i].updatedBy,
+        createdAt: resultResourceGroup[i].createdAt,
+        updatedAt: resultResourceGroup[i].updatedAt,
+        deletedAt: resultResourceGroup[i].deletedAt,
+        resourceGroupName: resultResourceGroup[i].resourceGroupName,
+        resourceGroupDescription: resultResourceGroup[i].resourceGroupDescription,
+        resourceGroupProvider: resultResourceGroup[i].resourceGroupProvider,
+        resourceGroupPlatform: resultResourceGroup[i].resourceGroupPlatform,
+        resourceGroupUuid: resultResourceGroup[i].resourceGroupUuid,
+        resourceGroupPrometheus: resultResourceGroup[i].resourceGroupPrometheus,
+        resourceGroupGrafana: resultResourceGroup[i].resourceGroupGrafana,
+        resourceGroupLoki: resultResourceGroup[i].resourceGroupLoki,
+        resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
+        resourceGroupSudoryNamespace: resultResourceGroup[i].resourceGroupSudoryNamespace,
+        resourceGroupKpsLokiNamespace: resultResourceGroup[i].resourceGroupKpsLokiNamespace,
+        numberOfNode: numberOfNode,
+        resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+      };
+    }
+
+    return resourceGroupResult;
   }
 
   /**
    * @param  {string} resourceGroupId
    * @returns Promise
    */
-  public async getResourceGroupById(resourceGroupId: string): Promise<IResourceGroup> {
-    const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+  public async getResourceGroupById(resourceGroupId: string): Promise<IResourceGroupUi> {
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
       where: { resourceGroupId, deletedAt: null },
       attributes: { exclude: ['deletedAt'] },
     });
 
-    return resourceGroup;
+    let resourceGroupServerInterfaceStatus = true;
+    const resourceGroupKey = findResourceGroup.resourceGroupKey;
+    const resultResource = await this.resource.findAll({
+      where: { deletedAt: null, resourceType: 'ND', resourceGroupKey: resourceGroupKey },
+    });
+    const numberOfNode = resultResource.length;
+
+    if (findResourceGroup.resourceGroupLastServerUpdatedAt === null) {
+      resourceGroupServerInterfaceStatus = false;
+    } else {
+      const decisionMin = parseInt(config.clusterOutageDecisionMin);
+      const difference = new Date().getTime() - findResourceGroup.resourceGroupLastServerUpdatedAt.getTime();
+      const differenceInMin = Math.round(difference / 60000);
+      if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+    }
+
+    const resourceGroupResult = {
+      resourceGroupKey: findResourceGroup.resourceGroupKey,
+      resourceGroupId: findResourceGroup.resourceGroupId,
+      customerAccountKey: findResourceGroup.customerAccountKey,
+      createdBy: findResourceGroup.createdBy,
+      updatedBy: findResourceGroup.updatedBy,
+      createdAt: findResourceGroup.createdAt,
+      updatedAt: findResourceGroup.updatedAt,
+      deletedAt: findResourceGroup.deletedAt,
+      resourceGroupName: findResourceGroup.resourceGroupName,
+      resourceGroupDescription: findResourceGroup.resourceGroupDescription,
+      resourceGroupProvider: findResourceGroup.resourceGroupProvider,
+      resourceGroupPlatform: findResourceGroup.resourceGroupPlatform,
+      resourceGroupUuid: findResourceGroup.resourceGroupUuid,
+      resourceGroupPrometheus: findResourceGroup.resourceGroupPrometheus,
+      resourceGroupGrafana: findResourceGroup.resourceGroupGrafana,
+      resourceGroupLoki: findResourceGroup.resourceGroupLoki,
+      resourceGroupAlertManager: findResourceGroup.resourceGroupAlertManager,
+      resourceGroupSudoryNamespace: findResourceGroup.resourceGroupSudoryNamespace,
+      resourceGroupKpsLokiNamespace: findResourceGroup.resourceGroupKpsLokiNamespace,
+      resourceGroupLastServerUpdatedAt: findResourceGroup.resourceGroupLastServerUpdatedAt,
+      numberOfNode: numberOfNode,
+      resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+    };
+
+    return resourceGroupResult;
   }
 
   /**
    * @param  {string[]} resourceGroupIds
    * @returns Promise
    */
-  public async getResourceGroupByIds(resourceGroupId: string[]): Promise<IResourceGroup[]> {
-    const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
-      where: { resourceGroupId, deletedAt: null },
-      attributes: { exclude: ['deletedAt'] },
+  public async getResourceGroupByIds(resourceGroupId: string[]): Promise<IResourceGroupUi[]> {
+    const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: { deletedAt: null, resourceGroupId: { [Op.in]: resourceGroupId } },
     });
 
-    return resourceGroups;
+    const numberOfResouceGroup = resultResourceGroup.length;
+    const resourceGroupResult = [];
+
+    for (let i = 0; i < numberOfResouceGroup; i++) {
+      let resourceGroupServerInterfaceStatus = true;
+      const resourceGroupKey = resultResourceGroup[i].resourceGroupKey;
+      const resultResource = await this.resource.findAll({
+        where: { deletedAt: null, resourceType: 'ND', resourceGroupKey: resourceGroupKey },
+      });
+      const numberOfNode = resultResource.length;
+
+      if (resultResourceGroup[i].resourceGroupLastServerUpdatedAt === null) {
+        resourceGroupServerInterfaceStatus = false;
+      } else {
+        const decisionMin = parseInt(config.clusterOutageDecisionMin);
+        const difference = new Date().getTime() - resultResourceGroup[i].resourceGroupLastServerUpdatedAt.getTime();
+        const differenceInMin = Math.round(difference / 60000);
+        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+      }
+
+      resourceGroupResult[i] = {
+        resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
+        resourceGroupId: resultResourceGroup[i].resourceGroupId,
+        customerAccountKey: resultResourceGroup[i].customerAccountKey,
+        createdBy: resultResourceGroup[i].createdBy,
+        updatedBy: resultResourceGroup[i].updatedBy,
+        createdAt: resultResourceGroup[i].createdAt,
+        updatedAt: resultResourceGroup[i].updatedAt,
+        deletedAt: resultResourceGroup[i].deletedAt,
+        resourceGroupName: resultResourceGroup[i].resourceGroupName,
+        resourceGroupDescription: resultResourceGroup[i].resourceGroupDescription,
+        resourceGroupProvider: resultResourceGroup[i].resourceGroupProvider,
+        resourceGroupPlatform: resultResourceGroup[i].resourceGroupPlatform,
+        resourceGroupUuid: resultResourceGroup[i].resourceGroupUuid,
+        resourceGroupPrometheus: resultResourceGroup[i].resourceGroupPrometheus,
+        resourceGroupGrafana: resultResourceGroup[i].resourceGroupGrafana,
+        resourceGroupLoki: resultResourceGroup[i].resourceGroupLoki,
+        resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
+        resourceGroupSudoryNamespace: resultResourceGroup[i].resourceGroupSudoryNamespace,
+        resourceGroupKpsLokiNamespace: resultResourceGroup[i].resourceGroupKpsLokiNamespace,
+        numberOfNode: numberOfNode,
+        resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+        resourceGroupLastServerUpdatedAt: resultResourceGroup[i].resourceGroupLastServerUpdatedAt,
+      };
+    }
+
+    return resourceGroupResult;
   }
 
   /**
    * @param  {number[]} resourceGroupKeys
    * @returns Promise
    */
-  public async getUserResourceGroupByKeys(customerAccountKey: number, resourceGroupKeys: number[]): Promise<IResourceGroup[]> {
-    const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
-      where: { customerAccountKey, resourceGroupKey: resourceGroupKeys, deletedAt: null },
+  public async getUserResourceGroupByKeys(customerAccountKey: number, resourceGroupKeys: number[]): Promise<IResourceGroupUi[]> {
+    const resultResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: { customerAccountKey, deletedAt: null, resourceGroupKey: { [Op.in]: resourceGroupKeys } },
+    });
+
+    const numberOfResouceGroup = resultResourceGroup.length;
+    const resourceGroupResult = [];
+
+    for (let i = 0; i < numberOfResouceGroup; i++) {
+      let resourceGroupServerInterfaceStatus = true;
+      const resourceGroupKey = resultResourceGroup[i].resourceGroupKey;
+      const resultResource = await this.resource.findAll({
+        where: { deletedAt: null, resourceType: 'ND', resourceGroupKey: resourceGroupKey },
+      });
+      const numberOfNode = resultResource.length;
+
+      if (resultResourceGroup[i].resourceGroupLastServerUpdatedAt === null) {
+        resourceGroupServerInterfaceStatus = false;
+      } else {
+        const decisionMin = parseInt(config.clusterOutageDecisionMin);
+        const difference = new Date().getTime() - resultResourceGroup[i].resourceGroupLastServerUpdatedAt.getTime();
+        const differenceInMin = Math.round(difference / 60000);
+        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+      }
+
+      resourceGroupResult[i] = {
+        resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
+        resourceGroupId: resultResourceGroup[i].resourceGroupId,
+        customerAccountKey: resultResourceGroup[i].customerAccountKey,
+        createdBy: resultResourceGroup[i].createdBy,
+        updatedBy: resultResourceGroup[i].updatedBy,
+        createdAt: resultResourceGroup[i].createdAt,
+        updatedAt: resultResourceGroup[i].updatedAt,
+        deletedAt: resultResourceGroup[i].deletedAt,
+        resourceGroupName: resultResourceGroup[i].resourceGroupName,
+        resourceGroupDescription: resultResourceGroup[i].resourceGroupDescription,
+        resourceGroupProvider: resultResourceGroup[i].resourceGroupProvider,
+        resourceGroupPlatform: resultResourceGroup[i].resourceGroupPlatform,
+        resourceGroupUuid: resultResourceGroup[i].resourceGroupUuid,
+        resourceGroupPrometheus: resultResourceGroup[i].resourceGroupPrometheus,
+        resourceGroupGrafana: resultResourceGroup[i].resourceGroupGrafana,
+        resourceGroupLoki: resultResourceGroup[i].resourceGroupLoki,
+        resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
+        resourceGroupSudoryNamespace: resultResourceGroup[i].resourceGroupSudoryNamespace,
+        resourceGroupKpsLokiNamespace: resultResourceGroup[i].resourceGroupKpsLokiNamespace,
+        numberOfNode: numberOfNode,
+        resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+        resourceGroupLastServerUpdatedAt: resultResourceGroup[i].resourceGroupLastServerUpdatedAt,
+      };
+    }
+
+    return resourceGroupResult;
+  }
+
+  public async getUserResourceGroupByKey(customerAccountKey: number, resourceGroupKey: number): Promise<IResourceGroupUi> {
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+      where: { resourceGroupKey, deletedAt: null },
       attributes: { exclude: ['deletedAt'] },
     });
 
-    return resourceGroups;
-  }
-
-  public async getUserResourceGroupByKey(customerAccountKey: number, resourceGroupKey: number): Promise<IResourceGroup> {
-    const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-      where: { resourceGroupKey, customerAccountKey, deletedAt: null },
-      //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
+    let resourceGroupServerInterfaceStatus = true;
+    const resultResource = await this.resource.findAll({
+      where: { deletedAt: null, resourceType: 'ND', resourceGroupKey: resourceGroupKey },
     });
-    return resourceGroup;
+    const numberOfNode = resultResource.length;
+
+    if (findResourceGroup.resourceGroupLastServerUpdatedAt === null) {
+      resourceGroupServerInterfaceStatus = false;
+    } else {
+      const decisionMin = parseInt(config.clusterOutageDecisionMin);
+      const difference = new Date().getTime() - findResourceGroup.resourceGroupLastServerUpdatedAt.getTime();
+      const differenceInMin = Math.round(difference / 60000);
+      if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+    }
+
+    const resourceGroupResult = {
+      resourceGroupKey: findResourceGroup.resourceGroupKey,
+      resourceGroupId: findResourceGroup.resourceGroupId,
+      customerAccountKey: findResourceGroup.customerAccountKey,
+      createdBy: findResourceGroup.createdBy,
+      updatedBy: findResourceGroup.updatedBy,
+      createdAt: findResourceGroup.createdAt,
+      updatedAt: findResourceGroup.updatedAt,
+      deletedAt: findResourceGroup.deletedAt,
+      resourceGroupName: findResourceGroup.resourceGroupName,
+      resourceGroupDescription: findResourceGroup.resourceGroupDescription,
+      resourceGroupProvider: findResourceGroup.resourceGroupProvider,
+      resourceGroupPlatform: findResourceGroup.resourceGroupPlatform,
+      resourceGroupUuid: findResourceGroup.resourceGroupUuid,
+      resourceGroupPrometheus: findResourceGroup.resourceGroupPrometheus,
+      resourceGroupGrafana: findResourceGroup.resourceGroupGrafana,
+      resourceGroupLoki: findResourceGroup.resourceGroupLoki,
+      resourceGroupAlertManager: findResourceGroup.resourceGroupAlertManager,
+      resourceGroupSudoryNamespace: findResourceGroup.resourceGroupSudoryNamespace,
+      resourceGroupKpsLokiNamespace: findResourceGroup.resourceGroupKpsLokiNamespace,
+      resourceGroupLastServerUpdatedAt: findResourceGroup.resourceGroupLastServerUpdatedAt,
+      numberOfNode: numberOfNode,
+      resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+    };
+
+    return resourceGroupResult;
   }
 
   /**
    * @param  {string} resourceGroupUuid
    * @returns Promise
    */
-  public async getResourceGroupByUuid(resourceGroupUuid: string): Promise<IResourceGroup> {
-    const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+  public async getResourceGroupByUuid(resourceGroupUuid: string): Promise<IResourceGroupUi> {
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
       where: { resourceGroupUuid, deletedAt: null },
-      //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
+      attributes: { exclude: ['deletedAt'] },
     });
-    return resourceGroup;
+    const resourceGroupKey = findResourceGroup.resourceGroupKey;
+
+    let resourceGroupServerInterfaceStatus = true;
+    const resultResource = await this.resource.findAll({
+      where: { deletedAt: null, resourceType: 'ND', resourceGroupKey: resourceGroupKey },
+    });
+    const numberOfNode = resultResource.length;
+
+    if (findResourceGroup.resourceGroupLastServerUpdatedAt === null) {
+      resourceGroupServerInterfaceStatus = false;
+    } else {
+      const decisionMin = parseInt(config.clusterOutageDecisionMin);
+      const difference = new Date().getTime() - findResourceGroup.resourceGroupLastServerUpdatedAt.getTime();
+      const differenceInMin = Math.round(difference / 60000);
+      if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+    }
+
+    const resourceGroupResult = {
+      resourceGroupKey: findResourceGroup.resourceGroupKey,
+      resourceGroupId: findResourceGroup.resourceGroupId,
+      customerAccountKey: findResourceGroup.customerAccountKey,
+      createdBy: findResourceGroup.createdBy,
+      updatedBy: findResourceGroup.updatedBy,
+      createdAt: findResourceGroup.createdAt,
+      updatedAt: findResourceGroup.updatedAt,
+      deletedAt: findResourceGroup.deletedAt,
+      resourceGroupName: findResourceGroup.resourceGroupName,
+      resourceGroupDescription: findResourceGroup.resourceGroupDescription,
+      resourceGroupProvider: findResourceGroup.resourceGroupProvider,
+      resourceGroupPlatform: findResourceGroup.resourceGroupPlatform,
+      resourceGroupUuid: findResourceGroup.resourceGroupUuid,
+      resourceGroupPrometheus: findResourceGroup.resourceGroupPrometheus,
+      resourceGroupGrafana: findResourceGroup.resourceGroupGrafana,
+      resourceGroupLoki: findResourceGroup.resourceGroupLoki,
+      resourceGroupAlertManager: findResourceGroup.resourceGroupAlertManager,
+      resourceGroupSudoryNamespace: findResourceGroup.resourceGroupSudoryNamespace,
+      resourceGroupKpsLokiNamespace: findResourceGroup.resourceGroupKpsLokiNamespace,
+      resourceGroupLastServerUpdatedAt: findResourceGroup.resourceGroupLastServerUpdatedAt,
+      numberOfNode: numberOfNode,
+      resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+    };
+
+    return resourceGroupResult;
   }
 
-  public async getUserResourceGroupByUuid(customerAccountKey: number, resourceGroupUuid: string): Promise<IResourceGroup> {
-    const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-      where: { resourceGroupUuid, customerAccountKey, deletedAt: null },
-      //attributes: { exclude: ['resourceGroupKey', 'deletedAt'] },
+  public async getUserResourceGroupByUuid(customerAccountKey: number, resourceGroupUuid: string): Promise<IResourceGroupUi> {
+    const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+      where: { resourceGroupUuid, deletedAt: null },
+      attributes: { exclude: ['deletedAt'] },
     });
-    return resourceGroup;
+    const resourceGroupKey = findResourceGroup.resourceGroupKey;
+
+    let resourceGroupServerInterfaceStatus = true;
+    const resultResource = await this.resource.findAll({
+      where: { deletedAt: null, resourceType: 'ND', resourceGroupKey: resourceGroupKey },
+    });
+    const numberOfNode = resultResource.length;
+
+    if (findResourceGroup.resourceGroupLastServerUpdatedAt === null) {
+      resourceGroupServerInterfaceStatus = false;
+    } else {
+      const decisionMin = parseInt(config.clusterOutageDecisionMin);
+      const difference = new Date().getTime() - findResourceGroup.resourceGroupLastServerUpdatedAt.getTime();
+      const differenceInMin = Math.round(difference / 60000);
+      if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+    }
+
+    const resourceGroupResult = {
+      resourceGroupKey: findResourceGroup.resourceGroupKey,
+      resourceGroupId: findResourceGroup.resourceGroupId,
+      customerAccountKey: findResourceGroup.customerAccountKey,
+      createdBy: findResourceGroup.createdBy,
+      updatedBy: findResourceGroup.updatedBy,
+      createdAt: findResourceGroup.createdAt,
+      updatedAt: findResourceGroup.updatedAt,
+      deletedAt: findResourceGroup.deletedAt,
+      resourceGroupName: findResourceGroup.resourceGroupName,
+      resourceGroupDescription: findResourceGroup.resourceGroupDescription,
+      resourceGroupProvider: findResourceGroup.resourceGroupProvider,
+      resourceGroupPlatform: findResourceGroup.resourceGroupPlatform,
+      resourceGroupUuid: findResourceGroup.resourceGroupUuid,
+      resourceGroupPrometheus: findResourceGroup.resourceGroupPrometheus,
+      resourceGroupGrafana: findResourceGroup.resourceGroupGrafana,
+      resourceGroupLoki: findResourceGroup.resourceGroupLoki,
+      resourceGroupAlertManager: findResourceGroup.resourceGroupAlertManager,
+      resourceGroupSudoryNamespace: findResourceGroup.resourceGroupSudoryNamespace,
+      resourceGroupKpsLokiNamespace: findResourceGroup.resourceGroupKpsLokiNamespace,
+      resourceGroupLastServerUpdatedAt: findResourceGroup.resourceGroupLastServerUpdatedAt,
+      numberOfNode: numberOfNode,
+      resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+    };
+
+    return resourceGroupResult;
   }
 
   /**
    * @param  {string} customerAccountId
    * @returns Promise
    */
-  public async getResourceGroupByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResourceGroup[]> {
+  public async getResourceGroupByCustomerAccountId(customerAccountId: string, query?: any): Promise<IResourceGroupUi[]> {
     const resultCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountId } });
     const customerAccountKey = resultCustomerAccount.customerAccountKey;
 
@@ -223,7 +524,6 @@ class ResourceGroupService {
 
     return resultResourceGroup;
   }
-
   /**
    * @param  {string} platform
    * @param  {string} customerAccountId
@@ -295,7 +595,11 @@ class ResourceGroupService {
    * @param  {ResourceGroupDto} resourceGroupData
    * @param  {string} currentUserId
    */
-  public async updateResourceGroupById(resourceGroupId: string, resourceGroupData: ResourceGroupDto, currentUserId: string): Promise<IResourceGroup> {
+  public async updateResourceGroupById(
+    resourceGroupId: string,
+    resourceGroupData: ResourceGroupDto,
+    currentUserId: string,
+  ): Promise<IResourceGroupUi> {
     if (isEmpty(resourceGroupData)) throw new HttpException(400, 'ResourceGroup  must not be empty');
 
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: resourceGroupId, deletedAt: null } });
@@ -318,7 +622,7 @@ class ResourceGroupService {
    * @param  {ResourceGroupDto} resourceGroupData
    * @param  {string} currentUserId
    */
-  public async updateResourceGroupByUuid(resourceGroupUuid: string, resourceGroupData: object, currentUserId: string): Promise<IResourceGroup> {
+  public async updateResourceGroupByUuid(resourceGroupUuid: string, resourceGroupData: object, currentUserId: string): Promise<IResourceGroupUi> {
     if (isEmpty(resourceGroupData)) throw new HttpException(400, 'ResourceGroup  must not be empty');
 
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
@@ -429,10 +733,10 @@ class ResourceGroupService {
         };
 
         const getResource: IResource[] = await this.resource.findAll(query);
-        let resourceKey = {};
+        const resourceKey = [];
 
         for (let i = 0; i < getResource.length; i++) {
-          resourceKey = Object.assign(resourceKey, getResource[i].resourceKey);
+          resourceKey.push(getResource[i].resourceKey);
         }
 
         const queryIn = {
@@ -440,8 +744,6 @@ class ResourceGroupService {
           transaction: t,
         };
 
-        console.log(deleteData);
-        console.log(queryIn);
         const deleteResultPartyResource = await this.partyResource.update(deleteData, queryIn);
         console.log('PartyResource deleted - ', resourceGroupUuid);
         const deleteResultSubscribedProduct = await this.subscribedProduct.update(
@@ -480,13 +782,14 @@ class ResourceGroupService {
 
         // 6. AlertRule, AlertReceived
         const findAlertRule: IAlertRule[] = await this.alertRule.findAll({ where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null } });
-        if (!findAlertRule) {
+        if (findAlertRule.length === 0) {
           console.log('no alert rules');
         } else {
-          let alertRuleKey = {};
+          const alertRuleKey = [];
           for (let i = 0; i < findAlertRule.length; i++) {
-            alertRuleKey = Object.assign(alertRuleKey, findAlertRule[i].alertRuleKey);
+            alertRuleKey.push(findAlertRule[i].alertRuleKey);
           }
+          console.log('alertRuleKey all--------', alertRuleKey);
           const queryIn = {
             where: {
               alertRuleKey: { [Op.in]: alertRuleKey },
@@ -591,7 +894,7 @@ class ResourceGroupService {
           });
           const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
           if (findMetricOps) {
-            const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
+            const resultProvision = await this.bayesianModelService.deprovisionBayesianModelforCluster(resourceGroupId);
             console.log('resultProvision', resultProvision);
           }
         }
