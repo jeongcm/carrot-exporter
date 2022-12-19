@@ -80,39 +80,50 @@ class healthService {
       for (let i = 0; i < responseResourceGroup.length; i++) {
         //4. check sudoryclient
         const clusterUuid = responseResourceGroup[i].resourceGroupUuid;
-        const unRebounceList = ["b6303f3cc6d243acb677d33e6b49960e", "c98b9009d6734e1ba5e07bd231a8ec41", "ead00aecf36f4924989b468e72150b44"]
-        if (unRebounceList.indexOf(clusterUuid) != -1) {
-          continue
-        }
-
+        const sudoryRebounceRequest = responseResourceGroup[i].resourceGroupSudoryRebounceRequest;
         const resultExecutorClient: ISudoryClient = await this.sudoryService.checkSudoryClient(clusterUuid);
-        console.log('Sudory Client Check:', resultExecutorClient);
-        if (!resultExecutorClient || resultExecutorClient.validClient == false) {
+        console.log('#SUDORYHEALTH - resultExecutorClient', resultExecutorClient);
+        console.log('#SUDORYHEALTH - sudoryRebounceRequest', sudoryRebounceRequest);
+        if (!resultExecutorClient || resultExecutorClient.validClient === false) {
           clusterStatus[i] = {
             resourceGroupUuid: clusterUuid,
             sudoryClient: false,
           };
-          // To Do - 4.1 call sudory api to restart sudory client
-          const sudoryName = 'sudory_client_rebounce';
-          const sudorySummary = 'sudory_client_summary';
-          const templateUuid = '99990000000000000000000000000001';
-          const steps = [{ Args: {} }];
-          const subscribed_channel = config.sudoryApiDetail.channel_webhook;
-          const resultSuodryCall = this.sudoryService.postSudoryService(
-            sudoryName,
-            sudorySummary,
-            clusterUuid,
-            templateUuid,
-            steps,
-            customerAccountKey,
-            subscribed_channel,
-          );
-          console.log('#HEALTH - Sudory Client Restart:', resultSuodryCall);
-        } else {
+          if (sudoryRebounceRequest === 'N' || !sudoryRebounceRequest) {
+            // To Do - 4.1 call sudory api to restart sudory client
+            const sudoryName = 'sudory_client_rebounce';
+            const sudorySummary = 'sudory_client_summary';
+            const templateUuid = '99990000000000000000000000000001';
+            const steps = [{ Args: {} }];
+            const subscribed_channel = config.sudoryApiDetail.channel_webhook;
+            const resultSuodryCall = this.sudoryService.postSudoryService(
+              sudoryName,
+              sudorySummary,
+              clusterUuid,
+              templateUuid,
+              steps,
+              customerAccountKey,
+              subscribed_channel,
+            );
+            console.log('#HEALTH - Sudory Client Restart:', resultSuodryCall);
+            const updateResourceGroup = await this.resourceGroup.update(
+              { resourceGroupSudoryRebounceRequest: 'Y' },
+              { where: { deletedAt: null, resourceGroupUuid: clusterUuid } },
+            );
+            console.log('#SUDORYHEALTH - updateResourceGroup to Y', updateResourceGroup);
+          }
+        } else if (resultExecutorClient.validClient === true) {
           clusterStatus[i] = {
             resourceGroupUuid: clusterUuid,
             sudoryClient: true,
           };
+          if (sudoryRebounceRequest === 'Y') {
+            const updateResourceGroup = await this.resourceGroup.update(
+              { resourceGroupSudoryRebounceRequest: 'N' },
+              { where: { deletedAt: null, resourceGroupUuid: clusterUuid } },
+            );
+            console.log('#SUDORYHEALTH - updateResourceGroup Y to No', updateResourceGroup);
+          }
           console.log('#HEALTH - Sudory Client Status Good');
         }
 
@@ -192,6 +203,7 @@ class healthService {
         }
       }
     }
+    console.log('#HEALTH - check MetricOpsJob');
     return clusterStatus;
   }
 

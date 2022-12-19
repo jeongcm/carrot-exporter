@@ -27,6 +27,7 @@ import { AnomalyMonitoringTargetTable } from '../models/monitoringTarget.model';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import { IResolutionAction } from '@/common/interfaces/resolutionAction.interface';
 import sequelize from 'sequelize';
+import { IExecutorService } from '@/common/interfaces/executor.interface';
 
 const { Op } = require('sequelize');
 
@@ -39,6 +40,7 @@ class EvaluateServices {
   public alertReceived = DB.AlertReceived;
   public evaluation = DB.Evaluation;
   public customerAccount = DB.CustomerAccount;
+  public executorServiceDB = DB.ExecutorService;
   public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
   //public customerAccountService = new CustomerAccountService();
   public monitoringTargetService = new MonitoringTargetService();
@@ -580,21 +582,20 @@ class EvaluateServices {
               //7. postExecuteService to sudory server
               const currentDate = new Date();
               const currentDate2 = new Date();
-              const fromDate = new Date(currentDate.setMinutes(currentDate.getMinutes() - 10)).toLocaleString();
-              const toDate = new Date().toLocaleString();
+              const fromDate = new Date(currentDate.setMinutes(currentDate.getMinutes() - 10));
+              const toDate = new Date();
               const start = new Date(currentDate.setHours(currentDate.getHours() - 12)).toISOString().substring(0.19);
               const end = currentDate2.toISOString().substring(0.19);
               const subscribed_channel = config.sudoryApiDetail.channel_webhook;
               const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
-              const sqlLiteral = `template_uuid = ${templateUuid} AND status = 4 AND JSON_EXTRACT(steps, "$[*].args.name") = JSON_ARRAY(${resourceName})
-              AND created_at BETWEEN ${fromDate} AND ${toDate}`;
+              const sqlLiteral = `template_uuid = '${templateUuid}' AND status = 4 AND JSON_EXTRACT(steps, "$[*].args.name") = JSON_ARRAY('${resourceName}') AND created_at BETWEEN '${fromDate}' AND '${toDate}'`;
               // don't execut resolution action if the action was executed within 10min
               console.log('MOEVAL-STEP7-----sqlLiteral', sqlLiteral);
-              const findResolutionAction: IResolutionAction[] = await this.resolutionAction.findAll({
+              const findExecutedActions: IExecutorService[] = await this.executorServiceDB.findAll({
                 where: sequelize.literal(sqlLiteral),
               });
-              console.log('MOEVAL-STEP7-----findResolutionAction', findResolutionAction);
-              if (findResolutionAction.length === 0) {
+              console.log('MOEVAL-STEP7-----findExecutedActions', findExecutedActions);
+              if (findExecutedActions.length === 0) {
                 // replace variables of ResolutionAction Query
                 let steps = JSON.stringify(resolutionAction.resolutionActionTemplateSteps);
                 steps = steps.replace('#namespace', resourceNamespace);

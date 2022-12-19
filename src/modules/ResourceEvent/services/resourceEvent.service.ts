@@ -7,7 +7,7 @@ import { IRequestMassUploader } from '@/common/interfaces/massUploader.interface
 import { HttpException } from '@/common/exceptions/HttpException';
 //import { isEmpty } from '@/common/utils/util';
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
-import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import ResourceService from '@/modules/Resources/services/resource.service';
@@ -61,16 +61,16 @@ class ResourceEventService {
 
     //2. prepare for sql
     const query1 = `INSERT IGNORE INTO ResourceEvent (
-            resource_event_id, 
-            created_by, 
-            created_at, 
-            resource_event_name, 
-            resource_event_namespace, 
+            resource_event_id,
+            created_by,
+            created_at,
+            resource_event_name,
+            resource_event_namespace,
             resource_event_description,
             resource_event_type,
             resource_event_target_created_at,
             resource_event_target_uuid,
-            resource_event_involved_object_kind, 
+            resource_event_involved_object_kind,
             resource_event_involved_object_name,
             resource_event_involved_object_namespace,
             resource_event_reason,
@@ -91,9 +91,11 @@ class ResourceEventService {
     for (let i = 0; i < sizeOfInput; i++) {
       const uuid = require('uuid');
       const resource_event_id = uuid.v1();
-      const resource_event_first_timestamp = new Date(resourceEventData.resource[i].resource_event_first_timestamp);
-      const resource_event_last_timestamp = new Date(resourceEventData.resource[i].resource_event_last_timestamp);
       const resource_event_target_created_at = new Date(resourceEventData.resource[i].resource_Target_Created_At);
+      let resource_event_first_timestamp = new Date(resourceEventData.resource[i].resource_event_first_timestamp);
+      if (resource_event_first_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_first_timestamp = resource_event_target_created_at;
+      let resource_event_last_timestamp = new Date(resourceEventData.resource[i].resource_event_last_timestamp);
+      if (resource_event_last_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_last_timestamp = resource_event_target_created_at;
 
       const selectedTemplate = resource_template.find(template => {
         return template.resourceName === resourceEventData.resource[i].resource_event_involved_object_kind;

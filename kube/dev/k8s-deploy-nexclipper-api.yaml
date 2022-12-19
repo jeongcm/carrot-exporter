@@ -76,12 +76,14 @@ data:
   NC_LARI_RESOURCE_CRON: "* * * * *"
   NC_LARI_ALERT_CRON: "* * * * *"
   NC_LARI_METRIC_CRON: "*/5 * * * *"
+  NC_LARI_METRICOPS_CRON: "*/2 * * * *"
   NC_LARI_HEALTH_CRON: "*/5 * * * *"
   NC_LARI_METRIC_RECEIVED_CRON: "* * * * *"
   NC_BN_URL: "http://nexclipper-bn.nc.svc.cluster.local:3000"
-  NC_BN_NODE_BASE: "/predict_incident/"
+  NC_BN_PREDICT_PATH: "/predict_incident/"
   NC_BN_NODE_THRESHOLD: "0.7"
   NC_BN_POD_THRESHOLD: "0.7"
+  NC_BN_PVC_THRESHOLD: "0.7"
   NC_BN_REFRESH_MODEL_PATH: "/refresh_model/"
   NC_TURN_OFF_TELEMETRY: "true"
   NC_LARI_DEFAULT_PASSWORD: "WOt7u7OGxr"
@@ -96,6 +98,7 @@ data:
   NC_LARI_LOG_SILENCE_RESPONSE: "true"
   FUSEBILL_BASE_URL: "https://secure.fusebill.com/v1/"
   FUSEBILL_API_CREATE_CUSTOMER_URL: "https://secure.fusebill.com/v1/customers"
+  FUSEBILL_API_CANCEL_CUSTOMER_URL: "https://secure.fusebill.com/v1/CustomerCancellation"
   NC_LOKI_API_BASE_URL: "http://loki.monitor.svc.cluster.local:3100/loki/api/v1"
   NC_VM_MULTI_BASE_URL_INSERT: "http://vm-cluster-victoria-metrics-cluster-vminsert.vm-multi-tenant.svc.cluster.local:8480/insert"
   NC_VM_MULTI_BASE_URL_SELECT: "http://vm-cluster-victoria-metrics-cluster-vmselect.vm-multi-tenant.svc.cluster.local:8481/select"
@@ -105,7 +108,9 @@ data:
   NC_VM_MULTI_CLUSTER_UUID: "89fa971849114f1c96a2e2deac19db94"
   NC_VM_OPTION: "SINGLE"
   NC_METRIC_RECEIVED_SWITCH: "on"
-  NC_VM_OPENSTACK_SWITCH: "off"
+#  NODE_APP_INSTANCE: "nc-api"
+#  NC_API_METRIC_PORT: "5002"
+#  NC_API_CLUSTER_OUTAGE_DECISION_MIN: "5"
 
 ---
 apiVersion: apps/v1
@@ -178,6 +183,7 @@ spec:
                 key: apiKey
         ports:
         - containerPort: 5001
+#        - containerPort: 5002
       volumes:
         - name: varlog
           emptyDir: {}
@@ -186,9 +192,36 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ${APP_IMAGE_NAME}
+  labels:
+    app: ${APP_IMAGE_NAME}
 spec:
   selector:
     app: ${APP_IMAGE_NAME}
   ports:
   - port: 5001
     targetPort: 5001
+    name: http
+#  - port: 5002
+#    targetPort: 5002
+#    name: metric
+
+#---
+#apiVersion: monitoring.coreos.com/v1
+#kind: ServiceMonitor
+#metadata:
+#  name: ${APP_IMAGE_NAME}
+#  labels:
+#    app: ${APP_IMAGE_NAME}
+#spec:
+#  selector:
+#    matchLabels:
+#      app: ${APP_IMAGE_NAME}
+#  namespaceSelector:
+#    matchNames:
+#    - nc
+#  endpoints:
+#  - honorLabels: true
+#    path: /metrics
+#    scrapeTimeout: 30s
+#    interval: 30s
+#    port: metric

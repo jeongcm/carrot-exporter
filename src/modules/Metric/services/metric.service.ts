@@ -1,10 +1,12 @@
 import ServiceExtension from '@/common/extentions/service.extension';
-import {isEmpty} from 'lodash';
+import { isEmpty } from 'lodash';
 import VictoriaMetricService from './victoriaMetric.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
+import ResourceService from '@/modules/Resources/services/resource.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import {IResourceGroup} from 'common/interfaces/resourceGroup.interface';
-import {IResource} from 'common/interfaces/resource.interface';
+import { ICustomerAccount } from 'common/interfaces/customerAccount.interface';
+import { IResourceGroup, IResourceGroupUi } from 'common/interfaces/resourceGroup.interface';
+import { IResource } from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
 import P8sService from "@modules/Metric/services/p8sService";
 import config from 'config';

@@ -1,9 +1,10 @@
 import config from '@config/index';
 import { IResponseMassUploader, IRequestMassUploader } from '@/common/interfaces/massUploader.interface';
+import resourceService from '@/modules/Resources/services/resource.service';
 import resourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 import tableIdService from '@/modules/CommonService/services/tableId.service';
 //import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/tableId.dto';
-import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
 import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import DB from '@/database';
 import { Op } from 'sequelize';
@@ -26,6 +27,7 @@ class massUploaderService {
   public subscriptionService = new SubscriptionService();
 
   public resource = DB.Resource;
+  public resourceGroup = DB.ResourceGroup;
   public catalogPlan = DB.CatalogPlan;
   public subscription = DB.Subscription;
   public subscribedProduct = DB.SubscribedProduct;
@@ -283,6 +285,11 @@ class massUploaderService {
     // Subscribed Product for new nodes - If nodes are deleted, expire the subscribedProducts
     if (resourceType === 'ND') {
       //for new Nodes
+      await this.resourceGroup.update(
+        { resourceGroupLastServerUpdatedAt: new Date(), updatedAt: new Date(), updatedBy: 'SYSTEM' },
+        { where: { resourceGroupUuid } },
+      );
+      console.log('#MASSUPLOADER - NODE', resourceGroupUuid);
       const newNode = newResourceReceived.filter(o1 => !currentResource.includes(o1));
       if (newNode.length > 0) {
         const getResourceNode: IResource[] = await this.resource.findAll({ where: { resourceTargetUuid: { [Op.in]: newNode } } });

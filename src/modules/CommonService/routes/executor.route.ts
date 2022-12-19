@@ -177,7 +177,7 @@ class ExecutorRoute implements Routes {
     );
 
     this.router.get(
-      '/executor/:platform/:clusterUuid/:sudoryNamespace',
+      '/executor/:clusterUuid/:sudoryNamespace',
       authMiddleware,
       //     createUserLogMiddleware,
       this.executorController.checkExecutorClient,

@@ -69,7 +69,7 @@ export class UpdateAlertEasyRuleDto {
   @IsNotEmpty()
   public alertEasyRuleSeverity: string;
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   public alertEasyRuleGroup: string;
   @IsString()
   @IsOptional()
@@ -161,6 +161,12 @@ export class CreateAlertEasyRuleForClusterDto {
   @IsString()
   @IsNotEmpty()
   public customerAccountId: string;
+  @IsString()
+  @IsNotEmpty()
+  public resourceGroupUuid: string;
+}
+
+export class CreateAlertEasyRuleAllDto {
   @IsString()
   @IsNotEmpty()
   public resourceGroupUuid: string;

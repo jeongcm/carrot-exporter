@@ -135,10 +135,9 @@ class ResourceGroupController {
    */
   public getResourceGroupByCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
-    let resourceGroup: IResourceGroup[]
 
     try {
-      resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId, req.query);
+      const resourceGroup: IResourceGroup[] = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId, req.query);
       res.status(200).json({ data: resourceGroup, message: `find resourceGroup for customerAccountId(${customerAccountId}) ` });
     } catch (error) {
       next(error);

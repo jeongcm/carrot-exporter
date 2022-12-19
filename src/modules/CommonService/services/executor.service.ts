@@ -25,7 +25,7 @@ const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
 import { IAlertTargetSubGroup } from '@/common/interfaces/alertTargetSubGroup.interface';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
-import subscriptionHistoryModel from '@/modules/Subscriptions/models/subscriptionHistory.model';
+//import subscriptionHistoryModel from '@/modules/Subscriptions/models/subscriptionHistory.model';
 import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 import ResourceService from "@modules/Resources/services/resource.service";
 import { PartyUserModel } from "@modules/Party/models/partyUser.model";

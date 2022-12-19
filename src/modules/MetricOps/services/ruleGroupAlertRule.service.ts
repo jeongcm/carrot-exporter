@@ -115,6 +115,7 @@ class RuleGroupAlertRuleService {
 
   public async syncMetricOpsAlertRule(customerAccountId): Promise<object> {
     //1. find alert rule key under MetricOps rule group
+    console.log('#SYNCRULEGROUP - started', customerAccountId);
     const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
     if (!findCustomerAccount) throw new HttpException(404, 'Cannot find customerAccount');
     const customerAccountKey = findCustomerAccount.customerAccountKey;
@@ -129,10 +130,12 @@ class RuleGroupAlertRuleService {
 
     const findRuleGroupAlertRule: IRuleGroupAlertRule[] = await this.ruleGroupAlertRule.findAll({ where: { ruleGroupKey, deletedAt: null } });
     const alertRuleKey = findRuleGroupAlertRule.map(x => x.alertRuleKey);
+    console.log('#SYNCRULEGROUP - alertRuleKey', JSON.stringify(alertRuleKey));
 
     //2. check AlertRule is still active
     const findAlertRule: IAlertRule[] = await this.alertRule.findAll({ where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null } });
     const alertRuleKeyActive = findAlertRule.map(x => x.alertRuleKey);
+    console.log('#SYNCRULEGROUP - alertRuleKeyActive', JSON.stringify(alertRuleKeyActive));
 
     //3. find alertrule of RuleGroup - need to be deleted or replaced
     const targetAlerRuleKey = alertRuleKey.filter(x => alertRuleKeyActive.indexOf(x) === -1); // alert rule to be replaced
@@ -159,6 +162,7 @@ class RuleGroupAlertRuleService {
           { updatedAt: new Date(), updatedBy: 'SYSTEM', alertRuleKey: findNewAlertRule.alertRuleKey },
           { where: { alertRuleKey: targetAlerRuleKey[i] } },
         );
+        console.log('#SYNCRULEGROUP - rule updated', findNewAlertRule.alertRuleKey);
         returnMessage.push({ updatedAlertRule: `from ${targetAlerRuleKey[i]} to ${findNewAlertRule.alertRuleKey}` });
       }
     }

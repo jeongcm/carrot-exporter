@@ -484,6 +484,16 @@ class AlertRuleController extends ControllerExtension {
       next(error);
     }
   };
+
+  public createAllAlertEasyRulesForCluster = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const resourceGroupUuid = req.body.resourceGroupUuid;
+      const response = await this.alertEasyRuleService.createAllAlertEasyRulesForCluster(resourceGroupUuid);
+      res.status(200).json({ data: response, message: `requested AlertEasyRules for cluster ${resourceGroupUuid}` });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default AlertRuleController;
