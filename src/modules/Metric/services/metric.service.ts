@@ -885,6 +885,51 @@ class MetricService extends ServiceExtension {
         break;
 
       // promql for openstack
+      // Openstack Service metrics
+      case 'OS_CLUSTER_NOVA_AGENT_UP':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sum(last_over_time(openstack_nova_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_NOVA_AGENT_DOWN':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `count(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h])) -sum(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_CINDER_AGENT_UP':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sum(last_over_time(openstack_cinder_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_CINDER_AGENT_DOWN':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `count(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_NEUTRON_AGENT_UP':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `sum(last_over_time(openstack_neutron_agent_state{adminState="up",__LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+      case 'OS_CLUSTER_NEUTRON_AGENT_DOWN':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+
+        promQl = `count(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h]))`;
+        break;
+
+      // Openstack pm metrics
       case 'OS_CLUSTER_PM_TOTAL_CPU_COUNT':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -893,7 +938,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `count by (nodename) (nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode='system', __LABEL_PLACE_HOLDER__})`
         break;
-
       case 'OS_CLUSTER_PM_MEMORY_TOTAL_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -902,7 +946,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`
         break;
-
       case 'OS_CLUSTER_PM_MEMORY_USED_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -911,7 +954,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by (nodename)(nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`
         break;
-
       case 'OS_CLUSTER_PM_FILESYSTEM_TOTAL_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -933,55 +975,6 @@ class MetricService extends ServiceExtension {
         });
         promQl = `node_uname_info{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}`;
         break;
-
-      case 'OS_CLUSTER_NOVA_AGENT_UP':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-
-        promQl = `sum(last_over_time(openstack_nova_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
-        break;
-
-      case 'OS_CLUSTER_NOVA_AGENT_DOWN':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-
-        promQl = `count(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h])) -sum(last_over_time(openstack_nova_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
-        break;
-
-      case 'OS_CLUSTER_CINDER_AGENT_UP':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-
-        promQl = `sum(last_over_time(openstack_cinder_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
-        break;
-
-      case 'OS_CLUSTER_CINDER_AGENT_DOWN':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-
-        promQl = `count(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_cinder_agent_state{adminState="enabled", __LABEL_PLACE_HOLDER__}[1h]))`;
-        break;
-
-      case 'OS_CLUSTER_NEUTRON_AGENT_UP':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-
-        promQl = `sum(last_over_time(openstack_neutron_agent_state{adminState="up",__LABEL_PLACE_HOLDER__}[1h]))`;
-        break;
-
-      case 'OS_CLUSTER_NEUTRON_AGENT_DOWN':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-
-        promQl = `count(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h]))`;
-        break;
-
       case 'OS_CLUSTER_PM_NODE_UP_TIME':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -989,7 +982,6 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum by (nodename) (time() - nc:node_boot_time_seconds{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__})`;
         break;
-
       case 'OS_CLUSTER_PM_CPU_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -999,7 +991,6 @@ class MetricService extends ServiceExtension {
         ranged = true;
         promQl = `100 - (avg by (nodename) (rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) * 100)`
         break;
-
       case 'OS_CLUSTER_PM_MEMORY_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1008,7 +999,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `(sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100`
         break;
-
       case 'OS_CLUSTER_PM_FILESYSTEM_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1017,7 +1007,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum by (nodename) (avg(nc:node_filesystem_avail_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))))`
         break;
-
       case 'OS_CLUSTER_PM_NETWORK_RECEIVED':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1027,7 +1016,6 @@ class MetricService extends ServiceExtension {
         ranged = true;
         promQl = `max(rate(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename, clusterUuid)`
         break;
-
       case 'OS_CLUSTER_PM_NETWORK_TRANSMITTED':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1038,6 +1026,7 @@ class MetricService extends ServiceExtension {
         promQl = `max(rate(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename, clusterUuid)`
         break;
 
+      // Openstack vm metrics
       case 'OS_CLUSTER_VM_TOTAL_CPU_COUNT':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1046,7 +1035,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `count by (nodename, clusterUuid) (nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode='system', __LABEL_PLACE_HOLDER__})`
         break;
-
       case 'OS_CLUSTER_VM_MEMORY_TOTAL_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1055,7 +1043,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by (nodename, clusterUuid) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})`
         break;
-
       case 'OS_CLUSTER_VM_MEMORY_USED_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1064,7 +1051,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by (nodename, clusterUuid) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})`
         break;
-
       case 'OS_CLUSTER_VM_FILESYSTEM_TOTAL_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1072,7 +1058,6 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum by (nodename, clusterUuid) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid))`
         break;
-
       case 'OS_CLUSTER_VM_FILESYSTEM_USED_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1081,7 +1066,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by (nodename, clusterUuid) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid)) - sum by (nodename, clusterUuid) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter|collector-node-exporter",fstype=~"xfs|ext.*", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid))`
         break;
-
       case 'OS_CLUSTER_VM_CPU_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1091,7 +1075,6 @@ class MetricService extends ServiceExtension {
         ranged = true;
         promQl = `100 - (avg by (nodename, clusterUuid) (rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[${step}])) * 100)`
         break;
-
       case 'OS_CLUSTER_VM_MEMORY_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1100,7 +1083,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `(sum by (nodename, clusterUuid) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename, clusterUuid) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100`
         break;
-
       case 'OS_CLUSTER_VM_FILESYSTEM_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1109,7 +1091,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `(sum by (nodename, clusterUuid) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid))-sum by (nodename, clusterUuid) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid))) *100/(sum by (nodename, clusterUuid) (avg(nc:node_filesystem_avail_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid))+(sum by (nodename, clusterUuid) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid))-sum by (nodename, clusterUuid) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid))))`;
         break;
-
       case 'OS_CLUSTER_VM_NETWORK_RECEIVED':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1119,7 +1100,6 @@ class MetricService extends ServiceExtension {
         ranged = true;
         promQl = `max(rate(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename, clusterUuid)`;
         break;
-
       case 'OS_CLUSTER_VM_NETWORK_TRANSMITTED':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1130,6 +1110,7 @@ class MetricService extends ServiceExtension {
         promQl = `max(rate(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename, clusterUuid)`;
         break;
 
+      // Openstack pm ranking
       case 'OS_CLUSTER_PM_CPU_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1137,7 +1118,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sort_desc(100 - (avg by (nodename, clusterUuid) (rate(nc:node_cpu_seconds_total{job=~"pm-node-exporter", is_ops_pm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) * 100))`
         break;
-
       case 'OS_CLUSTER_PM_MEMORY_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1145,7 +1125,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sort_desc((sum by (nodename, clusterUuid) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename, clusterUuid) (nc:node_memory_MemTotal_bytes{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100)`
         break;
-
       case 'OS_CLUSTER_PM_DISK_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1153,7 +1132,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sort_desc((sum by (nodename, clusterUuid) (avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid))-sum by (nodename, clusterUuid) (avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid))) *100/(sum by (nodename, clusterUuid) (avg(nc:node_filesystem_avail_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid))+(sum by (nodename, clusterUuid) (avg(nc:node_filesystem_size_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid))-sum by (nodename, clusterUuid) (avg(nc:node_filesystem_free_bytes{job=~"pm-node-exporter", is_ops_pm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename, clusterUuid)))))`
         break;
-
       case 'OS_CLUSTER_PM_RXTX_TOTAL_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1162,6 +1140,7 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(sum by (nodename, clusterUuid) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[30m])+ increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[30m])))`
         break;
 
+      // Openstack vm ranking
       case 'OS_CLUSTER_VM_CPU_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1169,7 +1148,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sort_desc(100 - (avg by (nodename, clusterUuid) (rate(nc:node_cpu_seconds_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", mode=~"idle", __LABEL_PLACE_HOLDER__}[5m])) * 100))`
         break;
-
       case 'OS_CLUSTER_VM_MEMORY_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1177,7 +1155,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sort_desc((sum by (nodename, clusterUuid) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} - nc:node_memory_MemAvailable_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) / sum by (nodename) (nc:node_memory_MemTotal_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}) ) * 100)`
         break;
-
       case 'OS_CLUSTER_VM_DISK_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1185,7 +1162,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sort_desc((sum by (nodename, clusterUuid) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))) *100/(sum by (nodename) (avg(nc:node_filesystem_avail_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))+(sum by (nodename) (avg(nc:node_filesystem_size_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename))-sum by (nodename) (avg(nc:node_filesystem_free_bytes{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm="Y", fstype=~"xfs|ext.*", __LABEL_PLACE_HOLDER__})by(device, nodename)))))`
         break;
-
       case 'OS_CLUSTER_VM_RXTX_TOTAL_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1194,6 +1170,7 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(sum by (nodename, clusterUuid) (increase(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[30m])+ increase(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[30m])))`
         break;
 
+      // Openstack vm process metrics
       case 'OS_CLUSTER_VM_PROCESS_UP_TIME':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1202,7 +1179,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `time() - (avg by (groupname) (nc:namedprocess_namegroup_oldest_start_time_seconds{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__} > 0))`
         break;
-
       case 'OS_CLUSER_VM_PROCESS_COUNT':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1211,7 +1187,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `nc:namedprocess_namegroup_num_procs{job=~"vm-process-exporter", is_ops_vm="Y", __LABEL_PLACE_HOLDER__}`
         break;
-
       case 'OS_CLUSTER_VM_PROCESS_FD_COUNT':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1220,7 +1195,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `nc:namedprocess_namegroup_open_filedesc{job=~"vm-process-exporter", is_ops_vm="Y", __LABEL_PLACE_HOLDER__}`
         break;
-
       case 'OS_CLUSTER_VM_PROCESS_CPU_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1230,7 +1204,6 @@ class MetricService extends ServiceExtension {
         ranged = true;
         promQl = `rate(nc:namedprocess_namegroup_cpu_seconds_total{job="vm-process-exporter", is_ops_vm=~"Y", mode="system", __LABEL_PLACE_HOLDER__}[${step}])`
         break;
-
       case 'OS_CLUSTER_VM_PROCESS_MEMORY_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1239,7 +1212,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `nc:namedprocess_namegroup_memory_bytes{job="vm-process-exporter", is_ops_vm=~"Y", memtype="virtual", __LABEL_PLACE_HOLDER__}`
         break;
-
       case 'OS_CLUSTER_VM_PROCESS_FILESYSTEM_READ_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1249,7 +1221,6 @@ class MetricService extends ServiceExtension {
         ranged = true;
         promQl = `rate(nc:namedprocess_namegroup_read_bytes_total{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])`
         break;
-
       case 'OS_CLUSTER_VM_PROCESS_FILESYSTEM_WRITE_BYTES':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1260,6 +1231,7 @@ class MetricService extends ServiceExtension {
         promQl = `rate(nc:namedprocess_namegroup_write_bytes_total{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])`
         break;
 
+      // Openstack pm,vm Status
       case 'OS_CLUSTER_VM_NODE_STATUS':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1267,7 +1239,6 @@ class MetricService extends ServiceExtension {
         });
         promQl = `nc:probe_success{job=~"vm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
         break;
-
       case 'OS_CLUSTER_PM_NODE_STATUS':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1275,14 +1246,12 @@ class MetricService extends ServiceExtension {
         });
         promQl = `nc:probe_success{job=~"pm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
         break;
-
       case 'OS_CLUSTER_NODE_STATUS':
         labelString += getSelectorLabels({
           clusterUuid,
         });
         promQl = `{__name__="probe_success", job=~"pm-blackbox-exporter-icmp|vm-blackbox-exporter-icmp", __LABEL_PLACE_HOLDER__}`;
         break;
-
       case 'OS_CLUSTER_PM_VM_ALL_STATUS':
         labelString += getSelectorLabels({
           clusterUuid,
