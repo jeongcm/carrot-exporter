@@ -5,7 +5,7 @@ import { ResourceDetailQueryDTO, ResourceDto } from "../dtos/resource.dto";
 import { HttpException } from "@/common/exceptions/HttpException";
 import { isEmpty } from "@/common/utils/util";
 import TableIdService from "@/modules/CommonService/services/tableId.service";
-import { IResourceGroup } from "@/common/interfaces/resourceGroup.interface";
+import { IResourceGroup, IResourceGroupUi} from "@/common/interfaces/resourceGroup.interface";
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from "@/modules/CustomerAccount/services/customerAccount.service";
 import ResourceGroupService from "@/modules/Resources/services/resourceGroup.service";
@@ -808,7 +808,7 @@ class ResourceService {
 
     if (query?.resourceGroupId) {
       let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId);
-      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroupUi) => resourceGroup.resourceGroupKey)
       result = await this.resource.count({
         where: resourceWhereCondition,
       });
@@ -1054,7 +1054,7 @@ class ResourceService {
     if (isEmpty(resourceGroupUuid)) throw new HttpException(400, 'ResourceGroupUuid must not be empty');
     if (isEmpty(resourceType)) throw new HttpException(400, 'ResourceType must not be empty');
 
-    const getResourcegroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
+    const getResourcegroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
     if (!getResourcegroup) {
       throw new HttpException(400, `can't find resourcegroup with resourcegroupuuid ${resourceGroupUuid}`);
     }

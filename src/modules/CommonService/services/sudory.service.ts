@@ -94,7 +94,7 @@ class sudoryService {
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
     })
       .then(async (res: any) => {
-        if (res.data == true) validClient = true;
+        if (res.data.alive === true) validClient = true;
         console.log(`Successful to run API to search Executor/Sudory client`);
         resultReturn = { clusterUuid, validClient };
       })

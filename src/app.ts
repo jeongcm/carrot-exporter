@@ -14,6 +14,9 @@ import express, { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
 import Passport from './modules/SocialLogin/providers/passport';
 import http from 'http';
+//import { registerDecorator } from 'class-validator';
+import { restResponseTimeHistogram, startMetricsServer } from './common/utils/metrics';
+import responseTime from 'response-time';
 
 class App {
   public port: number;
@@ -100,12 +103,27 @@ class App {
       }),
     );
     this.app = Passport.mountPackage(this.app);
+    this.app.use(
+      responseTime((req: Request, res: Response, time: number) => {
+        if (req?.route?.path) {
+          restResponseTimeHistogram.observe(
+            {
+              method: req.method,
+              route: req.route.path,
+              status_code: res.statusCode,
+            },
+            time * 1000,
+          );
+        }
+      }),
+    ); //end of this.app.use(responseTime)
   }
 
   private initializeRoutes(routes: Routes[]) {
     routes.forEach(route => {
       this.app.use('/', route.router);
     });
+    startMetricsServer();
   }
 
   private initializeSwagger() {

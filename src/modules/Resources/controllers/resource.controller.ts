@@ -6,7 +6,7 @@ import TopologyService from '../services/topology.service';
 import { ResourceDto } from '../dtos/resource.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import { GroupedCountResultItem } from 'sequelize';
-import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
 
 class ResourceController {
   public resourceService = new ResourceService();
@@ -161,7 +161,10 @@ class ResourceController {
     try {
       const resource: IResource = await this.resourceService.getResourceById(resourceId);
       console.log('resource', resource);
-      const resourceGroup: IResourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, resource.resourceGroupKey);
+      const resourceGroup: IResourceGroupUi = await this.resourceGroupService.getUserResourceGroupByKey(
+        customerAccountKey,
+        resource.resourceGroupKey,
+      );
       console.log('resourceGroup', resourceGroup);
       res.status(200).json({
         data: {
@@ -207,7 +210,7 @@ class ResourceController {
 
     try {
       const resource: IResource[] = await this.resourceService.getResourceByTypeCustomerAccountId(resourceType, customerAccountId);
-      res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resourceType ${resource}` });
+      res.status(200).json({ data: resource, message: `find resources with customerAccountId(${customerAccountId}) and resoruceType ${resource}` });
     } catch (error) {
       next(error);
     }

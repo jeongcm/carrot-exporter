@@ -588,7 +588,7 @@ DB.sequelize
             REPEAT
                 delete from nc_api.AlertReceived
                 where alert_received_key not in (select alert_received_key from nc_api.IncidentAlertReceived)
-                and day(ar.created_at) < day (current_date())-1
+                and UNIX_TIMESTAMP(created_at) < UNIX_TIMESTAMP(NOW() - INTERVAL 1 DAY)
                   limit 100000; commit;
                 SET counter = counter + 1;
                 SELECT SLEEP(2);
@@ -698,19 +698,19 @@ DB.sequelize
                     ON SCHEDULE EVERY 5 MINUTE
                     DO CALL nc_api.sp_create_resolved();`;
 
-    sequelize.query(trigger1pre);
-    sequelize.query(trigger2pre);
+    await sequelize.query(trigger1pre);
+    await sequelize.query(trigger2pre);
     sequelize.query(trigger1);
     sequelize.query(trigger2);
-    sequelize.query(sp1pre);
-    sequelize.query(sp2pre);
-    sequelize.query(sp3pre);
+    await sequelize.query(sp1pre);
+    await sequelize.query(sp2pre);
+    await sequelize.query(sp3pre);
     sequelize.query(sp1);
     sequelize.query(sp2);
     sequelize.query(sp3);
-    sequelize.query(event1pre);
-    sequelize.query(event2pre);
-    sequelize.query(event3pre);
+    await sequelize.query(event1pre);
+    await sequelize.query(event2pre);
+    await sequelize.query(event3pre);
     sequelize.query(event1);
     sequelize.query(event2);
     sequelize.query(event3);

@@ -22,6 +22,8 @@ export type ResourceGroupCreationAttributes = Optional<
   | 'resourceGroupUuid'
   | 'resourceGroupSudoryNamespace'
   | 'resourceGroupKpsLokiNamespace'
+  | 'resourceGroupLastServerUpdatedAt'
+  | 'resourceGroupSudoryRebounceRequest'
 >;
 
 export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreationAttributes> implements IResourceGroup {
@@ -44,6 +46,8 @@ export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreat
   public updatedAt: Date;
   public resourceGroupSudoryNamespace: string;
   public resourceGroupKpsLokiNamespace: string;
+  public resourceGroupLastServerUpdatedAt: Date;
+  public resourceGroupSudoryRebounceRequest: string;
 
   public readonly createdAt!: Date;
 }
@@ -132,6 +136,14 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
       resourceGroupKpsLokiNamespace: {
         allowNull: true,
         type: DataTypes.STRING(100),
+      },
+      resourceGroupLastServerUpdatedAt: {
+        allowNull: true,
+        type: DataTypes.DATE,
+      },
+      resourceGroupSudoryRebounceRequest: {
+        allowNull: true,
+        type: DataTypes.STRING(10),
       },
     },
 

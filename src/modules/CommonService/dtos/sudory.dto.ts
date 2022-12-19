@@ -1,4 +1,4 @@
 export interface ISudoryClient {
-    clientUuid: string;
-    validClient: boolean;
-  }
+  clientUuid: string;
+  validClient: boolean;
+}
