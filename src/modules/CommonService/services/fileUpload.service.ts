@@ -1,9 +1,9 @@
 import AWS from 'aws-sdk';
 import { HttpException } from '@common/exceptions/HttpException';
 import config from '@config/index';
-//import { logger } from '@/common/utils/logger';
 
 const space = new AWS.S3({
+  region: config.fileUpload.awsS3DefaultRegion,
   endpoint: config.fileUpload.DOEndPoint,
   useAccelerateEndpoint: false,
   credentials: new AWS.Credentials(config.fileUpload.DOAccessKeyId, config.fileUpload.DOSecretAccessKey, null),
@@ -153,8 +153,93 @@ class fileUploadService {
   }
 
   public uploadedFileLink(fileName: any): String {
-    return `https://${config.fileUpload.DOEndPoint}/${BucketName}/${fileName}`;
+    return `${config.fileUpload.DOEndPoint}/${BucketName}/${fileName}`;
   }
-}
+
+  public getBucketFolderSize(bucket: string, folder: string) {
+    const params = {
+      Bucket: bucket,
+      Prefix: folder + '/',
+    };
+    let size = 0;
+
+    return new Promise((resolve, reject) => {
+      space.listObjects(params, function (err, data) {
+        console.log(data.Contents);
+        if (err) {
+          console.log('ListOfOjbect Error:', err);
+          reject(err);
+        } else {
+          for (let i = 0; i < data?.Contents?.length; i++) {
+            size = size + data?.Contents[i].Size;
+          }
+          console.log('size sum', size);
+          resolve(size);
+        }
+      });
+    });
+  }
+
+  public getfilesOverSize(bucket: string, folder: string, maxSize: number) {
+    const params = {
+      Bucket: bucket,
+      Prefix: folder + '/',
+    };
+    let size = 0;
+    const filteredKey = [];
+    return new Promise((resolve, reject) => {
+      space.listObjects(params, function (err, data) {
+        //console.log(data);
+        if (err) {
+          console.log('ListOfOjbect Error:', err);
+          reject(err);
+        } else {
+          const sortedData = data?.Contents;
+          sortedData.sort(function (a, b) {
+            const c = new Date(a.LastModified);
+            const d = new Date(b.LastModified);
+            return Number(d) - Number(c);
+          });
+          for (let i = 0; i < sortedData.length; i++) {
+            size = size + sortedData[i].Size;
+            //console.log(`size - ${size}, maxSize - ${maxSize}`);
+            if (size > maxSize) {
+              let trimmedKey = sortedData[i]?.Key;
+              trimmedKey = trimmedKey.replace(/\s/g, '');
+              filteredKey.push({ Key: trimmedKey });
+            }
+          }
+          console.log('size', size);
+          resolve(filteredKey);
+        }
+      });
+    });
+  }
+
+  public async deleteBucketFolderFiles(bucket: string, folder: string, maxSize: number) {
+    const filteredKey = await this.getfilesOverSize(bucket, folder, maxSize);
+
+    const downloadParameters = {
+      Bucket: bucket,
+      Delete: {
+        Objects: filteredKey,
+      },
+    };
+    let result;
+
+    return new Promise((resolve, reject) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      space.deleteObjects(downloadParameters, function (error, data) {
+        if (error) {
+          console.log('deleteObjects Error:', error);
+          reject(error);
+        }
+        result = data;
+        resolve(result);
+      });
+    });
+  }
+} //end of class
 
 export default fileUploadService;
