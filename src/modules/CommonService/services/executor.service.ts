@@ -3,7 +3,7 @@ import axios from 'common/httpClient/axios';
 import config from '@config/index';
 
 import { HttpException } from '@/common/exceptions/HttpException';
-import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
 import { IExecutorClient, ExecutorResultDto, ExecutorResourceListDto, SudoryWebhookDto } from '@/modules/CommonService/dtos/executor.dto';
 
@@ -232,6 +232,8 @@ class executorService {
       resourceGroupPrometheus: '',
       resourceGroupSudoryNamespace: resourceGroupSudoryNamespace,
       resourceGroupKpsLokiNamespace: resourceGroupKpsLokiNamespace,
+      resourceGroupLastServerUpdatedAt: null,
+      resourceGroupSudoryRebounceRequest: '',
     };
 
     try {
@@ -2262,6 +2264,44 @@ class executorService {
     console.log(resultSchedule);
     return resultSchedule;
   }
+
+  /**
+   * @param {string} clusterUuid
+   * @param {string} cronTab
+   */
+  public async scheduleLokiInstall(steps: object, clusterUuid: string, customerAccountId: string): Promise<object> {
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    const scheduleFrom = new Date().toISOString();
+    const currentTime = new Date();
+    currentTime.setMinutes(currentTime.getMinutes() + 5);
+    const scheduleTo = currentTime.toISOString();
+
+    const installLoki = {
+      name: 'Install Loki',
+      summary: 'Install Loki',
+      apiUrl: executorServerUrl,
+      apiType: 'POST',
+      apiBody: {
+        name: 'Install Loki',
+        summary: 'Install Loki',
+        template_uuid: '20000000000000000000000000000001',
+        cluster_uuid: clusterUuid,
+        on_completion: parseInt(config.sudoryApiDetail.service_result_delete),
+        steps: steps,
+        subscribed_channel: config.sudoryApiDetail.channel_webhook,
+      },
+      cronTab: '*/3 * * * *',
+      clusterId: clusterUuid,
+      scheduleFrom: scheduleFrom,
+      scheduleTo: scheduleTo,
+      reRunRequire: false,
+    };
+    console.log('schedule to install loki', installLoki);
+    const resultSchedule = await this.schedulerService.createScheduler(installLoki, customerAccountId);
+    console.log(resultSchedule);
+    return resultSchedule;
+  }
+
   /**
    * @param {string} clusterUuid
    * @param {string} cronTab
@@ -2904,32 +2944,15 @@ class executorService {
   public async getExecutorServicebyCustomerAccountId(customerAccountId: string): Promise<IExecutorService[]> {
     const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { deletedAt: null, customerAccountId } });
     const customerAccountKey = getCustomerAccount.customerAccountKey;
-    // const dateMinus = new Date();
-    // dateMinus.setDate(dateMinus.getDate() - 1);
-    // const date = new Date();
-    // console.log('date', date);
-    // console.log('dateMinus', dateMinus);
+    const dateMinus = new Date();
+    dateMinus.setDate(dateMinus.getDate() - 1);
+    const date = new Date();
+    console.log('date', date);
+    console.log('dateMinus', dateMinus);
 
     let getExecutorServiceAll: IExecutorService[] = await this.executorService.findAll({
       //limit: 1000,
-      where: { customerAccountKey, deletedAt: null },
-      attributes: {exclude: ['executorServiceKey', 'deletedAt']},
-      include: [
-        {
-          as: 'resourceGroup',
-          model: DB.ResourceGroup,
-          where: {deletedAt: null},
-          attributes: ['resourceGroupName'],
-          association: DB.ExecutorService.belongsTo(DB.ResourceGroup, { foreignKey: 'clusterUuid', targetKey: 'resourceGroupUuid'}),
-        },
-        {
-          as: 'sudoryTemplate',
-          model: DB.SudoryTemplate,
-          where: {deletedAt: null},
-          attributes: ['sudoryTemplateName'],
-          association: DB.ExecutorService.belongsTo(DB.SudoryTemplate, { foreignKey: 'templateUuid', targetKey: 'sudoryTemplateUuid'}),
-        },
-      ],
+      where: { customerAccountKey, createdAt: { [Op.and]: { [Op.gte]: dateMinus, [Op.lte]: date } } },
     });
     getExecutorServiceAll = getExecutorServiceAll.sort(function (a, b) {
       const dateA = new Date(a.createdAt).getTime();
