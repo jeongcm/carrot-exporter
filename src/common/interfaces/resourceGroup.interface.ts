@@ -42,4 +42,7 @@ export interface IResourceGroupUi {
   resourceGroupLoki: string;
   resourceGroupSudoryNamespace: string;
   resourceGroupKpsLokiNamespace: string;
+  resourceGroupLastServerUpdatedAt: Date;
+  numberOfNode: number;
+  resourceGroupServerInterfaceStatus: boolean;
 }

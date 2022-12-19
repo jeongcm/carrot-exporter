@@ -808,7 +808,7 @@ class ResourceService {
 
     if (query?.resourceGroupId) {
       let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId);
-      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroupUi) => resourceGroup.resourceGroupKey)
       result = await this.resource.count({
         where: resourceWhereCondition,
       });

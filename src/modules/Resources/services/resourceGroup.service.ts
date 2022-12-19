@@ -522,8 +522,56 @@ class ResourceGroupService {
       where: resourceGroupWhereCondition,
     });
 
-    return resultResourceGroup;
+    const numberOfResouceGroup = resultResourceGroup.length;
+
+    const resourceGroupResult = [];
+
+    for (let i = 0; i < numberOfResouceGroup; i++) {
+      let resourceGroupServerInterfaceStatus = true;
+      const resourceGroupKey = resultResourceGroup[i].resourceGroupKey;
+      const resultResource = await this.resource.findAll({
+        where: { deletedAt: null, resourceType: 'ND', resourceGroupKey: resourceGroupKey },
+      });
+      const numberOfNode = resultResource.length;
+
+      if (resultResourceGroup[i].resourceGroupLastServerUpdatedAt === null) {
+        resourceGroupServerInterfaceStatus = false;
+      } else {
+        const decisionMin = parseInt(config.clusterOutageDecisionMin);
+        const difference = new Date().getTime() - resultResourceGroup[i].resourceGroupLastServerUpdatedAt.getTime();
+        const differenceInMin = Math.round(difference / 60000);
+        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+      }
+
+      resourceGroupResult[i] = {
+        resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
+        resourceGroupId: resultResourceGroup[i].resourceGroupId,
+        customerAccountKey: resultResourceGroup[i].customerAccountKey,
+        createdBy: resultResourceGroup[i].createdBy,
+        updatedBy: resultResourceGroup[i].updatedBy,
+        createdAt: resultResourceGroup[i].createdAt,
+        updatedAt: resultResourceGroup[i].updatedAt,
+        deletedAt: resultResourceGroup[i].deletedAt,
+        resourceGroupName: resultResourceGroup[i].resourceGroupName,
+        resourceGroupDescription: resultResourceGroup[i].resourceGroupDescription,
+        resourceGroupProvider: resultResourceGroup[i].resourceGroupProvider,
+        resourceGroupPlatform: resultResourceGroup[i].resourceGroupPlatform,
+        resourceGroupUuid: resultResourceGroup[i].resourceGroupUuid,
+        resourceGroupPrometheus: resultResourceGroup[i].resourceGroupPrometheus,
+        resourceGroupGrafana: resultResourceGroup[i].resourceGroupGrafana,
+        resourceGroupLoki: resultResourceGroup[i].resourceGroupLoki,
+        resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
+        resourceGroupSudoryNamespace: resultResourceGroup[i].resourceGroupSudoryNamespace,
+        resourceGroupKpsLokiNamespace: resultResourceGroup[i].resourceGroupKpsLokiNamespace,
+        resourceGroupLastServerUpdatedAt: resultResourceGroup[i].resourceGroupLastServerUpdatedAt,
+        numberOfNode: numberOfNode,
+        resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+      };
+    }
+
+    return resourceGroupResult;
   }
+
   /**
    * @param  {string} platform
    * @param  {string} customerAccountId
