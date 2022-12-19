@@ -1167,8 +1167,8 @@ class executorService {
     for (let i = 0; i < chartLength; i++) {
       if (
         resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack' &&
-        resultKpsChart[i].defaultChartYn === true &&
-        kpsChartVersion === ''
+        resultKpsChart[i].defaultChartYn === true
+        // && kpsChartVersion === ''
       ) {
         kpsChartName = resultKpsChart[i].exporterHelmChartName;
         kpsChartVersionNew = resultKpsChart[i].exporterHelmChartVersion;
@@ -1205,6 +1205,8 @@ class executorService {
               prometheusSpec: {
                 externalLabels: {
                   clusterUuid: clusterUuid,
+                  clusterId: clusterUuid,
+                  clusterName: resultResourceGroup.resourceGroupName,
                 },
                 remoteWrite: [
                   {
@@ -1261,14 +1263,8 @@ class executorService {
     };
     // get system user id
 
-    try {
-      const ResponseResoureGroup: IResourceGroupUi = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
-      console.log('Success to create ResponseGroup: ', ResponseResoureGroup.resourceGroupId);
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(500, `Error on creating cluster ${clusterUuid}`);
-    }
-
+    const ResponseResoureGroup: IResourceGroupUi = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
+    const resourceGroupId = ResponseResoureGroup.resourceGroupId;
     //schedule metricMeta
     await this.scheduleMetricMeta(clusterUuid, customerAccountKey)
       .then(async (res: any) => {
@@ -1375,6 +1371,20 @@ class executorService {
       waitSec = waitSec - 5;
     }
 
+    //provision metricOps rule if the customer has MetricOps subscription
+    const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+    if (findSubscription.length > 0) {
+      const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
+      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+        where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
+      });
+      const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
+      if (findMetricOps) {
+        console.log('#DEBUG-resourceGroupId', resourceGroupId);
+        //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
+        //console.log('resultProvision', resultProvision);
+      }
+    }
     // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
     // console.log('operation schedules setup:', scheduleHealthService);
 
