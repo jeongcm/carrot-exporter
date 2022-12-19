@@ -58,7 +58,6 @@ import SocialLoginRoutes from './modules/SocialLogin/routes/socialLogin.route';
 import HealthRoute from './modules/CommonService/routes/health.route';
 import SudoryRoute from './modules/CommonService/routes/sudory.route';
 import ResourceEventRoute from './modules/ResourceEvent/routes/resourceEvent.route';
-
 import LokiRoute from './modules/Loki/routes/loki.route';
 import initTailLokiWebsocket from './modules/Loki/websockets/tail.websocket';
 

@@ -1,10 +1,11 @@
 import ServiceExtension from '@/common/extentions/service.extension';
-import {isEmpty} from 'lodash';
+import { isEmpty } from 'lodash';
 import VictoriaMetricService from './victoriaMetric.service';
 import CustomerAccountService from '@/modules/CustomerAccount/services/customerAccount.service';
 import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
-import {IResourceGroup} from 'common/interfaces/resourceGroup.interface';
-import {IResource} from 'common/interfaces/resource.interface';
+import { ICustomerAccount } from 'common/interfaces/customerAccount.interface';
+import { IResourceGroup, IResourceGroupUi } from 'common/interfaces/resourceGroup.interface';
+import { IResource } from 'common/interfaces/resource.interface';
 import getSelectorLabels from 'common/utils/getSelectorLabels';
 import P8sService from "@modules/Metric/services/p8sService";
 import config from 'config';
@@ -61,7 +62,7 @@ class MetricService extends ServiceExtension {
           }
           const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
           let resources: IResource[] = null;
-          let resourceGroups: IResourceGroup[] = null;
+          let resourceGroups: IResourceGroupUi[] = null;
           if (resourceId) {
             let idsToUse: string[] = [];
             if (Array.isArray(resourceId)) {
@@ -73,7 +74,6 @@ class MetricService extends ServiceExtension {
               where: { resourceId: idsToUse, customerAccountKey },
               attributes: { exclude: ['deletedAt'] },
             });
-
             if (!resources || resources.length === 0) {
               return this.throwError(`NOT_FOUND`, `No resource found with resourceId (${resourceId})`);
             }
@@ -184,7 +184,7 @@ class MetricService extends ServiceExtension {
           }
           const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
           let resources: IResource[] = null;
-          let resourceGroups: IResourceGroup[] = null;
+          let resourceGroups: IResourceGroupUi[] = null;
           if (resourceId) {
             let idsToUse: string[] = [];
             if (Array.isArray(resourceId)) {
@@ -284,9 +284,9 @@ class MetricService extends ServiceExtension {
     return resultInOrder;
   }
 
-  private getPromQlFromQuery(query: IMetricQueryBodyQuery, resources?: IResource[], resourceGroups?: IResourceGroup[]) {
+  private getPromQlFromQuery(query: IMetricQueryBodyQuery, resources?: IResource[], resourceGroups?: IResourceGroupUi[]) {
     const { type, promql: customPromQl, start, end, step, nodename, promqlOps = {} } = query;
-    const clusterUuid = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupUuid);
+    const clusterUuid = resourceGroups?.map((resourceGroup: IResourceGroupUi) => resourceGroup.resourceGroupUuid);
     const resourceName = resources?.map((resource: IResource) => resource.resourceName);
     const resourceNamespace = resources?.map((resource: IResource) =>
       resource?.resourceType === 'NS' ? resource.resourceName : resource.resourceNamespace,

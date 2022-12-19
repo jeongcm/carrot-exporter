@@ -3,7 +3,7 @@ import axios from 'common/httpClient/axios';
 import config from '@config/index';
 
 import { HttpException } from '@/common/exceptions/HttpException';
-import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
 import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
 import { IExecutorClient, ExecutorResultDto, ExecutorResourceListDto, SudoryWebhookDto } from '@/modules/CommonService/dtos/executor.dto';
 
@@ -25,7 +25,7 @@ const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
 import { IAlertTargetSubGroup } from '@/common/interfaces/alertTargetSubGroup.interface';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
-import subscriptionHistoryModel from '@/modules/Subscriptions/models/subscriptionHistory.model';
+//import subscriptionHistoryModel from '@/modules/Subscriptions/models/subscriptionHistory.model';
 import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 import ResourceService from "@modules/Resources/services/resource.service";
 import { PartyUserModel } from "@modules/Party/models/partyUser.model";
@@ -232,6 +232,8 @@ class executorService {
       resourceGroupPrometheus: '',
       resourceGroupSudoryNamespace: resourceGroupSudoryNamespace,
       resourceGroupKpsLokiNamespace: resourceGroupKpsLokiNamespace,
+      resourceGroupLastServerUpdatedAt: null,
+      resourceGroupSudoryRebounceRequest: '',
     };
 
     try {
@@ -733,7 +735,7 @@ class executorService {
     let lokiChartVersionNew = '';
     let lokiChartRepoUrl = '';
 
-    const resultResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const resultResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!resultResourceGroup) throw new HttpException(404, `can't find cluster - clusterUuid: ${clusterUuid}`);
     const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
 
@@ -857,7 +859,7 @@ class executorService {
         },
       },
     ];
-
+    /*
     const lokiExecuteName = 'Loki-Promtail Helm Instllation';
     const lokiExecuteSummary = 'Loki-Promtail Helm Installation';
     const lokiTemplateUuid = '20000000000000000000000000000001';
@@ -870,8 +872,10 @@ class executorService {
       customerAccountKey,
       webhookChannel,
     );
-    console.log('########### Loki chart installation');
     console.log(executeLokiHelm);
+*/
+    await this.scheduleLokiInstall(lokiSteps, clusterUuid, customerAccountId);
+    console.log('########### schedule Loki chart installation');
 
     // update ResourceGroup - resourceGroupPrometheus
     const resourceGroup = {
@@ -883,7 +887,7 @@ class executorService {
     };
     // get system user id
 
-    const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
+    const ResponseResoureGroup: IResourceGroupUi = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
     const resourceGroupId = ResponseResoureGroup.resourceGroupId;
     //schedule metricMeta
     await this.scheduleMetricMeta(clusterUuid, customerAccountKey)
@@ -1000,8 +1004,9 @@ class executorService {
       });
       const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
       if (findMetricOps) {
-        const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
-        console.log('resultProvision', resultProvision);
+        console.log('#DEBUG-resourceGroupId', resourceGroupId);
+        //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
+        //console.log('resultProvision', resultProvision);
       }
     }
     // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
@@ -1155,15 +1160,15 @@ class executorService {
     let kpsChartVersionNew = '';
     let kpsChartRepoUrl = '';
 
-    const resultResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const resultResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!resultResourceGroup) throw new HttpException(404, `can't find cluster - clusterUuid: ${clusterUuid}`);
     const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
 
     for (let i = 0; i < chartLength; i++) {
       if (
         resultKpsChart[i].exporterHelmChartName === 'kube-prometheus-stack' &&
-        resultKpsChart[i].defaultChartYn === true &&
-        kpsChartVersion === ''
+        resultKpsChart[i].defaultChartYn === true
+        // && kpsChartVersion === ''
       ) {
         kpsChartName = resultKpsChart[i].exporterHelmChartName;
         kpsChartVersionNew = resultKpsChart[i].exporterHelmChartVersion;
@@ -1200,6 +1205,8 @@ class executorService {
               prometheusSpec: {
                 externalLabels: {
                   clusterUuid: clusterUuid,
+                  clusterId: clusterUuid,
+                  clusterName: resultResourceGroup.resourceGroupName,
                 },
                 remoteWrite: [
                   {
@@ -1256,14 +1263,8 @@ class executorService {
     };
     // get system user id
 
-    try {
-      const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
-      console.log('Success to create ResponseGroup: ', ResponseResoureGroup.resourceGroupId);
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(500, `Error on creating cluster ${clusterUuid}`);
-    }
-
+    const ResponseResoureGroup: IResourceGroupUi = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
+    const resourceGroupId = ResponseResoureGroup.resourceGroupId;
     //schedule metricMeta
     await this.scheduleMetricMeta(clusterUuid, customerAccountKey)
       .then(async (res: any) => {
@@ -1370,6 +1371,20 @@ class executorService {
       waitSec = waitSec - 5;
     }
 
+    //provision metricOps rule if the customer has MetricOps subscription
+    const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+    if (findSubscription.length > 0) {
+      const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
+      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+        where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
+      });
+      const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
+      if (findMetricOps) {
+        console.log('#DEBUG-resourceGroupId', resourceGroupId);
+        //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
+        //console.log('resultProvision', resultProvision);
+      }
+    }
     // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
     // console.log('operation schedules setup:', scheduleHealthService);
 
@@ -1849,7 +1864,7 @@ class executorService {
       throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
     }
 
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
@@ -1909,7 +1924,7 @@ class executorService {
       throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
     }
 
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
@@ -2094,7 +2109,7 @@ class executorService {
       throw new HttpException(404, `customerAccountKey ${customerAccountKey} not found`);
     }
 
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
@@ -2262,6 +2277,44 @@ class executorService {
     console.log(resultSchedule);
     return resultSchedule;
   }
+
+  /**
+   * @param {string} clusterUuid
+   * @param {string} cronTab
+   */
+  public async scheduleLokiInstall(steps: object, clusterUuid: string, customerAccountId: string): Promise<object> {
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    const scheduleFrom = new Date().toISOString();
+    const currentTime = new Date();
+    currentTime.setMinutes(currentTime.getMinutes() + 5);
+    const scheduleTo = currentTime.toISOString();
+
+    const installLoki = {
+      name: 'Install Loki',
+      summary: 'Install Loki',
+      apiUrl: executorServerUrl,
+      apiType: 'POST',
+      apiBody: {
+        name: 'Install Loki',
+        summary: 'Install Loki',
+        template_uuid: '20000000000000000000000000000001',
+        cluster_uuid: clusterUuid,
+        on_completion: parseInt(config.sudoryApiDetail.service_result_delete),
+        steps: steps,
+        subscribed_channel: config.sudoryApiDetail.channel_webhook,
+      },
+      cronTab: '*/3 * * * *',
+      clusterId: clusterUuid,
+      scheduleFrom: scheduleFrom,
+      scheduleTo: scheduleTo,
+      reRunRequire: false,
+    };
+    console.log('schedule to install loki', installLoki);
+    const resultSchedule = await this.schedulerService.createScheduler(installLoki, customerAccountId);
+    console.log(resultSchedule);
+    return resultSchedule;
+  }
+
   /**
    * @param {string} clusterUuid
    * @param {string} cronTab
@@ -2454,7 +2507,7 @@ class executorService {
     ];
 
     //1. Validate clusterUuid and find customerAccountData
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
@@ -2545,7 +2598,7 @@ class executorService {
     const targetJobDb = ['Get Alert Rules & Alert Received'];
 
     //1. Validate clusterUuid and find customerAccountData
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
@@ -2635,7 +2688,7 @@ class executorService {
     const targetJobDb = ['Get MetricMeta'];
 
     //1. Validate clusterUuid and find customerAccountData
-    const responseResourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const responseResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!responseResourceGroup) {
       throw new HttpException(404, `No ResourceGroup with the clusterUuid: ${clusterUuid}`);
     }
@@ -2913,7 +2966,7 @@ class executorService {
     let getExecutorServiceAll: IExecutorService[] = await this.executorService.findAll({
       //limit: 1000,
       where: { customerAccountKey, deletedAt: null },
-      attributes: {exclude: ['executorServiceKey', 'deletedAt']},
+      attributes: ['name', 'status', 'statusDescription', 'steps','createdAt', 'updatedAt'],
       include: [
         {
           as: 'resourceGroup',

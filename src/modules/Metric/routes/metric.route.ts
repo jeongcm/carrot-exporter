@@ -14,7 +14,6 @@ import MetricController from '../controllers/metric.controller';
 import MetricMetaController from '../controllers/metricMeta.controller';
 import MetricReceivedController from '../controllers/metricReceived.controller';
 import { MetricReceivedDto } from '../dtos/metricReceived.dto';
-import systemAuthMiddleware from "@modules/ApiGateway/middlewares/systemAuth.middleware";
 class MetricRoute implements Routes {
   public router = Router();
   public metricController = new MetricController();

@@ -72,7 +72,7 @@ class ResourceGroupController {
   public getAllResourceGroups = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const customerAccountKey = req.customerAccountKey;
-      const findAllResourceGroupData: IResourceGroup[] = await this.resourceGroupService.getAllResourceGroups(customerAccountKey);
+      const findAllResourceGroupData: IResourceGroupUi[] = await this.resourceGroupService.getAllResourceGroups(customerAccountKey);
 
       res.status(200).json({ data: findAllResourceGroupData, message: 'findAll' });
     } catch (error) {
@@ -89,7 +89,7 @@ class ResourceGroupController {
     const resourceGroupId = req.params.resourceGroupId;
 
     try {
-      const resourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+      const resourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
       res.status(200).json({ data: resourceGroup, message: `find resourceGroup id(${resourceGroupId}) ` });
     } catch (error) {
       next(error);
@@ -105,7 +105,7 @@ class ResourceGroupController {
     const resourceGroupUuid = req.params.resourceGroupUuid;
 
     try {
-      const resourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
+      const resourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
       res.status(200).json({ data: resourceGroup, message: `find resourceGroup id(${resourceGroupUuid}) ` });
     } catch (error) {
       next(error);
@@ -135,7 +135,7 @@ class ResourceGroupController {
    */
   public getResourceGroupByCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountId = req.params.customerAccountId;
-    let resourceGroup: IResourceGroup[]
+    let resourceGroup: IResourceGroupUi[]
 
     try {
       resourceGroup = await this.resourceGroupService.getResourceGroupByCustomerAccountId(customerAccountId, req.query);
@@ -156,7 +156,7 @@ class ResourceGroupController {
       const resourceGroupData = req.body;
       const currentUserId = req.user.partyId;
 
-      const updateResourceGroupData: IResourceGroup = await this.resourceGroupService.updateResourceGroupById(
+      const updateResourceGroupData: IResourceGroupUi = await this.resourceGroupService.updateResourceGroupById(
         resourceGroupId,
         resourceGroupData,
         currentUserId,
@@ -179,7 +179,7 @@ class ResourceGroupController {
       const customerAccountKey = req.customerAccountKey;
 
       // TODO: to create getResourceGroupKeyById
-      const resourceGroup: IResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
+      const resourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
 
       // TODO: create an interface
       const k8sDetail: any = await this.k8sService.getClusterDetail(resourceGroup.resourceGroupKey, customerAccountKey);

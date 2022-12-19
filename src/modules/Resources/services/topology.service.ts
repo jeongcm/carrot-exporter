@@ -6,6 +6,7 @@ import ServiceExtension from '@/common/extentions/service.extension';
 import { Op, GroupedCountResultItem } from 'sequelize';
 import createK8sGraph from './create-k8s-graph';
 import filterRelatedGraph from './filter-related-graph';
+import config from '@config/index';
 import resourceService from "@modules/Resources/services/resource.service";
 import ResourceService from "@modules/Resources/services/resource.service";
 import { ConsoleSpanExporter } from '@opentelemetry/tracing';
@@ -101,6 +102,7 @@ class TopologyService extends ServiceExtension {
         resourceGroupId,
       };
     }
+
     const accountResourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
       where: {
         customerAccountKey,
@@ -119,7 +121,7 @@ class TopologyService extends ServiceExtension {
       accountResourceGroups.map(async (resourceGroup: IResourceGroup) => {
         const children = await this.getResourceGroupTopology(type, resourceGroup, customerAccountKey, resourceId);
 
-        const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider, resourceGroupUuid } =
+        const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider, resourceGroupUuid} =
           resourceGroup;
 
         const resource = await this.resource.findOne({

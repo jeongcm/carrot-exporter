@@ -78,9 +78,7 @@ class AlertReceivedService extends ServiceExtension {
                 and B.resource_group_uuid = C.resource_group_uuid
                 and A.deleted_at is null
                 and B.deleted_at is null
-                and C.deleted_at is null
-              ORDER BY A.created_at DESC;
-                `;
+                and C.deleted_at is null`;
     const [result, metadata] = await DB.sequelize.query(sql);
     //return allAlertReceived;
     return result;
@@ -152,7 +150,6 @@ class AlertReceivedService extends ServiceExtension {
     let allAlertReceived;
     const allAlertReceived1: IAlertReceived[] = await this.alertReceived.findAll({
       limit: 200,
-      order: [['createdAt', 'DESC']],
       where: {
         alertReceivedHash: alertHash,
         alertReceivedUiFlag: { [Op.in]: [0, 2, 4, 6, 8] },
@@ -203,6 +200,7 @@ class AlertReceivedService extends ServiceExtension {
         recent_alerts.alert_received_node as alertReceivedNode,
         recent_alerts.alert_received_service as alertReceivedService,
         recent_alerts.alert_received_pod as alertReceivedPod,
+        recent_alerts.alert_received_persistentvolumeclaim as alertReceivedPersistentvolumeclaim,
         recent_alerts.alert_received_instance as alertReceivedInstance,
         recent_alerts.alert_received_labels as alertReceivedLabels,
         recent_alerts.alert_received_pinned as alertReceivedPinned,

@@ -1,4 +1,6 @@
 import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { isString } from 'lodash';
+import { isOptionalChain } from 'typescript';
 
 export class ResourceGroupDto {
   @IsString()
@@ -28,6 +30,14 @@ export class ResourceGroupDto {
 
   @IsString()
   public resourceGroupKpsLokiNamespace: string;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupLastServerUpdatedAt: Date;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupSudoryRebounceRequest: string;
 }
 export class UpdateResourceGroupDto {
   @IsString()
@@ -61,6 +71,14 @@ export class UpdateResourceGroupDto {
   @IsString()
   @IsOptional()
   public resourceGroupKpsLokiNamespace: string;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupLastServerUpdatedAt: Date;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupSudoryRebounceRequest: string;
 }
 
 export class ResourceGroupExecutorDto {
