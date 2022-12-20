@@ -805,18 +805,35 @@ class ResourceService {
   public async getResourceCountByResourceType(resourceType: string, customerAccountKey: number, query?: any): Promise<number> {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType };
     let result: any = {};
-
+    let resourceGroupIds: string[] = [];
     if (query?.resourceGroupId) {
-      let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId);
-      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroupUi) => resourceGroup.resourceGroupKey)
-      result = await this.resource.count({
-        where: resourceWhereCondition,
-      });
-    } else {
-      result = await this.resource.count({
-        where: resourceWhereCondition,
-      });
+      switch (Array.isArray(query.resourceGroupId)) {
+        case true:
+          resourceGroupIds = query.resourceGroupId.map(id => id)
+          break
+        case false:
+          resourceGroupIds.push(query.resourceGroupId)
+          break
+      }
     }
+
+    let resourceGroupWhereCondition = {customerAccountKey, deletedAt: null }
+
+    if (resourceGroupIds.length > 0) {
+      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupIds
+
+      const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+        where: resourceGroupWhereCondition,
+        attributes: { exclude: ['deletedAt'] },
+      });
+
+      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+    }
+
+    result = await this.resource.count({
+      where: resourceWhereCondition,
+    });
+
     return result;
   }
 
