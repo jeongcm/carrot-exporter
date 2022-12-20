@@ -276,6 +276,17 @@ class ResourceController {
     }
   };
 
+  public getResourceCountForK8sOverview = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const customerAccountKey: number = req.customerAccountKey;
+
+    try {
+      const result: any = await this.resourceService.getResourceCountForK8sOverView(customerAccountKey, req.query);
+      res.status(200).json({ result: result, message: `get resource count for K8s Overview` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
