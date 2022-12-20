@@ -2966,7 +2966,7 @@ class executorService {
     let getExecutorServiceAll: IExecutorService[] = await this.executorService.findAll({
       //limit: 1000,
       where: { customerAccountKey, deletedAt: null },
-      attributes: ['name', 'status', 'statusDescription', 'steps','createdAt', 'updatedAt'],
+      attributes: ['name', 'status', 'statusDescription', 'steps','createdAt', 'updatedAt', 'executorServiceId'],
       include: [
         {
           as: 'resourceGroup',
