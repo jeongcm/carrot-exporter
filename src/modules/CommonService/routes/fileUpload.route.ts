@@ -28,6 +28,18 @@ class fileUploadRoute implements Routes {
       this.fileUploadController.getUploadedFile,
     );
 
+    this.router.get(
+      '/bucketFolder/size/:bucket/:folder',
+      // authMiddleware, createUserLogMiddleware,
+      this.fileUploadController.getBucketFolderSize,
+    );
+
+    this.router.delete(
+      '/bucketFolder/:bucket/:folder/:maxsize',
+      // authMiddleware, createUserLogMiddleware,
+      this.fileUploadController.deleteBucketFolderFiles,
+    );
+
     this.router.delete(
       '/file',
       // authMiddleware, createUserLogMiddleware,
