@@ -871,28 +871,33 @@ class ResourceService {
 
     // get Nodes Count
     resourceWhereCondition['resourceType'] = 'ND'
-    result['nodeCount'] = await this.resource.count({
+    result['nodeCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
+      attributes: ['resourceStatus'],
     });
     // get Namespace Count
     resourceWhereCondition['resourceType'] = 'NS'
-    result['namespaceCount'] = await this.resource.count({
+    result['namespaceCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
+      attributes: ['resourceStatus'],
     });
     // get Pods Count
     resourceWhereCondition['resourceType'] = 'PD'
-    result['podCount'] = await this.resource.count({
+    result['podCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
+      attributes: ['resourceStatus'],
     });
     // get Workloads Count
     resourceWhereCondition['resourceType'] = ['DS', 'DP', 'RS', 'SS']
-    result['workloadCount'] = await this.resource.count({
+    result['workloadCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
+      attributes: ['resourceStatus'],
     });
     // get Services Count
     resourceWhereCondition['resourceType'] = 'SV'
-    result['serviceCount'] = await this.resource.count({
+    result['serviceCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
+      attributes: ['resourceStatus'],
     });
     // get PVC Count
     resourceWhereCondition['resourceType'] = 'PV'
