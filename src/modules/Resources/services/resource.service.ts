@@ -873,37 +873,37 @@ class ResourceService {
     resourceWhereCondition['resourceType'] = 'ND'
     result['nodeCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
-      attributes: ['resourceName', 'resourceStatus'],
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
     });
     // get Namespace Count
     resourceWhereCondition['resourceType'] = 'NS'
     result['namespaceCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
-      attributes: ['resourceName', 'resourceStatus'],
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
     });
     // get Pods Count
     resourceWhereCondition['resourceType'] = 'PD'
     result['podCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
-      attributes: ['resourceName', 'resourceStatus'],
+      attributes: ['resourceName', 'resourceType', 'resourcePodPhase'],
     });
     // get Workloads Count
     resourceWhereCondition['resourceType'] = ['DS', 'DP', 'RS', 'SS']
     result['workloadCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
-      attributes: ['resourceName', 'resourceStatus'],
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
     });
     // get Services Count
     resourceWhereCondition['resourceType'] = 'SV'
     result['serviceCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
-      attributes: ['resourceName', 'resourceStatus'],
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
     });
     // get PVC Count
     resourceWhereCondition['resourceType'] = 'PV'
     result['pvCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
-      attributes: ['resourceName', 'resourceStatus'],
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
     });
 
     return result;
