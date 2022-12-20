@@ -309,6 +309,7 @@ class MetricService extends ServiceExtension {
 
         break;
 
+      //K8s NODE
       case 'NODE_CPU_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -450,6 +451,8 @@ class MetricService extends ServiceExtension {
 
         promQl = `rate(node_network_transmit_bytes_total{job="node-exporter", device!="lo", __LABEL_PLACE_HOLDER__}[${step}])`;
         break;
+
+      // K8s POD
       case 'POD_CPU_MOMENT_PER_CLUSTER':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -468,7 +471,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by(pod, clusterUuid) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )`;
         break;
-
       case 'POD_RESOURCE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -479,7 +481,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `{__name__=~"kube_pod_container_resource_limits|kube_pod_container_resource_requests", __LABEL_PLACE_HOLDER__}`;
         break;
-
       case 'POD_MEMORY_MOMENT_PER_CLUSTER':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -488,7 +489,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by(pod, clusterUuid) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
-
       case 'POD_MEMORY':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -499,7 +499,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by(pod, clusterUuid) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
-
       case 'POD_CPU_MOMENT':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -510,7 +509,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by(pod, clusterUuid) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )`;
         break;
-
       case 'POD_MEMORY_MOMENT':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -543,7 +541,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sort_desc(sum by(pod, clusterUuid) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__}))`;
         break;
-
       case 'POD_RXTX_TOTAL_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -555,7 +552,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sort_desc(sum by (pod, clusterUuid) (rate(container_network_receive_bytes_total{id!="/", container=~".*",__LABEL_PLACE_HOLDER__}[5m]) + rate(container_network_transmit_bytes_total{id!="/",container=~".*",__LABEL_PLACE_HOLDER__}[5m])))`;
         break;
-
       case 'POD_RXTX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -564,7 +560,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by (pod, clusterUuid) (rate(container_network_receive_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]) + rate(container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[60m]))`;
         break;
-
       case 'POD_NETWORK_RX':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -584,6 +579,7 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(sum by (pod, clusterUuid) (rate (container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[${step}])))`;
         break;
 
+      // K8s PV
       case 'PV_SPACE_USAGE_CAPACITY':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -596,7 +592,6 @@ class MetricService extends ServiceExtension {
           sum by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
         )`;
         break;
-
       case 'PV_SPACE_USAGE_USED':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -633,7 +628,6 @@ class MetricService extends ServiceExtension {
           sum by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
         )`;
         break;
-
       case 'PV_SPACE_USAGE_FREE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -645,7 +639,7 @@ class MetricService extends ServiceExtension {
         promQl = `sum without(instance, node) (topk(1, (kubelet_volume_stats_available_bytes{job="kubelet", metrics_path="/metrics", __LABEL_PLACE_HOLDER__})))`;
         break;
 
-      // PD_: start
+      // K8s PD
       case 'PD_container_network_receive_bytes_total':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -694,9 +688,8 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum(irate(container_network_transmit_packets_dropped_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (pod, clusterUuid)`;
         break;
-      // NS_: end
 
-      // NS_: start
+      // K8s resource by NS
       case 'NS_container_network_receive_bytes_total':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -741,7 +734,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum(irate(container_network_transmit_packets_dropped_total{__LABEL_PLACE_HOLDER__}[5h:5m])) by (namespace)`;
         break;
-      // NS_: end
 
       case 'NS_RUNNING_PVCS_USED_BYTES':
         labelString += getSelectorLabels({
@@ -818,7 +810,7 @@ class MetricService extends ServiceExtension {
         promQl = `count((kube_persistentvolumeclaim_status_phase{__LABEL_PLACE_HOLDER__, phase="Lost"}==1)) or vector(0)`;
         break;
 
-      // Cluster Node Metric
+      // K8s Cluster Node Metric
       case 'K8S_CLUSTER_NODE_MEMORY':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -845,7 +837,7 @@ class MetricService extends ServiceExtension {
         promQl = `sum by (node) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))`;
         break;
 
-      // Node Ranking
+      // K8s Node Ranking
       case 'K8S_CLUSTER_NODE_MEMORY_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -929,7 +921,7 @@ class MetricService extends ServiceExtension {
         promQl = `count(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h]))`;
         break;
 
-      // Openstack pm metrics
+      // Openstack PM Metrics
       case 'OS_CLUSTER_PM_TOTAL_CPU_COUNT':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1026,7 +1018,7 @@ class MetricService extends ServiceExtension {
         promQl = `max(rate(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename, clusterUuid)`
         break;
 
-      // Openstack vm metrics
+      // Openstack VM Metrics
       case 'OS_CLUSTER_VM_TOTAL_CPU_COUNT':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1110,7 +1102,7 @@ class MetricService extends ServiceExtension {
         promQl = `max(rate(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename, clusterUuid)`;
         break;
 
-      // Openstack pm ranking
+      // Openstack PM ranking
       case 'OS_CLUSTER_PM_CPU_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1140,7 +1132,7 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(sum by (nodename, clusterUuid) (increase(nc:node_network_receive_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[30m])+ increase(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[30m])))`
         break;
 
-      // Openstack vm ranking
+      // Openstack VM ranking
       case 'OS_CLUSTER_VM_CPU_RANKING':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1170,7 +1162,7 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(sum by (nodename, clusterUuid) (increase(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[30m])+ increase(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[30m])))`
         break;
 
-      // Openstack vm process metrics
+      // Openstack VM process Metrics
       case 'OS_CLUSTER_VM_PROCESS_UP_TIME':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1231,7 +1223,7 @@ class MetricService extends ServiceExtension {
         promQl = `rate(nc:namedprocess_namegroup_write_bytes_total{job=~"vm-process-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])`
         break;
 
-      // Openstack pm,vm Status
+      // Openstack PM, VM Status
       case 'OS_CLUSTER_VM_NODE_STATUS':
         labelString += getSelectorLabels({
           clusterUuid,
