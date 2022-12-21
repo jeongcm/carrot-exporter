@@ -125,7 +125,6 @@ class IncidentService {
           include: [
             {
               model: PartyModel,
-              association: DB.PartyUser.belongsTo(DB.Party, { foreignKey: 'partyKey', targetKey: 'partyKey', as: "creatorParty" }),
               attributes: ['partyName'],
             }
           ],
