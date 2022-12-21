@@ -578,8 +578,25 @@ class MetricService extends ServiceExtension {
 
         promQl = `sort_desc(sum by (pod, clusterUuid) (rate (container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[${step}])))`;
         break;
+      case 'POD_NETWORK_TX':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+        });
+        ranged = true;
+
+        promQl = `sort_desc(sum by (pod, clusterUuid) (rate (container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[${step}])))`;
+        break;
+
 
       // K8s PV
+      case 'K8S_CLUSTER_PVC_INFO':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `sum by (persistentvolumeclaim,namespace,storageclass,volumename) (kube_persistentvolumeclaim_info{__LABEL_PLACE_HOLDER__})`;
+        break;
+
       case 'PV_SPACE_USAGE_CAPACITY':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -603,6 +620,35 @@ class MetricService extends ServiceExtension {
         promQl = `(
           sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
         )`;
+        break;
+      case 'PV_SPACE_USAGE_AVAILABLE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resourceNamespace,
+          persistentvolumeclaim: resourceName,
+        });
+
+        promQl = `(
+          sum by (persistentvolumeclaim) (kubelet_volume_stats_available_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
+        )`;
+        break;
+      case 'PV_STATUS':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resourceNamespace,
+          persistentvolumeclaim: resourceName,
+        });
+
+        promQl = `sum(kube_persistentvolumeclaim_status_phase{phase=~"(Pending|Lost)", __LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim) + sum(kube_persistentvolumeclaim_status_phase{phase=~"(Lost)", __LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim)`;
+        break;
+      case 'PV_SPACE_USAGE_PERCENTAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resourceNamespace,
+          persistentvolumeclaim: resourceName,
+        });
+
+        promQl = `sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__} * 100)`;
         break;
       case 'PV_USAGE_USED':
         labelString += getSelectorLabels({
@@ -937,7 +983,7 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum(namespace_cpu:kube_pod_container_resource_requests:sum{__LABEL_PLACE_HOLDER__}) by (namespace)`;
         break;
-      case 'K8S_CLUSTER_NAMESPACE_CPU_REQUESTS_PERCENT':
+      case 'K8S_CLUSTER_NAMESPACE_CPU_REQUESTS_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,
         });
@@ -949,7 +995,7 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum(namespace_cpu:kube_pod_container_resource_limits:sum{__LABEL_PLACE_HOLDER__}) by (namespace)`;
         break;
-      case 'K8S_CLUSTER_NAMESPACE_CPU_LIMITS_PERCENT':
+      case 'K8S_CLUSTER_NAMESPACE_CPU_LIMITS_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,
         });
@@ -967,7 +1013,7 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum(namespace_memory:kube_pod_container_resource_requests:sum{__LABEL_PLACE_HOLDER__}) by (namespace)`;
         break;
-      case 'K8S_CLUSTER_NAMESPACE_MEMORY_REQUESTS_PERCENT':
+      case 'K8S_CLUSTER_NAMESPACE_MEMORY_REQUESTS_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,
         });
@@ -979,7 +1025,7 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum(namespace_memory:kube_pod_container_resource_limits:sum{__LABEL_PLACE_HOLDER__}) by (namespace)`;
         break;
-      case 'K8S_CLUSTER_NAMESPACE_MEMORY_LIMITS_PERCENT':
+      case 'K8S_CLUSTER_NAMESPACE_MEMORY_LIMITS_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,
         });
