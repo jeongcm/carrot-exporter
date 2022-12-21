@@ -24,6 +24,10 @@ export class CreateIncidentDto {
   @IsOptional()
   @IsString()
   public incidentDueDate: Date;
+
+  @IsOptional()
+  @IsString()
+  public anomalyMonitoringTargetId: string;
 }
 
 export class UpdateIncidentDto {

@@ -86,12 +86,15 @@ class AlertEasyRuleService {
     const result = [];
     const alertEasyRuleName = alertEasyRule.alertEasyRuleName;
     const alertEasyRuleSeverity = alertEasyRule.alertEasyRuleSeverity;
+    console.log('alertEasyRule', JSON.stringify(alertEasyRule));
 
     let alertEasyRuleDescription = alertEasyRule.alertEasyRuleDescription.replace('alertEasyRuleThreshold1', alertEasyRule.alertEasyRuleThreshold1);
     alertEasyRuleDescription = alertEasyRuleDescription.replace('alertEasyRuleThreshold2', alertEasyRule.alertEasyRuleThreshold2);
     let alertEasyRuleQuery = alertEasyRule.alertEasyRuleQuery.replace('alertEasyRuleThreshold1', alertEasyRule.alertEasyRuleThreshold1);
     alertEasyRuleQuery = alertEasyRuleQuery.replace('alertEasyRuleThreshold2', alertEasyRule.alertEasyRuleThreshold2);
 
+    console.log('alertEasyRuleDescription', alertEasyRuleDescription);
+    console.log('alertEasyRuleQuery', alertEasyRuleQuery);
     const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({
       where: { customerAccountId: alertEasyRule.customerAccountId, deletedAt: null },
     });
@@ -102,7 +105,7 @@ class AlertEasyRuleService {
     const findResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
     });
-    if (!findResourceGroup) throw new HttpException(401, `couldn't find active cluster information`);
+    if (findResourceGroup.length === 0) throw new HttpException(401, `couldn't find active cluster information`);
 
     // step 1.3 find AlertTargetSubGroup
     const findAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
@@ -123,7 +126,7 @@ class AlertEasyRuleService {
       const resourceGroupKey = findResourceGroup[k].resourceGroupKey;
       const prometheusNamespace = findResourceGroup[k].resourceGroupKpsLokiNamespace;
       const prometheus = findResourceGroup[k].resourceGroupPrometheus;
-
+      console.log('custer', resourceGroupUuid);
       // step 2-1. find AlertRule of the cluster
       const findAlertRule: IAlertRule = await this.alertRule.findOne({
         where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null, alertRuleName: alertEasyRuleName, alertRuleSeverity: alertEasyRuleSeverity },
@@ -165,11 +168,17 @@ class AlertEasyRuleService {
       let indexRules;
       let maxIndexRuleGroup;
       let maxIndexRules;
+      let getSudoryWebhook: ISudoryWebhook;
+      let step = [];
+      const sudoryServiceName = 'Patch Prometheus Rule';
+      const summary = 'Patch Prometheus Rule';
+      const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
+
       const sleep = ms => new Promise(res => setTimeout(res, ms));
       let i;
       for (i = 0; i < 6; i++) {
         await sleep(1000);
-        const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
+        getSudoryWebhook = await this.sudoryWebhook.findOne({
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           where: { serviceUuid: getPrometheusRule.dataValues.serviceUuid, status: 4 },
@@ -194,14 +203,8 @@ class AlertEasyRuleService {
           i = 100; //exit for
         }
       }
-      if (i === 101) {
-        const sudoryServiceName = 'Patch Prometheus Rule';
-        const summary = 'Patch Prometheus Rule';
-        const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
-
-        let step = [];
-
-        if (!findAlertRule) {
+      if (getSudoryWebhook) {
+        if (i === 101 && indexRules > 0) {
           // step 2-2 provision a brand new alert
           step = [
             {
@@ -302,6 +305,8 @@ class AlertEasyRuleService {
         const createAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.create(createQuery);
 
         result.push(createAlertEasyRule);
+      } else {
+        result.push({ resourceGroupUuid: resourceGroupUuid, result: 'No Available Alert Group' });
       }
     }
     return result;
@@ -516,14 +521,21 @@ class AlertEasyRuleService {
       alertEasyRuleSummary = alertEasyRule.alertEasyRuleSummary;
     }
 
+    let alertEasyRuleSeverity;
+    if (!alertEasyRule.alertEasyRuleSeverity || alertEasyRule.alertEasyRuleSeverity === '') {
+      alertEasyRuleSeverity = findAlertEasyRule.alertEasyRuleSeverity;
+    } else {
+      alertEasyRuleSeverity = alertEasyRule.alertEasyRuleSeverity;
+    }
+
     // alertEasyRuleName
     const alertEasyRuleName = findAlertEasyRule.alertEasyRuleName;
 
     // alertEasyRuleSeverity
-    let alertEasyRuleSeverity;
+
     let step = [];
     let indexRuleGroup;
-    let indexRules;
+    let indexRules = 0;
     let maxIndexRuleGroup;
     let maxIndexRules;
     let i;
@@ -548,37 +560,37 @@ class AlertEasyRuleService {
     let getSudoryWebhook: ISudoryWebhook;
 
     //Step 2-3 Wait & Process Prometheus Rule thru SudoryWebhook
-    if (alertEasyRule.alertEasyRuleSeverity === '' || alertEasyRule.alertEasyRuleSeverity === existingAlertEasyRuleSeverity) {
-      // Prometheus Alert Rule update only case
-      alertEasyRuleSeverity = existingAlertEasyRuleSeverity;
-      for (i = 0; i < 6; i++) {
-        await sleep(1000);
-        getSudoryWebhook = await this.sudoryWebhook.findOne({
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          where: { serviceUuid: getPrometheusRule.dataValues.serviceUuid, status: 4 },
-        });
-        if (getSudoryWebhook) {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          const ruleGroup = JSON.parse(JSON.stringify(getSudoryWebhook.serviceResult.spec.groups));
-          const rules = [];
-          ruleGroup.forEach((item: any) => {
-            item?.rules?.forEach((ruleItem: any) => {
-              if (ruleItem.alert) {
-                const object = { alert: ruleItem.alert, severity: ruleItem.labels.severity, for: ruleItem.for };
-                rules.push(object);
-              }
-            });
+    for (i = 0; i < 6; i++) {
+      await sleep(1000);
+      getSudoryWebhook = await this.sudoryWebhook.findOne({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        where: { serviceUuid: getPrometheusRule.dataValues.serviceUuid, status: 4 },
+      });
+      if (getSudoryWebhook) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const ruleGroup = JSON.parse(JSON.stringify(getSudoryWebhook.serviceResult.spec.groups));
+        const rules = [];
+        ruleGroup.forEach((item: any) => {
+          item?.rules?.forEach((ruleItem: any) => {
+            if (ruleItem.alert) {
+              const object = { alert: ruleItem.alert, severity: ruleItem.labels.severity, for: ruleItem.for };
+              rules.push(object);
+            }
           });
-          indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
-          indexRules = rules.findIndex(element => element.alert == findAlertEasyRule.alertEasyRuleName && element.severity == alertEasyRuleSeverity);
-          maxIndexRuleGroup = ruleGroup.length - 1;
-          maxIndexRules = rules.length;
-          i = 100; //exit for
-        }
+        });
+        indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
+        indexRules = rules.findIndex(element => element.alert === alertEasyRuleName && element.severity === alertEasyRuleSeverity);
+        maxIndexRuleGroup = ruleGroup.length - 1;
+        maxIndexRules = rules.length;
+        i = 100; //exit for
       }
-      if (!getSudoryWebhook) throw new HttpException(500, `Error on retrieving Prometheus Alert Rule`);
+    }
+    if (!getSudoryWebhook) throw new HttpException(500, `Error on retrieving Prometheus Alert Rule`);
+
+    if (i === 101 && indexRules > 0) {
+      //no severity change & found alert rule... need to update the rule
       step = [
         {
           args: {
@@ -615,37 +627,11 @@ class AlertEasyRuleService {
           },
         },
       ];
-      console.log('step1', JSON.stringify(step));
+      console.log('step1-update indexRules', indexRules);
+      console.log('step1-update maxIndexRules', maxIndexRules);
+      console.log('step1-update', JSON.stringify(step));
     } else {
-      alertEasyRuleSeverity = alertEasyRule.alertEasyRuleSeverity;
-      for (i = 0; i < 6; i++) {
-        await sleep(1000);
-        const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          where: { serviceUuid: getPrometheusRule.dataValues.serviceUuid, status: 4 },
-        });
-        if (getSudoryWebhook) {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          const ruleGroup = JSON.parse(JSON.stringify(getSudoryWebhook.serviceResult.spec.groups));
-          const rules = [];
-          ruleGroup.forEach((item: any) => {
-            item?.rules?.forEach((ruleItem: any) => {
-              if (ruleItem.alert) {
-                const object = { alert: ruleItem.alert, severity: ruleItem.labels.severity, for: ruleItem.for };
-                rules.push(object);
-              }
-            });
-          });
-          indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
-          indexRules = rules.findIndex(element => element.alert == findAlertEasyRule.alertEasyRuleName && element.severity == alertEasyRuleSeverity);
-          maxIndexRuleGroup = ruleGroup.length - 1;
-          maxIndexRules = rules.length;
-          i = 100; //exit for
-        }
-      }
-
+      // otherwise need to create the new one
       step = [
         {
           args: {
@@ -668,6 +654,8 @@ class AlertEasyRuleService {
           },
         },
       ];
+      console.log('step1-add maxIndexRules', maxIndexRules);
+      console.log('step1-add', JSON.stringify(step));
     }
 
     //Step 2-4 Patch Prometheus Rule

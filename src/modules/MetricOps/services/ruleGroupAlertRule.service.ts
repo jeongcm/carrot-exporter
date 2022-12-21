@@ -28,6 +28,7 @@ class RuleGroupAlertRuleService {
     try {
       const deleteRuleGroupData = {
         deletedAt: new Date(),
+        ruleGroupAlertRuleStatus: 'CA',
       };
 
       const result = await this.ruleGroupAlertRule.update(deleteRuleGroupData, {
@@ -127,8 +128,11 @@ class RuleGroupAlertRuleService {
     const findRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({ where: { resourceGroupKey, deletedAt: null } });
     if (findRuleGroup.length === 0) throw new HttpException(406, 'Cannot find MetricOps RuleGroup');
     const ruleGroupKey = findRuleGroup.map(x => x.ruleGroupKey);
+    console.log('#SYNCRULEGROUP - ruleGroupKey', JSON.stringify(ruleGroupKey));
 
-    const findRuleGroupAlertRule: IRuleGroupAlertRule[] = await this.ruleGroupAlertRule.findAll({ where: { ruleGroupKey, deletedAt: null } });
+    const findRuleGroupAlertRule: IRuleGroupAlertRule[] = await this.ruleGroupAlertRule.findAll({
+      where: { ruleGroupKey: { [Op.in]: ruleGroupKey }, deletedAt: null },
+    });
     const alertRuleKey = findRuleGroupAlertRule.map(x => x.alertRuleKey);
     console.log('#SYNCRULEGROUP - alertRuleKey', JSON.stringify(alertRuleKey));
 
@@ -139,6 +143,7 @@ class RuleGroupAlertRuleService {
 
     //3. find alertrule of RuleGroup - need to be deleted or replaced
     const targetAlerRuleKey = alertRuleKey.filter(x => alertRuleKeyActive.indexOf(x) === -1); // alert rule to be replaced
+    console.log('#SYNCRULEGROUP - targetAlertRuleKey', JSON.stringify(targetAlerRuleKey));
     const returnMessage = [];
     for (let i = 0; i < targetAlerRuleKey.length; i++) {
       const findAlertRule: IAlertRule = await this.alertRule.findOne({ where: { alertRuleKey: targetAlerRuleKey[i] } });

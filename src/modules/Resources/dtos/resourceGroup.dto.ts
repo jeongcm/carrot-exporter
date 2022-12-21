@@ -1,6 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
-import { isString } from 'lodash';
-import { isOptionalChain } from 'typescript';
+import { IsNumber, IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
 export class ResourceGroupDto {
   @IsString()
@@ -79,6 +77,13 @@ export class UpdateResourceGroupDto {
   @IsString()
   @IsOptional()
   public resourceGroupSudoryRebounceRequest: string;
+  @IsNumber()
+  @IsOptional()
+  public resourceGroupAlertRepeatInterval: number;
+
+  @IsNumber()
+  @IsOptional()
+  public resourceGroupAlertGroupWait: number;
 }
 
 export class ResourceGroupExecutorDto {
