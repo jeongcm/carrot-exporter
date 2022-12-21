@@ -68,7 +68,7 @@ data:
   NC_LARI_VM_API: "/api/v1/import?extra_label=clusterUuid="
   NC_LARI_DO_BUCKET: "nc-api-storage"
   NC_LARI_DO_DEFAULT_REGION: "sgp1"
-  NC_LARI_DO_ENDPOINT: "sgp1.digitaloceanspaces.com"
+  NC_LARI_DO_ENDPOINT: "https://sgp1.digitaloceanspaces.com"
   NODE_OPTIONS: "--max-old-space-size=8192"
   NC_ALERTHUB_URL: "http://nexclipper-notification.nc.svc.cluster.local:3039"
   NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
