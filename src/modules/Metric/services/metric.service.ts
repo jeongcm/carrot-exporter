@@ -578,16 +578,6 @@ class MetricService extends ServiceExtension {
 
         promQl = `sort_desc(sum by (pod, clusterUuid) (rate (container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[${step}])))`;
         break;
-      case 'POD_NETWORK_TX':
-        labelString += getSelectorLabels({
-          clusterUuid,
-          pod: resourceName,
-        });
-        ranged = true;
-
-        promQl = `sort_desc(sum by (pod, clusterUuid) (rate (container_network_transmit_bytes_total{container=~".*",__LABEL_PLACE_HOLDER__}[${step}])))`;
-        break;
-
 
       // K8s PV
       case 'K8S_CLUSTER_PVC_INFO':
