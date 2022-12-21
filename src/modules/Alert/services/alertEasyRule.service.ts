@@ -300,6 +300,9 @@ class AlertEasyRuleService {
           alertEasyRuleThreshold2: alertEasyRule.alertEasyRuleThreshold2,
           alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
           alertEasyRuleThreshold2Unit: alertEasyRule.alertEasyRuleThreshold2Unit,
+          alertEasyRuleThreshold1Max: alertEasyRule.alertEasyRuleThreshold1Max,
+          alertEasyRuleThreshold2Max: alertEasyRule.alertEasyRuleThreshold2Max,
+
           alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
         };
         const createAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.create(createQuery);

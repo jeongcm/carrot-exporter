@@ -473,15 +473,12 @@ class EvaluateServices {
         const fromDate = new Date(currentDate.setMinutes(currentDate.getMinutes() - 10));
         const toDate = new Date();
 
-        //const sqlLiteral = `template_uuid = '${templateUuid}' AND status = 4 AND JSON_EXTRACT(steps, "$[*].args.name") = JSON_ARRAY('${resourceName}') AND created_at BETWEEN '${fromDate}' AND '${toDate}'`;
-        const sqlLiteral = `anomalyMonitoringTargetKey = '${anomalyMonitoringTargetKey}' AND created_at BETWEEN '${fromDate}' AND '${toDate}'`;
         // don't execut resolution action if the action was executed within 10min
-        console.log(`MOEVAL-STEP4 - sqlLiteral ${sqlLiteral}`);
         const findIncidents: IIncident[] = await this.incident.findAll({
-          where: sequelize.literal(sqlLiteral),
+          where: { anomalyMonitoringTargetKey, createdAt: { [Op.and]: { [Op.gte]: fromDate, [Op.lte]: toDate } } },
         });
 
-        if (findIncidents.length > 0) {
+        if (findIncidents.length === 0) {
           //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
           const getResource = await this.resource.findOne({
             where: { resourceId: resourceId },
@@ -549,7 +546,7 @@ class EvaluateServices {
           console.log('clusterUuid', clusterUuid);
           //4.2. if any anomaly, create incident ticket
           const incidentData = {
-            incidentName: `MetricOps:{resourceType}:{resourceName}-${anomalyMonitoringTargetId}`,
+            incidentName: `MetricOps:${resourceType}:${resourceName}-${anomalyMonitoringTargetId}`,
             incidentDescription: `MetricOps: evaluation Id ${JSON.stringify(resultEvaluation.evaluationResult.evaluation_id)}`,
             incidentStatus: 'OP' as incidentStatus,
             incidentSeverity: 'UR' as incidentSeverity,
