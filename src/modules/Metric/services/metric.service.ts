@@ -684,6 +684,14 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum without(instance, node) (topk(1, (kubelet_volume_stats_available_bytes{job="kubelet", metrics_path="/metrics", __LABEL_PLACE_HOLDER__})))`;
         break;
+      case 'PV_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        ranged = true;
+
+        promQl = `sort_desc(sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__} * 100))`;
+        break;
 
       // K8s PD
       case 'PD_container_network_receive_bytes_total':
