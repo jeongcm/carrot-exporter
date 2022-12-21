@@ -18,6 +18,7 @@ export type IncidentCreationAttributes = Optional<
   | 'incidentSeverity'
   | 'incidentDueDate'
   | 'incidentPinned'
+  | 'anomalyMonitoringTargetKey'
 >;
 
 export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> implements IIncident {
@@ -35,6 +36,7 @@ export class IncidentModel extends Model<IIncident, IncidentCreationAttributes> 
   public incidentSeverity: '3U' | '2H' | '1M' | '0L';
   public incidentDueDate: Date;
   public incidentPinned: boolean;
+  public anomalyMonitoringTargetKey: number;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -102,6 +104,10 @@ export default function (sequelize: Sequelize): typeof IncidentModel {
       incidentPinned: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
+      },
+      anomalyMonitoringTargetKey: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
     },
     {

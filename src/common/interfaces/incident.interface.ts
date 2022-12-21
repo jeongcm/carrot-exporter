@@ -14,4 +14,5 @@ export interface IIncident {
   incidentSeverity: '3U' | '2H' | '1M' | '0L';
   incidentDueDate: Date;
   incidentPinned: boolean;
+  anomalyMonitoringTargetKey: number;
 }

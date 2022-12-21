@@ -86,12 +86,15 @@ class AlertEasyRuleService {
     const result = [];
     const alertEasyRuleName = alertEasyRule.alertEasyRuleName;
     const alertEasyRuleSeverity = alertEasyRule.alertEasyRuleSeverity;
+    console.log('alertEasyRule', JSON.stringify(alertEasyRule));
 
     let alertEasyRuleDescription = alertEasyRule.alertEasyRuleDescription.replace('alertEasyRuleThreshold1', alertEasyRule.alertEasyRuleThreshold1);
     alertEasyRuleDescription = alertEasyRuleDescription.replace('alertEasyRuleThreshold2', alertEasyRule.alertEasyRuleThreshold2);
     let alertEasyRuleQuery = alertEasyRule.alertEasyRuleQuery.replace('alertEasyRuleThreshold1', alertEasyRule.alertEasyRuleThreshold1);
     alertEasyRuleQuery = alertEasyRuleQuery.replace('alertEasyRuleThreshold2', alertEasyRule.alertEasyRuleThreshold2);
 
+    console.log('alertEasyRuleDescription', alertEasyRuleDescription);
+    console.log('alertEasyRuleQuery', alertEasyRuleQuery);
     const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({
       where: { customerAccountId: alertEasyRule.customerAccountId, deletedAt: null },
     });
@@ -102,7 +105,7 @@ class AlertEasyRuleService {
     const findResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
     });
-    if (!findResourceGroup) throw new HttpException(401, `couldn't find active cluster information`);
+    if (findResourceGroup.length === 0) throw new HttpException(401, `couldn't find active cluster information`);
 
     // step 1.3 find AlertTargetSubGroup
     const findAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
@@ -123,7 +126,7 @@ class AlertEasyRuleService {
       const resourceGroupKey = findResourceGroup[k].resourceGroupKey;
       const prometheusNamespace = findResourceGroup[k].resourceGroupKpsLokiNamespace;
       const prometheus = findResourceGroup[k].resourceGroupPrometheus;
-
+      console.log('custer', resourceGroupUuid);
       // step 2-1. find AlertRule of the cluster
       const findAlertRule: IAlertRule = await this.alertRule.findOne({
         where: { resourceGroupUuid: resourceGroupUuid, deletedAt: null, alertRuleName: alertEasyRuleName, alertRuleSeverity: alertEasyRuleSeverity },
@@ -165,11 +168,17 @@ class AlertEasyRuleService {
       let indexRules;
       let maxIndexRuleGroup;
       let maxIndexRules;
+      let getSudoryWebhook: ISudoryWebhook;
+      let step = [];
+      const sudoryServiceName = 'Patch Prometheus Rule';
+      const summary = 'Patch Prometheus Rule';
+      const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
+
       const sleep = ms => new Promise(res => setTimeout(res, ms));
       let i;
       for (i = 0; i < 6; i++) {
         await sleep(1000);
-        const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
+        getSudoryWebhook = await this.sudoryWebhook.findOne({
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           where: { serviceUuid: getPrometheusRule.dataValues.serviceUuid, status: 4 },
@@ -194,14 +203,8 @@ class AlertEasyRuleService {
           i = 100; //exit for
         }
       }
-      if (i === 101) {
-        const sudoryServiceName = 'Patch Prometheus Rule';
-        const summary = 'Patch Prometheus Rule';
-        const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
-
-        let step = [];
-
-        if (!findAlertRule) {
+      if (getSudoryWebhook) {
+        if (i === 101 && indexRules > 0) {
           // step 2-2 provision a brand new alert
           step = [
             {
@@ -302,6 +305,8 @@ class AlertEasyRuleService {
         const createAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.create(createQuery);
 
         result.push(createAlertEasyRule);
+      } else {
+        result.push({ resourceGroupUuid: resourceGroupUuid, result: 'No Available Alert Group' });
       }
     }
     return result;

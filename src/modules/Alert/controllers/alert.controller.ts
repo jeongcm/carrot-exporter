@@ -392,7 +392,6 @@ class AlertRuleController extends ControllerExtension {
     try {
       const alertEasyRule = req.body;
       const partyId = req.user.partyId;
-      console.log(partyId);
       const createAlertEasyRule = await this.alertEasyRuleService.createAlertEasyRule(alertEasyRule, partyId);
       res.status(200).json({ data: createAlertEasyRule, message: 'created AlertTargetGroup' });
     } catch (error) {
