@@ -121,11 +121,11 @@ class IncidentService {
         {
           model: PartyUserModel,
           attributes: ['partyUserId'],
-          association: PartyUserModel.belongsTo(PartyUserModel, { foreignKey: 'createdBy', targetKey: 'partyUserId', as: 'creator' }),
+          association: PartyUserModel.belongsTo(PartyUserModel, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
           include: [
             {
               model: PartyModel,
-              association: PartyModel.belongsTo(PartyUserModel, { foreignKey: 'partyKey', targetKey: 'partyKey', as: 'creatorParty' }),
+              association: PartyModel.belongsTo(PartyUserModel, { foreignKey: 'partyKey', targetKey: 'partyKey' }),
               attributes: ['partyName'],
             }
           ],
