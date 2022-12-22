@@ -121,10 +121,11 @@ class IncidentService {
         {
           model: PartyUserModel,
           attributes: ['partyUserId'],
-          association: DB.PartyUser.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
+          association: PartyUserModel.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId', as: 'creator' }),
           include: [
             {
               model: PartyModel,
+              association: PartyModel.belongsTo(DB.PartyUser, { foreignKey: 'partyKey', targetKey: 'partyKey', as: 'creatorParty' }),
               attributes: ['partyName'],
             }
           ],
@@ -165,10 +166,9 @@ class IncidentService {
           ],
         },
         {
-          as: 'createdByDetail',
           model: PartyUserModel,
           attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
-          association: DB.PartyUser.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
+          association: PartyUserModel.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId', as: 'creator' }),
         },
       ],
     });
