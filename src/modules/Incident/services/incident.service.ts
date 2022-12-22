@@ -31,7 +31,9 @@ import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachm
 //import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
 
 import { logger } from '@/common/utils/logger';
-import {IPartyUser} from "@common/interfaces/party.interface";
+import {IPartyUser} from "@common/interfaces/party.interface"
+import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
+
 /**
  * @memberof Incident
  */
@@ -41,6 +43,7 @@ class IncidentService {
   public incidentAction = DB.IncidentAction;
   public incidentActionAttachment = DB.IncidentActionAttachment;
   public alertReceived = DB.AlertReceived;
+  public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
 
   public partyService = new PartyService();
   public tableIdService = new TableIdService();
@@ -62,6 +65,17 @@ class IncidentService {
     const incidentActionTable = 'IncidentAction';
     const incidentActionKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentActionTable);
 
+    let anomalyMonitoringTargetKey;
+    if (incidentData.anomalyMonitoringTargetId) {
+      const anomalyMonitoringTargetId = incidentData.anomalyMonitoringTargetId;
+      const findAnomalyTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.findOne({
+        where: { anomalyMonitoringTargetId, deletedAt: null },
+      });
+      anomalyMonitoringTargetKey = findAnomalyTarget.anomalyMonitoringTargetKey;
+      delete incidentData.anomalyMonitoringTargetId;
+      console.log('incidentData after delete amt id', JSON.stringify(incidentData));
+    }
+
     let assigneeKey = null;
     try {
       return await DB.sequelize.transaction(async t => {
@@ -73,6 +87,7 @@ class IncidentService {
         const createIncidentData: any = await this.incident.create(
           {
             ...incidentData,
+            anomalyMonitoringTargetKey,
             customerAccountKey,
             createdBy: logginedUserId,
             incidentId: incidentKey.tableIdFinalIssued,

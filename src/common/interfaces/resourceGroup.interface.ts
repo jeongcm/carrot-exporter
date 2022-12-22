@@ -20,6 +20,8 @@ export interface IResourceGroup {
   resourceGroupKpsLokiNamespace: string;
   resourceGroupLastServerUpdatedAt: Date;
   resourceGroupSudoryRebounceRequest: string;
+  resourceGroupAlertRepeatInterval: number;
+  resourceGroupAlertGroupWait: number;
 }
 
 export interface IResourceGroupUi {

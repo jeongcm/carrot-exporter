@@ -53,6 +53,7 @@ class EvaluateServices {
   public resourceGroupService = new ResourceGroupService();
   public partyUser = DB.PartyUser;
   public resolutionAction = DB.ResolutionAction;
+  public incident = DB.Incident;
 
   /**
    * Evaluate anomaly using resourceKey
@@ -268,7 +269,7 @@ class EvaluateServices {
         break;
     }
 
-    returnResponse = { ...revBayesianModel2, firedAlerts, inputAlerts };
+    returnResponse = { ...revBayesianModel2, firedAlerts, inputAlerts, anomalyMonitoringTargetId };
 
     const step5 = new Date().getTime();
     const elaps5 = (step5 - step4) / 1000;
@@ -305,6 +306,7 @@ class EvaluateServices {
     console.log('#METRICOPS step6 - evaluationResultStatus', evaluationResultStatus);
     if (evaluationResultStatus === 'NF') {
       returnResponse = {
+        ...returnResponse,
         evaluationId: evaluationId,
         evaluationResultStatus: evaluationResultStatus,
         evaluationResult: '',
@@ -409,6 +411,7 @@ class EvaluateServices {
     const resultEvaluation: IEvaluation = await this.evaluation.findOne({ where: { evaluationId } });
 
     returnResponse = {
+      ...returnResponse,
       evaluationId: evaluationId,
       resourceName: resourceName,
       resourceId: resourceId,
@@ -453,8 +456,9 @@ class EvaluateServices {
     //console.log('resultMonitoringTarget', resultMonitoringTarget);
     const resultReturn = {};
     for (let i = 0; i < resultMonitoringTarget.length; i++) {
-      const resourceKey = resultMonitoringTarget[i].resourceKey;
+      //const resourceKey = resultMonitoringTarget[i].resourceKey;
       const anomalyMonitoringTargetId = resultMonitoringTarget[i].anomalyMonitoringTargetId;
+      const anomalyMonitoringTargetKey = resultMonitoringTarget[i].anomalyMonitoringTargetKey;
 
       let resultEvaluation = await this.evaluateMonitoringTarget(anomalyMonitoringTargetId);
       const { evaluationRequest, evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName, resourceType } = resultEvaluation;
@@ -462,141 +466,145 @@ class EvaluateServices {
 
       if (evaluationResultStatus === 'AN') {
         console.log('MOEVAL-STEP4 - ANOMALY');
-        //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
-        const getResource = await this.resource.findOne({
-          where: { resourceId: resourceId },
-          attributes: ['resourceNamespace', 'resourcePvcStorage'],
-          include: [
-            {
-              model: ResourceGroupModel,
-              as: 'ResourceGroup',
-              attributes: ['resourceGroupPrometheus', 'resourceGroupUuid'],
-            },
-          ],
+        // if incident ticket issued x min before, don't create a new incident ticket
+
+        const currentDate = new Date();
+        const currentDate2 = new Date();
+        const fromDate = new Date(currentDate.setMinutes(currentDate.getMinutes() - 10));
+        const toDate = new Date();
+
+        //const sqlLiteral = `template_uuid = '${templateUuid}' AND status = 4 AND JSON_EXTRACT(steps, "$[*].args.name") = JSON_ARRAY('${resourceName}') AND created_at BETWEEN '${fromDate}' AND '${toDate}'`;
+        const sqlLiteral = `anomalyMonitoringTargetKey = '${anomalyMonitoringTargetKey}' AND created_at BETWEEN '${fromDate}' AND '${toDate}'`;
+        // don't execut resolution action if the action was executed within 10min
+        console.log(`MOEVAL-STEP4 - sqlLiteral ${sqlLiteral}`);
+        const findIncidents: IIncident[] = await this.incident.findAll({
+          where: sequelize.literal(sqlLiteral),
         });
-        const resourceNamespace = getResource.resourceNamespace;
-        console.log('MOEVAL-STEP4 - PVC:', JSON.stringify(getResource.resourcePvcStorage));
 
-        let volume = '';
-        let volumeVal = 0;
-        let volumeVal10 = 0;
-        let volumeVal10String = '';
-        let volumeVal20 = 0;
-        let volumeVal20String = '';
-        let volumeVal30 = 0;
-        let volumeVal30String = '';
-        if (getResource.resourcePvcStorage) {
-          volume = getResource.resourcePvcStorage?.requests.storage;
-          console.log('MOEVAL-STEP4 - Volume:', volume);
-          if (volume.indexOf('Gi') > 0) {
-            volumeVal = parseFloat(volume.replace('Gi', ''));
-            volumeVal10 = Math.round(volumeVal * 1.1);
-            volumeVal10String = volumeVal10.toString() + 'Gi';
-            volumeVal20 = Math.round(volumeVal * 1.2);
-            volumeVal20String = volumeVal20.toString() + 'Gi';
-            volumeVal30 = Math.round(volumeVal * 1.3);
-            volumeVal30String = volumeVal30.toString() + 'Gi';
-            console.log('MOEVAL-STEP4 - Volume.indexOf Gi:', volume.indexOf('Gi'));
-          } else if (volume.indexOf('Mi') > 0) {
-            volumeVal = parseFloat(volume.replace('Mi', ''));
-            volumeVal10 = Math.round(volumeVal * 1.1);
-            volumeVal10String = volumeVal10.toString() + 'Mi';
-            volumeVal20 = Math.round(volumeVal * 1.2);
-            volumeVal20String = volumeVal20.toString() + 'Mi';
-            volumeVal30 = Math.round(volumeVal * 1.3);
-            volumeVal30String = volumeVal30.toString() + 'Mi';
-            console.log('MOEVAL-STEP4 - Volume.indexOf Mi:', volume.indexOf('Mi'));
-          } else {
-            volumeVal = parseFloat(volume);
-            volumeVal10 = Math.round(volumeVal * 1.1);
-            volumeVal10String = volumeVal10.toString();
-            volumeVal20 = Math.round(volumeVal * 1.2);
-            volumeVal20String = volumeVal20.toString();
-            volumeVal30 = Math.round(volumeVal * 1.3);
-            volumeVal30String = volumeVal30.toString();
-            console.log('MOEVAL-STEP4 - else case');
+        if (findIncidents.length > 0) {
+          //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
+          const getResource = await this.resource.findOne({
+            where: { resourceId: resourceId },
+            attributes: ['resourceNamespace', 'resourcePvcStorage'],
+            include: [
+              {
+                model: ResourceGroupModel,
+                as: 'ResourceGroup',
+                attributes: ['resourceGroupPrometheus', 'resourceGroupUuid'],
+              },
+            ],
+          });
+          const resourceNamespace = getResource.resourceNamespace;
+          console.log('MOEVAL-STEP4 - PVC:', JSON.stringify(getResource.resourcePvcStorage));
+
+          let volume = '';
+          let volumeVal = 0;
+          let volumeVal10 = 0;
+          let volumeVal10String = '';
+          let volumeVal20 = 0;
+          let volumeVal20String = '';
+          let volumeVal30 = 0;
+          let volumeVal30String = '';
+          if (getResource.resourcePvcStorage) {
+            volume = getResource.resourcePvcStorage?.requests.storage;
+            console.log('MOEVAL-STEP4 - Volume:', volume);
+            if (volume.indexOf('Gi') > 0) {
+              volumeVal = parseFloat(volume.replace('Gi', ''));
+              volumeVal10 = Math.round(volumeVal * 1.1);
+              volumeVal10String = volumeVal10.toString() + 'Gi';
+              volumeVal20 = Math.round(volumeVal * 1.2);
+              volumeVal20String = volumeVal20.toString() + 'Gi';
+              volumeVal30 = Math.round(volumeVal * 1.3);
+              volumeVal30String = volumeVal30.toString() + 'Gi';
+              console.log('MOEVAL-STEP4 - Volume.indexOf Gi:', volume.indexOf('Gi'));
+            } else if (volume.indexOf('Mi') > 0) {
+              volumeVal = parseFloat(volume.replace('Mi', ''));
+              volumeVal10 = Math.round(volumeVal * 1.1);
+              volumeVal10String = volumeVal10.toString() + 'Mi';
+              volumeVal20 = Math.round(volumeVal * 1.2);
+              volumeVal20String = volumeVal20.toString() + 'Mi';
+              volumeVal30 = Math.round(volumeVal * 1.3);
+              volumeVal30String = volumeVal30.toString() + 'Mi';
+              console.log('MOEVAL-STEP4 - Volume.indexOf Mi:', volume.indexOf('Mi'));
+            } else {
+              volumeVal = parseFloat(volume);
+              volumeVal10 = Math.round(volumeVal * 1.1);
+              volumeVal10String = volumeVal10.toString();
+              volumeVal20 = Math.round(volumeVal * 1.2);
+              volumeVal20String = volumeVal20.toString();
+              volumeVal30 = Math.round(volumeVal * 1.3);
+              volumeVal30String = volumeVal30.toString();
+              console.log('MOEVAL-STEP4 - else case');
+            }
+            console.log('MOEVAL-STEP4 - volumeVal30String', volumeVal30String);
           }
-          console.log('MOEVAL-STEP4 - volumeVal30String', volumeVal30String);
-        }
 
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const prometheusUrl = getResource.dataValues.ResourceGroup.dataValues.resourceGroupPrometheus;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const clusterUuid = getResource.dataValues.ResourceGroup.dataValues.resourceGroupUuid;
-        console.log('prometheusUrl', prometheusUrl);
-        console.log('clusterUuid', clusterUuid);
-        //4.2. if any anomaly, create incident ticket
-        const incidentData = {
-          incidentName: `MetricOps: ${JSON.stringify(resultEvaluation.evaluationRequest.bayesianModel.bayesianModelName)}`,
-          incidentDescription: `MetricOps: evaluation Id ${JSON.stringify(resultEvaluation.evaluationResult.evaluation_id)}`,
-          incidentStatus: 'OP' as incidentStatus,
-          incidentSeverity: 'UR' as incidentSeverity,
-          incidentDueDate: null,
-          assigneeId: '',
-        };
-        const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, userId, incidentData);
-        const incidentId = resultIncidentCreate.incidentId;
-        const firedAlerts = resultEvaluation.evaluationRequest.firedAlerts;
-        const firedAlertList = firedAlerts.map(a => a.alertReceivedId);
-        const alertReceivedIds = { alertReceivedIds: firedAlertList };
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const prometheusUrl = getResource.dataValues.ResourceGroup.dataValues.resourceGroupPrometheus;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const clusterUuid = getResource.dataValues.ResourceGroup.dataValues.resourceGroupUuid;
+          console.log('prometheusUrl', prometheusUrl);
+          console.log('clusterUuid', clusterUuid);
+          //4.2. if any anomaly, create incident ticket
+          const incidentData = {
+            incidentName: `MetricOps:{resourceType}:{resourceName}-${anomalyMonitoringTargetId}`,
+            incidentDescription: `MetricOps: evaluation Id ${JSON.stringify(resultEvaluation.evaluationResult.evaluation_id)}`,
+            incidentStatus: 'OP' as incidentStatus,
+            incidentSeverity: 'UR' as incidentSeverity,
+            incidentDueDate: null,
+            assigneeId: '',
+            anomalyMonitoringTargetId,
+          };
+          const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, userId, incidentData);
+          const incidentId = resultIncidentCreate.incidentId;
+          const firedAlerts = resultEvaluation.evaluationRequest.firedAlerts;
+          const firedAlertList = firedAlerts.map(a => a.alertReceivedId);
+          const alertReceivedIds = { alertReceivedIds: firedAlertList };
 
-        console.log('MOEVAL-STEP5');
-        //5. attach the alerts (from the result) to the incident tickets
-        await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, alertReceivedIds, userId);
-        console.log(`incident ticket is created: ', ${incidentId}, 'Alert Attached - ', ${alertReceivedIds}`);
+          console.log('MOEVAL-STEP5');
+          //5. attach the alerts (from the result) to the incident tickets
+          await this.incidentService.addAlertReceivedtoIncident(customerAccountKey, incidentId, alertReceivedIds, userId);
+          console.log(`incident ticket is created: ', ${incidentId}, 'Alert Attached - ', ${alertReceivedIds}`);
 
-        console.log('MOEVAL-STEP6');
-        //6. execute any resolution actions if there are actions under rule group more than a threshold
-        const nodeThreshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
-        const podThreshold = Number(config.ncBnApiDetail.ncBnPodThreshold);
-        const pvcThreshold = Number(config.ncBnApiDetail.ncBnPvcThreshold);
+          console.log('MOEVAL-STEP6');
+          //6. execute any resolution actions if there are actions under rule group more than a threshold
+          const nodeThreshold = Number(config.ncBnApiDetail.ncBnNodeThreshold);
+          const podThreshold = Number(config.ncBnApiDetail.ncBnPodThreshold);
+          const pvcThreshold = Number(config.ncBnApiDetail.ncBnPvcThreshold);
 
-        const ruleGroup = [];
-        Object.entries(evaluationResult.alert_group_score).filter(([key, value]) => {
-          const ruleValue = Number(value);
-          if (resourceType == 'ND') {
-            if (ruleValue >= nodeThreshold) {
-              ruleGroup.push(key);
+          const ruleGroup = [];
+          Object.entries(evaluationResult.alert_group_score).filter(([key, value]) => {
+            const ruleValue = Number(value);
+            if (resourceType == 'ND') {
+              if (ruleValue >= nodeThreshold) {
+                ruleGroup.push(key);
+              }
+            } else if (resourceType == 'PD') {
+              if (ruleValue >= podThreshold) {
+                ruleGroup.push(key);
+              }
+            } else if (resourceType == 'PC') {
+              if (ruleValue >= pvcThreshold) {
+                ruleGroup.push(key);
+              }
             }
-          } else if (resourceType == 'PD') {
-            if (ruleValue >= podThreshold) {
-              ruleGroup.push(key);
-            }
-          } else if (resourceType == 'PC') {
-            if (ruleValue >= pvcThreshold) {
-              ruleGroup.push(key);
-            }
-          }
-        });
-        //console.log(`ruleGroup===================, ${ruleGroup}`);
-        //console.log('evaluationRequest=============', evaluationRequest);
-        console.log('RuleGroup:-----------', evaluationRequest.ruleGroup);
-        for (let i = 0; i < evaluationRequest.ruleGroup.length; i++) {
-          console.log('MOEVAL-STEP7');
-          const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(evaluationRequest.ruleGroup[i].ruleGroupId);
+          });
+          //console.log(`ruleGroup===================, ${ruleGroup}`);
+          //console.log('evaluationRequest=============', evaluationRequest);
+          //console.log('RuleGroup:-----------', evaluationRequest.ruleGroup);
+          for (let i = 0; i < evaluationRequest.ruleGroup.length; i++) {
+            console.log('MOEVAL-STEP7');
+            const resolutionActions = await this.resolutionActionService.getResolutionActionByRuleGroupId(evaluationRequest.ruleGroup[i].ruleGroupId);
 
-          resolutionActions.length &&
-            resolutionActions.map(async (resolutionAction: any) => {
-              //7. postExecuteService to sudory server
-              const currentDate = new Date();
-              const currentDate2 = new Date();
-              const fromDate = new Date(currentDate.setMinutes(currentDate.getMinutes() - 10));
-              const toDate = new Date();
-              const start = new Date(currentDate.setHours(currentDate.getHours() - 12)).toISOString().substring(0.19);
-              const end = currentDate2.toISOString().substring(0.19);
-              const subscribed_channel = config.sudoryApiDetail.channel_webhook;
-              const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
-              const sqlLiteral = `template_uuid = '${templateUuid}' AND status = 4 AND JSON_EXTRACT(steps, "$[*].args.name") = JSON_ARRAY('${resourceName}') AND created_at BETWEEN '${fromDate}' AND '${toDate}'`;
-              // don't execut resolution action if the action was executed within 10min
-              console.log('MOEVAL-STEP7-----sqlLiteral', sqlLiteral);
-              const findExecutedActions: IExecutorService[] = await this.executorServiceDB.findAll({
-                where: sequelize.literal(sqlLiteral),
-              });
-              console.log('MOEVAL-STEP7-----findExecutedActions', findExecutedActions);
-              if (findExecutedActions.length === 0) {
-                // replace variables of ResolutionAction Query
+            resolutionActions.length &&
+              resolutionActions.map(async (resolutionAction: any) => {
+                //7. postExecuteService to sudory server
+                const start = new Date(currentDate.setHours(currentDate.getHours() - 12)).toISOString().substring(0.19);
+                const end = currentDate2.toISOString().substring(0.19);
+                const subscribed_channel = config.sudoryApiDetail.channel_webhook;
+                const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
                 let steps = JSON.stringify(resolutionAction.resolutionActionTemplateSteps);
                 steps = steps.replace('#namespace', resourceNamespace);
                 steps = steps.replace('#prometheusurl', prometheusUrl);
@@ -610,7 +618,6 @@ class EvaluateServices {
                 steps = JSON.parse(steps);
                 const stepsEnd = [{ args: steps }];
                 console.log('MOEVAL-STEP8 - ResolutionAction', JSON.stringify(stepsEnd));
-
                 const serviceOutput: any = await this.executorService.postExecuteService(
                   `METRICOPS-${resolutionAction?.resolutionActionName}/:CUST-${customerAccountKey}/:INC-${incidentId}`,
                   `INC-${incidentId}`,
@@ -620,25 +627,35 @@ class EvaluateServices {
                   customerAccountKey,
                   subscribed_channel,
                 );
-                console.log('MOEVAL-STEP9');
-              }
-            });
-        }
-
+                console.log('MOEVAL-STEP9 - resolution action request output', serviceOutput);
+              });
+          }
+          resultEvaluation = {
+            anomalyMonitoringTargetId,
+            evaluationId,
+            evaluationResultStatus,
+            evaluationResult,
+            resourceId,
+            resourceName,
+            incidentId,
+            ruleGroup,
+          };
+        } // end of if
         //8. save the communicaiton result to notification table
 
         //9. create a message for return
         resultEvaluation = {
+          anomalyMonitoringTargetId,
           evaluationId,
           evaluationResultStatus,
-          evaluationResult,
           resourceId,
           resourceName,
-          incidentId,
-          ruleGroup,
+          incidentId: '',
+          evaluationResult,
         };
       } else {
         resultEvaluation = {
+          anomalyMonitoringTargetId,
           evaluationId,
           evaluationResultStatus,
           resourceId,

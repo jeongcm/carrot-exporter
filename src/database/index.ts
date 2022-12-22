@@ -346,6 +346,9 @@ DB.BayesianModel.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' 
 DB.AnomalyMonitoringTarget.hasMany(DB.Evaluation, { foreignKey: 'anomalyMonitoringTargetKey' });
 DB.Evaluation.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetKey' });
 
+DB.AnomalyMonitoringTarget.hasMany(DB.Incident, { foreignKey: 'anomalyMonitoringTargetKey' });
+DB.Incident.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetKey' });
+
 DB.Party.belongsToMany(DB.Resource, {
   through: {
     model: 'PartyResource',

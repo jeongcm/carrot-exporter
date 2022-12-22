@@ -50,12 +50,15 @@ export class UpdateAlertEasyRuleDto {
   @IsString()
   @IsNotEmpty()
   public alertTargetSubGroupId: string;
+
   @IsString()
   @IsNotEmpty()
   public alertEasyRuleId: string;
+
   @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   public alertEasyRuleName: string;
+
   @IsString()
   @IsOptional()
   public alertEasyRuleDescription: string;
@@ -65,12 +68,15 @@ export class UpdateAlertEasyRuleDto {
   @IsString()
   @IsOptional()
   public alertEasyRuleQuery: string;
+
   @IsString()
   @IsNotEmpty()
   public alertEasyRuleSeverity: string;
+
   @IsString()
   @IsNotEmpty()
   public alertEasyRuleGroup: string;
+
   @IsString()
   @IsOptional()
   public alertEasyRuleDuration: string;
@@ -92,6 +98,7 @@ export class UpdateAlertEasyRuleDto {
   @IsString()
   @IsOptional()
   public alertEasyRuleThreshold2Max: string;
+
   @IsString()
   @IsNotEmpty()
   public resourceGroupUuid: string;

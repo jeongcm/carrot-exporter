@@ -198,7 +198,7 @@ class AnomalyMonitoringTargetService {
       where: { anomalyMonitoringTargetId, deletedAt: null },
       include: [{ model: ResourceModel, include: [{ model: ResourceGroupModel }] }, { model: BayesianModelTable }],
     });
-    console.log('find monitoring target', findMonitoringTarget);
+    //console.log('find monitoring target', findMonitoringTarget);
     if (!findMonitoringTarget) throw new HttpException(409, 'AnomalyMonitoringTarget Id Not found');
 
     return findMonitoringTarget;

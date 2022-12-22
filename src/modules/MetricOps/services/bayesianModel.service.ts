@@ -93,7 +93,7 @@ class BayesianModelServices {
     const BayesianModelId: string = responseTableIdData.tableIdFinalIssued;
     const { bayesianModelName, bayesianModelDescription, bayesianModelResourceType, resourceGroupUuid } = bayesianModelData;
 
-    const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId: resourceGroupUuid } });
+    const resultResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: resourceGroupUuid } });
     if (!resultResourceGroup) throw new HttpException(409, "ResourceGroup doesn't exist");
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
 

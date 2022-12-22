@@ -2965,6 +2965,7 @@ class executorService {
 
     let getExecutorServiceAll: IExecutorService[] = await this.executorService.findAll({
       //limit: 1000,
+      // where: { customerAccountKey, createdAt: { [Op.and]: { [Op.gte]: dateMinus, [Op.lte]: date } } },
       where: { customerAccountKey, deletedAt: null },
       attributes: ['name', 'status', 'statusDescription', 'steps','createdAt', 'updatedAt', 'executorServiceId'],
       include: [
