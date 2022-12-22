@@ -55,6 +55,7 @@ import ruleGroupAlertRuleModel from '@/modules/MetricOps/models/ruleGroupAlertRu
 import RuleGroupResolutionActionModel from '@/modules/MetricOps/models/RuleGroupResolutionAction.model';
 import ModelRuleScoreModel from '@/modules/MetricOps/models/modelRuleScore.model';
 import AnomalyMonitoringTargetModel from '@/modules/MetricOps/models/monitoringTarget.model';
+import AnomalyMonitoringTargetResourceModel from '@/modules/MetricOps/models/monitoringTargetResource.model';
 import RoleModel from '@/modules/Role/models/role.model';
 import RolePartyModel from '@/modules/Role/models/roleParty.model';
 import ExecutorServiceModel from '@/modules/CommonService/models/exectuorService.model';
@@ -165,6 +166,7 @@ const DB = {
   RuleGroupResolutionAction: RuleGroupResolutionActionModel(sequelize),
   ModelRuleScore: ModelRuleScoreModel(sequelize),
   AnomalyMonitoringTarget: AnomalyMonitoringTargetModel(sequelize),
+  AnomalyMonitoringTargetResource: AnomalyMonitoringTargetResourceModel(sequelize),
   Role: RoleModel(sequelize),
   RoleParty: RolePartyModel(sequelize),
   SudoryWebhook: SudoryWebhookModel(sequelize),
@@ -310,9 +312,6 @@ DB.RuleGroupAlertRule.belongsTo(DB.AlertRule, { foreignKey: 'alertRuleKey' });
 DB.ResolutionAction.hasMany(DB.RuleGroupResolutionAction, { foreignKey: 'resolution_action_key' });
 DB.RuleGroupResolutionAction.belongsTo(DB.ResolutionAction, { foreignKey: 'resolution_action_key' });
 
-DB.Resource.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'resource_key' });
-DB.AnomalyMonitoringTarget.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
-
 DB.Resource.hasMany(DB.SubscribedProduct, { foreignKey: 'resource_key' });
 DB.SubscribedProduct.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
 
@@ -334,17 +333,20 @@ DB.ResolutionAction.belongsTo(DB.SudoryTemplate, { as: 'sudoryTemplate', foreign
 DB.BayesianModel.hasMany(DB.ModelRuleScore, { foreignKey: 'bayesian_model_key' });
 DB.ModelRuleScore.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
-DB.BayesianModel.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'bayesian_model_key' });
-DB.AnomalyMonitoringTarget.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
-
 DB.ResourceGroup.hasOne(DB.RuleGroup, { foreignKey: 'resource_group_key' });
 DB.RuleGroup.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 
 DB.ResourceGroup.hasOne(DB.BayesianModel, { foreignKey: 'resource_group_key' });
 DB.BayesianModel.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' });
 
-DB.AnomalyMonitoringTarget.hasMany(DB.Evaluation, { foreignKey: 'anomalyMonitoringTargetKey' });
-DB.Evaluation.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetKey' });
+DB.BayesianModel.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'bayesian_model_key' });
+DB.AnomalyMonitoringTarget.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
+
+DB.AnomalyMonitoringTarget.hasMany(DB.AnomalyMonitoringTargetResource, { foreignKey: 'anomalyMonitoringTargetResourceKey' });
+DB.AnomalyMonitoringTargetResource.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetResourceKey' });
+
+DB.AnomalyMonitoringTargetResource.hasMany(DB.Evaluation, { foreignKey: 'anomalyMonitoringTargetResourceKey' });
+DB.Evaluation.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetResourceKey' });
 
 DB.AnomalyMonitoringTarget.hasMany(DB.Incident, { foreignKey: 'anomalyMonitoringTargetKey' });
 DB.Incident.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetKey' });
@@ -466,6 +468,9 @@ DB.PartyUserPassword.belongsTo(DB.PartyUser, { foreignKey: 'partyUserKey' });
 
 DB.CustomerAccount.hasMany(DB.ResolutionAction, { foreignKey: 'customer_account_key' });
 DB.ResolutionAction.belongsTo(DB.CustomerAccount, { foreignKey: 'customer_account_key' });
+
+DB.Resource.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'resource_key' });
+DB.AnomalyMonitoringTarget.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data
