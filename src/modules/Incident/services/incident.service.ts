@@ -107,7 +107,7 @@ class IncidentService {
    * @returns Promise<IIncident[]>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async getAllIncidents(customerAccountKey: number): Promise<IIncident[]> {
+  public async getAllIncidents(customerAccountKey: number, partyUser?: IPartyUser): Promise<IIncident[]> {
     const allIncidents: IIncident[] = await this.incident.findAll({
       where: { deletedAt: null, customerAccountKey },
       order: [['createdAt', 'DESC']],
@@ -121,11 +121,11 @@ class IncidentService {
         {
           model: PartyUserModel,
           attributes: ['partyUserId'],
-          association: PartyUserModel.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId', as: 'creator' }),
+          association: PartyUserModel.belongsTo(PartyUserModel, { foreignKey: 'createdBy', targetKey: 'partyUserId', as: 'creator' }),
           include: [
             {
               model: PartyModel,
-              association: PartyModel.belongsTo(DB.PartyUser, { foreignKey: 'partyKey', targetKey: 'partyKey', as: 'creatorParty' }),
+              association: PartyModel.belongsTo(PartyUserModel, { foreignKey: 'partyKey', targetKey: 'partyKey', as: 'creatorParty' }),
               attributes: ['partyName'],
             }
           ],
@@ -168,7 +168,7 @@ class IncidentService {
         {
           model: PartyUserModel,
           attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
-          association: PartyUserModel.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId', as: 'creator' }),
+          association: PartyUserModel.belongsTo(PartyUserModel, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
         },
       ],
     });
