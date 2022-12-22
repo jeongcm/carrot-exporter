@@ -166,6 +166,8 @@ class ResourceGroupService {
         resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
         resourceGroupSudoryNamespace: resultResourceGroup[i].resourceGroupSudoryNamespace,
         resourceGroupKpsLokiNamespace: resultResourceGroup[i].resourceGroupKpsLokiNamespace,
+        resourceGroupAlertRepeatInterval: resultResourceGroup[i].resourceGroupAlertRepeatInterval,
+        resourceGroupAlertGroupWait: resultResourceGroup[i].resourceGroupAlertGroupWait,
         numberOfNode: numberOfNode,
         resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
       };
@@ -564,6 +566,8 @@ class ResourceGroupService {
         resourceGroupSudoryNamespace: resultResourceGroup[i].resourceGroupSudoryNamespace,
         resourceGroupKpsLokiNamespace: resultResourceGroup[i].resourceGroupKpsLokiNamespace,
         resourceGroupLastServerUpdatedAt: resultResourceGroup[i].resourceGroupLastServerUpdatedAt,
+        resourceGroupAlertRepeatInterval: resultResourceGroup[i].resourceGroupAlertRepeatInterval,
+        resourceGroupAlertGroupWait: resultResourceGroup[i].resourceGroupAlertGroupWait,
         numberOfNode: numberOfNode,
         resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
       };
