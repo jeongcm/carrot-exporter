@@ -679,7 +679,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__} * 100))`;
+        promQl = `sort_desc(sum by (persistentvolumeclaim, clusterUuid) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__} * 100))`;
         break;
 
       // K8s PD
@@ -930,31 +930,31 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum(namespace_cpu:kube_pod_container_resource_requests:sum{__LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum(cluster:namespace:pod_cpu:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_CPU_LIMITS_COMMITMENT':
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum(namespace_cpu:kube_pod_container_resource_limits:sum{__LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum(cluster:namespace:pod_cpu:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_MEMORY_UTILISATION':
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `1 - sum(:node_memory_MemAvailable_bytes:sum{__LABEL_PLACE_HOLDER__}) / sum(node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__})`;
+        promQl = `1 - sum(node_memory_MemAvailable_bytes{__LABEL_PLACE_HOLDER__}) / sum(node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_MEMORY_REQUESTS_COMMITMENT':
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum(namespace_memory:kube_pod_container_resource_requests:sum{__LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum(cluster:namespace:pod_memory:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_MEMORY_LIMITS_COMMITMENT':
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum(namespace_memory:kube_pod_container_resource_limits:sum{__LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum(cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_PODS':
         labelString += getSelectorLabels({
