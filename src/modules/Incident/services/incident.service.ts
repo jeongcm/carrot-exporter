@@ -157,18 +157,19 @@ class IncidentService {
         {
           as: 'assignee',
           model: PartyModel,
-          attributes: ['partyId', 'partyName', 'partyDescription', 'partyType'],
-          include: [
-            {
-              model: PartyUserModel,
-              attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
-            },
-          ],
+          attributes: ['partyName'],
         },
         {
           model: PartyUserModel,
-          attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
+          attributes: ['partyUserId'],
           association: PartyUserModel.belongsTo(PartyUserModel, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
+          include: [
+            {
+              model: PartyModel,
+              association: PartyModel.belongsTo(PartyUserModel, { foreignKey: 'partyKey', targetKey: 'partyKey' }),
+              attributes: ['partyName'],
+            }
+          ],
         },
       ],
     });
