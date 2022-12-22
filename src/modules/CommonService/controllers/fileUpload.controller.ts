@@ -33,6 +33,31 @@ class fileUploadController {
       next(error);
     }
   };
+
+  public getBucketFolderSize = async (req: any, res: any, next: NextFunction) => {
+    try {
+      const bucket = req.params.bucket;
+      const folder = req.params.folder;
+      const result: any = await this.fileUploadService.getBucketFolderSize(bucket, folder);
+
+      res.status(200).json({ Data: result, message: `Calculate size of the folder - ${result}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public deleteBucketFolderFiles = async (req: any, res: any, next: NextFunction) => {
+    try {
+      const bucket = req.params.bucket;
+      const folder = req.params.folder;
+      const maxsize = req.params.maxsize;
+      const result: any = await this.fileUploadService.deleteBucketFolderFiles(bucket, folder, maxsize);
+
+      res.status(200).json({ Data: result, message: `Well procssed - ${result}` });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default fileUploadController;

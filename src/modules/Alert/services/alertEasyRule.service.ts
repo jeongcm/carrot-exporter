@@ -524,14 +524,21 @@ class AlertEasyRuleService {
       alertEasyRuleSummary = alertEasyRule.alertEasyRuleSummary;
     }
 
+    let alertEasyRuleSeverity;
+    if (!alertEasyRule.alertEasyRuleSeverity || alertEasyRule.alertEasyRuleSeverity === '') {
+      alertEasyRuleSeverity = findAlertEasyRule.alertEasyRuleSeverity;
+    } else {
+      alertEasyRuleSeverity = alertEasyRule.alertEasyRuleSeverity;
+    }
+
     // alertEasyRuleName
     const alertEasyRuleName = findAlertEasyRule.alertEasyRuleName;
 
     // alertEasyRuleSeverity
-    let alertEasyRuleSeverity;
+
     let step = [];
     let indexRuleGroup;
-    let indexRules;
+    let indexRules = 0;
     let maxIndexRuleGroup;
     let maxIndexRules;
     let i;
@@ -556,37 +563,37 @@ class AlertEasyRuleService {
     let getSudoryWebhook: ISudoryWebhook;
 
     //Step 2-3 Wait & Process Prometheus Rule thru SudoryWebhook
-    if (alertEasyRule.alertEasyRuleSeverity === '' || alertEasyRule.alertEasyRuleSeverity === existingAlertEasyRuleSeverity) {
-      // Prometheus Alert Rule update only case
-      alertEasyRuleSeverity = existingAlertEasyRuleSeverity;
-      for (i = 0; i < 6; i++) {
-        await sleep(1000);
-        getSudoryWebhook = await this.sudoryWebhook.findOne({
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          where: { serviceUuid: getPrometheusRule.dataValues.serviceUuid, status: 4 },
-        });
-        if (getSudoryWebhook) {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          const ruleGroup = JSON.parse(JSON.stringify(getSudoryWebhook.serviceResult.spec.groups));
-          const rules = [];
-          ruleGroup.forEach((item: any) => {
-            item?.rules?.forEach((ruleItem: any) => {
-              if (ruleItem.alert) {
-                const object = { alert: ruleItem.alert, severity: ruleItem.labels.severity, for: ruleItem.for };
-                rules.push(object);
-              }
-            });
+    for (i = 0; i < 6; i++) {
+      await sleep(1000);
+      getSudoryWebhook = await this.sudoryWebhook.findOne({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        where: { serviceUuid: getPrometheusRule.dataValues.serviceUuid, status: 4 },
+      });
+      if (getSudoryWebhook) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        const ruleGroup = JSON.parse(JSON.stringify(getSudoryWebhook.serviceResult.spec.groups));
+        const rules = [];
+        ruleGroup.forEach((item: any) => {
+          item?.rules?.forEach((ruleItem: any) => {
+            if (ruleItem.alert) {
+              const object = { alert: ruleItem.alert, severity: ruleItem.labels.severity, for: ruleItem.for };
+              rules.push(object);
+            }
           });
-          indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
-          indexRules = rules.findIndex(element => element.alert == findAlertEasyRule.alertEasyRuleName && element.severity == alertEasyRuleSeverity);
-          maxIndexRuleGroup = ruleGroup.length - 1;
-          maxIndexRules = rules.length;
-          i = 100; //exit for
-        }
+        });
+        indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
+        indexRules = rules.findIndex(element => element.alert === alertEasyRuleName && element.severity === alertEasyRuleSeverity);
+        maxIndexRuleGroup = ruleGroup.length - 1;
+        maxIndexRules = rules.length;
+        i = 100; //exit for
       }
-      if (!getSudoryWebhook) throw new HttpException(500, `Error on retrieving Prometheus Alert Rule`);
+    }
+    if (!getSudoryWebhook) throw new HttpException(500, `Error on retrieving Prometheus Alert Rule`);
+
+    if (i === 101 && indexRules > 0) {
+      //no severity change & found alert rule... need to update the rule
       step = [
         {
           args: {
@@ -623,37 +630,11 @@ class AlertEasyRuleService {
           },
         },
       ];
-      console.log('step1', JSON.stringify(step));
+      console.log('step1-update indexRules', indexRules);
+      console.log('step1-update maxIndexRules', maxIndexRules);
+      console.log('step1-update', JSON.stringify(step));
     } else {
-      alertEasyRuleSeverity = alertEasyRule.alertEasyRuleSeverity;
-      for (i = 0; i < 6; i++) {
-        await sleep(1000);
-        const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          where: { serviceUuid: getPrometheusRule.dataValues.serviceUuid, status: 4 },
-        });
-        if (getSudoryWebhook) {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          const ruleGroup = JSON.parse(JSON.stringify(getSudoryWebhook.serviceResult.spec.groups));
-          const rules = [];
-          ruleGroup.forEach((item: any) => {
-            item?.rules?.forEach((ruleItem: any) => {
-              if (ruleItem.alert) {
-                const object = { alert: ruleItem.alert, severity: ruleItem.labels.severity, for: ruleItem.for };
-                rules.push(object);
-              }
-            });
-          });
-          indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
-          indexRules = rules.findIndex(element => element.alert == findAlertEasyRule.alertEasyRuleName && element.severity == alertEasyRuleSeverity);
-          maxIndexRuleGroup = ruleGroup.length - 1;
-          maxIndexRules = rules.length;
-          i = 100; //exit for
-        }
-      }
-
+      // otherwise need to create the new one
       step = [
         {
           args: {
@@ -676,6 +657,8 @@ class AlertEasyRuleService {
           },
         },
       ];
+      console.log('step1-add maxIndexRules', maxIndexRules);
+      console.log('step1-add', JSON.stringify(step));
     }
 
     //Step 2-4 Patch Prometheus Rule

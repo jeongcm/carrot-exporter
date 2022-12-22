@@ -24,6 +24,8 @@ export type ResourceGroupCreationAttributes = Optional<
   | 'resourceGroupKpsLokiNamespace'
   | 'resourceGroupLastServerUpdatedAt'
   | 'resourceGroupSudoryRebounceRequest'
+  | 'resourceGroupAlertRepeatInterval'
+  | 'resourceGroupAlertGroupWait'
 >;
 
 export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreationAttributes> implements IResourceGroup {
@@ -48,7 +50,8 @@ export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreat
   public resourceGroupKpsLokiNamespace: string;
   public resourceGroupLastServerUpdatedAt: Date;
   public resourceGroupSudoryRebounceRequest: string;
-
+  public resourceGroupAlertRepeatInterval: number;
+  public resourceGroupAlertGroupWait: number;
   public readonly createdAt!: Date;
 }
 
@@ -144,6 +147,14 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
       resourceGroupSudoryRebounceRequest: {
         allowNull: true,
         type: DataTypes.STRING(10),
+      },
+      resourceGroupAlertRepeatInterval: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
+      },
+      resourceGroupAlertGroupWait: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
       },
     },
 

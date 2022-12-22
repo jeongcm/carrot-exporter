@@ -31,8 +31,8 @@ import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachm
 //import { AlertReceivedModel } from '@/modules/Alert/models/alertReceived.model';
 
 import { logger } from '@/common/utils/logger';
+import {IPartyUser} from "@common/interfaces/party.interface"
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
-import {IPartyUser} from "@common/interfaces/party.interface";
 
 /**
  * @memberof Incident
