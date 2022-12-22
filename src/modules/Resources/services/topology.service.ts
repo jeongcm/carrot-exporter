@@ -121,8 +121,25 @@ class TopologyService extends ServiceExtension {
       accountResourceGroups.map(async (resourceGroup: IResourceGroup) => {
         const children = await this.getResourceGroupTopology(type, resourceGroup, customerAccountKey, resourceId);
 
-        const { resourceGroupName, resourceGroupId, resourceGroupDescription, resourceGroupPlatform, resourceGroupProvider, resourceGroupUuid} =
-          resourceGroup;
+        const {
+          resourceGroupName,
+          resourceGroupId,
+          resourceGroupDescription,
+          resourceGroupPlatform,
+          resourceGroupProvider,
+          resourceGroupUuid,
+          resourceGroupLastServerUpdatedAt,
+        } = resourceGroup;
+
+        let resourceGroupServerInterfaceStatus = true;
+        if (resourceGroupLastServerUpdatedAt === null) {
+          resourceGroupServerInterfaceStatus = false;
+        } else {
+          const decisionMin = parseInt(config.clusterOutageDecisionMin);
+          const difference = new Date().getTime() - resourceGroupLastServerUpdatedAt.getTime();
+          const differenceInMin = Math.round(difference / 60000);
+          if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+        }
 
         const resource = await this.resource.findOne({
           where: {
@@ -139,6 +156,8 @@ class TopologyService extends ServiceExtension {
             resourceGroupPlatform,
             resourceGroupProvider,
             resourceGroupUuid,
+            resourceGroupLastServerUpdatedAt,
+            resourceGroupServerInterfaceStatus,
           },
           resource,
           children,
