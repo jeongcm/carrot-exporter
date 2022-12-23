@@ -586,7 +586,24 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum by (persistentvolumeclaim,namespace,storageclass,volumename) (kube_persistentvolumeclaim_info{__LABEL_PLACE_HOLDER__})`;
         break;
+      case 'K8S_CLUSTER_PV_CAPACITY':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resourceNamespace,
+          persistentvolumeclaim: resourceName,
+        });
 
+        promQl = `sum by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)`;
+        break;
+      case 'K8S_CLUSTER_PV_USED':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          namespace: resourceNamespace,
+          persistentvolumeclaim: resourceName,
+        });
+
+        promQl = `sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)`;
+        break;
       case 'PV_SPACE_USAGE_CAPACITY':
         labelString += getSelectorLabels({
           clusterUuid,
