@@ -105,8 +105,8 @@ class EvaluateServices {
     const resourceGroupKey = resultBayesianModel.resourceGroupKey;
 
     bayesianModel = {
-      bayesianModleKey: bayesianModelKey,
-      bayesianModleId: bayesianModelId,
+      bayesianModelKey: bayesianModelKey,
+      bayesianModelId: bayesianModelId,
       bayesianModelName: resultBayesianModel.bayesianModelName,
     };
 
