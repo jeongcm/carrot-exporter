@@ -29,13 +29,5 @@ export class UpdateMonitoringTargetDto {
 
   @IsString()
   @IsOptional()
-  public resourceId: string;
-
-  @IsString()
-  @IsOptional()
   public anomalyMonitoringTargetDescription: string;
-
-  @IsString()
-  @IsOptional()
-  public anomalyMonitoringTargetStatus: string;
 }

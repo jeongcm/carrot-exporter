@@ -342,11 +342,11 @@ DB.BayesianModel.belongsTo(DB.ResourceGroup, { foreignKey: 'resource_group_key' 
 DB.BayesianModel.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'bayesian_model_key' });
 DB.AnomalyMonitoringTarget.belongsTo(DB.BayesianModel, { foreignKey: 'bayesian_model_key' });
 
-DB.AnomalyMonitoringTarget.hasMany(DB.AnomalyMonitoringTargetResource, { foreignKey: 'anomalyMonitoringTargetResourceKey' });
-DB.AnomalyMonitoringTargetResource.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetResourceKey' });
+DB.AnomalyMonitoringTarget.hasMany(DB.AnomalyMonitoringTargetResource, { foreignKey: 'anomalyMonitoringTargetKey' });
+DB.AnomalyMonitoringTargetResource.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetKey' });
 
-DB.AnomalyMonitoringTargetResource.hasMany(DB.Evaluation, { foreignKey: 'anomalyMonitoringTargetResourceKey' });
-DB.Evaluation.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetResourceKey' });
+DB.AnomalyMonitoringTarget.hasMany(DB.Evaluation, { foreignKey: 'anomalyMonitoringTargetKey' });
+DB.Evaluation.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetKey' });
 
 DB.AnomalyMonitoringTarget.hasMany(DB.Incident, { foreignKey: 'anomalyMonitoringTargetKey' });
 DB.Incident.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetKey' });
@@ -471,6 +471,9 @@ DB.ResolutionAction.belongsTo(DB.CustomerAccount, { foreignKey: 'customer_accoun
 
 DB.Resource.hasMany(DB.AnomalyMonitoringTarget, { foreignKey: 'resource_key' });
 DB.AnomalyMonitoringTarget.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
+
+DB.Resource.hasMany(DB.AnomalyMonitoringTargetResource, { foreignKey: 'resource_key' });
+DB.AnomalyMonitoringTargetResource.belongsTo(DB.Resource, { foreignKey: 'resource_key' });
 
 //-----------------------------BE-CAREFULL------------------------------------
 // below script is used to create table again with new model structure and data

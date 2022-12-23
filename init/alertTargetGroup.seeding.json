@@ -10,5 +10,10 @@
     {
         "alertTargetGroupName": "Kubernetes Volume",
         "alertTargetGroupDescription": "Kubernetes Volume"
+    },
+    {
+        "alertTargetGroupName": "Kubernetes Network",
+        "alertTargetGroupDescription": "Kubernetes Network"
     }
+
   ]

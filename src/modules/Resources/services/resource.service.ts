@@ -965,11 +965,12 @@ class ResourceService {
     const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
     const resourceQuery = this.getResourceQuery(query);
-
+    console.log('resourceType', resourceType);
     const allResources: IResource[] = await this.resource.findAll({
       where: {
         deletedAt: null,
-        resourceType,
+        resourceType: { [Op.ne]: 'RS' },
+        resourceLevel4: resourceType,
         resourceGroupKey: resourceGroupKey,
         [Op.and]: [...resourceQuery],
       },

@@ -17,7 +17,7 @@ class AnomalyMonitoringTargetRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post(
-      '/registerAnomalyTarget',
+      '/anomalyTarget',
       authMiddleware,
       createUserLogMiddleware,
       validationMiddleware(CreateMonitoringTargetDto, 'body'),
