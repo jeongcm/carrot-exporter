@@ -84,6 +84,7 @@ class EvaluateServices {
     if (!resultResource) throw new HttpException(400, `Can't find resource - ${resourceKey}`);
 
     const resourceType = resultResource.resourceType;
+    const resourceLevel4 = resultResource.resourceLevel4;
     const resourceName = resultResource.resourceName;
     const resourceId = resultResource.resourceId;
     console.log('#METRICOPS - resourceName', resourceName);
@@ -130,7 +131,13 @@ class EvaluateServices {
         ruleGroupName: resultRuleGroup[i].ruleGroupName,
       };
     }
-    const resourceInfo = { resourceKey: resourceKey, resourceId: resourceId, resourceName: resourceName, resourceType: resourceType };
+    const resourceInfo = {
+      resourceKey: resourceKey,
+      resourceId: resourceId,
+      resourceName: resourceName,
+      resourceType: resourceType,
+      resourceLevel4: resourceLevel4,
+    };
     const revBayesianModel = { bayesianModel, resourceInfo, ruleGroup };
 
     const step3 = new Date().getTime();
