@@ -628,18 +628,16 @@ class MetricService extends ServiceExtension {
           sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
         )`;
         break;
-      case 'PV_SPACE_USAGE_AVAILABLE':
+      case 'K8S_CLUSTER_PV_AVAILABLE':
         labelString += getSelectorLabels({
           clusterUuid,
           namespace: resourceNamespace,
           persistentvolumeclaim: resourceName,
         });
 
-        promQl = `(
-          sum by (persistentvolumeclaim) (kubelet_volume_stats_available_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
-        )`;
+        promQl = `sum by (persistentvolumeclaim) (kubelet_volume_stats_available_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)`;
         break;
-      case 'PV_STATUS':
+      case 'K8S_CLUSTER_PV_STATUS':
         labelString += getSelectorLabels({
           clusterUuid,
           namespace: resourceNamespace,
@@ -648,7 +646,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum(kube_persistentvolumeclaim_status_phase{phase=~"(Pending|Lost)", __LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim) + sum(kube_persistentvolumeclaim_status_phase{phase=~"(Lost)", __LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim)`;
         break;
-      case 'PV_SPACE_USAGE_PERCENTAGE':
+      case 'K8S_CLUSTER_PV_USAGE_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,
           namespace: resourceNamespace,
