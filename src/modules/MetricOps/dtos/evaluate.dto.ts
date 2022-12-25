@@ -16,4 +16,5 @@ export class resultEvaluationDto {
   public resourceType: string;
   public incidentId: string;
   public ruleGroup: JSON;
+  public bayesianModel: JSON;
 }

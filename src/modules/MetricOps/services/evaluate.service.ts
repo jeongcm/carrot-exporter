@@ -82,9 +82,10 @@ class EvaluateServices {
     if (!resultMonitoringTarget) throw new HttpException(400, `Can't find anomaly target - ${anomalyMonitoringTargetId}`);
     const anomalyMonitoringTargetKey = resultMonitoringTarget.anomalyMonitoringTargetKey;
     const customerAccountKey = resultMonitoringTarget.customerAccountKey;
-    const resourceKey = resultMonitoringTarget.resourceKey;
-    const resultResource: IResource = await this.resource.findOne({ where: { resourceKey } });
-    if (!resultResource) throw new HttpException(400, `Can't find resource - ${resourceKey}`);
+
+    const resultResource: IResource = await this.resource.findOne({ where: { resourceId: anomalyMonitoringTargetResourceId } });
+    if (!resultResource) throw new HttpException(400, `Can't find resource - ${anomalyMonitoringTargetResourceId}`);
+    const resourceKey = resultResource.resourceKey;
 
     const resourceType = resultResource.resourceType;
     const resourceLevel4 = resultResource.resourceLevel4;
@@ -167,7 +168,7 @@ class EvaluateServices {
     // 3. Find firing alerts received
     let firedAlerts = [];
     const inputAlerts = {};
-    switch (resourceLevel4) {
+    switch (resourceType) {
       case 'ND':
         const alertRuleQueryNd = {
           where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null, alertReceivedState: 'firing', alertReceivedNode: resourceName },
@@ -205,45 +206,38 @@ class EvaluateServices {
         //console.log ("no service alert");
         evaluationResultStatus = 'NF';
         break;
-      case 'WL':
-        //get pod list
-        const findPod: IResource = await this.resource.findOne({ where: { deletedAt: null, resourceId: anomalyMonitoringTargetResourceId } });
-        if (!findPod) {
-          evaluationResultStatus = 'NR';
+      case 'PD':
+        //loop to find firing alerts on the each pods
+        const alertRuleQueryPd = {
+          where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null, alertReceivedState: 'firing', alertReceivedPod: resourceName },
+        };
+        const resultAlertReceivedPd: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQueryPd);
+        if (resultAlertReceivedPd.length === 0) {
+          firedAlerts = [];
+          //console.log ("no firing alert");
+          evaluationResultStatus = 'NF';
         } else {
-          //loop to find firing alerts on the each pods
-          const alertRuleQueryPd = {
-            where: { alertRuleKey: { [Op.in]: alertRuleKey }, deletedAt: null, alertReceivedState: 'firing', alertReceivedPod: findPod.resourceName },
-          };
-          const resultAlertReceivedPd: IAlertReceived[] = await this.alertReceived.findAll(alertRuleQueryPd);
-          if (resultAlertReceivedPd.length === 0) {
-            firedAlerts = [];
-            //console.log ("no firing alert");
-            evaluationResultStatus = 'NF';
-          } else {
-            for (let i = 0; i < resultAlertReceivedPd.length; i++) {
-              const alertRuleKey = resultAlertReceivedPd[i].alertRuleKey;
-              firedAlerts[i] = {
-                alertRuleKey: resultAlertReceivedPd[i].alertRuleKey,
-                alertReceivedKey: resultAlertReceivedPd[i].alertReceivedKey,
-                alertReceivedId: resultAlertReceivedPd[i].alertReceivedId,
-                alertReceivedName: resultAlertReceivedPd[i].alertReceivedName,
-                alertReceivedNode: resultAlertReceivedPd[i].alertReceivedNode || '',
-                alertReceivedService: resultAlertReceivedPd[i].alertReceivedService || '',
-                alertReceivedPod: resultAlertReceivedPd[i].alertReceivedPod,
-                alertReceivedPersistentvolume: resultAlertReceivedPd[i].alertReceivedPersistentvolumeclaim || '',
-              };
-              const resultAlertRule = await this.alertRule.findOne({ where: { alertRuleKey } });
-              const alertName = resultAlertReceivedPd[i].alertReceivedName;
-              let severity = resultAlertRule.alertRuleSeverity;
-              severity = severity.replace(/^./, severity[0].toUpperCase());
-              const duration = resultAlertRule.alertRuleDuration;
-              const alertName2 = alertName + severity + '_' + duration;
-              inputAlerts[alertName2] = 1;
-            }
+          for (let i = 0; i < resultAlertReceivedPd.length; i++) {
+            const alertRuleKey = resultAlertReceivedPd[i].alertRuleKey;
+            firedAlerts[i] = {
+              alertRuleKey: resultAlertReceivedPd[i].alertRuleKey,
+              alertReceivedKey: resultAlertReceivedPd[i].alertReceivedKey,
+              alertReceivedId: resultAlertReceivedPd[i].alertReceivedId,
+              alertReceivedName: resultAlertReceivedPd[i].alertReceivedName,
+              alertReceivedNode: resultAlertReceivedPd[i].alertReceivedNode || '',
+              alertReceivedService: resultAlertReceivedPd[i].alertReceivedService || '',
+              alertReceivedPod: resultAlertReceivedPd[i].alertReceivedPod,
+              alertReceivedPersistentvolume: resultAlertReceivedPd[i].alertReceivedPersistentvolumeclaim || '',
+            };
+            const resultAlertRule = await this.alertRule.findOne({ where: { alertRuleKey } });
+            const alertName = resultAlertReceivedPd[i].alertReceivedName;
+            let severity = resultAlertRule.alertRuleSeverity;
+            severity = severity.replace(/^./, severity[0].toUpperCase());
+            const duration = resultAlertRule.alertRuleDuration;
+            const alertName2 = alertName + severity + '_' + duration;
+            inputAlerts[alertName2] = 1;
           }
         }
-
         break;
       case 'PC':
         const alertRuleQueryPc = {
@@ -328,6 +322,7 @@ class EvaluateServices {
         evaluationResult: 'No fired alerts',
         resourceName: resourceName,
         resourceId: resourceId,
+        bayesianModel: revBayesianModel2,
       };
       console.log('#MetrcOps total elaps: ', elaps1 + elaps2 + elaps3 + elaps4 + elaps5 + elaps6 + ' ' + resourceName);
       return returnResponse;
@@ -388,19 +383,19 @@ class EvaluateServices {
     const pvcThreshold = Number(config.ncBnApiDetail.ncBnPvcThreshold);
 
     // need to improve to process pod
-    if (resourceLevel4 === 'ND') {
+    if (resourceType === 'ND') {
       if (predictedScore >= nodeThreshold) {
         evaluationResultStatus = 'AN';
       } else {
         evaluationResultStatus = 'OK';
       }
-    } else if (resourceLevel4 === 'WL') {
+    } else if (resourceType === 'PD') {
       if (predictedScore >= podThreshold) {
         evaluationResultStatus = 'AN';
       } else {
         evaluationResultStatus = 'OK';
       }
-    } else if (resourceLevel4 === 'PC') {
+    } else if (resourceType === 'PC') {
       if (predictedScore >= pvcThreshold) {
         evaluationResultStatus = 'AN';
       } else {
@@ -462,7 +457,10 @@ class EvaluateServices {
     const fromDate = new Date(currentDate.setMinutes(currentDate.getMinutes() - 10));
     const toDate = new Date();
     let resultEvaluation;
+    const evaluationRequest = resultData.evaluationRequest;
+    const evaluationResult = resultData.evaluationResult;
     const targetResourceId = resultData.resourceId;
+    console.log('MOEVAL-STEP4 - targetResourceId', targetResourceId);
 
     const findAnomalyMonitoringTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.findOne({
       where: { deletedAt: null, anomalyMonitoringTargetId },
@@ -476,12 +474,12 @@ class EvaluateServices {
     const findIncidents: IIncident[] = await this.incident.findAll({
       where: { anomalyMonitoringTargetKey, createdAt: { [Op.and]: { [Op.gte]: fromDate, [Op.lte]: toDate } } },
     });
-
+    console.log('MOEVAL-STEP4 - findIncidents', JSON.parse(JSON.stringify(findIncidents)));
     if (findIncidents.length === 0) {
       //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
       const getResource = await this.resource.findOne({
         where: { resourceId: targetResourceId },
-        attributes: ['resourceNamespace', 'resourcePvcStorage'],
+        attributes: ['resourceNamespace', 'resourcePvcStorage', 'resourceName', 'resourceType'],
         include: [
           {
             model: ResourceGroupModel,
@@ -491,7 +489,7 @@ class EvaluateServices {
         ],
       });
       const resourceNamespace = getResource.resourceNamespace;
-      console.log('MOEVAL-STEP4 - PVC:', JSON.stringify(getResource.resourcePvcStorage));
+      console.log('MOEVAL-STEP4 - Resource Name', getResource.resourceName);
 
       let volume = '';
       let volumeVal = 0;
@@ -502,6 +500,7 @@ class EvaluateServices {
       let volumeVal30 = 0;
       let volumeVal30String = '';
       if (getResource.resourcePvcStorage) {
+        console.log('MOEVAL-STEP4 - PVC:', JSON.stringify(getResource.resourcePvcStorage));
         volume = getResource.resourcePvcStorage?.requests.storage;
         console.log('MOEVAL-STEP4 - Volume:', volume);
         if (volume.indexOf('Gi') > 0) {
@@ -541,12 +540,12 @@ class EvaluateServices {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const clusterUuid = getResource.dataValues.ResourceGroup.dataValues.resourceGroupUuid;
-      console.log('prometheusUrl', prometheusUrl);
-      console.log('clusterUuid', clusterUuid);
       //4.2. if any anomaly, create incident ticket
       const incidentData = {
         incidentName: `MetricOps:${getResource.resourceType}:${getResource.resourceName}-${anomalyMonitoringTargetId}`,
-        incidentDescription: `MetricOps: evaluation Id ${JSON.stringify(resultEvaluation.evaluationResult.evaluation_id)}`,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        incidentDescription: `MetricOps: evaluation Id ${JSON.stringify(evaluationResult.evaluation_id)}`,
         incidentStatus: 'OP' as incidentStatus,
         incidentSeverity: 'UR' as incidentSeverity,
         incidentDueDate: null,
@@ -556,7 +555,9 @@ class EvaluateServices {
 
       const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, partyUserId, incidentData);
       const incidentId = resultIncidentCreate.incidentId;
-      const firedAlerts = resultEvaluation.evaluationRequest.firedAlerts;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const firedAlerts = evaluationRequest.firedAlerts;
       const firedAlertList = firedAlerts.map(a => a.alertReceivedId);
       const alertReceivedIds = { alertReceivedIds: firedAlertList };
 
@@ -574,7 +575,6 @@ class EvaluateServices {
       const ruleGroup = [];
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-
       Object.entries(resultData.evaluationResult?.alert_group_score).filter(([key, value]) => {
         const ruleValue = Number(value);
         if (resultData.resourceType == 'ND') {
@@ -600,7 +600,7 @@ class EvaluateServices {
           // @ts-ignore
           resultData.evaluationRequest?.ruleGroup[i].ruleGroupId,
         );
-
+        console.log('MOEVAL-STEP8 - resolutionAction list', JSON.parse(JSON.stringify(resolutionActions)));
         resolutionActions.length &&
           resolutionActions.map(async (resolutionAction: any) => {
             //7. postExecuteService to sudory server
@@ -643,20 +643,21 @@ class EvaluateServices {
         incidentId,
         ruleGroup,
       };
+    } else {
+      resultEvaluation = {
+        anomalyMonitoringTargetId: anomalyMonitoringTargetId,
+        evaluationId: resultData.evaluationId,
+        evaluationResultStatus: resultData.evaluationResultStatus,
+        resourceId: resultData.resourceId,
+        resourceName: resultData.resourceName,
+        incidentId: '',
+        evaluationResult: resultData.evaluationResult,
+        ruleGroup: '',
+      };
     } // end of if
     //8. save the communicaiton result to notification table
 
     //9. create a message for return
-    resultEvaluation = {
-      anomalyMonitoringTargetId: anomalyMonitoringTargetId,
-      evaluationId: resultData.evaluationId,
-      evaluationResultStatus: resultData.evaluationResultStatus,
-      resourceId: resultData.resourceId,
-      resourceName: resultData.resourceName,
-      incidentId: '',
-      evaluationResult: resultData.evaluationResult,
-      ruleGroup: '',
-    };
 
     return resultEvaluation;
   }
@@ -686,23 +687,24 @@ class EvaluateServices {
     console.log('MOEVAL-STEP3');
     //3. call evaluateMonitorintTarget (ML)
     const resultReturn = {};
-    let resultEvaluation;
+
     for (let i = 0; i < resultMonitoringTarget.length; i++) {
+      let resultEvaluation;
       //const resourceKey = resultMonitoringTarget[i].resourceKey;
       const anomalyMonitoringTargetId = resultMonitoringTarget[i].anomalyMonitoringTargetId;
-      const anomalyMonitoringTargetKey = resultMonitoringTarget[i].anomalyMonitoringTargetKey;
+      //const anomalyMonitoringTargetKey = resultMonitoringTarget[i].anomalyMonitoringTargetKey;
       const resourceKey = resultMonitoringTarget[i].resourceKey;
       const findResource: IResource = await this.resource.findOne({ where: { deletedAt: null, resourceKey } });
-      const preResourceId = findResource.parentResourceId;
+      const preResourceId = findResource.resourceId;
       if (findResource) {
         if (findResource.resourceLevel4 === 'WL') {
           const preResourceGroupKey = findResource.resourceGroupKey;
           const preResourceName = findResource.resourceName;
           //get pods if the target is a workload and request the evaluation using anomaly id and resource id
           const queryPd = `SELECT * FROM Resource WHERE deleted_at is null AND resource_type = 'PD' AND resource_name like '${preResourceName}%' AND resource_group_key = ${preResourceGroupKey}`;
-          console.log('queryPd', queryPd);
+          //console.log('queryPd', queryPd);
           const findPods: ResourceRawDto[] = await DB.sequelize.query(queryPd, { type: QueryTypes.SELECT });
-          console.log('findPods', findPods);
+          //console.log('findPods', findPods);
           if (findPods.length <= 0) {
             //if there is no pod under workload
             resultEvaluation = {
@@ -719,12 +721,13 @@ class EvaluateServices {
             for (let a = 0; a < findPods.length; a++) {
               console.log('start-------');
               const responseEvaluation: resultEvaluationDto = await this.evaluateMonitoringTarget(anomalyMonitoringTargetId, findPods[a].resource_id);
-              console.log('done-------', responseEvaluation);
-              const { evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName } = responseEvaluation;
-              console.log(`evaluationResult------${evaluationResult}`);
+              console.log('done-------');
+              const { evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName, bayesianModel } = responseEvaluation;
+              console.log(`evaluationResultStatus------${evaluationResultStatus}`);
               if (evaluationResultStatus === 'AN') {
                 console.log('MOEVAL-STEP4 - ANOMALY');
                 resultEvaluation = await this.processAnomaly(responseEvaluation, anomalyMonitoringTargetId);
+                console.log('done');
               } else {
                 //evaluationResultStatus - 'NF' or 'OK'
                 console.log('WL Pod Processing');
@@ -736,7 +739,7 @@ class EvaluateServices {
                   resourceName,
                   incidentId: '',
                   evaluationResult,
-                  ruleGroup: '',
+                  bayesianModel: bayesianModel,
                 };
               }
             } //end of for
@@ -744,7 +747,7 @@ class EvaluateServices {
         } else {
           // for the case of node, pvc, service
           const responseEvaluation: resultEvaluationDto = await this.evaluateMonitoringTarget(anomalyMonitoringTargetId, preResourceId);
-          const { evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName } = resultEvaluation;
+          const { evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName, bayesianModel } = responseEvaluation;
           console.log(`evaluationResultStatus------${evaluationResultStatus}`);
 
           if (evaluationResultStatus === 'AN') {
@@ -760,7 +763,7 @@ class EvaluateServices {
               resourceName,
               incidentId: '',
               evaluationResult,
-              ruleGroup: '',
+              bayesianModel: bayesianModel,
             };
           }
         }
