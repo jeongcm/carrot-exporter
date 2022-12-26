@@ -338,7 +338,12 @@ class AnomalyMonitoringTargetService {
       where: { deletedAt: null, customerAccountKey: customerAccountKey },
       include: [
         { model: ResourceModel, where: { deletedAt: null }, include: [{ model: ResourceGroupModel, where: { deletedAt: null } }] },
-        { model: AnomalyMonitoringTargetResourceModel, where: { deletedAt: null }, include: [{ model: ResourceModel, where: { deletedAt: null } }] },
+        {
+          model: AnomalyMonitoringTargetResourceModel,
+          where: { deletedAt: null },
+          required: false,
+          include: [{ model: ResourceModel, where: { deletedAt: null } }],
+        },
         { model: BayesianModelTable, where: { deletedAt: null } },
       ],
     });

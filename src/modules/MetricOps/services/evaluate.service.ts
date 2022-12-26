@@ -691,9 +691,10 @@ class EvaluateServices {
     console.log('MOEVAL-STEP3');
     //3. call evaluateMonitorintTarget (ML)
     const resultReturn = {};
-
+    console.log('MOEVAL-STEP3 -resultMonitoringTarget.length', resultMonitoringTarget.length);
     for (let i = 0; i < resultMonitoringTarget.length; i++) {
       let resultEvaluation;
+
       //const resourceKey = resultMonitoringTarget[i].resourceKey;
       const anomalyMonitoringTargetId = resultMonitoringTarget[i].anomalyMonitoringTargetId;
       const anomalyMonitoringTargetKey = resultMonitoringTarget[i].anomalyMonitoringTargetKey;
@@ -701,13 +702,14 @@ class EvaluateServices {
       const resourceKey = resultMonitoringTarget[i].resourceKey;
       const findResource: IResource = await this.resource.findOne({ where: { deletedAt: null, resourceKey } });
       const preResourceId = findResource.resourceId;
+      console.log('MOEVAL-STEP3 -findResource', findResource);
       if (findResource) {
         if (findResource.resourceLevel4 === 'WL') {
           const preResourceGroupKey = findResource.resourceGroupKey;
           const preResourceName = findResource.resourceName;
           //get pods if the target is a workload and request the evaluation using anomaly id and resource id
           const queryPd = `SELECT * FROM Resource WHERE deleted_at is null AND resource_type = 'PD' AND resource_name like '${preResourceName}%' AND resource_group_key = ${preResourceGroupKey}`;
-          //console.log('queryPd', queryPd);
+          console.log('queryPd', queryPd);
           const findPods: ResourceRawDto[] = await DB.sequelize.query(queryPd, { type: QueryTypes.SELECT });
           //console.log('findPods', findPods);
           if (findPods.length <= 0) {
@@ -723,6 +725,7 @@ class EvaluateServices {
             };
           } else {
             //loop to process pod's evaluation of Workload
+            console.log('MOEVAL-STEP3 -findPods', findPods.length);
             for (let a = 0; a < findPods.length; a++) {
               console.log('start-------');
               const responseEvaluation: resultEvaluationDto = await this.evaluateMonitoringTarget(anomalyMonitoringTargetId, findPods[a].resource_id);
