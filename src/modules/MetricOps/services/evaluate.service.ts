@@ -445,12 +445,12 @@ class EvaluateServices {
    * Process anomaly from model-BN
    *
    * @param  {resultEvaluationDto} resultEvaluationDto
-   * @param  {string} anomalyMonitoringTargetId
+   * @param  {number} anomalyMonitoringTargetKey
    * @param  {string} resourceid
    * @returns Promise<any>
    * @author Jerry Lee
    */
-  public async processAnomaly(resultData: resultEvaluationDto, anomalyMonitoringTargetId: string): Promise<any> {
+  public async processAnomaly(resultData: resultEvaluationDto, anomalyMonitoringTargetKey: number): Promise<any> {
     // if incident ticket issued x min before, don't create a new incident ticket
     const currentDate = new Date();
     const currentDate2 = new Date();
@@ -463,19 +463,19 @@ class EvaluateServices {
     console.log('MOEVAL-STEP4 - targetResourceId', targetResourceId);
 
     const findAnomalyMonitoringTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.findOne({
-      where: { deletedAt: null, anomalyMonitoringTargetId },
+      where: { deletedAt: null, anomalyMonitoringTargetKey },
     });
-    const anomalyMonitoringTargetKey = findAnomalyMonitoringTarget.anomalyMonitoringTargetKey;
+    const anomalyMonitoringTargetId = findAnomalyMonitoringTarget.anomalyMonitoringTargetId;
     const customerAccountKey = findAnomalyMonitoringTarget.customerAccountKey;
     const findSystemUser: IPartyUser = await this.partyUser.findOne({ where: { userId: config.initialRecord.partyUser.userId } });
     const partyUserId = findSystemUser.partyUserId;
 
     // don't execut resolution action if the action was executed within 10min
-    const findIncidents: IIncident[] = await this.incident.findAll({
-      where: { anomalyMonitoringTargetKey, createdAt: { [Op.and]: { [Op.gte]: fromDate, [Op.lte]: toDate } } },
+    const findEvaluation: IEvaluation[] = await this.evaluation.findAll({
+      where: { anomalyMonitoringTargetKey, evaluationResultStatus: 'AN', createdAt: { [Op.and]: { [Op.gte]: fromDate, [Op.lte]: toDate } } },
     });
-    console.log('MOEVAL-STEP4 - findIncidents', JSON.parse(JSON.stringify(findIncidents)));
-    if (findIncidents.length === 0) {
+    console.log('MOEVAL-STEP4 - findIncidents', JSON.parse(JSON.stringify(findEvaluation)));
+    if (findEvaluation.length === 0) {
       //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
       const getResource = await this.resource.findOne({
         where: { resourceId: targetResourceId },
@@ -692,6 +692,7 @@ class EvaluateServices {
       let resultEvaluation;
       //const resourceKey = resultMonitoringTarget[i].resourceKey;
       const anomalyMonitoringTargetId = resultMonitoringTarget[i].anomalyMonitoringTargetId;
+      const anomalyMonitoringTargetKey = resultMonitoringTarget[i].anomalyMonitoringTargetKey;
       //const anomalyMonitoringTargetKey = resultMonitoringTarget[i].anomalyMonitoringTargetKey;
       const resourceKey = resultMonitoringTarget[i].resourceKey;
       const findResource: IResource = await this.resource.findOne({ where: { deletedAt: null, resourceKey } });
@@ -726,7 +727,7 @@ class EvaluateServices {
               console.log(`evaluationResultStatus------${evaluationResultStatus}`);
               if (evaluationResultStatus === 'AN') {
                 console.log('MOEVAL-STEP4 - ANOMALY');
-                resultEvaluation = await this.processAnomaly(responseEvaluation, anomalyMonitoringTargetId);
+                resultEvaluation = await this.processAnomaly(responseEvaluation, anomalyMonitoringTargetKey);
                 console.log('done');
               } else {
                 //evaluationResultStatus - 'NF' or 'OK'
@@ -752,7 +753,7 @@ class EvaluateServices {
 
           if (evaluationResultStatus === 'AN') {
             console.log('MOEVAL-STEP4 - ANOMALY');
-            resultEvaluation = await this.processAnomaly(responseEvaluation, anomalyMonitoringTargetId);
+            resultEvaluation = await this.processAnomaly(responseEvaluation, anomalyMonitoringTargetKey);
           } else {
             //evaluationResultStatus - 'NF' or 'OK'
             resultEvaluation = {
