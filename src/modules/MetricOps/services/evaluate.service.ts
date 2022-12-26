@@ -460,6 +460,7 @@ class EvaluateServices {
     let resultEvaluation;
     const evaluationRequest = resultData.evaluationRequest;
     const evaluationResult = resultData.evaluationResult;
+    const evaluationId = resultData.evaluationId;
     const targetResourceId = resultData.resourceId;
     console.log('MOEVAL-STEP4 - targetResourceId', targetResourceId);
 
@@ -475,6 +476,7 @@ class EvaluateServices {
     const findEvaluation: IEvaluation[] = await this.evaluation.findAll({
       where: { anomalyMonitoringTargetKey, evaluationResultStatus: 'AN', createdAt: { [Op.and]: { [Op.gte]: fromDate, [Op.lte]: toDate } } },
     });
+
     console.log('MOEVAL-STEP4 - findIncidents', JSON.parse(JSON.stringify(findEvaluation)));
     if (findEvaluation.length === 0) {
       //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
@@ -543,7 +545,7 @@ class EvaluateServices {
       const clusterUuid = getResource.dataValues.ResourceGroup.dataValues.resourceGroupUuid;
       //4.2. if any anomaly, create incident ticket
       const incidentData = {
-        incidentName: `MetricOps:${getResource.resourceType}:${getResource.resourceName}-${anomalyMonitoringTargetId}`,
+        incidentName: `MetricOps:${getResource.resourceType}:${getResource.resourceName}-${evaluationId}`,
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         incidentDescription: `MetricOps: evaluation Id ${JSON.stringify(evaluationResult.evaluation_id)}`,
@@ -551,7 +553,7 @@ class EvaluateServices {
         incidentSeverity: 'UR' as incidentSeverity,
         incidentDueDate: null,
         assigneeId: '',
-        anomalyMonitoringTargetId,
+        evaluationId,
       };
 
       const resultIncidentCreate: IIncident = await this.incidentService.createIncident(customerAccountKey, partyUserId, incidentData);

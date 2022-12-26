@@ -33,6 +33,7 @@ import { CreateIncidentActionAttachmentDto } from '../dtos/incidentActionAttachm
 import { logger } from '@/common/utils/logger';
 import {IPartyUser} from "@common/interfaces/party.interface"
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
+import { IEvaluation } from '@/common/interfaces/evaluate.interface';
 
 /**
  * @memberof Incident
@@ -43,7 +44,7 @@ class IncidentService {
   public incidentAction = DB.IncidentAction;
   public incidentActionAttachment = DB.IncidentActionAttachment;
   public alertReceived = DB.AlertReceived;
-  public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
+  public evaluation = DB.Evaluation;
 
   public partyService = new PartyService();
   public tableIdService = new TableIdService();
@@ -65,14 +66,14 @@ class IncidentService {
     const incidentActionTable = 'IncidentAction';
     const incidentActionKey: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(incidentActionTable);
 
-    let anomalyMonitoringTargetKey;
-    if (incidentData.anomalyMonitoringTargetId) {
-      const anomalyMonitoringTargetId = incidentData.anomalyMonitoringTargetId;
-      const findAnomalyTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.findOne({
-        where: { anomalyMonitoringTargetId, deletedAt: null },
+    let evaluationKey;
+    if (incidentData.evaluationId) {
+      const evaluationId = incidentData.evaluationId;
+      const findEvaluation: IEvaluation = await this.evaluation.findOne({
+        where: { evaluationId, deletedAt: null },
       });
-      anomalyMonitoringTargetKey = findAnomalyTarget.anomalyMonitoringTargetKey;
-      delete incidentData.anomalyMonitoringTargetId;
+      evaluationKey = findEvaluation.evaluationKey;
+      delete incidentData.evaluationId;
       console.log('incidentData after delete amt id', JSON.stringify(incidentData));
     }
 
@@ -87,7 +88,7 @@ class IncidentService {
         const createIncidentData: any = await this.incident.create(
           {
             ...incidentData,
-            anomalyMonitoringTargetKey,
+            evaluationKey,
             customerAccountKey,
             createdBy: logginedUserId,
             incidentId: incidentKey.tableIdFinalIssued,
