@@ -25,7 +25,7 @@ class EvaluateRoute implements Routes {
       '/evaluate/customerAccount/',
       //authMiddleware,
       //createUserLogMiddleware,
-      //validationMiddleware(CreateBayesianModelDto, 'body'),
+      validationMiddleware(evaluateCustomerDto, 'body'),
       this.evaluateController.initiateEvaluationProcess,
     );
 
@@ -33,7 +33,7 @@ class EvaluateRoute implements Routes {
       '/evaluate/:evaluationId',
       authMiddleware,
       //createUserLogMiddleware,
-      validationMiddleware(evaluateCustomerDto, 'body'),
+      //validationMiddleware(evaluateCustomerDto, 'body'),
       this.evaluateController.getEvaluationHistoryById,
     );
 
