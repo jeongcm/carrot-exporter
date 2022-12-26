@@ -359,7 +359,8 @@ class EvaluateServices {
       .catch(error => {
         //console.log(error);
         const updateError = {
-          evaluationStatus: 'FA',
+          evaluationStatus: 'FL',
+          evaluaionResultStatus: 'FL',
           evaluated_at: new Date(),
           updated_at: new Date(),
           updated_by: 'SYSTEM',
