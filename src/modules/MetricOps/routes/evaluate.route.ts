@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { Routes } from '@/common/interfaces/routes.interface';
 import authMiddleware from '@/modules/ApiGateway/middlewares/auth.middleware';
 import EvaluateController from '../controllers/evaluate.controller';
+import validationMiddleware from '@/common/middlewares/validation.middleware';
+import { evaluateCustomerDto, evaluateMonitoringTargetDto } from '../dtos/evaluate.dto';
 
 class EvaluateRoute implements Routes {
   public router = Router();
@@ -15,7 +17,7 @@ class EvaluateRoute implements Routes {
       '/evaluate/anomalyMonitoringTarget/',
       authMiddleware,
       //createUserLogMiddleware,
-      //validationMiddleware(CreateBayesianModelDto, 'body'),
+      validationMiddleware(evaluateMonitoringTargetDto, 'body'),
       this.evaluateController.evaluateMonitoringTarget,
     );
 
@@ -31,7 +33,7 @@ class EvaluateRoute implements Routes {
       '/evaluate/:evaluationId',
       authMiddleware,
       //createUserLogMiddleware,
-      //validationMiddleware(CreateBayesianModelDto, 'body'),
+      validationMiddleware(evaluateCustomerDto, 'body'),
       this.evaluateController.getEvaluationHistoryById,
     );
 

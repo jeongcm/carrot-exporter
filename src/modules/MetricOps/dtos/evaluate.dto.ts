@@ -18,3 +18,18 @@ export class resultEvaluationDto {
   public ruleGroup: JSON;
   public bayesianModel: JSON;
 }
+
+export class evaluateMonitoringTargetDto {
+  @IsString()
+  @IsNotEmpty()
+  public anomalyMonitoringTargetId: string;
+  @IsString()
+  @IsNotEmpty()
+  public resourceId: string;
+}
+
+export class evaluateCustomerDto {
+  @IsString()
+  @IsNotEmpty()
+  public customerAccountId: string;
+}
