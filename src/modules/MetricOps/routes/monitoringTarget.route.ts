@@ -17,35 +17,40 @@ class AnomalyMonitoringTargetRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post(
-      '/anomalyTarget',
+      '/anomalyMonitoringTarget',
       authMiddleware,
       createUserLogMiddleware,
       validationMiddleware(CreateMonitoringTargetDto, 'body'),
       this.anomalyMonitoringTargetController.createMonitoringTarget,
     );
-    this.router.get('/anomalyTargetAll', authMiddleware, createUserLogMiddleware, this.anomalyMonitoringTargetController.getAllMonitoringTarget);
+    this.router.get(
+      '/anomalyMonitoringTargetAll',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.anomalyMonitoringTargetController.getAllMonitoringTarget,
+    );
 
     this.router.get(
-      '/anomalyTarget/:anomalyMonitoringTargetId',
+      '/anomalyMonitoringTarget/:anomalyMonitoringTargetId',
       authMiddleware,
       createUserLogMiddleware,
       this.anomalyMonitoringTargetController.getMonitoringTargetById,
     );
     this.router.get(
-      '/anomalyTarget/:resourceKey',
+      '/anomalyMonitoringTarget/:resourceKey',
       authMiddleware,
       createUserLogMiddleware,
       this.anomalyMonitoringTargetController.getMonitoringTargetByResourceKey,
     );
     this.router.put(
-      '/anomalyTarget/:anomalyMonitoringTargetId',
+      '/anomalyMonitoringTarget/:anomalyMonitoringTargetId',
       authMiddleware,
       createUserLogMiddleware,
       validationMiddleware(UpdateMonitoringTargetDto, 'body'),
       this.anomalyMonitoringTargetController.updateMonitoringTarget,
     );
     this.router.delete(
-      '/anomalyTarget/:anomalyMonitoringTargetId',
+      '/anomalyMonitoringTarget/:anomalyMonitoringTargetId',
       authMiddleware,
       //createUserLogMiddleware,
       //validationMiddleware(UpdateMonitoringTargetDto, 'body'),

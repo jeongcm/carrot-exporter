@@ -21,6 +21,7 @@ import { incidentSeverity, incidentStatus } from '@/common/types/index';
 import { IEvaluation } from '@/common/interfaces/evaluate.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.model';
+import { IncidentModel } from '@/modules/Incident/models/incident.model';
 
 import executorService from '@/modules/CommonService/services/executor.service';
 
@@ -845,6 +846,12 @@ class EvaluateServices {
         deletedAt: null,
         anomalyMonitoringTargetKey,
       },
+      include: [
+        {
+          model: IncidentModel,
+          required: false,
+        },
+      ],
     };
     const resultEvaluation: IEvaluation[] = await this.evaluation.findAll(queryCondition);
     return resultEvaluation;
