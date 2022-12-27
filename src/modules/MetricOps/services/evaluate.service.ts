@@ -857,7 +857,10 @@ class EvaluateServices {
           required: false,
         },
       ],
+      order: [['createdAt', 'DESC']],
     };
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     const resultEvaluation: IEvaluation[] = await this.evaluation.findAll(queryCondition);
     return resultEvaluation;
   }
