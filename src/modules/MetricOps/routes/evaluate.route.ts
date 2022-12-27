@@ -46,7 +46,7 @@ class EvaluateRoute implements Routes {
     );
 
     this.router.get(
-      '/evaluate/anomalyMonitoringTaget/:anomalyMonitoringTargetId',
+      '/evaluate/anomalyMonitoringTaget/:anomalyMonitoringTargetId/:offset/:limit',
       authMiddleware,
       //createUserLogMiddleware,
       //validationMiddleware(CreateBayesianModelDto, 'body'),

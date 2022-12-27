@@ -838,7 +838,7 @@ class EvaluateServices {
    * @returns Promise<IEvaluation[]>
    * @author Shrishti Raj
    */
-  public async getEvaluationHistoryByTargetId(anomalyMonitoringTargetId: string): Promise<IEvaluation[]> {
+  public async getEvaluationHistoryByTargetId(anomalyMonitoringTargetId: string, limit: number, offset: number): Promise<IEvaluation[]> {
     //1. validate AnomalyMonitoringTarget
     const resultAnomalyMonitoringTarget: IAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.findOne({
       where: { anomalyMonitoringTargetId },
@@ -848,6 +848,8 @@ class EvaluateServices {
 
     //2. pull evaluation history
     const queryCondition = {
+      limit: limit,
+      offset: offset,
       where: {
         deletedAt: null,
         anomalyMonitoringTargetKey,
