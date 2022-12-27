@@ -25,7 +25,7 @@ class EvaluateRoute implements Routes {
       '/evaluate/customerAccount/',
       //authMiddleware,
       //createUserLogMiddleware,
-      validationMiddleware(evaluateCustomerDto, 'body'),
+      //validationMiddleware(evaluateCustomerDto, 'body'),
       this.evaluateController.initiateEvaluationProcess,
     );
 

@@ -727,9 +727,8 @@ class EvaluateServices {
             //loop to process pod's evaluation of Workload
             console.log('MOEVAL-STEP3 -findPods', findPods.length);
             for (let a = 0; a < findPods.length; a++) {
-              console.log('start-------');
+              console.log('MOEVAL-STEP3 - start-------');
               const responseEvaluation: resultEvaluationDto = await this.evaluateMonitoringTarget(anomalyMonitoringTargetId, findPods[a].resource_id);
-              console.log('done-------');
               const { evaluationResult, evaluationResultStatus, evaluationId, resourceId, resourceName, bayesianModel } = responseEvaluation;
               console.log(`evaluationResultStatus------${evaluationResultStatus}`);
               if (evaluationResultStatus === 'AN') {
@@ -738,7 +737,7 @@ class EvaluateServices {
                 console.log('done');
               } else {
                 //evaluationResultStatus - 'NF' or 'OK'
-                console.log('WL Pod Processing');
+                console.log('MOEVAL-STEP4 - WL Pod Processing');
                 resultEvaluation = {
                   anomalyMonitoringTargetId,
                   evaluationId,
