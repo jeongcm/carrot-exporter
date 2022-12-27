@@ -50,6 +50,7 @@ class AnomalyMonitoringTargetService {
         { model: BayesianModelTable, where: { deletedAt: null } },
       ],
     });
+
     return monitoringTargetList;
   }
 

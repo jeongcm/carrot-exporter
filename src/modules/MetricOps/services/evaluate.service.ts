@@ -456,7 +456,7 @@ class EvaluateServices {
     // if incident ticket issued x min before, don't create a new incident ticket
     const currentDate = new Date();
     const currentDate2 = new Date();
-    const fromDate = new Date(currentDate.setMinutes(currentDate.getMinutes() - 10));
+    const fromDate = new Date(currentDate.setMinutes(currentDate.getMinutes() - 5));
     const toDate = new Date();
     let resultEvaluation;
     const evaluationRequest = resultData.evaluationRequest;
@@ -478,8 +478,9 @@ class EvaluateServices {
       where: { anomalyMonitoringTargetKey, evaluationResultStatus: 'AN', createdAt: { [Op.and]: { [Op.gte]: fromDate, [Op.lte]: toDate } } },
     });
 
-    console.log('MOEVAL-STEP4 - findIncidents', JSON.parse(JSON.stringify(findEvaluation)));
-    if (findEvaluation.length === 0) {
+    console.log('MOEVAL-STEP4 - findEvaluation', findEvaluation.length);
+
+    if (findEvaluation.length <= 1) {
       //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
       const getResource = await this.resource.findOne({
         where: { resourceId: targetResourceId },
