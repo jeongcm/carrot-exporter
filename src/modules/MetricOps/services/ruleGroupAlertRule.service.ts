@@ -122,7 +122,12 @@ class RuleGroupAlertRuleService {
     const customerAccountKey = findCustomerAccount.customerAccountKey;
 
     const findResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({ where: { customerAccountKey, deletedAt: null } });
-    if (findResourceGroup.length === 0) throw new HttpException(405, 'Cannot find resourceGroup');
+    if (findResourceGroup.length === 0)
+      throw new HttpException(
+        405,
+        `Cannot find resourceGroup - # of resourceGroup ${findResourceGroup.length}, customerAccountKey ${customerAccountKey}`,
+      );
+    console.log('#SYNCRULEGROUP - started', findResourceGroup.length);
     const resourceGroupKey = findResourceGroup.map(x => x.resourceGroupKey);
 
     const findRuleGroup: IRuleGroup[] = await this.ruleGroup.findAll({ where: { resourceGroupKey, deletedAt: null } });
