@@ -822,6 +822,10 @@ class EvaluateServices {
         {
           model: AnomalyMonitoringTargetTable,
         },
+        {
+          model: IncidentModel,
+          required: false,
+        },
       ],
     };
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

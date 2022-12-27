@@ -348,7 +348,7 @@ DB.AnomalyMonitoringTargetResource.belongsTo(DB.AnomalyMonitoringTarget, { forei
 DB.AnomalyMonitoringTarget.hasMany(DB.Evaluation, { foreignKey: 'anomalyMonitoringTargetKey' });
 DB.Evaluation.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonitoringTargetKey' });
 
-DB.Evaluation.hasMany(DB.Incident, { foreignKey: 'evaluationKey' });
+DB.Evaluation.hasOne(DB.Incident, { foreignKey: 'evaluationKey' });
 DB.Incident.belongsTo(DB.Evaluation, { foreignKey: 'evaluationKey' });
 
 DB.Party.belongsToMany(DB.Resource, {
