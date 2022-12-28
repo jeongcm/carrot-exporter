@@ -654,9 +654,8 @@ class EvaluateServices {
               customerAccountKey,
               subscribed_channel,
             );
-            setTimeout(function () {
-              console.log('wait for 3sec for the next action');
-            }, 3000);
+            const sleep = ms => new Promise(r => setTimeout(r, ms));
+            await sleep(5000);
             console.log('MOEVAL-STEP9 - resolution action request output', serviceOutput);
           });
       }
