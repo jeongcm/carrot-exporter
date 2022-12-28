@@ -501,7 +501,7 @@ class EvaluateServices {
       let pvcName;
       if (getResource.resourceType === 'PC') {
         pvcName = getResource.resourceName;
-        const queryRs = `SELECT * FROM Resource WHERE deleted_at is null AND resource_type = 'PD' AND resource_group_key = ${getResource.resourceGroupKey} AND JSON_VALUE(resource_spec, '$.volumes[0].persistentVolumeClaim.claimName') = pvcName`;
+        const queryRs = `SELECT * FROM Resource WHERE deleted_at is null AND resource_type = 'PD' AND resource_group_key = ${getResource.resourceGroupKey} AND JSON_VALUE(resource_spec, '$.volumes[0].persistentVolumeClaim.claimName') = '${pvcName}'`;
         const findRs = await DB.sequelize.query(queryRs, { type: QueryTypes.SELECT });
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
