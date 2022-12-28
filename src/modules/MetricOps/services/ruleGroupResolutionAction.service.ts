@@ -73,6 +73,7 @@ class RuleGroupResolutionActionService {
   ): Promise<IRuleGroupResolutionAction[]> {
     if (isEmpty(ruleGroupResolutionActionData)) throw new HttpException(400, 'RuleGroup ResolutionAction cannot be blank');
     const uuid = require('uuid');
+    console.log('message-----', JSON.parse(JSON.stringify(ruleGroupResolutionActionData)));
     //const tableIdName = 'RuleGroupResolutionAction';
     //const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdName);
     //const ruleGroupResolutionActionId: string = responseTableIdData.tableIdFinalIssued;

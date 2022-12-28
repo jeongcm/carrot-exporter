@@ -496,6 +496,22 @@ class EvaluateServices {
       const resourceNamespace = getResource.resourceNamespace;
       console.log('MOEVAL-STEP4 - Resource Name', getResource.resourceName);
 
+      let podName;
+      let nodeName;
+      let pvcName;
+      if (getResource.resourceType === 'PC') {
+        pvcName = getResource.resourceName;
+        const queryRs = `SELECT * FROM Resource WHERE deleted_at is null AND resource_type = 'PD' AND resource_group_key = ${getResource.resourceGroupKey} AND JSON_VALUE(resource_spec, '$.volumes[0].persistentVolumeClaim.claimName') = pvcName`;
+        const findRs = await DB.sequelize.query(queryRs, { type: QueryTypes.SELECT });
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        podName = findRs[0].resource_name;
+        console.log('MOEVAL-STEP4 - PVC name', pvcName);
+        console.log('MOEVAL-STEP4 - Pod name for PVC', podName);
+      }
+      if (getResource.resourceType === 'PD') podName = getResource.resourceName;
+      if (getResource.resourceType === 'ND') nodeName = getResource.resourceName;
+
       let volume = '';
       let volumeVal = 0;
       let volumeVal10 = 0;
@@ -618,6 +634,9 @@ class EvaluateServices {
             steps = steps.replace('#prometheusurl', prometheusUrl);
             steps = steps.replace('#resourcename', resultData.resourceName);
             steps = steps.replace('#name', resultData.resourceName);
+            steps = steps.replace('#pvcname', pvcName);
+            steps = steps.replace('#podname', podName);
+            steps = steps.replace('#nodename', nodeName);
             steps = steps.replace('#start', start);
             steps = steps.replace('#end', end);
             steps = steps.replace('#expandedvolume30%', volumeVal30String);
@@ -635,6 +654,9 @@ class EvaluateServices {
               customerAccountKey,
               subscribed_channel,
             );
+            setTimeout(function () {
+              console.log('wait for 3sec for the next action');
+            }, 3000);
             console.log('MOEVAL-STEP9 - resolution action request output', serviceOutput);
           });
       }
