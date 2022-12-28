@@ -484,7 +484,7 @@ class EvaluateServices {
       //4.1. bring resource namespace, if pod, bring prometheus address from resourceGroup
       const getResource = await this.resource.findOne({
         where: { resourceId: targetResourceId },
-        attributes: ['resourceNamespace', 'resourcePvcStorage', 'resourceName', 'resourceType'],
+        attributes: ['resourceNamespace', 'resourcePvcStorage', 'resourceName', 'resourceType', 'resourceGroupKey'],
         include: [
           {
             model: ResourceGroupModel,
