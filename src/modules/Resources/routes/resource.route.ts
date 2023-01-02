@@ -110,6 +110,14 @@ class ResourceRoute implements Routes {
       this.resourceController.getResourceCountByResourceType,
     );
 
+
+    this.router.get(
+      '/resource/count/k8sOverview',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceController.getResourceCountForK8sOverview,
+    );
+
     this.router.post('/resource/upload/:resourceType', systemAuthMiddleware, this.resourceController.uploadResource)
 
   }

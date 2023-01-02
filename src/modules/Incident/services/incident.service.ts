@@ -122,7 +122,7 @@ class IncidentService {
    * @returns Promise<IIncident[]>
    * @author Saemsol Yoo <yoosaemsol@nexclipper.io>
    */
-  public async getAllIncidents(customerAccountKey: number): Promise<IIncident[]> {
+  public async getAllIncidents(customerAccountKey: number, partyUser?: IPartyUser): Promise<IIncident[]> {
     const allIncidents: IIncident[] = await this.incident.findAll({
       where: { deletedAt: null, customerAccountKey },
       order: [['createdAt', 'DESC']],
@@ -131,19 +131,19 @@ class IncidentService {
         {
           as: 'assignee',
           model: PartyModel,
-          attributes: ['partyId', 'partyName', 'partyDescription', 'partyType'],
-          include: [
-            {
-              model: PartyUserModel,
-              attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
-            },
-          ],
+          attributes: ['partyName'],
         },
         {
-          as: 'createdByDetail',
           model: PartyUserModel,
-          attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
-          association: DB.PartyUser.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
+          attributes: ['partyUserId'],
+          association: PartyUserModel.belongsTo(PartyUserModel, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
+          include: [
+            {
+              model: PartyModel,
+              association: PartyModel.belongsTo(PartyUserModel, { foreignKey: 'partyKey', targetKey: 'partyKey' }),
+              attributes: ['partyName'],
+            }
+          ],
         },
         {
           as: 'alertReceived',
@@ -172,19 +172,19 @@ class IncidentService {
         {
           as: 'assignee',
           model: PartyModel,
-          attributes: ['partyId', 'partyName', 'partyDescription', 'partyType'],
-          include: [
-            {
-              model: PartyUserModel,
-              attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
-            },
-          ],
+          attributes: ['partyName'],
         },
         {
-          as: 'createdByDetail',
           model: PartyUserModel,
-          attributes: ['partyUserId', 'firstName', 'lastName', 'userId', 'mobile', 'email', 'lastAccessAt'],
-          association: DB.PartyUser.belongsTo(DB.PartyUser, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
+          attributes: ['partyUserId'],
+          association: PartyUserModel.belongsTo(PartyUserModel, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
+          include: [
+            {
+              model: PartyModel,
+              association: PartyModel.belongsTo(PartyUserModel, { foreignKey: 'partyKey', targetKey: 'partyKey' }),
+              attributes: ['partyName'],
+            }
+          ],
         },
       ],
     });

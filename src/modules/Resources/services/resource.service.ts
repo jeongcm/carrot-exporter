@@ -805,18 +805,107 @@ class ResourceService {
   public async getResourceCountByResourceType(resourceType: string, customerAccountKey: number, query?: any): Promise<number> {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: resourceType };
     let result: any = {};
-
+    let resourceGroupIds: string[] = [];
     if (query?.resourceGroupId) {
-      let resourceGroups = await this.resourceGroupService.getResourceGroupByIds(query.resourceGroupId);
-      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroupUi) => resourceGroup.resourceGroupKey)
-      result = await this.resource.count({
-        where: resourceWhereCondition,
-      });
-    } else {
-      result = await this.resource.count({
-        where: resourceWhereCondition,
-      });
+      switch (Array.isArray(query.resourceGroupId)) {
+        case true:
+          resourceGroupIds = query.resourceGroupId.map(id => id)
+          break
+        case false:
+          resourceGroupIds.push(query.resourceGroupId)
+          break
+      }
     }
+
+    let resourceGroupWhereCondition = {customerAccountKey, deletedAt: null }
+
+    if (resourceGroupIds.length > 0) {
+      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupIds
+
+      const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+        where: resourceGroupWhereCondition,
+        attributes: ['resourceGroupKey'],
+      });
+
+      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+    }
+
+    result = await this.resource.count({
+      where: resourceWhereCondition,
+    });
+
+    return result;
+  }
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} customerAccountKey
+   */
+  public async getResourceCountForK8sOverView(customerAccountKey: number, query?: any): Promise<any> {
+    const resourceWhereCondition = { deletedAt: null, customerAccountKey, };
+    let result: any = {};
+    let resourceGroupIds: string[] = [];
+    if (query?.resourceGroupId) {
+      switch (Array.isArray(query.resourceGroupId)) {
+        case true:
+          resourceGroupIds = query.resourceGroupId.map(id => id)
+          break
+        case false:
+          resourceGroupIds.push(query.resourceGroupId)
+          break
+      }
+    }
+
+    let resourceGroupWhereCondition = {customerAccountKey, deletedAt: null }
+
+    if (resourceGroupIds.length > 0) {
+      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupIds
+
+      const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+        where: resourceGroupWhereCondition,
+        attributes: ['resourceGroupKey'],
+      });
+
+      resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+    }
+
+    // get Nodes Count
+    resourceWhereCondition['resourceType'] = 'ND'
+    result['nodeCount'] = await this.resource.findAndCountAll({
+      where: resourceWhereCondition,
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
+    });
+    // get Namespace Count
+    resourceWhereCondition['resourceType'] = 'NS'
+    result['namespaceCount'] = await this.resource.findAndCountAll({
+      where: resourceWhereCondition,
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
+    });
+    // get Pods Count
+    resourceWhereCondition['resourceType'] = 'PD'
+    result['podCount'] = await this.resource.findAndCountAll({
+      where: resourceWhereCondition,
+      attributes: ['resourceName', 'resourceType', 'resourcePodPhase'],
+    });
+    // get Workloads Count
+    resourceWhereCondition['resourceType'] = ['DS', 'DP', 'RS', 'SS']
+    result['workloadCount'] = await this.resource.findAndCountAll({
+      where: resourceWhereCondition,
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
+    });
+    // get Services Count
+    resourceWhereCondition['resourceType'] = 'SV'
+    result['serviceCount'] = await this.resource.findAndCountAll({
+      where: resourceWhereCondition,
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
+    });
+    // get PVC Count
+    resourceWhereCondition['resourceType'] = 'PV'
+    result['pvCount'] = await this.resource.findAndCountAll({
+      where: resourceWhereCondition,
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
+    });
+
     return result;
   }
 
@@ -1425,9 +1514,6 @@ class ResourceService {
     Object.values(vm.resourceSpec['addresses']).forEach((values: any) => {
       values.forEach(value => {
         let key = rg.resourceGroupUuid+"-"+value.addr
-        console.log(key)
-        console.log(status)
-        console.log(status.vmStatusPerName[key])
         if (typeof status.vmStatusPerName[key] !== 'undefined') {
           result = status.vmStatusPerName[key]
         }
@@ -1446,8 +1532,6 @@ class ResourceService {
     })
 
     let key = rg.resourceGroupUuid+"-"+pm.resourceInstance
-    console.log(key)
-    console.log(status)
     if (typeof status.pmStatusPerName[key] !== 'undefined') {
       result = status.pmStatusPerName[key]
     }
