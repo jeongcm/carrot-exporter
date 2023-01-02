@@ -644,7 +644,7 @@ class MetricService extends ServiceExtension {
           persistentvolumeclaim: resourceName,
         });
 
-        promQl = `sum(kube_persistentvolumeclaim_status_phase{phase=~"(Pending|Lost)", __LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim) + sum(kube_persistentvolumeclaim_status_phase{phase=~"(Lost)", __LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim)`;
+        promQl = `sum(kube_persistentvolumeclaim_status_phase{__LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim, phase)`;
         break;
       case 'K8S_CLUSTER_PV_USAGE_PERCENTAGE':
         labelString += getSelectorLabels({
@@ -981,7 +981,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `count(avg(namespace_workload_pod:kube_pod_owner:relabel{__LABEL_PLACE_HOLDER__}) by (workload, namespace)) by (namespace)`;
+        promQl = `count by (namespace) (avg by (workload, namespace) (max by(cluster, namespace, workload, pod) (label_replace(label_replace(kube_pod_owner{job="kube-state-metrics",owner_kind="ReplicaSet", __LABEL_PLACE_HOLDER__}, "replicaset", "$1", "owner_name", "(.*)") * on(replicaset, namespace) group_left(owner_name) topk by(replicaset, namespace) (1, max by(replicaset, namespace, owner_name) (kube_replicaset_owner{job="kube-state-metrics", __LABEL_PLACE_HOLDER__})), "workload", "$1", "owner_name", "(.*)"))))`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_CPU_USAGE':
         labelString += getSelectorLabels({
