@@ -644,7 +644,7 @@ class MetricService extends ServiceExtension {
           persistentvolumeclaim: resourceName,
         });
 
-        promQl = `sum(kube_persistentvolumeclaim_status_phase{__LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim, phase)`;
+        promQl = `sum(kube_persistentvolumeclaim_status_phase{phase=~"(Pending|Lost)", __LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim) + sum(kube_persistentvolumeclaim_status_phase{phase=~"(Lost)", __LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim)`;
         break;
       case 'K8S_CLUSTER_PV_USAGE_PERCENTAGE':
         labelString += getSelectorLabels({
