@@ -881,18 +881,6 @@ class ResourceService {
       where: resourceWhereCondition,
       attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
     });
-    // get Pods Count
-    resourceWhereCondition['resourceType'] = 'PD'
-    result['podCount'] = await this.resource.findAndCountAll({
-      where: resourceWhereCondition,
-      attributes: ['resourceName', 'resourceType', 'resourcePodPhase'],
-    });
-    // get Workloads Count
-    resourceWhereCondition['resourceType'] = ['DS', 'DP', 'RS', 'SS']
-    result['workloadCount'] = await this.resource.findAndCountAll({
-      where: resourceWhereCondition,
-      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
-    });
     // get Services Count
     resourceWhereCondition['resourceType'] = 'SV'
     result['serviceCount'] = await this.resource.findAndCountAll({
@@ -905,6 +893,29 @@ class ResourceService {
       where: resourceWhereCondition,
       attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
     });
+    // get Pods Count
+    resourceWhereCondition['resourceType'] = 'PD'
+    result['podCount'] = await this.resource.findAndCountAll({
+      where: resourceWhereCondition,
+      attributes: ['resourceName', 'resourceType', 'resourcePodPhase'],
+    });
+    // get Pods by Namespace Count
+    result['podCountByNamespace'] = await this.resource.count({
+      where: resourceWhereCondition,
+      group: ['resourceNamespace']
+    })
+    // get Workloads Count
+    resourceWhereCondition['resourceType'] = ['DS', 'DP', 'RS', 'SS']
+    result['workloadCount'] = await this.resource.findAndCountAll({
+      where: resourceWhereCondition,
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
+    });
+
+    // get Workloads by Namespace Count
+    result['workloadCountByNamespace'] = await this.resource.count({
+      where: resourceWhereCondition,
+      group: ['resourceNamespace']
+    })
 
     return result;
   }
