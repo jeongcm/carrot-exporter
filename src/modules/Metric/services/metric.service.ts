@@ -580,12 +580,6 @@ class MetricService extends ServiceExtension {
         break;
 
       // K8s PV
-      case 'K8S_CLUSTER_PVC_INFO':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-        promQl = `sum by (persistentvolumeclaim,namespace,storageclass,volumename) (kube_persistentvolumeclaim_info{__LABEL_PLACE_HOLDER__})`;
-        break;
       case 'K8S_CLUSTER_PV_CAPACITY':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -636,15 +630,6 @@ class MetricService extends ServiceExtension {
         });
 
         promQl = `sum by (persistentvolumeclaim) (kubelet_volume_stats_available_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)`;
-        break;
-      case 'K8S_CLUSTER_PV_STATUS':
-        labelString += getSelectorLabels({
-          clusterUuid,
-          namespace: resourceNamespace,
-          persistentvolumeclaim: resourceName,
-        });
-
-        promQl = `sum(kube_persistentvolumeclaim_status_phase{phase=~"(Pending|Lost)", __LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim) + sum(kube_persistentvolumeclaim_status_phase{phase=~"(Lost)", __LABEL_PLACE_HOLDER__}) by (persistentvolumeclaim)`;
         break;
       case 'K8S_CLUSTER_PV_USAGE_PERCENTAGE':
         labelString += getSelectorLabels({
@@ -978,18 +963,6 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
         promQl = `sum(cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
-        break;
-      case 'K8S_CLUSTER_NAMESPACE_PODS':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-        promQl = `sum(kube_pod_owner{__LABEL_PLACE_HOLDER__}) by (namespace)`;
-        break;
-      case 'K8S_CLUSTER_NAMESPACE_WORKLOADS':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-        promQl = `count by (namespace) (avg by (workload, namespace) (max by(cluster, namespace, workload, pod) (label_replace(label_replace(kube_pod_owner{job="kube-state-metrics",owner_kind="ReplicaSet", __LABEL_PLACE_HOLDER__}, "replicaset", "$1", "owner_name", "(.*)") * on(replicaset, namespace) group_left(owner_name) topk by(replicaset, namespace) (1, max by(replicaset, namespace, owner_name) (kube_replicaset_owner{job="kube-state-metrics", __LABEL_PLACE_HOLDER__})), "workload", "$1", "owner_name", "(.*)"))))`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_CPU_USAGE':
         labelString += getSelectorLabels({
