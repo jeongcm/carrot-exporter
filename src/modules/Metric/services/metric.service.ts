@@ -702,7 +702,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `(max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}))`;
+        promQl = `(max by (persistentvolumeclaim,namespace) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024))`;
         break;
 
       // K8s PD
