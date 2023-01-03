@@ -998,7 +998,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `1 - sum by (namespace) (node_memory_MemAvailable_bytes{__LABEL_PLACE_HOLDER__}) / sum by (namespace) (node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__})`;
+        promQl = `sum(container_memory_rss{container!="", __LABEL_PLACE_HOLDER__}) by (namespace)`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_MEMORY_REQUESTS':
         labelString += getSelectorLabels({
