@@ -992,7 +992,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{__LABEL_PLACE_HOLDER__}) by (namespace) / sum(namespace_cpu:kube_pod_container_resource_limits:sum{__LABEL_PLACE_HOLDER__}) by (namespace)`;
+        promQl = `sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{__LABEL_PLACE_HOLDER__}) by (namespace) / sum(cluster:namespace:pod_cpu:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__}) by (namespace)`;
         break;
       // it can be replaced with container_memory_working_set_bytes (it contains swap out memory)
       case 'K8S_CLUSTER_NAMESPACE_MEMORY_USAGE':
