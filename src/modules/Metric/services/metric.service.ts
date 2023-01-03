@@ -980,7 +980,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{__LABEL_PLACE_HOLDER__}) by (namespace) / sum(namespace_cpu:kube_pod_container_resource_requests:sum{__LABEL_PLACE_HOLDER__}) by (namespace)`;
+        promQl = `sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{__LABEL_PLACE_HOLDER__}) by (namespace) / sum(cluster:namespace:pod_cpu:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__}) by (namespace)`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_CPU_LIMITS':
         labelString += getSelectorLabels({
@@ -994,6 +994,7 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{__LABEL_PLACE_HOLDER__}) by (namespace) / sum(namespace_cpu:kube_pod_container_resource_limits:sum{__LABEL_PLACE_HOLDER__}) by (namespace)`;
         break;
+      // it can be replaced with container_memory_working_set_bytes (it contains swap out memory)
       case 'K8S_CLUSTER_NAMESPACE_MEMORY_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1010,7 +1011,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum(container_memory_rss{container!="", __LABEL_PLACE_HOLDER__}) by (namespace) / sum(namespace_memory:kube_pod_container_resource_requests:sum{__LABEL_PLACE_HOLDER__}) by (namespace)`;
+        promQl = `sum(container_memory_rss{container!="", __LABEL_PLACE_HOLDER__}) by (namespace) / sum(cluster:namespace:pod_memory:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__}) by (namespace)`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_MEMORY_LIMITS':
         labelString += getSelectorLabels({
@@ -1022,7 +1023,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum(container_memory_rss{container!="", __LABEL_PLACE_HOLDER__}) by (namespace) / sum(namespace_memory:kube_pod_container_resource_limits:sum{__LABEL_PLACE_HOLDER__}) by (namespace)`;
+        promQl = `sum(container_memory_rss{container!="", __LABEL_PLACE_HOLDER__}) by (namespace) / sum(cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__}) by (namespace)`;
         break;
 
       // promql for openstack
