@@ -351,6 +351,9 @@ DB.Evaluation.belongsTo(DB.AnomalyMonitoringTarget, { foreignKey: 'anomalyMonito
 DB.Evaluation.hasOne(DB.Incident, { foreignKey: 'evaluationKey' });
 DB.Incident.belongsTo(DB.Evaluation, { foreignKey: 'evaluationKey' });
 
+DB.SubscribedProduct.hasOne(DB.AnomalyMonitoringTarget, { foreignKey: 'subscribedProductKey' });
+DB.AnomalyMonitoringTarget.belongsTo(DB.SubscribedProduct, { foreignKey: 'subscribedProductKey' });
+
 DB.Party.belongsToMany(DB.Resource, {
   through: {
     model: 'PartyResource',
