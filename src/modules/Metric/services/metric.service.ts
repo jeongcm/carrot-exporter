@@ -974,7 +974,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (namespace) (cluster:namespace:pod_cpu:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__}) / sum by (namespace) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (namespace) (cluster:namespace:pod_cpu:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__}) / sum (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_CPU_REQUESTS_PERCENTAGE':
         labelString += getSelectorLabels({
@@ -986,7 +986,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (namespace) (cluster:namespace:pod_cpu:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__}) / sum by (namespace) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (namespace) (cluster:namespace:pod_cpu:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__}) / sum (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_CPU_LIMITS_PERCENTAGE':
         labelString += getSelectorLabels({
@@ -1005,7 +1005,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__}) / sum by (namespace) (kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__}) / sum (kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_MEMORY_REQUESTS_PERCENTAGE':
         labelString += getSelectorLabels({
@@ -1017,13 +1017,13 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__}) / sum by (namespace) (kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__}) / sum (kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_MEMORY_LIMITS_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (namespace) (container_memory_rss{container!="", __LABEL_PLACE_HOLDER__}) / sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (namespace) (container_memory_rss{container!="", __LABEL_PLACE_HOLDER__}) / sum by˚ (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__})`;
         break;
 
       // promql for openstack
