@@ -1023,7 +1023,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (namespace) (container_memory_rss{container!="", __LABEL_PLACE_HOLDER__}) / sum by˚ (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (namespace) (container_memory_rss{container!="", __LABEL_PLACE_HOLDER__}) / sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__})`;
         break;
 
       // promql for openstack
