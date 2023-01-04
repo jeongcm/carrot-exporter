@@ -124,7 +124,9 @@ class CustomerAccountService {
             language: language,
           },
           { transaction: t },
-        );
+        ).catch(error => {
+          throw new HttpException(400, `unable to create Party User. cause: ${error}`)
+        });
         //create an API user
         const createdPartyApi: IParty = await this.party.create(
           {
@@ -160,7 +162,7 @@ class CustomerAccountService {
             language: language,
           },
           { transaction: t },
-        );
+        )
 
         //3. fusebill interface
         console.log('fuseBill Start');
@@ -261,10 +263,10 @@ class CustomerAccountService {
           notificationId: notificationId,
           fuseBillInterface: fuseBillInterface,
         };
-      });
+      })
     } catch (err) {
       console.log(err);
-      throw new HttpException(500, 'Unknown error while creating account');
+      throw new HttpException(500, `Unknown error while creating account. cause: ${err}`);
     }
 
     // update externalbillingcustomerid into customerAccount table
