@@ -124,9 +124,8 @@ class CustomerAccountService {
             language: language,
           },
           { transaction: t },
-        ).catch(error => {
-          throw new HttpException(400, `unable to create Party User. cause: ${error}`)
-        });
+        )
+
         //create an API user
         const createdPartyApi: IParty = await this.party.create(
           {
