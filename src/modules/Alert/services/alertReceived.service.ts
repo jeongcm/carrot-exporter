@@ -24,6 +24,7 @@ class AlertReceivedService extends ServiceExtension {
   public alertReceived = DB.AlertReceived;
   public alertRuleService = new AlertRuleService();
   private resourceGroup = DB.ResourceGroup;
+  private customerAccount = DB.CustomerAccount;
 
   constructor() {
     super({
@@ -84,7 +85,7 @@ class AlertReceivedService extends ServiceExtension {
     return result;
   }
 
-  public async getAllAlertReceivedByParentCustomerAccountId(customerAccountKey: number): Promise<object> {
+  public async getAllAlertReceivedByParentCustomerAccountId(ParentCustomerAccountId: string): Promise<object> {
     /* sequelize join doesn't work with ResourceGroup.... Sequelize bug. can't use "include" bugfix/149
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
@@ -106,6 +107,22 @@ class AlertReceivedService extends ServiceExtension {
        ],
     });
     */
+
+    // first. get customerAccountKeys by Parent CustomerAccountId
+    // second, get alertRecevied by customerAccountKeys,
+    // third, get resource type by alertReceived.AlertRecivedNode or Pod, if Pod is exist, resource_type is POD
+    // but if node only exist, resource Type is NODE
+    let customerAccounts = await this.customerAccount.findAll({
+      where: {deletedAt: null, parentCustomerAccountId: ParentCustomerAccountId}
+    })
+
+
+    var customerAccountKeys = customerAccounts.map(ca => {
+      return ca.customerAccountKey
+    })
+
+    console.log(customerAccountKeys)
+
     const sql = `SELECT
                 A.customer_account_key as customerAccountKey,
                 A.alert_received_id as alertReceivedId,
@@ -118,6 +135,8 @@ class AlertReceivedService extends ServiceExtension {
                 A.alert_received_description alertReceivedDescription,
                 A.alert_received_affected_resource_type alertReceivedAffectedResourceType,
                 A.alert_received_affected_resource_name alertReceivedAffectedResourceName,
+                A.alert_received_affected_resource_name alertReceivedNode,
+                A.alert_received_affected_resource_name alertReceivedPod,
                 A.created_at as createdAt,
                 A.updated_at as updatedAt,
                 B.alert_rule_id as alertRuleId,
@@ -126,13 +145,17 @@ class AlertReceivedService extends ServiceExtension {
                 C.resource_group_uuid as resourceGroupUuid,
                 C.resource_group_name as resourceGroupName
               FROM AlertReceived A, AlertRule B, ResourceGroup C
-              WHERE A.customer_account_key = ${customerAccountKey}
+              WHERE A.customer_account_key = ${customerAccountKeys}
                 and A.alert_rule_key = B.alert_rule_key
                 and B.resource_group_uuid = C.resource_group_uuid
                 and A.deleted_at is null
                 and B.deleted_at is null
                 and C.deleted_at is null`;
+    console.log(sql)
+
     const [result, metadata] = await DB.sequelize.query(sql);
+    console.log(result.length)
+
     //return allAlertReceived;
     return result;
   }

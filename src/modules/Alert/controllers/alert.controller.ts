@@ -159,9 +159,10 @@ class AlertRuleController extends ControllerExtension {
 
   public getAllAlertReceivedByParentCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      const customerAccountKey = req.customerAccountKey;
+      const parentCustomerAccountId = req.params.parentCustomerAccountId;
+      console.log(parentCustomerAccountId)
       const findAllAlertReceived = await this.alertReceivedService.getAllAlertReceivedByParentCustomerAccountId(
-        customerAccountKey,
+        parentCustomerAccountId,
         // {
         //   query: {
         //     alertReceivedName: `${req.query?.name}`,
