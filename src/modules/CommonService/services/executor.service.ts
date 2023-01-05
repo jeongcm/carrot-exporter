@@ -2993,5 +2993,37 @@ class executorService {
 
     return getExecutorServiceAll;
   }
+
+  /**
+   * @param {string} clusterUuid
+   * @param {string} cronTab
+   */
+  public async scheduleSyncResourceStatus(clusterUuid: string): Promise<object> {
+    const nexclipperApiUrl = config.appUrl + ':' + config.appPort + '/executor/syncResourceStatus';
+    const cronData = {
+      name: 'SyncResourceStatus',
+      summary: 'SyncResourceStatus',
+      cronTab: `*/5 * * * *`,
+      apiType: 'POST',
+      apiUrl: nexclipperApiUrl,
+      reRunRequire: true,
+      scheduleFrom: '',
+      scheduleTo: '',
+      clusterId: clusterUuid,
+      apiBody: {
+        clusterUuid: clusterUuid,
+      },
+    };
+    const getResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    const customerAccountKey = getResourceGroup.customerAccountKey;
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
+    const resultSchedule = await this.schedulerService.createScheduler(cronData, getCustomerAccount.customerAccountId);
+    console.log(resultSchedule);
+    return resultSchedule;
+  }
+
+  public async syncResourceStatus(clusterUuid: string) {
+
+  }
 }
 export default executorService;
