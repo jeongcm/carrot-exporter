@@ -638,7 +638,7 @@ class MetricService extends ServiceExtension {
           persistentvolumeclaim: resourceName,
         });
 
-        promQl = `sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/ sum by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__}) * 100)`;
+        promQl = `sum by (persistentvolumeclaim) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}) / sum by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__}) * 100`;
         break;
       case 'PV_USAGE_USED':
         labelString += getSelectorLabels({
