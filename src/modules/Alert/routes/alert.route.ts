@@ -52,6 +52,9 @@ class AlertRoute implements Routes {
       this.alertController.updateAlertReceived,
     );
     this.router.delete('/alert/received/:alertReceivedId', authMiddleware, this.alertController.deleteAlertReceived);
+    this.router.get('/alert/received/:parentCustomerAccountId', authMiddleware, this.alertController.getAllAlertReceivedByParentCustomerAccountId);
+
+
     this.router.get('/alertRule/graph/:status', authMiddleware, this.alertController.getAllAlertRulesGraph);
     this.router.post('/alertRule/setting', authMiddleware, this.alertController.createAlertRuleSetting);
     this.router.post('/alertRule/setting/get', authMiddleware, this.alertController.getAllSettingAlertRule);

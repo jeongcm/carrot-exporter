@@ -156,6 +156,24 @@ class AlertRuleController extends ControllerExtension {
       next(error);
     }
   };
+
+  public getAllAlertReceivedByParentCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.customerAccountKey;
+      const findAllAlertReceived = await this.alertReceivedService.getAllAlertReceivedByParentCustomerAccountId(
+        customerAccountKey,
+        // {
+        //   query: {
+        //     alertReceivedName: `${req.query?.name}`,
+        //   },
+        // }
+      );
+      res.status(200).json({ data: findAllAlertReceived, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public updateAlertRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const alertRuleId: string = req.params.alertRuleId;
