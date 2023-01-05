@@ -149,7 +149,10 @@ class AlertReceivedService extends ServiceExtension {
                 and B.resource_group_uuid = C.resource_group_uuid
                 and A.deleted_at is null
                 and B.deleted_at is null
-                and C.deleted_at is null`;
+                and C.deleted_at is null
+                and (A.alert_received_pod != ""
+                or A.alert_received_node != "")
+                order by A.created_at`;
 
     let result: any
     let metadata: any
@@ -162,9 +165,12 @@ class AlertReceivedService extends ServiceExtension {
       }
 
       let name: string
-      name = alert.alertReceivedPod
-      if (alert.alertReceivedNode !== "") {
-        name = alert.alertReceivedNode
+      let type: string
+      type = "ND"
+      name = alert?.alertReceivedNode
+      if (alert.alertReceivedPod !== "") {
+        type = "PD"
+        name = alert.alertReceivedPod
       }
 
       resource = await this.resource.findOne({
@@ -172,11 +178,11 @@ class AlertReceivedService extends ServiceExtension {
         attributes: ['resourceType', 'resourceName']
       })
 
-      if (typeof resource !== "undefined") {
+      if (resource !== null) {
         alert.resourceType = resource?.resourceType
         alert.resourceName = resource?.resourceName
       } else {
-        alert.resourceType = "unknown"
+        alert.resourceType = type
         alert.resourceName = name
       }
     }
