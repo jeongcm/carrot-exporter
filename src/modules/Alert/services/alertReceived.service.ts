@@ -24,6 +24,7 @@ class AlertReceivedService extends ServiceExtension {
   public alertReceived = DB.AlertReceived;
   public alertRuleService = new AlertRuleService();
   private resourceGroup = DB.ResourceGroup;
+  private resource = DB.Resource;
   private customerAccount = DB.CustomerAccount;
 
   constructor() {
@@ -116,12 +117,9 @@ class AlertReceivedService extends ServiceExtension {
       where: {deletedAt: null, parentCustomerAccountId: ParentCustomerAccountId}
     })
 
-
     var customerAccountKeys = customerAccounts.map(ca => {
       return ca.customerAccountKey
     })
-
-    console.log(customerAccountKeys)
 
     const sql = `SELECT
                 A.customer_account_key as customerAccountKey,
@@ -131,12 +129,12 @@ class AlertReceivedService extends ServiceExtension {
                 A.alert_received_name as alertReceivedName,
                 A.alert_received_severity as alertReceivedSeverity,
                 A.alert_received_active_at as alertReceivedActiveAt,
-                A.alert_received_summary alertReceivedSummary,
-                A.alert_received_description alertReceivedDescription,
-                A.alert_received_affected_resource_type alertReceivedAffectedResourceType,
-                A.alert_received_affected_resource_name alertReceivedAffectedResourceName,
-                A.alert_received_affected_resource_name alertReceivedNode,
-                A.alert_received_affected_resource_name alertReceivedPod,
+                A.alert_received_summary as alertReceivedSummary,
+                A.alert_received_description as alertReceivedDescription,
+                A.alert_received_affected_resource_type as alertReceivedAffectedResourceType,
+                A.alert_received_affected_resource_name as alertReceivedAffectedResourceName,
+                A.alert_received_node as alertReceivedNode,
+                A.alert_received_pod as alertReceivedPod,
                 A.created_at as createdAt,
                 A.updated_at as updatedAt,
                 B.alert_rule_id as alertRuleId,
@@ -152,10 +150,36 @@ class AlertReceivedService extends ServiceExtension {
                 and A.deleted_at is null
                 and B.deleted_at is null
                 and C.deleted_at is null`;
-    console.log(sql)
 
-    const [result, metadata] = await DB.sequelize.query(sql);
-    console.log(result.length)
+    let result: any
+    let metadata: any
+    [result, metadata] = await DB.sequelize.query(sql);
+    let resource: any
+
+    for (let alert of result) {
+      if (alert.alertReceivedNode === "" && alert.alertReceivedPod === "") {
+        continue
+      }
+
+      let name: string
+      name = alert.alertReceivedPod
+      if (alert.alertReceivedNode !== "") {
+        name = alert.alertReceivedNode
+      }
+
+      resource = await this.resource.findOne({
+        where: { deletedAt: null, resourceName: name },
+        attributes: ['resourceType', 'resourceName']
+      })
+
+      if (typeof resource !== "undefined") {
+        alert.resourceType = resource?.resourceType
+        alert.resourceName = resource?.resourceName
+      } else {
+        alert.resourceType = "unknown"
+        alert.resourceName = name
+      }
+    }
 
     //return allAlertReceived;
     return result;
