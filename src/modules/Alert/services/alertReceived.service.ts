@@ -152,7 +152,7 @@ class AlertReceivedService extends ServiceExtension {
                 and C.deleted_at is null
                 and (A.alert_received_pod != ""
                 or A.alert_received_node != "")
-                order by A.created_at`;
+                order by A.created_at desc`;
 
     let result: any
     let metadata: any
