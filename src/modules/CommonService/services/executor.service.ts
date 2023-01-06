@@ -3043,13 +3043,5 @@ class executorService {
     console.log(resultSchedule);
     return resultSchedule;
   }
-
-  public async syncResourceStatus(clusterUuid: string) {
-    // first. find resource By clusterUuid
-    // second, loop resources, and get Metric for resource status
-    // how can validate metric threshhold value ?
-    // third, if metric'threshhold is not valiable, set 0 and if valiable set 1
-    // third, upsert resourceStatus
-  }
 }
 export default executorService;

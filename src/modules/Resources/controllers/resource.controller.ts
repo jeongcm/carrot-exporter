@@ -7,6 +7,7 @@ import { ResourceDto } from '../dtos/resource.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import { GroupedCountResultItem } from 'sequelize';
 import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
+import config from "@/config";
 
 class ResourceController {
   public resourceService = new ResourceService();
@@ -451,6 +452,25 @@ class ResourceController {
       next(error);
     }
   };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public syncResourceStatus = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const clusterUuid = req.body.clusterUuid;
+      const cronTab = req.body.cronTab || config.resourceCron;
+
+      const serviceOutput: any = await this.resourceService.syncResourceStatus(clusterUuid);
+      if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
+      res.status(200).json({ Data: serviceOutput, message: `Sync resource Successful. ${clusterUuid}, ${cronTab}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
 }
 
 export default ResourceController;
