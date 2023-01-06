@@ -174,7 +174,7 @@ class AlertReceivedService extends ServiceExtension {
       }
 
       resource = await this.resource.findOne({
-        where: { deletedAt: null, resourceName: name },
+        where: { resourceName: name },
         attributes: ['resourceType', 'resourceName']
       })
 
