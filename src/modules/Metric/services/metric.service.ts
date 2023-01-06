@@ -679,7 +679,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
 
-        promQl = `sort_desc(sum by (persistentvolumeclaim, clusterUuid) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}/kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__} * 100))`;
+        promQl = `sort_desc(sum by (persistentvolumeclaim, clusterUuid) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}) / sum by (persistentvolumeclaim, clusterUuid) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__}) * 100)`;
         break;
 
       case 'K8S_CLUSTER_PV_USED_BYTES':
