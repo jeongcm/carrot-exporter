@@ -954,6 +954,17 @@ class executorService {
           throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
         }); //end of catch
     }
+
+    // schedule schedule sync resource status
+    await this.scheduleSyncResourceStatus(clusterUuid)
+      .then(async (res: any) => {
+        console.log(`Submitted resource status sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
+      }); //end of catch
+
     //provision alert easy rule for the cluster
     const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
 
@@ -1330,6 +1341,17 @@ class executorService {
           throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
         }); //end of catch
     }
+
+    // schedule schedule sync resource status
+    await this.scheduleSyncResourceStatus(clusterUuid)
+      .then(async (res: any) => {
+        console.log(`Submitted resource status sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
+      }); //end of catch
+
     //provision alert easy rule for the cluster
     const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
 
