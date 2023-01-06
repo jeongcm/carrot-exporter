@@ -1549,6 +1549,38 @@ class ResourceService {
 
     return result
   }
+
+  public async syncResourceStatus(clusterUuid: string) {
+    const resourceGroup = await this.resourceGroup.findOne({
+      attributes: ['resourceGroupKey'],
+      where: {resourceGroupUuid: clusterUuid}
+    })
+
+    let resources = await this.resource.findAll({
+      where: { resourceGroupKey: resourceGroup.resourceGroupGroupKey }
+    })
+
+    await Promise.all(resources.map(async (resource) => {
+      let result = await this.uploadResourceStatus(resource)
+    }))
+
+
+    // first. find resource By clusterUuid
+    // second, loop resources, and get Metric for resource status
+    // how can validate metric threshhold value ?
+    // third, if metric'threshhold is not valiable, set 0 and if valiable set 1
+    // fourth, upsert resourceStatus
+  }
+
+  public async uploadResourceStatus(resource: IResource) {
+    // first get metric for resource (cpu, memory, disk, network)
+
+    var resourceStatus
+
+    // const result = await this.metricService.getMetric(resource.customerAccountKey, queryBody);
+    // let length = result[metricName].data.result.length
+
+  }
 }
 
 export default ResourceService;
