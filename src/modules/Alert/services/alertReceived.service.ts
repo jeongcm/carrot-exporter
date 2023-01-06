@@ -24,6 +24,8 @@ class AlertReceivedService extends ServiceExtension {
   public alertReceived = DB.AlertReceived;
   public alertRuleService = new AlertRuleService();
   private resourceGroup = DB.ResourceGroup;
+  private resource = DB.Resource;
+  private customerAccount = DB.CustomerAccount;
 
   constructor() {
     super({
@@ -80,6 +82,111 @@ class AlertReceivedService extends ServiceExtension {
                 and B.deleted_at is null
                 and C.deleted_at is null`;
     const [result, metadata] = await DB.sequelize.query(sql);
+    //return allAlertReceived;
+    return result;
+  }
+
+  public async getAllAlertReceivedByParentCustomerAccountId(ParentCustomerAccountId: string): Promise<object> {
+    /* sequelize join doesn't work with ResourceGroup.... Sequelize bug. can't use "include" bugfix/149
+    const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
+      where: { customerAccountKey: customerAccountKey, deletedAt: null },
+      attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
+       include: [
+         {
+           model: AlertRuleModel,
+           as: 'alertRule',
+           required: true,
+           where: { deletedAt: null},
+           include: [
+           {
+               model: ResourceGroupModel,
+               required: true,
+               //where: {deletedAt: null},
+             },
+           ],
+         },
+       ],
+    });
+    */
+
+    // first. get customerAccountKeys by Parent CustomerAccountId
+    // second, get alertRecevied by customerAccountKeys,
+    // third, get resource type by alertReceived.AlertRecivedNode or Pod, if Pod is exist, resource_type is POD
+    // but if node only exist, resource Type is NODE
+    let customerAccounts = await this.customerAccount.findAll({
+      where: {deletedAt: null, parentCustomerAccountId: ParentCustomerAccountId}
+    })
+
+    var customerAccountKeys = customerAccounts.map(ca => {
+      return ca.customerAccountKey
+    })
+
+    const sql = `SELECT
+                A.customer_account_key as customerAccountKey,
+                A.alert_received_id as alertReceivedId,
+                A.alert_received_state as alertReceivedState,
+                A.alert_received_value as alertReceivedValue,
+                A.alert_received_name as alertReceivedName,
+                A.alert_received_severity as alertReceivedSeverity,
+                A.alert_received_active_at as alertReceivedActiveAt,
+                A.alert_received_summary as alertReceivedSummary,
+                A.alert_received_description as alertReceivedDescription,
+                A.alert_received_affected_resource_type as alertReceivedAffectedResourceType,
+                A.alert_received_affected_resource_name as alertReceivedAffectedResourceName,
+                A.alert_received_node as alertReceivedNode,
+                A.alert_received_pod as alertReceivedPod,
+                A.created_at as createdAt,
+                A.updated_at as updatedAt,
+                B.alert_rule_id as alertRuleId,
+                B.alert_rule_name as alertRuleName,
+                C.resource_group_id as resourceGroupId,
+                C.resource_group_uuid as resourceGroupUuid,
+                C.resource_group_name as resourceGroupName
+              FROM AlertReceived A, AlertRule B, ResourceGroup C
+              WHERE A.customer_account_key in (${customerAccountKeys})
+                and A.alert_rule_key = B.alert_rule_key
+                and A.alert_rule_key = B.alert_rule_key
+                and B.resource_group_uuid = C.resource_group_uuid
+                and A.deleted_at is null
+                and B.deleted_at is null
+                and C.deleted_at is null
+                and (A.alert_received_pod != ""
+                or A.alert_received_node != "")
+                order by A.created_at`;
+
+    let result: any
+    let metadata: any
+    [result, metadata] = await DB.sequelize.query(sql);
+    let resource: any
+
+    for (let alert of result) {
+      if (alert.alertReceivedNode === "" && alert.alertReceivedPod === "") {
+        continue
+      }
+
+      let name: string
+      let type: string
+      type = "ND"
+      name = alert?.alertReceivedNode
+      if (alert.alertReceivedPod !== "") {
+        type = "PD"
+        name = alert.alertReceivedPod
+      }
+
+      resource = await this.resource.findOne({
+        where: { resourceName: name },
+        attributes: ['resourceType', 'resourceName']
+      })
+
+      if (resource !== null) {
+        alert.resourceType = resource?.resourceType
+        alert.resourceName = resource?.resourceName
+      } else {
+        alert.resourceType = type
+        alert.resourceName = name
+      }
+    }
+
     //return allAlertReceived;
     return result;
   }
