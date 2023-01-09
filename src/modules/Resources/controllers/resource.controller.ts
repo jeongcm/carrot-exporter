@@ -482,7 +482,7 @@ class ResourceController {
 
     try {
       const resource: IResource[] = await this.resourceService.getResourceByTypeParentCustomerAccountId(resourceType, parentCustomerAccountId);
-      res.status(200).json({ data: resource, message: `find resources with parentCustomerAccountId(${parentCustomerAccountId}) and resoruceType ${resource}` });
+      res.status(200).json({ data: resource, message: `find resources with parentCustomerAccountId(${parentCustomerAccountId}) and resoruceType ${resourceType}` });
     } catch (error) {
       next(error);
     }
