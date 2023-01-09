@@ -471,6 +471,23 @@ class ResourceController {
     }
   };
 
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public getResourceByTypeParentCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceType: string[] = req.query.resourceType as string[];
+    const parentCustomerAccountId: string = req.params.parentCustomerAccountId;
+
+    try {
+      const resource: IResource[] = await this.resourceService.getResourceByTypeParentCustomerAccountId(resourceType, parentCustomerAccountId);
+      res.status(200).json({ data: resource, message: `find resources with parentCustomerAccountId(${parentCustomerAccountId}) and resoruceType ${resource}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
 }
 
 export default ResourceController;

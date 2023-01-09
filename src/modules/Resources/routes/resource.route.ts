@@ -127,6 +127,14 @@ class ResourceRoute implements Routes {
       //      createUserLogMiddleware,
       this.resourceController.syncResourceStatus,
     );
+
+    this.router.get(
+      '/resource/parentCustomerAccount/:parentCustomerAccountId',
+      validationMiddleware(ResourceQueryDTO, 'query'),
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceController.getResourceByTypeParentCustomerAccountId,
+    );
   }
 }
 

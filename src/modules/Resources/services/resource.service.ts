@@ -14,10 +14,12 @@ import { IAnomalyMonitoringTarget } from "@/common/interfaces/monitoringTarget.i
 import { ResourceGroupModel } from "../models/resourceGroup.model";
 import MetricService, { IMetricQueryBody } from "@modules/Metric/services/metric.service";
 import MassUploaderService from "@modules/CommonService/services/massUploader.service";
+import { CustomerAccountModel } from "@modules/CustomerAccount/models/customerAccount.model";
 
 class ResourceService {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
+  public customerAccount = DB.CustomerAccount
   public anomalyTarget = DB.AnomalyMonitoringTarget;
   public partyResource = DB.PartyResource;
   public subscribedProduct = DB.SubscribedProduct;
@@ -1571,6 +1573,42 @@ class ResourceService {
   }
 
   public async uploadResourceStatus(resource: IResource) {
+  }
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} parentCustomerAccountId
+   */
+  public async getResourceByTypeParentCustomerAccountId(resourceType: string[], parentCustomerAccountId: string): Promise<IResource[]> {
+    let customerAccounts = await this.customerAccount.findAll({
+      where: {deletedAt: null, parentCustomerAccountId: parentCustomerAccountId}
+    })
+
+    var customerAccountKeys = customerAccounts.map(ca => {
+      return ca.customerAccountKey
+    })
+
+    const allResources: IResource[] = await this.resource.findAll({
+        where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKeys },
+        attributes: ['resourceId', 'resourceType', 'resourceName', 'resourceGroupKey'],
+        include: [
+          {
+            model: ResourceGroupModel,
+            where: { deletedAt: null },
+            attributes: ['resourceGroupKey', 'resourceGroupId', 'resourceGroupUuid', 'resourceGroupName'],
+            required: true
+          },
+          {
+            model: CustomerAccountModel,
+            where: { deletedAt: null },
+            attributes: ['customerAccountKey', 'customerAccountId', 'customerAccountName'],
+            required: true
+          },
+        ],
+      },
+    );
+
+    return allResources;
   }
 }
 
