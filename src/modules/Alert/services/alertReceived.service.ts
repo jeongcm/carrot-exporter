@@ -141,8 +141,9 @@ class AlertReceivedService extends ServiceExtension {
                 B.alert_rule_name as alertRuleName,
                 C.resource_group_id as resourceGroupId,
                 C.resource_group_uuid as resourceGroupUuid,
-                C.resource_group_name as resourceGroupName
-              FROM AlertReceived A, AlertRule B, ResourceGroup C
+                C.resource_group_name as resourceGroupName,
+                D.customer_account_name as customerAccountName
+              FROM AlertReceived A, AlertRule B, ResourceGroup C, CustomerAccount D
               WHERE A.customer_account_key in (${customerAccountKeys})
                 and A.alert_rule_key = B.alert_rule_key
                 and A.alert_rule_key = B.alert_rule_key
@@ -150,6 +151,7 @@ class AlertReceivedService extends ServiceExtension {
                 and A.deleted_at is null
                 and B.deleted_at is null
                 and C.deleted_at is null
+                and D.customer_account_key = A.customer_account_key
                 and (A.alert_received_pod != ""
                 or A.alert_received_node != "")
                 order by A.created_at desc`;
