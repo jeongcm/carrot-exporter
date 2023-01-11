@@ -968,7 +968,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `1 - avg by (namespace) (rate(node_cpu_seconds_total{mode="idle", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (namespace) (rate(container_cpu_usage_seconds_total{mode="idle", __LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_CPU_REQUESTS':
         labelString += getSelectorLabels({
