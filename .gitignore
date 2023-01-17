@@ -139,3 +139,6 @@ dbscripts/
 
 
 log/
+
+# intellij
+.idea/
