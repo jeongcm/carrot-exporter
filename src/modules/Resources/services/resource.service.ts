@@ -1580,13 +1580,7 @@ class ResourceService {
    * @param  {number} parentCustomerAccountId
    */
   public async getResourceByTypeParentCustomerAccountId(resourceType: string[], parentCustomerAccountId: string): Promise<IResource[]> {
-    let customerAccounts = await this.customerAccount.findAll({
-      where: {deletedAt: null, parentCustomerAccountId: parentCustomerAccountId}
-    })
-
-    var customerAccountKeys = customerAccounts.map(ca => {
-      return ca.customerAccountKey
-    })
+    var customerAccountKeys = await this.customerAccountService.getCustomerAccountKeysByParentCustomerAccountId(parentCustomerAccountId)
 
     const allResources: IResource[] = await this.resource.findAll({
         where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKeys },
