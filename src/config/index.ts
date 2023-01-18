@@ -174,6 +174,7 @@ export default {
   },
   victoriaMetrics: {
     NC_LARI_VM_ADDRESS: process.env.NC_LARI_VM_ADDRESS,
+    NC_VM_SINGLE_ADDRESS: process.env.NC_VM_SINGLE_ADDRESS,
     NC_LARI_VM_API: process.env.NC_LARI_VM_API,
     vmMultiBaseUrlInsert:
       process.env.NC_VM_MULTI_BASE_URL_INSERT || 'http://vm-cluster-victoria-metrics-cluster-vminsert.vm-multi-tenant.svc.cluster.local:8480/insert',
