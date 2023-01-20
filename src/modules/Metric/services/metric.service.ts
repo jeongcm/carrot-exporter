@@ -22,6 +22,7 @@ export interface IMetricQueryBodyQuery {
   promql?: string;
   resourceGroupId?: string | string[];
   resourceGroupUuid?: string;
+  customerAccountId?: string;
   promqlOps?: {
     topk?: number;
     sort?: 'asc' | 'desc';
@@ -55,12 +56,20 @@ class MetricService extends ServiceExtension {
     try {
       await Promise.all(
         queryBody.query.map(async (query: IMetricQueryBodyQuery) => {
-          const { name, start, end, step, resourceGroupUuid, resourceId, resourceGroupId, type } = query;
-
+          const { name, start, end, step, resourceGroupUuid, resourceId, resourceGroupId, type, customerAccountId } = query;
           if (isEmpty(type)) {
             return this.throwError('EXCEPTION', `type for '${name}' is missing`);
           }
-          const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
+
+          let ca: any = {}
+          if (customerAccountId) {
+            ca.id = customerAccountId
+            ca.key = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+          } else {
+            ca.id = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey)
+            ca.key = customerAccountKey
+          }
+
           let resources: IResource[] = null;
           let resourceGroups: IResourceGroupUi[] = null;
           if (resourceId) {
@@ -71,7 +80,7 @@ class MetricService extends ServiceExtension {
               idsToUse = [resourceId];
             }
             resources = await this.resource.findAll({
-              where: { resourceId: idsToUse, customerAccountKey },
+              where: { resourceId: idsToUse, customerAccountKey: ca.key },
               attributes: { exclude: ['deletedAt'] },
             });
             if (!resources || resources.length === 0) {
@@ -80,13 +89,13 @@ class MetricService extends ServiceExtension {
 
             const resourceGroupKeys = resources?.map((resource: IResource) => resource.resourceGroupKey);
 
-            resourceGroups = await this.resourceGroupService.getUserResourceGroupByKeys(customerAccountKey, resourceGroupKeys);
+            resourceGroups = await this.resourceGroupService.getUserResourceGroupByKeys(ca.key, resourceGroupKeys);
 
             if (!resourceGroups || resourceGroups.length === 0) {
               return this.throwError('EXCEPTION', `No access to resourceGroups (accessed through resourceId)`);
             }
           } else if (resourceGroupUuid) {
-            const resourceGroup = await this.resourceGroupService.getUserResourceGroupByUuid(customerAccountKey, resourceGroupUuid);
+            const resourceGroup = await this.resourceGroupService.getUserResourceGroupByUuid(ca.key, resourceGroupUuid);
             if (!resourceGroup) {
               return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupUuid})`);
             }
@@ -127,9 +136,9 @@ class MetricService extends ServiceExtension {
             let data: any = null;
 
             if (start && end) {
-              data = await this.victoriaMetricService.queryRange(customerAccountId, `${promQl.promQl}`, `${start}`, `${end}`, step);
+              data = await this.victoriaMetricService.queryRange(ca.id, `${promQl.promQl}`, `${start}`, `${end}`, step);
             } else {
-              data = await this.victoriaMetricService.query(customerAccountId, `${promQl.promQl}`, step);
+              data = await this.victoriaMetricService.query(ca.id, `${promQl.promQl}`, step);
             }
 
             results[name] = {

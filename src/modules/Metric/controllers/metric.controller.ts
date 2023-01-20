@@ -9,14 +9,7 @@ class MetricController {
 
   public getMetric = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
-      let customerAccountKey: any
-      if (typeof req.query.customerAccountId !== "undefined") {
-        let customerAccount = await this.customerAccountService.getCustomerAccountKeyById(req.query.customerAccountId)
-        customerAccountKey = customerAccount.customerAccountKey
-      } else {
-        customerAccountKey = req.customerAccountKey
-      }
-
+      const customerAccountKey = req.customerAccountKey
       const queryBody = req.body;
       const findMetricData = await this.metricService.getMetric(customerAccountKey, queryBody);
       res.status(200).json({ data: findMetricData, message: 'findAll' });
