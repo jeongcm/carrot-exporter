@@ -1080,37 +1080,37 @@ class AlertEasyRuleService {
           if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodCPUThresholdOver") {
             return true
           }
-        }).alertEasyRuleThreshold1,
+        })?.alertEasyRuleThreshold1,
         podMemoryAlertEasyRule: alertEasyRules.find(rule => {
           if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodMemoryThresholdOver") {
             return true
           }
-        }).alertEasyRuleThreshold1,
+        })?.alertEasyRuleThreshold1,
         NodeCpuAlertEasyRule: alertEasyRules.find(rule => {
           if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostHighCpuLoadMax") {
             return true
           }
-        }).alertEasyRuleThreshold1,
+        })?.alertEasyRuleThreshold1,
         NodeMemoryAlertEasyRule: alertEasyRules.find(rule => {
           if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostOutOfMemoryMax") {
             return true
           }
-        }).alertEasyRuleThreshold1,
+        })?.alertEasyRuleThreshold1,
         NodeNetworkInAlertEasyRule: alertEasyRules.find(rule => {
           if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostUnusualNetworkThroughputIn") {
             return true
           }
-        }),
+        })?.alertEasyRuleThreshold1,
         NodeNetworkOutAlertEasyRule: alertEasyRules.find(rule => {
           if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostUnusualNetworkThroughputOut") {
             return true
           }
-        }).alertEasyRuleThreshold1,
+        })?.alertEasyRuleThreshold1,
         NodeDiskAlertEasyRule: alertEasyRules.find(rule => {
           if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "VolumeOutOfSpace") {
             return true
           }
-        }).alertEasyRuleThreshold1
+        })?.alertEasyRuleThreshold1
       }
     })
 
