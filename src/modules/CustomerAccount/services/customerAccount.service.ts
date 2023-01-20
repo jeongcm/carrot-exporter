@@ -359,13 +359,13 @@ class CustomerAccountService {
     return customerAccount;
   }
 
-  public async getCustomerAccountKeyById(customerAccountId: any): Promise<ICustomerAccount> {
-    const customerAccountKey: ICustomerAccount = await this.customerAccount.findOne({
+  public async getCustomerAccountKeyById(customerAccountId: any): Promise<number> {
+    const customerAccount: ICustomerAccount = await this.customerAccount.findOne({
       where: { customerAccountId },
       attributes: ['customerAccountKey'],
     });
 
-    return customerAccountKey;
+    return customerAccount.customerAccountKey;
   }
 
   public async getCustomerAccountByResourceGroupUuid(resourceGroupUuid: string): Promise<ICustomerAccount> {

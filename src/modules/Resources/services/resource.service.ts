@@ -260,8 +260,7 @@ class ResourceService {
    * @param  {number} customerAccountId
    */
   public async getResourceByTypeCustomerAccountId(resourceType: string[], customerAccountId: string): Promise<IResource[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const allResources: IResource[] = await this.resource.findAll({
       where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey },
@@ -275,8 +274,7 @@ class ResourceService {
    * @param  {any} query
    */
   public async getVMListByCustomerAccountId(customerAccountId: string, query?: any): Promise<any[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PJ','PM', 'VM'],};
 
@@ -388,8 +386,7 @@ class ResourceService {
    * @param  {any} query
    */
   public async getPMListByCustomerAccountId(customerAccountId: string, query?: any): Promise<any[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PM', 'VM'],};
 
@@ -487,8 +484,7 @@ class ResourceService {
    * @param  {any} query
    */
   public async getPJListByCustomerAccountId(customerAccountId: string, query?: any): Promise<any[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PJ', 'PM', 'VM'],};
 

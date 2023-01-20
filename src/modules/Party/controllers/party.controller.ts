@@ -77,7 +77,7 @@ class PartyController {
   public createUser = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
     const createUserData: CreateUserDto = req.body;
 
-    const customerAccountKey: ICustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(createUserData.customerAccountId);
+    const customerAccountKey: number = await this.customerAccountService.getCustomerAccountKeyById(createUserData.customerAccountId);
 
     if (!customerAccountKey) {
       return res.status(409).json({ message: "customerAccount doesn't exist" });
