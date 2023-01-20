@@ -363,13 +363,13 @@ class CustomerAccountService {
     return customerAccount;
   }
 
-  public async getCustomerAccountKeyById(customerAccountId: string): Promise<ICustomerAccount> {
-    const customerAccountKey: ICustomerAccount = await this.customerAccount.findOne({
+  public async getCustomerAccountKeyById(customerAccountId: any): Promise<number> {
+    const customerAccount: ICustomerAccount = await this.customerAccount.findOne({
       where: { customerAccountId },
       attributes: ['customerAccountKey'],
     });
 
-    return customerAccountKey;
+    return customerAccount.customerAccountKey;
   }
 
   public async getCustomerAccountByResourceGroupUuid(resourceGroupUuid: string): Promise<ICustomerAccount> {
@@ -583,6 +583,18 @@ class CustomerAccountService {
 
     const returnMessage = { customerAccountId: customerAccountId, fuseBillInterface: fuseBillInterface };
     return returnMessage;
+  }
+
+  public async getCustomerAccountKeysByParentCustomerAccountId(parentCustomerAccountId: string): Promise<number[]> {
+    let customerAccounts = await this.customerAccount.findAll({
+      where: {deletedAt: null, parentCustomerAccountId: parentCustomerAccountId}
+    })
+
+    var customerAccountKeys = customerAccounts.map(ca => {
+      return ca.customerAccountKey
+    })
+
+    return customerAccountKeys
   }
 }
 

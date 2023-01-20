@@ -7,6 +7,7 @@ import { ResourceDto } from '../dtos/resource.dto';
 import { IRequestWithUser } from '@/common/interfaces/party.interface';
 import { GroupedCountResultItem } from 'sequelize';
 import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
+import config from "@/config";
 
 class ResourceController {
   public resourceService = new ResourceService();
@@ -451,6 +452,42 @@ class ResourceController {
       next(error);
     }
   };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public syncResourceStatus = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const clusterUuid = req.body.clusterUuid;
+      const cronTab = req.body.cronTab || config.resourceCron;
+
+      const serviceOutput: any = await this.resourceService.syncResourceStatus(clusterUuid);
+      if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
+      res.status(200).json({ Data: serviceOutput, message: `Sync resource Successful. ${clusterUuid}, ${cronTab}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public getResourceByTypeParentCustomerAccountId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceType: string[] = req.query.resourceType as string[];
+    const parentCustomerAccountId: string = req.params.parentCustomerAccountId;
+
+    try {
+      const resource: IResource[] = await this.resourceService.getResourceByTypeParentCustomerAccountId(resourceType, parentCustomerAccountId);
+      res.status(200).json({ data: resource, message: `find resources with parentCustomerAccountId(${parentCustomerAccountId}) and resoruceType ${resourceType}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
 }
 
 export default ResourceController;

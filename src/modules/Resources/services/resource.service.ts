@@ -14,10 +14,12 @@ import { IAnomalyMonitoringTarget } from "@/common/interfaces/monitoringTarget.i
 import { ResourceGroupModel } from "../models/resourceGroup.model";
 import MetricService, { IMetricQueryBody } from "@modules/Metric/services/metric.service";
 import MassUploaderService from "@modules/CommonService/services/massUploader.service";
+import { CustomerAccountModel } from "@modules/CustomerAccount/models/customerAccount.model";
 
 class ResourceService {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
+  public customerAccount = DB.CustomerAccount
   public anomalyTarget = DB.AnomalyMonitoringTarget;
   public partyResource = DB.PartyResource;
   public subscribedProduct = DB.SubscribedProduct;
@@ -258,8 +260,7 @@ class ResourceService {
    * @param  {number} customerAccountId
    */
   public async getResourceByTypeCustomerAccountId(resourceType: string[], customerAccountId: string): Promise<IResource[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const allResources: IResource[] = await this.resource.findAll({
       where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey },
@@ -273,8 +274,7 @@ class ResourceService {
    * @param  {any} query
    */
   public async getVMListByCustomerAccountId(customerAccountId: string, query?: any): Promise<any[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PJ','PM', 'VM'],};
 
@@ -386,8 +386,7 @@ class ResourceService {
    * @param  {any} query
    */
   public async getPMListByCustomerAccountId(customerAccountId: string, query?: any): Promise<any[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PM', 'VM'],};
 
@@ -485,8 +484,7 @@ class ResourceService {
    * @param  {any} query
    */
   public async getPJListByCustomerAccountId(customerAccountId: string, query?: any): Promise<any[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PJ', 'PM', 'VM'],};
 
@@ -1548,6 +1546,59 @@ class ResourceService {
     }
 
     return result
+  }
+
+  // first. find resource By clusterUuid
+  // second, loop resources, and get Metric for resource status
+  // how can validate metric threshhold value ?
+  // third, if metric'threshhold is not valiable, set 0 and if valiable set 1
+  // fourth, upsert resourceStatus
+  public async syncResourceStatus(clusterUuid: string) {
+    const resourceGroup = await this.resourceGroup.findOne({
+      attributes: ['resourceGroupKey'],
+      where: {resourceGroupUuid: clusterUuid}
+    })
+
+    let resources = await this.resource.findAll({
+      where: { resourceGroupKey: resourceGroup.resourceGroupGroupKey }
+    })
+
+    await Promise.all(resources.map(async (resource) => {
+      let result = await this.uploadResourceStatus(resource)
+    }))
+  }
+
+  public async uploadResourceStatus(resource: IResource) {
+  }
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} parentCustomerAccountId
+   */
+  public async getResourceByTypeParentCustomerAccountId(resourceType: string[], parentCustomerAccountId: string): Promise<IResource[]> {
+    var customerAccountKeys = await this.customerAccountService.getCustomerAccountKeysByParentCustomerAccountId(parentCustomerAccountId)
+
+    const allResources: IResource[] = await this.resource.findAll({
+        where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKeys },
+        attributes: ['resourceId', 'resourceType', 'resourceName', 'resourceGroupKey'],
+        include: [
+          {
+            model: ResourceGroupModel,
+            where: { deletedAt: null },
+            attributes: ['resourceGroupKey', 'resourceGroupId', 'resourceGroupUuid', 'resourceGroupName'],
+            required: true
+          },
+          {
+            model: CustomerAccountModel,
+            where: { deletedAt: null },
+            attributes: ['customerAccountKey', 'customerAccountId', 'customerAccountName'],
+            required: true
+          },
+        ],
+      },
+    );
+
+    return allResources;
   }
 }
 

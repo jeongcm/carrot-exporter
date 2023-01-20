@@ -1055,6 +1055,67 @@ class AlertEasyRuleService {
 
     return returnMessage;
   }
+
+  public async getAlertEasyRuleThreshHold(parentCustomerAccountId: string): Promise<any> {
+    let customerAccounts = await this.customerAccount.findAll({
+      where: {deletedAt: null, parentCustomerAccountId: parentCustomerAccountId}
+    })
+
+    var customerAccountKeys = customerAccounts.map(ca => {
+      return ca.customerAccountKey
+    })
+
+    var resourceGroups = await this.resourceGroup.findAll({
+      where: { deletedAt: null, customerAccountKey: { [Op.in]: customerAccountKeys} }
+    })
+
+    var alertEasyRules = await this.alertEasyRule.findAll({
+      where: { deletedAt: null, customerAccountKey: { [Op.in]: customerAccountKeys} }
+    })
+
+    let result: any = {}
+    resourceGroups.forEach(rg => {
+      result[rg.resourceGroupUuid] = {
+        podCpuAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodCPUThresholdOver") {
+            return true
+          }
+        }),
+        podMemoryAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodMemoryThresholdOver") {
+            return true
+          }
+        }),
+        NodeCpuAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostHighCpuLoadMax") {
+            return true
+          }
+        }),
+        NodeMemoryAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostOutOfMemoryMax") {
+            return true
+          }
+        }),
+        NodeNetworkInAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostUnusualNetworkThroughputIn") {
+            return true
+          }
+        }),
+        NodeNetworkOutAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostUnusualNetworkThroughputOut") {
+            return true
+          }
+        }),
+        NodeDiskAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "VolumeOutOfSpace") {
+            return true
+          }
+        })
+      }
+    })
+
+    return result
+  }
 }
 
 export default AlertEasyRuleService;
