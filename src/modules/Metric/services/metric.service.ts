@@ -898,6 +898,21 @@ class MetricService extends ServiceExtension {
         promQl = `sum by (node) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))`;
         break;
 
+      case 'K8S_CLUSTER_NODE_RX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `sum by (node) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+      break;
+
+      case 'K8S_CLUSTER_NODE_TX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `sum by (node) (rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+      break;
+
+
       // K8s Node Ranking
       case 'K8S_CLUSTER_NODE_MEMORY_RANKING':
         labelString += getSelectorLabels({
