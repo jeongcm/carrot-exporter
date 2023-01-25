@@ -496,7 +496,7 @@ class MetricService extends ServiceExtension {
         });
         ranged = false;
 
-        promQl = `sum by(pod, clusterUuid) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by(pod, clusterUuid) (container_memory_working_set_byKtes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'POD_MEMORY':
         labelString += getSelectorLabels({
@@ -504,7 +504,7 @@ class MetricService extends ServiceExtension {
           pod: resourceName,
           namespace: resourceNamespace,
         });
-        ranged = true;
+        ranged = false;
 
         promQl = `sum by(pod, clusterUuid) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
@@ -880,8 +880,9 @@ class MetricService extends ServiceExtension {
       case 'K8S_CLUSTER_NODE_CPU':
         labelString += getSelectorLabels({
           clusterUuid,
+          node: resourceName,
         });
-        promQl = `avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[1m])) by (node) * 100`;
+        promQl = `sum by (node) (irate(node_cpu_seconds_total{mode != "idle", __LABEL_PLACE_HOLDER__}[${step}}])) / sum by (node) (machine_cpu_cores{__LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NODE_DISK':
         labelString += getSelectorLabels({
@@ -914,9 +915,7 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(
           (1 - avg(rate(node_cpu_seconds_total{__LABEL_PLACE_HOLDER__,mode="idle"}[1m])) by (node)) * 100
         )`;*/
-        promQl = `sort_desc(
-          avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[5m])) by (node, clusterUuid) * 100
-        )`;
+        promQl = `sort_desc(sum by (node) (irate(node_cpu_seconds_total{mode != “idle”, __LABEL_PLACE_HOLDER__}[5m])/(machine_cpu_cores{__LABEL_PLACE_HOLDER__}) * 100))`;
         break;
       case 'K8S_CLUSTER_NODE_DISK_RANKING':
         labelString += getSelectorLabels({
