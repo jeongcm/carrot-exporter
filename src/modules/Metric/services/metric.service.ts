@@ -476,7 +476,7 @@ class MetricService extends ServiceExtension {
           pod: resourceName,
           namespace: resourceNamespace,
         });
-        ranged = true;
+        ranged = false;
 
         promQl = `sum by(pod, clusterUuid) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )`;
         break;
