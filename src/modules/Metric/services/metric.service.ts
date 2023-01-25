@@ -62,57 +62,8 @@ class MetricService extends ServiceExtension {
             return this.throwError('EXCEPTION', `type for '${name}' is missing`);
           }
           const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
-          let resources: IResource[] = null;
-          let resourceGroups: IResourceGroupUi[] = null;
-          if (resourceId) {
-            let idsToUse: string[] = [];
-            if (Array.isArray(resourceId)) {
-              idsToUse = resourceId;
-            } else {
-              idsToUse = [resourceId];
-            }
-            resources = await this.resource.findAll({
-              where: { resourceId: idsToUse, customerAccountKey },
-              attributes: { exclude: ['deletedAt'] },
-            });
-            if (!resources || resources.length === 0) {
-              return this.throwError(`NOT_FOUND`, `No resource found with resourceId (${resourceId})`);
-            }
 
-            const resourceGroupKeys = resources?.map((resource: IResource) => resource.resourceGroupKey);
-
-            resourceGroups = await this.resourceGroupService.getUserResourceGroupByKeys(customerAccountKey, resourceGroupKeys);
-
-            if (!resourceGroups || resourceGroups.length === 0) {
-              return this.throwError('EXCEPTION', `No access to resourceGroups (accessed through resourceId)`);
-            }
-          } else if (resourceGroupUuid) {
-            const resourceGroup = await this.resourceGroupService.getUserResourceGroupByUuid(customerAccountKey, resourceGroupUuid);
-            if (!resourceGroup) {
-              return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupUuid})`);
-            }
-            resourceGroups = [resourceGroup];
-          } else if (resourceGroupId) {
-            let idsToUse: string[] = [];
-            if (Array.isArray(resourceGroupId)) {
-              idsToUse = resourceGroupId;
-            } else {
-              idsToUse = [resourceGroupId];
-            }
-            resourceGroups = await this.resourceGroupService.getResourceGroupByIds(idsToUse);
-            if (!resourceGroups) {
-              return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${idsToUse.join(', ')})`);
-            }
-          }
-
-          if (!resourceGroups && !resources) {
-            return this.throwError(
-              'NOT_FOUND',
-              `no resourceGroup nor resource found! Please make sure to pass resourceGroupId or resourceGroupUuid or resourceId`,
-            );
-          }
-
-          const promQl = this.getPromQlFromQuery(query, resources, resourceGroups);
+          const promQl = this.getPromQlFromQuery(query);
 
           if (!promQl.promQl) {
             return this.throwError(`EXCEPTION`, `Invalid type ${type}`);
