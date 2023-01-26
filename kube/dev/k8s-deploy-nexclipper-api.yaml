@@ -100,7 +100,7 @@ data:
   FUSEBILL_API_CREATE_CUSTOMER_URL: "https://secure.fusebill.com/v1/customers"
   FUSEBILL_API_CANCEL_CUSTOMER_URL: "https://secure.fusebill.com/v1/CustomerCancellation"
   NC_LOKI_API_BASE_URL: "http://loki.monitor.svc.cluster.local:3100/loki/api/v1"
-  NC_VM_SINGLE_ADDRESS: "http://vm-victoria-metrics-single-server.vm.svc.cluster.local:8428"
+  NC_VM_SINGLE_ADDRESS: "http://vmtips-victoria-metrics-single-server.vm-tips.svc.cluster.local:8428"
   NC_VM_SINGLE_API: "/api/v1/import?extra_label=clusterUuid="
   NC_VM_MULTI_BASE_URL_INSERT: "http://vm-cluster-victoria-metrics-cluster-vminsert.vm-multi-tenant.svc.cluster.local:8480/insert"
   NC_VM_MULTI_BASE_URL_SELECT: "http://vm-cluster-victoria-metrics-cluster-vmselect.vm-multi-tenant.svc.cluster.local:8481/select"
