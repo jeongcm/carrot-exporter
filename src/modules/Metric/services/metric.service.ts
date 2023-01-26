@@ -85,8 +85,7 @@ class MetricService extends ServiceExtension {
               data = await this.victoriaMetricService.queryForTips(customerAccountId, `${promQl.promQl}`, step);
             }
             let endQueryTime: any = new Date()
-            let db_query_time: any = endQueryTime - startQueryTime           
-
+            let db_query_time: any = `${endQueryTime.getTime() - startQueryTime.getTime()}ms`
             results[name] = {
               ok: true,
               data,
