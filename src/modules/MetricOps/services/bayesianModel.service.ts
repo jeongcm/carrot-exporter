@@ -147,6 +147,8 @@ class BayesianModelServices {
       standardModelId,
     };
 
+    await this.metricOpsUtilService.updateBayesianNetwork(bayesianModelKey);
+
     return returnNewBaysianModel;
   }
 
