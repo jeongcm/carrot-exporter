@@ -939,7 +939,7 @@ class MetricService extends ServiceExtension {
         promQl = `sum by (node) (irate(container_network_transmit_bytes_total{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}]))`;
       break;
 
-      // K8s Node Metric by carrot
+      // K8s Pod Metric by carrot
       case 'K8S_CLUSTER_POD_CPU':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1045,7 +1045,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (namespace) (container_memory_rss{container!="", __LABEL_PLACE_HOLDER__})  / sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (namespace) (container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__})  / sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_MEMORY_LIMITS':
         labelString += getSelectorLabels({
@@ -1057,7 +1057,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (namespace) (container_memory_rss{container!="", __LABEL_PLACE_HOLDER__}) / sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (namespace) (container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}) / sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__})`;
         break;
 
       // K8s Node Ranking
