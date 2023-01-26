@@ -123,7 +123,7 @@ class VictoriaMetricService extends ServiceExtension {
       const result = await axios(axiosParameter);
 
       if (result && result.data && result.data.data) {
-        result.data.data.queryRunTime = Date.now() - startTime;
+        result.data.data.queryRunTime = `${Date.now() - startTime}ms`;
         return result.data.data;
       } else {
         return null;
@@ -144,6 +144,8 @@ class VictoriaMetricService extends ServiceExtension {
     if (step) {
       stepStr = `&step=${step}`;
     }
+    
+    const startTime: number = Date.now();
     if (config.victoriaMetrics.vmOption === 'SINGLE') {
       url = `${this.victoriaSingleEndpoint}/api/v1/query?query=${encodeURIComponent(promQl)}${stepStr}`;
       axiosParameter = {
@@ -156,6 +158,7 @@ class VictoriaMetricService extends ServiceExtension {
       const result = await axios(axiosParameter);
 
       if (result && result.data && result.data.data) {
+        result.data.data.queryRunTime = `${Date.now() - startTime}ms`;
         return result.data.data;
       } else {
         return null;
