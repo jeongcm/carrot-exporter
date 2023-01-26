@@ -146,7 +146,7 @@ class BayesianModelServices {
       version,
       standardModelId,
     };
-
+    console.log('bayesianModelKey', bayesianModelKey);
     await this.metricOpsUtilService.updateBayesianNetwork(bayesianModelKey);
 
     return returnNewBaysianModel;
@@ -619,11 +619,13 @@ class BayesianModelServices {
   public async provisionBayesianModelforCluster(resourceGroupId: string): Promise<object> {
     const uuid = require('uuid');
     //step1. find ResourceGroup
+    console.log('step1------');
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupId, deletedAt: null } });
     if (!findResourceGroup) throw new HttpException(401, 'Target Resource Group / Cluster for BM model provision does not exist');
     const customerAccountKey = findResourceGroup.customerAccountKey;
 
     //step2. load ini model data
+    console.log('step2------');
     const {
       bm: bmList,
       bmRuleGroup: bmRuleGroupList,
@@ -637,6 +639,7 @@ class BayesianModelServices {
     const resourceGroupUuid = findResourceGroup.resourceGroupUuid;
 
     //step3-1. create resolution action if there is no action
+    console.log('step31------');
     const resolutionActionData = [];
     for (const x of resolutionActionList) {
       const findSudoryTemplate: ISudoryTemplate = await this.sudoryTemplate.findOne({
@@ -669,6 +672,7 @@ class BayesianModelServices {
     }
 
     //step3-2. prepare for ruleGroup insert data and bulkinsert
+    console.log('step32------');
     const ruleGroupData = [];
     for (const x of ruleGroupList) {
       const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
@@ -696,6 +700,7 @@ class BayesianModelServices {
     }
 
     //step3-3. prepare for alertRule/ruleGroup insert data
+    console.log('step33------');
     const alertRuleData = [];
     for (const x of alertRuleList) {
       const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
@@ -732,6 +737,7 @@ class BayesianModelServices {
     }
 
     //step3-4. add resolution action to rulegroup
+    console.log('step34------');
     const ruleGroupResolutionActionData = [];
     for (const x of resolutionActionList) {
       const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
@@ -773,6 +779,7 @@ class BayesianModelServices {
     }
 
     //step3-5. create bm
+    console.log('step35------');
     const bmData = [];
     for (const x of bmList) {
       const findBm: IBayesianModel = await this.bayesianModel.findOne({
@@ -804,6 +811,7 @@ class BayesianModelServices {
     }
 
     //step3-6. add rulegroup to bm
+    console.log('step36------');
     const bmRuleGroup = [];
     for (const x of bmRuleGroupList) {
       const findRuleGroup: IRuleGroup = await this.ruleGroup.findOne({
@@ -813,7 +821,9 @@ class BayesianModelServices {
       const findBm: IBayesianModel = await this.bayesianModel.findOne({
         where: { deletedAt: null, resourceGroupKey, bayesianModelName: x.bayesianModelName },
       });
-      const bayesianModelKey = findBm?.bayesianModelKey;
+      console.log('step36------bm seaerch condition', resourceGroupKey, x.bayesianModelName);
+      console.log('step36------bm', findBm);
+      const bayesianModelKey = findBm.bayesianModelKey;
 
       const findModelRuleScore: IModelRuleScore = await this.modelRuleScore.findOne({
         where: { deletedAt: null, ruleGroupKey, bayesianModelKey },
@@ -826,7 +836,7 @@ class BayesianModelServices {
           modelRuleScoreId: uuid.v1(),
           ruleGroupAlertRuleStatus: 'AC',
           ruleGroupKey: findRuleGroup.ruleGroupKey,
-          bayesianModelKey: findBm.bayesianModelKey,
+          bayesianModelKey: bayesianModelKey,
           scoreCard: x.scoreCard,
         });
       } else console.log('MetricOps - issue to register ruleGroup to BayesianModel or existing one', x);
