@@ -177,12 +177,13 @@ class AlertReceivedService extends ServiceExtension {
 
       resource = await this.resource.findOne({
         where: { resourceName: name },
-        attributes: ['resourceType', 'resourceName']
+        attributes: ['resourceType', 'resourceName', 'resourceId']
       })
 
       if (resource !== null) {
         alert.resourceType = resource?.resourceType
         alert.resourceName = resource?.resourceName
+        alert.resourceId = resource?.resourceId
       } else {
         alert.resourceType = type
         alert.resourceName = name
