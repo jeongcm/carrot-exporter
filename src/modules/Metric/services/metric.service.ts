@@ -882,7 +882,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
           node: resourceName,
         });
-        promQl = `sum by (node) (irate(node_cpu_seconds_total{mode != "idle", __LABEL_PLACE_HOLDER__}[${step}}])) / sum by (node) (machine_cpu_cores{__LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (node) (irate(node_cpu_seconds_total{mode!="idle", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (node) (machine_cpu_cores{__LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NODE_DISK':
         labelString += getSelectorLabels({
@@ -930,7 +930,7 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(
           (1 - avg(rate(node_cpu_seconds_total{__LABEL_PLACE_HOLDER__,mode="idle"}[1m])) by (node)) * 100
         )`;*/
-        promQl = `sort_desc(sum by (node) (irate(node_cpu_seconds_total{mode != “idle”, __LABEL_PLACE_HOLDER__}[5m])/(machine_cpu_cores{__LABEL_PLACE_HOLDER__}) * 100))`;
+        promQl = `sort_desc(sum by (node) (irate(node_cpu_seconds_total{mode!="idle", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (node) (machine_cpu_cores{__LABEL_PLACE_HOLDER__}))`;
         break;
       case 'K8S_CLUSTER_NODE_DISK_RANKING':
         labelString += getSelectorLabels({
