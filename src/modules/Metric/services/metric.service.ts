@@ -870,48 +870,74 @@ class MetricService extends ServiceExtension {
         promQl = `count((kube_persistentvolumeclaim_status_phase{__LABEL_PLACE_HOLDER__, phase="Lost"}==1)) or vector(0)`;
         break;
 
-      // K8s Cluster Node Metric
-      case 'K8S_CLUSTER_NODE_MEMORY':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-        promQl = `(1 - (node_memory_MemAvailable_bytes{__LABEL_PLACE_HOLDER__} / (node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__}))) * 100`;
-        break;
-      case 'K8S_CLUSTER_NODE_CPU':
+
+
+      // K8s Cluster Node Metric by carrot
+      case 'K8S_CLUSTER_NODE_MEMORY_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
           node: resourceName,
         });
-        promQl = `sum by (node) (irate(node_cpu_seconds_total{mode!="idle", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (node) (machine_cpu_cores{__LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (node) (container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__})`;
+        break;
+      case 'K8S_CLUSTER_NODE_MEMORY_USAGE_PERCENTAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (node) (container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}) / sum by (node) (kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
+        break;
+      case 'K8S_CLUSTER_NODE_CPU_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (node) (irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        break;
+      case 'K8S_CLUSTER_NODE_CPU_USAGE_PERCENTAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (node) (irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (node) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NODE_DISK':
         labelString += getSelectorLabels({
           clusterUuid,
+          node: resourceName,
         });
-        promQl = `(node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__,fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}) * 100
-/ (node_filesystem_avail_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"} + (node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__, job="node-exporter", fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}))`;
+        promQl = `sum by (node) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__})`;
+        break;
+      case 'K8S_CLUSTER_NODE_DISK_PERCENTAGE':
+          labelString += getSelectorLabels({
+            clusterUuid,
+            node: resourceName,
+          });
+          promQl = `sum by (node) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}) / sum by (node) (kube_node_status_allocatable{resource="ephemeral_storage", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NODE_RXTX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
+          node: resourceName,
         });
-        promQl = `sum by (node) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))`;
+        promQl = `sum by (node) (irate(container_network_receive_bytes_total{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[60m]) + irate(container_network_transmit_bytes_total{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[60m]))`;
         break;
 
       case 'K8S_CLUSTER_NODE_RX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
+          node: resourceName,
         });
-        promQl = `sum by (node) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (node) (irate(container_network_receive_bytes_total{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}]))`;
       break;
 
       case 'K8S_CLUSTER_NODE_TX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
+          node: resourceName,
         });
-        promQl = `sum by (node) (rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (node) (irate(container_network_transmit_bytes_total{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}]))`;
       break;
-
 
       // K8s Node Ranking
       case 'K8S_CLUSTER_NODE_MEMORY_RANKING':
@@ -919,7 +945,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
         });
         promQl = `sort_desc(
-          (1 - (node_memory_MemAvailable_bytes{__LABEL_PLACE_HOLDER__} / (node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__})))* 100
+          sum by (node) (container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}) / sum by (node) (kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})
         )`;
         break;
       case 'K8S_CLUSTER_NODE_CPU_RANKING':
@@ -930,7 +956,7 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(
           (1 - avg(rate(node_cpu_seconds_total{__LABEL_PLACE_HOLDER__,mode="idle"}[1m])) by (node)) * 100
         )`;*/
-        promQl = `sort_desc(sum by (node) (irate(node_cpu_seconds_total{mode!="idle", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (node) (machine_cpu_cores{__LABEL_PLACE_HOLDER__}))`;
+        promQl = `sort_desc(sum by (node) (irate(node_cpu_seconds_total{mode!="idle", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (node) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__}))`;
         break;
       case 'K8S_CLUSTER_NODE_DISK_RANKING':
         labelString += getSelectorLabels({
