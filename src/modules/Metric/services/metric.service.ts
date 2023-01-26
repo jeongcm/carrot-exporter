@@ -78,18 +78,14 @@ class MetricService extends ServiceExtension {
           try {
             let data: any = null;
 
-            let startQueryTime: any = new Date()
             if (start && end) {
               data = await this.victoriaMetricService.queryRangeForTips(customerAccountId, `${promQl.promQl}`, `${start}`, `${end}`, step);
             } else {
               data = await this.victoriaMetricService.queryForTips(customerAccountId, `${promQl.promQl}`, step);
             }
-            let endQueryTime: any = new Date()
-            let db_query_time: any = `${endQueryTime.getTime() - startQueryTime.getTime()}ms`
             results[name] = {
               ok: true,
               data,
-              db_query_time,
               query: { ...promQl, step },
             };
           } catch (e) {
