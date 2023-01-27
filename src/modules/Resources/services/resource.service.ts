@@ -1585,7 +1585,7 @@ class ResourceService {
           {
             model: ResourceGroupModel,
             where: { deletedAt: null },
-            attributes: ['resourceGroupKey', 'resourceGroupId', 'resourceGroupUuid', 'resourceGroupName'],
+            attributes: ['resourceGroupKey', 'resourceGroupId', 'resourceGroupUuid', 'resourceGroupName', 'resourceGroupServerInterfaceStatus'],
             required: true
           },
           {
