@@ -163,7 +163,8 @@ class BayesianModelServices {
     if (!bayesianModelId) throw new HttpException(409, 'BayesianModel Id Not found');
 
     const findBayesianModel: IBayesianDBModel = await this.bayesianModel.findOne({
-      where: { bayesianModelId, deletedAt: null },
+      //where: { bayesianModelId, deletedAt: null },
+      where: { bayesianModelId },
       attributes: { exclude: ['resourceGroupKey'] },
       include: [
         {
