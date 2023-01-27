@@ -15,6 +15,7 @@ import { ResourceGroupModel } from "../models/resourceGroup.model";
 import MetricService, { IMetricQueryBody } from "@modules/Metric/services/metric.service";
 import MassUploaderService from "@modules/CommonService/services/massUploader.service";
 import { CustomerAccountModel } from "@modules/CustomerAccount/models/customerAccount.model";
+import config from '@config/index';
 
 class ResourceService {
   public resource = DB.Resource;
@@ -1578,14 +1579,14 @@ class ResourceService {
   public async getResourceByTypeParentCustomerAccountId(resourceType: string[], parentCustomerAccountId: string): Promise<IResource[]> {
     var customerAccountKeys = await this.customerAccountService.getCustomerAccountKeysByParentCustomerAccountId(parentCustomerAccountId)
 
-    const allResources: IResource[] = await this.resource.findAll({
+    const results: any[] = await this.resource.findAll({
         where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKeys },
         attributes: ['resourceId', 'resourceType', 'resourceName', 'resourceGroupKey'],
         include: [
           {
             model: ResourceGroupModel,
             where: { deletedAt: null },
-            attributes: ['resourceGroupKey', 'resourceGroupId', 'resourceGroupUuid', 'resourceGroupName', 'resourceGroupServerInterfaceStatus'],
+            attributes: ['resourceGroupKey', 'resourceGroupId', 'resourceGroupUuid', 'resourceGroupName', 'resourceGroupLastServerUpdatedAt'],
             required: true
           },
           {
@@ -1598,7 +1599,32 @@ class ResourceService {
       },
     );
 
-    return allResources;
+    let resultResources = [];
+    let resourceGroupServerInterfaceStatus: boolean = true;
+    for (let result of results) {
+      if (result.ResourceGroup.resourceGroupLastServerUpdatedAt === null) {
+        resourceGroupServerInterfaceStatus = false;
+      } else {
+        const decisionMin = parseInt(config.clusterOutageDecisionMin);
+        const difference = new Date().getTime() - result.ResourceGroup.resourceGroupLastServerUpdatedAt.getTime();
+        const differenceInMin = Math.round(difference / 60000);
+        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+      }
+
+      resultResources.push({
+        "resourceId": result.resourceId,
+        "resourceType": result.resourceType,
+        "resourceName": result.resourceName,
+        "resourceGroupId": result.ResourceGroup.resourceGroupId,
+        "resourceGroupUuid": result.ResourceGroup.resourceGroupUuid,
+        "resourceGroupName": result.ResourceGroup.resourceGroupName,
+        "resourceGroupServerInterfaceStatus": resourceGroupServerInterfaceStatus,
+        "customerAccountId": result.CustomerAccount.customerAccountId,
+        "customerAccountName": result.CustomerAccount.customerAccountName
+      })
+    }
+
+    return resultResources;
   }
 }
 
