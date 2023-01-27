@@ -73,7 +73,7 @@ class CustomerAccountService {
     const partyIdApi = responseTableIdData.tableIdFinalIssued;
     let customerAccountKey;
     let returnResult;
-    let externalBillingCustomerId;
+    // let externalBillingCustomerId;
     try {
       await DB.sequelize.transaction(async t => {
         //1. create a customer account
@@ -164,86 +164,86 @@ class CustomerAccountService {
         )
 
         //3. fusebill interface
-        console.log('fuseBill Start');
-        const fuseBillCreateCustomer = {
-          firstName: firstName,
-          lastName: lastName,
-          companyName: partyName,
-          primaryEmail: email,
-          primaryPhone: mobile,
-          reference: customerAccountId,
-        };
-        let fuseBillInterface = false;
-        const headers = { Authorization: `Basic ${config.fuseBillApiDetail.apiKey}` };
-        const fuseBillCustomer = await axios({
-          method: 'post',
-          url: config.fuseBillApiDetail.createCustomerUrl,
-          data: fuseBillCreateCustomer,
-          headers: headers,
-        });
-        if (fuseBillCustomer.data) {
-          fuseBillInterface = true;
-          console.log('Provision customer infor to fusebill successfully');
-          externalBillingCustomerId = fuseBillCustomer.data.id;
-          const customerActivationPayload = {
-            customerId: fuseBillCustomer.data.id,
-            activateAllSubscriptions: true,
-            activateAllDraftPurchases: true,
-            temporarilyDisableAutoPost: false,
-          };
-          await axios({
-            method: 'post',
-            url: `${config.fuseBillApiDetail.baseURL}customerActivation`,
-            data: customerActivationPayload,
-            headers: headers,
-          });
-        } else {
-          console.log('Fail to provision customer data to Fulsebill');
-        }
-        console.log('fuseBill End');
-        //4. prep sending email to customer
-        console.log('sending email to customer Start');
-        let emailTemplateSource;
-        try {
-          emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'), 'utf8');
-        } catch (err) {
-          console.log('email error-----', err);
-        }
-        const template = handlebars.compile(emailTemplateSource);
-        const name = createdPartyUser.firstName;
-        const htmlToSend = template({ name });
-        const mailOptions = {
-          to: createdPartyUser.email,
-          from: 'service@nexclipper.io',
-          subject: 'Welcome Onboard - NexClipper',
-          html: htmlToSend,
-        };
-        const notificationMessage = JSON.parse(JSON.stringify(mailOptions));
-        //5 create notification history
-        tableIdTableName = 'Notification';
-        responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
-        const notificationId = responseTableIdData.tableIdFinalIssued;
-        const newNotification = {
-          notificationId: notificationId,
-          partyKey: partyKey,
-          createdBy: createdBy,
-          createdAt: currentDate,
-          notificationStatutsUpdatedAt: currentDate,
-          customerAccountKey,
-          notificationChannelType: 'email',
-          notificationType: 'newCustomerAccount',
-          notificationChannel: createdPartyUser.email,
-          notificationMessage: notificationMessage,
-          notificationStatus: 'ST',
-        };
-        await this.notification.create(newNotification, { transaction: t });
-        console.log('sending email to customer end');
-        //4.1 send email to customer
-        console.log('sending email to customer start 4.1');
-        let emailSent = false;
-        await this.sendMailService.sendMailGeneral(mailOptions);
-        emailSent = true;
-        console.log('email sent to new customer');
+        // console.log('fuseBill Start');
+        // const fuseBillCreateCustomer = {
+        //   firstName: firstName,
+        //   lastName: lastName,
+        //   companyName: partyName,
+        //   primaryEmail: email,
+        //   primaryPhone: mobile,
+        //   reference: customerAccountId,
+        // };
+        // let fuseBillInterface = false;
+        // const headers = { Authorization: `Basic ${config.fuseBillApiDetail.apiKey}` };
+        // const fuseBillCustomer = await axios({
+        //   method: 'post',
+        //   url: config.fuseBillApiDetail.createCustomerUrl,
+        //   data: fuseBillCreateCustomer,
+        //   headers: headers,
+        // });
+        // if (fuseBillCustomer.data) {
+        //   fuseBillInterface = true;
+        //   console.log('Provision customer infor to fusebill successfully');
+        //   externalBillingCustomerId = fuseBillCustomer.data.id;
+        //   const customerActivationPayload = {
+        //     customerId: fuseBillCustomer.data.id,
+        //     activateAllSubscriptions: true,
+        //     activateAllDraftPurchases: true,
+        //     temporarilyDisableAutoPost: false,
+        //   };
+        //   await axios({
+        //     method: 'post',
+        //     url: `${config.fuseBillApiDetail.baseURL}customerActivation`,
+        //     data: customerActivationPayload,
+        //     headers: headers,
+        //   });
+        // } else {
+        //   console.log('Fail to provision customer data to Fulsebill');
+        // }
+        // console.log('fuseBill End');
+        // //4. prep sending email to customer
+        // console.log('sending email to customer Start');
+        // let emailTemplateSource;
+        // try {
+        //   emailTemplateSource = fs.readFileSync(path.join(__dirname, '../../Messaging/templates/emails/email-body/newCustomerAccount.hbs'), 'utf8');
+        // } catch (err) {
+        //   console.log('email error-----', err);
+        // }
+        // const template = handlebars.compile(emailTemplateSource);
+        // const name = createdPartyUser.firstName;
+        // const htmlToSend = template({ name });
+        // const mailOptions = {
+        //   to: createdPartyUser.email,
+        //   from: 'service@nexclipper.io',
+        //   subject: 'Welcome Onboard - NexClipper',
+        //   html: htmlToSend,
+        // };
+        // const notificationMessage = JSON.parse(JSON.stringify(mailOptions));
+        // //5 create notification history
+        // tableIdTableName = 'Notification';
+        // responseTableIdData = await this.tableIdService.issueTableId(tableIdTableName);
+        // const notificationId = responseTableIdData.tableIdFinalIssued;
+        // const newNotification = {
+        //   notificationId: notificationId,
+        //   partyKey: partyKey,
+        //   createdBy: createdBy,
+        //   createdAt: currentDate,
+        //   notificationStatutsUpdatedAt: currentDate,
+        //   customerAccountKey,
+        //   notificationChannelType: 'email',
+        //   notificationType: 'newCustomerAccount',
+        //   notificationChannel: createdPartyUser.email,
+        //   notificationMessage: notificationMessage,
+        //   notificationStatus: 'ST',
+        // };
+        // await this.notification.create(newNotification, { transaction: t });
+        // console.log('sending email to customer end');
+        // //4.1 send email to customer
+        // console.log('sending email to customer start 4.1');
+        // let emailSent = false;
+        // await this.sendMailService.sendMailGeneral(mailOptions);
+        // emailSent = true;
+        // console.log('email sent to new customer');
         //6. set customer health check scheduling
         //const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
         //console.log('operation schedules setup:', scheduleHealthService);
@@ -257,10 +257,7 @@ class CustomerAccountService {
           lastName: createdPartyUser.lastName,
           userId: createdPartyUser.userId,
           email: createdPartyUser.email,
-          mobile: createdPartyUser.mobile,
-          emailSent: emailSent,
-          notificationId: notificationId,
-          fuseBillInterface: fuseBillInterface,
+          mobile: createdPartyUser.mobile
         };
       })
     } catch (err) {
@@ -269,7 +266,7 @@ class CustomerAccountService {
     }
 
     // update externalbillingcustomerid into customerAccount table
-    await this.customerAccount.update({ externalBillingCustomerId }, { where: { customerAccountId } });
+    // await this.customerAccount.update({ externalBillingCustomerId }, { where: { customerAccountId } });
 
     if (config.victoriaMetrics.vmOption === "MULTI") {
       //. create multi-tenant VM secret data
@@ -481,7 +478,7 @@ class CustomerAccountService {
     const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
     if (!findCustomerAccount) throw new HttpException(404, 'Cannot find customerAccount');
     const customerAccountKey = findCustomerAccount.customerAccountKey;
-    const externalBillingCustomerId = findCustomerAccount.externalBillingCustomerId;
+    // const externalBillingCustomerId = findCustomerAccount.externalBillingCustomerId;
 
     //2. find ResourceGroup
     const findResourceGroup: IResourceGroup[] = await this.resourceGroup.findAll({ where: { customerAccountKey, deletedAt: null } });
@@ -512,29 +509,29 @@ class CustomerAccountService {
     //6. delete customerAccount with fusebill interface
     await this.customerAccount.update({ deletedAt: new Date() }, { where: { customerAccountKey } });
 
-    console.log('fuseBill Provisoning Start');
-    const fuseBillCancelCustomer = {
-      customerId: externalBillingCustomerId,
-      cancellationOption: 'None',
-    };
-    let fuseBillInterface = false;
-    const headers = { Authorization: `Basic ${config.fuseBillApiDetail.apiKey}` };
-    console.log('url', config.fuseBillApiDetail.cancelCustomerUrl);
-    console.log('data', fuseBillCancelCustomer);
+    // console.log('fuseBill Provisoning Start');
+    // const fuseBillCancelCustomer = {
+    //   customerId: externalBillingCustomerId,
+    //   cancellationOption: 'None',
+    // };
+    // let fuseBillInterface = false;
+    // const headers = { Authorization: `Basic ${config.fuseBillApiDetail.apiKey}` };
+    // console.log('url', config.fuseBillApiDetail.cancelCustomerUrl);
+    // console.log('data', fuseBillCancelCustomer);
 
-    try {
-      const fuseBillCustomer = await axios({
-        method: 'post',
-        url: config.fuseBillApiDetail.cancelCustomerUrl,
-        data: fuseBillCancelCustomer,
-        headers: headers,
-      });
-      fuseBillInterface = true;
-      console.log('Provision customer infor to fusebill successfully');
-    } catch (error) {
-      console.log('Fail to provision customer data to Fulsebill', error);
-    }
-    console.log('fuseBill Provisoning End');
+    // try {
+    //   const fuseBillCustomer = await axios({
+    //     method: 'post',
+    //     url: config.fuseBillApiDetail.cancelCustomerUrl,
+    //     data: fuseBillCancelCustomer,
+    //     headers: headers,
+    //   });
+    //   fuseBillInterface = true;
+    //   console.log('Provision customer infor to fusebill successfully');
+    // } catch (error) {
+    //   console.log('Fail to provision customer data to Fulsebill', error);
+    // }
+    // console.log('fuseBill Provisoning End');
 
     //7. reprovision customerAccountid to vm-multi-tenant model
 
@@ -581,7 +578,7 @@ class CustomerAccountService {
     //console.log('CUSTOMER# - step', JSON.stringify(step));
     await this.sudoryService.postSudoryService(sudoryServiceName, summary, clusterUuid, templateUuid, step, customerAccountKey, subscribedChannel);
 
-    const returnMessage = { customerAccountId: customerAccountId, fuseBillInterface: fuseBillInterface };
+    const returnMessage = { customerAccountId: customerAccountId };
     return returnMessage;
   }
 
