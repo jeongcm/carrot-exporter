@@ -24,6 +24,7 @@ class ResourceService {
   public customerAccount = DB.CustomerAccount
   public anomalyTarget = DB.AnomalyMonitoringTarget;
   public partyResource = DB.PartyResource;
+  public partyUser = DB.PartyUser;
   public subscribedProduct = DB.SubscribedProduct;
   public TableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
@@ -1595,12 +1596,6 @@ class ResourceService {
             where: { deletedAt: null },
             attributes: ['customerAccountKey', 'customerAccountId', 'customerAccountName', 'createdBy'],
             required: true,
-            include: [
-              {
-                model: PartyUserModel,
-                association: PartyUserModel.belongsTo(PartyUserModel, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
-              }
-            ],
           },
         ],
       },
@@ -1628,7 +1623,7 @@ class ResourceService {
         "resourceGroupServerInterfaceStatus": resourceGroupServerInterfaceStatus,
         "customerAccountId": result.CustomerAccount.customerAccountId,
         "customerAccountName": result.CustomerAccount.customerAccountName,
-        "userId": result.CustomerAccount.PartyUser.user_id
+        "userId": ""
       })
     }
 
