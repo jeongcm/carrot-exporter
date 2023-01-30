@@ -154,7 +154,7 @@ class AlertReceivedService extends ServiceExtension {
                 and C.deleted_at is null
                 and D.customer_account_key = A.customer_account_key
                 and E.user_id = D.customer_account_id
-                and E.firt_name = "API-User"
+                and E.first_name = "API-User"
                 and (A.alert_received_pod != ""
                 or A.alert_received_node != "")
                 order by A.created_at desc`;
