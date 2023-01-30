@@ -1600,7 +1600,7 @@ class ResourceService {
                 D.user_id as userId
               FROM Resource A, ResourceGroup B, CustomerAccount C, PartyUser D
               WHERE A.customer_account_key in (${customerAccountKeys})
-                and A.resource_type in (`+resourceTypes+`)
+                and A.resource_type in (${resourceTypes})
                 and B.resource_group_key = A.resource_group_key
                 and A.deleted_at is null
                 and B.deleted_at is null
