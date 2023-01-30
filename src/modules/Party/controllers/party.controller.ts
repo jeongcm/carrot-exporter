@@ -159,6 +159,28 @@ class PartyController {
     }
   };
 
+  public loginInSystem = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const loginData: LoginDto = req.body;
+      //const customerAccountKey = req.customerAccountKey;
+      const { cookie, findUser, token } = await this.partyService.loginInSystem(loginData);
+
+      const loggedInUser = {
+        partyId: findUser.partyUserId,
+        id: findUser.userId,
+        email: findUser.email,
+        firstName: findUser.firstName,
+        lastName: findUser.lastName,
+        mobile: findUser.mobile,
+      };
+
+      res.setHeader('Set-Cookie', [cookie]);
+      res.status(200).json({ data: loggedInUser, message: 'login', token });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public apiLogin = async (req: RequestWithUser, res: Response, next: NextFunction) => {
     try {
       const loginData: LoginApiDto = req.body;

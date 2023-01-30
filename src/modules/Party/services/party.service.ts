@@ -268,6 +268,24 @@ class PartyService {
     return { cookie, findUser, token: tokenData.token };
   }
 
+  public async loginInSystem(loginData: LoginDto): Promise<{ cookie: string; findUser: IPartyUser; token: string }> {
+    if (isEmpty(loginData)) throw new Error('LoginData must not be empty');
+
+    const findUser: IPartyUser = await this.partyUser.findOne({ where: { userId: loginData.userId } });
+    if (!findUser) throw new HttpException(401, `LOGIN_FAILED`);
+
+    const tokenData = this.createToken(findUser);
+    const cookie = this.createCookie(tokenData);
+
+    await this.partyUser.update({ lastAccessAt: new Date() }, { where: { userId: loginData.userId } });
+    //const findCustoemrAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
+    //const customerAccountId = findCustoemrAccount.customerAccountId;
+    //const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
+    //console.log('operation schedules setup:', scheduleHealthService);
+
+    return { cookie, findUser, token: tokenData.token };
+  }
+
   public async requestPasswordReset(email: string) {
     //1. check email if exist. Send exception if there is no email account.
     if (isEmpty(email)) throw new HttpException(400, 'No email address provided');
