@@ -143,7 +143,7 @@ class AlertReceivedService extends ServiceExtension {
                 C.resource_group_uuid as resourceGroupUuid,
                 C.resource_group_name as resourceGroupName,
                 D.customer_account_name as customerAccountName,
-                E.user_id as user_id
+                E.user_id as userId
               FROM AlertReceived A, AlertRule B, ResourceGroup C, CustomerAccount D, PartyUser E
               WHERE A.customer_account_key in (${customerAccountKeys})
                 and A.alert_rule_key = B.alert_rule_key

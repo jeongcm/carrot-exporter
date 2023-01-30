@@ -1596,7 +1596,7 @@ class ResourceService {
                 B.resource_group_last_server_updated_at as resourceGroupLastServerUpdatedAt,
                 C.customer_account_key as customerAccountKey,
                 C.customer_account_id as customerAccountId,
-                C.customer_account_name as customerAaccountName,
+                C.customer_account_name as customerAccountName,
                 D.user_id as userId
               FROM Resource A, ResourceGroup B, CustomerAccount C, PartyUser D
               WHERE A.customer_account_key in (${customerAccountKeys})
