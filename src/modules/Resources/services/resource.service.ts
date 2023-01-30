@@ -1600,8 +1600,8 @@ class ResourceService {
     );
 
     let resultResources = [];
-    let resourceGroupServerInterfaceStatus: boolean = true;
     for (let result of results) {
+      let resourceGroupServerInterfaceStatus: boolean = true;
       if (result.ResourceGroup.resourceGroupLastServerUpdatedAt === null) {
         resourceGroupServerInterfaceStatus = false;
       } else {
