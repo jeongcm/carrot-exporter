@@ -1628,7 +1628,7 @@ class ResourceService {
         "resourceGroupServerInterfaceStatus": resourceGroupServerInterfaceStatus,
         "customerAccountId": result.CustomerAccount.customerAccountId,
         "customerAccountName": result.CustomerAccount.customerAccountName,
-        "partyUserId": result.CustomerAccount.PartyUser.partyUserId
+        "userId": result.CustomerAccount.PartyUser.user_id
       })
     }
 
