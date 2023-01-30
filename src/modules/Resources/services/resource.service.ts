@@ -16,6 +16,7 @@ import MetricService, { IMetricQueryBody } from "@modules/Metric/services/metric
 import MassUploaderService from "@modules/CommonService/services/massUploader.service";
 import { CustomerAccountModel } from "@modules/CustomerAccount/models/customerAccount.model";
 import config from '@config/index';
+import { PartyUserModel } from "@/modules/Party/models/partyUser.model";
 
 class ResourceService {
   public resource = DB.Resource;
@@ -1592,8 +1593,14 @@ class ResourceService {
           {
             model: CustomerAccountModel,
             where: { deletedAt: null },
-            attributes: ['customerAccountKey', 'customerAccountId', 'customerAccountName'],
-            required: true
+            attributes: ['customerAccountKey', 'customerAccountId', 'customerAccountName', 'createdBy'],
+            required: true,
+            include: [
+              {
+                model: PartyUserModel,
+                association: PartyUserModel.belongsTo(PartyUserModel, { foreignKey: 'createdBy', targetKey: 'partyUserId' }),
+              }
+            ],
           },
         ],
       },
@@ -1620,7 +1627,8 @@ class ResourceService {
         "resourceGroupName": result.ResourceGroup.resourceGroupName,
         "resourceGroupServerInterfaceStatus": resourceGroupServerInterfaceStatus,
         "customerAccountId": result.CustomerAccount.customerAccountId,
-        "customerAccountName": result.CustomerAccount.customerAccountName
+        "customerAccountName": result.CustomerAccount.customerAccountName,
+        "partyUserId": result.CustomerAccount.PartyUser.partyUserId
       })
     }
 
