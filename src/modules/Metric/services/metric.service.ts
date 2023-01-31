@@ -920,7 +920,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
           node: resourceName,
         });
-        promQl = `sum by (clusterUuid, node) (irate(container_network_receive_bytes_total{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[60m]) + irate(container_network_transmit_bytes_total{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[60m]))`;
+        promQl = `sum by (clusterUuid, node) (irate(container_network_receive_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[60m]) + irate(container_network_transmit_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[60m]))`;
         break;
 
       case 'K8S_CLUSTER_NODE_RX_TOTAL':
@@ -928,7 +928,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
           node: resourceName,
         });
-        promQl = `sum by (clusterUuid, node) (irate(container_network_receive_bytes_total{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, node) (irate(container_network_receive_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
       break;
 
       case 'K8S_CLUSTER_NODE_TX_TOTAL':
@@ -936,7 +936,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
           node: resourceName,
         });
-        promQl = `sum by (clusterUuid, node) (irate(container_network_transmit_bytes_total{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, node) (irate(container_network_transmit_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
       break;
 
       // K8s Pod Metric by carrot
@@ -960,7 +960,26 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by(pod, clusterUuid) (container_memory_working_set_bytes{container=~".*",container!="", container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
+      case 'K8S_CLUSTER_POD_RX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
 
+        promQl = `sum by(pod, clusterUuid) (irate(container_network_receive_bytes_total{image!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        break;
+      case 'K8S_CLUSTER_POD_TX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `sum by(pod, clusterUuid) (irate(container_network_transmit_bytes_total{image!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        break;
       // K8s Overview Metric by carrot
       case 'K8S_CLUSTER_CPU_UTILIZATION':
         labelString += getSelectorLabels({
