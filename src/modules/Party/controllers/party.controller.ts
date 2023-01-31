@@ -152,7 +152,7 @@ class PartyController {
         mobile: findUser.mobile,
       };
 
-      res.setHeader('Set-Cookie', [cookie]);
+      // res.setHeader('Set-Cookie', [cookie]);
       res.status(200).json({ data: loggedInUser, message: 'login', token });
     } catch (error) {
       next(error);
@@ -174,7 +174,7 @@ class PartyController {
         mobile: findUser.mobile,
       };
 
-      res.setHeader('Set-Cookie', [cookie]);
+      // res.setHeader('Set-Cookie', [cookie]);
       res.status(200).json({ data: loggedInUser, message: 'login', token });
     } catch (error) {
       next(error);
