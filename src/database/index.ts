@@ -497,7 +497,7 @@ DB.sequelize
     const sp3pre = `DROP PROCEDURE IF EXISTS nc_api.sp_deleteAlertReceived;`;
 
     const sp1 = `
-        CREATE PROCEDURE IF NOT EXISTS nc_api.sp_upsertSudoryTemplate()
+        CREATE PROCEDURE IF NOT EXISTS nc_api.sp_upsertSudoryTemplate() 
         BEGIN
         INSERT INTO nc_api.SudoryTemplate (
         sudory_template_id,
@@ -588,7 +588,7 @@ DB.sequelize
         UPDATE nc_api.SudoryTemplate
         SET resource_type = 'DS'
         WHERE sudory_template_name like 'kubernetes_daemon%' and (resource_type is null OR resource_type = '');
-
+                                                                
         END;
     `;
 
@@ -598,7 +598,7 @@ DB.sequelize
             DECLARE counter INT DEFAULT 1;
             REPEAT
                 delete from nc_api.AlertReceived
-                where alert_received_key not in (select alert_received_key from nc_api.IncidentAlertReceived)
+                where alert_received_key not in (select alert_received_key from nc_api.IncidentAlertReceived) 
                 and UNIX_TIMESTAMP(created_at) < UNIX_TIMESTAMP(NOW() - INTERVAL 1 DAY)
                   limit 100000; commit;
                 SET counter = counter + 1;
@@ -611,7 +611,7 @@ DB.sequelize
     const sp3 = `
         CREATE PROCEDURE IF NOT EXISTS nc_api.sp_create_resolved()
         BEGIN
-            DECLARE EXIT HANDLER FOR SQLEXCEPTION
+            DECLARE EXIT HANDLER FOR SQLEXCEPTION 
             BEGIN
                   ROLLBACK;
             END;
@@ -648,7 +648,7 @@ DB.sequelize
                     alert_received_affected_resource_name,
                     alert_received_affected_resource_type
                     )
-                SELECT
+                SELECT 
                     UUID(), /* alert_received_id */
                     customer_account_key,
                     alert_rule_key,
@@ -678,14 +678,14 @@ DB.sequelize
                     0, /* alert_received_ui_flag */
                     alert_received_affected_resource_name,
                     alert_received_affected_resource_type
-                FROM AlertReceived
+                FROM AlertReceived 
                 WHERE deleted_at IS NULL
                 AND alert_received_state = 'firing'
                 AND created_at <= NOW() - INTERVAL 5 MINUTE;
 
-                UPDATE nc_api.AlertReceived
-                SET
-                    deleted_at = current_timestamp(),
+                UPDATE nc_api.AlertReceived 
+                SET 
+                    deleted_at = current_timestamp(), 
                     updated_at = current_timestamp(),
                     updated_by =  AlertReceived.created_by
                 WHERE deleted_at IS NULL
@@ -700,8 +700,8 @@ DB.sequelize
                     STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY)
                     DO CALL nc_api.sp_upsertSudoryTemplate();`;
     const event2pre = `DROP EVENT IF EXISTS nc_api.ev_sp_deleteAlertReceived;`;
-    const event2 = `CREATE EVENT nc_api.ev_sp_deleteAlertReceived
-                    ON SCHEDULE EVERY 1 DAY
+    const event2 = `CREATE EVENT nc_api.ev_sp_deleteAlertReceived 
+                    ON SCHEDULE EVERY 1 DAY 
                     STARTS (TIMESTAMP(CURRENT_DATE) + INTERVAL 1 DAY + INTERVAL 1 HOUR)
                     DO CALL nc_api.sp_deleteAlertReceived()`;
     const event3pre = `DROP EVENT IF EXISTS nc_api.ev_sp_create_resolved;`;
