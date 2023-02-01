@@ -121,4 +121,4 @@ deploy-nexclipper-api-stg:
   script:
    - "source /data/scripts/deploy.sh stg nc ${APP_VERSION_STG}"
   rules:
-    - if: $CI_COMMIT_BRANCH == "staging"
+    - if: $CI_COMMIT_BRANCH == "staging" 
