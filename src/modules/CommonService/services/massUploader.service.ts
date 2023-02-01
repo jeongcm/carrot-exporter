@@ -507,7 +507,6 @@ class massUploaderService {
           },
           {
             model: AnomalyMonitoringTargetResourceModel,
-            as: 'amtResource',
             required: false,
             where: { deletedAt: null },
           },
