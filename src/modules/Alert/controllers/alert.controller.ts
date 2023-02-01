@@ -526,6 +526,17 @@ class AlertRuleController extends ControllerExtension {
       next(error);
     }
   };
+
+  public getAlertEasyRuleThreshHold = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountId = req.params.customerAccountId;
+      const getAlertEasyRuleThreshHold = await this.alertEasyRuleService.getAlertEasyRuleThreshHold(customerAccountId, req.query);
+      res.status(200).json({ data: getAlertEasyRuleThreshHold, message: 'find getAlertEasyRuleThreshHold' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
 }
 
 export default AlertRuleController;

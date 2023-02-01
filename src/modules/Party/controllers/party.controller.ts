@@ -77,7 +77,7 @@ class PartyController {
   public createUser = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
     const createUserData: CreateUserDto = req.body;
 
-    const customerAccountKey: ICustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(createUserData.customerAccountId);
+    const customerAccountKey: number = await this.customerAccountService.getCustomerAccountKeyById(createUserData.customerAccountId);
 
     if (!customerAccountKey) {
       return res.status(409).json({ message: "customerAccount doesn't exist" });
@@ -152,7 +152,29 @@ class PartyController {
         mobile: findUser.mobile,
       };
 
-      res.setHeader('Set-Cookie', [cookie]);
+      // res.setHeader('Set-Cookie', [cookie]);
+      res.status(200).json({ data: loggedInUser, message: 'login', token });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public loginInSystem = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const loginData: LoginDto = req.body;
+      //const customerAccountKey = req.customerAccountKey;
+      const { cookie, findUser, token } = await this.partyService.loginInSystem(loginData);
+
+      const loggedInUser = {
+        partyId: findUser.partyUserId,
+        id: findUser.userId,
+        email: findUser.email,
+        firstName: findUser.firstName,
+        lastName: findUser.lastName,
+        mobile: findUser.mobile,
+      };
+
+      // res.setHeader('Set-Cookie', [cookie]);
       res.status(200).json({ data: loggedInUser, message: 'login', token });
     } catch (error) {
       next(error);

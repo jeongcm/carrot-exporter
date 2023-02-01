@@ -9,17 +9,22 @@ import { IResourceGroup, IResourceGroupUi} from "@/common/interfaces/resourceGro
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from "@/modules/CustomerAccount/services/customerAccount.service";
 import ResourceGroupService from "@/modules/Resources/services/resourceGroup.service";
-import { Op } from "sequelize";
+import { Association, Op } from "sequelize";
 import { IAnomalyMonitoringTarget } from "@/common/interfaces/monitoringTarget.interface";
 import { ResourceGroupModel } from "../models/resourceGroup.model";
 import MetricService, { IMetricQueryBody } from "@modules/Metric/services/metric.service";
 import MassUploaderService from "@modules/CommonService/services/massUploader.service";
+import { CustomerAccountModel } from "@modules/CustomerAccount/models/customerAccount.model";
+import config from '@config/index';
+import { PartyUserModel } from "@/modules/Party/models/partyUser.model";
 
 class ResourceService {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
+  public customerAccount = DB.CustomerAccount
   public anomalyTarget = DB.AnomalyMonitoringTarget;
   public partyResource = DB.PartyResource;
+  public partyUser = DB.PartyUser;
   public subscribedProduct = DB.SubscribedProduct;
   public TableIdService = new TableIdService();
   public customerAccountService = new CustomerAccountService();
@@ -258,8 +263,7 @@ class ResourceService {
    * @param  {number} customerAccountId
    */
   public async getResourceByTypeCustomerAccountId(resourceType: string[], customerAccountId: string): Promise<IResource[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const allResources: IResource[] = await this.resource.findAll({
       where: { deletedAt: null, resourceType: resourceType, customerAccountKey: customerAccountKey },
@@ -273,8 +277,7 @@ class ResourceService {
    * @param  {any} query
    */
   public async getVMListByCustomerAccountId(customerAccountId: string, query?: any): Promise<any[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PJ','PM', 'VM'],};
 
@@ -386,8 +389,7 @@ class ResourceService {
    * @param  {any} query
    */
   public async getPMListByCustomerAccountId(customerAccountId: string, query?: any): Promise<any[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PM', 'VM'],};
 
@@ -485,8 +487,7 @@ class ResourceService {
    * @param  {any} query
    */
   public async getPJListByCustomerAccountId(customerAccountId: string, query?: any): Promise<any[]> {
-    const resultCustomerAccount = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
-    const customerAccountKey = resultCustomerAccount.customerAccountKey;
+    const customerAccountKey = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
 
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, resourceType: ['PJ', 'PM', 'VM'],};
 
@@ -1548,6 +1549,99 @@ class ResourceService {
     }
 
     return result
+  }
+
+  // first. find resource By clusterUuid
+  // second, loop resources, and get Metric for resource status
+  // how can validate metric threshhold value ?
+  // third, if metric'threshhold is not valiable, set 0 and if valiable set 1
+  // fourth, upsert resourceStatus
+  public async syncResourceStatus(clusterUuid: string) {
+    const resourceGroup = await this.resourceGroup.findOne({
+      attributes: ['resourceGroupKey'],
+      where: {resourceGroupUuid: clusterUuid}
+    })
+
+    let resources = await this.resource.findAll({
+      where: { resourceGroupKey: resourceGroup.resourceGroupGroupKey }
+    })
+
+    await Promise.all(resources.map(async (resource) => {
+      let result = await this.uploadResourceStatus(resource)
+    }))
+  }
+
+  public async uploadResourceStatus(resource: IResource) {
+  }
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} parentCustomerAccountId
+   */
+  public async getResourceByTypeParentCustomerAccountId(resourceType: string[], parentCustomerAccountId: string): Promise<IResource[]> {
+    var customerAccountKeys = await this.customerAccountService.getCustomerAccountKeysByParentCustomerAccountId(parentCustomerAccountId)
+
+    const resourceTypes = resourceType.map(rt => {
+        return `"${rt}"`
+    })
+
+    const sql = `SELECT
+                A.resource_id as resourceId,
+                A.resource_type as resourceType,
+                A.resource_name as resourceName,
+                A.resource_group_key as resourceGroupKey,
+                B.resource_group_id as resourceGroupId,
+                B.resource_group_uuid as resourceGroupUuid,
+                B.resource_group_name as resourceGroupName,
+                B.resource_group_last_server_updated_at as resourceGroupLastServerUpdatedAt,
+                C.customer_account_key as customerAccountKey,
+                C.customer_account_id as customerAccountId,
+                C.customer_account_name as customerAccountName,
+                D.user_id as userId
+              FROM Resource A, ResourceGroup B, CustomerAccount C, PartyUser D
+              WHERE A.customer_account_key in (${customerAccountKeys})
+                and A.resource_type in (${resourceTypes})
+                and B.resource_group_key = A.resource_group_key
+                and A.deleted_at is null
+                and B.deleted_at is null
+                and C.deleted_at is null
+                and D.deleted_at is null
+                and C.customer_account_key = A.customer_account_key
+                and D.user_id = C.customer_account_id
+                and D.first_name = "API-User"
+                order by A.created_at desc`;
+
+    let results: any
+    let metadata: any
+    [results, metadata] = await DB.sequelize.query(sql);
+  
+    let resultResources = [];
+    for (let result of results) {
+      let resourceGroupServerInterfaceStatus: boolean = true;
+      if (result.resourceGroupLastServerUpdatedAt === null) {
+        resourceGroupServerInterfaceStatus = false;
+      } else {
+        const decisionMin = parseInt(config.clusterOutageDecisionMin);
+        const difference = new Date().getTime() - result.resourceGroupLastServerUpdatedAt.getTime();
+        const differenceInMin = Math.round(difference / 60000);
+        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+      }
+
+      resultResources.push({
+        "resourceId": result.resourceId,
+        "resourceType": result.resourceType,
+        "resourceName": result.resourceName,
+        "resourceGroupId": result.resourceGroupId,
+        "resourceGroupUuid": result.resourceGroupUuid,
+        "resourceGroupName": result.resourceGroupName,
+        "resourceGroupServerInterfaceStatus": resourceGroupServerInterfaceStatus,
+        "customerAccountId": result.customerAccountId,
+        "customerAccountName": result.customerAccountName,
+        "userId": result.userId
+      })
+    }
+
+    return resultResources;
   }
 }
 

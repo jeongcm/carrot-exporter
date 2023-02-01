@@ -89,13 +89,7 @@ class ExecutorRoute implements Routes {
       //      createUserLogMiddleware,
       this.executorController.syncResources,
     );
-    this.router.post(
-      '/executor/syncResourceStatus',
-      systemAuthMiddleware,
-      //validationMiddleware(ExecutorUuidDto, 'body'),
-      //      createUserLogMiddleware,
-      this.executorController.syncResourceStatus,
-    );
+
     this.router.post(
       '/executor/syncAlerts',
       systemAuthMiddleware,

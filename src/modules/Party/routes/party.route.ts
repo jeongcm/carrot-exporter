@@ -18,6 +18,8 @@ class partyRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post('/login', systemAuthMiddleware, validationMiddleware(LoginDto, 'body'), createUserLogMiddleware, this.partyController.login);
+    // login by parent customerAccount
+    this.router.post('/loginInSystem', systemAuthMiddleware, createUserLogMiddleware, this.partyController.loginInSystem);
     this.router.post(
       '/apiLogin',
       systemAuthMiddleware,

@@ -1055,6 +1055,88 @@ class AlertEasyRuleService {
 
     return returnMessage;
   }
+
+  public async getAlertEasyRuleThreshHold(customerAccountId: string, query?: any): Promise<any> {
+    let whereCondition: any = {deletedAt: null}
+    if (query?.isParent) {
+      whereCondition.parentCustomerAccountId = customerAccountId
+    } else {
+      whereCondition.customerAccountId = customerAccountId
+    }
+
+    console.log(whereCondition)
+    let customerAccounts = await this.customerAccount.findAll({
+      where: whereCondition
+    })
+
+    if (customerAccounts.length === 0) {
+      return `there is no customerAccount`
+    }
+    
+    var customerAccountKeys = customerAccounts.map(ca => {
+      return ca.customerAccountKey
+    })
+
+    var resourceGroups = await this.resourceGroup.findAll({
+      where: { deletedAt: null, customerAccountKey: { [Op.in]: customerAccountKeys} }
+    })
+
+    if (resourceGroups.length === 0) {
+      return `there is no resourceGroups in customerAccount(${customerAccountKeys})`
+    }
+
+    var alertEasyRules = await this.alertEasyRule.findAll({
+      where: { deletedAt: null, customerAccountKey: { [Op.in]: customerAccountKeys} }
+    })
+
+    if (alertEasyRules.length === 0) {
+      return `there is no alertEasyRules in customerAccount(${customerAccountKeys})`
+    }
+
+
+    let result: any = {}
+    resourceGroups.forEach(rg => {
+      result[rg.resourceGroupUuid] = {
+        podCpuAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodCPUThresholdOver") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        podMemoryAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodMemoryThresholdOver") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        NodeCpuAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostHighCpuLoadMax") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        NodeMemoryAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostOutOfMemoryMax") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        NodeNetworkInAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostUnusualNetworkThroughputIn") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        NodeNetworkOutAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostUnusualNetworkThroughputOut") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        NodeDiskAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "VolumeOutOfSpace") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1
+      }
+    })
+
+    return result
+  }
 }
 
 export default AlertEasyRuleService;

@@ -22,6 +22,7 @@ export interface IMetricQueryBodyQuery {
   promql?: string;
   resourceGroupId?: string | string[];
   resourceGroupUuid?: string;
+  customerAccountId?: string;
   promqlOps?: {
     topk?: number;
     sort?: 'asc' | 'desc';
@@ -55,12 +56,20 @@ class MetricService extends ServiceExtension {
     try {
       await Promise.all(
         queryBody.query.map(async (query: IMetricQueryBodyQuery) => {
-          const { name, start, end, step, resourceGroupUuid, resourceId, resourceGroupId, type } = query;
-
+          const { name, start, end, step, resourceGroupUuid, resourceId, resourceGroupId, type, customerAccountId } = query;
           if (isEmpty(type)) {
             return this.throwError('EXCEPTION', `type for '${name}' is missing`);
           }
-          const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
+
+          let ca: any = {}
+          if (customerAccountId) {
+            ca.id = customerAccountId
+            ca.key = await this.customerAccountService.getCustomerAccountKeyById(customerAccountId);
+          } else {
+            ca.id = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey)
+            ca.key = customerAccountKey
+          }
+
           let resources: IResource[] = null;
           let resourceGroups: IResourceGroupUi[] = null;
           if (resourceId) {
@@ -71,7 +80,7 @@ class MetricService extends ServiceExtension {
               idsToUse = [resourceId];
             }
             resources = await this.resource.findAll({
-              where: { resourceId: idsToUse, customerAccountKey },
+              where: { resourceId: idsToUse, customerAccountKey: ca.key },
               attributes: { exclude: ['deletedAt'] },
             });
             if (!resources || resources.length === 0) {
@@ -80,13 +89,13 @@ class MetricService extends ServiceExtension {
 
             const resourceGroupKeys = resources?.map((resource: IResource) => resource.resourceGroupKey);
 
-            resourceGroups = await this.resourceGroupService.getUserResourceGroupByKeys(customerAccountKey, resourceGroupKeys);
+            resourceGroups = await this.resourceGroupService.getUserResourceGroupByKeys(ca.key, resourceGroupKeys);
 
             if (!resourceGroups || resourceGroups.length === 0) {
               return this.throwError('EXCEPTION', `No access to resourceGroups (accessed through resourceId)`);
             }
           } else if (resourceGroupUuid) {
-            const resourceGroup = await this.resourceGroupService.getUserResourceGroupByUuid(customerAccountKey, resourceGroupUuid);
+            const resourceGroup = await this.resourceGroupService.getUserResourceGroupByUuid(ca.key, resourceGroupUuid);
             if (!resourceGroup) {
               return this.throwError('EXCEPTION', `No access to resourceGroupUuid(${resourceGroupUuid})`);
             }
@@ -127,9 +136,9 @@ class MetricService extends ServiceExtension {
             let data: any = null;
 
             if (start && end) {
-              data = await this.victoriaMetricService.queryRange(customerAccountId, `${promQl.promQl}`, `${start}`, `${end}`, step);
+              data = await this.victoriaMetricService.queryRange(ca.id, `${promQl.promQl}`, `${start}`, `${end}`, step);
             } else {
-              data = await this.victoriaMetricService.query(customerAccountId, `${promQl.promQl}`, step);
+              data = await this.victoriaMetricService.query(ca.id, `${promQl.promQl}`, step);
             }
 
             results[name] = {
@@ -467,7 +476,7 @@ class MetricService extends ServiceExtension {
           pod: resourceName,
           namespace: resourceNamespace,
         });
-        ranged = true;
+        ranged = false;
 
         promQl = `sum by(pod, clusterUuid) (rate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}] ) )`;
         break;
@@ -495,9 +504,9 @@ class MetricService extends ServiceExtension {
           pod: resourceName,
           namespace: resourceNamespace,
         });
-        ranged = true;
+        ranged = false;
 
-        promQl = `sum by(pod, clusterUuid) (container_memory_working_set_bytes{container=~".*",container!="",container!="POD", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by(pod, clusterUuid) (container_memory_working_set_bytes{container=~".*",container!="", container!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'POD_CPU_MOMENT':
         labelString += getSelectorLabels({
@@ -861,96 +870,140 @@ class MetricService extends ServiceExtension {
         promQl = `count((kube_persistentvolumeclaim_status_phase{__LABEL_PLACE_HOLDER__, phase="Lost"}==1)) or vector(0)`;
         break;
 
-      // K8s Cluster Node Metric
-      case 'K8S_CLUSTER_NODE_MEMORY':
+
+
+      // K8s Node Metric by carrot
+      case 'K8S_CLUSTER_NODE_MEMORY_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
+          node: resourceName,
         });
-        promQl = `(1 - (node_memory_MemAvailable_bytes{__LABEL_PLACE_HOLDER__} / (node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__}))) * 100`;
+        promQl = `sum by (clusterUuid, node) (container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
-      case 'K8S_CLUSTER_NODE_CPU':
+      case 'K8S_CLUSTER_NODE_MEMORY_USAGE_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,
+          node: resourceName,
         });
-        promQl = `avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[1m])) by (node) * 100`;
+        promQl = `sum by (clusterUuid, node) (container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}) / sum by (clusterUuid, node) (kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
+        break;
+      case 'K8S_CLUSTER_NODE_CPU_USAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        break;
+      case 'K8S_CLUSTER_NODE_CPU_USAGE_PERCENTAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NODE_DISK':
         labelString += getSelectorLabels({
           clusterUuid,
+          node: resourceName,
         });
-        promQl = `(node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__,fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}) * 100
-/ (node_filesystem_avail_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"} + (node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__, job="node-exporter", fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}))`;
+        promQl = `sum by (clusterUuid, node) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__})`;
+        break;
+      case 'K8S_CLUSTER_NODE_DISK_PERCENTAGE':
+          labelString += getSelectorLabels({
+            clusterUuid,
+            node: resourceName,
+          });
+          promQl = `sum by (clusterUuid, node) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}) / sum by (clusterUuid, node) (kube_node_status_allocatable{resource="ephemeral_storage", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NODE_RXTX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
+          node: resourceName,
         });
-        promQl = `sum by (node) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[60m]) + rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[60m]))`;
+        promQl = `sum by (clusterUuid, node) (irate(container_network_receive_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[60m]) + irate(container_network_transmit_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[60m]))`;
         break;
 
-      // K8s Node Ranking
-      case 'K8S_CLUSTER_NODE_MEMORY_RANKING':
+      case 'K8S_CLUSTER_NODE_RX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
+          node: resourceName,
         });
-        promQl = `sort_desc(
-          (1 - (node_memory_MemAvailable_bytes{__LABEL_PLACE_HOLDER__} / (node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__})))* 100
-        )`;
-        break;
-      case 'K8S_CLUSTER_NODE_CPU_RANKING':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-        /*
-        promQl = `sort_desc(
-          (1 - avg(rate(node_cpu_seconds_total{__LABEL_PLACE_HOLDER__,mode="idle"}[1m])) by (node)) * 100
-        )`;*/
-        promQl = `sort_desc(
-          avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[5m])) by (node, clusterUuid) * 100
-        )`;
-        break;
-      case 'K8S_CLUSTER_NODE_DISK_RANKING':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-        promQl = `sort_desc(
-(node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__,fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}) * 100
-/ (node_filesystem_avail_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"} + (node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__, job="node-exporter", fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}))
-)`;
-        break;
-      case 'K8S_CLUSTER_NODE_RXTX_TOTAL_RANKING':
-        labelString += getSelectorLabels({
-          clusterUuid,
-        });
-        promQl = `sort_desc(
-          sum by (node, clusterUuid) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[5m]) + rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[5m]))
-        )`;
-        break;
+        promQl = `sum by (clusterUuid, node) (irate(container_network_receive_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+      break;
 
-      // promql for k8s overview
-      case 'K8S_CLUSTER_CPU_UTILISATION':
+      case 'K8S_CLUSTER_NODE_TX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (irate(container_network_transmit_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+      break;
+
+      // K8s Pod Metric by carrot
+      case 'K8S_CLUSTER_POD_CPU':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `sum by (pod, clusterUuid) (irate(container_cpu_usage_seconds_total{image!="",container=~".*", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        break;
+      case 'K8S_CLUSTER_POD_MEMORY':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `sum by(pod, clusterUuid) (container_memory_working_set_bytes{container=~".*",container!="", container!="POD", __LABEL_PLACE_HOLDER__})`;
+        break;
+      case 'K8S_CLUSTER_POD_RX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `sum by(pod, clusterUuid) (irate(container_network_receive_bytes_total{image!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        break;
+      case 'K8S_CLUSTER_POD_TX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          pod: resourceName,
+          namespace: resourceNamespace,
+        });
+        ranged = false;
+
+        promQl = `sum by(pod, clusterUuid) (irate(container_network_transmit_bytes_total{image!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        break;
+      // K8s Overview Metric by carrot
+      case 'K8S_CLUSTER_CPU_UTILIZATION':
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `1 - avg(rate(node_cpu_seconds_total{mode="idle", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum(irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}}])) / sum(kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_CPU_REQUESTS_COMMITMENT':
         labelString += getSelectorLabels({
           clusterUuid,
         });
         promQl = `sum(cluster:namespace:pod_cpu:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
-        break;
+        break
       case 'K8S_CLUSTER_CPU_LIMITS_COMMITMENT':
         labelString += getSelectorLabels({
           clusterUuid,
         });
         promQl = `sum(cluster:namespace:pod_cpu:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
-      case 'K8S_CLUSTER_MEMORY_UTILISATION':
+      case 'K8S_CLUSTER_MEMORY_UTILIZATION':
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `1 - sum(node_memory_MemAvailable_bytes{__LABEL_PLACE_HOLDER__}) / sum(node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__})`;
+        promQl = `sum(container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}) / sum(kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_MEMORY_REQUESTS_COMMITMENT':
         labelString += getSelectorLabels({
@@ -968,7 +1021,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `1 - avg by (namespace) (rate(node_cpu_seconds_total{mode="idle", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (namespace) (irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}}]))`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_CPU_REQUESTS':
         labelString += getSelectorLabels({
@@ -999,7 +1052,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (namespace) (container_memory_rss{container!="", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (namespace) (container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_MEMORY_REQUESTS':
         labelString += getSelectorLabels({
@@ -1011,7 +1064,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (namespace) (container_memory_rss{container!="", __LABEL_PLACE_HOLDER__})  / sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (namespace) (container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__})  / sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_requests{__LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NAMESPACE_MEMORY_LIMITS':
         labelString += getSelectorLabels({
@@ -1023,9 +1076,45 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum by (namespace) (container_memory_rss{container!="", __LABEL_PLACE_HOLDER__}) / sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (namespace) (container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}) / sum by (namespace) (cluster:namespace:pod_memory:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__})`;
         break;
 
+      // K8s Node Ranking
+      case 'K8S_CLUSTER_NODE_MEMORY_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `sort_desc(
+          sum by (node) (container_memory_working_set_bytes{pod_name=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}) / sum by (node) (kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})
+        )`;
+        break;
+      case 'K8S_CLUSTER_NODE_CPU_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        /*
+        promQl = `sort_desc(
+          (1 - avg(rate(node_cpu_seconds_total{__LABEL_PLACE_HOLDER__,mode="idle"}[1m])) by (node)) * 100
+        )`;*/
+        promQl = `sort_desc(sum by (node) (irate(node_cpu_seconds_total{mode!="idle", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (node) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__}))`;
+        break;
+      case 'K8S_CLUSTER_NODE_DISK_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `sort_desc(
+(node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__,fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}) * 100
+/ (node_filesystem_avail_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"} + (node_filesystem_size_bytes{__LABEL_PLACE_HOLDER__, job="node-exporter", fstype=~"ext.*|xfs",mountpoint="/"} - node_filesystem_free_bytes{__LABEL_PLACE_HOLDER__, fstype=~"ext.*|xfs",mountpoint="/"}))
+)`;
+        break;
+      case 'K8S_CLUSTER_NODE_RXTX_TOTAL_RANKING':
+        labelString += getSelectorLabels({
+          clusterUuid,
+        });
+        promQl = `sort_desc(
+          sum by (node, clusterUuid) (rate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[5m]) + rate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[5m]))
+        )`;
+        break;
       // promql for openstack
       // Openstack Service metrics
       case 'OS_CLUSTER_NOVA_AGENT_UP':
@@ -1071,7 +1160,7 @@ class MetricService extends ServiceExtension {
         promQl = `count(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h])) - sum(last_over_time(openstack_neutron_agent_state{adminState="up", __LABEL_PLACE_HOLDER__}[1h]))`;
         break;
 
-      // Openstack PM Metrics
+      // Openstack PM Metrics by carrot
       case 'OS_CLUSTER_PM_TOTAL_CPU_COUNT':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1168,7 +1257,7 @@ class MetricService extends ServiceExtension {
         promQl = `max(rate(nc:node_network_transmit_bytes_total{job=~"pm-node-exporter", is_ops_pm=~"Y", __LABEL_PLACE_HOLDER__}[${step}])*8) by (nodename, clusterUuid)`
         break;
 
-      // Openstack VM Metrics
+      // Openstack VM Metrics by carrot
       case 'OS_CLUSTER_VM_TOTAL_CPU_COUNT':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1312,7 +1401,7 @@ class MetricService extends ServiceExtension {
         promQl = `sort_desc(sum by (nodename, clusterUuid) (increase(nc:node_network_receive_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[30m])+ increase(nc:node_network_transmit_bytes_total{job=~"vm-node-exporter|collector-node-exporter", is_ops_vm=~"Y", __LABEL_PLACE_HOLDER__}[30m])))`
         break;
 
-      // Openstack VM process Metrics
+      // Openstack VM process Metrics by carrot
       case 'OS_CLUSTER_VM_PROCESS_UP_TIME':
         labelString += getSelectorLabels({
           clusterUuid,
