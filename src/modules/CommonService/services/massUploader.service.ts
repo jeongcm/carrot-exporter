@@ -505,11 +505,6 @@ class massUploaderService {
               },
             ],
           },
-          {
-            model: AnomalyMonitoringTargetResourceModel,
-            required: false,
-            where: { deletedAt: null },
-          },
         ],
       });
       if (findAMTs.length > 0) {
