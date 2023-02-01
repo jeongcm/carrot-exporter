@@ -1056,11 +1056,23 @@ class AlertEasyRuleService {
     return returnMessage;
   }
 
-  public async getAlertEasyRuleThreshHold(parentCustomerAccountId: string): Promise<any> {
+  public async getAlertEasyRuleThreshHold(customerAccountId: string, query?: any): Promise<any> {
+    let whereCondition: any = {deletedAt: null}
+    if (query?.isParent) {
+      whereCondition.parentCustomerAccountId = customerAccountId
+    } else {
+      whereCondition.customerAccountId = customerAccountId
+    }
+
+    console.log(whereCondition)
     let customerAccounts = await this.customerAccount.findAll({
-      where: {deletedAt: null, parentCustomerAccountId: parentCustomerAccountId}
+      where: whereCondition
     })
 
+    if (customerAccounts.length === 0) {
+      return `there is no customerAccount`
+    }
+    
     var customerAccountKeys = customerAccounts.map(ca => {
       return ca.customerAccountKey
     })
@@ -1069,9 +1081,18 @@ class AlertEasyRuleService {
       where: { deletedAt: null, customerAccountKey: { [Op.in]: customerAccountKeys} }
     })
 
+    if (resourceGroups.length === 0) {
+      return `there is no resourceGroups in customerAccount(${customerAccountKeys})`
+    }
+
     var alertEasyRules = await this.alertEasyRule.findAll({
       where: { deletedAt: null, customerAccountKey: { [Op.in]: customerAccountKeys} }
     })
+
+    if (alertEasyRules.length === 0) {
+      return `there is no alertEasyRules in customerAccount(${customerAccountKeys})`
+    }
+
 
     let result: any = {}
     resourceGroups.forEach(rg => {
