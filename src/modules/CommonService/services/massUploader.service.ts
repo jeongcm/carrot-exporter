@@ -12,8 +12,13 @@ import { ISubscribedProduct, ISubscriptions } from '@/common/interfaces/subscrip
 import { SubscribedProductModel } from '@/modules/Subscriptions/models/subscribedProduct.model';
 import SubscriptionService from '@/modules/Subscriptions/services/subscriptions.service';
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
+import { IAnomalyMonitoringTargetResource } from '@/common/interfaces/monitoringTargetResource.interface';
 import sequelize from 'sequelize';
 import { IBayesianModel } from '@/common/interfaces/bayesianModel.interface';
+import { AnomalyMonitoringTargetResourceModel } from '@/modules/MetricOps/models/monitoringTargetResource.model';
+import { DATE } from 'sequelize';
+import { IPartyUser } from '@/common/interfaces/party.interface';
+const uuid = require('uuid');
 
 //import { condition } from 'sequelize';
 //import Connection from 'mysql2/typings/mysql/lib/Connection';
@@ -34,10 +39,13 @@ class massUploaderService {
   public anomalyMonitoringTarget = DB.AnomalyMonitoringTarget;
   public anomalyMonitoringTargetResource = DB.AnomalyMonitoringTargetResource;
   public bayesianModel = DB.BayesianModel;
+  public partyUser = DB.PartyUser;
 
   public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<string> {
     const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const sizeOfInput = resourceMassFeed.resource.length;
+    const findSystemUser: IPartyUser = await this.partyUser.findOne({ where: { userId: config.initialRecord.partyUser.userId } });
+    const systemUserId = findSystemUser.partyUserId;
 
     /* process bulk id for Resource table
     const targetTable = 'Resource';
@@ -154,7 +162,7 @@ class massUploaderService {
             resource_id_postfix = '0' + resource_id_postfix;
         }
         */
-      const uuid = require('uuid');
+
       const apiId = uuid.v1();
       const resource_Target_Created_At = new Date(resourceMassFeed.resource[i].resource_Target_Created_At);
       //const resource_event_first_timestamp = new Date(resourceMassFeed.resource[i].resource_event_first_timestamp);
@@ -180,7 +188,7 @@ class massUploaderService {
       query2[i] = [
         //1st line
         resource_id, //resource_Id
-        'SYSTEM', // created_By
+        systemUserId, // created_By
         currentTime, //created_At
         resourceMassFeed.resource[i].resource_Target_Uuid,
         resource_Target_Created_At,
@@ -285,7 +293,7 @@ class massUploaderService {
     if (resourceType === 'ND') {
       //for new Nodes
       await this.resourceGroup.update(
-        { resourceGroupLastServerUpdatedAt: new Date(), updatedAt: new Date(), updatedBy: 'SYSTEM' },
+        { resourceGroupLastServerUpdatedAt: new Date(), updatedAt: new Date(), updatedBy: systemUserId },
         { where: { resourceGroupUuid } },
       );
       console.log('#MASSUPLOADER - NODE', resourceGroupUuid);
@@ -315,31 +323,77 @@ class massUploaderService {
               },
             });
             if (findCatalogPlan.catalogPlanType === 'OB') {
+              //add new nodes under 'OB' subscribed product
               catalogPlanProductIdForOb = findCatalogPlanProduct.catalogPlanProductId;
+              //register node as new subscribedProduct
+              for (let i = 0; i < getResourceNode.length; i++) {
+                const resourceId = getResourceNode[i].resourceId;
+                const subscribedProduct = {
+                  subscribedProductFrom: new Date(),
+                  subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
+                  subscriptionId,
+                  catalogPlanProductType: resourceType,
+                  subscribedProductStatus: 'AC',
+                  resourceId,
+                  catalogPlanProductId: catalogPlanProductIdForOb,
+                };
+                //insert SubscribedProduct
+                const createSubscribedProduct = await this.subscriptionService.createSubscribedProduct(
+                  subscribedProduct,
+                  systemUserId,
+                  systemUserId,
+                  customerAccountKey,
+                );
+                console.log('new node registered:', createSubscribedProduct);
+              }
             } else if (findCatalogPlan.catalogPlanType === 'MO') {
+              //add new nodes to subscribed products, amt and amtR
+              const findBM: IBayesianModel = await this.bayesianModel.findOne({
+                where: { bayesianModelResourceType: 'ND', deletedAt: null, resourceGroupKey },
+              });
+              const bayesianModelKey = findBM.bayesianModelKey;
+
               catalogPlanProductIdForMo = findCatalogPlanProduct.catalogPlanProductId;
+              //register node as new subscribedProduct
+              for (let i = 0; i < getResourceNode.length; i++) {
+                const resourceId = getResourceNode[i].resourceId;
+                const subscribedProduct = {
+                  subscribedProductFrom: new Date(),
+                  subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
+                  subscriptionId,
+                  catalogPlanProductType: resourceType,
+                  subscribedProductStatus: 'AC',
+                  resourceId,
+                  catalogPlanProductId: catalogPlanProductIdForOb,
+                };
+                //insert SubscribedProduct
+                const createSubscribedProduct: ISubscribedProduct = await this.subscriptionService.createSubscribedProduct(
+                  subscribedProduct,
+                  systemUserId,
+                  systemUserId,
+                  customerAccountKey,
+                );
+                const amt = {
+                  anomalyMonitoringTargetId: uuid.v1(),
+                  bayesianModelKey: bayesianModelKey,
+                  customerAccountKey,
+                  resourceKey: getResourceNode[i].resourceKey,
+                  subscribedProductKey: createSubscribedProduct.subscribedProductKey,
+                  createdAt: new Date(),
+                  createdBy: systemUserId,
+                };
+                const createAnomalyMonitoringTarget = await this.anomalyMonitoringTarget.create(amt);
+                const amtR = {
+                  anomalyMonitoringTargetResourceId: uuid.v1(),
+                  anomalyMonitoringTargetKey: createAnomalyMonitoringTarget.anomalyMonitoringTargetKey,
+                  resourceKey: getResourceNode[i].resourceKey,
+                  createdAt: new Date(),
+                  createdBy: systemUserId,
+                };
+                const createAnomalyMonitoringTargetResource = await this.anomalyMonitoringTargetResource.create(amtR);
+                console.log('new node registered:', createSubscribedProduct);
+              }
             }
-          }
-          //register node as new subscribedProduct
-          for (let i = 0; i < getResourceNode.length; i++) {
-            const resourceId = getResourceNode[i].resourceId;
-            const subscribedProduct = {
-              subscribedProductFrom: new Date(),
-              subscribedProductTo: new Date('9999-12-31T23:59:59Z'),
-              subscriptionId,
-              catalogPlanProductType: resourceType,
-              subscribedProductStatus: 'AC',
-              resourceId,
-              catalogPlanProductId: catalogPlanProductIdForOb,
-            };
-            //insert SubsvcribedProduct
-            const createSubscribedProduct = await this.subscriptionService.createSubscribedProduct(
-              subscribedProduct,
-              'SYSTEM',
-              'SYSTEM',
-              customerAccountKey,
-            );
-            console.log('new node registered:', createSubscribedProduct);
           }
         }
       }
@@ -363,20 +417,27 @@ class massUploaderService {
             updatedAt: new Date(),
             updatedBy: 'SYSTEM',
           };
+          const deleteQueryAmtR = {
+            deletedAt: new Date(),
+            updatedAt: new Date(),
+            updatedBy: 'SYSTEM',
+          };
 
           try {
             return await DB.sequelize.transaction(async t => {
               const conditionQuery = { where: { resourceKey: resourceKey }, transaction: t };
               const deleteSubscribedProduct = await this.subscribedProduct.update(deleteQuerySp, conditionQuery);
               const deleteAnomalyTarget = await this.anomalyMonitoringTarget.update(deleteQueryAmt, conditionQuery);
+              const deleteAnomalyTargetResource = await this.anomalyMonitoringTargetResource.update(deleteQueryAmtR, conditionQuery);
 
               console.log(`deleted subscribedProduct - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteSubscribedProduct}`);
               console.log(`deleted anomalyTarget - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteAnomalyTarget}`);
-              const result = `sucess to delete subscribedProduct, anomalyTarget - ${JSON.stringify(resourceKey)}`;
+              console.log(`deleted anomalyTargetResource - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteAnomalyTargetResource}`);
+              const result = `Success to delete subscribedProduct, anomalyTarget, anomalyTargetResource - ${JSON.stringify(resourceKey)}`;
               return result;
             });
           } catch (error) {
-            console.log(`error on deleteing subscribedProduct and anomalyTarget - ${JSON.stringify(resourceKey)}`);
+            console.log(`error on deleteing subscribedProduct, anomalyTarget and anomalyTargetResource - ${JSON.stringify(resourceKey)}`);
           }
         }
       }
@@ -447,7 +508,7 @@ class massUploaderService {
           {
             model: AnomalyMonitoringTargetResourceModel,
             as: 'amtResource',
-            required: true,
+            required: false,
             where: { deletedAt: null },
           },
         ],
@@ -463,7 +524,7 @@ class massUploaderService {
           const getWorkload: IResource = await this.resource.findOne({ where: { deletedAt: null, resourceKey: workloadKey } });
           const resourceName = getWorkload.resourceName;
           const getChildPods: IResource[] = await this.resource.findAll({
-            where: { deletedAt: null, resourceType: 'PD', resourceName: { [Op.like]: `${resourceName}%` } },
+            where: { deletedAt: null, resourceType: 'PD', resourceName: { [Op.like]: `${resourceName}%` }, resourceGroupKey: resourceGroupKey },
           });
           const podKey = getChildPods.map(a => a.resourceKey);
           //get resource key to provision under AMT Resource
@@ -489,26 +550,38 @@ class massUploaderService {
       }
     } // end of pod
     // if pbc is deleted, make the subscribed product stauts 'SP'
-    if (resourceType === 'PC') {
-      //for deleted pvc
-      const deletedPvc = currentResource.filter(o1 => !newResourceReceived.includes(o1));
-      if (deletedPvc.length > 0) {
-        console.log('deletedPvc------', deletedPvc);
-        const getDeletedPvcResource: IResource[] = await this.resource.findAll({ where: { resourceTargetUuid: { [Op.in]: deletedPvc } } });
-        if (getDeletedPvcResource.length > 0) {
-          const resourceKey = getDeletedPvcResource.map(x => x.resourceKey);
+    if (
+      resourceType === 'PC' ||
+      resourceType === 'DP' ||
+      resourceType === 'SS' ||
+      resourceType === 'DS' ||
+      resourceType === 'JO' ||
+      resourceType === 'CJ'
+    ) {
+      //for deleted resourceType
+      const deletedRt = currentResource.filter(o1 => !newResourceReceived.includes(o1));
+      if (deletedRt.length > 0) {
+        console.log('deletedRt------', deletedRt);
+        const getDeletedRt: IResource[] = await this.resource.findAll({ where: { resourceTargetUuid: { [Op.in]: deletedRt } } });
+        if (getDeletedRt.length > 0) {
+          const resourceKey = getDeletedRt.map(x => x.resourceKey);
           const deleteQuerySp = {
             subscribedProductStatus: 'CA',
             deletedAt: new Date(),
             subscribedProductTo: new Date(),
             updatedAt: new Date(),
-            updatedBy: 'SYSTEM',
+            updatedBy: systemUserId,
           };
           const deleteQueryAmt = {
             anomaly_monitoring_target_status: 'CA',
             deletedAt: new Date(),
             updatedAt: new Date(),
-            updatedBy: 'SYSTEM',
+            updatedBy: systemUserId,
+          };
+          const deleteQueryAmtR = {
+            deletedAt: new Date(),
+            updatedAt: new Date(),
+            updatedBy: systemUserId,
           };
 
           try {
@@ -516,14 +589,17 @@ class massUploaderService {
               const conditionQuery = { where: { resourceKey: resourceKey }, transaction: t };
               const deleteSubscribedProduct = await this.subscribedProduct.update(deleteQuerySp, conditionQuery);
               const deleteAnomalyTarget = await this.anomalyMonitoringTarget.update(deleteQueryAmt, conditionQuery);
+              const deleteAnomalyTargetResource = await this.anomalyMonitoringTargetResource.update(deleteQueryAmtR, conditionQuery);
 
               console.log(`deleted subscribedProduct - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteSubscribedProduct}`);
               console.log(`deleted anomalyTarget - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteAnomalyTarget}`);
-              const result = `sucess to delete subscribedProduct, anomalyTarget - ${JSON.stringify(resourceKey)}`;
+              console.log(`deleted anomalyTargetR - ${JSON.stringify(resourceKey)}, updatedRow: ${deleteAnomalyTargetResource}`);
+
+              const result = `success to delete subscribedProduct, AMT and anomalyTargetResource - ${JSON.stringify(resourceKey)}`;
               return result;
             });
           } catch (error) {
-            console.log(`error on deleteing subscribedProduct and anomalyTarget - ${JSON.stringify(resourceKey)}`);
+            console.log(`error on deleteing subscribedProduct, AMT and amtResource - ${JSON.stringify(resourceKey)}`);
           }
         }
       }
