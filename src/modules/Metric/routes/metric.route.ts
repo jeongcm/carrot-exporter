@@ -28,7 +28,6 @@ class MetricRoute implements Routes {
   private initializeRoutes() {
     this.router.post('/metric', authMiddleware, this.metricController.getMetric);
     this.router.post('/metric/p8s', authMiddleware, this.metricController.getMetricP8S);
-    this.router.post('/metric/tips', authMiddleware, this.metricController.getMetricTips);
 
     this.router.get('/chart', authMiddleware, this.chartController.getAllCharts);
     this.router.get('/chart/:resourceGroupId', authMiddleware, this.chartController.getResourceGroupChart);
