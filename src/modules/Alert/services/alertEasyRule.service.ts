@@ -754,15 +754,20 @@ class AlertEasyRuleService {
     const alertTargetSubGroupKey = findAlertTargetSubGroup.alertTargetSubGroupKey;
 
     // step 1.4 if there is an alertEasyRule - same name with alertTargetSubGroup in the table , return exception
+    const findAlertEasyRuleWhere = {
+      alertEasyRuleName: alertEasyRuleName,
+      alertEasyRuleSeverity: alertEasyRuleSeverity,
+      customerAccountKey: customerAccountKey,
+      resourceGroupUuid: alertEasyRule.resourceGroupUuid,
+    };
     const findAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.findOne({
-      where: {
-        alertEasyRuleName: alertEasyRuleName,
-        alertEasyRuleSeverity: alertEasyRuleSeverity,
-        customerAccountKey: customerAccountKey,
-        resourceGroupUuid: alertEasyRule.resourceGroupUuid,
-      },
+      where: findAlertEasyRuleWhere,
     });
-    if (findAlertEasyRule) throw new HttpException(403, `Duplicatd Easy ALert Rule Name`);
+    //if (findAlertEasyRule) throw new HttpException(403, `Duplicatd Easy ALert Rule Name`);
+    if (findAlertEasyRule) {
+      result.push(findAlertEasyRule);
+      return result;
+    }
 
     // step2. Then, create AlertEasyRule for the alert rule of the each cluster.
 
