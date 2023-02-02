@@ -23,6 +23,7 @@ import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 //import { IExecutorService } from '@/common/interfaces/executor.interface';
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 import AlerthubService from './alerthub.service';
+import { Http } from 'winston/lib/winston/transports';
 //import { arrayBuffer } from 'stream/consumers';
 //import path from 'path';
 //import { max } from 'lodash';
@@ -1070,7 +1071,7 @@ class AlertEasyRuleService {
     })
 
     if (customerAccounts.length === 0) {
-      return `there is no customerAccount`
+      throw new HttpException(404, `not found CustomerAccount`)
     }
     
     var customerAccountKeys = customerAccounts.map(ca => {
@@ -1082,7 +1083,7 @@ class AlertEasyRuleService {
     })
 
     if (resourceGroups.length === 0) {
-      return `there is no resourceGroups in customerAccount(${customerAccountKeys})`
+      throw new HttpException(204,`not found resourceGroups in customerAccount(${customerAccountKeys})`)
     }
 
     var alertEasyRules = await this.alertEasyRule.findAll({
@@ -1090,9 +1091,8 @@ class AlertEasyRuleService {
     })
 
     if (alertEasyRules.length === 0) {
-      return `there is no alertEasyRules in customerAccount(${customerAccountKeys})`
+      throw new HttpException(204,`not found alertEasyRules in customerAccount(${customerAccountKeys})`)
     }
-
 
     let result: any = {}
     resourceGroups.forEach(rg => {
