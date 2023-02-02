@@ -1050,7 +1050,7 @@ class AlertEasyRuleService {
         resourceGroupUuid: resourceGroupUuid,
       };
       try {
-        const getResponse = this.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec);
+        const getResponse = await this.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec);
         console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
         returnMessage.push(getResponse);
       } catch (error) {
