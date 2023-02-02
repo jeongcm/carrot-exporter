@@ -74,6 +74,12 @@ class SubscriptionService {
     return allSubscriptions;
   }
 
+  public getTableId = async (tableIdTableName: string) => {
+    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
+    const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
+    return responseTableIdData.tableIdFinalIssued;
+  };
+
   public async createSubscription(data: CreateSubscriptionDto, createdBy: string, customerAccountKey: number): Promise<ISubscriptions> {
     const findCatalogPlan = await this.catalogPlan.findOne({ where: { catalogPlanId: data.catalogPlanId, deletedAt: null } });
     if (!findCatalogPlan) throw new HttpException(400, "Catalog plan doesn't exist");
@@ -209,38 +215,6 @@ class SubscriptionService {
     }
   };
 
-  public createSubscribedProduct = async (productData: CreateSubscribedProductDto, partyId: string, systemId: string, customerAccountKey: number) => {
-    const { subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId, subscriptionId, catalogPlanProductId } = productData;
-    const subscribedProductId = await this.getTableId('SubscribedProduct');
-    const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { subscriptionId } });
-    if (!subscriptionDetail) {
-      return { error: true, message: 'Subscription not found' };
-    }
-    const subscriptionKey = subscriptionDetail.subscriptionKey;
-
-    const resourceDetail = await this.resource.findOne({ where: { resourceId } });
-    if (!resourceDetail) {
-      return { error: true, message: 'Resource not found' };
-    }
-    const catalogPlanProductDetails: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({ where: { catalogPlanProductId } });
-    if (!catalogPlanProductDetails) return { error: true, message: 'CatalogPlanProduct not found' };
-
-    const catalogPlanProductKey = catalogPlanProductDetails.catalogPlanProductKey;
-    const createObj = {
-      subscribedProductId,
-      resourceKey: resourceDetail.resourceKey,
-      customerAccountKey,
-      subscriptionKey,
-      catalogPlanProductKey,
-      subscribedProductStatus,
-      subscribedProductFrom,
-      subscribedProductTo,
-      createdBy: partyId || systemId,
-    };
-    const newObj = await this.subscribedProduct.create(createObj);
-    return { data: newObj, message: 'success' };
-  };
-
   public createBulkSubscribedProduct = async (
     productData: CreateSubscribedProductDto[],
     partyId: string,
@@ -321,12 +295,6 @@ class SubscriptionService {
     return { data: updateData, message: 'success' };
   };
 
-  public getTableId = async (tableIdTableName: string) => {
-    const tableId = await this.tableIdService.getTableIdByTableName(tableIdTableName);
-    const responseTableIdData: IResponseIssueTableIdDto = await this.tableIdService.issueTableId(tableIdTableName);
-    return responseTableIdData.tableIdFinalIssued;
-  };
-
   public async cancelSubscription(subscriptionId: string): Promise<object> {
     const findSubscription: ISubscriptions = await this.subscription.findOne({ where: { subscriptionId, deletedAt: null } });
     if (!findSubscription) throw new HttpException(404, 'cannot find subscription');
@@ -386,6 +354,38 @@ class SubscriptionService {
     //
 
     return;
+  }
+
+  public async createSubscribedProduct(
+    productData: CreateSubscribedProductDto,
+    partyId: string,
+    systemId: string,
+    customerAccountKey: number,
+  ): Promise<ISubscribedProduct> {
+    const { subscribedProductStatus, subscribedProductFrom, subscribedProductTo, resourceId, subscriptionId, catalogPlanProductId } = productData;
+    const subscribedProductId = await this.getTableId('SubscribedProduct');
+    const subscriptionDetail: ISubscriptions = await this.subscription.findOne({ where: { subscriptionId } });
+    if (!subscriptionDetail) throw new HttpException(404, 'there is no subscription infromation');
+    const subscriptionKey = subscriptionDetail.subscriptionKey;
+    const resourceDetail = await this.resource.findOne({ where: { resourceId } });
+    if (!resourceDetail) throw new HttpException(405, 'there is no resource infromation');
+    const catalogPlanProductDetails: ICatalogPlanProduct = await this.catalogPlanProduct.findOne({ where: { catalogPlanProductId } });
+    if (!catalogPlanProductDetails) throw new HttpException(406, 'there is no catalog planporudct');
+
+    const catalogPlanProductKey = catalogPlanProductDetails.catalogPlanProductKey;
+    const createObj = {
+      subscribedProductId,
+      resourceKey: resourceDetail.resourceKey,
+      customerAccountKey,
+      subscriptionKey,
+      catalogPlanProductKey,
+      subscribedProductStatus,
+      subscribedProductFrom,
+      subscribedProductTo,
+      createdBy: partyId || systemId,
+    };
+    const newObj: ISubscribedProduct = await this.subscribedProduct.create(createObj);
+    return newObj;
   }
 }
 

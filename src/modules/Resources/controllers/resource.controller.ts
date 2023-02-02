@@ -92,9 +92,8 @@ class ResourceController {
     try {
       const { customerAccountKey } = req;
       const resourceTypes = req.query.resourceType as string[];
-      const resourceGroupIds = req.query.resourceGroupId as string[];
 
-      const resourceCount: GroupedCountResultItem[] = await this.topologyService.countResources(customerAccountKey, resourceTypes, resourceGroupIds);
+      const resourceCount: GroupedCountResultItem[] = await this.topologyService.countResources(customerAccountKey, resourceTypes);
 
       res.status(200).json({ data: resourceCount, message: 'findAll' });
     } catch (error) {
@@ -303,6 +302,31 @@ class ResourceController {
 
     try {
       const resource: IResource[] = await this.resourceService.getResourceByTypeResourceGroupId(resourceType, resourceGroupId, resourceQuery);
+      res.status(200).json({ data: resource, message: `find resources with resourceGroup(${resourceGroupId}) and resoruceType ${resourceType}` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public getResourceByTypeResourceGroupIdMetricOps = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceType: string[] = req.query.resourceType as string[];
+    const resourceQuery: any = {
+      ...req.query,
+      excludeFailed: req.query.excludeFailed === 'true',
+    };
+    const resourceGroupId: string = req.params.resourceGroupId;
+
+    try {
+      const resource: IResource[] = await this.resourceService.getResourceByTypeResourceGroupIdMetricOps(
+        resourceType,
+        resourceGroupId,
+        resourceQuery,
+      );
       res.status(200).json({ data: resource, message: `find resources with resourceGroup(${resourceGroupId}) and resoruceType ${resourceType}` });
     } catch (error) {
       next(error);

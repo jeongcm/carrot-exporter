@@ -19,12 +19,12 @@
     },
     {
         "catalogPlanName": "NexClipper MetricOps",
-        "catalogPlanProductName": "K8s Pod / MetricOps",
+        "catalogPlanProductName": "K8s Workload/Pod / MetricOps",
         "catalogPlanProductDescription": "Anomaly Forecast/Automated Actions for K8s Pod",
         "catalogPlanProductMonthlyPrice": 5,
         "catalogPlanProductUOM": "EA",
         "catalogPlanProductCurrency": "US",
-        "catalogPlanProductType": "PD"
+        "catalogPlanProductType": "WL"
     },
     {
         "catalogPlanName": "NexClipper MetricOps",

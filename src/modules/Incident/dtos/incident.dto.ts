@@ -27,7 +27,7 @@ export class CreateIncidentDto {
 
   @IsOptional()
   @IsString()
-  public anomalyMonitoringTargetId: string;
+  public evaluationId: string;
 }
 
 export class UpdateIncidentDto {

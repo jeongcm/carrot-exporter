@@ -26,7 +26,35 @@
         "alertEasyRuleSeverity": "critical",
         "alertEasyRuleThreshold1Unit": "percentage",
         "alertEasyRuleThreshold1Max": "100"
-    },    
+    },
+    {
+        "alertTargetGroupName": "Kubernetes Network",
+        "alertTargetSubGroupName": "Node Network Error",
+        "alertEasyRuleName": "HostUnusualNetworkReceiveError",
+        "alertEasyRuleQuery": "sum by (node) (node_network_receive_errs_total / node_network_receive_bytes_total) * 100 > alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "0m",
+        "alertEasyRuleThreshold1": "1",
+        "alertEasyRuleDescription": "Node network interfaces (receive) show error reate more than (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
+        "alertEasyRuleSummary": "Unusual node network receive error rate - (node {{ $labels.node }})",
+        "alertEasyRuleGroup": "awesomehost",
+        "alertEasyRuleSeverity": "warning",
+        "alertEasyRuleThreshold1Unit": "percentage",
+        "alertEasyRuleThreshold1Max": "100"
+    },      
+    {
+        "alertTargetGroupName": "Kubernetes Network",
+        "alertTargetSubGroupName": "Node Network Error",
+        "alertEasyRuleName": "HostUnusualNetworkTransmitError",
+        "alertEasyRuleQuery": "sum by (node) (node_network_transmit_errs_total / node_network_transmit_bytes_total) * 100 > alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "0m",
+        "alertEasyRuleThreshold1": "1",
+        "alertEasyRuleDescription": "Node network interfaces (transmit) show error reate more than (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
+        "alertEasyRuleSummary": "Unusual node network transmit error rate - (node {{ $labels.node }})",
+        "alertEasyRuleGroup": "awesomehost",
+        "alertEasyRuleSeverity": "warning",
+        "alertEasyRuleThreshold1Unit": "percentage",
+        "alertEasyRuleThreshold1Max": "100"
+    }, 
     {
         "alertTargetGroupName": "Kubernetes Pod",
         "alertTargetSubGroupName": "Pod CPU Utilization",
@@ -55,6 +83,34 @@
         "alertEasyRuleThreshold1Unit": "byte",
         "alertEasyRuleThreshold1Max": "3000000000"
     },
+    {
+        "alertTargetGroupName": "Kubernetes Pod",
+        "alertTargetSubGroupName": "Pod Network Error",
+        "alertEasyRuleName": "PodUnusualNetworkReceiveError",
+        "alertEasyRuleQuery": "sum by (pod, node) (container_network_receive_errors_total{pod!=\"\"}/container_network_receive_bytes_total{pod!=\"\"}) * 100 > alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "0m",
+        "alertEasyRuleThreshold1": "1",
+        "alertEasyRuleDescription": "Pod network interfaces (receive) show error reate more than (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
+        "alertEasyRuleSummary": "Unusual Pod network receive error rate - (node {{ $labels.node }})",
+        "alertEasyRuleGroup": "awesomehost",
+        "alertEasyRuleSeverity": "warning",
+        "alertEasyRuleThreshold1Unit": "percentage",
+        "alertEasyRuleThreshold1Max": "100"
+    },
+    {
+        "alertTargetGroupName": "Kubernetes Pod",
+        "alertTargetSubGroupName": "Pod Network Error",
+        "alertEasyRuleName": "PodUnusualNetworkTransmitError",
+        "alertEasyRuleQuery": "sum by (pod, node) (container_network_transmit_errors_total{pod!=\"\"}/container_network_transmit_bytes_total{pod!=\"\"}) * 100 > alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "0m",
+        "alertEasyRuleThreshold1": "1",
+        "alertEasyRuleDescription": "Pod network interfaces (transmit) show error reate more than (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
+        "alertEasyRuleSummary": "Unusual Pod network transmit error rate - (node {{ $labels.node }})",
+        "alertEasyRuleGroup": "awesomehost",
+        "alertEasyRuleSeverity": "warning",
+        "alertEasyRuleThreshold1Unit": "percentage",
+        "alertEasyRuleThreshold1Max": "100"
+    },      
     {
         "alertTargetGroupName": "Kubernetes Volume",
         "alertTargetSubGroupName": "Volume Utilization",

@@ -10,6 +10,7 @@ class MetricOpsUtilService {
   public ruleGroup = DB.RuleGroup;
   public bayesianModel = DB.BayesianModel;
   public tableIdService = new TableIdService();
+
   public async updateBayesianNetwork(bayesianModelKey: number): Promise<object> {
     try {
       const searchModel = {
@@ -20,6 +21,7 @@ class MetricOpsUtilService {
       };
       const resultModelSearch = await this.modelRuleScore.findAll(searchModel);
       const bayesianModel: any = await this.bayesianModel.findOne(searchModel);
+      const bayesianModelId = bayesianModel?.standardModelId || bayesianModel?.bayesianModelId;
       if (resultModelSearch && resultModelSearch.length && bayesianModel?.bayesianModelScoreCard) {
         const mappingTo = {},
           mappingFrom = {},
@@ -73,7 +75,7 @@ class MetricOpsUtilService {
         });
 
         const bnData = {
-          bayesianModelId: bayesianModel?.bayesianModelId,
+          bayesianModelId: bayesianModelId,
           version: `v0.${version + 1}`,
           alerts,
           alert_groups: alertGroups,

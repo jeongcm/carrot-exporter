@@ -10,7 +10,13 @@
         "alertTargetSubGroupName": "Node Memory Utilization",
         "alertTargetSubGroupDescription": "Node Memory Utilization"
 
-    },    
+    },
+    {
+        "alertTargetGroupName": "Kubernetes Node",
+        "alertTargetSubGroupName": "Node Network Error",
+        "alertTargetSubGroupDescription": "Node Network Error"
+
+    },     
     {
         "alertTargetGroupName": "Kubernetes Pod",
         "alertTargetSubGroupName": "Pod CPU Utilization",
@@ -23,6 +29,12 @@
         "alertTargetSubGroupDescription": "Pod Memory Utilization"
 
     },
+    {
+        "alertTargetGroupName": "Kubernetes Pod",
+        "alertTargetSubGroupName": "Pod Network Error",
+        "alertTargetSubGroupDescription": "Pod Network Error"
+
+    },    
     {
         "alertTargetGroupName": "Kubernetes Volume",
         "alertTargetSubGroupName": "Volume Utilization",
