@@ -15,7 +15,6 @@ export class CreateRuleGroupDto {
   @IsString()
   @IsNotEmpty()
   public ruleGroupClusterId: string;
-
 }
 export class UpdateRuleGroupDto {
   @IsString()
@@ -26,13 +25,10 @@ export class UpdateRuleGroupDto {
   @IsOptional()
   public ruleGroupDescription: string;
 
-  
   @IsString()
   public ruleGroupStatus: string;
 
   @IsString()
   @IsOptional()
   public ruleGroupClusterId: string;
-
 }
-

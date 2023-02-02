@@ -9,9 +9,7 @@ export class RuleGroupAlertRuleDto {
 
   @IsString()
   public ruleGroupAlertRuleStatus: string;
-
 }
-
 
 export class UnRegisterRuleGroupAlertRuleDto {
   @IsString()
@@ -19,5 +17,4 @@ export class UnRegisterRuleGroupAlertRuleDto {
 
   @IsArray()
   public alertRuleIds: Array<{}>;
-
 }

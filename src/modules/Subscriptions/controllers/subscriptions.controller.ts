@@ -70,9 +70,6 @@ class SubscriptionController {
         customerAccountKey,
       } = req;
       const newSubscribedProduct = await this.subscriptionService.createSubscribedProduct(productData, partyId, systemId, customerAccountKey);
-      if (newSubscribedProduct.error) {
-        return res.status(400).json(newSubscribedProduct);
-      }
       res.status(201).json(newSubscribedProduct);
     } catch (error) {
       res.status(400).json({ error, message: 'failure' });

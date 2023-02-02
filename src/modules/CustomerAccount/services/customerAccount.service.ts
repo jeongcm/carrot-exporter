@@ -124,7 +124,8 @@ class CustomerAccountService {
             language: language,
           },
           { transaction: t },
-        );
+        )
+
         //create an API user
         const createdPartyApi: IParty = await this.party.create(
           {
@@ -160,7 +161,7 @@ class CustomerAccountService {
             language: language,
           },
           { transaction: t },
-        );
+        )
 
         //3. fusebill interface
         console.log('fuseBill Start');
@@ -261,58 +262,61 @@ class CustomerAccountService {
           notificationId: notificationId,
           fuseBillInterface: fuseBillInterface,
         };
-      });
+      })
     } catch (err) {
       console.log(err);
-      throw new HttpException(500, 'Unknown error while creating account');
+      throw new HttpException(500, `Unknown error while creating account. cause: ${err}`);
     }
 
     // update externalbillingcustomerid into customerAccount table
     await this.customerAccount.update({ externalBillingCustomerId }, { where: { customerAccountId } });
 
-    //. create multi-tenant VM secret data
-    const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
-      where: { deletedAt: null },
-    });
-    let auth = '\n' + `users: ` + '\n';
-    getActiveCustomerAccounts.forEach(customerAccount => {
-      auth =
-        auth +
-        `- username: "S${customerAccount.customerAccountId}"
+    if (config.victoriaMetrics.vmOption === "MULTI") {
+      //. create multi-tenant VM secret data
+      const getActiveCustomerAccounts: ICustomerAccount[] = await this.customerAccount.findAll({
+        where: { deletedAt: null },
+      });
+      let auth = '\n' + `users: ` + '\n';
+      getActiveCustomerAccounts.forEach(customerAccount => {
+        auth =
+          auth +
+          `- username: "S${customerAccount.customerAccountId}"
   password: "${customerAccount.customerAccountId}"
   url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlSelect}/${customerAccount.customerAccountKey}/prometheus/"
 - username: "I${customerAccount.customerAccountId}"
   password: "${customerAccount.customerAccountId}"
   url_prefix: "${config.victoriaMetrics.vmMultiBaseUrlInsert}/${customerAccount.customerAccountKey}/prometheus/"` +
-        '\n';
-    });
-    console.log('auth-----', auth);
-    const authBuff = Buffer.from(auth);
-    const base64Auth = authBuff.toString('base64');
-    //call sudory to patch VM multiline secret file
-    const sudoryServiceName = 'Update VM Secret';
-    const summary = 'Update VM Secret';
-    const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
-    const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
-    const step = [
-      {
-        args: {
-          name: config.victoriaMetrics.vmMultiSecret,
-          namespace: config.victoriaMetrics.vmMultiNamespaces,
-          patch_type: 'json',
-          patch_data: [
-            {
-              op: 'replace',
-              path: '/data/auth.yml',
-              value: base64Auth,
-            },
-          ],
+          '\n';
+      });
+      console.log('auth-----', auth);
+      const authBuff = Buffer.from(auth);
+      const base64Auth = authBuff.toString('base64');
+      //call sudory to patch VM multiline secret file
+      const sudoryServiceName = 'Update VM Secret';
+      const summary = 'Update VM Secret';
+      const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
+      const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
+      const step = [
+        {
+          args: {
+            name: config.victoriaMetrics.vmMultiSecret,
+            namespace: config.victoriaMetrics.vmMultiNamespaces,
+            patch_type: 'json',
+            patch_data: [
+              {
+                op: 'replace',
+                path: '/data/auth.yml',
+                value: base64Auth,
+              },
+            ],
+          },
         },
-      },
-    ];
-    const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-    console.log('CUSTOMER# - step', JSON.stringify(step));
-    await this.sudoryService.postSudoryService(sudoryServiceName, summary, clusterUuid, templateUuid, step, customerAccountKey, subscribedChannel);
+      ];
+      const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+      console.log('CUSTOMER# - step', JSON.stringify(step));
+      await this.sudoryService.postSudoryService(sudoryServiceName, summary, clusterUuid, templateUuid, step, customerAccountKey, subscribedChannel);
+    }
+
     return returnResult;
   }
 

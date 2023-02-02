@@ -1,7 +1,7 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IAnomalyMonitoringTarget } from '@/common/interfaces/monitoringTarget.interface';
 
-export type ModelRuleScoreAttributes = Optional<
+export type AnomalyMonitoringTargetAttributes = Optional<
   IAnomalyMonitoringTarget,
   | 'anomalyMonitoringTargetKey'
   | 'subscribedProductKey'
@@ -19,7 +19,10 @@ export type ModelRuleScoreAttributes = Optional<
   | 'customerAccountKey'
 >;
 
-export class AnomalyMonitoringTargetTable extends Model<IAnomalyMonitoringTarget, ModelRuleScoreAttributes> implements IAnomalyMonitoringTarget {
+export class AnomalyMonitoringTargetTable
+  extends Model<IAnomalyMonitoringTarget, AnomalyMonitoringTargetAttributes>
+  implements IAnomalyMonitoringTarget
+{
   public anomalyMonitoringTargetKey: number;
   public subscribedProductKey: number;
   public bayesianModelKey: number;

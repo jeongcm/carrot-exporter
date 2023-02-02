@@ -12,7 +12,8 @@ class EvaluateController {
   public evaluateMonitoringTarget = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const anomalyMonitoringTargetId = req.body.anomalyMonitoringTargetId;
-      const evalatiaonDetails = await this.evaluateService.evaluateMonitoringTarget(anomalyMonitoringTargetId);
+      const resourceId = req.body.resourceId;
+      const evalatiaonDetails = await this.evaluateService.evaluateMonitoringTarget(anomalyMonitoringTargetId, resourceId);
       res.status(200).json({ data: evalatiaonDetails, message: `Evaluation complate - ${anomalyMonitoringTargetId}` });
     } catch (error) {
       next(error);
@@ -55,7 +56,9 @@ class EvaluateController {
   public getEvaluationHistoryByTargetId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const anomalyMonitoringTargetId = req.params.anomalyMonitoringTargetId;
-      const evalatiaonResult = await this.evaluateService.getEvaluationHistoryByTargetId(anomalyMonitoringTargetId);
+      const limit = parseInt(req.params.limit) || 500;
+      const offset = parseInt(req.params.offset) || 0;
+      const evalatiaonResult = await this.evaluateService.getEvaluationHistoryByTargetId(anomalyMonitoringTargetId, limit, offset);
       res.status(200).json({ data: evalatiaonResult, message: `Evaluation result by anomalyMonitoringTargetId - ${anomalyMonitoringTargetId}` });
     } catch (error) {
       next(error);

@@ -14,6 +14,7 @@ export type RuleGroupResolutionActionAttributes = Optional<
   | 'deletedAt'
   | 'resolutionActionDescription'
   | 'sudoryTemplateArgsOption'
+  | 'ruleGroupResolutionActionOrder'
 >;
 
 export class RuleGroupResolutionActionModel
@@ -29,6 +30,7 @@ export class RuleGroupResolutionActionModel
   public deletedAt: Date;
   public resolutionActionDescription: string;
   public sudoryTemplateArgsOption: JSON;
+  public ruleGroupResolutionActionOrder: number;
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
@@ -83,6 +85,11 @@ export default function (sequelize: Sequelize): typeof RuleGroupResolutionAction
       sudoryTemplateArgsOption: {
         type: DataTypes.JSON,
         allowNull: false,
+      },
+      ruleGroupResolutionActionOrder: {
+        allowNull: true,
+        type: DataTypes.INTEGER,
+        defaultValue: 1,
       },
     },
 

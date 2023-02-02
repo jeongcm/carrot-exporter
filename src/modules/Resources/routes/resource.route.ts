@@ -65,6 +65,14 @@ class ResourceRoute implements Routes {
     );
 
     this.router.get(
+      '/resource/resourceGroup/metricOps/:resourceGroupId',
+      validationMiddleware(ResourceQueryDTO, 'query'),
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceController.getResourceByTypeResourceGroupIdMetricOps,
+    );
+
+    this.router.get(
       '/resource/resourceGroup/:resourceGroupUuid/workloads/:allReplicasYN', //all replicasets "Y" or "N"
       authMiddleware,
       createUserLogMiddleware,
