@@ -436,8 +436,11 @@ class AlertEasyRuleService {
 
     //Step 2-1 Prepare for Prometheus Rule patch
     const prometheusNamespace = findResourceGroup.resourceGroupKpsLokiNamespace;
+    const prometheus = findResourceGroup.resourceGroupPrometheus;
 
     const alertGroup = findAlertRule?.alertRuleGroup || alertEasyRule.alertEasyRuleGroup;
+    const appName = prometheus.substring(7, prometheus.indexOf('.'));
+    const prometheusRuleGroupName = appName.substring(0, appName.length - 11) + '-' + alertGroup;
 
     const sudoryServiceName = 'Patch Prometheus Rule';
     const summary = 'Patch Prometheus Rule';
@@ -546,7 +549,7 @@ class AlertEasyRuleService {
     const sudorySummary = 'getPrometheusRule';
     const clusterUuid = resourceGroupUuid;
     const getTemplateUuid = '00000000000000000000000000004003';
-    const getStep = [{ args: { name: alertGroup, namespace: prometheusNamespace } }];
+    const getStep = [{ args: { name: prometheusRuleGroupName, namespace: prometheusNamespace } }];
 
     //Step 2-2 Get Prometheus Rule
     const getPrometheusRule = await this.sudoryService.postSudoryService(
@@ -595,7 +598,7 @@ class AlertEasyRuleService {
       step = [
         {
           args: {
-            name: alertGroup,
+            name: prometheusRuleGroupName,
             namespace: prometheusNamespace,
             patch_type: 'json',
             patch_data: [
@@ -636,7 +639,7 @@ class AlertEasyRuleService {
       step = [
         {
           args: {
-            name: alertGroup,
+            name: prometheusRuleGroupName,
             namespace: prometheusNamespace,
             patch_type: 'json',
             patch_data: [
@@ -772,6 +775,7 @@ class AlertEasyRuleService {
     const resourceGroupUuid = findResourceGroup.resourceGroupUuid;
     const resourceGroupKey = findResourceGroup.resourceGroupKey;
     const prometheusNamespace = findResourceGroup.resourceGroupKpsLokiNamespace;
+    const prometheus = findResourceGroup.resourceGroupPrometheus;
 
     // step 2-1. find AlertRule of the cluster
     const findAlertRule: IAlertRule = await this.alertRule.findOne({
@@ -786,11 +790,13 @@ class AlertEasyRuleService {
       alertGroup = findAlertRule.alertRuleGroup;
     }
 
+    const appName = prometheus.substring(7, prometheus.indexOf('.'));
+    const prometheusRuleGroupName = appName.substring(0, appName.length - 11) + '-' + alertGroup;
     const sudorySName = 'getPrometheusRule';
     const sudorySummary = 'getPrometheusRule';
     const clusterUuid = resourceGroupUuid;
     const getTemplateUuid = '00000000000000000000000000004003';
-    const getStep = [{ args: { name: alertGroup, namespace: prometheusNamespace } }];
+    const getStep = [{ args: { name: prometheusRuleGroupName, namespace: prometheusNamespace } }];
     const subscribedChannel = config.sudoryApiDetail.channel_webhook;
     const getPrometheusRule = await this.sudoryService.postSudoryService(
       sudorySName,
@@ -848,7 +854,7 @@ class AlertEasyRuleService {
         step = [
           {
             args: {
-              name: alertGroup,
+              name: prometheusRuleGroupName,
               namespace: prometheusNamespace,
               patch_type: 'json',
               patch_data: [
@@ -872,7 +878,7 @@ class AlertEasyRuleService {
         step = [
           {
             args: {
-              name: alertGroup,
+              name: prometheusRuleGroupName,
               namespace: prometheusNamespace,
               patch_type: 'json',
               patch_data: [

@@ -8,7 +8,7 @@
         "alertEasyRuleThreshold1": "80",
         "alertEasyRuleDescription": "CPU load is > alertEasyRuleThreshold1% \n VALUE = {{ $value }} \n LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "Host high CPU load (node {{ $labels.node }})",        
-        "alertEasyRuleGroup": "nc_node.alert.rules",
+        "alertEasyRuleGroup": "nc-node",
         "alertEasyRuleSeverity": "critical",
         "alertEasyRuleThreshold1Unit": "percentage",
         "alertEasyRuleThreshold1Max": "100"
@@ -22,7 +22,7 @@
         "alertEasyRuleThreshold1": "80",
         "alertEasyRuleDescription": "Node memory is filling up (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "Host out of memory (node {{ $labels.node }})",
-        "alertEasyRuleGroup": "nc_node.alert.rules",
+        "alertEasyRuleGroup": "nc-node",
         "alertEasyRuleSeverity": "critical",
         "alertEasyRuleThreshold1Unit": "percentage",
         "alertEasyRuleThreshold1Max": "100"
@@ -36,7 +36,7 @@
         "alertEasyRuleThreshold1": "1000",
         "alertEasyRuleDescription": "Pod CPU usage is > alertEasyRuleThreshold1m \n VALUE = {{ $value }}\n LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "Pod CPU usage is over threshold (pod {{ $labels.pod }})",
-        "alertEasyRuleGroup": "nc_kube_resource.alert.rules",
+        "alertEasyRuleGroup": "nc-kube-resource",
         "alertEasyRuleSeverity": "critical",
         "alertEasyRuleThreshold1Unit": "core",
         "alertEasyRuleThreshold1Max": "2000"
@@ -50,7 +50,7 @@
         "alertEasyRuleThreshold1": "2000000000",
         "alertEasyRuleDescription": "Pod memory usage is > alertEasyRuleThreshold1 byte /n VALUE = {{ $value }} /n LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "Pod memory usage is over threshold (pod {{ $labels.pod }})",
-        "alertEasyRuleGroup": "nc_kube_resource.alert.rules",
+        "alertEasyRuleGroup": "nc-kube-resource",
         "alertEasyRuleSeverity": "critical",
         "alertEasyRuleThreshold1Unit": "byte",
         "alertEasyRuleThreshold1Max": "3000000000"
