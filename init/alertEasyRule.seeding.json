@@ -28,6 +28,34 @@
         "alertEasyRuleThreshold1Max": "100"
     },
     {
+        "alertTargetGroupName": "Kubernetes Network",
+        "alertTargetSubGroupName": "Node Network Error",
+        "alertEasyRuleName": "HostNetworkReceiveError",
+        "alertEasyRuleQuery": "sum by (node) (irate(node_network_receive_errs_total[2m])) / sum by (node) (irate(node_network_receive_packets_total[2m])) * 100 > alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "0m",
+        "alertEasyRuleThreshold1": "1",
+        "alertEasyRuleDescription": "Node network interfaces (receive) show error reate more than (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
+        "alertEasyRuleSummary": "node network receive error rate - (node {{ $labels.node }})",
+        "alertEasyRuleGroup": "nc-node",
+        "alertEasyRuleSeverity": "warning",
+        "alertEasyRuleThreshold1Unit": "percentage",
+        "alertEasyRuleThreshold1Max": "100"
+    },      
+    {
+        "alertTargetGroupName": "Kubernetes Network",
+        "alertTargetSubGroupName": "Node Network Error",
+        "alertEasyRuleName": "HostNetworkTransmitError",
+        "alertEasyRuleQuery": "sum by (node) (irate(node_network_transmit_errs_total[2m])) / sum by (node) (irate(node_network_transmit_packets_total[2m])) * 100 > alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "0m",
+        "alertEasyRuleThreshold1": "1",
+        "alertEasyRuleDescription": "Node network interfaces (transmit) show error reate more than (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
+        "alertEasyRuleSummary": "node network transmit error rate - (node {{ $labels.node }})",
+        "alertEasyRuleGroup": "nc-node",
+        "alertEasyRuleSeverity": "warning",
+        "alertEasyRuleThreshold1Unit": "percentage",
+        "alertEasyRuleThreshold1Max": "100"
+    },
+    {
         "alertTargetGroupName": "Kubernetes Pod",
         "alertTargetSubGroupName": "Pod CPU Utilization",
         "alertEasyRuleName": "PodCPUThresholdOver",
