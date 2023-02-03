@@ -30,7 +30,7 @@
     {
         "alertTargetGroupName": "Kubernetes Network",
         "alertTargetSubGroupName": "Node Network Error",
-        "alertEasyRuleName": "HostNetworkReceiveError",
+        "alertEasyRuleName": "HostNetworkReceiveErrors",
         "alertEasyRuleQuery": "sum by (node) (irate(node_network_receive_errs_total[2m])) / sum by (node) (irate(node_network_receive_packets_total[2m])) * 100 > alertEasyRuleThreshold1",
         "alertEasyRuleDuration": "0m",
         "alertEasyRuleThreshold1": "1",
@@ -40,11 +40,11 @@
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "percentage",
         "alertEasyRuleThreshold1Max": "100"
-    },      
+    },
     {
         "alertTargetGroupName": "Kubernetes Network",
         "alertTargetSubGroupName": "Node Network Error",
-        "alertEasyRuleName": "HostNetworkTransmitError",
+        "alertEasyRuleName": "HostNetworkTransmitErrors",
         "alertEasyRuleQuery": "sum by (node) (irate(node_network_transmit_errs_total[2m])) / sum by (node) (irate(node_network_transmit_packets_total[2m])) * 100 > alertEasyRuleThreshold1",
         "alertEasyRuleDuration": "0m",
         "alertEasyRuleThreshold1": "1",
