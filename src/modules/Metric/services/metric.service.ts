@@ -873,6 +873,13 @@ class MetricService extends ServiceExtension {
 
 
       // K8s Node Metric by carrot
+      case 'K8S_CLUSTER_NODE_MEMORY_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (kube_node_status_allocatable{resource="memory", __LABEL_PLACE_HOLDER__})`;
+        break;
       case 'K8S_CLUSTER_NODE_MEMORY_USAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -920,7 +927,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
           node: resourceName,
         });
-        promQl = `sum by (clusterUuid, node) (irate(container_network_receive_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[60m]) + irate(container_network_transmit_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[60m]))`;
+        promQl = `sum by (clusterUuid, node) (irate(container_network_receive_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[${step}]) + irate(container_network_transmit_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[${step}}]))`;
         break;
 
       case 'K8S_CLUSTER_NODE_RX_TOTAL':
