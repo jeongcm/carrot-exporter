@@ -927,7 +927,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
           node: resourceName,
         });
-        promQl = `sum by (clusterUuid, node) (irate(container_network_receive_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[${step}]) + irate(container_network_transmit_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[${step}}]))`;
+        promQl = `sum by (clusterUuid, node) (irate(container_network_receive_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[${step}]) + irate(container_network_transmit_bytes_total{pod=~".*", image!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
 
       case 'K8S_CLUSTER_NODE_RX_TOTAL':
