@@ -970,7 +970,7 @@ class MetricService extends ServiceExtension {
           labelString += getSelectorLabels({
             clusterUuid,
           });
-          promQl = `sum by (pod) (sum by(cluster, namespace, pod, container) (rate(container_cpu_usage_seconds_total{container!="POD",image!="",job="kubelet",metrics_path="/metrics/cadvisor", __LABEL_PLACE_HOLDER__}[${step}])) * on(cluster, namespace, pod) group_left(node) topk by(cluster, namespace, pod) (1, max by(cluster, namespace, pod, node) (kube_pod_info{node!="", __LABEL_PLACE_HOLDER__}))) / sum by (pod) (cluster:namespace:pod_cpu:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__})`;
+          promQl = `sum by (pod) (sum by(cluster, namespace, pod, container) (irate(container_cpu_usage_seconds_total{container!="POD",image!="",job="kubelet",metrics_path="/metrics/cadvisor", __LABEL_PLACE_HOLDER__}[${step}])) * on(cluster, namespace, pod) group_left(node) topk by(cluster, namespace, pod) (1, max by(cluster, namespace, pod, node) (kube_pod_info{node!="", __LABEL_PLACE_HOLDER__}))) / sum by (pod) (cluster:namespace:pod_cpu:active:kube_pod_container_resource_limits{__LABEL_PLACE_HOLDER__})`;
           break;
       case 'K8S_CLUSTER_POD_MEMORY':
         labelString += getSelectorLabels({
