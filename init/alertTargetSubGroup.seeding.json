@@ -16,7 +16,13 @@
         "alertTargetSubGroupName": "Node Network Error",
         "alertTargetSubGroupDescription": "Node Network Error"
 
-    },     
+    },  
+    {
+        "alertTargetGroupName": "Kubernetes Node",
+        "alertTargetSubGroupName": "Node Network Utilization",
+        "alertTargetSubGroupDescription": "Node Network Utilization"
+
+    },
     {
         "alertTargetGroupName": "Kubernetes Pod",
         "alertTargetSubGroupName": "Pod CPU Utilization",
