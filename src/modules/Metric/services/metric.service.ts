@@ -913,7 +913,7 @@ class MetricService extends ServiceExtension {
             clusterUuid,
             node: resourceName,
           });
-          promQl = `sum by (clusterUuid, node) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}) / sum by (clusterUuid, node) (kube_node_status_allocatable{resource="ephemeral_storage", __LABEL_PLACE_HOLDER__})`;
+          promQl = `sum by (clusterUuid, node) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}) / sum by (node ) (kubelet_volume_stats_available_bytes{__LABEL_PLACE_HOLDER__} + kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__} )`;
         break;
       case 'K8S_CLUSTER_NODE_RXTX_TOTAL':
         labelString += getSelectorLabels({
