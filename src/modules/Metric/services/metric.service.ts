@@ -326,7 +326,7 @@ class MetricService extends ServiceExtension {
         });
         ranged = true;
 
-        promQl = `avg(rate(node_cpu_seconds_total{job="node-exporter", mode=~"user|system|iowait", __LABEL_PLACE_HOLDER__}[${step}])) by (node, cpu)`;
+        promQl = `sum by (node, cpu) (irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (node, cpu) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'NODE_CPU_PERCENTAGE_MOMENT':
         labelString += getSelectorLabels({
