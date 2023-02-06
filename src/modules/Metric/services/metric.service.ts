@@ -1030,7 +1030,7 @@ class MetricService extends ServiceExtension {
         labelString += getSelectorLabels({
           clusterUuid,
         });
-        promQl = `sum(irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}}])) / sum(kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum(irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}])) / sum(kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_CPU_REQUESTS_COMMITMENT':
         labelString += getSelectorLabels({
