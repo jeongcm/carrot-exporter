@@ -28,6 +28,20 @@
         "alertEasyRuleThreshold1Max": "100"
     },
     {
+        "alertTargetGroupName": "Kubernetes Node",
+        "alertTargetSubGroupName": "Node Disk Utilization",
+        "alertEasyRuleName": "HostOutOfDiskSpace",
+        "alertEasyRuleQuery": "sum by (node) (kubelet_volume_stats_used_bytes{}) / sum by (node) (kubelet_volume_stats_available_bytes{} + kubelet_volume_stats_used_bytes{}) * 100 > alertEasyRuleThreshold1",
+        "alertEasyRuleDuration": "5m",
+        "alertEasyRuleThreshold1": "30",
+        "alertEasyRuleDescription": "Node Disk is filling up (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
+        "alertEasyRuleSummary": "Host out of Disk (node {{ $labels.node }})",
+        "alertEasyRuleGroup": "nc-node",
+        "alertEasyRuleSeverity": "critical",
+        "alertEasyRuleThreshold1Unit": "percentage",
+        "alertEasyRuleThreshold1Max": "100"
+    },
+    {
         "alertTargetGroupName": "Kubernetes Network",
         "alertTargetSubGroupName": "Node Network Error",
         "alertEasyRuleName": "HostNetworkReceiveErrors",
@@ -59,7 +73,7 @@
         "alertTargetGroupName": "Kubernetes Network",
         "alertTargetSubGroupName": "Node Network Utilization",
         "alertEasyRuleName": "HostUnusualNetworkThroughputIn",
-        "alertEasyRuleQuery": "> alertEasyRuleThreshold1",
+        "alertEasyRuleQuery": "sum by (node) (irate(container_network_receive_bytes_total{pod=~\".*\", image!=\"\", __LABEL_PLACE_HOLDER__}[5m])) > alertEasyRuleThreshold1",
         "alertEasyRuleDuration": "0m",
         "alertEasyRuleThreshold1": "100000000",
         "alertEasyRuleDescription": "Host unusual network throughput in (node {{ $labels.node }})",
@@ -73,7 +87,7 @@
         "alertTargetGroupName": "Kubernetes Network",
         "alertTargetSubGroupName": "Node Network Utilization",
         "alertEasyRuleName": "HostUnusualNetworkThroughputOut",
-        "alertEasyRuleQuery": "> alertEasyRuleThreshold1",
+        "alertEasyRuleQuery": "sum by (node) (irate(container_network_transmit_bytes_total{pod=~\".*\", image!=\"\", __LABEL_PLACE_HOLDER__}[5m])) > alertEasyRuleThreshold1",
         "alertEasyRuleDuration": "0m",
         "alertEasyRuleThreshold1": "100000000",
         "alertEasyRuleDescription": "Host unusual network throughput out (node {{ $labels.node }})",
