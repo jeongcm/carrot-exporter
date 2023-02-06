@@ -1002,7 +1002,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum by(pod, clusterUuid) (irate(container_network_transmit_bytes_total{image!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
-      case 'K8S_CLUSTER_NODE_RXTX_TOTAL':
+      case 'K8S_CLUSTER_POD_RXTX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
           node: resourceName,
