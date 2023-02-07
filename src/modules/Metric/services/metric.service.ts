@@ -319,15 +319,6 @@ class MetricService extends ServiceExtension {
         break;
 
       //K8s NODE
-      case 'NODE_CPU_PERCENTAGE':
-        labelString += getSelectorLabels({
-          clusterUuid,
-          node: resourceName,
-        });
-        ranged = true;
-
-        promQl = `sum by (node, cpu) (irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (node, cpu) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
-        break;
       case 'NODE_CPU_PERCENTAGE_MOMENT':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -903,13 +894,6 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum by (clusterUuid, node) (irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
-      case 'K8S_CLUSTER_NODE_CPU_USAGE_PERCENTAGE_WITH_CPU':
-        labelString += getSelectorLabels({
-          clusterUuid,
-          node: resourceName,
-        });
-        promQl = `sum by (node, cpu) (irate(container_cpu_usage_seconds_total{pod=~".*", image!="", container_name!="POD", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (node, cpu) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
-        break;
       case 'K8S_CLUSTER_NODE_DISK':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -923,13 +907,6 @@ class MetricService extends ServiceExtension {
             node: resourceName,
           });
           promQl = `sum by (clusterUuid, node) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}) / sum by (clusterUuid, node) (kubelet_volume_stats_available_bytes{__LABEL_PLACE_HOLDER__} + kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__})`;
-        break;
-      case 'K8S_CLUSTER_NODE_DISK_PERCENTAGE_WITH_DEVICE':
-        labelString += getSelectorLabels({
-          clusterUuid,
-          node: resourceName,
-        });
-        promQl = `sum by (device) (kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__}) / sum by (device) (kubelet_volume_stats_available_bytes{__LABEL_PLACE_HOLDER__} + kubelet_volume_stats_used_bytes{__LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NODE_RXTX_TOTAL':
         labelString += getSelectorLabels({
