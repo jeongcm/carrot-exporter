@@ -1102,16 +1102,6 @@ class AlertEasyRuleService {
     let result: any = {}
     resourceGroups.forEach(rg => {
       result[rg.resourceGroupUuid] = {
-        podCpuAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodCPUThresholdOver") {
-            return true
-          }
-        })?.alertEasyRuleThreshold1,
-        podMemoryAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodMemoryThresholdOver") {
-            return true
-          }
-        })?.alertEasyRuleThreshold1,
         NodeCpuAlertEasyRule: alertEasyRules.find(rule => {
           if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostHighCpuLoadMax") {
             return true
@@ -1119,6 +1109,16 @@ class AlertEasyRuleService {
         })?.alertEasyRuleThreshold1,
         NodeMemoryAlertEasyRule: alertEasyRules.find(rule => {
           if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostOutOfMemoryMax") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        NodeNetworkReceiveErrorAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostNetworkReceiveErrors") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        NodeNetworkTransmitErrorAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostNetworkTransmitErrors") {
             return true
           }
         })?.alertEasyRuleThreshold1,
@@ -1133,7 +1133,37 @@ class AlertEasyRuleService {
           }
         })?.alertEasyRuleThreshold1,
         NodeDiskAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "VolumeOutOfSpace") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostdiskFillingUp") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        podCpuAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodCPUThresholdOver") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        podMemoryAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodMemoryThresholdOver") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        PodNetworkReceiveErrorAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodNetworkReceiveErrors") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        PodNetworkTransmitErrorAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodNetworkTransmitErrors") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        PodNetworkInAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodUnusualNetworkThroughputIn") {
+            return true
+          }
+        })?.alertEasyRuleThreshold1,
+        PodNetworkOutAlertEasyRule: alertEasyRules.find(rule => {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodUnusualNetworkThroughputOut") {
             return true
           }
         })?.alertEasyRuleThreshold1
