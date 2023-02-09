@@ -67,7 +67,7 @@ export default function (sequelize: Sequelize): typeof AnomalyMonitoringTargetTa
         allowNull: false,
       },
       subscribedProductKey: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.BIGINT,
         allowNull: false,
       },
       createdBy: {
