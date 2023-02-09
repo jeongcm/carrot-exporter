@@ -814,7 +814,9 @@ class AlertEasyRuleService {
     let maxIndexRules;
     const sleep = ms => new Promise(res => setTimeout(res, ms));
     let i;
-    for (i = 0; i < 6; i++) {
+    let flag: any = false
+    for (i = 0; i < 10; i++) {
+      if (flag === true) break
       await sleep(1000);
       const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -839,10 +841,11 @@ class AlertEasyRuleService {
         maxIndexRuleGroup = ruleGroup.length - 1;
         maxIndexRules = rules.length;
         i = 100; //exit for
+        flag = true
       }
     }
     console.log('#ALERTEASYRULE - i', i);
-    if (i === 101) {
+    if (flag === true) {
       const sudoryServiceName = 'Patch Prometheus Rule';
       const summary = 'Patch Prometheus Rule';
       const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
