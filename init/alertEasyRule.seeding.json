@@ -59,29 +59,29 @@
         "alertTargetGroupName": "Kubernetes Network",
         "alertTargetSubGroupName": "Node Network Utilization",
         "alertEasyRuleName": "HostUnusualNetworkThroughputIn",
-        "alertEasyRuleQuery": "sum by (node) (irate(container_network_receive_bytes_total{node!=\"\"}[2m])) / 1024 / 1024 > alertEasyRuleThreshold1",
+        "alertEasyRuleQuery": "sum by (node) (irate(container_network_receive_bytes_total{node!=\"\"}[2m])) > alertEasyRuleThreshold1",
         "alertEasyRuleDuration": "5m",
-        "alertEasyRuleThreshold1": "100",
+        "alertEasyRuleThreshold1": "100000000",
         "alertEasyRuleDescription": "Host unusual network throughput in (node {{ $labels.node }})",
         "alertEasyRuleSummary": "node network receive error rate - (node {{ $labels.node }})",
         "alertEasyRuleGroup": "nc-node",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "byte",
-        "alertEasyRuleThreshold1Max": "200"
+        "alertEasyRuleThreshold1Max": "200000000"
     },
     {
         "alertTargetGroupName": "Kubernetes Network",
         "alertTargetSubGroupName": "Node Network Utilization",
         "alertEasyRuleName": "HostUnusualNetworkThroughputOut",
-        "alertEasyRuleQuery": "sum by (node) (irate(container_network_transmit_bytes_total{node!=\"\"}[2m])) / 1024 / 1024 > alertEasyRuleThreshold1",
+        "alertEasyRuleQuery": "sum by (node) (irate(container_network_transmit_bytes_total{node!=\"\"}[2m])) > alertEasyRuleThreshold1",
         "alertEasyRuleDuration": "5m",
-        "alertEasyRuleThreshold1": "100",
+        "alertEasyRuleThreshold1": "100000000",
         "alertEasyRuleDescription": "Host unusual network throughput out (node {{ $labels.node }})",
         "alertEasyRuleSummary": "node network transmit error rate - (node {{ $labels.node }})",
         "alertEasyRuleGroup": "nc-node",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "byte",
-        "alertEasyRuleThreshold1Max": "500"
+        "alertEasyRuleThreshold1Max": "500000000"
     },
     {
         "alertTargetGroupName": "Kubernetes Node",
@@ -129,29 +129,29 @@
         "alertTargetGroupName": "Kubernetes Pod",
         "alertTargetSubGroupName": "Pod Network Utilization",
         "alertEasyRuleName": "PodUnusualNetworkThroughputIn",
-        "alertEasyRuleQuery": "sum by (pod) (rate(container_network_receive_bytes_total{pod!=\"\"}[3m])) / 1024 / 1024 > alertEasyRuleThreshold1",
+        "alertEasyRuleQuery": "sum by (pod) (rate(container_network_receive_bytes_total{pod!=\"\"}[3m])) > alertEasyRuleThreshold1",
         "alertEasyRuleDuration": "2m",
-        "alertEasyRuleThreshold1": "100",
+        "alertEasyRuleThreshold1": "100000000",
         "alertEasyRuleDescription": "Host unusual network throughput in (node {{ $labels.node }})",
         "alertEasyRuleSummary": "pod network receive error rate - (pod {{ $labels.node }})",
         "alertEasyRuleGroup": "nc-kube-resource",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "byte",
-        "alertEasyRuleThreshold1Max": "200"
+        "alertEasyRuleThreshold1Max": "200000000"
     },
     {
         "alertTargetGroupName": "Kubernetes Pod",
         "alertTargetSubGroupName": "Pod Network Utilization",
         "alertEasyRuleName": "PodUnusualNetworkThroughputOut",
-        "alertEasyRuleQuery": "sum by (pod) (rate(container_network_transmit_bytes_total{pod!=\"\"}[3m])) / 1024 / 1024 > alertEasyRuleThreshold1",
+        "alertEasyRuleQuery": "sum by (pod) (rate(container_network_transmit_bytes_total{pod!=\"\"}[3m])) > alertEasyRuleThreshold1",
         "alertEasyRuleDuration": "2m",
-        "alertEasyRuleThreshold1": "100",
+        "alertEasyRuleThreshold1": "100000000",
         "alertEasyRuleDescription": "Pod unusual network throughput out (pod {{ $labels.pod }})",
         "alertEasyRuleSummary": "pod network transmit error rate - (pod {{ $labels.pod }})",
         "alertEasyRuleGroup": "nc-kube-resource",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "byte",
-        "alertEasyRuleThreshold1Max": "500"
+        "alertEasyRuleThreshold1Max": "500000000"
     },
     {
         "alertTargetGroupName": "Kubernetes Pod",
