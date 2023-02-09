@@ -814,10 +814,10 @@ class AlertEasyRuleService {
     let maxIndexRules;
     const sleep = ms => new Promise(res => setTimeout(res, ms));
     let i;
-    let flag: any = false
-    for (i = 0; i < 10; i++) {
-      if (flag === true) break
+    let flag: boolean = false
+    for (i = 0; i < 30; i++) {
       await sleep(1000);
+      if (flag === true) break
       const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
