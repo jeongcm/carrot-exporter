@@ -959,9 +959,7 @@ class executorService {
 
     const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
 
-    let waitSec = 60;
     for (const alertEasyRule of alertEasyRuleList) {
-      if (waitSec <= 0) waitSec = 0;
       const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
         where: { deletedAt: null, alertTargetSubGroupName: alertEasyRule.alertTargetSubGroupName },
       });
@@ -988,15 +986,13 @@ class executorService {
       };
       try {
         console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
-        console.log('#ALERTEASYRULE - waitmin', waitSec);
       
 
-        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec, prometheusRules);
+        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRules);
         console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
       } catch (error) {
         console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
       }
-      waitSec = waitSec - 5;
     }
 
     //provision metricOps rule if the customer has MetricOps subscription
@@ -1350,9 +1346,7 @@ class executorService {
 
     const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
 
-    let waitSec = 60;
     for (const alertEasyRule of alertEasyRuleList) {
-      if (waitSec <= 0) waitSec = 0;
       const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
         where: { deletedAt: null, alertTargetSubGroupName: alertEasyRule.alertTargetSubGroupName },
       });
@@ -1379,13 +1373,11 @@ class executorService {
       };
       try {
         console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
-        console.log('#ALERTEASYRULE - waitmin', waitSec);
-        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec, prometheusRules);
+        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRules);
         console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
       } catch (error) {
         console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
       }
-      waitSec = waitSec - 5;
     }
 
     //provision metricOps rule if the customer has MetricOps subscription

@@ -768,7 +768,6 @@ class AlertEasyRuleService {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         const items = JSON.parse(JSON.stringify(getSudoryWebhook.serviceResult.items));
-        console.log("items:", items)
         items.forEach((item: any) => {
           result.push(item?.spec)
         })
@@ -778,12 +777,10 @@ class AlertEasyRuleService {
     return result
   }
 
-  public async createAlertEasyRuleForCluster(alertEasyRule: CreateAlertEasyRuleForClusterDto, partyId: string, waitSec: number, prometheusRuleSpecs?: any): Promise<Object[]> {
+  public async createAlertEasyRuleForCluster(alertEasyRule: CreateAlertEasyRuleForClusterDto, partyId: string, prometheusRuleSpecs?: any): Promise<Object[]> {
     // step 1. check all of the alert rule with the same name from Alert rules.
     // need to find customerAccount, resourceGloup, AlertRules
     // step 1.1 find CustomerAccount
-
-    await new Promise(resolve => setTimeout(resolve, waitSec * 1000));
 
     const result = [];
     const alertEasyRuleName = alertEasyRule.alertEasyRuleName;
@@ -1068,9 +1065,7 @@ class AlertEasyRuleService {
     const prometheusRuleSpecs = await this.getPrometheusRuleSpecs(customerAccountId, findResourceGroup.resourceGroupUuid)
     const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
 
-    let waitSec = 60;
     for (const alertEasyRule of alertEasyRuleList) {
-      if (waitSec <= 0) waitSec = 0;
       const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
         where: { deletedAt: null, alertTargetSubGroupName: alertEasyRule.alertTargetSubGroupName },
       });
@@ -1096,13 +1091,12 @@ class AlertEasyRuleService {
         resourceGroupUuid: resourceGroupUuid,
       };
       try {
-        const getResponse = await this.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec, prometheusRuleSpecs);
+        const getResponse = await this.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRuleSpecs);
         console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
         returnMessage.push(getResponse);
       } catch (error) {
         console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
       }
-      waitSec = waitSec - 5;
     }
 
     return returnMessage;
