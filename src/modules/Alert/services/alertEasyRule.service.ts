@@ -1068,42 +1068,42 @@ class AlertEasyRuleService {
     const prometheusRuleSpecs = await this.getPrometheusRuleSpecs(customerAccountId, findResourceGroup.resourceGroupUuid)
     const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
 
-    let waitSec = 60;
-    for (const alertEasyRule of alertEasyRuleList) {
-      if (waitSec <= 0) waitSec = 0;
-      const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
-        where: { deletedAt: null, alertTargetSubGroupName: alertEasyRule.alertTargetSubGroupName },
-      });
-      const alertEasyRuleData = {
-        createdBy: 'SYSTEM',
-        createdAt: new Date(),
-        alertTargetSubGroupId: getAlertTargetSubGroup.alertTargetSubGroupId,
-        alertEasyRuleName: alertEasyRule.alertEasyRuleName,
-        alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
-        alertEasyRuleSummary: alertEasyRule.alertEasyRuleSummary,
-        alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
-        alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
-        alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
-        alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
-        alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
-        alertEasyRuleThreshold1Max: alertEasyRule.alertEasyRuleThreshold1Max,
-        alertEasyRuleThreshold2: '',
-        alertEasyRuleThreshold2Unit: '',
-        alertEasyRuleThreshold2Max: '',
+    // let waitSec = 60;
+    // for (const alertEasyRule of alertEasyRuleList) {
+    //   if (waitSec <= 0) waitSec = 0;
+    //   const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
+    //     where: { deletedAt: null, alertTargetSubGroupName: alertEasyRule.alertTargetSubGroupName },
+    //   });
+    //   const alertEasyRuleData = {
+    //     createdBy: 'SYSTEM',
+    //     createdAt: new Date(),
+    //     alertTargetSubGroupId: getAlertTargetSubGroup.alertTargetSubGroupId,
+    //     alertEasyRuleName: alertEasyRule.alertEasyRuleName,
+    //     alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
+    //     alertEasyRuleSummary: alertEasyRule.alertEasyRuleSummary,
+    //     alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
+    //     alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
+    //     alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
+    //     alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
+    //     alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
+    //     alertEasyRuleThreshold1Max: alertEasyRule.alertEasyRuleThreshold1Max,
+    //     alertEasyRuleThreshold2: '',
+    //     alertEasyRuleThreshold2Unit: '',
+    //     alertEasyRuleThreshold2Max: '',
 
-        alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
-        customerAccountId: customerAccountId,
-        resourceGroupUuid: resourceGroupUuid,
-      };
-      try {
-        const getResponse = await this.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec, prometheusRuleSpecs);
-        console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
-        returnMessage.push(getResponse);
-      } catch (error) {
-        console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
-      }
-      waitSec = waitSec - 5;
-    }
+    //     alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
+    //     customerAccountId: customerAccountId,
+    //     resourceGroupUuid: resourceGroupUuid,
+    //   };
+    //   try {
+    //     const getResponse = await this.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec, prometheusRuleSpecs);
+    //     console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
+    //     returnMessage.push(getResponse);
+    //   } catch (error) {
+    //     console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
+    //   }
+    //   waitSec = waitSec - 5;
+    // }
 
     return returnMessage;
   }
