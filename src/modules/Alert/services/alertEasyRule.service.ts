@@ -849,12 +849,16 @@ class AlertEasyRuleService {
       alertGroup = findAlertRule.alertRuleGroup;
     }
 
+    const appName = prometheus.substring(7, prometheus.indexOf('.'));
+    const prometheusRuleGroupName = appName.substring(0, appName.length - 11) + '-' + alertGroup;
+    const clusterUuid = resourceGroupUuid;
+    const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+
     let indexRuleGroup;
     let indexRules;
     let maxIndexRuleGroup;
     let maxIndexRules;
 
-    let myRules = [];
     let groups: any
 
     if (prometheusRuleSpecs) {
@@ -865,133 +869,129 @@ class AlertEasyRuleService {
           }
         })
       })
-      console.log("groups: ", groups)
-      const ruleGroup = JSON.parse(JSON.stringify(groups));
-      console.log("ruleGroups:", ruleGroup)
+
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      // const ruleGroup = JSON.parse(JSON.stringify(groups));
-      // const rules = [];
-      // ruleGroup.forEach((item: any) => {
-      //   item?.rules?.forEach((ruleItem: any) => {
-      //     if (ruleItem.alert) {
-      //       const object = { alert: ruleItem.alert, severity: ruleItem.labels.severity, for: ruleItem.for };
-      //       rules.push(object);
-      //     }
-      //   });
-      // });
-      // indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
-      // indexRules = rules.findIndex(element => element.alert == alertEasyRule.alertEasyRuleName && element.severity == alertEasyRuleSeverity);
-      // maxIndexRuleGroup = ruleGroup.length - 1;
-      // maxIndexRules = rules.length;
+      const ruleGroup = [];
+      const rules = [];
+      if (groups) {
+        const ruleGroup = JSON.parse(JSON.stringify(groups));
+        ruleGroup.forEach((item: any) => {
+          item?.rules?.forEach((ruleItem: any) => {
+            if (ruleItem.alert) {
+              const object = { alert: ruleItem.alert, severity: ruleItem.labels.severity, for: ruleItem.for };
+              rules.push(object);
+            }
+          });
+        });
+      }
+      indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
+      indexRules = rules.findIndex(element => element.alert == alertEasyRule.alertEasyRuleName && element.severity == alertEasyRuleSeverity);
+      maxIndexRuleGroup = ruleGroup.length - 1;
+      maxIndexRules = rules.length;
     }
 
-    // console.log('#ALERTEASYRULE - i', i);
-    // if (flag === true) {
-    //   const sudoryServiceName = 'Patch Prometheus Rule';
-    //   const summary = 'Patch Prometheus Rule';
-    //   const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
+    const sudoryServiceName = 'Patch Prometheus Rule';
+    const summary = 'Patch Prometheus Rule';
+    const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
 
-    //   let step = [];
+    let step = [];
 
-    //   if (!findAlertRule) {
-    //     // step 2-2 provision a brand new alert
-    //     step = [
-    //       {
-    //         args: {
-    //           name: prometheusRuleGroupName,
-    //           namespace: prometheusNamespace,
-    //           patch_type: 'json',
-    //           patch_data: [
-    //             {
-    //               path: `/spec/groups/${maxIndexRuleGroup}/rules/${maxIndexRules}`,
-    //               op: 'add',
-    //               value: {
-    //                 alert: alertEasyRule.alertEasyRuleName,
-    //                 for: alertEasyRule.alertEasyRuleDuration,
-    //                 labels: { severity: alertEasyRule.alertEasyRuleSeverity },
-    //                 expr: alertEasyRuleQuery,
-    //                 annotations: { description: alertEasyRuleDescription, summary: alertEasyRule.alertEasyRuleSummary },
-    //               },
-    //             },
-    //           ],
-    //         },
-    //       },
-    //     ];
-    //   } else {
-    //     // step 2-3 provision alert update
-    //     step = [
-    //       {
-    //         args: {
-    //           name: prometheusRuleGroupName,
-    //           namespace: prometheusNamespace,
-    //           patch_type: 'json',
-    //           patch_data: [
-    //             {
-    //               path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/for`,
-    //               op: 'replace',
-    //               value: alertEasyRule.alertEasyRuleDuration,
-    //             },
-    //             {
-    //               path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/labels/severity`,
-    //               op: 'replace',
-    //               value: alertEasyRule.alertEasyRuleSeverity,
-    //             },
-    //             {
-    //               path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/expr`,
-    //               op: 'replace',
-    //               value: alertEasyRuleQuery,
-    //             },
-    //             {
-    //               path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/description`,
-    //               op: 'replace',
-    //               value: alertEasyRuleDescription,
-    //             },
-    //             {
-    //               path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/summary`,
-    //               op: 'replace',
-    //               value: alertEasyRule.alertEasyRuleSummary,
-    //             },
-    //           ],
-    //         },
-    //       },
-    //     ];
-    //   }
+    if (!findAlertRule) {
+      // step 2-2 provision a brand new alert
+      step = [
+        {
+          args: {
+            name: prometheusRuleGroupName,
+            namespace: prometheusNamespace,
+            patch_type: 'json',
+            patch_data: [
+              {
+                path: `/spec/groups/${maxIndexRuleGroup}/rules/${maxIndexRules}`,
+                op: 'add',
+                value: {
+                  alert: alertEasyRule.alertEasyRuleName,
+                  for: alertEasyRule.alertEasyRuleDuration,
+                  labels: { severity: alertEasyRule.alertEasyRuleSeverity },
+                  expr: alertEasyRuleQuery,
+                  annotations: { description: alertEasyRuleDescription, summary: alertEasyRule.alertEasyRuleSummary },
+                },
+              },
+            ],
+          },
+        },
+      ];
+    } else {
+      // step 2-3 provision alert update
+      step = [
+        {
+          args: {
+            name: prometheusRuleGroupName,
+            namespace: prometheusNamespace,
+            patch_type: 'json',
+            patch_data: [
+              {
+                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/for`,
+                op: 'replace',
+                value: alertEasyRule.alertEasyRuleDuration,
+              },
+              {
+                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/labels/severity`,
+                op: 'replace',
+                value: alertEasyRule.alertEasyRuleSeverity,
+              },
+              {
+                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/expr`,
+                op: 'replace',
+                value: alertEasyRuleQuery,
+              },
+              {
+                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/description`,
+                op: 'replace',
+                value: alertEasyRuleDescription,
+              },
+              {
+                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/summary`,
+                op: 'replace',
+                value: alertEasyRule.alertEasyRuleSummary,
+              },
+            ],
+          },
+        },
+      ];
+    }
 
-    //   await this.sudoryService.postSudoryService(sudoryServiceName, summary, clusterUuid, templateUuid, step, customerAccountKey, subscribedChannel);
-    //   console.log(`#ALERTEASYRULE provision is done ${clusterUuid}`);
-    //   const currentDate = new Date();
-    //   const createQuery = {
-    //     alertEasyRuleId: uuid.v1(),
-    //     alertTargetSubGroupKey: alertTargetSubGroupKey,
-    //     resourceGroupUuid: resourceGroupUuid,
-    //     resourceGroupKey: resourceGroupKey,
-    //     customerAccountKey: customerAccountKey,
-    //     createdBy: partyId,
-    //     updatedBy: null,
-    //     createdAt: currentDate,
-    //     updatedAt: null,
-    //     deletedAt: null,
-    //     alertEasyRuleName: alertEasyRule.alertEasyRuleName,
-    //     alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
-    //     alertEasyRuleSummary: alertEasyRule.alertEasyRuleSummary,
-    //     alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
-    //     alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
-    //     alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
-    //     alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
-    //     alertEasyRuleThreshold2: alertEasyRule.alertEasyRuleThreshold2,
-    //     alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
-    //     alertEasyRuleThreshold2Unit: alertEasyRule.alertEasyRuleThreshold2Unit,
-    //     alertEasyRuleThreshold1Max: alertEasyRule.alertEasyRuleThreshold1Max,
-    //     alertEasyRuleThreshold2Max: alertEasyRule.alertEasyRuleThreshold2Max,
-    //     alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
-    //   };
-    //   const createAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.create(createQuery);
+    await this.sudoryService.postSudoryService(sudoryServiceName, summary, clusterUuid, templateUuid, step, customerAccountKey, subscribedChannel);
+    console.log(`#ALERTEASYRULE provision is done ${clusterUuid}`);
+    const currentDate = new Date();
+    const createQuery = {
+      alertEasyRuleId: uuid.v1(),
+      alertTargetSubGroupKey: alertTargetSubGroupKey,
+      resourceGroupUuid: resourceGroupUuid,
+      resourceGroupKey: resourceGroupKey,
+      customerAccountKey: customerAccountKey,
+      createdBy: partyId,
+      updatedBy: null,
+      createdAt: currentDate,
+      updatedAt: null,
+      deletedAt: null,
+      alertEasyRuleName: alertEasyRule.alertEasyRuleName,
+      alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
+      alertEasyRuleSummary: alertEasyRule.alertEasyRuleSummary,
+      alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
+      alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
+      alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
+      alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
+      alertEasyRuleThreshold2: alertEasyRule.alertEasyRuleThreshold2,
+      alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
+      alertEasyRuleThreshold2Unit: alertEasyRule.alertEasyRuleThreshold2Unit,
+      alertEasyRuleThreshold1Max: alertEasyRule.alertEasyRuleThreshold1Max,
+      alertEasyRuleThreshold2Max: alertEasyRule.alertEasyRuleThreshold2Max,
+      alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
+    };
+    const createAlertEasyRule: IAlertEasyRule = await this.alertEasyRule.create(createQuery);
 
-    //   result.push(createAlertEasyRule);
-    // } else {
-    //   console.log('#ALERTEASYRULE - could not find alert rule group from Prometheus');
-    // }
+    result.push(createAlertEasyRule);
 
     return result;
   }
