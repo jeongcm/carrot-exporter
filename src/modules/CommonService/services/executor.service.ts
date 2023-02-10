@@ -955,6 +955,8 @@ class executorService {
         }); //end of catch
     }
     //provision alert easy rule for the cluster
+    const prometheusRules = await this.alertEasyRuleService.getPrometheusRuleSpecs(customerAccountId, clusterUuid)
+
     const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
 
     let waitSec = 60;
@@ -987,7 +989,9 @@ class executorService {
       try {
         console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
         console.log('#ALERTEASYRULE - waitmin', waitSec);
-        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec);
+      
+
+        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec, prometheusRules);
         console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
       } catch (error) {
         console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
@@ -1342,6 +1346,8 @@ class executorService {
       }); //end of catch
 
     //provision alert easy rule for the cluster
+    const prometheusRules = await this.alertEasyRuleService.getPrometheusRuleSpecs(customerAccountId, clusterUuid)
+
     const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
 
     let waitSec = 60;
@@ -1374,7 +1380,7 @@ class executorService {
       try {
         console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
         console.log('#ALERTEASYRULE - waitmin', waitSec);
-        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec);
+        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', waitSec, prometheusRules);
         console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
       } catch (error) {
         console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
