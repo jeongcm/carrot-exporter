@@ -865,9 +865,9 @@ class AlertEasyRuleService {
           }
         })
       })
-
+      console.log("groups: ", groups)
       const ruleGroup = JSON.parse(JSON.stringify(groups));
-      console.log(ruleGroup)
+      console.log("ruleGroups:", ruleGroup)
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       // const ruleGroup = JSON.parse(JSON.stringify(groups));
