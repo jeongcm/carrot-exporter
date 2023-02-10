@@ -719,7 +719,7 @@ class AlertEasyRuleService {
     return resultUpdateOfAlertTargetSubGroup;
   }
 
-  public async getPrometheusRuleSpecs(resourceGroupUuid: string, customerAccountId: string): Promise<any> {
+  public async getPrometheusRuleSpecs(customerAccountId: string, resourceGroupUuid: string): Promise<any> {
 
     const findCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({
       where: { customerAccountId: customerAccountId, deletedAt: null },
