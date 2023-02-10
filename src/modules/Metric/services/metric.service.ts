@@ -305,15 +305,6 @@ class MetricService extends ServiceExtension {
 
     let promQl = '';
     switch (type) {
-      case 'CUSTOM_TIPS':
-        if (start && end) {
-          ranged = true;
-        }
-
-        promQl = customPromQl
-
-        break;
-
       case 'CUSTOM':
         if (start && end) {
           ranged = true;
