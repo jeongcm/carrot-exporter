@@ -899,7 +899,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
           node: resourceName,
         });
-        promQl = `sum by (clusterUuid, node) (node_filesystem_free_bytes{mountpoint="/",fstype!="rootfs",endpoint != "", __LABEL_PLACE_HOLDER__})`;
+        promQl = `1 - sum by (clusterUuid, node) (node_filesystem_free_bytes{mountpoint="/",fstype!="rootfs",endpoint != "", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NODE_DISK_PERCENTAGE':
           labelString += getSelectorLabels({
