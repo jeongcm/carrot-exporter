@@ -602,7 +602,7 @@ class MetricService extends ServiceExtension {
         ranged = true;
 
         promQl = `(
-          sum by (persistentvolumeclaim) (kube_persistentvolume_capacity_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
+          sum by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
         )`;
         break;
       case 'PV_SPACE_USAGE_USED':
@@ -656,7 +656,7 @@ class MetricService extends ServiceExtension {
         ranged = false; 
 
         promQl = `(
-          sum by (persistentvolumeclaim) (kube_persistentvolume_capacity_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
+          sum by (persistentvolumeclaim) (kubelet_volume_stats_capacity_bytes{__LABEL_PLACE_HOLDER__}/1024/1024/1024)
         )`;
         break;
       case 'PV_SPACE_USAGE_FREE':
@@ -1541,6 +1541,7 @@ class MetricService extends ServiceExtension {
     if (typeof promqlOps?.ranged === 'boolean') {
       ranged = promqlOps?.ranged;
     }
+
 
     promQl = promQl.replace(/__LABEL_PLACE_HOLDER__/g, labelString);
     console.log(promQl);
