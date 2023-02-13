@@ -18,6 +18,7 @@ import {
   CreateAlertTargetSubGroupDto,
   UpdateAlertEasyRuleDto,
   CreateAlertEasyRuleAllDto,
+  CreateAlertEasyRuleForClusterDto
 } from '../dtos/alertEasyRule.dto';
 class AlertRoute implements Routes {
   public router = Router();
@@ -84,7 +85,7 @@ class AlertRoute implements Routes {
     this.router.post(
       '/alertEasyRule',
       authMiddleware,
-      validationMiddleware(CreateAlertEasyRuleDto, 'body'),
+      validationMiddleware(CreateAlertEasyRuleForClusterDto, 'body'),
       this.alertController.createAlertEasyRule,
     );
     this.router.post(
