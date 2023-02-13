@@ -799,15 +799,15 @@ class AlertEasyRuleService {
 
     // step 1.2 find ResourceGroup
     const findResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-      where: { resourceGroupUuid: alertEasyRule.resourceGroupUuid, deletedAt: null },
+      where: { customerAccountKey: customerAccountKey, resourceGroupUuid: alertEasyRule.resourceGroupUuid, deletedAt: null },
     });
-    if (!findResourceGroup) throw new HttpException(401, `couldn't find active cluster information`);
+    if (!findResourceGroup) throw new HttpException(400, `couldn't find active cluster information`);
 
     // step 1.3 find AlertTargetSubGroup
     const findAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
       where: { alertTargetSubGroupId: alertEasyRule.alertTargetSubGroupId, deletedAt: null },
     });
-    if (!findAlertTargetSubGroup) throw new HttpException(402, `couldn't find alert target sub group`);
+    if (!findAlertTargetSubGroup) throw new HttpException(400, `couldn't find alert target sub group`);
     const alertTargetSubGroupKey = findAlertTargetSubGroup.alertTargetSubGroupKey;
 
     // step 1.4 if there is an alertEasyRule - same name with alertTargetSubGroup in the table , return exception
