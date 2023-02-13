@@ -1542,23 +1542,6 @@ class MetricService extends ServiceExtension {
       ranged = promqlOps?.ranged;
     }
 
-    // Apply PromQL operators
-    if (promqlOps?.sort === 'desc') {
-      promQl = `sort_desc(${promQl})`;
-    }
-
-    if (promqlOps?.sort === 'asc') {
-      promQl = `sort(${promQl})`;
-    }
-
-    if (promqlOps?.topk) {
-      promQl = `topk(${promqlOps.topk}, ${promQl})`;
-    }
-
-    if (typeof promqlOps?.ranged === 'boolean') {
-      ranged = promqlOps?.ranged;
-    }
-
     promQl = promQl.replace(/__LABEL_PLACE_HOLDER__/g, labelString);
     console.log(promQl);
 
