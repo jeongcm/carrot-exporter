@@ -959,6 +959,9 @@ class executorService {
 
     const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
 
+    console.log('#ALERTEASYRULE - Wait for KPS Install',);
+    await new Promise(resolve => setTimeout(resolve, 60 * 1000));
+
     for (const alertEasyRule of alertEasyRuleList) {
       const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
         where: { deletedAt: null, alertTargetSubGroupName: alertEasyRule.alertTargetSubGroupName },
@@ -987,7 +990,6 @@ class executorService {
       try {
         console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
       
-
         const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRules);
         console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
       } catch (error) {
