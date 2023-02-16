@@ -1058,7 +1058,7 @@ class AlertEasyRuleService {
   public async getAlertEasyRuleAllMute(customerAccountKey: number) {
     const start = Date.now();
     const alertEasyRuleToMap = {};
-    const alertEasyRules: IAlertEasyRule[] = await this.getAlertEasyRuleAll(customerAccountKey);
+    const alertEasyRules: any = await this.getAlertEasyRuleAll(customerAccountKey);
 
     const alertRuleWhere = {
       alertRuleName: [],
@@ -1066,7 +1066,7 @@ class AlertEasyRuleService {
       resourceGroupUuid: [],
     };
 
-    alertEasyRules.forEach((alertEasyRule: IAlertEasyRule) => {
+    alertEasyRules.forEach((alertEasyRule: any) => {
       const { alertEasyRuleName, alertEasyRuleSeverity, resourceGroupUuid } = alertEasyRule;
 
       const hash = `${alertEasyRuleName}${alertEasyRuleSeverity}${resourceGroupUuid}`;
