@@ -1000,7 +1000,7 @@ class executorService {
         }); //end of catch
     }
     //provision alert easy rule for the cluster, TODO: it will be divided 
-    this.initializeAlertEasyRule(customerAccountId, clusterUuid)
+    await this.initializeAlertEasyRule(customerAccountId, clusterUuid)
 
     //provision metricOps rule if the customer has MetricOps subscription
     const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
@@ -1349,8 +1349,7 @@ class executorService {
       }); //end of catch
 
     //provision alert easy rule for the cluster
-    this.initializeAlertEasyRule(customerAccountId, clusterUuid)
-
+    await this.initializeAlertEasyRule(customerAccountId, clusterUuid)
 
     //provision metricOps rule if the customer has MetricOps subscription
     const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
