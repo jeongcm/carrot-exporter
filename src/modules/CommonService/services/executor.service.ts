@@ -697,6 +697,51 @@ class executorService {
     return responseExecutorClientCheck;
   }
 
+  public async initializeAlertEasyRule(customerAccountId: string, resourceGroupUuid: string) {
+    console.log('#ALERTEASYRULE - Wait for KPS Install',);
+    await new Promise(resolve => setTimeout(resolve, 60 * 1000));
+
+    const prometheusRules = await this.alertEasyRuleService.getPrometheusRuleSpecs(customerAccountId, resourceGroupUuid)
+
+    const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
+
+
+    for (const alertEasyRule of alertEasyRuleList) {
+      const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
+        where: { deletedAt: null, alertTargetSubGroupName: alertEasyRule.alertTargetSubGroupName },
+      });
+      const alertEasyRuleData = {
+        createdBy: 'SYSTEM',
+        createdAt: new Date(),
+        alertTargetSubGroupId: getAlertTargetSubGroup.alertTargetSubGroupId,
+        alertEasyRuleName: alertEasyRule.alertEasyRuleName,
+        alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
+        alertEasyRuleSummary: alertEasyRule.alertEasyRuleSummary,
+        alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
+        alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
+        alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
+        alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
+        alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
+        alertEasyRuleThreshold1Max: alertEasyRule.alertEasyRuleThreshold1Max,
+        alertEasyRuleThreshold2: '',
+        alertEasyRuleThreshold2Unit: '',
+        alertEasyRuleThreshold2Max: '',
+
+        alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
+        customerAccountId: customerAccountId,
+        resourceGroupUuid: resourceGroupUuid,
+      };
+      try {
+        console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
+      
+        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRules);
+        console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
+      } catch (error) {
+        console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
+      }
+    }
+  }
+
   /**
    * @param {string} clusterUuid
    * @param {string} targetNamespace
@@ -954,46 +999,8 @@ class executorService {
           throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
         }); //end of catch
     }
-    //provision alert easy rule for the cluster
-    const prometheusRules = await this.alertEasyRuleService.getPrometheusRuleSpecs(customerAccountId, clusterUuid)
-
-    const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
-
-    for (const alertEasyRule of alertEasyRuleList) {
-      const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
-        where: { deletedAt: null, alertTargetSubGroupName: alertEasyRule.alertTargetSubGroupName },
-      });
-      const alertEasyRuleData = {
-        createdBy: 'SYSTEM',
-        createdAt: new Date(),
-        alertTargetSubGroupId: getAlertTargetSubGroup.alertTargetSubGroupId,
-        alertEasyRuleName: alertEasyRule.alertEasyRuleName,
-        alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
-        alertEasyRuleSummary: alertEasyRule.alertEasyRuleSummary,
-        alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
-        alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
-        alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
-        alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
-        alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
-        alertEasyRuleThreshold1Max: alertEasyRule.alertEasyRuleThreshold1Max,
-        alertEasyRuleThreshold2: '',
-        alertEasyRuleThreshold2Unit: '',
-        alertEasyRuleThreshold2Max: '',
-
-        alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
-        customerAccountId: customerAccountId,
-        resourceGroupUuid: clusterUuid,
-      };
-      try {
-        console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
-      
-
-        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRules);
-        console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
-      } catch (error) {
-        console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
-      }
-    }
+    //provision alert easy rule for the cluster, TODO: it will be divided 
+    await this.initializeAlertEasyRule(customerAccountId, clusterUuid)
 
     //provision metricOps rule if the customer has MetricOps subscription
     const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
@@ -1342,43 +1349,7 @@ class executorService {
       }); //end of catch
 
     //provision alert easy rule for the cluster
-    const prometheusRules = await this.alertEasyRuleService.getPrometheusRuleSpecs(customerAccountId, clusterUuid)
-
-    const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
-
-    for (const alertEasyRule of alertEasyRuleList) {
-      const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
-        where: { deletedAt: null, alertTargetSubGroupName: alertEasyRule.alertTargetSubGroupName },
-      });
-      const alertEasyRuleData = {
-        createdBy: 'SYSTEM',
-        createdAt: new Date(),
-        alertTargetSubGroupId: getAlertTargetSubGroup.alertTargetSubGroupId,
-        alertEasyRuleName: alertEasyRule.alertEasyRuleName,
-        alertEasyRuleDescription: alertEasyRule.alertEasyRuleDescription,
-        alertEasyRuleSummary: alertEasyRule.alertEasyRuleSummary,
-        alertEasyRuleSeverity: alertEasyRule.alertEasyRuleSeverity,
-        alertEasyRuleGroup: alertEasyRule.alertEasyRuleGroup,
-        alertEasyRuleDuration: alertEasyRule.alertEasyRuleDuration,
-        alertEasyRuleThreshold1: alertEasyRule.alertEasyRuleThreshold1,
-        alertEasyRuleThreshold1Unit: alertEasyRule.alertEasyRuleThreshold1Unit,
-        alertEasyRuleThreshold1Max: alertEasyRule.alertEasyRuleThreshold1Max,
-        alertEasyRuleThreshold2: '',
-        alertEasyRuleThreshold2Unit: '',
-        alertEasyRuleThreshold2Max: '',
-
-        alertEasyRuleQuery: alertEasyRule.alertEasyRuleQuery,
-        customerAccountId: customerAccountId,
-        resourceGroupUuid: clusterUuid,
-      };
-      try {
-        console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
-        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRules);
-        console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
-      } catch (error) {
-        console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
-      }
-    }
+    await this.initializeAlertEasyRule(customerAccountId, clusterUuid)
 
     //provision metricOps rule if the customer has MetricOps subscription
     const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });

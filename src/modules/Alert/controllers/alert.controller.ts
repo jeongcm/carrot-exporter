@@ -425,12 +425,20 @@ class AlertRuleController extends ControllerExtension {
     try {
       const alertEasyRule = req.body;
       const partyId = req.user.partyId;
-      const createAlertEasyRule = await this.alertEasyRuleService.createAlertEasyRule(alertEasyRule, partyId);
+      let createAlertEasyRule: any
+      if (!req.body.resourceGroupUuid) {
+        createAlertEasyRule = await this.alertEasyRuleService.createAlertEasyRule(alertEasyRule, partyId);
+      } else {
+        const prometheusRules = await this.alertEasyRuleService.getPrometheusRuleSpecs(req.body.customerAccountId, req.body.resourceGroupUuid)
+
+        createAlertEasyRule = await this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRule, partyId, prometheusRules)
+      }
       res.status(200).json({ data: createAlertEasyRule, message: 'created AlertTargetGroup' });
     } catch (error) {
       next(error);
     }
   };
+
   public updateAlertEasyRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const alertEasyRule = req.body;
