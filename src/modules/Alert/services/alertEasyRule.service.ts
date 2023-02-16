@@ -316,34 +316,96 @@ class AlertEasyRuleService {
     return result;
   }
 
-  public async getAlertEasyRuleAll(customerAccountKey: number): Promise<IAlertEasyRule[]> {
-    const querySql = {
-      where: { deletedAt: null, customerAccountKey: customerAccountKey },
-      include: [
-        {
-          model: ResourceGroupModel,
-          required: true,
-          attributes: ['resourceGroupName', 'resourceGroupUuid', 'resourceGroupId'],
-          where: { deletedAt: null },
-        },
-        {
-          model: AlertTargetSubGroupModel,
-          required: true,
-          attributes: ['alertTargetSubGroupName', 'alertTargetSubGroupDescription', 'alertTargetSubGroupId'],
-          where: { deletedAt: null },
-          include: [
-            {
-              model: AlertTargetGroupModel,
-              required: true,
-              attributes: ['alertTargetGroupName', 'alertTargetGroupDescription', 'alertTargetGroupId'],
-              where: { deletedAt: null },
-            },
-          ],
-        },
-      ],
-    };
-    const getAlertEasyRule: IAlertEasyRule[] = await this.alertEasyRule.findAll(querySql);
-    return getAlertEasyRule;
+  public async getAlertEasyRuleAll(customerAccountKey: number): Promise<object[]> {
+    // const querySql = {
+    //   where: { deletedAt: null, customerAccountKey: customerAccountKey },
+    //   include: [
+    //     {
+    //       model: ResourceGroupModel,
+    //       required: true,
+    //       attributes: ['resourceGroupName', 'resourceGroupUuid', 'resourceGroupId', 'resourceGroupPlatform', 'resourceGroupProvider', 'resourceGroupLastServerUpdatedAt'],
+    //       where: { deletedAt: null },
+    //     },
+    //     {
+    //       model: AlertTargetSubGroupModel,
+    //       required: true,
+    //       attributes: ['alertTargetSubGroupName', 'alertTargetSubGroupDescription', 'alertTargetSubGroupId'],
+    //       where: { deletedAt: null },
+    //       include: [
+    //         {
+    //           model: AlertTargetGroupModel,
+    //           required: true,
+    //           attributes: ['alertTargetGroupName', 'alertTargetGroupDescription', 'alertTargetGroupId'],
+    //           where: { deletedAt: null },
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // };
+    // const getAlertEasyRule: IAlertEasyRule[] = await this.alertEasyRule.findAll(querySql);
+
+    // // testeste
+
+    const sql = `SELECT
+                A.alert_easy_rule_id as alertEasyRuleId,
+                A.created_by as createdBy,
+                A.customer_account_key as customerAccountKey,
+                A.alert_easy_rule_name as alertEasyRuleName,
+                A.alert_easy_rule_query as alertEasyRuleQuery,
+                A.alert_easy_rule_duration as alertEasyRuleDuration,
+                A.alert_easy_rule_description as alertEasyRuleDescription,
+                A.alert_easy_rule_summary as alertEasyRuleSummary,
+                A.alert_easy_rule_group as alertEasyRuleGroup,
+                A.alert_easy_rule_severity as alertEasyRuleSeverity,
+                A.alert_target_sub_group_key as alertTargetSubGroupKey,
+                A.alert_easy_rule_threshold1 as alertEasyRuleThreshold1,
+                A.alert_easy_rule_threshold1_unit as alertEasyRuleThreshold1Unit,
+                A.alert_easy_rule_threshold1_max as alertEasyRuleThreshold1Max,
+                A.alert_easy_rule_threshold2 as alertEasyRuleThreshold2,
+                A.alert_easy_rule_threshold2_unit as alertEasyRuleThreshold2Unit,
+                A.alert_easy_rule_threshold2_max as alertEasyRuleThreshold2Max,
+                B.resource_group_name as resourceGroupName,
+                B.resource_group_id as resourceGroupId,
+                B.resource_group_uuid as resourceGroupUuid,
+                B.resource_group_platform as resourceGroupPlatform,
+                B.resource_group_provider as resourceGroupProvider,
+                B.resource_group_last_server_updated_at as resourceGroupLastServerUpdatedAt,
+                C.alert_target_group_key as alertTargetGroupKey,
+                C.alert_target_sub_group_id as alertTargetSubGroupId,
+                C.alert_target_sub_group_name as alertTargetSubGroupName,
+                C.alert_target_sub_group_description as alertTargetSubGroupDescription,
+                D.alert_target_group_id as alertTargetGroupId,
+                D.alert_target_group_name as alertTargetGroupName,
+                D.alert_target_group_description as alertTargetGroupDescription
+              FROM AlertEasyRule A, ResourceGroup B, AlertTargetSubGroup C, AlertTargetGroup D
+              WHERE A.customer_account_key = ${customerAccountKey}
+                and B.resource_group_key = A.resource_group_key
+                and C.alert_target_sub_group_key = A.alert_target_sub_group_key
+                and D.alert_target_group_key = C.alert_target_group_key
+                and A.deleted_at is null
+                and B.deleted_at is null
+                and C.deleted_at is null
+                and D.deleted_at is null`;
+
+    let results: any
+    let metadata: any
+    [results, metadata] = await DB.sequelize.query(sql);
+  
+    for (let result of results) {
+      let resourceGroupServerInterfaceStatus: boolean = true;
+      if (result.resourceGroupLastServerUpdatedAt === null) {
+        resourceGroupServerInterfaceStatus = false;
+      } else {
+        const decisionMin = parseInt(config.clusterOutageDecisionMin);
+        const difference = new Date().getTime() - result.resourceGroupLastServerUpdatedAt.getTime();
+        const differenceInMin = Math.round(difference / 60000);
+        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
+      }
+
+      result["resourceGroupServerInterfaceStatus"] = resourceGroupServerInterfaceStatus
+    }
+
+    return results
   }
 
   public async getAlertEasyRuleById(alertEasyRuleId: string): Promise<Object> {
