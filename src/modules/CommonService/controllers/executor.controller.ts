@@ -3,6 +3,7 @@ import { IRequestWithSystem, IRequestWithUser } from '@/common/interfaces/party.
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 
 import { ExecutorDto, IExecutorClient, IExecutorClientCheck } from '@/modules/CommonService/dtos/executor.dto';
+import { ResourceGroupExecutorDto } from '@/modules/Resources/dtos/resourceGroup.dto';
 
 import executorService from '../services/executor.service';
 import { HttpException } from '@/common/exceptions/HttpException';
@@ -64,7 +65,7 @@ class executorController {
    * @param  {NextFunction} next
    */
   public registerResourceGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    const requestExecutorClient: ExecutorDto = req.body;
+    const requestExecutorClient: ResourceGroupExecutorDto = req.body;
     const resourceGroupName = req.body.resourceGroupName;
     const currentUserId = req.user.partyId;
 

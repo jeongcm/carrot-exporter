@@ -149,15 +149,15 @@ class executorService {
    * @param  {ResourceGroupExecutorDto} ResourceGroupExecutorData
    * @param  {string} currentUserId
    */
-  public async registerResourceGroup(requestExecutorClient: ResourceGroupExecutorDto, currentUserId: string): Promise<IResourceGroup> {
+  public async registerResourceGroup(requestResourceGroup: ResourceGroupExecutorDto, currentUserId: string): Promise<IResourceGroup> {
     const uuid = require('uuid');
 
-    const customerAccountId = requestExecutorClient.customerAccountId;
-    const resourceGroupName = requestExecutorClient.resourceGroupName;
-    const resourceGroupProvider = requestExecutorClient.resourceGroupProvider;
-    const resourceGroupPlatform = requestExecutorClient.resourceGroupPlatform;
-    const resourceGroupSudoryNamespace = requestExecutorClient.resourceGroupSudoryNamespace || '';
-    const resourceGroupKpsLokiNamespace = requestExecutorClient.resourceGroupKpsLokiNamespace || '';
+    const customerAccountId = requestResourceGroup.customerAccountId;
+    const resourceGroupName = requestResourceGroup.resourceGroupName;
+    const resourceGroupProvider = requestResourceGroup.resourceGroupProvider;
+    const resourceGroupPlatform = requestResourceGroup.resourceGroupPlatform;
+    const resourceGroupSudoryNamespace = requestResourceGroup.resourceGroupSudoryNamespace || '';
+    const resourceGroupKpsLokiNamespace = requestResourceGroup.resourceGroupKpsLokiNamespace || '';
     const resourceGroupUuid = uuid.v1()
     const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
     if (!customerAccountData) {
