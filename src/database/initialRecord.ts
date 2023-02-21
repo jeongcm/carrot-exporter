@@ -233,6 +233,7 @@ class InitialRecordService {
           'exporterExporterhubUrl',
           'createdBy',
           'createdAt',
+          'defaultChartYn'
         ],
         updateOnDuplicate: ['exporterName'],
       });
