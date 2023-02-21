@@ -892,7 +892,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
           node: resourceName,
         });
-        promQl = `sum by (clusterUuid, node) (rate(container_cpu_usage_seconds_total{pod=!"", image!="", container!="", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (clusterUuid, node) (rate(container_cpu_usage_seconds_total{pod!="", image!="", container!="", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_NODE_DISK':
         labelString += getSelectorLabels({
