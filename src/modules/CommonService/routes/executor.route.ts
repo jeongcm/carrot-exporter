@@ -11,6 +11,9 @@ import {
   ExecutorUuidDto,
   SudoryWebhookDto,
 } from '@modules/CommonService/dtos/executor.dto';
+import {
+  ResourceGroupExecutorDto
+} from '@modules/Resources/dtos/resourceGroup.dto';
 import ResourceGroupController from '@modules/Resources/controllers/resourceGroup.controller';
 import executorController from '@modules/CommonService/controllers/executor.controller';
 import createUserLogMiddleware from '@/modules/ApiGateway/middlewares/createUserLogMiddleware';
@@ -41,10 +44,15 @@ class ExecutorRoute implements Routes {
     );
 
     this.router.post(
-      '/executor',
+      '/executor/resourceGroup',
       authMiddleware,
-      validationMiddleware(ExecutorDto, 'body'),
+      validationMiddleware(ResourceGroupExecutorDto, 'body'),
       //      createUserLogMiddleware,
+      this.executorController.registerResourceGroup,
+    );
+    this.router.post(
+      '/executor',
+      authMiddleware,      //      createUserLogMiddleware,
       this.executorController.registerExecutorClient,
     );
     this.router.post(

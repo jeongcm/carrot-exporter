@@ -7,6 +7,7 @@ import { ExecutorDto, IExecutorClient, IExecutorClientCheck } from '@/modules/Co
 import executorService from '../services/executor.service';
 import { HttpException } from '@/common/exceptions/HttpException';
 import config from '@config/index';
+import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 
 class executorController {
   public executorService = new executorService();
@@ -62,14 +63,31 @@ class executorController {
    * @param  {Response} res
    * @param  {NextFunction} next
    */
-  public registerExecutorClient = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  public registerResourceGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const requestExecutorClient: ExecutorDto = req.body;
     const resourceGroupName = req.body.resourceGroupName;
     const currentUserId = req.user.partyId;
 
     try {
-      const executorClient: IExecutorClient = await this.executorService.registerExecutorClient(requestExecutorClient, currentUserId);
-      res.status(200).json({ data: executorClient, message: `create executor for cluster(${resourceGroupName}) ` });
+      const resourceGroup: IResourceGroup = await this.executorService.registerResourceGroup(requestExecutorClient, currentUserId);
+      res.status(200).json({ data: resourceGroup, message: `create cluster(${resourceGroupName}) ` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public registerExecutorClient = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceGroupUuid = req.body.clusterUuid;
+    const customerAccountId = req.body.customerAccountId;
+
+    try {
+      const executorClient: IExecutorClient = await this.executorService.registerExecutorClient(resourceGroupUuid, customerAccountId);
+      res.status(200).json({ data: executorClient, message: `create executor client for cluster(${resourceGroupUuid}) ` });
     } catch (error) {
       next(error);
     }
