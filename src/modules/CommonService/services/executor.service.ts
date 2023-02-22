@@ -158,7 +158,8 @@ class executorService {
     const resourceGroupPlatform = requestResourceGroup.resourceGroupPlatform;
     const resourceGroupSudoryNamespace = requestResourceGroup.resourceGroupSudoryNamespace || '';
     const resourceGroupKpsLokiNamespace = requestResourceGroup.resourceGroupKpsLokiNamespace || '';
-    const resourceGroupUuid = uuid.v1()
+    const resourceGroupUuid = uuid.v1().replace(/-/g, '')
+
     const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
     if (!customerAccountData) {
       throw new HttpException(404, `customerAccountId ${customerAccountId} not found`);
