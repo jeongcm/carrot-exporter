@@ -59,7 +59,7 @@ export class ExecutorUuidDto {
 }
 
 export interface IExecutorClient {
-  exectuorServerUrl: string;
+  executorServerUrl: string;
   clusterUuid: string;
   token: string;
   repoName: string;

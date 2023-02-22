@@ -270,7 +270,7 @@ class executorService {
     const executorClient: IExecutorClient = {
       clusterUuid: clusterUuid,
       token: token,
-      exectuorServerUrl: executorServerBaseUrl,
+      executorServerUrl: executorServerBaseUrl,
       repoName: executorRepoName,
       repoUrl: executorRepoUrl,
     };
