@@ -213,21 +213,17 @@ class executorService {
 
     // 2. check sudory cluster
     let sudoryGetClusterResponse;
-    try {
-      await axios({
-        method: 'get',
-        url: `${executorServerClusterUrl}+/+${clusterUuid}`,
-        headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
+    await axios({
+      method: 'get',
+      url: `${executorServerClusterUrl}+/+${clusterUuid}`,
+      headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
+    })
+      .then(async (res: any) => {
+        console.log('already exist sudory cluster');
+        sudoryGetClusterResponse = res.data;
       })
-        .then(async (res: any) => {
-          console.log('already exist sudory cluster');
-          sudoryGetClusterResponse = res.data;
-        })
-    } catch (err) {
-      if (err.response && err.response.statusCode != 404) {
-        throw new HttpException(err.response.statusCode, `can't find alert easy rule`)
-      }
-    }
+      .catch(err => {
+      })
     
     if (!sudoryGetClusterResponse) {
       const sudoryCreateCluster = { name: apiDataName, summary: apiDataSummary, polling_option: apiDataOption, polling_limit: 0, uuid: clusterUuid };
