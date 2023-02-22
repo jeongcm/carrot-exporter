@@ -104,9 +104,11 @@ export class ResourceGroupExecutorDto {
   public resourceGroupPlatform: 'OS' | 'K8';
 
   @IsString()
+  @IsOptional()
   public resourceGroupSudoryNamespace: string;
 
   @IsString()
+  @IsOptional()
   public resourceGroupKpsLokiNamespace: string;
 }
 
