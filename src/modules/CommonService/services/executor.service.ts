@@ -301,7 +301,10 @@ class executorService {
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
     })
       .then(async (res: any) => {
-        if (res.data == true) clientTrueFalse = true;
+        if (res.data.alive != true) {
+          throw new HttpException(500, `Sudory Server Error - not alive client (cluster:${clusterUuid})`)
+        }
+
         console.log(`Successful to run API to search Executor/Sudory client`);
       })
       .catch(error => {
@@ -559,6 +562,9 @@ class executorService {
     );
 
     if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
+
+
+
 
     const lokiSteps = [
       {
