@@ -213,16 +213,21 @@ class executorService {
 
     // 2. check sudory cluster
     let sudoryGetClusterResponse;
-
-    await axios({
-      method: 'get',
-      url: `${executorServerClusterUrl}+/+${clusterUuid}`,
-      headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
-    })
-      .then(async (res: any) => {
-        console.log('already exist sudory cluster');
-        sudoryGetClusterResponse = res.data;
+    try {
+      await axios({
+        method: 'get',
+        url: `${executorServerClusterUrl}+/+${clusterUuid}`,
+        headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
       })
+        .then(async (res: any) => {
+          console.log('already exist sudory cluster');
+          sudoryGetClusterResponse = res.data;
+        })
+    } catch (err) {
+      if (err.response && err.response.statusCode != 404) {
+        throw new HttpException(err.response.statusCode, `can't find alert easy rule`)
+      }
+    }
     
     if (!sudoryGetClusterResponse) {
       const sudoryCreateCluster = { name: apiDataName, summary: apiDataSummary, polling_option: apiDataOption, polling_limit: 0, uuid: clusterUuid };
@@ -835,7 +840,6 @@ class executorService {
 
     const resultResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!resultResourceGroup) throw new HttpException(404, `can't find cluster - clusterUuid: ${clusterUuid}`);
-    const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
 
     for (let i = 0; i < chartLength; i++) {
       if (
@@ -907,10 +911,6 @@ class executorService {
         },
       },
     ];
-
-    if (resourceGroupProvider == 'DD') {
-      kpsSteps[0].args.values['prometheus-node-exporter'].hostRootFsMount.enabled = false;
-    }
 
     const kpsExecuteName = 'KPS Helm Installation';
     const kpsExecuteSummary = 'KPS Helm Installation';
