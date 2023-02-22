@@ -372,7 +372,7 @@ class executorService {
 
   public async initializeAlertEasyRule(customerAccountId: string, resourceGroupUuid: string) {
     console.log('#ALERTEASYRULE - Wait for KPS Install',);
-    await new Promise(resolve => setTimeout(resolve, 60 * 1000));
+    await new Promise(resolve => setTimeout(resolve, 10 * 1000));
 
     const prometheusRules = await this.alertEasyRuleService.getPrometheusRuleSpecs(customerAccountId, resourceGroupUuid)
 
@@ -407,7 +407,7 @@ class executorService {
       try {
         console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
       
-        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRules);
+        const getResponse = await this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRules);
         console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
       } catch (error) {
         console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
