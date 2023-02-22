@@ -306,6 +306,7 @@ class executorService {
           throw new HttpException(500, `Sudory Server Error - not alive client (cluster:${clusterUuid})`)
         }
 
+        clientTrueFalse = true;
         console.log(`Successful to run API to search Executor/Sudory client`);
       })
       .catch(error => {
