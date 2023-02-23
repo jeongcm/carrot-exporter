@@ -311,7 +311,7 @@ class executorService {
       })
       .catch(error => {
         //console.log(error);
-        throw new HttpException(500, `Sudory Server Error - ${JSON.stringify(error.response.data)} `);
+        throw new HttpException(500, `Sudory Server Error - ${JSON.stringify(error)} `);
       });
 
     //sudory namespace save...
