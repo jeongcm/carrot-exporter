@@ -301,7 +301,6 @@ class executorService {
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
     })
       .then(async (res: any) => {
-        console.log("alive:", res.data.alive)
         if (res.data?.alive === false) {
           throw new HttpException(500, `Sudory Server Error - not alive client (cluster:${clusterUuid})`)
         }
