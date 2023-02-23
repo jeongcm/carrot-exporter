@@ -23,12 +23,14 @@ import TableIdService from './tableId.service';
 
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
+import SudoryService from '@/modules/CommonService/services/sudory.service';
 import { IAlertTargetSubGroup } from '@/common/interfaces/alertTargetSubGroup.interface';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 //import subscriptionHistoryModel from '@/modules/Subscriptions/models/subscriptionHistory.model';
 import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 import ResourceService from "@modules/Resources/services/resource.service";
 import { PartyUserModel } from "@modules/Party/models/partyUser.model";
+import { ExportersModel } from '@/modules/Exporters/models/exporters.model';
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
@@ -41,7 +43,7 @@ class executorService {
   public incidentService = new IncidentService();
   public bayesianModelService = new BayesianModelService();
   public resourceService = new ResourceService();
-
+  public sudoryService = new SudoryService();
   public sudoryWebhook = DB.SudoryWebhook;
   public subscription = DB.Subscription;
   public catalogPlan = DB.CatalogPlan;
@@ -414,6 +416,171 @@ class executorService {
     }
   }
 
+  // stack = {name, templateUuid, namespace}
+  public async checkStack(clusterUuid: string, customerAccountId: string, stack: any): Promise<boolean> {
+
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    const customerAccountKey = getCustomerAccount.customerAccountKey;
+
+    const serviceName = `stack co-${stack.name}`
+    const getTemplateUuid = stack.templateUuid;
+    const getStep = [{ args: { namespace: stack.namespace, name: `co-${stack.name}` } }];
+    const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+    const getStackGet: any = await this.sudoryService.postSudoryService(
+      serviceName,
+      `check ${serviceName}`,
+      clusterUuid,
+      getTemplateUuid,
+      getStep,
+      customerAccountKey,
+      subscribedChannel,
+    );
+
+    const sleep = ms => new Promise(res => setTimeout(res, ms));
+    let i;
+    let flag: boolean = false
+    let result = [];
+    for (i = 0; i < 10; i++) {
+      await sleep(1000);
+      if (flag === true) break
+      const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        where: { serviceUuid: getStackGet.dataValues.serviceUuid, status: 4 },
+      });
+      
+      if (getSudoryWebhook) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        if (getSudoryWebhook.serviceResult) {
+          return true
+        }
+        
+        flag = true
+      }
+    }
+
+    return false
+  }
+
+  // stack object = {chartName, chartVersion, targetNamespace}
+  public async installStacks(clusterUuid:string, customerAccountId: string, stacks: any[]) {
+    const webhookChannel = config.sudoryApiDetail.channel_webhook;
+
+    const chartList = await this.exporters.findAll({ where: { exporterType: 'HL' } });
+    let repoUrl = '';
+    let version = '';
+
+    const resultResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    if (!resultResourceGroup) throw new HttpException(404, `can't find cluster - clusterUuid: ${clusterUuid}`);
+    const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
+
+    for (let stack of stacks) {
+      const chart = chartList.find((chart: any) => {
+        return chart.exporterHelmChartName === stack.chartName
+      })
+
+      if (!chart) {
+        throw new HttpException(404, `not found helm chart (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName}`)
+      }
+
+      repoUrl = chart.exporterHelmChartRepoUrl;
+      version = chart.exporterHelmChartVersion;
+      if (chart.defaultChartYn === false && stack.chartVersion && stack.chartVersion != chart.exporterHelmChartVersion) {
+        throw new HttpException(400, `unknown helm chart version (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName})`)
+      }
+
+      let values = {}
+
+      switch (stack.chartName) {
+        case "kube-prometheus-stack":
+          values = {
+            prometheus: {
+              extraSecret: {
+                name: 'vmmulti',
+                data: {
+                  username: 'I' + customerAccountId,
+                  password: customerAccountId,
+                },
+              },
+              prometheusSpec: {
+                externalLabels: {
+                  clusterUuid: clusterUuid,
+                  clusterId: clusterUuid,
+                  clusterName: resultResourceGroup.resourceGroupName,
+                },
+                remoteWrite: [
+                  {
+                    url: config.victoriaMetrics.vmMultiAuthUrl + '/api/v1/write',
+                    basicAuth: {
+                      username: {
+                        name: 'vmmulti',
+                        key: 'username',
+                      },
+                      password: {
+                        name: 'vmmulti',
+                        key: 'password',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+            'prometheus-node-exporter': {
+              hostRootFsMount: {
+                enabled: {},
+              },
+            },
+          }
+          if (resourceGroupProvider == 'DD') {
+            values['prometheus-node-exporter'].hostRootFsMount.enabled = false;
+          }
+          break
+        case "loki-stack":
+          values = {}
+          break
+        default:
+          throw new HttpException(404, `unknown chartName (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName}`)
+      }
+
+      let steps: any = [
+        {
+          args: {
+            name: stack.chartName,
+            chart_name: stack.chartName,
+            repo_url: repoUrl,
+            namespace: stack.targetNamespace,
+            chart_version: version,
+            values: values
+          },
+        },
+      ]
+
+      const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+      const customerAccountKey = getCustomerAccount.customerAccountKey;
+
+      const ExecuteName = `Helm Installation ${stack.chartName}`;
+      const templateUuid = '20000000000000000000000000000001';
+      try {
+        const executeKpsHelm = await this.postExecuteService(
+          ExecuteName,
+          ExecuteName,
+          clusterUuid,
+          templateUuid,
+          steps,
+          customerAccountKey,
+          webhookChannel,
+        );
+        if (executeKpsHelm) {
+          console.log(`success to install helm chart (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName})`)
+        }
+
+      } catch (e) {
+        throw new HttpException(500, `failed to install helm chart (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName}, reason: ${e.response}`);
+      }
+    }
+  }
+
   /**
    * @param {string} clusterUuid
    * @param {string} targetNamespace
@@ -697,6 +864,97 @@ class executorService {
     return serviceUuid;
   }
 
+  public async provisionMetricOpsRule(clusterUuid:string, customerAccountId: string) {
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    if (!customerAccountData) {
+      throw new HttpException(404, `not found customerAccount ${customerAccountId}`);
+    }
+    const customerAccountKey = customerAccountData.customerAccountKey
+    const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: clusterUuid } });
+
+    //provision metricOps rule if the customer has MetricOps subscription
+    const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+    if (findSubscription.length > 0) {
+      const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
+      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+        where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
+      });
+      const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
+      if (findMetricOps) {
+        //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroup.resourceGroupId);
+        //console.log('resultProvision', resultProvision);
+      }
+    }
+  }
+
+  public async registerDefaultScheduler(clusterUuid: string, customerAccountId: string) {
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    if (!customerAccountData) {
+      throw new HttpException(404, `not found customerAccount ${customerAccountId}`);
+    }
+
+    const customerAccountKey = customerAccountData.customerAccountKey
+
+    await this.scheduleMetricMeta(clusterUuid, customerAccountKey)
+      .then(async (res: any) => {
+        console.log(`Submitted metric meta feeds schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule MetricMeta ');
+      }); //end of catch
+
+    await this.scheduleAlert(clusterUuid, customerAccountKey)
+      .then(async (res: any) => {
+        console.log(`Submitted alert feeds schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert feeds ');
+      }); //end of catch
+
+    const cronTabforResource = config.resourceCron;
+    await this.scheduleSyncResources(clusterUuid, cronTabforResource)
+      .then(async (res: any) => {
+        console.log(`Submitted resource sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
+      }); //end of catch
+
+    const cronTabforAlert = config.alertCron;
+    await this.scheduleSyncAlerts(clusterUuid, cronTabforAlert)
+      .then(async (res: any) => {
+        console.log(`Submitted Alert sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert sync');
+      }); //end of catch
+
+    const cronTabforMetricMeta = config.metricCron;
+    await this.scheduleSyncMetricMeta(clusterUuid, cronTabforMetricMeta)
+      .then(async (res: any) => {
+        console.log(`Submitted MetricMeta sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric meta sync');
+      }); //end of catch
+
+    if (config.metricReceivedSwitch === 'on') {
+      const cronTabforMetricReceived = config.metricReceivedCron;
+      await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
+        .then(async (res: any) => {
+          console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
+        })
+        .catch(error => {
+          console.log(error);
+          throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
+        }); //end of catch
+    }
+  }
   /**
    * @param {string} clusterUuid
    * @param {number} customerAccountKey
