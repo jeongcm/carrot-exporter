@@ -151,6 +151,7 @@ class executorController {
           serviceUuids = await this.executorService.installKpsOnResourceGroupForOpenstack(clusterUuid, customerAccountKey, targetNamespace, systemId, kpsChartVersion);
           break
         default:
+          res.status(400).json({message: `unknown resourceGroup platform:(${platform})`})
       }
 
       res
