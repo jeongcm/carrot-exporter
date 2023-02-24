@@ -873,6 +873,13 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum by (clusterUuid, node) (container_memory_working_set_bytes{pod!="", container!="", __LABEL_PLACE_HOLDER__})`;
         break;
+      case 'K8S_CLUSTER_HOST_MEMORY_USAGE_PERCENTAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (node_memory_MemTotal_bytes{node!="", __LABEL_PLACE_HOLDER__}) - sum by (clusterUuid, node) (node_memory_MemFree_bytes{node!="", __LABEL_PLACE_HOLDER__}) - sum by (clusterUuid, node) (node_memory_Buffers_bytes{node!="", __LABEL_PLACE_HOLDER__}) - sum by (clusterUuid, node) (node_memory_Cached_bytes{node!="", __LABEL_PLACE_HOLDER__}) - sum by (node) (node_memory_SReclaimable_bytes{node!="", __LABEL_PLACE_HOLDER__})) / sum by (clusterUuid, node) (node_memory_MemTotal_bytes{node!="", __LABEL_PLACE_HOLDER__}`;
+        break;
       case 'K8S_CLUSTER_NODE_MEMORY_USAGE_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -886,6 +893,13 @@ class MetricService extends ServiceExtension {
           node: resourceName,
         });
         promQl = `sum by (clusterUuid, node) (irate(container_cpu_usage_seconds_total{pod!="", image!="", container!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        break;
+      case 'K8S_CLUSTER_HOST_CPU_USAGE_PERCENTAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `1 - (avg by (clusterUuid, node) (rate(node_cpu_seconds_total{node!="", mode="idle", __LABEL_PLACE_HOLDER__}[${step}])))`;
         break;
       case 'K8S_CLUSTER_NODE_CPU_USAGE_PERCENTAGE':
         labelString += getSelectorLabels({
@@ -948,6 +962,38 @@ class MetricService extends ServiceExtension {
         promQl = `sum by (clusterUuid, node) (irate(node_network_receive_errs_total{node!="", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (irate(node_network_receive_packets_total{node!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
       break;
 
+      case 'K8S_CLUSTER_HOST_RX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (irate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+      break;
+
+      case 'K8S_CLUSTER_HOST_TX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (irate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+      break;
+
+      case 'K8S_CLUSTER_HOST_TX_ERROR':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (rate(node_network_transmit_errs_total{__LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (rate(node_network_transmit_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+      break;
+
+      case 'K8S_CLUSTER_HOST_RX_ERROR':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (rate(node_network_receive_errs_total{__LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (rate(node_network_receive_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+      break;
+
       // K8s Pod Metric by carrot
       case 'K8S_CLUSTER_POD_CPU':
         labelString += getSelectorLabels({
@@ -957,7 +1003,7 @@ class MetricService extends ServiceExtension {
         });
         ranged = false;
 
-        promQl = `sum by (pod, clusterUuid) (irate(container_cpu_usage_seconds_total{image!="",container!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, pod) (irate(container_cpu_usage_seconds_total{image!="",container!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
         case 'K8S_CLUSTER_POD_CPU_LIMITS_PERCENTAGE':
           labelString += getSelectorLabels({
@@ -973,7 +1019,7 @@ class MetricService extends ServiceExtension {
         });
         ranged = false;
 
-        promQl = `sum by(pod, clusterUuid) (container_memory_working_set_bytes{pod!="", container!="", __LABEL_PLACE_HOLDER__})`;
+        promQl = `sum by (clusterUuid, pod) (container_memory_working_set_bytes{pod!="", container!="", __LABEL_PLACE_HOLDER__})`;
         break;
       case 'K8S_CLUSTER_POD_RX_TOTAL':
         labelString += getSelectorLabels({
@@ -983,7 +1029,7 @@ class MetricService extends ServiceExtension {
         });
         ranged = false;
 
-        promQl = `sum by(pod, clusterUuid) (irate(container_network_receive_bytes_total{pod!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, pod) (irate(container_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
       case 'K8S_CLUSTER_POD_TX_TOTAL':
         labelString += getSelectorLabels({
@@ -993,21 +1039,21 @@ class MetricService extends ServiceExtension {
         });
         ranged = false;
 
-        promQl = `sum by(pod, clusterUuid) (irate(container_network_transmit_bytes_total{pod!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, po) (irate(container_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
       case 'K8S_CLUSTER_POD_RXTX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
           pod: resourceName,
         });
-        promQl = `sum by (clusterUuid, pod) (irate(container_network_receive_bytes_total{pod!="", __LABEL_PLACE_HOLDER__}[${step}]) + irate(container_network_transmit_bytes_total{pod!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, pod) (irate(container_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]) + irate(container_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
       case 'K8S_CLUSTER_POD_TX_ERROR':
         labelString += getSelectorLabels({
           clusterUuid,
           pod: resourceName,
         });
-        promQl = `sum by (clusterUuid, pod) (irate(container_network_transmit_errors_total{pod!="", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, pod) (irate(container_network_transmit_packets_total{pod!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, pod) (rate(container_network_transmit_errors_total{__LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, pod) (rate(container_network_transmit_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
   
       case 'K8S_CLUSTER_POD_RX_ERROR':
@@ -1015,7 +1061,7 @@ class MetricService extends ServiceExtension {
           clusterUuid,
           pod: resourceName,
         });
-        promQl = `sum by (clusterUuid, pod) (irate(container_network_receive_errors_total{pod!="", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, pod) (irate(container_network_receive_packets_total{pod!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, pod) (rate(container_network_receive_errors_total{__LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, pod) (rate(container_network_receive_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
         
       // K8s Overview Metric by carrot
