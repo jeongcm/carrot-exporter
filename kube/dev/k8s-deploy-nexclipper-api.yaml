@@ -49,18 +49,18 @@ data:
   NC_LARI_SYSTEM_PARTYUSER_PASSWORD: Password@123!
   NC_LARI_SYSTEM_PARTYUSER_EMAIL: system@nexclipper.io
   SUDORY_X_AUTH_TOKEN: "SUDORY"
-  SUDORY_BASE_URL: "http://144.126.243.14:8099"
+  SUDORY_BASE_URL: "http://175.45.207.39:8099"
   SUDORY_PATH_CREATECLUSTER: "/server/cluster"
   SUDORY_PATH_CREATETOKEN: "/server/cluster_token"
   SUDORY_PATH_SESSION: "/server/session"
   SUDORY_PATH_SERVICE: "/server/service"
-  SUDORY_SUBSCRIBED_CHANNEL_RESOURCE: "0e81d1f1fb224485877374d1d9038d0d"
-  SUDORY_SUBSCRIBED_CHANNEL_ALERT: "a97f377b443b42b9844ff1c2ecb41b5f"
-  SUDORY_SUBSCRIBED_CHANNEL_METRIC: "25ec71142ced4841a4fe8e09a17c0dc0"
-  SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED: "2aaf5c9266084237b91494c4fb99adae"
+  SUDORY_SUBSCRIBED_CHANNEL_RESOURCE: "0fc919b5091b4b7f9dd19332752bd215"
+  SUDORY_SUBSCRIBED_CHANNEL_ALERT: "cc283cc4b24c424fb657e5315d0799af"
+  SUDORY_SUBSCRIBED_CHANNEL_METRIC: "740d0631abfd4385859ef1fd92948d5d"
+  SUDORY_SUBSCRIBED_CHANNEL_METRIC_RECEIVED: "6c15a441f71244b4909809824ed5a2df"
   SUDORY_SERVICE_RESULT_DELETE: "1"
-  SUDORY_REPO_NAME: "nex-mig"
-  SUDORY_REPO_URL: "https://repo.nexclipper.io/chartrepo/nexclipper-mig-dev"
+  SUDORY_REPO_NAME: "co-dev"
+  SUDORY_REPO_URL: "https://repo.nexclipper.io/chartrepo/claionsolution-dev"
   NC_CRON_URL: "http://nexclipper-cron.nc.svc.cluster.local:5001"
   NC_CRON_X_AUTH_TOKEN: "CRON"
   NC_LARI_MONGO_URL: "mongodb://nc_api:nc_api@ncmongodb.mongodb.svc.cluster.local:27017/nc_api"
@@ -72,7 +72,7 @@ data:
   NODE_OPTIONS: "--max-old-space-size=8192"
   NC_ALERTHUB_URL: "http://nexclipper-notification.nc.svc.cluster.local:3039"
   NC_ALERTHUB_X_AUTH_TOKEN: "NC_ALERTHUB"
-  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "8f0583fbdb0c4060adc05e80736385f7"
+  SUDORY_SUBSCRIBED_CHANNEL_WEBHOOK: "ca5bbf083fc14c4a8b125708d0e4e1f7"
   NC_LARI_RESOURCE_CRON: "* * * * *"
   NC_LARI_ALERT_CRON: "* * * * *"
   NC_LARI_METRIC_CRON: "*/5 * * * *"
@@ -129,63 +129,63 @@ spec:
         app: ${APP_IMAGE_NAME}
     spec:
       containers:
-      - name: ${APP_IMAGE_NAME}
-        image: ${IMG_TAG_TO_DEPLOY}
-        imagePullPolicy: Always
-        resources:
-          limits:
-            cpu: 500m
-            memory: 1024Mi
-          requests:
-            cpu: 250m
-            memory: 512Mi
-        securityContext:
-          runAsNonRoot: true
-          runAsUser: 1002
-          capabilities:
-            drop:
-              - SETUID
-              - SETGID
-        livenessProbe:
-          tcpSocket:
-            port: 5001
-          initialDelaySeconds: 90
-          timeoutSeconds: 15
-        volumeMounts:
-          - name:  varlog
-            mountPath:  /var/log
-        envFrom:
-          - configMapRef:
-              name: ${APP_IMAGE_NAME}-configmap
-        env:
-          - name: NC_LARI_DB_CONFIG_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: ncdb-mariadb
-                key: mariadb-root-password
-          - name: NC_LARI_DO_ACCESS_KEY_ID
-            valueFrom:
-              secretKeyRef:
-                name: nc-do-keys
-                key: do-access-key
-          - name: NC_LARI_DO_SECRET_ACCESS_KEY
-            valueFrom:
-              secretKeyRef:
-                name: nc-do-keys
-                key: do-secret-key
-          - name: NC_LARI_MAILGUN_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: nc-mailgun-apikey
-                key: apiKey
-          - name: FUSEBILL_API_KEY
-            valueFrom:
-              secretKeyRef:
-                name: nc-fusebill-apikey
-                key: apiKey
-        ports:
-        - containerPort: 5001
-        - containerPort: 5002
+        - name: ${APP_IMAGE_NAME}
+          image: ${IMG_TAG_TO_DEPLOY}
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1024Mi
+            requests:
+              cpu: 250m
+              memory: 512Mi
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1002
+            capabilities:
+              drop:
+                - SETUID
+                - SETGID
+          livenessProbe:
+            tcpSocket:
+              port: 5001
+            initialDelaySeconds: 90
+            timeoutSeconds: 15
+          volumeMounts:
+            - name:  varlog
+              mountPath:  /var/log
+          envFrom:
+            - configMapRef:
+                name: ${APP_IMAGE_NAME}-configmap
+          env:
+            - name: NC_LARI_DB_CONFIG_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ncdb-mariadb
+                  key: mariadb-root-password
+            - name: NC_LARI_DO_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: nc-do-keys
+                  key: do-access-key
+            - name: NC_LARI_DO_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nc-do-keys
+                  key: do-secret-key
+            - name: NC_LARI_MAILGUN_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nc-mailgun-apikey
+                  key: apiKey
+            - name: FUSEBILL_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: nc-fusebill-apikey
+                  key: apiKey
+          ports:
+            - containerPort: 5001
+            - containerPort: 5002
       volumes:
         - name: varlog
           emptyDir: {}
@@ -200,12 +200,12 @@ spec:
   selector:
     app: ${APP_IMAGE_NAME}
   ports:
-  - port: 5001
-    targetPort: 5001
-    name: http
-  - port: 5002
-    targetPort: 5002
-    name: metric
+    - port: 5001
+      targetPort: 5001
+      name: http
+    - port: 5002
+      targetPort: 5002
+      name: metric
 
 ---
 apiVersion: monitoring.coreos.com/v1
@@ -220,10 +220,10 @@ spec:
       app: ${APP_IMAGE_NAME}
   namespaceSelector:
     matchNames:
-    - nc
+      - nc
   endpoints:
-  - honorLabels: true
-    path: /metrics
-    scrapeTimeout: 30s
-    interval: 30s
-    port: metric
+    - honorLabels: true
+      path: /metrics
+      scrapeTimeout: 30s
+      interval: 30s
+      port: metric
