@@ -88,7 +88,7 @@ class sudoryService {
   ): Promise<object> {
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
     const sudoryBaseUrl = config.sudoryApiDetail.baseURL;
-    const sudoryPathService = config.sudoryApiDetail.pathService;
+    const sudoryPathService = config.sudoryApiDetail.pathServiceV2;
     const sudoryUrl = sudoryBaseUrl + sudoryPathService;
     const uuid = require('uuid');
     const executorServiceId = uuid.v1();
