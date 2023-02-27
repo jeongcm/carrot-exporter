@@ -465,12 +465,12 @@ class executorService {
             case `00000000000000000000000000001003`:
               if (resultStatus.replicas === resultStatus.readyReplicas) status = 1
               break;
-            // daemon set
+            // daemonset
             case `00000000000000000000000000001005`:
               if (resultStatus.desiredNumberScheduled === resultStatus.numberReady) status = 1
               break;
             }
-            
+
             result[`${stack.name}`] = status
           }
           
