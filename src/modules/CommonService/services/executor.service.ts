@@ -288,33 +288,14 @@ class executorService {
   public async checkExecutorClient(clusterUuid: string, sudoryNamespace: string, customerAccountKey: number): Promise<object> {
     let clientTrueFalse = false;
     const resourceJobKey = [];
-    //improvement/713, Aug30 2022
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession + '/cluster/' + clusterUuid + '/alive';
-
-    const resourceCron = config.resourceCron;
-    //const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`;
-    //executorServerUrl = executorServerUrl + sessionQueryParameter;
-    console.log('bug/736');
-    console.log(executorServerUrl);
     const subscribedChannelResource = config.sudoryApiDetail.channel_resource;
-    await axios({
-      method: 'get',
-      url: `${executorServerUrl}`,
-      headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
-    })
-      .then(async (res: any) => {
-        if (res.data?.alive === false) {
-          throw new HttpException(500, `Sudory Server Error - not alive client (cluster:${clusterUuid})`)
-        }
+    const resourceCron = config.resourceCron;
 
-        clientTrueFalse = true;
-        console.log(`Successful to run API to search Executor/Sudory client`);
-      })
-      .catch(error => {
-        //console.log(error);
-        throw new HttpException(500, `Sudory Server Error - ${JSON.stringify(error)} `);
-      });
-
+    const aliveData = await this.sudoryService.checkSudoryClient(clusterUuid)
+    if (aliveData.validClient === false) {
+      throw new HttpException(500, `Sudory Server Error - not alive client (cluster:${clusterUuid})`)
+    }
+ 
     //sudory namespace save...
     const resourceGroupSet = { resourceGroupSudoryNamespace: sudoryNamespace };
     await this.resourceGroup.update(resourceGroupSet, { where: { resourceGroupUuid: clusterUuid } });
