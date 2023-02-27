@@ -427,7 +427,7 @@ class executorService {
       const getTemplateUuid = stack.templateUuid;
       const getStep = [{ args: { namespace: stack.namespace, name: `co-${stack.name}` } }];
       const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-      const getStackGet: any = await this.sudoryService.postSudoryService(
+      const getStack: any = await this.sudoryService.postSudoryService(
         serviceName,
         `check ${serviceName}`,
         clusterUuid,
@@ -447,7 +447,7 @@ class executorService {
         const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          where: { serviceUuid: getStackGet.dataValues.serviceUuid, status: 4 },
+          where: { serviceUuid: getStack.dataValues.serviceUuid, status: 4 },
         });
         
         if (getSudoryWebhook) {
