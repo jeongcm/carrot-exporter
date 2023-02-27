@@ -98,7 +98,7 @@ class sudoryService {
       cluster_uuid: clusterUuid,
       name: name,
       template_uuid: templateUuid,
-      steps: inputs,
+      inputs: inputs,
       summary: summary,
       on_completion: on_completion,
       subscribed_channel: sudoryChannel,
