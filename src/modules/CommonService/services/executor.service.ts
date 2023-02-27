@@ -417,7 +417,7 @@ class executorService {
   }
 
   // stack = {name, templateUuid, namespace}
-  public async checkStack(clusterUuid: string, customerAccountId: string, stacks: any[]): Promise<object> {
+  public async checkStacks(clusterUuid: string, customerAccountId: string, stacks: any[]): Promise<object> {
 
     const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
     const customerAccountKey = getCustomerAccount.customerAccountKey;
