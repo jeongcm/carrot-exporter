@@ -1444,6 +1444,78 @@ class executorService {
   }
 
   /**
+   * @param {string} clusterUuid
+   * @param {string} templateUud
+   * @param {string} name
+   * @param {string} summary
+   * @param {Object} inputs
+   * @param {string} subscribed_channel
+   */
+  public async postExecuteServiceV2(
+    name: string,
+    summary: string,
+    clusterUuid: string,
+    templateUuid: string,
+    inputs: Object,
+    customerAccountKey: number,
+    subscribed_channel: string,
+  ): Promise<object> {
+    const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
+    const sudoryBaseUrl = config.sudoryApiDetail.baseURL;
+    const sudoryPathService = config.sudoryApiDetail.pathService;
+    const sudoryUrl = sudoryBaseUrl + sudoryPathService;
+    const sudoryChannel = subscribed_channel;
+    const uuid = require('uuid');
+    const executorServiceId = uuid.v1();
+
+    const sudoryServiceData = {
+      cluster_uuid: clusterUuid,
+      name: name,
+      template_uuid: templateUuid,
+      steps: inputs,
+      summary: summary,
+      on_completion: on_completion,
+      subscribed_channel: sudoryChannel,
+    };
+    console.log(sudoryServiceData);
+    const serviceData = await axios({
+      method: 'post',
+      url: sudoryUrl,
+      data: sudoryServiceData,
+    })
+      .then(async (res: any) => {
+        const serviceUuid = res.data.uuid;
+        console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
+        return res.data;
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Not able to execute service');
+      });
+
+    const insertData = {
+      executorServiceId: executorServiceId,
+      customerAccountKey: customerAccountKey,
+      name: name,
+      summary: summary,
+      createdAt: new Date(),
+      createdBy: 'SYSTEM',
+      serviceUuid: serviceData.uuid,
+      clusterUuid: serviceData.cluster_uuid,
+      templateUuid: templateUuid,
+      onCompletion: on_completion,
+      inputs: JSON.parse(JSON.stringify(inputs)),
+      subscribed_channel: sudoryChannel,
+    };
+    console.log('Executor Data for DB insert: ');
+    console.log(insertData);
+
+    const resultExecutorService = await this.executorService.create(insertData);
+    //console.log(resultExecutorService);
+    return resultExecutorService;
+  }
+
+  /**
    * @param {ExecutorResourceDto} resourceInputData
    */
   public async requestResourceToExecutor(resourceInputData: ExecutorResourceListDto): Promise<string> {
