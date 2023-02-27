@@ -417,50 +417,69 @@ class executorService {
   }
 
   // stack = {name, templateUuid, namespace}
-  public async checkStack(clusterUuid: string, customerAccountId: string, stack: any): Promise<boolean> {
+  public async checkStack(clusterUuid: string, customerAccountId: string, stacks: any[]): Promise<object> {
 
     const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
     const customerAccountKey = getCustomerAccount.customerAccountKey;
-
-    const serviceName = `stack co-${stack.name}`
-    const getTemplateUuid = stack.templateUuid;
-    const getStep = [{ args: { namespace: stack.namespace, name: `co-${stack.name}` } }];
-    const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-    const getStackGet: any = await this.sudoryService.postSudoryService(
-      serviceName,
-      `check ${serviceName}`,
-      clusterUuid,
-      getTemplateUuid,
-      getStep,
-      customerAccountKey,
-      subscribedChannel,
-    );
-
-    const sleep = ms => new Promise(res => setTimeout(res, ms));
-    let i;
-    let flag: boolean = false
-    let result = [];
-    for (i = 0; i < 10; i++) {
-      await sleep(1000);
-      if (flag === true) break
-      const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        where: { serviceUuid: getStackGet.dataValues.serviceUuid, status: 4 },
-      });
-      
-      if (getSudoryWebhook) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        if (getSudoryWebhook.serviceResult) {
-          return true
-        }
+    const result = {}
+    for (const stack of stacks) {
+      const serviceName = `stack co-${stack.name}`
+      const getTemplateUuid = stack.templateUuid;
+      const getStep = [{ args: { namespace: stack.namespace, name: `co-${stack.name}` } }];
+      const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+      const getStackGet: any = await this.sudoryService.postSudoryService(
+        serviceName,
+        `check ${serviceName}`,
+        clusterUuid,
+        getTemplateUuid,
+        getStep,
+        customerAccountKey,
+        subscribedChannel,
+      );
+  
+      const sleep = ms => new Promise(res => setTimeout(res, ms));
+      let i;
+      let flag: boolean = false
+      let result = [];
+      for (i = 0; i < 10; i++) {
+        await sleep(1000);
+        if (flag === true) break
+        const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          where: { serviceUuid: getStackGet.dataValues.serviceUuid, status: 4 },
+        });
         
-        flag = true
+        if (getSudoryWebhook) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          if (getSudoryWebhook.serviceResult) {
+            let status = 0
+            let resultStatus = JSON.parse(JSON.stringify(getSudoryWebhook.serviceResult)).status
+            switch (getTemplateUuid) {
+            // deployment
+            case `00000000000000000000000000001001`:
+              if (resultStatus.replicas === resultStatus.readyReplicas) status = 1
+              break
+            // statefulset
+            case `00000000000000000000000000001003`:
+              if (resultStatus.replicas === resultStatus.readyReplicas) status = 1
+              break;
+            // daemon set
+            case `00000000000000000000000000001005`:
+              if (resultStatus.desiredNumberScheduled === resultStatus.numberReady) status = 1
+              break;
+            }
+            
+            result[`${stack.name}`] = status
+          }
+          
+          flag = true
+        }
       }
     }
 
-    return false
+    return result
   }
 
   // stack object = {chartName, chartVersion, targetNamespace}
@@ -549,7 +568,7 @@ class executorService {
             name: stack.chartName,
             chart_name: stack.chartName,
             repo_url: repoUrl,
-            namespace: stack.targetNamespace,
+            namespace: stack.namespace,
             chart_version: version,
             values: values
           },
