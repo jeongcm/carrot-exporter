@@ -14,6 +14,7 @@ export type ExecutorServiceUpdateAttributes = Optional<
   | 'onCompletion'
   | 'subscribedChannel'
   | 'steps'
+  | 'inputs'
   | 'createdAt'
   | 'updatedAt'
   | 'createdBy'
@@ -35,6 +36,7 @@ export class ExecutorServiceModel extends Model<IExecutorService, ExecutorServic
   public serviceUuid: string;
   public clusterUuid: string;
   public steps: JSON;
+  public inputs: JSON; // for v2
   public status: number;
   public statusDescription: string;
 
@@ -100,6 +102,10 @@ export default function (sequelize: Sequelize): typeof ExecutorServiceModel {
         type: DataTypes.STRING(500),
       },
       steps: {
+        allowNull: true,
+        type: DataTypes.JSON,
+      },
+      inputs: {
         allowNull: true,
         type: DataTypes.JSON,
       },
