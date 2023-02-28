@@ -701,7 +701,7 @@ class executorService {
     }
 
     if (resourceGroupProvider == 'DD') {
-      kpsInputs[0].args.values['prometheus-node-exporter'].hostRootFsMount.enabled = false;
+      kpsInputs.values['prometheus-node-exporter'].hostRootFsMount.enabled = false;
     }
     console.log('kps-step--------', JSON.stringify(kpsInputs));
     const kpsExecuteName = 'KPS Helm Instllation';
@@ -718,9 +718,6 @@ class executorService {
     );
 
     if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
-
-
-
 
     const lokiInputs = {
       name: 'loki',
