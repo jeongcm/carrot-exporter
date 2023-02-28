@@ -376,6 +376,36 @@ class executorController {
       next(error);
     }
   };
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public executeServiceV2 = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const name = req.body.name;
+      const summary = req.body.summary;
+      const clusterUuid = req.body.clusterUuid;
+      const templateUuid = req.body.templateUuid;
+      const inputs = req.body.inputs;
+      const customerAccountKey = req.customerAccountKey;
+      const subscribed_channel = req.body.subscribed_channel || config.sudoryApiDetail.channel_webhook;
+
+      const serviceOutput: any = await this.executorService.postExecuteServiceV2(
+        name,
+        summary,
+        clusterUuid,
+        templateUuid,
+        inputs,
+        customerAccountKey,
+        subscribed_channel,
+      );
+      if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
+      res.status(200).json({ Data: serviceOutput, message: `Execution Successful.` });
+    } catch (error) {
+      next(error);
+    }
+  };
 
   /**
    * @param  {IRequestWithUser} req

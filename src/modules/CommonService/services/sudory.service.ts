@@ -77,6 +77,69 @@ class sudoryService {
     return resultSudoryService;
   }
 
+  public async postSudoryServiceV2(
+    name: string,
+    summary: string,
+    clusterUuid: string,
+    templateUuid: string,
+    inputs: Object,
+    customerAccountKey: number,
+    subscribed_channel: string,
+  ): Promise<object> {
+    const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
+    const sudoryBaseUrl = config.sudoryApiDetail.baseURL;
+    const sudoryPathService = config.sudoryApiDetail.pathServiceV2;
+    const sudoryUrl = sudoryBaseUrl + sudoryPathService;
+    const uuid = require('uuid');
+    const executorServiceId = uuid.v1();
+    const sudoryChannel = subscribed_channel;
+
+    const sudoryServiceData = {
+      cluster_uuid: clusterUuid,
+      name: name,
+      template_uuid: templateUuid,
+      inputs: inputs,
+      summary: summary,
+      on_completion: on_completion,
+      subscribed_channel: sudoryChannel,
+    };
+
+    const serviceData = await axios({
+      method: 'post',
+      url: sudoryUrl,
+      data: sudoryServiceData,
+    })
+      .then(async (res: any) => {
+        const serviceUuid = res.data.uuid;
+        console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
+        return res.data;
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Not able to execute service');
+      });
+
+    const insertData = {
+      executorServiceId: executorServiceId,
+      customerAccountKey: customerAccountKey,
+      name: name,
+      summary: summary,
+      createdAt: new Date(),
+      createdBy: 'SYSTEM',
+      serviceUuid: serviceData.uuid,
+      clusterUuid: serviceData.cluster_uuid,
+      templateUuid: templateUuid,
+      onCompletion: on_completion,
+      inputs: JSON.parse(JSON.stringify(inputs)),
+      subscribed_channel: sudoryChannel,
+    };
+    console.log('SUDORY# - insert Data to ExecutorService', insertData);
+
+    const resultSudoryService: IExecutorService = await this.executorService.create(insertData);
+    console.log('SUDORY# - inserted', resultSudoryService);
+    return resultSudoryService;
+  }
+
   /**
    * @param {string} clusterUuid
    */
