@@ -81,7 +81,7 @@ class SchedulerController {
     const customerAccountKey = req.customerAccountKey;
     const createSchedulerData = req.body;
     //improvement/599, in case of "" of apiUrl, fill Sudory base url.
-    const apiUrl = req.body.apiUrl || config.sudoryApiDetail.baseURL;
+    const apiUrl = req.body.apiUrl || config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     const apiType = req.body.apiType || 'POST';
     const customerAccountId = await this.customerAccountService.getCustomerAccountIdByKey(customerAccountKey);
     delete createSchedulerData.apiUrl;
