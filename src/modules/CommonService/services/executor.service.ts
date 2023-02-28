@@ -23,14 +23,17 @@ import TableIdService from './tableId.service';
 
 const { Op } = require('sequelize');
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
+import SudoryService from '@/modules/CommonService/services/sudory.service';
 import { IAlertTargetSubGroup } from '@/common/interfaces/alertTargetSubGroup.interface';
 import { ISubscriptions } from '@/common/interfaces/subscription.interface';
 //import subscriptionHistoryModel from '@/modules/Subscriptions/models/subscriptionHistory.model';
 import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 import ResourceService from "@modules/Resources/services/resource.service";
 import { PartyUserModel } from "@modules/Party/models/partyUser.model";
+import { ExportersModel } from '@/modules/Exporters/models/exporters.model';
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
+
 
 class executorService {
   //    public tableIdService = new TableIdService();
@@ -40,7 +43,7 @@ class executorService {
   public incidentService = new IncidentService();
   public bayesianModelService = new BayesianModelService();
   public resourceService = new ResourceService();
-
+  public sudoryService = new SudoryService();
   public sudoryWebhook = DB.SudoryWebhook;
   public subscription = DB.Subscription;
   public catalogPlan = DB.CatalogPlan;
@@ -148,53 +151,104 @@ class executorService {
    * @param  {ResourceGroupExecutorDto} ResourceGroupExecutorData
    * @param  {string} currentUserId
    */
-  public async registerExecutorClient(requestExecutorClient: ResourceGroupExecutorDto, currentUserId: string): Promise<IExecutorClient> {
-    let clusterUuid = '';
-    let token = '';
+  public async registerResourceGroup(requestResourceGroup: ResourceGroupExecutorDto, currentUserId: string): Promise<IResourceGroup> {
+    const uuid = require('uuid');
 
-    const executorServerClusterUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateCluster;
-    const executorServerTokenUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateToken;
-    const executorServerBaseUrl = config.sudoryApiDetail.baseURL;
-    const executorRepoName = config.sudoryApiDetail.repoName;
-    const executorRepoUrl = config.sudoryApiDetail.repoUrl;
-    const customerAccountId = requestExecutorClient.customerAccountId;
-    const resourceGroupName = requestExecutorClient.resourceGroupName;
-    const resourceGroupProvider = requestExecutorClient.resourceGroupProvider;
-    const resourceGroupPlatform = requestExecutorClient.resourceGroupPlatform;
-    const resourceGroupSudoryNamespace = requestExecutorClient.resourceGroupSudoryNamespace || '';
-    const resourceGroupKpsLokiNamespace = requestExecutorClient.resourceGroupKpsLokiNamespace || '';
+    const customerAccountId = requestResourceGroup.customerAccountId;
+    const resourceGroupName = requestResourceGroup.resourceGroupName;
+    const resourceGroupProvider = requestResourceGroup.resourceGroupProvider;
+    const resourceGroupPlatform = requestResourceGroup.resourceGroupPlatform;
+    const resourceGroupSudoryNamespace = requestResourceGroup.resourceGroupSudoryNamespace || '';
+    const resourceGroupKpsLokiNamespace = requestResourceGroup.resourceGroupKpsLokiNamespace || '';
+    const resourceGroupUuid = uuid.v1().replace(/-/g, '')
 
     const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
     if (!customerAccountData) {
       throw new HttpException(404, `customerAccountId ${customerAccountId} not found`);
     }
 
-    const customerAccountName = customerAccountData.customerAccountName;
     const customerAccountKey = customerAccountData.customerAccountKey;
 
-    const apiDataName = resourceGroupName;
-    const apiDataSummary = `${resourceGroupName} for ${customerAccountName}`;
+    const resourceGroup = {
+      resourceGroupName: resourceGroupName,
+      resourceGroupDescription: resourceGroupName,
+      resourceGroupProvider: resourceGroupProvider,
+      resourceGroupPlatform: resourceGroupPlatform,
+      resourceGroupUuid: resourceGroupUuid,
+      resourceGroupPrometheus: '',
+      resourceGroupSudoryNamespace: resourceGroupSudoryNamespace,
+      resourceGroupKpsLokiNamespace: resourceGroupKpsLokiNamespace,
+      resourceGroupLastServerUpdatedAt: null,
+      resourceGroupSudoryRebounceRequest: '',
+    };
+
+    try {
+      const ResponseResoureGroup: IResourceGroup = await this.resourceGroupService.createResourceGroup(resourceGroup, currentUserId, customerAccountKey);
+      console.log('Success to create ResponseGroup: ', ResponseResoureGroup);
+      return ResponseResoureGroup
+
+    } catch (error) {
+      console.log(error);
+      throw new HttpException(500, `Error on creating cluster ${resourceGroupName}`);
+    }
+  }
+
+  public async registerExecutorClient(clusterUuid: string, customerAccountId: string): Promise<any> {
+    // 1. get resourceGroup 
+    const rg = await this.resourceGroup.findOne({
+      where: {deletedAt: null, resourceGroupUuid: clusterUuid}
+    })
+
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    if (!customerAccountData) {
+      throw new HttpException(404, `customerAccountId ${customerAccountId} not found`);
+    }
+
+    const executorServerClusterUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateCluster;
+    const executorServerTokenUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathCreateToken;
+    const executorServerBaseUrl = config.sudoryApiDetail.baseURL;
+    const executorRepoName = config.sudoryApiDetail.repoName;
+    const executorRepoUrl = config.sudoryApiDetail.repoUrl;
+    const customerAccountName = customerAccountData.customerAccountName;
+    const apiDataName = rg.resourceGroupName;
+    const apiDataSummary = `${rg.resourceGroupName} for ${customerAccountName}`;
     const apiDataOption = { addtionalProp1: {} };
 
-    const sudoryCreateCluster = { name: apiDataName, summary: apiDataSummary, polling_option: apiDataOption, polling_limit: 0 };
-    let sudoryCreateClusterResponse;
-
+    // 2. check sudory cluster
+    let sudoryGetClusterResponse;
     await axios({
-      method: 'post',
-      url: `${executorServerClusterUrl}`,
-      data: sudoryCreateCluster,
+      method: 'get',
+      url: `${executorServerClusterUrl}+/+${clusterUuid}`,
       headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
     })
       .then(async (res: any) => {
-        console.log('success to create sudory cluster');
-        sudoryCreateClusterResponse = res.data;
+        console.log('already exist sudory cluster');
+        sudoryGetClusterResponse = res.data;
       })
-      .catch(error => {
-        console.log(error);
-        return error;
-      });
-    clusterUuid = sudoryCreateClusterResponse.uuid;
+      .catch(err => {
+      })
+    
+    if (!sudoryGetClusterResponse) {
+      const sudoryCreateCluster = { name: apiDataName, summary: apiDataSummary, polling_option: apiDataOption, polling_limit: 0, uuid: clusterUuid };
+      let sudoryCreateClusterResponse;
 
+      await axios({
+        method: 'post',
+        url: `${executorServerClusterUrl}`,
+        data: sudoryCreateCluster,
+        headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
+      })
+        .then(async (res: any) => {
+          console.log('success to create sudory cluster');
+          sudoryCreateClusterResponse = res.data;
+        })
+        .catch(error => {
+          console.log(error);
+          return error;
+        });
+    }
+    
+    // 4. create sudory token
     let sudoryCreateTokenResponse;
     const sudoryCreateTokenData = { name: apiDataName, cluster_uuid: clusterUuid, summary: apiDataSummary };
 
@@ -213,44 +267,17 @@ class executorService {
         return error;
       });
 
-    token = sudoryCreateTokenResponse.token;
+    let token = sudoryCreateTokenResponse.token;
 
     const executorClient: IExecutorClient = {
       clusterUuid: clusterUuid,
       token: token,
-      exectuorServerUrl: executorServerBaseUrl,
+      executorServerUrl: executorServerBaseUrl,
       repoName: executorRepoName,
       repoUrl: executorRepoUrl,
     };
 
-    const resourceGroup = {
-      resourceGroupName: resourceGroupName,
-      resourceGroupDescription: resourceGroupName,
-      resourceGroupProvider: resourceGroupProvider,
-      resourceGroupPlatform: resourceGroupPlatform,
-      resourceGroupUuid: clusterUuid,
-      resourceGroupPrometheus: '',
-      resourceGroupSudoryNamespace: resourceGroupSudoryNamespace,
-      resourceGroupKpsLokiNamespace: resourceGroupKpsLokiNamespace,
-      resourceGroupLastServerUpdatedAt: null,
-      resourceGroupSudoryRebounceRequest: '',
-    };
-
-    try {
-      const ResponseResoureGroup: Object = await this.resourceGroupService.createResourceGroup(resourceGroup, currentUserId, customerAccountKey);
-      console.log('Success to create ResponseGroup: ', ResponseResoureGroup);
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(500, `Error on creating cluster ${resourceGroupName}`);
-    }
-
-    try {
-      //await scheduleResource(clusterUuid);
-    } catch (error) {
-      console.log(error);
-      throw new HttpException(500, `Registered a cluster but error on scheduling resource interfaces ${resourceGroupName}`);
-    }
-    return executorClient;
+    return executorClient
   }
 
   /**
@@ -261,48 +288,19 @@ class executorService {
   public async checkExecutorClient(clusterUuid: string, sudoryNamespace: string, customerAccountKey: number): Promise<object> {
     let clientTrueFalse = false;
     const resourceJobKey = [];
-    //improvement/713, Aug30 2022
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession + '/cluster/' + clusterUuid + '/alive';
-
-    const resourceCron = config.resourceCron;
-    //const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`;
-    //executorServerUrl = executorServerUrl + sessionQueryParameter;
-    console.log('bug/736');
-    console.log(executorServerUrl);
     const subscribedChannelResource = config.sudoryApiDetail.channel_resource;
-    await axios({
-      method: 'get',
-      url: `${executorServerUrl}`,
-      headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
-    })
-      .then(async (res: any) => {
-        if (res.data == true) clientTrueFalse = true;
-        console.log(`Successful to run API to search Executor/Sudory client`);
-      })
-      .catch(error => {
-        //console.log(error);
-        throw new HttpException(500, `Sudory Server Error - ${JSON.stringify(error.response.data)} `);
-      });
+    const resourceCron = config.resourceCron;
 
+    const aliveData = await this.sudoryService.checkSudoryClient(clusterUuid)
+    if (aliveData.validClient === false) {
+      throw new HttpException(500, `Sudory Server Error - not alive client (cluster:${clusterUuid})`)
+    }
+ 
     //sudory namespace save...
     const resourceGroupSet = { resourceGroupSudoryNamespace: sudoryNamespace };
     await this.resourceGroup.update(resourceGroupSet, { where: { resourceGroupUuid: clusterUuid } });
 
-    const newCrontab1 = resourceCron;
-    const newCrontab2 = resourceCron;
-    const newCrontab3 = resourceCron;
-    const newCrontab4 = resourceCron;
-    const newCrontab5 = resourceCron;
-    const newCrontab6 = resourceCron;
-    const newCrontab7 = resourceCron;
-    const newCrontab8 = resourceCron;
-    const newCrontab9 = resourceCron;
-    const newCrontab10 = resourceCron;
-    const newCrontab11 = resourceCron;
-    const newCrontab12 = resourceCron;
-    const newCrontab13 = resourceCron;
-    const newCrontab14 = resourceCron;
-    const newCrontab15 = resourceCron;
+    const newCrontab = resourceCron;
 
     const steps = [
       {
@@ -312,386 +310,43 @@ class executorService {
       },
     ];
 
-    // instant call
-    const resultJo = await this.postExecuteService(
-      'K8s interface for Job',
-      'K8s interface for Job',
-      clusterUuid,
-      '00000000000000000000000000005002',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultJo) console.log(resultJo);
-    const resultCj = await this.postExecuteService(
-      'K8s interface for CronJob',
-      'K8s interface for CronJob',
-      clusterUuid,
-      '00000000000000000000000000005003',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultCj) console.log(resultCj);
-    const resultNd = await this.postExecuteService(
-      'K8s interface for Node',
-      'K8s interface for Node',
-      clusterUuid,
-      '00000000000000000000000000000010',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultNd) console.log(resultNd);
-    const resultNS = await this.postExecuteService(
-      'K8s interface for Namespace',
-      'K8s interface for Namespace',
-      clusterUuid,
-      '00000000000000000000000000000004',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultNS) console.log(resultNS);
-    const resultSV = await this.postExecuteService(
-      'K8s interface for Service',
-      'K8s interface for Service',
-      clusterUuid,
-      '00000000000000000000000000000020',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultSV) console.log(resultSV);
-    const resultPD = await this.postExecuteService(
-      'K8s interface for Pod',
-      'K8s interface for Pod',
-      clusterUuid,
-      '00000000000000000000000000000002',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultPD) console.log(resultPD);
-    const resultDP = await this.postExecuteService(
-      'K8s interface for Deployment',
-      'K8s interface for Deployment',
-      clusterUuid,
-      '00000000000000000000000000001002',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultDP) console.log(resultDP);
-    const resultSS = await this.postExecuteService(
-      'K8s interface for StatefulSet',
-      'K8s interface for StatefulSet',
-      clusterUuid,
-      '00000000000000000000000000001004',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultSS) console.log(resultSS);
-    const resultDS = await this.postExecuteService(
-      'K8s interface for DaemonSet',
-      'K8s interface for DaemonSet',
-      clusterUuid,
-      '00000000000000000000000000001006',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultDS) console.log(resultDS);
-    const resultRS = await this.postExecuteService(
-      'K8s interface for ReplicaSet',
-      'K8s interface for ReplicaSet',
-      clusterUuid,
-      '00000000000000000000000000001008',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultRS) console.log(resultRS);
-    const resultPC = await this.postExecuteService(
-      'K8s interface for PVC',
-      'K8s interface for PVC',
-      clusterUuid,
-      '00000000000000000000000000000018',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultPC) console.log(resultPC);
-    const resultSE = await this.postExecuteService(
-      'K8s interface for Secret',
-      'K8s interface for Secret',
-      clusterUuid,
-      '00000000000000000000000000000014',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultSE) console.log(resultSE);
-    const resultEP = await this.postExecuteService(
-      'K8s interface for Endpoint',
-      'K8s interface for Endpoint',
-      clusterUuid,
-      '00000000000000000000000000000016',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultEP) console.log(resultEP);
-    const resultCM = await this.postExecuteService(
-      'K8s interface for Configmap',
-      'K8s interface for Configmap',
-      clusterUuid,
-      '00000000000000000000000000000006',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultCM) console.log(resultCM);
-    const resultIG = await this.postExecuteService(
-      'K8s interface for Ingress',
-      'K8s interface for Ingress',
-      clusterUuid,
-      '00000000000000000000000000002002',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultIG) console.log(resultIG);
-    const resultSC = await this.postExecuteService(
-      'K8s interface for Storage Class',
-      'K8s interface for Storage Class',
-      clusterUuid,
-      '00000000000000000000000000003002',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultSC) console.log(resultSC);
-    const resultPV = await this.postExecuteService(
-      'K8s interface for PV',
-      'K8s interface for PV',
-      clusterUuid,
-      '00000000000000000000000000000012',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultPV) console.log(resultPV);
-    const resultEV = await this.postExecuteService(
-      'K8s interface for Event',
-      'K8s interface for Event',
-      clusterUuid,
-      '00000000000000000000000000000008',
-      steps,
-      customerAccountKey,
-      subscribedChannelResource,
-    );
-    if (!resultEV) console.log(resultPV);
+    const executeServices = [{serviceName: 'K8s interface for Job', templateUuid: '00000000000000000000000000005002'}, {serviceName: 'K8s interface for CronJob', templateUuid: '00000000000000000000000000005003'},
+     {serviceName: 'K8s interface for Node', templateUuid: '00000000000000000000000000000010'}, {serviceName: 'K8s interface for Namespace', templateUuid: '00000000000000000000000000000004'},
+      {serviceName: 'K8s interface for Service', templateUuid: '00000000000000000000000000000020'}, {serviceName: 'K8s interface for Pod', templateUuid: '00000000000000000000000000000002'},
+      {serviceName: 'K8s interface for Deployment', templateUuid: '00000000000000000000000000001002'}, {serviceName: 'K8s interface for StatefulSet', templateUuid: '00000000000000000000000000001004'},
+      {serviceName: 'K8s interface for DaemonSet', templateUuid: '00000000000000000000000000001006'}, {serviceName: 'K8s interface for ReplicaSet', templateUuid: '00000000000000000000000000001008'},
+      {serviceName: 'K8s interface for PVC', templateUuid: '00000000000000000000000000000018'}, {serviceName: 'K8s interface for Secret', templateUuid: '00000000000000000000000000000014'},
+      {serviceName: 'K8s interface for Endpoint', templateUuid: '00000000000000000000000000000016'}, {serviceName: 'K8s interface for Configmap', templateUuid: '00000000000000000000000000000006'},
+      {serviceName: 'K8s interface for Ingress', templateUuid: '00000000000000000000000000002002'}, {serviceName: 'K8s interface for Storage Class', templateUuid: '00000000000000000000000000003002'},
+      {serviceName: 'K8s interface for PV', templateUuid: '00000000000000000000000000000012'}, {serviceName: 'K8s interface for Event', templateUuid: '00000000000000000000000000000008'}]
 
-    // scheduleResource - job
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'JO', newCrontab1)
+    for (let es of executeServices) {
+      const result = await this.postExecuteService(
+        es.serviceName,
+        es.serviceName,
+        clusterUuid,
+        es.templateUuid,
+        steps,
+        customerAccountKey,
+        subscribedChannelResource,
+      );
+      if (!result) console.log(result);
+    }
+
+    const resourceType = ['JO','CJ', 'ND', 'NS','SV','EP', 'PD', 'DP', 'DS', 'RS', 'SS', 'PC', 'SE', 'CM', 'PV', 'SC', 'IG', 'EV']
+
+    for (let rt of resourceType) {
+      // scheduleResource - job
+      await this.scheduleResource(clusterUuid, customerAccountKey, rt, newCrontab)
       .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'JO', cronKey: res });
-        console.log(`Submitted resource JO schedule reqeust on ${clusterUuid} cluster successfully`);
+        resourceJobKey.push({ resourceType: rt, cronKey: res });
+        console.log(`Submitted resource ${rt} schedule reqeust on ${clusterUuid} cluster successfully`);
       })
       .catch(error => {
         console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource JO schedule request for clsuter:${clusterUuid}`);
+        console.log(`confirmed the executor/sudory client installed but fail to submit resource ${rt} schedule request for clsuter:${clusterUuid}`);
       }); //end of catch
-
-    // scheduleResource - CronJob
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'CJ', newCrontab1)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'CJ', cronKey: res });
-        console.log(`Submitted resource CJ schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource CJ schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - node
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'ND', newCrontab1)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'ND', cronKey: res });
-        console.log(`Submitted resource ND schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource ND schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - namespace
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'NS', newCrontab2)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'NS', cronKey: res });
-        console.log(`Submitted resource NS schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource NS schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - service
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'SV', newCrontab3)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'SV', cronKey: res });
-        console.log(`Submitted resource SV schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource SV schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - Endpoint
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'EP', newCrontab4)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'EP', cronKey: res });
-        console.log(`Submitted resource EP schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource EP schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - pod
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'PD', newCrontab5)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'PD', cronKey: res });
-        console.log(`Submitted resource PD schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource PD schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - deployment
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'DP', newCrontab6)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'DP', cronKey: res });
-        console.log(`Submitted resource DP schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource DP schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - daemonset
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'DS', newCrontab7)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'DS', cronKey: res });
-        console.log(`Submitted resource DS schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource DS schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - replicaset
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'RS', newCrontab8)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'RS', cronKey: res });
-        console.log(`Submitted resource RS schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource RS schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - statefulset
-    //  await this.scheduleResource(clusterUuid, "SS"
-    this.scheduleResource(clusterUuid, customerAccountKey, 'SS', newCrontab9)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'SS', cronKey: res });
-        console.log(`Submitted resource SS schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource SS schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - pvc
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'PC', newCrontab10)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'PC', cronKey: res });
-        console.log(`Submitted resource PC schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource PC schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - Secret
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'SE', newCrontab11)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'SE', cronKey: res });
-        console.log(`Submitted resource SE schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource SE schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - Configmap
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'CM', newCrontab12)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'CM', cronKey: res });
-        console.log(`Submitted resource CM schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource CM schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - PV
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'PV', newCrontab13)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'PV', cronKey: res });
-        console.log(`Submitted resource PV schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource PV schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - Storage Class
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'SC', newCrontab14)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'SC', cronKey: res });
-        console.log(`Submitted resource SC schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource SC schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - Ingress
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'IG', newCrontab15)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'IG', cronKey: res });
-        console.log(`Submitted resource IG schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource IG schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
-
-    // scheduleResource - Event
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'EV', newCrontab15)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'EV', cronKey: res });
-        console.log(`Submitted resource Event schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource Event schedule request for clsuter:${clusterUuid}`);
-      }); //end of catch
+    }
 
     const responseExecutorClientCheck = { clusterUuid, clientTrueFalse };
     return responseExecutorClientCheck;
@@ -699,7 +354,7 @@ class executorService {
 
   public async initializeAlertEasyRule(customerAccountId: string, resourceGroupUuid: string) {
     console.log('#ALERTEASYRULE - Wait for KPS Install',);
-    await new Promise(resolve => setTimeout(resolve, 60 * 1000));
+    await new Promise(resolve => setTimeout(resolve, 10 * 1000));
 
     const prometheusRules = await this.alertEasyRuleService.getPrometheusRuleSpecs(customerAccountId, resourceGroupUuid)
 
@@ -734,10 +389,194 @@ class executorService {
       try {
         console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
       
-        const getResponse = this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRules);
+        const getResponse = await this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRules);
         console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
       } catch (error) {
         console.log(`#ALERTEASYRULE AlertEasyRule error------${alertEasyRule.alertEasyRuleName}`, error);
+      }
+    }
+  }
+
+  // stack = {name, templateUuid, namespace}
+  public async checkStacks(clusterUuid: string, customerAccountId: string, stacks: any[]): Promise<object> {
+
+    const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    const customerAccountKey = getCustomerAccount.customerAccountKey;
+    const result = {}
+    for (const stack of stacks) {
+      const serviceName = `stack co-${stack.name}`
+      const getTemplateUuid = stack.templateUuid;
+      const getStep = [{ args: { namespace: stack.namespace, name: `co-${stack.name}` } }];
+      const subscribedChannel = config.sudoryApiDetail.channel_webhook;
+      const getStack: any = await this.sudoryService.postSudoryService(
+        serviceName,
+        `check ${serviceName}`,
+        clusterUuid,
+        getTemplateUuid,
+        getStep,
+        customerAccountKey,
+        subscribedChannel,
+      );
+  
+      const sleep = ms => new Promise(res => setTimeout(res, ms));
+      let i;
+      let flag: boolean = false
+      let result = [];
+      for (i = 0; i < 10; i++) {
+        await sleep(1000);
+        if (flag === true) break
+        const getSudoryWebhook: ISudoryWebhook = await this.sudoryWebhook.findOne({
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          where: { serviceUuid: getStack.dataValues.serviceUuid, status: 4 },
+        });
+        
+        if (getSudoryWebhook) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          if (getSudoryWebhook.serviceResult) {
+            let status = 0
+            let resultStatus = JSON.parse(JSON.stringify(getSudoryWebhook.serviceResult)).status
+            switch (getTemplateUuid) {
+            // deployment
+            case `00000000000000000000000000001001`:
+              if (resultStatus.replicas === resultStatus.readyReplicas) status = 1
+              break
+            // statefulset
+            case `00000000000000000000000000001003`:
+              if (resultStatus.replicas === resultStatus.readyReplicas) status = 1
+              break;
+            // daemonset
+            case `00000000000000000000000000001005`:
+              if (resultStatus.desiredNumberScheduled === resultStatus.numberReady) status = 1
+              break;
+            }
+
+            result[`${stack.name}`] = status
+          }
+          
+          flag = true
+        }
+      }
+    }
+
+    return result
+  }
+
+  // stack object = {chartName, chartVersion, targetNamespace}
+  public async installStacks(clusterUuid:string, customerAccountId: string, stacks: any[]) {
+    const webhookChannel = config.sudoryApiDetail.channel_webhook;
+
+    const chartList = await this.exporters.findAll({ where: { exporterType: 'HL' } });
+    let repoUrl = '';
+    let version = '';
+
+    const resultResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
+    if (!resultResourceGroup) throw new HttpException(404, `can't find cluster - clusterUuid: ${clusterUuid}`);
+    const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
+
+    for (let stack of stacks) {
+      const chart = chartList.find((chart: any) => {
+        return chart.exporterHelmChartName === stack.chartName
+      })
+
+      if (!chart) {
+        throw new HttpException(404, `not found helm chart (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName}`)
+      }
+
+      repoUrl = chart.exporterHelmChartRepoUrl;
+      version = chart.exporterHelmChartVersion;
+      if (chart.defaultChartYn === false && stack.chartVersion && stack.chartVersion != chart.exporterHelmChartVersion) {
+        throw new HttpException(400, `unknown helm chart version (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName})`)
+      }
+
+      let values = {}
+
+      switch (stack.chartName) {
+        case "kube-prometheus-stack":
+          values = {
+            prometheus: {
+              extraSecret: {
+                name: 'vmmulti',
+                data: {
+                  username: 'I' + customerAccountId,
+                  password: customerAccountId,
+                },
+              },
+              prometheusSpec: {
+                externalLabels: {
+                  clusterUuid: clusterUuid,
+                  clusterId: clusterUuid,
+                  clusterName: resultResourceGroup.resourceGroupName,
+                },
+                remoteWrite: [
+                  {
+                    url: config.victoriaMetrics.vmMultiAuthUrl + '/api/v1/write',
+                    basicAuth: {
+                      username: {
+                        name: 'vmmulti',
+                        key: 'username',
+                      },
+                      password: {
+                        name: 'vmmulti',
+                        key: 'password',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+            'prometheus-node-exporter': {
+              hostRootFsMount: {
+                enabled: {},
+              },
+            },
+          }
+          if (resourceGroupProvider == 'DD') {
+            values['prometheus-node-exporter'].hostRootFsMount.enabled = false;
+          }
+          break
+        case "loki-stack":
+          values = {}
+          break
+        default:
+          throw new HttpException(404, `unknown chartName (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName}`)
+      }
+
+      let steps: any = [
+        {
+          args: {
+            name: stack.chartName,
+            chart_name: stack.chartName,
+            repo_url: repoUrl,
+            namespace: stack.namespace,
+            chart_version: version,
+            values: values
+          },
+        },
+      ]
+
+      const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+      const customerAccountKey = getCustomerAccount.customerAccountKey;
+
+      const ExecuteName = `Helm Installation ${stack.chartName}`;
+      const templateUuid = '20000000000000000000000000000001';
+      try {
+        const executeKpsHelm = await this.postExecuteService(
+          ExecuteName,
+          ExecuteName,
+          clusterUuid,
+          templateUuid,
+          steps,
+          customerAccountKey,
+          webhookChannel,
+        );
+        if (executeKpsHelm) {
+          console.log(`success to install helm chart (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName})`)
+        }
+
+      } catch (e) {
+        throw new HttpException(500, `failed to install helm chart (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName}, reason: ${e.response}`);
       }
     }
   }
@@ -892,6 +731,9 @@ class executorService {
 
     if (!executeKpsHelm) throw new HttpException(500, `Error on installing kps chart ${clusterUuid}`);
 
+
+
+
     const lokiSteps = [
       {
         args: {
@@ -1022,6 +864,97 @@ class executorService {
     return serviceUuid;
   }
 
+  public async provisionMetricOpsRule(clusterUuid:string, customerAccountId: string) {
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    if (!customerAccountData) {
+      throw new HttpException(404, `not found customerAccount ${customerAccountId}`);
+    }
+    const customerAccountKey = customerAccountData.customerAccountKey
+    const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid: clusterUuid } });
+
+    //provision metricOps rule if the customer has MetricOps subscription
+    const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+    if (findSubscription.length > 0) {
+      const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
+      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+        where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
+      });
+      const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
+      if (findMetricOps) {
+        //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroup.resourceGroupId);
+        //console.log('resultProvision', resultProvision);
+      }
+    }
+  }
+
+  public async registerDefaultScheduler(clusterUuid: string, customerAccountId: string) {
+    const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
+    if (!customerAccountData) {
+      throw new HttpException(404, `not found customerAccount ${customerAccountId}`);
+    }
+
+    const customerAccountKey = customerAccountData.customerAccountKey
+
+    await this.scheduleMetricMeta(clusterUuid, customerAccountKey)
+      .then(async (res: any) => {
+        console.log(`Submitted metric meta feeds schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule MetricMeta ');
+      }); //end of catch
+
+    await this.scheduleAlert(clusterUuid, customerAccountKey)
+      .then(async (res: any) => {
+        console.log(`Submitted alert feeds schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert feeds ');
+      }); //end of catch
+
+    const cronTabforResource = config.resourceCron;
+    await this.scheduleSyncResources(clusterUuid, cronTabforResource)
+      .then(async (res: any) => {
+        console.log(`Submitted resource sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
+      }); //end of catch
+
+    const cronTabforAlert = config.alertCron;
+    await this.scheduleSyncAlerts(clusterUuid, cronTabforAlert)
+      .then(async (res: any) => {
+        console.log(`Submitted Alert sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert sync');
+      }); //end of catch
+
+    const cronTabforMetricMeta = config.metricCron;
+    await this.scheduleSyncMetricMeta(clusterUuid, cronTabforMetricMeta)
+      .then(async (res: any) => {
+        console.log(`Submitted MetricMeta sync schedule reqeust on ${clusterUuid} cluster successfully`);
+      })
+      .catch(error => {
+        console.log(error);
+        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric meta sync');
+      }); //end of catch
+
+    if (config.metricReceivedSwitch === 'on') {
+      const cronTabforMetricReceived = config.metricReceivedCron;
+      await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
+        .then(async (res: any) => {
+          console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
+        })
+        .catch(error => {
+          console.log(error);
+          throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
+        }); //end of catch
+    }
+  }
   /**
    * @param {string} clusterUuid
    * @param {number} customerAccountKey
@@ -1169,7 +1102,6 @@ class executorService {
 
     const resultResourceGroup: IResourceGroupUi = await this.resourceGroupService.getResourceGroupByUuid(clusterUuid);
     if (!resultResourceGroup) throw new HttpException(404, `can't find cluster - clusterUuid: ${clusterUuid}`);
-    const resourceGroupProvider = resultResourceGroup.resourceGroupProvider;
 
     for (let i = 0; i < chartLength; i++) {
       if (
@@ -1241,10 +1173,6 @@ class executorService {
         },
       },
     ];
-
-    if (resourceGroupProvider == 'DD') {
-      kpsSteps[0].args.values['prometheus-node-exporter'].hostRootFsMount.enabled = false;
-    }
 
     const kpsExecuteName = 'KPS Helm Installation';
     const kpsExecuteSummary = 'KPS Helm Installation';
