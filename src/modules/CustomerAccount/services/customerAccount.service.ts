@@ -293,25 +293,20 @@ class CustomerAccountService {
       const summary = 'Update VM Secret';
       const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
       const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
-      const step = [
-        {
-          args: {
-            name: config.victoriaMetrics.vmMultiSecret,
-            namespace: config.victoriaMetrics.vmMultiNamespaces,
-            patch_type: 'json',
-            patch_data: [
-              {
-                op: 'replace',
-                path: '/data/auth.yml',
-                value: base64Auth,
-              },
-            ],
+      const inputs = {
+        name: config.victoriaMetrics.vmMultiSecret,
+        namespace: config.victoriaMetrics.vmMultiNamespaces,
+        patch_type: 'json',
+        patch_data: [
+          {
+            op: 'replace',
+            path: '/data/auth.yml',
+            value: base64Auth,
           },
-        },
-      ];
+        ]
+      }
       const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-      console.log('CUSTOMER# - step', JSON.stringify(step));
-      await this.sudoryService.postSudoryService(sudoryServiceName, summary, clusterUuid, templateUuid, step, customerAccountKey, subscribedChannel);
+      await this.sudoryService.postSudoryServiceV2(sudoryServiceName, summary, clusterUuid, templateUuid, inputs, customerAccountKey, subscribedChannel);
     }
 
     return returnResult;
@@ -558,25 +553,20 @@ class CustomerAccountService {
     const summary = 'Update VM Secret';
     const clusterUuid = config.victoriaMetrics.vmMultiClusterUuid;
     const templateUuid = '00000000000000000000000000000037'; //tmplateUuid will be updated
-    const step = [
-      {
-        args: {
-          name: config.victoriaMetrics.vmMultiSecret,
-          namespace: config.victoriaMetrics.vmMultiNamespaces,
-          patch_type: 'json',
-          patch_data: [
-            {
-              op: 'replace',
-              path: '/data/auth.yml',
-              value: base64Auth,
-            },
-          ],
+    const inputs = {
+      name: config.victoriaMetrics.vmMultiSecret,
+      namespace: config.victoriaMetrics.vmMultiNamespaces,
+      patch_type: 'json',
+      patch_data: [
+        {
+          op: 'replace',
+          path: '/data/auth.yml',
+          value: base64Auth,
         },
-      },
-    ];
+      ]
+    }
     const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-    //console.log('CUSTOMER# - step', JSON.stringify(step));
-    await this.sudoryService.postSudoryService(sudoryServiceName, summary, clusterUuid, templateUuid, step, customerAccountKey, subscribedChannel);
+    await this.sudoryService.postSudoryServiceV2(sudoryServiceName, summary, clusterUuid, templateUuid, inputs, customerAccountKey, subscribedChannel);
 
     const returnMessage = { customerAccountId: customerAccountId };
     return returnMessage;

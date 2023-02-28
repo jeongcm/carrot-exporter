@@ -94,14 +94,14 @@ class healthService {
             const sudoryName = 'sudory_client_rebounce';
             const sudorySummary = 'sudory_client_summary';
             const templateUuid = '99990000000000000000000000000001';
-            const steps = [{ Args: {} }];
+            const inputs = {};
             const subscribed_channel = config.sudoryApiDetail.channel_webhook;
-            const resultSuodryCall = this.sudoryService.postSudoryService(
+            const resultSuodryCall = this.sudoryService.postSudoryServiceV2(
               sudoryName,
               sudorySummary,
               clusterUuid,
               templateUuid,
-              steps,
+              inputs,
               customerAccountKey,
               subscribed_channel,
             );
