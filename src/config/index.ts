@@ -156,6 +156,7 @@ export default {
     pathCreateToken: process.env.SUDORY_PATH_CREATETOKEN || '/server/cluster_token',
     pathSession: process.env.SUDORY_PATH_SESSION || '/server/session',
     pathService: process.env.SUDORY_PATH_SERVICE || '/server/service',
+    pathServiceV2: process.env.SUDORY_PATH_SERVICE_V2 || '/v2/server/service',
     channel_resource: process.env.SUDORY_SUBSCRIBED_CHANNEL_RESOURCE,
     channel_alert: process.env.SUDORY_SUBSCRIBED_CHANNEL_ALERT,
     channel_metric: process.env.SUDORY_SUBSCRIBED_CHANNEL_METRIC,
