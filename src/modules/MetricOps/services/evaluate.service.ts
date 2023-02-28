@@ -629,28 +629,26 @@ class EvaluateServices {
             const end = currentDate2.toISOString().substring(0.19);
             const subscribed_channel = config.sudoryApiDetail.channel_webhook;
             const templateUuid = resolutionAction.sudoryTemplate.sudoryTemplateUuid;
-            let steps = JSON.stringify(resolutionAction.resolutionActionTemplateSteps);
-            steps = steps.replace('#namespace', resourceNamespace);
-            steps = steps.replace('#prometheusurl', prometheusUrl);
-            steps = steps.replace('#resourcename', resultData.resourceName);
-            steps = steps.replace('#name', resultData.resourceName);
-            steps = steps.replace('#pvcname', pvcName);
-            steps = steps.replace('#podname', podName);
-            steps = steps.replace('#nodename', nodeName);
-            steps = steps.replace('#start', start);
-            steps = steps.replace('#end', end);
-            steps = steps.replace('#expandedvolume30%', volumeVal30String);
-            steps = steps.replace('#expandedvolume20%', volumeVal20String);
-            steps = steps.replace('#expandedvolume10%', volumeVal10String);
-            steps = JSON.parse(steps);
-            const stepsEnd = [{ args: steps }];
-            console.log('MOEVAL-STEP8 - ResolutionAction', JSON.stringify(stepsEnd));
-            const serviceOutput: any = await this.executorService.postExecuteService(
+            let inputs = JSON.stringify(resolutionAction.resolutionActionTemplateSteps);
+            inputs = inputs.replace('#namespace', resourceNamespace);
+            inputs = inputs.replace('#prometheusurl', prometheusUrl);
+            inputs = inputs.replace('#resourcename', resultData.resourceName);
+            inputs = inputs.replace('#name', resultData.resourceName);
+            inputs = inputs.replace('#pvcname', pvcName);
+            inputs = inputs.replace('#podname', podName);
+            inputs = inputs.replace('#nodename', nodeName);
+            inputs = inputs.replace('#start', start);
+            inputs = inputs.replace('#end', end);
+            inputs = inputs.replace('#expandedvolume30%', volumeVal30String);
+            inputs = inputs.replace('#expandedvolume20%', volumeVal20String);
+            inputs = inputs.replace('#expandedvolume10%', volumeVal10String);
+            inputs = JSON.parse(inputs);
+            const serviceOutput: any = await this.executorService.postExecuteServiceV2(
               `METRICOPS-${resolutionAction?.resolutionActionName}/:CUST-${customerAccountKey}/:INC-${incidentId}`,
               `INC-${incidentId}`,
               clusterUuid,
               templateUuid,
-              stepsEnd,
+              inputs,
               customerAccountKey,
               subscribed_channel,
             );

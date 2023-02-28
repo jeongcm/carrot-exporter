@@ -726,13 +726,13 @@ class ResourceGroupService {
       const nameKps = 'KPS uninstall';
       const summaryKps = 'KPS uninstall';
       const templateUuidKps = '20000000000000000000000000000002';
-      const stepsKps = [{ args: { name: 'kps', namespace: kpsLokiNamespace } }];
-      const resultUninstallKps = await this.sudoryService.postSudoryService(
+      const inputsKps = { name: 'kps', namespace: kpsLokiNamespace };
+      const resultUninstallKps = await this.sudoryService.postSudoryServiceV2(
         nameKps,
         summaryKps,
         resourceGroupUuid,
         templateUuidKps,
-        stepsKps,
+        inputsKps,
         customerAccountKey,
         sudoryChannel,
       );
@@ -742,13 +742,13 @@ class ResourceGroupService {
       const nameLoki = 'Loki uninstall';
       const summaryLoki = 'Loki uninstall';
       const templateUuidLoki = '20000000000000000000000000000002';
-      const stepsLoki = [{ args: { name: 'loki', namespace: kpsLokiNamespace } }];
-      const resultUninstallLoki = await this.sudoryService.postSudoryService(
+      const inputsLoki = { name: 'loki', namespace: kpsLokiNamespace };
+      const resultUninstallLoki = await this.sudoryService.postSudoryServiceV2(
         nameLoki,
         summaryLoki,
         resourceGroupUuid,
         templateUuidLoki,
-        stepsLoki,
+        inputsLoki,
         customerAccountKey,
         sudoryChannel,
       );
@@ -872,11 +872,11 @@ class ResourceGroupService {
         //7. billing interface - to be coded
 
         //8. sudoryclient?
-        const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+        const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
         const nameSudoryClient = 'sudory uninstall';
         const summarySudoryClient = 'sudory uninstall';
         const helmUninstallTemplateUuid = '20000000000000000000000000000002';
-        const steps = [{ args: { name: 'sudory', namespace: sudoryNamespace } }];
+        const inputs = { name: 'sudory', namespace: sudoryNamespace };
         const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
         const scheduleFromSudoryClient = new Date().toISOString();
         const currentTime = new Date();
@@ -893,7 +893,7 @@ class ResourceGroupService {
             template_uuid: helmUninstallTemplateUuid,
             cluster_uuid: resourceGroupUuid,
             on_completion: on_completion,
-            steps: steps,
+            inputs: inputs,
             subscribed_channel: sudoryChannel,
           },
           cronTab: '*/5 * * * *',

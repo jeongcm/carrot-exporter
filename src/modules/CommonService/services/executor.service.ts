@@ -302,13 +302,9 @@ class executorService {
 
     const newCrontab = resourceCron;
 
-    const steps = [
-      {
-        args: {
-          labels: {},
-        },
-      },
-    ];
+    const inputs = {
+      labels: {}
+    }
 
     const executeServices = [{serviceName: 'K8s interface for Job', templateUuid: '00000000000000000000000000005002'}, {serviceName: 'K8s interface for CronJob', templateUuid: '00000000000000000000000000005003'},
      {serviceName: 'K8s interface for Node', templateUuid: '00000000000000000000000000000010'}, {serviceName: 'K8s interface for Namespace', templateUuid: '00000000000000000000000000000004'},
@@ -321,12 +317,12 @@ class executorService {
       {serviceName: 'K8s interface for PV', templateUuid: '00000000000000000000000000000012'}, {serviceName: 'K8s interface for Event', templateUuid: '00000000000000000000000000000008'}]
 
     for (let es of executeServices) {
-      const result = await this.postExecuteService(
+      const result = await this.postExecuteServiceV2(
         es.serviceName,
         es.serviceName,
         clusterUuid,
         es.templateUuid,
-        steps,
+        inputs,
         customerAccountKey,
         subscribedChannelResource,
       );
@@ -406,14 +402,14 @@ class executorService {
     for (const stack of stacks) {
       const serviceName = `stack co-${stack.name}`
       const getTemplateUuid = stack.templateUuid;
-      const getStep = [{ args: { namespace: stack.namespace, name: `co-${stack.name}` } }];
+      const getInputs = { namespace: stack.namespace, name: `co-${stack.name}` };
       const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-      const getStack: any = await this.sudoryService.postSudoryService(
+      const getStack: any = await this.sudoryService.postSudoryServiceV2(
         serviceName,
         `check ${serviceName}`,
         clusterUuid,
         getTemplateUuid,
-        getStep,
+        getInputs,
         customerAccountKey,
         subscribedChannel,
       );
@@ -543,18 +539,14 @@ class executorService {
           throw new HttpException(404, `unknown chartName (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName}`)
       }
 
-      let steps: any = [
-        {
-          args: {
-            name: stack.chartName,
-            chart_name: stack.chartName,
-            repo_url: repoUrl,
-            namespace: stack.namespace,
-            chart_version: version,
-            values: values
-          },
-        },
-      ]
+      let inputs: any = {
+        name: stack.chartName,
+        chart_name: stack.chartName,
+        repo_url: repoUrl,
+        namespace: stack.namespace,
+        chart_version: version,
+        values: values
+      }
 
       const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
       const customerAccountKey = getCustomerAccount.customerAccountKey;
@@ -562,12 +554,12 @@ class executorService {
       const ExecuteName = `Helm Installation ${stack.chartName}`;
       const templateUuid = '20000000000000000000000000000001';
       try {
-        const executeKpsHelm = await this.postExecuteService(
+        const executeKpsHelm = await this.postExecuteServiceV2(
           ExecuteName,
           ExecuteName,
           clusterUuid,
           templateUuid,
-          steps,
+          inputs,
           customerAccountKey,
           webhookChannel,
         );
@@ -662,69 +654,65 @@ class executorService {
     }
     const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
     const customerAccountId = getCustomerAccount.customerAccountId;
-    const kpsSteps = [
-      {
-        args: {
-          name: 'kps',
-          chart_name: kpsChartName,
-          repo_url: kpsChartRepoUrl,
-          namespace: targetNamespace,
-          chart_version: kpsChartVersionNew,
-          values: {
-            prometheus: {
-              extraSecret: {
-                name: 'vmmulti',
-                data: {
-                  username: 'I' + customerAccountId,
-                  password: customerAccountId,
-                },
-              },
-              prometheusSpec: {
-                externalLabels: {
-                  clusterUuid: clusterUuid,
-                  clusterId: clusterUuid,
-                  clusterName: resultResourceGroup.resourceGroupName,
-                },
-                remoteWrite: [
-                  {
-                    url: config.victoriaMetrics.vmMultiAuthUrl + '/api/v1/write',
-                    basicAuth: {
-                      username: {
-                        name: 'vmmulti',
-                        key: 'username',
-                      },
-                      password: {
-                        name: 'vmmulti',
-                        key: 'password',
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-            'prometheus-node-exporter': {
-              hostRootFsMount: {
-                enabled: {},
-              },
+    const kpsInputs = {
+      name: 'kps',
+      chart_name: kpsChartName,
+      repo_url: kpsChartRepoUrl,
+      namespace: targetNamespace,
+      chart_version: kpsChartVersionNew,
+      values: {
+        prometheus: {
+          extraSecret: {
+            name: 'vmmulti',
+            data: {
+              username: 'I' + customerAccountId,
+              password: customerAccountId,
             },
           },
+          prometheusSpec: {
+            externalLabels: {
+              clusterUuid: clusterUuid,
+              clusterId: clusterUuid,
+              clusterName: resultResourceGroup.resourceGroupName,
+            },
+            remoteWrite: [
+              {
+                url: config.victoriaMetrics.vmMultiAuthUrl + '/api/v1/write',
+                basicAuth: {
+                  username: {
+                    name: 'vmmulti',
+                    key: 'username',
+                  },
+                  password: {
+                    name: 'vmmulti',
+                    key: 'password',
+                  },
+                },
+              },
+            ],
+          },
         },
-      },
-    ];
+        'prometheus-node-exporter': {
+          hostRootFsMount: {
+            enabled: {},
+          },
+        },
+      }
+    }
 
     if (resourceGroupProvider == 'DD') {
-      kpsSteps[0].args.values['prometheus-node-exporter'].hostRootFsMount.enabled = false;
+      kpsInputs[0].args.values['prometheus-node-exporter'].hostRootFsMount.enabled = false;
     }
-    console.log('kps-step--------', JSON.stringify(kpsSteps));
+    console.log('kps-step--------', JSON.stringify(kpsInputs));
     const kpsExecuteName = 'KPS Helm Instllation';
     const kpsExecuteSummary = 'KPS Helm Installation';
     const kpsTemplateUuid = '20000000000000000000000000000001';
-    const executeKpsHelm = this.postExecuteService(
+    const executeKpsHelm = this.postExecuteServiceV2(
       kpsExecuteName,
       kpsExecuteSummary,
       clusterUuid,
       kpsTemplateUuid,
-      kpsSteps,
+      kpsInputs,
       customerAccountKey,
       webhookChannel,
     );
@@ -734,34 +722,30 @@ class executorService {
 
 
 
-    const lokiSteps = [
-      {
-        args: {
-          name: 'loki',
-          chart_name: lokiChartName,
-          repo_url: lokiChartRepoUrl,
-          namespace: targetNamespace,
-          chart_version: lokiChartVersionNew,
-          values: {},
-        },
-      },
-    ];
+    const lokiInputs = {
+      name: 'loki',
+      chart_name: lokiChartName,
+      repo_url: lokiChartRepoUrl,
+      namespace: targetNamespace,
+      chart_version: lokiChartVersionNew,
+      values: {}
+    }
     /*
     const lokiExecuteName = 'Loki-Promtail Helm Instllation';
     const lokiExecuteSummary = 'Loki-Promtail Helm Installation';
     const lokiTemplateUuid = '20000000000000000000000000000001';
-    const executeLokiHelm = this.postExecuteService(
+    const executeLokiHelm = this.postExecuteServiceV2(
       lokiExecuteName,
       lokiExecuteSummary,
       clusterUuid,
       lokiTemplateUuid,
-      lokiSteps,
+      lokiInputs,
       customerAccountKey,
       webhookChannel,
     );
     console.log(executeLokiHelm);
 */
-    await this.scheduleLokiInstall(lokiSteps, clusterUuid, customerAccountId);
+    await this.scheduleLokiInstall(lokiInputs, clusterUuid, customerAccountId);
     console.log('########### schedule Loki chart installation');
 
     // update ResourceGroup - resourceGroupPrometheus
@@ -999,23 +983,23 @@ class executorService {
     const resultPM = await this.resourceService.uploadResourcePM(customerAccountKey, uploadPMQuery)
     if (!resultPM) {console.log(resultPM)}
 
-    const resultPJ = await this.postExecuteService(
+    const resultPJ = await this.postExecuteServiceV2(
       'openstack interface for PJList',
       'openstack interface for PJList',
       clusterUuid,
       '50000000000000000000000000000002',
-      [{args: {credential_key: "openstack_token_0",}}],
+      { credential_key: "openstack_token_0" },
       customerAccountKey,
       subscribedChannelResource,
     );
     if (!resultPJ) console.log(resultPJ);
 
-    const resultVM = await this.postExecuteService(
+    const resultVM = await this.postExecuteServiceV2(
       'openstack interface for VMList',
       'openstack interface for VMList',
       clusterUuid,
       '50000000000000000000000000000004',
-      [{args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3"}}],
+      { credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3" },
       customerAccountKey,
       subscribedChannelResource,
     );
@@ -1124,65 +1108,61 @@ class executorService {
     }
     const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountKey, deletedAt: null } });
     const customerAccountId = getCustomerAccount.customerAccountId;
-    const kpsSteps = [
-      {
-        args: {
-          name: 'kps',
-          chart_name: kpsChartName,
-          repo_url: kpsChartRepoUrl,
-          namespace: targetNamespace,
-          chart_version: kpsChartVersionNew,
-          values: {
-            prometheus: {
-              extraSecret: {
-                name: 'vmmulti',
-                data: {
-                  username: 'I' + customerAccountId,
-                  password: customerAccountId,
-                },
-              },
-              prometheusSpec: {
-                externalLabels: {
-                  clusterUuid: clusterUuid,
-                  clusterId: clusterUuid,
-                  clusterName: resultResourceGroup.resourceGroupName,
-                },
-                remoteWrite: [
-                  {
-                    url: config.victoriaMetrics.vmMultiAuthUrl + '/api/v1/write',
-                    basicAuth: {
-                      username: {
-                        name: 'vmmulti',
-                        key: 'username',
-                      },
-                      password: {
-                        name: 'vmmulti',
-                        key: 'password',
-                      },
-                    },
-                  },
-                ],
-              },
-            },
-            'prometheus-node-exporter': {
-              hostRootFsMount: {
-                enabled: {},
-              },
+    const kpsInputs = {
+      name: 'kps',
+      chart_name: kpsChartName,
+      repo_url: kpsChartRepoUrl,
+      namespace: targetNamespace,
+      chart_version: kpsChartVersionNew,
+      values: {
+        prometheus: {
+          extraSecret: {
+            name: 'vmmulti',
+            data: {
+              username: 'I' + customerAccountId,
+              password: customerAccountId,
             },
           },
+          prometheusSpec: {
+            externalLabels: {
+              clusterUuid: clusterUuid,
+              clusterId: clusterUuid,
+              clusterName: resultResourceGroup.resourceGroupName,
+            },
+            remoteWrite: [
+              {
+                url: config.victoriaMetrics.vmMultiAuthUrl + '/api/v1/write',
+                basicAuth: {
+                  username: {
+                    name: 'vmmulti',
+                    key: 'username',
+                  },
+                  password: {
+                    name: 'vmmulti',
+                    key: 'password',
+                  },
+                },
+              },
+            ],
+          },
         },
-      },
-    ];
+        'prometheus-node-exporter': {
+          hostRootFsMount: {
+            enabled: {},
+          },
+        },
+      }
+    }
 
     const kpsExecuteName = 'KPS Helm Installation';
     const kpsExecuteSummary = 'KPS Helm Installation';
     const kpsTemplateUuid = '20000000000000000000000000000001';
-    const executeKpsHelm = this.postExecuteService(
+    const executeKpsHelm = this.postExecuteServiceV2(
       kpsExecuteName,
       kpsExecuteSummary,
       clusterUuid,
       kpsTemplateUuid,
-      kpsSteps,
+      kpsInputs,
       customerAccountKey,
       webhookChannel,
     );
@@ -1453,7 +1433,7 @@ class executorService {
     let service_summary = '';
     let argsData;
 
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
 
     const resourceType = resourceInputData.resourceType;
     const clusterUuid = resourceInputData.clusterUuid;
@@ -1803,11 +1783,10 @@ class executorService {
       template_uuid: template_uuid,
       summary: service_summary,
       subscribe_channel: '',
-      steps: [],
+      inputs: {},
     };
     console.log(argsData);
-    argsData = { args: argsData };
-    sudoryServiceData.steps.push(argsData);
+    sudoryServiceData.inputs = argsData
     console.log(sudoryServiceData);
     await axios({
       method: 'post',
@@ -1835,7 +1814,7 @@ class executorService {
 
   public async scheduleMetricMeta(clusterUuid: string, customerAccountKey: number): Promise<object> {
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090";
     const subscribe_channel = config.sudoryApiDetail.channel_metric;
     //get customerAccountId
@@ -1868,16 +1847,12 @@ class executorService {
         summary: 'Get MetricMeta',
         subscribed_channel: subscribe_channel,
         on_completion: on_completion,
-        steps: [
-          {
-            args: {
-              url: prometheus,
-              match_target: '',
-              metric: '',
-              limit: '',
-            },
-          },
-        ],
+        inputs: {
+          url: prometheus,
+          match_target: '',
+          metric: '',
+          limit: ''
+        },
       },
     };
 
@@ -1894,7 +1869,7 @@ class executorService {
 
   public async scheduleAlert(clusterUuid: string, customerAccountKey: number): Promise<object> {
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     const subscribed_channel = config.sudoryApiDetail.channel_alert;
 
     //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090";
@@ -1928,13 +1903,9 @@ class executorService {
         summary: 'Get Alert Rules & Alert Received',
         subscribed_channel: subscribed_channel,
         on_completion: on_completion,
-        steps: [
-          {
-            args: {
-              url: prometheus,
-            },
-          },
-        ],
+        inputs: {
+          url: prometheus
+        },
       },
     };
 
@@ -1950,7 +1921,7 @@ class executorService {
    */
   public async scheduleResource(clusterUuid: string, customerAccountKey: number, resourceType: string, newCrontab: string): Promise<object> {
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    let executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    let executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     const subscribed_channel = config.sudoryApiDetail.channel_resource;
 
     //get customerAccountId
@@ -1995,7 +1966,7 @@ class executorService {
       throw new HttpException(404, 'not supported resourceType');
     }
 
-    const steps = [];
+    const inputs = {};
 
     const template_uuid = selectedTemplate.template_uuid;
     let scheduleName = 'K8s interface for ' + selectedTemplate.resourceName;
@@ -2008,8 +1979,7 @@ class executorService {
       summary: scheduleSummary,
       subscribed_channel: subscribed_channel,
       on_completion: on_completion,
-      steps: [
-      ]
+      inputs: {}
     }
 
     switch (selectedTemplate.resourceType) {
@@ -2037,19 +2007,19 @@ class executorService {
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
       apiBody.name = scheduleName,
       apiBody.summary = scheduleSummary,
-      apiBody.steps.push({args: {credential_key: "openstack_token_0"}})
+      apiBody.inputs = { credential_key: "openstack_token_0" }
       break;
     case "VM":
       scheduleName = 'OS interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'OS interface for ' + selectedTemplate.resourceName;
       apiBody.name = scheduleName,
       apiBody.summary = scheduleSummary,
-      apiBody.steps.push({args: {credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3"}})
+      apiBody.inputs = { credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3" }
       break;
     default:
       scheduleName = 'K8S interface for ' + selectedTemplate.resourceName;
       scheduleSummary = 'K8S interface for ' + selectedTemplate.resourceName;
-      apiBody.steps.push({ args: { labels: {}, }})
+      apiBody.inputs = { labels: {} }
     }
 
     const cronData = {
@@ -2077,7 +2047,7 @@ class executorService {
    */
   public async scheduleMetricReceived(clusterUuid: string, customerAccountKey: number): Promise<object> {
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     const subscribed_channel = config.sudoryApiDetail.channel_metric_received;
     //const prometheus = "http://kps-kube-prometheus-stack-prometheus." + targetNamespace + ".svc.cluster.local:9090";
     let cronData;
@@ -2125,14 +2095,11 @@ class executorService {
           summary: matricSummary,
           subscribed_channel: subscribed_channel,
           on_completion: on_completion,
-          steps: [
-            {
-              args: {
-                url: prometheus,
-                query: matricQuery,
-              },
-            },
-          ],
+          inputs: {
+            url: prometheus,
+            query: matricQuery
+          },
+            
         },
       };
 
@@ -2262,8 +2229,8 @@ class executorService {
    * @param {string} clusterUuid
    * @param {string} cronTab
    */
-  public async scheduleLokiInstall(steps: object, clusterUuid: string, customerAccountId: string): Promise<object> {
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+  public async scheduleLokiInstall(inputs: object, clusterUuid: string, customerAccountId: string): Promise<object> {
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     const scheduleFrom = new Date().toISOString();
     const currentTime = new Date();
     currentTime.setMinutes(currentTime.getMinutes() + 5);
@@ -2280,7 +2247,7 @@ class executorService {
         template_uuid: '20000000000000000000000000000001',
         cluster_uuid: clusterUuid,
         on_completion: parseInt(config.sudoryApiDetail.service_result_delete),
-        steps: steps,
+        inputs: inputs,
         subscribed_channel: config.sudoryApiDetail.channel_webhook,
       },
       cronTab: '*/3 * * * *',
@@ -2305,7 +2272,7 @@ class executorService {
     let targetJobDb = [];
     const targetJobCron = [];
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     const subscribed_channel = config.sudoryApiDetail.channel_metric_received;
     const cronJobKey = [];
     const cronJobKey_new = [];
@@ -2388,14 +2355,10 @@ class executorService {
           summary: metricSummary,
           subscribed_channel: subscribed_channel,
           on_completion: on_completion,
-          steps: [
-            {
-              args: {
-                url: prometheus,
-                query: metricQuery,
-              },
-            },
-          ],
+          steps: {
+            url: prometheus,
+            query: metricQuery
+          },
         },
       };
       const resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId);
@@ -2430,7 +2393,7 @@ class executorService {
     //0. Preparation
     const targetJobCron = [];
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     const subscribed_channel = config.sudoryApiDetail.channel_resource;
     const cronJobKey = [];
 
@@ -2546,13 +2509,9 @@ class executorService {
           summary: summary,
           subscribed_channel: subscribed_channel,
           on_completion: on_completion,
-          steps: [
-            {
-              args: {
-                labels: {},
-              },
-            },
-          ],
+          inputs: {
+            labels: {}
+          },
         },
       };
 
@@ -2572,7 +2531,7 @@ class executorService {
     const targetJobCron = [];
     const cronJobKey = [];
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     const subscribed_channel = config.sudoryApiDetail.channel_alert;
 
     const targetJobDb = ['Get Alert Rules & Alert Received'];
@@ -2636,13 +2595,9 @@ class executorService {
           summary: summary,
           subscribed_channel: subscribed_channel,
           on_completion: on_completion,
-          steps: [
-            {
-              args: {
-                url: prometheus,
-              },
-            },
-          ],
+          inputs:{
+            url: prometheus
+          },
         },
       };
 
@@ -2662,7 +2617,7 @@ class executorService {
     const targetJobCron = [];
     const cronJobKey = [];
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathService;
+    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     const subscribed_channel = config.sudoryApiDetail.channel_metric;
 
     const targetJobDb = ['Get MetricMeta'];
@@ -2726,16 +2681,12 @@ class executorService {
           summary: summary,
           subscribed_channel: subscribed_channel,
           on_completion: on_completion,
-          steps: [
-            {
-              args: {
-                url: prometheus,
-                match_target: '',
-                metric: '',
-                limit: '',
-              },
-            },
-          ],
+          inputs: {
+            url: prometheus,
+            match_target: '',
+            metric: '',
+            limit: ''
+          },
         },
       };
 
@@ -2901,7 +2852,7 @@ class executorService {
     const summary = 'postMetricReqeust for Incident Attachment';
     let templateUuid = '';
     //let url = "http://kps-kube-prometheus-stack-prometheus.monitor.svc.cluster.local:9090";
-    let steps;
+    let inputs;
     const start = new Date();
     start.setHours(start.getHours() - 1);
     const startString = start.toISOString();
@@ -2914,12 +2865,12 @@ class executorService {
 
     if (queryType == 'range') {
       templateUuid = '10000000000000000000000000000002';
-      steps = [{ args: { url: url, query: stepQuery, start: startString, end: endString, step: '15s' } }];
+      inputs = { url: url, query: stepQuery, start: startString, end: endString, step: '15s' };
     } else {
       templateUuid = '10000000000000000000000000000001';
-      steps = [{ args: { url: url, query: query } }];
+      inputs = { url: url, query: query };
     }
-    const postMetricRequest = await this.postExecuteService(name, summary, clusterUuid, templateUuid, steps, customerAccountKey, sudoryChannel);
+    const postMetricRequest = await this.postExecuteServiceV2(name, summary, clusterUuid, templateUuid, inputs, customerAccountKey, sudoryChannel);
     return postMetricRequest;
   }
 

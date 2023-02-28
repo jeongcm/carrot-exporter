@@ -153,14 +153,14 @@ class AlertEasyRuleService {
       const sudorySummary = 'getPrometheusRule';
       const clusterUuid = resourceGroupUuid;
       const getTemplateUuid = '00000000000000000000000000004003';
-      const getStep = [{ args: { name: prometheusRuleGroupName, namespace: prometheusNamespace } }];
+      const getInputs = { name: prometheusRuleGroupName, namespace: prometheusNamespace };
       const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-      const getPrometheusRule = await this.sudoryService.postSudoryService(
+      const getPrometheusRule = await this.sudoryService.postSudoryServiceV2(
         sudorySName,
         sudorySummary,
         clusterUuid,
         getTemplateUuid,
-        getStep,
+        getInputs,
         customerAccountKey,
         subscribedChannel,
       );
@@ -170,7 +170,7 @@ class AlertEasyRuleService {
       let maxIndexRuleGroup;
       let maxIndexRules;
       let getSudoryWebhook: ISudoryWebhook;
-      let step = [];
+      let inputs = {};
       const sudoryServiceName = 'Patch Prometheus Rule';
       const summary = 'Patch Prometheus Rule';
       const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
@@ -207,74 +207,66 @@ class AlertEasyRuleService {
       if (getSudoryWebhook) {
         if (i === 101 && indexRules > 0) {
           // step 2-2 provision a brand new alert
-          step = [
-            {
-              args: {
-                name: prometheusRuleGroupName,
-                namespace: prometheusNamespace,
-                patch_type: 'json',
-                patch_data: [
-                  {
-                    path: `/spec/groups/${maxIndexRuleGroup}/rules/${maxIndexRules}`,
-                    op: 'add',
-                    value: {
-                      alert: alertEasyRule.alertEasyRuleName,
-                      for: alertEasyRule.alertEasyRuleDuration,
-                      labels: { severity: alertEasyRule.alertEasyRuleSeverity },
-                      expr: alertEasyRuleQuery,
-                      annotations: { description: alertEasyRuleDescription, summary: alertEasyRule.alertEasyRuleSummary },
-                    },
-                  },
-                ],
+          inputs = {
+            name: prometheusRuleGroupName,
+            namespace: prometheusNamespace,
+            patch_type: 'json',
+            patch_data: [
+              {
+                path: `/spec/groups/${maxIndexRuleGroup}/rules/${maxIndexRules}`,
+                op: 'add',
+                value: {
+                  alert: alertEasyRule.alertEasyRuleName,
+                  for: alertEasyRule.alertEasyRuleDuration,
+                  labels: { severity: alertEasyRule.alertEasyRuleSeverity },
+                  expr: alertEasyRuleQuery,
+                  annotations: { description: alertEasyRuleDescription, summary: alertEasyRule.alertEasyRuleSummary },
+                },
               },
-            },
-          ];
+            ]
+          }
         } else {
           // step 2-3 provision alert update
-          step = [
-            {
-              args: {
-                name: prometheusRuleGroupName,
-                namespace: prometheusNamespace,
-                patch_type: 'json',
-                patch_data: [
-                  {
-                    path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/for`,
-                    op: 'replace',
-                    value: alertEasyRule.alertEasyRuleDuration,
-                  },
-                  {
-                    path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/labels/severity`,
-                    op: 'replace',
-                    value: alertEasyRule.alertEasyRuleSeverity,
-                  },
-                  {
-                    path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/expr`,
-                    op: 'replace',
-                    value: alertEasyRuleQuery,
-                  },
-                  {
-                    path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/description`,
-                    op: 'replace',
-                    value: alertEasyRuleDescription,
-                  },
-                  {
-                    path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/summary`,
-                    op: 'replace',
-                    value: alertEasyRule.alertEasyRuleSummary,
-                  },
-                ],
+          inputs = {
+            name: prometheusRuleGroupName,
+            namespace: prometheusNamespace,
+            patch_type: 'json',
+            patch_data: [
+              {
+                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/for`,
+                op: 'replace',
+                value: alertEasyRule.alertEasyRuleDuration,
               },
-            },
-          ];
+              {
+                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/labels/severity`,
+                op: 'replace',
+                value: alertEasyRule.alertEasyRuleSeverity,
+              },
+              {
+                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/expr`,
+                op: 'replace',
+                value: alertEasyRuleQuery,
+              },
+              {
+                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/description`,
+                op: 'replace',
+                value: alertEasyRuleDescription,
+              },
+              {
+                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/summary`,
+                op: 'replace',
+                value: alertEasyRule.alertEasyRuleSummary,
+              },
+            ]
+          }
         }
 
-        await this.sudoryService.postSudoryService(
+        await this.sudoryService.postSudoryServiceV2(
           sudoryServiceName,
           summary,
           clusterUuid,
           templateUuid,
-          step,
+          inputs,
           customerAccountKey,
           subscribedChannel,
         );
@@ -628,7 +620,7 @@ class AlertEasyRuleService {
 
     // alertEasyRuleSeverity
 
-    let step = [];
+    let inputs = {};
     let indexRuleGroup;
     let indexRules = 0;
     let maxIndexRuleGroup;
@@ -640,10 +632,10 @@ class AlertEasyRuleService {
     const sudorySummary = 'getPrometheusRule';
     const clusterUuid = resourceGroupUuid;
     const getTemplateUuid = '00000000000000000000000000004003';
-    const getStep = [{ args: { name: prometheusRuleGroupName, namespace: prometheusNamespace } }];
+    const getStep = { name: prometheusRuleGroupName, namespace: prometheusNamespace };
 
     //Step 2-2 Get Prometheus Rule
-    const getPrometheusRule = await this.sudoryService.postSudoryService(
+    const getPrometheusRule = await this.sudoryService.postSudoryServiceV2(
       sudorySName,
       sudorySummary,
       clusterUuid,
@@ -686,80 +678,72 @@ class AlertEasyRuleService {
 
     if (i === 101 && indexRules > 0) {
       //no severity change & found alert rule... need to update the rule
-      step = [
-        {
-          args: {
-            name: prometheusRuleGroupName,
-            namespace: prometheusNamespace,
-            patch_type: 'json',
-            patch_data: [
-              {
-                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/for`,
-                op: 'replace',
-                value: alertEasyRuleDuration,
-              },
-              {
-                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/labels/severity`,
-                op: 'replace',
-                value: alertEasyRuleSeverity,
-              },
-              {
-                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/expr`,
-                op: 'replace',
-                value: alertEasyRuleQuery,
-              },
-              {
-                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/description`,
-                op: 'replace',
-                value: alertEasyRuleDescription,
-              },
-              {
-                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/summary`,
-                op: 'replace',
-                value: alertEasyRuleSummary,
-              },
-            ],
+      inputs = {
+        name: prometheusRuleGroupName,
+        namespace: prometheusNamespace,
+        patch_type: 'json',
+        patch_data: [
+          {
+            path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/for`,
+            op: 'replace',
+            value: alertEasyRuleDuration,
           },
-        },
-      ];
+          {
+            path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/labels/severity`,
+            op: 'replace',
+            value: alertEasyRuleSeverity,
+          },
+          {
+            path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/expr`,
+            op: 'replace',
+            value: alertEasyRuleQuery,
+          },
+          {
+            path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/description`,
+            op: 'replace',
+            value: alertEasyRuleDescription,
+          },
+          {
+            path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/summary`,
+            op: 'replace',
+            value: alertEasyRuleSummary,
+          },
+        ]
+      }
       console.log('step1-update indexRules', indexRules);
       console.log('step1-update maxIndexRules', maxIndexRules);
-      console.log('step1-update', JSON.stringify(step));
+      console.log('step1-update', JSON.stringify(inputs));
     } else {
       // otherwise need to create the new one
-      step = [
-        {
-          args: {
-            name: prometheusRuleGroupName,
-            namespace: prometheusNamespace,
-            patch_type: 'json',
-            patch_data: [
-              {
-                path: `/spec/groups/${maxIndexRuleGroup}/rules/${maxIndexRules}`,
-                op: 'add',
-                value: {
-                  alert: alertEasyRuleName,
-                  for: alertEasyRuleDuration,
-                  labels: { severity: alertEasyRuleSeverity },
-                  expr: alertEasyRuleQuery,
-                  annotations: { description: alertEasyRuleDescription, summary: alertEasyRuleSummary },
-                },
-              },
-            ],
+      inputs = {
+        name: prometheusRuleGroupName,
+        namespace: prometheusNamespace,
+        patch_type: 'json',
+        patch_data: [
+          {
+            path: `/spec/groups/${maxIndexRuleGroup}/rules/${maxIndexRules}`,
+            op: 'add',
+            value: {
+              alert: alertEasyRuleName,
+              for: alertEasyRuleDuration,
+              labels: { severity: alertEasyRuleSeverity },
+              expr: alertEasyRuleQuery,
+              annotations: { description: alertEasyRuleDescription, summary: alertEasyRuleSummary },
+            },
           },
-        },
-      ];
+        ]
+      }
       console.log('step1-add maxIndexRules', maxIndexRules);
-      console.log('step1-add', JSON.stringify(step));
+      console.log('step1-add', JSON.stringify(inputs));
     }
 
     //Step 2-4 Patch Prometheus Rule
-    await this.sudoryService.postSudoryService(
+    await this.sudoryService.postSudoryServiceV2(
       sudoryServiceName,
       summary,
       resourceGroupUuid,
       templateUuid,
-      step,
+      inputs,
       customerAccountKey,
       subscribedChannel,
     );
@@ -830,14 +814,14 @@ class AlertEasyRuleService {
     const sudorySummary = 'getPrometheusRules';
     const clusterUuid = findResourceGroup.resourceGroupUuid;
     const getTemplateUuid = '00000000000000000000000000004004';
-    const getStep = [{ args: { namespace: prometheusNamespace } }];
+    const getInputs = { namespace: prometheusNamespace };
     const subscribedChannel = config.sudoryApiDetail.channel_webhook;
-    const getPrometheusRuleList: any = await this.sudoryService.postSudoryService(
+    const getPrometheusRuleList: any = await this.sudoryService.postSudoryServiceV2(
       sudorySName,
       sudorySummary,
       clusterUuid,
       getTemplateUuid,
-      getStep,
+      getInputs,
       customerAccountKey,
       subscribedChannel,
     );
@@ -983,73 +967,65 @@ class AlertEasyRuleService {
     const summary = 'Patch Prometheus Rule';
     const templateUuid = '00000000000000000000000000004016'; //tmplateUuid will be updated - patch PrometheusRule
 
-    let step = [];
+    let inputs = {};
 
     if (!findAlertRule) {
       // step 2-2 provision a brand new alert
-      step = [
-        {
-          args: {
-            name: prometheusRuleGroupName,
-            namespace: prometheusNamespace,
-            patch_type: 'json',
-            patch_data: [
-              {
-                path: `/spec/groups/${maxIndexRuleGroup}/rules/${maxIndexRules}`,
-                op: 'add',
-                value: {
-                  alert: alertEasyRule.alertEasyRuleName,
-                  for: alertEasyRule.alertEasyRuleDuration,
-                  labels: { severity: alertEasyRule.alertEasyRuleSeverity },
-                  expr: alertEasyRuleQuery,
-                  annotations: { description: alertEasyRuleDescription, summary: alertEasyRule.alertEasyRuleSummary },
-                },
-              },
-            ],
+      inputs = {
+        name: prometheusRuleGroupName,
+        namespace: prometheusNamespace,
+        patch_type: 'json',
+        patch_data: [
+          {
+            path: `/spec/groups/${maxIndexRuleGroup}/rules/${maxIndexRules}`,
+            op: 'add',
+            value: {
+              alert: alertEasyRule.alertEasyRuleName,
+              for: alertEasyRule.alertEasyRuleDuration,
+              labels: { severity: alertEasyRule.alertEasyRuleSeverity },
+              expr: alertEasyRuleQuery,
+              annotations: { description: alertEasyRuleDescription, summary: alertEasyRule.alertEasyRuleSummary },
+            },
           },
-        },
-      ];
+        ]
+      }
     } else {
       // step 2-3 provision alert update
-      step = [
-        {
-          args: {
-            name: prometheusRuleGroupName,
-            namespace: prometheusNamespace,
-            patch_type: 'json',
-            patch_data: [
-              {
-                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/for`,
-                op: 'replace',
-                value: alertEasyRule.alertEasyRuleDuration,
-              },
-              {
-                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/labels/severity`,
-                op: 'replace',
-                value: alertEasyRule.alertEasyRuleSeverity,
-              },
-              {
-                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/expr`,
-                op: 'replace',
-                value: alertEasyRuleQuery,
-              },
-              {
-                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/description`,
-                op: 'replace',
-                value: alertEasyRuleDescription,
-              },
-              {
-                path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/summary`,
-                op: 'replace',
-                value: alertEasyRule.alertEasyRuleSummary,
-              },
-            ],
+      inputs = {
+        name: prometheusRuleGroupName,
+        namespace: prometheusNamespace,
+        patch_type: 'json',
+        patch_data: [
+          {
+            path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/for`,
+            op: 'replace',
+            value: alertEasyRule.alertEasyRuleDuration,
           },
-        },
-      ];
+          {
+            path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/labels/severity`,
+            op: 'replace',
+            value: alertEasyRule.alertEasyRuleSeverity,
+          },
+          {
+            path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/expr`,
+            op: 'replace',
+            value: alertEasyRuleQuery,
+          },
+          {
+            path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/description`,
+            op: 'replace',
+            value: alertEasyRuleDescription,
+          },
+          {
+            path: `/spec/groups/${indexRuleGroup}/rules/${indexRules}/annotations/summary`,
+            op: 'replace',
+            value: alertEasyRule.alertEasyRuleSummary,
+          },
+        ]
+      }
     }
 
-    await this.sudoryService.postSudoryService(sudoryServiceName, summary, clusterUuid, templateUuid, step, customerAccountKey, subscribedChannel);
+    await this.sudoryService.postSudoryServiceV2(sudoryServiceName, summary, clusterUuid, templateUuid, inputs, customerAccountKey, subscribedChannel);
     console.log(`#ALERTEASYRULE provision is done ${clusterUuid}`);
     const currentDate = new Date();
     const createQuery = {
