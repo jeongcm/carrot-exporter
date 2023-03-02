@@ -358,10 +358,10 @@ class executorService {
   
     switch (platform) {
       case "OS":
-        alertEasyRuleList = config.initialRecord.alertEasyRule
+        alertEasyRuleList = config.initialRecord.alertEasyRuleOpenstack
         break
       case "K8":
-        alertEasyRuleList = config.initialRecord.alertEasyRule
+        alertEasyRuleList = config.initialRecord.alertEasyRuleKubernetes
         break
       default:
     }
