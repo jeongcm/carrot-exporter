@@ -348,14 +348,24 @@ class executorService {
     return responseExecutorClientCheck;
   }
 
-  public async initializeAlertEasyRule(customerAccountId: string, resourceGroupUuid: string) {
+  public async initializeAlertEasyRule(customerAccountId: string, resourceGroupUuid: string, platform: string) {
     console.log('#ALERTEASYRULE - Wait for KPS Install',);
     await new Promise(resolve => setTimeout(resolve, 10 * 1000));
 
     const prometheusRules = await this.alertEasyRuleService.getPrometheusRuleSpecs(customerAccountId, resourceGroupUuid)
-
-    const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
-
+  
+    let alertEasyRuleList: any
+  
+    switch (platform) {
+      case "OS":
+        alertEasyRuleList = config.initialRecord.alertEasyRule
+        break
+      case "K8":
+        alertEasyRuleList = config.initialRecord.alertEasyRule
+        break
+      default:
+    }
+    ;
 
     for (const alertEasyRule of alertEasyRuleList) {
       const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
@@ -823,7 +833,7 @@ class executorService {
         }); //end of catch
     }
     //provision alert easy rule for the cluster, TODO: it will be divided 
-    await this.initializeAlertEasyRule(customerAccountId, clusterUuid)
+    await this.initializeAlertEasyRule(customerAccountId, clusterUuid, ResponseResoureGroup.resourceGroupPlatform)
 
     //provision metricOps rule if the customer has MetricOps subscription
     const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
@@ -1254,7 +1264,7 @@ class executorService {
       }); //end of catch
 
     //provision alert easy rule for the cluster
-    await this.initializeAlertEasyRule(customerAccountId, clusterUuid)
+    await this.initializeAlertEasyRule(customerAccountId, clusterUuid, ResponseResoureGroup.resourceGroupPlatform)
 
     //provision metricOps rule if the customer has MetricOps subscription
     const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
