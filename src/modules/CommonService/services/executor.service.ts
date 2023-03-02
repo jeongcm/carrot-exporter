@@ -2322,10 +2322,7 @@ class executorService {
 
     //pull metricMetaTargetJob
     for (let i = 0; i < Object.keys(newFilterList).length; i++) {
-      const steps = newFilterList[i].scheduleApiBody.steps;
-      const query = steps.map(obj => {
-        return obj.args.query;
-      });
+      const query = newFilterList[i].scheduleApiBody.inputs.query;
       const job = query.toString().substring(query.toString().indexOf('"') + 1, query.toString().lastIndexOf('"'));
       targetJobCron[i] = job;
     }
@@ -2361,7 +2358,7 @@ class executorService {
           summary: metricSummary,
           subscribed_channel: subscribed_channel,
           on_completion: on_completion,
-          steps: {
+          inputs: {
             url: prometheus,
             query: metricQuery
           },
