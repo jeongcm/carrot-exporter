@@ -8,7 +8,7 @@
         "alertEasyRuleThreshold1": "80",
         "alertEasyRuleDescription": "CPU load is > alertEasyRuleThreshold1% \n VALUE = {{ $value }} \n LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "Host high CPU load (node {{ $labels.node }})",        
-        "alertEasyRuleGroup": "nc-node",
+        "alertEasyRuleGroup": "co-node",
         "alertEasyRuleSeverity": "critical",
         "alertEasyRuleThreshold1Unit": "percentage",
         "alertEasyRuleThreshold1Max": "100"
@@ -22,7 +22,7 @@
         "alertEasyRuleThreshold1": "80",
         "alertEasyRuleDescription": "Node memory is filling up (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "Host out of memory (node {{ $labels.node }})",
-        "alertEasyRuleGroup": "nc-node",
+        "alertEasyRuleGroup": "co-node",
         "alertEasyRuleSeverity": "critical",
         "alertEasyRuleThreshold1Unit": "percentage",
         "alertEasyRuleThreshold1Max": "100"
@@ -36,7 +36,7 @@
         "alertEasyRuleThreshold1": "1",
         "alertEasyRuleDescription": "Node network interfaces (receive) show error reate more than (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "node network receive error irate - (node {{ $labels.node }})",
-        "alertEasyRuleGroup": "nc-node",
+        "alertEasyRuleGroup": "co-node",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "percentage",
         "alertEasyRuleThreshold1Max": "100"
@@ -50,7 +50,7 @@
         "alertEasyRuleThreshold1": "1",
         "alertEasyRuleDescription": "Node network interfaces (transmit) show error reate more than (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "node network transmit error irate - (node {{ $labels.node }})",
-        "alertEasyRuleGroup": "nc-node",
+        "alertEasyRuleGroup": "co-node",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "percentage",
         "alertEasyRuleThreshold1Max": "100"
@@ -64,7 +64,7 @@
         "alertEasyRuleThreshold1": "100000000",
         "alertEasyRuleDescription": "Host unusual network throughput in (node {{ $labels.node }})",
         "alertEasyRuleSummary": "node network receive error irate - (node {{ $labels.node }})",
-        "alertEasyRuleGroup": "nc-node",
+        "alertEasyRuleGroup": "co-node",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "byte",
         "alertEasyRuleThreshold1Max": "200000000"
@@ -78,7 +78,7 @@
         "alertEasyRuleThreshold1": "100000000",
         "alertEasyRuleDescription": "Host unusual network throughput out (node {{ $labels.node }})",
         "alertEasyRuleSummary": "node network transmit error irate - (node {{ $labels.node }})",
-        "alertEasyRuleGroup": "nc-node",
+        "alertEasyRuleGroup": "co-node",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "byte",
         "alertEasyRuleThreshold1Max": "500000000"
@@ -92,7 +92,7 @@
         "alertEasyRuleThreshold1": "80",
         "alertEasyRuleDescription": "Host Node Disk is filling up (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "Host Node out of Disk (node {{ $labels.node }})",
-        "alertEasyRuleGroup": "nc-node",
+        "alertEasyRuleGroup": "co-node",
         "alertEasyRuleSeverity": "critical",
         "alertEasyRuleThreshold1Unit": "percentage",
         "alertEasyRuleThreshold1Max": "100"
@@ -106,7 +106,7 @@
         "alertEasyRuleThreshold1": "1000",
         "alertEasyRuleDescription": "Pod CPU usage is > alertEasyRuleThreshold1m \n VALUE = {{ $value }}\n LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "Pod CPU usage is over threshold (pod {{ $labels.pod }})",
-        "alertEasyRuleGroup": "nc-kube-resource",
+        "alertEasyRuleGroup": "co-kube-resource",
         "alertEasyRuleSeverity": "critical",
         "alertEasyRuleThreshold1Unit": "core",
         "alertEasyRuleThreshold1Max": "2000"
@@ -120,7 +120,7 @@
         "alertEasyRuleThreshold1": "2000000000",
         "alertEasyRuleDescription": "Pod memory usage is > alertEasyRuleThreshold1 byte /n VALUE = {{ $value }} /n LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "Pod memory usage is over threshold (pod {{ $labels.pod }})",
-        "alertEasyRuleGroup": "nc-kube-resource",
+        "alertEasyRuleGroup": "co-kube-resource",
         "alertEasyRuleSeverity": "critical",
         "alertEasyRuleThreshold1Unit": "byte",
         "alertEasyRuleThreshold1Max": "3000000000"
@@ -134,7 +134,7 @@
         "alertEasyRuleThreshold1": "100000000",
         "alertEasyRuleDescription": "Host unusual network throughput in (node {{ $labels.node }})",
         "alertEasyRuleSummary": "pod network receive error irate - (pod {{ $labels.node }})",
-        "alertEasyRuleGroup": "nc-kube-resource",
+        "alertEasyRuleGroup": "co-kube-resource",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "byte",
         "alertEasyRuleThreshold1Max": "200000000"
@@ -148,7 +148,7 @@
         "alertEasyRuleThreshold1": "100000000",
         "alertEasyRuleDescription": "Pod unusual network throughput out (pod {{ $labels.pod }})",
         "alertEasyRuleSummary": "pod network transmit error irate - (pod {{ $labels.pod }})",
-        "alertEasyRuleGroup": "nc-kube-resource",
+        "alertEasyRuleGroup": "co-kube-resource",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "byte",
         "alertEasyRuleThreshold1Max": "500000000"
@@ -162,7 +162,7 @@
         "alertEasyRuleThreshold1": "1",
         "alertEasyRuleDescription": "Pod network interfaces (receive) show error reate more than (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "pod network receive error irate - (pod {{ $labels.pod }})",
-        "alertEasyRuleGroup": "nc-kube-resource",
+        "alertEasyRuleGroup": "co-kube-resource",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "percentage",
         "alertEasyRuleThreshold1Max": "100"
@@ -176,7 +176,7 @@
         "alertEasyRuleThreshold1": "1",
         "alertEasyRuleDescription": "Pod network interfaces (transmit) show error reate more than (> alertEasyRuleThreshold1% )\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}",
         "alertEasyRuleSummary": "pod network transmit error irate - (pod {{ $labels.pod }})",
-        "alertEasyRuleGroup": "nc-kube-resource",
+        "alertEasyRuleGroup": "co-kube-resource",
         "alertEasyRuleSeverity": "warning",
         "alertEasyRuleThreshold1Unit": "percentage",
         "alertEasyRuleThreshold1Max": "100"
