@@ -416,7 +416,7 @@ class AlertEasyRuleService {
         "resourceGroupPlatform": result.ResourceGroup.resourceGroupPlatform,
         "resourceGroupProvider": result.ResourceGroup.resourceGroupProvider,
         "resourceGroupLastServerUpdatedAt": result.ResourceGroup.resourceGroupLastServerUpdatedAt,
-        "alertTargetSubGroupId": result.AlertTargetSubGroup.alertTargetGroupKey,
+        "alertTargetSubGroupId": result.AlertTargetSubGroup.alertTargetSubGroupId,
         "alertTargetSubGroupName": result.AlertTargetSubGroup.alertTargetSubGroupName,
         "alertTargetSubGroupDescription": result.AlertTargetSubGroup.alertTargetSubGroupDescription,
         "alertTargetGroupId": result.AlertTargetSubGroup.AlertTargetGroup.alertTargetGroupId,
@@ -1130,7 +1130,17 @@ class AlertEasyRuleService {
     const customerAccountId = findCustomerAccount.customerAccountId;
     const returnMessage = [];
     const prometheusRuleSpecs = await this.getPrometheusRuleSpecs(customerAccountId, findResourceGroup.resourceGroupUuid)
-    const { alertEasyRule: alertEasyRuleList } = config.initialRecord;
+    let alertEasyRuleList: any
+
+    switch (findResourceGroup.resourceGroupPlatform) {
+      case "OS":
+        alertEasyRuleList = config.initialRecord.alertEasyRuleOpenstack
+        break
+      case "K8":
+        alertEasyRuleList = config.initialRecord.alertEasyRuleKubernetes
+        break
+      default:
+    }
 
     for (const alertEasyRule of alertEasyRuleList) {
       const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({

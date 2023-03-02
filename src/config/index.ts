@@ -13,7 +13,8 @@ import role from '../../init/role.seeding.json';
 import exporters from '../../init/exporters.seeding.json';
 import alertTargetGroup from '../../init/alertTargetGroup.seeding.json';
 import alertTargetSubGroup from '../../init/alertTargetSubGroup.seeding.json';
-import alertEasyRule from '../../init/alertEasyRule.seeding.json';
+import alertEasyRuleOpenstack from '../../init/alertEasyRule-os.seeding.json';
+import alertEasyRuleKubernetes from '../../init/alertEasyRule-k8.seeding.json';
 
 import bm from '../../init/bm.seeding.json';
 import bmRuleGroup from '../../init/bmRuleGroup.seeding.json';
@@ -123,7 +124,8 @@ export default {
     exporters,
     alertTargetGroup,
     alertTargetSubGroup,
-    alertEasyRule,
+    alertEasyRuleOpenstack,
+    alertEasyRuleKubernetes,
     catalogPlan,
     catalogPlanProduct,
     metricOps: {

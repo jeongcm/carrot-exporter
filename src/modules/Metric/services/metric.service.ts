@@ -873,13 +873,6 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum by (clusterUuid, node) (container_memory_working_set_bytes{pod!="", container!="", __LABEL_PLACE_HOLDER__})`;
         break;
-      case 'K8S_CLUSTER_HOST_MEMORY_USAGE_PERCENTAGE':
-        labelString += getSelectorLabels({
-          clusterUuid,
-          node: resourceName,
-        });
-        promQl = `sum by (clusterUuid, node) (node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__}) - sum by (clusterUuid, node) (node_memory_MemFree_bytes{__LABEL_PLACE_HOLDER__}) - sum by (clusterUuid, node) (node_memory_Buffers_bytes{__LABEL_PLACE_HOLDER__}) - sum by (clusterUuid, node) (node_memory_Cached_bytes{__LABEL_PLACE_HOLDER__}) - sum by (node) (node_memory_SReclaimable_bytes{__LABEL_PLACE_HOLDER__})) / sum by (clusterUuid, node) (node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__}`;
-        break;
       case 'K8S_CLUSTER_NODE_MEMORY_USAGE_PERCENTAGE':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -893,13 +886,6 @@ class MetricService extends ServiceExtension {
           node: resourceName,
         });
         promQl = `sum by (clusterUuid, node) (irate(container_cpu_usage_seconds_total{pod!="", image!="", container!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
-        break;
-      case 'K8S_CLUSTER_HOST_CPU_USAGE_PERCENTAGE':
-        labelString += getSelectorLabels({
-          clusterUuid,
-          node: resourceName,
-        });
-        promQl = `1 - (avg by (clusterUuid, node) (rate(node_cpu_seconds_total{mode="idle", __LABEL_PLACE_HOLDER__}[${step}])))`;
         break;
       case 'K8S_CLUSTER_NODE_CPU_USAGE_PERCENTAGE':
         labelString += getSelectorLabels({
@@ -962,36 +948,12 @@ class MetricService extends ServiceExtension {
         promQl = `sum by (clusterUuid, node) (rate(node_network_receive_errs_total{node!="", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (rate(node_network_receive_packets_total{node!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
       break;
 
-      case 'K8S_CLUSTER_HOST_RX_TOTAL':
+      case 'OS_CLUSTER_HOST_RX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
           node: resourceName,
         });
         promQl = `sum by (clusterUuid, node) (irate(node_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
-      break;
-
-      case 'K8S_CLUSTER_HOST_TX_TOTAL':
-        labelString += getSelectorLabels({
-          clusterUuid,
-          node: resourceName,
-        });
-        promQl = `sum by (clusterUuid, node) (irate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
-      break;
-
-      case 'K8S_CLUSTER_HOST_TX_ERROR':
-        labelString += getSelectorLabels({
-          clusterUuid,
-          node: resourceName,
-        });
-        promQl = `sum by (clusterUuid, node) (rate(node_network_transmit_errs_total{__LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (rate(node_network_transmit_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
-      break;
-
-      case 'K8S_CLUSTER_HOST_RX_ERROR':
-        labelString += getSelectorLabels({
-          clusterUuid,
-          node: resourceName,
-        });
-        promQl = `sum by (clusterUuid, node) (rate(node_network_receive_errs_total{__LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (rate(node_network_receive_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
       break;
 
       // K8s Pod Metric by carrot
@@ -1164,6 +1126,51 @@ class MetricService extends ServiceExtension {
         break;
       
       // promql for openstack
+      // openstack metric by carrot (2023.03.02)
+      case 'OS_CLUSTER_HOST_CPU_USAGE_PERCENTAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `1 - (avg by (clusterUuid, node) (rate(node_cpu_seconds_total{mode="idle", __LABEL_PLACE_HOLDER__}[${step}])))`;
+        break;
+      case 'OS_CLUSTER_HOST_MEMORY_USAGE_PERCENTAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__}) - sum by (clusterUuid, node) (node_memory_MemFree_bytes{__LABEL_PLACE_HOLDER__}) - sum by (clusterUuid, node) (node_memory_Buffers_bytes{__LABEL_PLACE_HOLDER__}) - sum by (clusterUuid, node) (node_memory_Cached_bytes{__LABEL_PLACE_HOLDER__}) - sum by (node) (node_memory_SReclaimable_bytes{__LABEL_PLACE_HOLDER__})) / sum by (clusterUuid, node) (node_memory_MemTotal_bytes{__LABEL_PLACE_HOLDER__}`;
+        break;
+
+        case 'OS_CLUSTER_HOST_TX_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (irate(node_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+      break;
+      case 'OS_CLUSTER_HOST_TX_ERROR':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (rate(node_network_transmit_errs_total{__LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (rate(node_network_transmit_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+      break;
+      case 'OS_CLUSTER_HOST_RX_ERROR':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (rate(node_network_receive_errs_total{__LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (rate(node_network_receive_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+      break;
+      case 'OS_CLUSTER_HOST_DISK_PERCENTAGE':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `(1 - sum by (clusterUuid, node) (node_filesystem_avail_bytes{mountpoint="/",fstype!="rootfs",endpoint != "", __LABEL_PLACE_HOLDER__}) / sum by (clusterUuid, node) (node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs",endpoint != "", __LABEL_PLACE_HOLDER__}))`;
+      break;
+      
       // Openstack Service metrics
       case 'OS_CLUSTER_NOVA_AGENT_UP':
         labelString += getSelectorLabels({
@@ -1186,6 +1193,7 @@ class MetricService extends ServiceExtension {
 
         promQl = `sum(last_over_time(openstack_cinder_agent_state{adminState="enabled",__LABEL_PLACE_HOLDER__}[1h]))`;
         break;
+
       case 'OS_CLUSTER_CINDER_AGENT_DOWN':
         labelString += getSelectorLabels({
           clusterUuid,
