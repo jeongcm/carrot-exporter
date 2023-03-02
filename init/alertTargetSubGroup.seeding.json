@@ -54,5 +54,30 @@
         "alertTargetGroupName": "Kubernetes Volume",
         "alertTargetSubGroupName": "Volume Utilization",
         "alertTargetSubGroupDescription": "Volume Utilization"
+    },
+    {
+        "alertTargetGroupName": "Physical Host",
+        "alertTargetSubGroupName": "Host CPU Utilization",
+        "alertTargetSubGroupDescription": "Host CPU Utilization"
+    },
+    {
+        "alertTargetGroupName": "Physical Host",
+        "alertTargetSubGroupName": "Host Memory Utilization",
+        "alertTargetSubGroupDescription": "Host Memory Utilization"
+    },
+    {
+        "alertTargetGroupName": "Physical Host",
+        "alertTargetSubGroupName": "Host Network Utilization",
+        "alertTargetSubGroupDescription": "Host Network Utilization"
+    },
+    {
+        "alertTargetGroupName": "Physical Host",
+        "alertTargetSubGroupName": "Host Network Error",
+        "alertTargetSubGroupDescription": "Host Network Error"
+    },  
+    {
+        "alertTargetGroupName": "Physical Host",
+        "alertTargetSubGroupName": "Host Disk Utilization",
+        "alertTargetSubGroupDescription": "Host Disk Utilization"
     }
   ]
