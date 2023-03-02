@@ -10,5 +10,9 @@
     {
         "alertTargetGroupName": "Kubernetes Volume",
         "alertTargetGroupDescription": "Kubernetes Volume"
+    },
+    {
+        "alertTargetGroupName": "Physical Host",
+        "alertTargetGroupDescription": "Physical Host"
     }
   ]
