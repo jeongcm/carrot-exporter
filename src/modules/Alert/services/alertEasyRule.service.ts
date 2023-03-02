@@ -416,7 +416,7 @@ class AlertEasyRuleService {
         "resourceGroupPlatform": result.ResourceGroup.resourceGroupPlatform,
         "resourceGroupProvider": result.ResourceGroup.resourceGroupProvider,
         "resourceGroupLastServerUpdatedAt": result.ResourceGroup.resourceGroupLastServerUpdatedAt,
-        "alertTargetSubGroupId": result.AlertTargetSubGroup.alertTargetGroupKey,
+        "alertTargetSubGroupId": result.AlertTargetSubGroup.alertTargetSubGroupId,
         "alertTargetSubGroupName": result.AlertTargetSubGroup.alertTargetSubGroupName,
         "alertTargetSubGroupDescription": result.AlertTargetSubGroup.alertTargetSubGroupDescription,
         "alertTargetGroupId": result.AlertTargetSubGroup.AlertTargetGroup.alertTargetGroupId,
