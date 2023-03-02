@@ -365,7 +365,6 @@ class executorService {
         break
       default:
     }
-    ;
 
     for (const alertEasyRule of alertEasyRuleList) {
       const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
