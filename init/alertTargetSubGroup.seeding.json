@@ -72,6 +72,11 @@
     },
     {
         "alertTargetGroupName": "Physical Host",
+        "alertTargetSubGroupName": "Host Network Error",
+        "alertTargetSubGroupDescription": "Host Network Error"
+    },  
+    {
+        "alertTargetGroupName": "Physical Host",
         "alertTargetSubGroupName": "Host Disk Utilization",
         "alertTargetSubGroupDescription": "Host Disk Utilization"
     }
