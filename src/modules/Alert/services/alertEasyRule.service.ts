@@ -392,6 +392,14 @@ class AlertEasyRuleService {
         if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
       }
 
+      const alertRule = await this.alertRule.findOne({
+        where: {
+          deletedAt: null,
+          alertRuleName: result.alertEasyRuleName,
+          resourceGroupUuid: result.ResourceGroup.resourceGroupUuid
+        }
+      })
+
       results.push({
         "alertEasyRuleId": result.alertEasyRuleId,
         "createdBy": result.createdBy,
@@ -422,7 +430,8 @@ class AlertEasyRuleService {
         "alertTargetGroupId": result.AlertTargetSubGroup.AlertTargetGroup.alertTargetGroupId,
         "alertTargetGroupName": result.AlertTargetSubGroup.AlertTargetGroup.alertTargetGroupName,
         "alertTargetGroupDescription": result.AlertTargetSubGroup.AlertTargetGroup.alertTargetGroupDescription,
-        "resourceGroupServerInterfaceStatus": resourceGroupServerInterfaceStatus
+        "resourceGroupServerInterfaceStatus": resourceGroupServerInterfaceStatus,
+        "alertRuleId": alertRule.alertRuleId
       })
     }
 
