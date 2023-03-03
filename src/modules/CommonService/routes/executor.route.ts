@@ -50,6 +50,39 @@ class ExecutorRoute implements Routes {
       //      createUserLogMiddleware,
       this.executorController.registerResourceGroup,
     );
+
+    this.router.post(
+      '/executor/scheduler',
+      authMiddleware,
+      validationMiddleware(ResourceGroupExecutorDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.registerDefaultScheduler,
+    );
+
+    this.router.post(
+      '/executor/stacks',
+      authMiddleware,
+      validationMiddleware(ResourceGroupExecutorDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.installStacks,
+    );
+
+    this.router.post(
+      '/executor/stacks/check',
+      authMiddleware,
+      validationMiddleware(ResourceGroupExecutorDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.checkStacks,
+    );
+
+    this.router.post(
+      '/executor/provisionMetricOpsRule',
+      authMiddleware,
+      validationMiddleware(ResourceGroupExecutorDto, 'body'),
+      //      createUserLogMiddleware,
+      this.executorController.provisionMetricOpsRule,
+    );
+
     this.router.post(
       '/executor',
       authMiddleware,      //      createUserLogMiddleware,
