@@ -31,6 +31,7 @@ import { ICatalogPlan } from '@/common/interfaces/productCatalog.interface';
 import ResourceService from "@modules/Resources/services/resource.service";
 import { PartyUserModel } from "@modules/Party/models/partyUser.model";
 import { ExportersModel } from '@/modules/Exporters/models/exporters.model';
+import cluster from 'cluster';
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
@@ -285,7 +286,7 @@ class executorService {
    * @param {number} customerAccountKey
    * @param {string} sudoryNamespace
    */
-  public async checkExecutorClient(clusterUuid: string, sudoryNamespace: string, customerAccountKey: number): Promise<object> {
+  public async checkExecutorClient(clusterUuid: string, sudoryNamespace: string, customerAccountKey: number, platform: string): Promise<object> {
     let clientTrueFalse = false;
     const resourceJobKey = [];
     const subscribedChannelResource = config.sudoryApiDetail.channel_resource;
@@ -294,11 +295,31 @@ class executorService {
     const aliveData = await this.sudoryService.checkSudoryClient(clusterUuid)
     if (aliveData.validClient === false) {
       throw new HttpException(500, `Sudory Server Error - not alive client (cluster:${clusterUuid})`)
+    } else {
+      clientTrueFalse = true
     }
  
     //sudory namespace save...
     const resourceGroupSet = { resourceGroupSudoryNamespace: sudoryNamespace };
     await this.resourceGroup.update(resourceGroupSet, { where: { resourceGroupUuid: clusterUuid } });
+
+    switch (platform) {
+      case "K8":
+        await this.checkExecutorClientForK8S(clusterUuid, customerAccountKey)
+        break
+      case "OS":
+        await this.checkExecutorClientForOpenstack(clusterUuid, customerAccountKey)
+        break
+    }
+
+    const responseExecutorClientCheck = { clusterUuid, clientTrueFalse };
+    return responseExecutorClientCheck;
+  }
+
+  public async checkExecutorClientForK8S(clusterUuid: string, customerAccountKey: number) {
+    const resourceJobKey = [];
+    const subscribedChannelResource = config.sudoryApiDetail.channel_resource;
+    const resourceCron = config.resourceCron;
 
     const newCrontab = resourceCron;
 
@@ -343,9 +364,6 @@ class executorService {
         console.log(`confirmed the executor/sudory client installed but fail to submit resource ${rt} schedule request for clsuter:${clusterUuid}`);
       }); //end of catch
     }
-
-    const responseExecutorClientCheck = { clusterUuid, clientTrueFalse };
-    return responseExecutorClientCheck;
   }
 
   public async initializeAlertEasyRule(customerAccountId: string, resourceGroupUuid: string, platform: string) {
@@ -950,32 +968,10 @@ class executorService {
    * @param {number} customerAccountKey
    * @param {string} sudoryNamespace
    */
-  public async checkExecutorClientForOpenstack(clusterUuid: string, sudoryNamespace: string, customerAccountKey: number): Promise<object> {
-    let clientTrueFalse = false;
+  public async checkExecutorClientForOpenstack(clusterUuid: string, customerAccountKey: number) {
     const resourceJobKey = [];
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathSession + '/cluster/' + clusterUuid + '/alive';
-
-    const resourceCron = config.resourceCron;
-    //const sessionQueryParameter = `?q=(eq%20cluster_uuid%20"${clusterUuid}")`;
-    //executorServerUrl = executorServerUrl + sessionQueryParameter;
     const subscribedChannelResource = config.sudoryApiDetail.channel_resource;
-    await axios({
-      method: 'get',
-      url: `${executorServerUrl}`,
-      headers: { x_auth_token: `${config.sudoryApiDetail.authToken}` },
-    })
-      .then(async (res: any) => {
-        if (res.data == true) clientTrueFalse = true;
-        console.log(`Successful to run API to search Executor/Sudory client`);
-      })
-      .catch(error => {
-        //console.log(error);
-        throw new HttpException(500, `Sudory Server Error - ${JSON.stringify(error.response.data)} `);
-      });
-
-    //sudory namespace save...
-    const resourceGroupSet = { resourceGroupSudoryNamespace: sudoryNamespace };
-    await this.resourceGroup.update(resourceGroupSet, { where: { resourceGroupUuid: clusterUuid } });
+    const resourceCron = config.resourceCron;
 
     // post PM Excute
     let uploadPMQuery: any = {}
@@ -1021,18 +1017,7 @@ class executorService {
         console.log(error);
         console.log(`confirmed the executor/sudory client installed but fail to submit resource PM schedule request for cluster:${clusterUuid}`);
       });
-
-// // scheduleResource - HV
-//     await this.scheduleResource(clusterUuid, customerAccountKey, 'HV', resourceCron)
-//       .then(async (res: any) => {
-//         resourceJobKey.push({ resourceType: 'HV', cronKey: res });
-//         console.log(`Submitted resource Hypervisor schedule request on ${clusterUuid} cluster successfully`);
-//       })
-//       .catch(error => {
-//         console.log(error);
-//         console.log(`confirmed the executor/sudory client installed but fail to submit resource HV schedule request for cluster:${clusterUuid}`);
-//       }); //end of catch
-
+      
 // scheduleResource - PJ
     await this.scheduleResource(clusterUuid, customerAccountKey, 'PJ', resourceCron)
       .then(async (res: any) => {
@@ -1054,9 +1039,6 @@ class executorService {
         console.log(error);
         console.log(`confirmed the executor/sudory client installed but fail to submit resource VM schedule request for cluster:${clusterUuid}`);
       });
-
-    const responseExecutorClientCheck = { clusterUuid, clientTrueFalse };
-    return responseExecutorClientCheck;
   }
 
   /**
