@@ -392,6 +392,14 @@ class AlertEasyRuleService {
         if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
       }
 
+      const alertRule = await this.alertRule.findOne({
+        where: {
+          deletedAt: null,
+          alertRuleName: result.alertEasyRuleName,
+          resourceGroupUuid: result.ResourceGroup.resourceGroupUuid
+        }
+      })
+
       results.push({
         "alertEasyRuleId": result.alertEasyRuleId,
         "createdBy": result.createdBy,
@@ -422,7 +430,8 @@ class AlertEasyRuleService {
         "alertTargetGroupId": result.AlertTargetSubGroup.AlertTargetGroup.alertTargetGroupId,
         "alertTargetGroupName": result.AlertTargetSubGroup.AlertTargetGroup.alertTargetGroupName,
         "alertTargetGroupDescription": result.AlertTargetSubGroup.AlertTargetGroup.alertTargetGroupDescription,
-        "resourceGroupServerInterfaceStatus": resourceGroupServerInterfaceStatus
+        "resourceGroupServerInterfaceStatus": resourceGroupServerInterfaceStatus,
+        "alertRuleId": alertRule.alertRuleId
       })
     }
 
@@ -618,47 +627,33 @@ class AlertEasyRuleService {
     // alertEasyRuleName
     const alertEasyRuleName = findAlertEasyRule.alertEasyRuleName;
 
-    // alertEasyRuleSeverity
-
     let inputs = {};
     let indexRuleGroup;
     let indexRules = 0;
     let maxIndexRuleGroup;
     let maxIndexRules;
-    let i;
-    const sleep = ms => new Promise(res => setTimeout(res, ms));
 
-    const sudorySName = 'getPrometheusRule';
-    const sudorySummary = 'getPrometheusRule';
-    const clusterUuid = resourceGroupUuid;
-    const getTemplateUuid = '00000000000000000000000000004003';
-    const getStep = { name: prometheusRuleGroupName, namespace: prometheusNamespace };
+    let groups: any
 
     //Step 2-2 Get Prometheus Rule
-    const getPrometheusRule = await this.sudoryService.postSudoryServiceV2(
-      sudorySName,
-      sudorySummary,
-      clusterUuid,
-      getTemplateUuid,
-      getStep,
-      customerAccountKey,
-      subscribedChannel,
-    );
-    let getSudoryWebhook: ISudoryWebhook;
+    const findCustomerAccount = await this.customerAccount.findOne({where: {customerAccountKey}})
+    const prometheusRuleSpecs = await this.getPrometheusRuleSpecs(findCustomerAccount.customerAccountId, resourceGroupUuid)
 
-    //Step 2-3 Wait & Process Prometheus Rule thru SudoryWebhook
-    for (i = 0; i < 6; i++) {
-      await sleep(1000);
-      getSudoryWebhook = await this.sudoryWebhook.findOne({
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        where: { serviceUuid: getPrometheusRule.dataValues.serviceUuid, status: 4 },
-      });
-      if (getSudoryWebhook) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        const ruleGroup = JSON.parse(JSON.stringify(getSudoryWebhook.serviceResult.spec.groups));
-        const rules = [];
+    if (prometheusRuleSpecs) {
+      prometheusRuleSpecs.forEach((spec: any) => {
+        spec.groups.forEach((group: any) => {
+          if (group.name === alertEasyRule.alertEasyRuleGroup) {
+            groups = spec.groups
+          }
+        })
+      })
+
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const ruleGroup = [];
+      const rules = [];
+      if (groups) {
+        const ruleGroup = JSON.parse(JSON.stringify(groups));
         ruleGroup.forEach((item: any) => {
           item?.rules?.forEach((ruleItem: any) => {
             if (ruleItem.alert) {
@@ -667,17 +662,15 @@ class AlertEasyRuleService {
             }
           });
         });
-        indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
-        indexRules = rules.findIndex(element => element.alert === alertEasyRuleName && element.severity === alertEasyRuleSeverity);
-        maxIndexRuleGroup = ruleGroup.length - 1;
-        maxIndexRules = rules.length;
-        i = 100; //exit for
       }
+      indexRuleGroup = ruleGroup.findIndex(element => element.name == alertGroup);
+      indexRules = rules.findIndex(element => element.alert == alertEasyRule.alertEasyRuleName && element.severity == alertEasyRuleSeverity);
+      maxIndexRuleGroup = ruleGroup.length - 1;
+      maxIndexRules = rules.length;
     }
-    if (!getSudoryWebhook) throw new HttpException(500, `Error on retrieving Prometheus Alert Rule`);
 
-    if (i === 101 && indexRules > 0) {
-      //no severity change & found alert rule... need to update the rule
+    if (prometheusRuleSpecs && indexRules > 0) {
+      // step 2-3 provision alert update
       inputs = {
         name: prometheusRuleGroupName,
         namespace: prometheusNamespace,
@@ -710,11 +703,8 @@ class AlertEasyRuleService {
           },
         ]
       }
-      console.log('step1-update indexRules', indexRules);
-      console.log('step1-update maxIndexRules', maxIndexRules);
-      console.log('step1-update', JSON.stringify(inputs));
     } else {
-      // otherwise need to create the new one
+      // step 2-2 provision a brand new alert
       inputs = {
         name: prometheusRuleGroupName,
         namespace: prometheusNamespace,
@@ -733,8 +723,6 @@ class AlertEasyRuleService {
           },
         ]
       }
-      console.log('step1-add maxIndexRules', maxIndexRules);
-      console.log('step1-add', JSON.stringify(inputs));
     }
 
     //Step 2-4 Patch Prometheus Rule
