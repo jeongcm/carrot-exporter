@@ -361,6 +361,7 @@ class CustomerAccountService {
       attributes: ['customerAccountKey'],
     });
 
+    if (!customerAccount) throw new HttpException(404, 'not found customerAccount')
     return customerAccount.customerAccountKey;
   }
 
