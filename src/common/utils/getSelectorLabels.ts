@@ -19,7 +19,11 @@ const getSelectorLabels = (labels: any) => {
         valueStr = value[0];
       }
     } else {
-      valueStr = value;
+      if (value === "") {
+        equation = '!=';
+      } else {
+        valueStr = value;
+      }
     }
     labelChunk.push(`${key}${equation}"${valueStr}"`);
   });
