@@ -128,14 +128,6 @@ class ResourceRoute implements Routes {
 
     this.router.post('/resource/upload/:resourceType', systemAuthMiddleware, this.resourceController.uploadResource)
 
-    this.router.post(
-      '/resource/syncResourceStatus',
-      systemAuthMiddleware,
-      //validationMiddleware(ExecutorUuidDto, 'body'),
-      //      createUserLogMiddleware,
-      this.resourceController.syncResourceStatus,
-    );
-
     this.router.get(
       '/resource/parentCustomerAccount/:parentCustomerAccountId',
       validationMiddleware(ResourceQueryDTO, 'query'),
