@@ -296,7 +296,12 @@ class MetricService extends ServiceExtension {
   private getPromQlFromQuery(query: IMetricQueryBodyQuery, resources?: IResource[], resourceGroups?: IResourceGroupUi[]) {
     const { type, promql: customPromQl, start, end, step, nodename, promqlOps = {} } = query;
     const clusterUuid = resourceGroups?.map((resourceGroup: IResourceGroupUi) => resourceGroup.resourceGroupUuid);
-    const resourceName = resources?.map((resource: IResource) => resource.resourceName);
+    let resourceName: any
+    if (!resources) {
+      resourceName = ""
+    } else {
+      resourceName = resources?.map((resource: IResource) => resource.resourceName);
+    }
     const resourceNamespace = resources?.map((resource: IResource) =>
       resource?.resourceType === 'NS' ? resource.resourceName : resource.resourceNamespace,
     );

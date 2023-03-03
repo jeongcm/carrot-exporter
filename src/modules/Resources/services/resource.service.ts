@@ -906,7 +906,7 @@ class ResourceService {
       group: ['resourceNamespace']
     })
     // get Workloads Count
-    resourceWhereCondition['resourceType'] = ['DS', 'DP', 'RS', 'SS']
+    resourceWhereCondition['resourceType'] = ['DS', 'DP', 'RS', 'SS', 'CJ', 'JO']
     result['workloadCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
       attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
