@@ -1252,33 +1252,23 @@ class executorService {
         }); //end of catch
     }
 
-    // schedule schedule sync resource status
-    await this.scheduleSyncResourceStatus(clusterUuid)
-      .then(async (res: any) => {
-        console.log(`Submitted resource status sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
-      }); //end of catch
-
     //provision alert easy rule for the cluster
     await this.initializeAlertEasyRule(customerAccountId, clusterUuid, ResponseResoureGroup.resourceGroupPlatform)
 
     //provision metricOps rule if the customer has MetricOps subscription
-    const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
-    if (findSubscription.length > 0) {
-      const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
-      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
-        where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
-      });
-      const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
-      if (findMetricOps) {
-        console.log('#DEBUG-resourceGroupId', resourceGroupId);
-        //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
-        //console.log('resultProvision', resultProvision);
-      }
-    }
+    // const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+    // if (findSubscription.length > 0) {
+    //   const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
+    //   const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+    //     where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
+    //   });
+    //   const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
+    //   if (findMetricOps) {
+    //     console.log('#DEBUG-resourceGroupId', resourceGroupId);
+    //     //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
+    //     //console.log('resultProvision', resultProvision);
+    //   }
+    // }
     // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
     // console.log('operation schedules setup:', scheduleHealthService);
 
