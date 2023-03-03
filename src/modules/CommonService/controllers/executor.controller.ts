@@ -366,36 +366,36 @@ class executorController {
     }
   };
 
-  /**
-   * @param  {IRequestWithUser} req
-   * @param  {Response} res
-   * @param  {NextFunction} next
-   */
-  public executeService = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
-    try {
-      const name = req.body.name;
-      const summary = req.body.summary;
-      const clusterUuid = req.body.clusterUuid;
-      const templateUuid = req.body.templateUuid;
-      const steps = req.body.steps;
-      const customerAccountKey = req.customerAccountKey;
-      const subscribed_channel = req.body.subscribed_channel || config.sudoryApiDetail.channel_webhook;
+  // /**
+  //  * @param  {IRequestWithUser} req
+  //  * @param  {Response} res
+  //  * @param  {NextFunction} next
+  //  */
+  // public executeService = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+  //   try {
+  //     const name = req.body.name;
+  //     const summary = req.body.summary;
+  //     const clusterUuid = req.body.clusterUuid;
+  //     const templateUuid = req.body.templateUuid;
+  //     const steps = req.body.steps;
+  //     const customerAccountKey = req.customerAccountKey;
+  //     const subscribed_channel = req.body.subscribed_channel || config.sudoryApiDetail.channel_webhook;
 
-      const serviceOutput: any = await this.executorService.postExecuteService(
-        name,
-        summary,
-        clusterUuid,
-        templateUuid,
-        steps,
-        customerAccountKey,
-        subscribed_channel,
-      );
-      if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
-      res.status(200).json({ Data: serviceOutput, message: `Execution Successful.` });
-    } catch (error) {
-      next(error);
-    }
-  };
+  //     const serviceOutput: any = await this.executorService.postExecuteService(
+  //       name,
+  //       summary,
+  //       clusterUuid,
+  //       templateUuid,
+  //       steps,
+  //       customerAccountKey,
+  //       subscribed_channel,
+  //     );
+  //     if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
+  //     res.status(200).json({ Data: serviceOutput, message: `Execution Successful.` });
+  //   } catch (error) {
+  //     next(error);
+  //   }
+  // };
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
