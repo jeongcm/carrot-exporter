@@ -1638,8 +1638,7 @@ class ResourceService {
                 order by A.created_at desc`;
 
     let results: any
-    let metadata: any
-    [results, metadata] = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
+    results = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
   
     let resultResources = [];
     for (let result of results) {
