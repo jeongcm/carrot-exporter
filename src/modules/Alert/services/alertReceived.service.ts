@@ -160,8 +160,7 @@ class AlertReceivedService extends ServiceExtension {
                 order by A.created_at desc`;
 
     let result: any
-    let metadata: any
-    [result, metadata] = await DB.sequelize.query(sql);
+    result = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
     let resource: any
 
     for (let alert of result) {
