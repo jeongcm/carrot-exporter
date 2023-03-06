@@ -11,7 +11,7 @@ import ServiceExtension from '@/common/extentions/service.extension';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import sequelize from 'sequelize';
 
-const { Op } = require('sequelize');
+const { Op, QueryTypes } = require('sequelize');
 
 const ALERT_STATUS = {
   firing: 'firing',
@@ -81,7 +81,7 @@ class AlertReceivedService extends ServiceExtension {
                 and A.deleted_at is null
                 and B.deleted_at is null
                 and C.deleted_at is null`;
-    const [result, metadata] = await DB.sequelize.query(sql);
+    const [result, metadata] = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
     //return allAlertReceived;
     return result;
   }

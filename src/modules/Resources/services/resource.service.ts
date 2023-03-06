@@ -9,7 +9,7 @@ import { IResourceGroup, IResourceGroupUi} from "@/common/interfaces/resourceGro
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from "@/modules/CustomerAccount/services/customerAccount.service";
 import ResourceGroupService from "@/modules/Resources/services/resourceGroup.service";
-import { Association, Op } from "sequelize";
+import { Association, Op, QueryTypes } from "sequelize";
 import { IAnomalyMonitoringTarget } from "@/common/interfaces/monitoringTarget.interface";
 import { ResourceGroupModel } from "../models/resourceGroup.model";
 import MetricService, { IMetricQueryBody } from "@modules/Metric/services/metric.service";
@@ -1639,7 +1639,7 @@ class ResourceService {
 
     let results: any
     let metadata: any
-    [results, metadata] = await DB.sequelize.query(sql);
+    [results, metadata] = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
   
     let resultResources = [];
     for (let result of results) {
