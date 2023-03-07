@@ -153,12 +153,12 @@ class ExecutorRoute implements Routes {
       //     createUserLogMiddleware,
       this.executorController.getSudoryWebhook,
     );
-    this.router.post(
-      '/executor/server/service',
-      authMiddleware,
-      //      createUserLogMiddleware,
-      this.executorController.executeService,
-    );
+    // this.router.post(
+    //   '/executor/server/service',
+    //   authMiddleware,
+    //   //      createUserLogMiddleware,
+    //   this.executorController.executeService,
+    // );
     this.router.post(
       '/executor/server/service/v2',
       authMiddleware,

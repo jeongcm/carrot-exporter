@@ -1252,110 +1252,100 @@ class executorService {
         }); //end of catch
     }
 
-    // schedule schedule sync resource status
-    await this.scheduleSyncResourceStatus(clusterUuid)
-      .then(async (res: any) => {
-        console.log(`Submitted resource status sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
-      }); //end of catch
-
     //provision alert easy rule for the cluster
     await this.initializeAlertEasyRule(customerAccountId, clusterUuid, ResponseResoureGroup.resourceGroupPlatform)
 
     //provision metricOps rule if the customer has MetricOps subscription
-    const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
-    if (findSubscription.length > 0) {
-      const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
-      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
-        where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
-      });
-      const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
-      if (findMetricOps) {
-        console.log('#DEBUG-resourceGroupId', resourceGroupId);
-        //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
-        //console.log('resultProvision', resultProvision);
-      }
-    }
+    // const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
+    // if (findSubscription.length > 0) {
+    //   const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
+    //   const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
+    //     where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
+    //   });
+    //   const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
+    //   if (findMetricOps) {
+    //     console.log('#DEBUG-resourceGroupId', resourceGroupId);
+    //     //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
+    //     //console.log('resultProvision', resultProvision);
+    //   }
+    // }
     // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
     // console.log('operation schedules setup:', scheduleHealthService);
 
     return serviceUuid;
   }
 
-  /**
-   * @param {string} clusterUuid
-   * @param {string} templateUud
-   * @param {string} name
-   * @param {string} summary
-   * @param {Object} steps
-   * @param {string} subscribed_channel
-   */
-  public async postExecuteService(
-    name: string,
-    summary: string,
-    clusterUuid: string,
-    templateUuid: string,
-    steps: Object,
-    customerAccountKey: number,
-    subscribed_channel: string,
-  ): Promise<object> {
-    const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    const sudoryBaseUrl = config.sudoryApiDetail.baseURL;
-    const sudoryPathService = config.sudoryApiDetail.pathService;
-    const sudoryUrl = sudoryBaseUrl + sudoryPathService;
-    const sudoryChannel = subscribed_channel;
-    const uuid = require('uuid');
-    const executorServiceId = uuid.v1();
+  // /** 
+  //  * @param {string} clusterUuid
+  //  * @param {string} templateUud
+  //  * @param {string} name
+  //  * @param {string} summary
+  //  * @param {Object} steps
+  //  * @param {string} subscribed_channel
+  //  */
+  // public async postExecuteService(
+  //   name: string,
+  //   summary: string,
+  //   clusterUuid: string,
+  //   templateUuid: string,
+  //   steps: Object,
+  //   customerAccountKey: number,
+  //   subscribed_channel: string,
+  // ): Promise<object> {
+  //   const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
+  //   const sudoryBaseUrl = config.sudoryApiDetail.baseURL;
+  //   const sudoryPathService = config.sudoryApiDetail.pathService;
+  //   const sudoryUrl = sudoryBaseUrl + sudoryPathService;
+  //   const sudoryChannel = subscribed_channel;
+  //   const uuid = require('uuid');
+  //   const executorServiceId = uuid.v1();
 
-    const sudoryServiceData = {
-      cluster_uuid: clusterUuid,
-      name: name,
-      template_uuid: templateUuid,
-      steps: steps,
-      summary: summary,
-      on_completion: on_completion,
-      subscribed_channel: sudoryChannel,
-    };
-    console.log(sudoryServiceData);
-    const serviceData = await axios({
-      method: 'post',
-      url: sudoryUrl,
-      data: sudoryServiceData,
-    })
-      .then(async (res: any) => {
-        const serviceUuid = res.data.uuid;
-        console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
-        return res.data;
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Not able to execute service');
-      });
+  //   const sudoryServiceData = {
+  //     cluster_uuid: clusterUuid,
+  //     name: name,
+  //     template_uuid: templateUuid,
+  //     steps: steps,
+  //     summary: summary,
+  //     on_completion: on_completion,
+  //     subscribed_channel: sudoryChannel,
+  //   };
+  //   console.log(sudoryServiceData);
+  //   const serviceData = await axios({
+  //     method: 'post',
+  //     url: sudoryUrl,
+  //     data: sudoryServiceData,
+  //   })
+  //     .then(async (res: any) => {
+  //       const serviceUuid = res.data.uuid;
+  //       console.log(`Submit sudory reqeust on ${clusterUuid} cluster successfully, serviceUuid is ${serviceUuid}`);
+  //       return res.data;
+  //     })
+  //     .catch(error => {
+  //       console.log(error);
+  //       throw new HttpException(500, 'Not able to execute service');
+  //     });
 
-    const insertData = {
-      executorServiceId: executorServiceId,
-      customerAccountKey: customerAccountKey,
-      name: name,
-      summary: summary,
-      createdAt: new Date(),
-      createdBy: 'SYSTEM',
-      serviceUuid: serviceData.uuid,
-      clusterUuid: serviceData.cluster_uuid,
-      templateUuid: templateUuid,
-      onCompletion: on_completion,
-      steps: JSON.parse(JSON.stringify(steps)),
-      subscribed_channel: sudoryChannel,
-    };
-    console.log('Executor Data for DB insert: ');
-    console.log(insertData);
+  //   const insertData = {
+  //     executorServiceId: executorServiceId,
+  //     customerAccountKey: customerAccountKey,
+  //     name: name,
+  //     summary: summary,
+  //     createdAt: new Date(),
+  //     createdBy: 'SYSTEM',
+  //     serviceUuid: serviceData.uuid,
+  //     clusterUuid: serviceData.cluster_uuid,
+  //     templateUuid: templateUuid,
+  //     onCompletion: on_completion,
+  //     steps: JSON.parse(JSON.stringify(steps)),
+  //     subscribed_channel: sudoryChannel,
+  //   };
+  //   console.log('Executor Data for DB insert: ');
+  //   console.log(insertData);
 
-    const resultExecutorService = await this.executorService.create(insertData);
-    //console.log(resultExecutorService);
-    return resultExecutorService;
-  }
+  //   const resultExecutorService = await this.executorService.create(insertData);
+  //   //console.log(resultExecutorService);
+  //   return resultExecutorService;
+  // }
 
   /**
    * @param {string} clusterUuid
@@ -2901,7 +2891,7 @@ class executorService {
       //limit: 1000,
       // where: { customerAccountKey, createdAt: { [Op.and]: { [Op.gte]: dateMinus, [Op.lte]: date } } },
       where: { customerAccountKey, deletedAt: null },
-      attributes: ['name', 'status', 'statusDescription', 'steps','createdAt', 'updatedAt', 'executorServiceId', 'inputs'],
+      attributes: ['name', 'status', 'statusDescription', 'steps','createdAt', 'updatedAt', 'executorServiceId', 'inputs', 'clusterUuid', 'summary', 'templateUuid'],
       include: [
         {
           as: 'resourceGroup',
