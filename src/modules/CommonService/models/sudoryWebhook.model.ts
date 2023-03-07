@@ -19,6 +19,7 @@ export type SudoryWebhookUpdateAttributes = Optional<
   | 'statusDescription'
   | 'stepCount'
   | 'stepPosition'
+  | 'stepStatus'
   | 'assignedClientUuid'
   | 'templateUuid'
 >;
@@ -41,6 +42,7 @@ export class SudoryWebhookModel extends Model<ISudoryWebhook, SudoryWebhookUpdat
   public statusDescription: string;
   public stepCount: number;
   public stepPosition: number;
+  public stepStatus: number;
   public assignedClientUuid: string;
   public templateUuid: string;
 
@@ -122,6 +124,10 @@ export default function (sequelize: Sequelize): typeof SudoryWebhookModel {
       },
       stepPosition: {
         allowNull: true,
+        type: DataTypes.INTEGER,
+      },
+      stepStatus: {
+        allowNull: false,
         type: DataTypes.INTEGER,
       },
     },
