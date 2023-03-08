@@ -578,6 +578,8 @@ class CustomerAccountService {
       where: {deletedAt: null, parentCustomerAccountId: parentCustomerAccountId}
     })
 
+    if (customerAccounts.length === 0) throw new HttpException(204, `not found child customerAccount by parentCustomerAccount(ID: ${parentCustomerAccountId})`)
+
     var customerAccountKeys = customerAccounts.map(ca => {
       return ca.customerAccountKey
     })

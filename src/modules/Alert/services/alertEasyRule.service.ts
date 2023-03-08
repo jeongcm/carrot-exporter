@@ -24,6 +24,7 @@ import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 import AlerthubService from './alerthub.service';
 import { Http } from 'winston/lib/winston/transports';
+import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 //import { arrayBuffer } from 'stream/consumers';
 //import path from 'path';
 //import { max } from 'lodash';
@@ -34,6 +35,7 @@ const uuid = require('uuid');
 class AlertEasyRuleService {
   private sudoryService = new SudoryService();
   private alertHubService = new AlerthubService();
+  private resourceGroupService = new ResourceGroupService();
   private alertRule = DB.AlertRule;
   private resourceGroup = DB.ResourceGroup;
   private alertEasyRule = DB.AlertEasyRule;
@@ -382,16 +384,9 @@ class AlertEasyRuleService {
   
     const results = [];
     for (let result of getAlertEasyRule) {
+      
       let resourceGroupServerInterfaceStatus: boolean = true;
-      if (result.ResourceGroup.resourceGroupLastServerUpdatedAt === null) {
-        resourceGroupServerInterfaceStatus = false;
-      } else {
-        const decisionMin = parseInt(config.clusterOutageDecisionMin);
-        const difference = new Date().getTime() - result.ResourceGroup.resourceGroupLastServerUpdatedAt.getTime();
-        const differenceInMin = Math.round(difference / 60000);
-        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-      }
-
+      resourceGroupServerInterfaceStatus = this.resourceGroupService.checkResourceServerInterfaceStatus(result.ResourceGroup.resourceGroupLastServerUpdatedAt)
       const alertRule = await this.alertRule.findOne({
         where: {
           deletedAt: null,

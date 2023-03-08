@@ -15,6 +15,7 @@ export interface ISudoryWebhook {
   statusDescription: string;
   stepCount: number;
   stepPosition: number;
+  stepStatus: number;
   assignedClientUuid: string;
   templateUuid: string;
 }

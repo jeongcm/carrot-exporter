@@ -117,6 +117,8 @@ class AlertReceivedService extends ServiceExtension {
       where: {deletedAt: null, parentCustomerAccountId: ParentCustomerAccountId}
     })
 
+    if (customerAccounts.length === 0) throw new HttpException(204, `not found child customerAccount by parentCustomerAccount(ID: ${ParentCustomerAccountId})`)
+
     var customerAccountKeys = customerAccounts.map(ca => {
       return ca.customerAccountKey
     })
