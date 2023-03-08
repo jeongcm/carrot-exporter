@@ -1620,14 +1620,7 @@ class ResourceService {
     let resultResources = [];
     for (let result of results) {
       let resourceGroupServerInterfaceStatus: boolean = true;
-      if (result.resourceGroupLastServerUpdatedAt === null) {
-        resourceGroupServerInterfaceStatus = false;
-      } else {
-        const decisionMin = parseInt(config.clusterOutageDecisionMin);
-        const difference = new Date().getTime() - result.resourceGroupLastServerUpdatedAt.getTime();
-        const differenceInMin = Math.round(difference / 60000);
-        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-      }
+      resourceGroupServerInterfaceStatus = this.resourceGroupService.checkResourceServerInterfaceStatus(result.ResourceGroup.resourceGroupLastServerUpdatedAt)
 
       resultResources.push({
         "resourceId": result.resourceId,

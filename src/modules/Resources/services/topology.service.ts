@@ -9,6 +9,7 @@ import filterRelatedGraph from './filter-related-graph';
 import config from '@config/index';
 import resourceService from "@modules/Resources/services/resource.service";
 import ResourceService from "@modules/Resources/services/resource.service";
+import ResourceGroupService from "@modules/Resources/services/resourceGroup.service";
 import { ConsoleSpanExporter } from '@opentelemetry/tracing';
 
 interface IHashedResources {
@@ -52,6 +53,7 @@ class TopologyService extends ServiceExtension {
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
   private resourceService = new ResourceService();
+  private resourceGroupService = new ResourceGroupService();
 
   constructor() {
     super({
@@ -132,14 +134,8 @@ class TopologyService extends ServiceExtension {
         } = resourceGroup;
 
         let resourceGroupServerInterfaceStatus = true;
-        if (resourceGroupLastServerUpdatedAt === null) {
-          resourceGroupServerInterfaceStatus = false;
-        } else {
-          const decisionMin = parseInt(config.clusterOutageDecisionMin);
-          const difference = new Date().getTime() - resourceGroupLastServerUpdatedAt.getTime();
-          const differenceInMin = Math.round(difference / 60000);
-          if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-        }
+
+        resourceGroupServerInterfaceStatus = this.resourceGroupService.checkResourceServerInterfaceStatus(resourceGroupLastServerUpdatedAt)
 
         const resource = await this.resource.findOne({
           where: {

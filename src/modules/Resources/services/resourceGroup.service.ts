@@ -137,14 +137,7 @@ class ResourceGroupService {
       });
       const numberOfNode = resultResource.length;
 
-      if (resultResourceGroup[i].resourceGroupLastServerUpdatedAt === null) {
-        resourceGroupServerInterfaceStatus = false;
-      } else {
-        const decisionMin = parseInt(config.clusterOutageDecisionMin);
-        const difference = new Date().getTime() - resultResourceGroup[i].resourceGroupLastServerUpdatedAt.getTime();
-        const differenceInMin = Math.round(difference / 60000);
-        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-      }
+      resourceGroupServerInterfaceStatus = this.checkResourceServerInterfaceStatus(resultResourceGroup[i].resourceGroupLastServerUpdatedAt)
 
       resourceGroupResult[i] = {
         resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
@@ -192,15 +185,7 @@ class ResourceGroupService {
       where: { deletedAt: null, resourceType: 'ND', resourceGroupKey: resourceGroupKey },
     });
     const numberOfNode = resultResource.length;
-
-    if (findResourceGroup.resourceGroupLastServerUpdatedAt === null) {
-      resourceGroupServerInterfaceStatus = false;
-    } else {
-      const decisionMin = parseInt(config.clusterOutageDecisionMin);
-      const difference = new Date().getTime() - findResourceGroup.resourceGroupLastServerUpdatedAt.getTime();
-      const differenceInMin = Math.round(difference / 60000);
-      if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-    }
+    resourceGroupServerInterfaceStatus = this.checkResourceServerInterfaceStatus(findResourceGroup.resourceGroupLastServerUpdatedAt)
 
     const resourceGroupResult = {
       resourceGroupKey: findResourceGroup.resourceGroupKey,
@@ -250,14 +235,7 @@ class ResourceGroupService {
       });
       const numberOfNode = resultResource.length;
 
-      if (resultResourceGroup[i].resourceGroupLastServerUpdatedAt === null) {
-        resourceGroupServerInterfaceStatus = false;
-      } else {
-        const decisionMin = parseInt(config.clusterOutageDecisionMin);
-        const difference = new Date().getTime() - resultResourceGroup[i].resourceGroupLastServerUpdatedAt.getTime();
-        const differenceInMin = Math.round(difference / 60000);
-        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-      }
+      resourceGroupServerInterfaceStatus = this.checkResourceServerInterfaceStatus(resultResourceGroup[i].resourceGroupLastServerUpdatedAt)
 
       resourceGroupResult[i] = {
         resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
@@ -308,14 +286,7 @@ class ResourceGroupService {
       });
       const numberOfNode = resultResource.length;
 
-      if (resultResourceGroup[i].resourceGroupLastServerUpdatedAt === null) {
-        resourceGroupServerInterfaceStatus = false;
-      } else {
-        const decisionMin = parseInt(config.clusterOutageDecisionMin);
-        const difference = new Date().getTime() - resultResourceGroup[i].resourceGroupLastServerUpdatedAt.getTime();
-        const differenceInMin = Math.round(difference / 60000);
-        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-      }
+      resourceGroupServerInterfaceStatus = this.checkResourceServerInterfaceStatus(resultResourceGroup[i].resourceGroupLastServerUpdatedAt)
 
       resourceGroupResult[i] = {
         resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
@@ -358,14 +329,7 @@ class ResourceGroupService {
     });
     const numberOfNode = resultResource.length;
 
-    if (findResourceGroup.resourceGroupLastServerUpdatedAt === null) {
-      resourceGroupServerInterfaceStatus = false;
-    } else {
-      const decisionMin = parseInt(config.clusterOutageDecisionMin);
-      const difference = new Date().getTime() - findResourceGroup.resourceGroupLastServerUpdatedAt.getTime();
-      const differenceInMin = Math.round(difference / 60000);
-      if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-    }
+    resourceGroupServerInterfaceStatus = this.checkResourceServerInterfaceStatus(findResourceGroup.resourceGroupLastServerUpdatedAt)
 
     const resourceGroupResult = {
       resourceGroupKey: findResourceGroup.resourceGroupKey,
@@ -412,14 +376,7 @@ class ResourceGroupService {
     });
     const numberOfNode = resultResource.length;
 
-    if (findResourceGroup.resourceGroupLastServerUpdatedAt === null) {
-      resourceGroupServerInterfaceStatus = false;
-    } else {
-      const decisionMin = parseInt(config.clusterOutageDecisionMin);
-      const difference = new Date().getTime() - findResourceGroup.resourceGroupLastServerUpdatedAt.getTime();
-      const differenceInMin = Math.round(difference / 60000);
-      if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-    }
+    resourceGroupServerInterfaceStatus = this.checkResourceServerInterfaceStatus(findResourceGroup.resourceGroupLastServerUpdatedAt)
 
     const resourceGroupResult = {
       resourceGroupKey: findResourceGroup.resourceGroupKey,
@@ -462,14 +419,7 @@ class ResourceGroupService {
     });
     const numberOfNode = resultResource.length;
 
-    if (findResourceGroup.resourceGroupLastServerUpdatedAt === null) {
-      resourceGroupServerInterfaceStatus = false;
-    } else {
-      const decisionMin = parseInt(config.clusterOutageDecisionMin);
-      const difference = new Date().getTime() - findResourceGroup.resourceGroupLastServerUpdatedAt.getTime();
-      const differenceInMin = Math.round(difference / 60000);
-      if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-    }
+    resourceGroupServerInterfaceStatus = this.checkResourceServerInterfaceStatus(findResourceGroup.resourceGroupLastServerUpdatedAt)
 
     const resourceGroupResult = {
       resourceGroupKey: findResourceGroup.resourceGroupKey,
@@ -536,14 +486,7 @@ class ResourceGroupService {
       });
       const numberOfNode = resultResource.length;
 
-      if (resultResourceGroup[i].resourceGroupLastServerUpdatedAt === null) {
-        resourceGroupServerInterfaceStatus = false;
-      } else {
-        const decisionMin = parseInt(config.clusterOutageDecisionMin);
-        const difference = new Date().getTime() - resultResourceGroup[i].resourceGroupLastServerUpdatedAt.getTime();
-        const differenceInMin = Math.round(difference / 60000);
-        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-      }
+      resourceGroupServerInterfaceStatus = this.checkResourceServerInterfaceStatus(resultResourceGroup[i].resourceGroupLastServerUpdatedAt)
 
       resourceGroupResult[i] = {
         resourceGroupKey: resultResourceGroup[i].resourceGroupKey,
@@ -1085,6 +1028,19 @@ class ResourceGroupService {
     };
 
     return result;
+  }
+
+  public checkResourceServerInterfaceStatus (resourceGroupLastServerUpdatedAt: any): boolean {
+    if (resourceGroupLastServerUpdatedAt === null) {
+      return false;
+    } else {
+      const decisionMin = parseInt(config.clusterOutageDecisionMin);
+      const difference = new Date().getTime() - resourceGroupLastServerUpdatedAt.getTime();
+      const differenceInMin = Math.round(difference / 60000);
+      if (differenceInMin > decisionMin) return false;
+    }
+
+    return true
   }
 }
 export default ResourceGroupService;
