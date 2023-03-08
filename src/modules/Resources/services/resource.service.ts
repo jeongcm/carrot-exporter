@@ -844,7 +844,7 @@ class ResourceService {
    */
   public async getResourceCountForK8sOverView(customerAccountKey: number, query?: any): Promise<any> {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, };
-    const replicaSetCondition = { deletedAt: null, customerAccountKey, resourceOwnerReferences: null, resourceType: 'RS'};
+    const replicaSetCondition = { deletedAt: null, customerAccountKey, resourceOwnerReferences: null, resourceType: 'RS', [Op.and]: [{resourceReplicas: { [Op.ne]: null }}, {resourceReplicas: { [Op.ne]: 0 }}]};
     let result: any = {};
     let resourceGroupIds: string[] = [];
     if (query?.resourceGroupId) {
@@ -1074,15 +1074,7 @@ class ResourceService {
     let query: any = {
       attributes: ['resourceName', 'resourceId', 'resourceType', 'resourceNamespace', 'resourceStatus'],
       where: {
-        [Op.or]: [
-          {
-            resourceReplicas: { [Op.ne]: null },
-          },
-          {
-            resourceReplicas: { [Op.ne]: 0 },
-          },
-        ],
-        resourceType: { [Op.in]: ['SS', 'DP'] },
+        resourceType: { [Op.in]: ['SS', 'DP', 'JO', 'CJ', 'DS'] },
         deletedAt: null,
         resourceGroupKey: resourceGroupKey,
       },
@@ -1097,7 +1089,7 @@ class ResourceService {
     let rsQuery: any = {
       attributes: ['resourceName', 'resourceId', 'resourceType', 'resourceNamespace', 'resourceStatus'],
       where: {
-        [Op.or]: [
+        [Op.and]: [
           {
             resourceReplicas: { [Op.ne]: null },
           },
@@ -1116,20 +1108,6 @@ class ResourceService {
 
     const replicaSetResources: IResource[] = await this.resource.findAll(rsQuery);
     replicaSetResources.forEach((replicaSetResource: IResource) => resultResources.push(replicaSetResource))
-
-    // 3. get cronjob, job 
-    let jobQuery: any = {
-      attributes: ['resourceName', 'resourceId', 'resourceType', 'resourceNamespace', 'resourceStatus'],
-      where: {
-        resourceType: { [Op.in]: ['JO', 'CJ', 'DS'] },
-        deletedAt: null,
-        resourceGroupKey: resourceGroupKey,
-      },
-      order: [['resource_type', 'DESC']]
-    }
-
-    const jobResources: IResource[] = await this.resource.findAll(jobQuery);
-    jobResources.forEach((jobResource: IResource) => resultResources.push(jobResource))
 
     return resultResources;
   }
