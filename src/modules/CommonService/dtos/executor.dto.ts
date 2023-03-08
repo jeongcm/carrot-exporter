@@ -132,6 +132,7 @@ export class SudoryWebhookDto {
   public status: number;
   public step_count: number;
   public step_position: number;
+  public step_status: number;
   public template_uuid: string;
   //public assgined_client_uuid: string;
   public result_type: string;

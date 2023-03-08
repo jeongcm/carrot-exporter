@@ -2679,6 +2679,14 @@ class executorService {
     const sudoryWebhookId = uuid.v1();
     let serviceResult;
     let incidentActionAttachmentType = 'JS';
+    // step 0. find which sudoryWebhook service result: 4 and stepStatus: 4
+    // it will be replace with insert processing data logic in sudoryWebhook which has multiStep
+    // by carrot
+    if (DataSetFromSudory.status !== 4) {
+      console.log("ignore sudory webhook. cause: not last sudory webhook result")
+      return
+    }
+
     //step 1. process sudory fed data
     if (DataSetFromSudory.result === null) {
       serviceResult = [];
@@ -2706,6 +2714,7 @@ class executorService {
         }
       }
     }
+
     //step 2. insert data into SudoryWebhook table
     const insertData = {
       sudoryWebhookId: sudoryWebhookId,
@@ -2720,6 +2729,7 @@ class executorService {
       statusDescription: DataSetFromSudory.status_description,
       stepCount: DataSetFromSudory.step_count,
       stepPosition: DataSetFromSudory.step_position,
+      stepStatus: DataSetFromSudory.step_status,
       //assignedClientUuid: DataSetFromSudory.assgined_client_uuid,
       templateUuid: DataSetFromSudory.template_uuid,
     };
@@ -2873,7 +2883,7 @@ class executorService {
       //limit: 1000,
       // where: { customerAccountKey, createdAt: { [Op.and]: { [Op.gte]: dateMinus, [Op.lte]: date } } },
       where: { customerAccountKey, deletedAt: null },
-      attributes: ['name', 'status', 'statusDescription', 'steps','createdAt', 'updatedAt', 'executorServiceId', 'inputs'],
+      attributes: ['name', 'status', 'statusDescription', 'steps','createdAt', 'updatedAt', 'executorServiceId', 'inputs', 'clusterUuid', 'summary', 'templateUuid'],
       include: [
         {
           as: 'resourceGroup',

@@ -24,6 +24,7 @@ import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import { ISudoryWebhook } from '@/common/interfaces/sudoryWebhook.interface';
 import AlerthubService from './alerthub.service';
 import { Http } from 'winston/lib/winston/transports';
+import ResourceGroupService from '@/modules/Resources/services/resourceGroup.service';
 //import { arrayBuffer } from 'stream/consumers';
 //import path from 'path';
 //import { max } from 'lodash';
@@ -34,6 +35,7 @@ const uuid = require('uuid');
 class AlertEasyRuleService {
   private sudoryService = new SudoryService();
   private alertHubService = new AlerthubService();
+  private resourceGroupService = new ResourceGroupService();
   private alertRule = DB.AlertRule;
   private resourceGroup = DB.ResourceGroup;
   private alertEasyRule = DB.AlertEasyRule;
@@ -382,16 +384,9 @@ class AlertEasyRuleService {
   
     const results = [];
     for (let result of getAlertEasyRule) {
+      
       let resourceGroupServerInterfaceStatus: boolean = true;
-      if (result.ResourceGroup.resourceGroupLastServerUpdatedAt === null) {
-        resourceGroupServerInterfaceStatus = false;
-      } else {
-        const decisionMin = parseInt(config.clusterOutageDecisionMin);
-        const difference = new Date().getTime() - result.ResourceGroup.resourceGroupLastServerUpdatedAt.getTime();
-        const differenceInMin = Math.round(difference / 60000);
-        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-      }
-
+      resourceGroupServerInterfaceStatus = this.resourceGroupService.checkResourceServerInterfaceStatus(result.ResourceGroup.resourceGroupLastServerUpdatedAt)
       const alertRule = await this.alertRule.findOne({
         where: {
           deletedAt: null,
@@ -1208,67 +1203,67 @@ class AlertEasyRuleService {
     resourceGroups.forEach(rg => {
       result[rg.resourceGroupUuid] = {
         NodeCpuAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostHighCpuLoadMax") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "NodeCpuHigh") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         NodeMemoryAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostOutOfMemoryMax") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "NodeMemoryHigh") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         NodeNetworkReceiveErrorAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostNetworkReceiveErrors") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "NodeNetworkInErrs") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         NodeNetworkTransmitErrorAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostNetworkTransmitErrors") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "NodeNetworkOutErrs") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         NodeNetworkInAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostUnusualNetworkThroughputIn") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "NodeNetworkInHigh") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         NodeNetworkOutAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostUnusualNetworkThroughputOut") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "NodeNetworkOutHigh") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         NodeDiskAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "HostdiskFillingUp") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "NodeDiskHigh") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         podCpuAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodCPUThresholdOver") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodCpuHigh") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         podMemoryAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodMemoryThresholdOver") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodMemoryHigh") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         PodNetworkReceiveErrorAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodNetworkReceiveErrors") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodNetworkInErrs") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         PodNetworkTransmitErrorAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodNetworkTransmitErrors") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodNetworkOutErrs") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         PodNetworkInAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodUnusualNetworkThroughputIn") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodNetworkInHigh") {
             return true
           }
         })?.alertEasyRuleThreshold1,
         PodNetworkOutAlertEasyRule: alertEasyRules.find(rule => {
-          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodUnusualNetworkThroughputOut") {
+          if (rule.resourceGroupKey === rg.resourceGroupKey && rule.alertEasyRuleName === "PodNetworkOutHigh") {
             return true
           }
         })?.alertEasyRuleThreshold1

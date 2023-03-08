@@ -9,7 +9,7 @@ import { IResourceGroup, IResourceGroupUi} from "@/common/interfaces/resourceGro
 //import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
 import CustomerAccountService from "@/modules/CustomerAccount/services/customerAccount.service";
 import ResourceGroupService from "@/modules/Resources/services/resourceGroup.service";
-import { Association, Op } from "sequelize";
+import { Association, Op, QueryTypes } from "sequelize";
 import { IAnomalyMonitoringTarget } from "@/common/interfaces/monitoringTarget.interface";
 import { ResourceGroupModel } from "../models/resourceGroup.model";
 import MetricService, { IMetricQueryBody } from "@modules/Metric/services/metric.service";
@@ -1615,20 +1615,12 @@ class ResourceService {
                 order by A.created_at desc`;
 
     let results: any
-    let metadata: any
-    [results, metadata] = await DB.sequelize.query(sql);
+    results = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
   
     let resultResources = [];
     for (let result of results) {
       let resourceGroupServerInterfaceStatus: boolean = true;
-      if (result.resourceGroupLastServerUpdatedAt === null) {
-        resourceGroupServerInterfaceStatus = false;
-      } else {
-        const decisionMin = parseInt(config.clusterOutageDecisionMin);
-        const difference = new Date().getTime() - result.resourceGroupLastServerUpdatedAt.getTime();
-        const differenceInMin = Math.round(difference / 60000);
-        if (differenceInMin > decisionMin) resourceGroupServerInterfaceStatus = false;
-      }
+      resourceGroupServerInterfaceStatus = this.resourceGroupService.checkResourceServerInterfaceStatus(result.ResourceGroup.resourceGroupLastServerUpdatedAt)
 
       resultResources.push({
         "resourceId": result.resourceId,

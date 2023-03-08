@@ -11,7 +11,7 @@ import ServiceExtension from '@/common/extentions/service.extension';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import sequelize from 'sequelize';
 
-const { Op } = require('sequelize');
+const { Op, QueryTypes } = require('sequelize');
 
 const ALERT_STATUS = {
   firing: 'firing',
@@ -33,7 +33,7 @@ class AlertReceivedService extends ServiceExtension {
     });
   }
 
-  public async getAllAlertReceived(customerAccountKey: number): Promise<object> {
+  public async getAllAlertReceived(customerAccountKey: number): Promise<any> {
     /* sequelize join doesn't work with ResourceGroup.... Sequelize bug. can't use "include" bugfix/149
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
@@ -81,9 +81,9 @@ class AlertReceivedService extends ServiceExtension {
                 and A.deleted_at is null
                 and B.deleted_at is null
                 and C.deleted_at is null`;
-    const [result, metadata] = await DB.sequelize.query(sql);
+    const results = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
     //return allAlertReceived;
-    return result;
+    return results;
   }
 
   public async getAllAlertReceivedByParentCustomerAccountId(ParentCustomerAccountId: string): Promise<object> {
@@ -116,6 +116,8 @@ class AlertReceivedService extends ServiceExtension {
     let customerAccounts = await this.customerAccount.findAll({
       where: {deletedAt: null, parentCustomerAccountId: ParentCustomerAccountId}
     })
+
+    if (customerAccounts.length === 0) throw new HttpException(204, `not found child customerAccount by parentCustomerAccount(ID: ${ParentCustomerAccountId})`)
 
     var customerAccountKeys = customerAccounts.map(ca => {
       return ca.customerAccountKey
@@ -160,8 +162,7 @@ class AlertReceivedService extends ServiceExtension {
                 order by A.created_at desc`;
 
     let result: any
-    let metadata: any
-    [result, metadata] = await DB.sequelize.query(sql);
+    result = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
     let resource: any
 
     for (let alert of result) {
