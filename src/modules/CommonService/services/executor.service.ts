@@ -2732,6 +2732,7 @@ class executorService {
         }
       }
     }
+
     //step 2. insert data into SudoryWebhook table
     const insertData = {
       sudoryWebhookId: sudoryWebhookId,
@@ -2746,7 +2747,7 @@ class executorService {
       statusDescription: DataSetFromSudory.status_description,
       stepCount: DataSetFromSudory.step_count,
       stepPosition: DataSetFromSudory.step_position,
-      // stepStatus: DataSetFromSudory.step_status,
+      stepStatus: DataSetFromSudory.step_status,
       //assignedClientUuid: DataSetFromSudory.assgined_client_uuid,
       templateUuid: DataSetFromSudory.template_uuid,
     };
