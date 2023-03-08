@@ -343,7 +343,7 @@ class ResourceController {
     const allReplicasYN: string = req.params.allReplicasYN || 'N';
 
     try {
-      const resource: IResource[] = await this.resourceService.getWorkloadByResourceGroupUuid(resourceGroupUuid, allReplicasYN);
+      const resource: IResource[] = await this.resourceService.getWorkloadByResourceGroupUuid(resourceGroupUuid);
       res.status(200).json({ data: resource, message: `find workloads with resourceGroupUuid(${resourceGroupUuid}` });
     } catch (error) {
       next(error);
