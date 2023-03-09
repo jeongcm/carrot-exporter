@@ -899,7 +899,14 @@ class MetricService extends ServiceExtension {
         });
         promQl = `sum by (clusterUuid, node) (irate(container_cpu_usage_seconds_total{pod!="", container="", __LABEL_PLACE_HOLDER__}[${step}])) / sum by (clusterUuid, node) (kube_node_status_allocatable{resource="cpu", __LABEL_PLACE_HOLDER__})`;
         break;
-      case 'K8S_CLUSTER_NODE_DISK':
+      case 'K8S_CLUSTER_NODE_DISK_TOTAL':
+        labelString += getSelectorLabels({
+          clusterUuid,
+          node: resourceName,
+        });
+        promQl = `sum by (clusterUuid, node) (node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs",endpoint != "", __LABEL_PLACE_HOLDER__})`;
+        break;
+      case 'K8S_CLUSTER_NODE_DISK_USED':
         labelString += getSelectorLabels({
           clusterUuid,
           node: resourceName,
