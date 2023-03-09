@@ -292,7 +292,6 @@ class TopologyService extends ServiceExtension {
               children: [],
             };
           }
-          console.log(sets[namespace][resource.resourceTargetUuid])
           break;
         case 'RS':
           // ReplicaSet ownerReference check
@@ -353,7 +352,6 @@ class TopologyService extends ServiceExtension {
         
           break;
         case 'PD':
-          console.log('ownerReference: ',resource.resourceOwnerReferences)
           pod += 1;
           let podOwners = [];
           if (typeof resource.resourceOwnerReferences === 'string') {
