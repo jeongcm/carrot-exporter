@@ -883,7 +883,7 @@ class IncidentService {
                   and C.deleted_at is null
                   and D.deleted_at is null
                   and A.alert_received_key = D.alert_received_key`;
-      const [result, metadata] = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
+      const result = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
       return result;
     } catch (error) {
       throw error;
