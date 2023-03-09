@@ -96,7 +96,7 @@ class healthService {
             const templateUuid = '99990000000000000000000000000001';
             const inputs = {};
             const subscribed_channel = config.sudoryApiDetail.channel_webhook;
-            const resultSuodryCall = this.sudoryService.postSudoryServiceV2(
+            const resultSuodryCall = await this.sudoryService.postSudoryServiceV2(
               sudoryName,
               sudorySummary,
               clusterUuid,
