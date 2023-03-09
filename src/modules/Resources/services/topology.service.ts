@@ -208,6 +208,15 @@ class TopologyService extends ServiceExtension {
       },
     });
 
+    const replicaSet: IResource[] = await this.resource.findAll({
+      where: {
+        customerAccountKey,
+        resourceGroupKey,
+        resourceType,
+        deletedAt: null,
+        ...queryOptions,
+      },
+    })
     if (!resources) {
       return this.throwError('NOT_FOUND', 'no resources');
     }
@@ -261,6 +270,7 @@ class TopologyService extends ServiceExtension {
   public async createWorkloadPodTopology(resources: IResource[], resourceId: string[]) {
     const sets: any = {};
     const podsPerUid: any = {};
+    const replicaSetsPerUid: any = {};
 
     let workload = 0;
     let pod = 0;
@@ -270,12 +280,12 @@ class TopologyService extends ServiceExtension {
       const namespace = resource.resourceNamespace;
 
       switch (resource.resourceType) {
+        
+        case 'SS':
+        case 'DP':
+        case 'DS':
         case 'JO':
         case 'CJ':
-        case 'SS':
-        case 'DS':
-        case 'DP':
-        case 'RS':
           if (!sets[resource.resourceNamespace]) {
             sets[namespace] = {};
           }
@@ -293,27 +303,86 @@ class TopologyService extends ServiceExtension {
               children: [],
             };
           }
+
           break;
-        case 'PD':
-          pod += 1;
+        case 'RS':
+          // ReplicaSet ownerReference check
           let owners = [];
           if (typeof resource.resourceOwnerReferences === 'string') {
             try {
               owners = JSON.parse(resource.resourceOwnerReferences);
             } catch (e) {
               owners = [];
+              workload += 1;
             }
           } else if (resource.resourceOwnerReferences) {
             owners = resource.resourceOwnerReferences;
           } else if (!resource.resourceOwnerReferences) {
             owners = [];
+            workload += 1;
           }
 
           if (!Array.isArray(owners)) {
             owners = [owners];
           }
 
-          owners?.map((owner: any) => {
+          // if resourceOwnerReferences not exist, append to sets for indenpent workload
+          if (owners.length === 0) {
+            if (!sets[resource.resourceNamespace]) {
+              sets[namespace] = {};
+            }
+  
+            if (resourceId.length === 0 || resourceId.indexOf(resource.resourceId) > -1) {
+              sets[namespace][resource.resourceTargetUuid] = {
+                resourceNamespace: namespace,
+                resourceName: resource.resourceName,
+                resourceId: resource.resourceId,
+                resourceTargetUuid: resource.resourceTargetUuid,
+                resourceType: resource.resourceType,
+                level: 'workload',
+                children: [],
+              };
+            }
+            break;
+          }
+
+          if (!replicaSetsPerUid[namespace]) {
+            replicaSetsPerUid[namespace] = {}
+          }
+
+          replicaSetsPerUid[namespace][resource.resourceTargetUuid] = {
+            resourceType: 'RS',
+            resourceName: resource.resourceName,
+            resourceNamespace: namespace,
+            resourceId: resource.resourceId,
+            resourceStatus: resource.resourceStatus,
+            resourceTargetUuid: resource.resourceTargetUuid,
+            resourceOwnerReference: owners,
+            level: 'workload',
+            children: [],
+          };
+        
+          break;
+        case 'PD':
+          pod += 1;
+          let podOwners = [];
+          if (typeof resource.resourceOwnerReferences === 'string') {
+            try {
+              podOwners = JSON.parse(resource.resourceOwnerReferences);
+            } catch (e) {
+              podOwners = [];
+            }
+          } else if (resource.resourceOwnerReferences) {
+            podOwners = resource.resourceOwnerReferences;
+          } else if (!resource.resourceOwnerReferences) {
+            podOwners = [];
+          }
+
+          if (!Array.isArray(podOwners)) {
+            podOwners = [podOwners];
+          }
+
+          podOwners?.map((owner: any) => {
             if (owner.uid) {
               if (!podsPerUid[namespace]) {
                 podsPerUid[namespace] = {};
@@ -341,9 +410,25 @@ class TopologyService extends ServiceExtension {
 
     Object.keys(podsPerUid).forEach((namespace: string) => {
       Object.keys(podsPerUid[namespace]).forEach((key: string) => {
+        // if pod's ownerReference is replicaSetsPerUid append replicaSetsPerUid.children, else append set.children
+        if (replicaSetsPerUid[namespace][key]) {
+          replicaSetsPerUid[namespace][key].children = podsPerUid[namespace][key]
+          return
+        }
+
         if (sets[namespace] && sets[namespace][key]) {
           sets[namespace][key].children = podsPerUid[namespace][key];
         }
+      });
+    });
+
+    Object.keys(replicaSetsPerUid).forEach((namespace: string) => {
+      Object.keys(replicaSetsPerUid[namespace]).forEach((key: any) => {
+        replicaSetsPerUid[namespace][key].resourceOwnerReference.forEach(owner => {
+          if (sets[namespace] && sets[namespace][owner.uid]) {
+          sets[namespace][owner.uid].children = replicaSetsPerUid[namespace][key];
+          } 
+        });
       });
     });
 
