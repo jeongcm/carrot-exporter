@@ -370,6 +370,33 @@ class TopologyService extends ServiceExtension {
             podOwners = [podOwners];
           }
 
+          const workloadKind = ['ReplicaSet', 'Deployment', 'StatefulSet', 'Job', 'CronJob', 'DaemonSet']
+          let flag: boolean = true
+          podOwners.forEach((owner: any) => {
+            if (workloadKind.indexOf(owner.kind) > -1) {
+                flag = false
+            }
+          })
+
+          if (podOwners.length === 0 || flag) {
+            if (!sets[resource.resourceNamespace]) {
+              sets[namespace] = {};
+            }
+  
+            if (resourceId.length === 0 || resourceId.indexOf(resource.resourceId) > -1) {
+              sets[namespace][resource.resourceTargetUuid] = {
+                resourceNamespace: namespace,
+                resourceName: resource.resourceName,
+                resourceId: resource.resourceId,
+                resourceTargetUuid: resource.resourceTargetUuid,
+                resourceType: resource.resourceType,
+                level: 'pod',
+                resourceStatusPhase: resource.resourceStatus?.phase,
+              };
+            }
+            break;
+          }
+
           podOwners?.map((owner: any) => {
             if (owner.uid) {
               if (!podsPerUid[namespace]) {
