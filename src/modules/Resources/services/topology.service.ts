@@ -207,16 +207,7 @@ class TopologyService extends ServiceExtension {
         ...queryOptions,
       },
     });
-
-    const replicaSet: IResource[] = await this.resource.findAll({
-      where: {
-        customerAccountKey,
-        resourceGroupKey,
-        resourceType,
-        deletedAt: null,
-        ...queryOptions,
-      },
-    })
+    
     if (!resources) {
       return this.throwError('NOT_FOUND', 'no resources');
     }
