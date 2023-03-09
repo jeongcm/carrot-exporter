@@ -20,7 +20,7 @@ import { IncidentActionModel } from '@/modules/Incident/models/incidentAction.mo
 //import { IIncidentAlertReceived } from '@/common/interfaces/incidentAlertReceived.interface';
 import { IIncidentCounts } from '@/common/interfaces/incidentCounts.interface';
 //import sequelize from 'sequelize';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { PartyModel } from '@/modules/Party/models/party.model';
 import PartyService from '@/modules/Party/services/party.service';
 import UploadService from '@/modules/CommonService/services/fileUpload.service';
@@ -883,7 +883,7 @@ class IncidentService {
                   and C.deleted_at is null
                   and D.deleted_at is null
                   and A.alert_received_key = D.alert_received_key`;
-      const [result, metadata] = await DB.sequelize.query(sql);
+      const [result, metadata] = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
       return result;
     } catch (error) {
       throw error;
