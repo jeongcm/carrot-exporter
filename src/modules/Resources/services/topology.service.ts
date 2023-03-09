@@ -266,10 +266,8 @@ class TopologyService extends ServiceExtension {
     let workload = 0;
     let pod = 0;
     let connectedPod = 0;
-
     resources.forEach((resource: IResource) => {
-      const namespace = resource.resourceNamespace;
-
+      let namespace = resource.resourceNamespace;
       switch (resource.resourceType) {
         
         case 'SS':
@@ -294,7 +292,7 @@ class TopologyService extends ServiceExtension {
               children: [],
             };
           }
-
+          console.log(sets[namespace][resource.resourceTargetUuid])
           break;
         case 'RS':
           // ReplicaSet ownerReference check
@@ -355,6 +353,7 @@ class TopologyService extends ServiceExtension {
         
           break;
         case 'PD':
+          console.log('ownerReference: ',resource.resourceOwnerReferences)
           pod += 1;
           let podOwners = [];
           if (typeof resource.resourceOwnerReferences === 'string') {
@@ -402,7 +401,7 @@ class TopologyService extends ServiceExtension {
     Object.keys(podsPerUid).forEach((namespace: string) => {
       Object.keys(podsPerUid[namespace]).forEach((key: string) => {
         // if pod's ownerReference is replicaSetsPerUid append replicaSetsPerUid.children, else append set.children
-        if (replicaSetsPerUid[namespace][key]) {
+        if (replicaSetsPerUid[namespace] && replicaSetsPerUid[namespace][key]) {
           replicaSetsPerUid[namespace][key].children = podsPerUid[namespace][key]
           return
         }
