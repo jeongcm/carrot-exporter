@@ -128,6 +128,7 @@ spec:
       labels:
         app: ${APP_IMAGE_NAME}
     spec:
+      revisionHistoryLimit: 0 # Default to 10 if not specified
       containers:
         - name: ${APP_IMAGE_NAME}
           image: ${IMG_TAG_TO_DEPLOY}
