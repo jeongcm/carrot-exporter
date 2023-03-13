@@ -258,6 +258,24 @@ class TopologyService extends ServiceExtension {
     return topologyItems;
   }
 
+  public appendWorkload(sets: any, resource: any, resourceId: any) {
+    if (!sets[resource.resourceNamespace]) {
+      sets[resource.resourceNamespace] = {};
+    }
+
+    if (resourceId.length === 0 || resourceId.indexOf(resource.resourceId) > -1) {
+      sets[resource.resourceNamespace][resource.resourceTargetUuid] = {
+        resourceNamespace: resource.resourceNamespace,
+        resourceName: resource.resourceName,
+        resourceId: resource.resourceId,
+        resourceTargetUuid: resource.resourceTargetUuid,
+        resourceType: resource.resourceType,
+        level: 'workload',
+        children: [],
+      };
+    }
+  }
+
   public async createWorkloadPodTopology(resources: IResource[], resourceId: string[]) {
     const sets: any = {};
     const podsPerUid: any = {};
@@ -275,23 +293,7 @@ class TopologyService extends ServiceExtension {
         case 'DS':
         case 'JO':
         case 'CJ':
-          if (!sets[resource.resourceNamespace]) {
-            sets[namespace] = {};
-          }
-
-          workload += 1;
-
-          if (resourceId.length === 0 || resourceId.indexOf(resource.resourceId) > -1) {
-            sets[namespace][resource.resourceTargetUuid] = {
-              resourceNamespace: namespace,
-              resourceName: resource.resourceName,
-              resourceId: resource.resourceId,
-              resourceTargetUuid: resource.resourceTargetUuid,
-              resourceType: resource.resourceType,
-              level: 'workload',
-              children: [],
-            };
-          }
+          this.appendWorkload(sets, resource, resourceId)
           break;
         case 'RS':
           // ReplicaSet ownerReference check
@@ -316,21 +318,7 @@ class TopologyService extends ServiceExtension {
 
           // if resourceOwnerReferences not exist, append to sets for indenpent workload
           if (owners.length === 0) {
-            if (!sets[resource.resourceNamespace]) {
-              sets[namespace] = {};
-            }
-  
-            if (resourceId.length === 0 || resourceId.indexOf(resource.resourceId) > -1) {
-              sets[namespace][resource.resourceTargetUuid] = {
-                resourceNamespace: namespace,
-                resourceName: resource.resourceName,
-                resourceId: resource.resourceId,
-                resourceTargetUuid: resource.resourceTargetUuid,
-                resourceType: resource.resourceType,
-                level: 'workload',
-                children: [],
-              };
-            }
+            this.appendWorkload(sets, resource, resourceId)
             break;
           }
 
@@ -525,6 +513,51 @@ class TopologyService extends ServiceExtension {
     }
 
     return counts;
+  }
+
+  public async countWorkloadPod(customerAccountKey: number, resourceGroupId?: string[], resourceId?: string[]): Promise<any> {
+    const workloads: any = await this.getAllTopology('workload-pods', customerAccountKey, resourceGroupId, resourceId);
+    const myCounts = {
+      RS: 0,
+      SS: 0,
+      DS: 0,
+      CJ: 0,
+      JO: 0,
+      DP: 0,
+      PD: 0,
+    };
+    workloads?.map((resourceGroup: any) => {
+      resourceGroup?.children.map((namespace: any) => {
+        // get workload count 
+        namespace?.children.map((workload: any) => {
+          switch (workload.resourceType) {
+            case 'DP':
+              myCounts.DP++
+              break
+            case 'RS':
+              myCounts.RS++
+              break
+            case 'SS':
+              myCounts.SS++
+              break
+            case 'DS':
+              myCounts.DS++
+              break
+            case 'JO':
+              myCounts.JO++
+              break
+            case 'CJ':
+              myCounts.CJ++
+              break
+            case 'PD':
+              myCounts.PD++
+              break
+          }
+        })
+      })
+    })
+
+    return myCounts;
   }
 
   public async countPodResources(customerAccountKey: number): Promise<any> {
