@@ -783,89 +783,14 @@ class executorService {
     // get system user id
 
     const ResponseResoureGroup: IResourceGroupUi = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
-    const resourceGroupId = ResponseResoureGroup.resourceGroupId;
-    //schedule metricMeta
-    await this.scheduleMetricMeta(clusterUuid, customerAccountKey)
-      .then(async (res: any) => {
-        console.log(`Submitted metric meta feeds schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule MetricMeta ');
-      }); //end of catch
+    // provision default scheduler
+    await this.registerDefaultScheduler(clusterUuid, customerAccountId)
 
-    //schedule alert rules & received
-    await this.scheduleAlert(clusterUuid, customerAccountKey)
-      .then(async (res: any) => {
-        console.log(`Submitted alert feeds schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert feeds ');
-      }); //end of catch
-
-    //schdule SyncResource
-    const cronTabforResource = config.resourceCron;
-    await this.scheduleSyncResources(clusterUuid, cronTabforResource)
-      .then(async (res: any) => {
-        console.log(`Submitted resource sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
-      }); //end of catch
-
-    //schdule SyncAlerts
-    const cronTabforAlert = config.alertCron;
-    await this.scheduleSyncAlerts(clusterUuid, cronTabforAlert)
-      .then(async (res: any) => {
-        console.log(`Submitted Alert sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert sync');
-      }); //end of catch
-
-    //schdule SyncMetricMeta
-    const cronTabforMetricMeta = config.metricCron;
-    await this.scheduleSyncMetricMeta(clusterUuid, cronTabforMetricMeta)
-      .then(async (res: any) => {
-        console.log(`Submitted MetricMeta sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric meta sync');
-      }); //end of catch
-
-    if (config.metricReceivedSwitch === 'on') {
-      //schdule SyncMetricReceived
-      const cronTabforMetricReceived = config.metricReceivedCron;
-      await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
-        .then(async (res: any) => {
-          console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
-        })
-        .catch(error => {
-          console.log(error);
-          throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
-        }); //end of catch
-    }
     //provision alert easy rule for the cluster, TODO: it will be divided 
     await this.initializeAlertEasyRule(customerAccountId, clusterUuid, ResponseResoureGroup.resourceGroupPlatform)
 
     //provision metricOps rule if the customer has MetricOps subscription
-    const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
-    if (findSubscription.length > 0) {
-      const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
-      const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
-        where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
-      });
-      const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
-      if (findMetricOps) {
-        console.log('#DEBUG-resourceGroupId', resourceGroupId);
-        //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
-        //console.log('resultProvision', resultProvision);
-      }
-    }
+    await this.provisionMetricOpsRule(clusterUuid, customerAccountId)
     // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
     // console.log('operation schedules setup:', scheduleHealthService);
 
@@ -1167,93 +1092,15 @@ class executorService {
     // get system user id
 
     const ResponseResoureGroup: IResourceGroupUi = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
-    const resourceGroupId = ResponseResoureGroup.resourceGroupId;
-    //schedule metricMeta
-    await this.scheduleMetricMeta(clusterUuid, customerAccountKey)
-      .then(async (res: any) => {
-        console.log(`Submitted metric meta feeds schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule MetricMeta ');
-      }); //end of catch
+    // provision default scheduler
+    await this.registerDefaultScheduler(clusterUuid, customerAccountId)
 
-    //schedule alert rules & received
-    await this.scheduleAlert(clusterUuid, customerAccountKey)
-      .then(async (res: any) => {
-        console.log(`Submitted alert feeds schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert feeds ');
-      }); //end of catch
-
-    //schdule SyncResource
-    const cronTabforResource = config.resourceCron;
-    await this.scheduleSyncResources(clusterUuid, cronTabforResource)
-      .then(async (res: any) => {
-        console.log(`Submitted resource sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
-      }); //end of catch
-
-    //schdule SyncAlerts
-    const cronTabforAlert = config.alertCron;
-    await this.scheduleSyncAlerts(clusterUuid, cronTabforAlert)
-      .then(async (res: any) => {
-        console.log(`Submitted Alert sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule alert sync');
-      }); //end of catch
-
-    //schdule SyncMetricMeta
-    const cronTabforMetricMeta = config.metricCron;
-    await this.scheduleSyncMetricMeta(clusterUuid, cronTabforMetricMeta)
-      .then(async (res: any) => {
-        console.log(`Submitted MetricMeta sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric meta sync');
-      }); //end of catch
-
-    if (config.metricReceivedSwitch === 'on') {
-      //schdule SyncMetricReceived
-      const cronTabforMetricReceived = config.metricReceivedCron;
-      await this.scheduleSyncMetricReceived(clusterUuid, cronTabforMetricReceived)
-        .then(async (res: any) => {
-          console.log(`Submitted metric-received sync schedule reqeust on ${clusterUuid} cluster successfully`);
-        })
-        .catch(error => {
-          console.log(error);
-          throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule metric-received sync');
-        }); //end of catch
-    }
-
-    //provision alert easy rule for the cluster
+    //provision alert easy rule for the cluster, TODO: it will be divided 
     await this.initializeAlertEasyRule(customerAccountId, clusterUuid, ResponseResoureGroup.resourceGroupPlatform)
 
     //provision metricOps rule if the customer has MetricOps subscription
-    // const findSubscription: ISubscriptions[] = await this.subscription.findAll({ where: { customerAccountKey, deletedAt: null } });
-    // if (findSubscription.length > 0) {
-    //   const catalogPlanKey = findSubscription.map(x => x.catalogPlanKey);
-    //   const findCatalogPlan: ICatalogPlan[] = await this.catalogPlan.findAll({
-    //     where: { deletedAt: null, catalogPlanKey: { [Op.in]: catalogPlanKey } },
-    //   });
-    //   const findMetricOps = findCatalogPlan.find(x => x.catalogPlanType === 'MO');
-    //   if (findMetricOps) {
-    //     console.log('#DEBUG-resourceGroupId', resourceGroupId);
-    //     //const resultProvision = await this.bayesianModelService.provisionBayesianModelforCluster(resourceGroupId);
-    //     //console.log('resultProvision', resultProvision);
-    //   }
-    // }
-    // const scheduleHealthService = await this.healthService.checkHealthByCustomerAccountId(customerAccountId);
-    // console.log('operation schedules setup:', scheduleHealthService);
-
+    await this.provisionMetricOpsRule(clusterUuid, customerAccountId)
+    
     return serviceUuid;
   }
 
