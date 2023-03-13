@@ -117,6 +117,22 @@ class ResourceController {
     }
   };
 
+   /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+   public countWorkloadPod = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const { customerAccountKey } = req;
+      const resourceCount: any[] = await this.topologyService.countWorkloadPod(customerAccountKey, req.query.resourceGroupId as string[], req.query.resourceId as string[]);
+
+      res.status(200).json({ data: resourceCount, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
