@@ -107,15 +107,7 @@ class executorController {
       const platform = req.params.platform
       let clientResponse
 
-      switch (platform) {
-        case "K8":
-          clientResponse = await this.executorService.checkExecutorClient(clusterUuid, sudoryNamespace, customerAccountKey);
-          break
-        case "OS":
-          clientResponse = await this.executorService.checkExecutorClientForOpenstack(clusterUuid, sudoryNamespace, customerAccountKey);
-          break
-        default:
-      }
+      clientResponse = await this.executorService.checkExecutorClient(clusterUuid, sudoryNamespace, customerAccountKey, platform);
 
       if (clientResponse) {
         res.status(200).json({ data: clientResponse, message: `Success to confirm Executor/Sudory client` });
@@ -186,6 +178,76 @@ class executorController {
     }
   };
 
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public registerDefaultScheduler = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const clusteUuid = req.body.clusteUuid;
+    const customerAccountId = req.body.customerAccountId;
+
+    try {
+      await this.executorService.registerDefaultScheduler(clusteUuid, customerAccountId);
+      res.status(200).json({ message: `register default scheduler(clusterUuid: ${clusteUuid}) ` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public installStacks = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const clusteUuid = req.body.clusteUuid;
+    const customerAccountId = req.body.customerAccountId;
+    const stacks = req.body.stacks;
+
+    try {
+      await this.executorService.installStacks(clusteUuid, customerAccountId, stacks);
+      res.status(200).json({ message: `install stacks(clusterUuid: ${clusteUuid})` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public checkStacks = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const clusteUuid = req.body.clusteUuid;
+    const customerAccountId = req.body.customerAccountId;
+    const stacks = req.body.stacks;
+
+    try {
+      await this.executorService.checkStacks(clusteUuid, customerAccountId, stacks);
+      res.status(200).json({ message: `check stacks(clusterUuid: ${clusteUuid})` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public provisionMetricOpsRule = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const clusteUuid = req.body.clusteUuid;
+    const customerAccountId = req.body.customerAccountId;
+
+    try {
+      await this.executorService.provisionMetricOpsRule(clusteUuid, customerAccountId);
+      res.status(200).json({ message: `provision metric ops rule(clusterUuid: ${clusteUuid}) ` });
+    } catch (error) {
+      next(error);
+    }
+  };
+  
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
@@ -427,6 +489,7 @@ class executorController {
     }
   };
 
+  
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
