@@ -977,11 +977,16 @@ class ResourceService {
     if (resourceIds.length === 0) {
       throw new HttpException(204, 'no contents')
     }
+    const ids = [];
     
+    if (!Array.isArray(resourceIds)) {
+      ids.push(resourceIds)
+    } else {
+    resourceIds.map((resourceId: any) => ids.push(resourceId))
+    }
     const allResources: IResource[] = await this.resource.findAll({
       where: {
-        deletedAt: null,
-        resourceId: { [Op.in]: { resourceIds } }
+        resourceId: { [Op.in]: ids}
       },
       include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
     });

@@ -119,7 +119,7 @@ class ResourceRoute implements Routes {
     );
 
     this.router.get(
-      '/resource/ids',
+      '/resourceByIds',
       authMiddleware,
       createUserLogMiddleware,
       this.resourceController.getResourceByResourceIds,
