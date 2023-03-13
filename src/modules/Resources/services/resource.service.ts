@@ -973,6 +973,27 @@ class ResourceService {
    * @param  {number} resourceGroupId
    * @param  {any} query
    */
+  public async getResourceByResourceIds(resourceIds: any): Promise<IResource[]> {
+    if (resourceIds.length === 0) {
+      throw new HttpException(204, 'no contents')
+    }
+    
+    const allResources: IResource[] = await this.resource.findAll({
+      where: {
+        deletedAt: null,
+        resourceId: { [Op.in]: { resourceIds } }
+      },
+      include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
+    });
+
+    return allResources;
+  }
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} resourceGroupId
+   * @param  {any} query
+   */
   public async getResourceByTypeResourceGroupId(resourceType: string[], resourceGroupId: string, query?: any): Promise<IResource[]> {
     const resultResourceGroup = await this.resourceGroupService.getResourceGroupById(resourceGroupId);
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;

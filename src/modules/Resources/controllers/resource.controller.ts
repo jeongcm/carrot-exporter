@@ -292,6 +292,18 @@ class ResourceController {
     }
   };
 
+  public getResourceByResourceIds = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceIds = req.query?.resourceId;
+
+    console.log("im here")
+    try {
+      const result: any = await this.resourceService.getResourceByResourceIds(resourceIds);
+      res.status(200).json({ result: result, message: `get resource by resourceIds` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getResourceCountForK8sOverview = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey: number = req.customerAccountKey;
 
