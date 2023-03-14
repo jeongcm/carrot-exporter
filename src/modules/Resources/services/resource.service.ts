@@ -844,6 +844,7 @@ class ResourceService {
    */
   public async getResourceCountForK8sOverView(customerAccountKey: number, query?: any): Promise<any> {
     const resourceWhereCondition = { deletedAt: null, customerAccountKey, };
+    const replicaSetCondition = { deletedAt: null, customerAccountKey, resourceOwnerReferences: null, resourceType: 'RS', [Op.and]: [{resourceReplicas: { [Op.ne]: null }}, {resourceReplicas: { [Op.ne]: 0 }}]};
     let result: any = {};
     let resourceGroupIds: string[] = [];
     if (query?.resourceGroupId) {
@@ -868,6 +869,7 @@ class ResourceService {
       });
 
       resourceWhereCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
+      replicaSetCondition['resourceGroupKey'] = resourceGroups?.map((resourceGroup: IResourceGroup) => resourceGroup.resourceGroupKey)
     }
 
     // get Nodes Count
@@ -905,13 +907,23 @@ class ResourceService {
       where: resourceWhereCondition,
       group: ['resourceNamespace']
     })
+
+    // get Workload(replicaset) which not include ownerReference
+    let replicaSet: any = await this.resource.findAndCountAll({
+      where: replicaSetCondition,
+      attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
+    });
+
     // get Workloads Count
-    resourceWhereCondition['resourceType'] = ['DS', 'DP', 'RS', 'SS', 'CJ', 'JO']
+    resourceWhereCondition['resourceType'] = ['DS', 'DP', 'SS', 'CJ', 'JO']
     result['workloadCount'] = await this.resource.findAndCountAll({
       where: resourceWhereCondition,
       attributes: ['resourceName', 'resourceType', 'resourceActive', 'resourceStatus'],
     });
 
+    result['workloadCount'].count = result['workloadCount'].count + replicaSet.count
+    result['workloadCount'].rows.push.apply(result['workloadCount'].rows, replicaSet.rows)
+    
     // get Workloads by Namespace Count
     result['workloadCountByNamespace'] = await this.resource.count({
       where: resourceWhereCondition,
@@ -949,6 +961,32 @@ class ResourceService {
         resourceGroupKey: resourceGroupKey,
         [Op.and]: [...resourceQuery],
         resourceKey: { [Op.notIn]: resourceKeys },
+      },
+      include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
+    });
+
+    return allResources;
+  }
+
+  /**
+   * @param  {string} resourceType
+   * @param  {number} resourceGroupId
+   * @param  {any} query
+   */
+  public async getResourceByResourceIds(resourceIds: any): Promise<IResource[]> {
+    if (resourceIds.length === 0) {
+      throw new HttpException(204, 'no contents')
+    }
+    const ids = [];
+    
+    if (!Array.isArray(resourceIds)) {
+      ids.push(resourceIds)
+    } else {
+    resourceIds.map((resourceId: any) => ids.push(resourceId))
+    }
+    const allResources: IResource[] = await this.resource.findAll({
+      where: {
+        resourceId: { [Op.in]: ids}
       },
       include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
     });
@@ -1009,7 +1047,7 @@ class ResourceService {
    * @param  {string} resourceGroupUuid
    * @param {string} allReplicasYN
    */
-  public async getWorkloadByResourceGroupUuid(resourceGroupUuid: string, allReplicasYN: string): Promise<IResource[]> {
+  public async getWorkloadByResourceGroupUuidBackUp(resourceGroupUuid: string, allReplicasYN: string): Promise<IResource[]> {
     const resultResourceGroup = await this.resourceGroupService.getResourceGroupByUuid(resourceGroupUuid);
     const resourceGroupKey = resultResourceGroup.resourceGroupKey;
     let query;
@@ -1047,6 +1085,57 @@ class ResourceService {
     const allResources: IResource[] = await this.resource.findAll(query);
 
     return allResources;
+  }
+
+  /**
+   * @param  {string} resourceGroupUuid
+   * @param {string} allReplicasYN
+   */
+  public async getWorkloadByResourceGroupUuid(resourceGroupUuid: string): Promise<IResource[]> {
+    const resultResourceGroup = await this.resourceGroup.findOne({where: { resourceGroupUuid }});
+    const resourceGroupKey = resultResourceGroup.resourceGroupKey;
+    const resultResources = [];
+
+    // 1. get Deployment, Statefulset Resource
+    let query: any = {
+      attributes: ['resourceName', 'resourceId', 'resourceType', 'resourceNamespace', 'resourceStatus'],
+      where: {
+        resourceType: { [Op.in]: ['SS', 'DP', 'JO', 'CJ', 'DS'] },
+        deletedAt: null,
+        resourceGroupKey: resourceGroupKey,
+      },
+      //include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
+      order: [['resource_type', 'DESC']]
+    }
+
+    const resources: IResource[] = await this.resource.findAll(query);
+    resources.forEach((resource: IResource)=> resultResources.push(resource))
+
+    // 2. get ReplicaSet which not include ownerRefernce
+    let rsQuery: any = {
+      attributes: ['resourceName', 'resourceId', 'resourceType', 'resourceNamespace', 'resourceStatus'],
+      where: {
+        [Op.and]: [
+          {
+            resourceReplicas: { [Op.ne]: null },
+          },
+          {
+            resourceReplicas: { [Op.ne]: 0 },
+          },
+        ],
+        resourceType: 'RS',
+        deletedAt: null,
+        resourceOwnerReferences: null,
+        resourceGroupKey: resourceGroupKey,
+      },
+      //include: [{ model: ResourceGroupModel, attributes: ['resourceGroupName'] }],
+      order: [['resource_type', 'DESC']]
+    }
+
+    const replicaSetResources: IResource[] = await this.resource.findAll(rsQuery);
+    replicaSetResources.forEach((replicaSetResource: IResource) => resultResources.push(replicaSetResource))
+
+    return resultResources;
   }
 
   /**

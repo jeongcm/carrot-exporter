@@ -184,6 +184,23 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
 
       case 'DS':
       case 'SS':
+      case 'DP':
+        const uid = resource.resourceTargetUuid
+        const workload = `${resourceNamespace}.${uid}`;
+        if (resourcePerNodeId[workload]) {
+          addEdge(
+            resource.resourceNamespace,
+            {
+              source: _nodeId,
+              workload,
+            },
+            nsNodes,
+            existingEdgeIds,
+            resourcePerNodeId,
+          );
+        }
+        break;
+
       case 'RS':
         if (resource.resourceOwnerReferences) {
           if (!Array.isArray(resource.resourceOwnerReferences)) {
@@ -198,20 +215,27 @@ const createK8sGraph = async (resources: any, injectedForNode: any) => {
           } else {
             resourceOwnerReferences = resource.resourceOwnerReferences;
           }
-          const owner = resourceOwnerReferences;
-          const uid = owner.uid;
-          const target = `${resourceNamespace}.${uid}`;
+          let owners = resourceOwnerReferences;
 
-          addEdge(
-            resourceNamespace,
-            {
-              source: _nodeId,
-              target,
-            },
-            nsNodes,
-            existingEdgeIds,
-            resourcePerNodeId,
-          );
+          if (!Array.isArray(owners)) {
+            owners = [owners];
+          }
+
+          owners.forEach((owner: any) => {
+            const uid = owner.uid;
+            const target = `${resourceNamespace}.${uid}`;
+
+            addEdge(
+              resourceNamespace,
+              {
+                source: _nodeId,
+                target,
+              },
+              nsNodes,
+              existingEdgeIds,
+              resourcePerNodeId,
+            );
+          })
         }
         break;
 

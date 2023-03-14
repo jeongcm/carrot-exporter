@@ -117,6 +117,22 @@ class ResourceController {
     }
   };
 
+   /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+   public countWorkloadPod = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const { customerAccountKey } = req;
+      const resourceCount: any[] = await this.topologyService.countWorkloadPod(customerAccountKey, req.query.resourceGroupId as string[], req.query.resourceId as string[]);
+
+      res.status(200).json({ data: resourceCount, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
@@ -276,6 +292,17 @@ class ResourceController {
     }
   };
 
+  public getResourceByResourceIds = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    const resourceIds = req.query?.resourceId;
+
+    try {
+      const result: any = await this.resourceService.getResourceByResourceIds(resourceIds);
+      res.status(200).json({ result: result, message: `get resource by resourceIds` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public getResourceCountForK8sOverview = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const customerAccountKey: number = req.customerAccountKey;
 
@@ -343,7 +370,7 @@ class ResourceController {
     const allReplicasYN: string = req.params.allReplicasYN || 'N';
 
     try {
-      const resource: IResource[] = await this.resourceService.getWorkloadByResourceGroupUuid(resourceGroupUuid, allReplicasYN);
+      const resource: IResource[] = await this.resourceService.getWorkloadByResourceGroupUuid(resourceGroupUuid);
       res.status(200).json({ data: resource, message: `find workloads with resourceGroupUuid(${resourceGroupUuid}` });
     } catch (error) {
       next(error);

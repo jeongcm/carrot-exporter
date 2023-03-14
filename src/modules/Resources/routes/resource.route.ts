@@ -73,7 +73,7 @@ class ResourceRoute implements Routes {
     );
 
     this.router.get(
-      '/resource/resourceGroup/:resourceGroupUuid/workloads/:allReplicasYN', //all replicasets "Y" or "N"
+      '/resource/resourceGroup/:resourceGroupUuid/workloads', //all replicasets "Y" or "N"
       authMiddleware,
       createUserLogMiddleware,
       this.resourceController.getWorkloadByResourceGroupUuid,
@@ -118,6 +118,12 @@ class ResourceRoute implements Routes {
       this.resourceController.getResourceCountByResourceType,
     );
 
+    this.router.get(
+      '/resourceByIds',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.resourceController.getResourceByResourceIds,
+    );
 
     this.router.get(
       '/resource/count/k8sOverview',

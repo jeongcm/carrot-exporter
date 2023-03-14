@@ -207,7 +207,7 @@ class TopologyService extends ServiceExtension {
         ...queryOptions,
       },
     });
-
+    
     if (!resources) {
       return this.throwError('NOT_FOUND', 'no resources');
     }
@@ -258,62 +258,135 @@ class TopologyService extends ServiceExtension {
     return topologyItems;
   }
 
+  public appendWorkload(sets: any, resource: any, resourceId: any) {
+    if (!sets[resource.resourceNamespace]) {
+      sets[resource.resourceNamespace] = {};
+    }
+
+    if (resourceId.length === 0 || resourceId.indexOf(resource.resourceId) > -1) {
+      sets[resource.resourceNamespace][resource.resourceTargetUuid] = {
+        resourceNamespace: resource.resourceNamespace,
+        resourceName: resource.resourceName,
+        resourceId: resource.resourceId,
+        resourceTargetUuid: resource.resourceTargetUuid,
+        resourceType: resource.resourceType,
+        level: 'workload',
+        children: [],
+      };
+    }
+  }
+
   public async createWorkloadPodTopology(resources: IResource[], resourceId: string[]) {
     const sets: any = {};
     const podsPerUid: any = {};
+    const replicaSetsPerUid: any = {};
 
     let workload = 0;
     let pod = 0;
     let connectedPod = 0;
-
     resources.forEach((resource: IResource) => {
-      const namespace = resource.resourceNamespace;
-
+      let namespace = resource.resourceNamespace;
       switch (resource.resourceType) {
+        
+        case 'SS':
+        case 'DP':
+        case 'DS':
         case 'JO':
         case 'CJ':
-        case 'SS':
-        case 'DS':
-        case 'DP':
-        case 'RS':
-          if (!sets[resource.resourceNamespace]) {
-            sets[namespace] = {};
-          }
-
-          workload += 1;
-
-          if (resourceId.length === 0 || resourceId.indexOf(resource.resourceId) > -1) {
-            sets[namespace][resource.resourceTargetUuid] = {
-              resourceNamespace: namespace,
-              resourceName: resource.resourceName,
-              resourceId: resource.resourceId,
-              resourceTargetUuid: resource.resourceTargetUuid,
-              resourceType: resource.resourceType,
-              level: 'workload',
-              children: [],
-            };
-          }
+          this.appendWorkload(sets, resource, resourceId)
           break;
-        case 'PD':
-          pod += 1;
+        case 'RS':
+          // ReplicaSet ownerReference check
           let owners = [];
           if (typeof resource.resourceOwnerReferences === 'string') {
             try {
               owners = JSON.parse(resource.resourceOwnerReferences);
             } catch (e) {
               owners = [];
+              workload += 1;
             }
           } else if (resource.resourceOwnerReferences) {
             owners = resource.resourceOwnerReferences;
           } else if (!resource.resourceOwnerReferences) {
             owners = [];
+            workload += 1;
           }
 
           if (!Array.isArray(owners)) {
             owners = [owners];
           }
 
-          owners?.map((owner: any) => {
+          // if resourceOwnerReferences not exist, append to sets for indenpent workload
+          if (owners.length === 0) {
+            this.appendWorkload(sets, resource, resourceId)
+            break;
+          }
+
+          if (!replicaSetsPerUid[namespace]) {
+            replicaSetsPerUid[namespace] = {}
+          }
+
+          replicaSetsPerUid[namespace][resource.resourceTargetUuid] = {
+            resourceType: 'RS',
+            resourceName: resource.resourceName,
+            resourceNamespace: namespace,
+            resourceId: resource.resourceId,
+            resourceStatus: resource.resourceStatus,
+            resourceTargetUuid: resource.resourceTargetUuid,
+            resourceOwnerReference: owners,
+            level: 'workload',
+            children: [],
+          };
+        
+          break;
+        case 'PD':
+          pod += 1;
+          let podOwners = [];
+          if (typeof resource.resourceOwnerReferences === 'string') {
+            try {
+              podOwners = JSON.parse(resource.resourceOwnerReferences);
+            } catch (e) {
+              podOwners = [];
+            }
+          } else if (resource.resourceOwnerReferences) {
+            podOwners = resource.resourceOwnerReferences;
+          } else if (!resource.resourceOwnerReferences) {
+            podOwners = [];
+          }
+
+          if (!Array.isArray(podOwners)) {
+            podOwners = [podOwners];
+          }
+
+          const workloadKind = ['ReplicaSet', 'Deployment', 'StatefulSet', 'Job', 'CronJob', 'DaemonSet']
+          let flag: boolean = true
+          podOwners.forEach((owner: any) => {
+            if (workloadKind.indexOf(owner.kind) > -1) {
+                flag = false
+            }
+          })
+
+          if (podOwners.length === 0 || flag) {
+            if (!sets[resource.resourceNamespace]) {
+              sets[namespace] = {};
+            }
+  
+            if (resourceId.length === 0 || resourceId.indexOf(resource.resourceId) > -1) {
+              sets[namespace][resource.resourceTargetUuid] = {
+                resourceNamespace: namespace,
+                resourceName: resource.resourceName,
+                resourceId: resource.resourceId,
+                resourceTargetUuid: resource.resourceTargetUuid,
+                resourceType: resource.resourceType,
+                level: 'pod',
+                children: [],
+                resourceStatusPhase: resource.resourceStatus?.phase,
+              };
+            }
+            break;
+          }
+
+          podOwners?.map((owner: any) => {
             if (owner.uid) {
               if (!podsPerUid[namespace]) {
                 podsPerUid[namespace] = {};
@@ -341,9 +414,25 @@ class TopologyService extends ServiceExtension {
 
     Object.keys(podsPerUid).forEach((namespace: string) => {
       Object.keys(podsPerUid[namespace]).forEach((key: string) => {
+        // if pod's ownerReference is replicaSetsPerUid append replicaSetsPerUid.children, else append set.children
+        if (replicaSetsPerUid[namespace] && replicaSetsPerUid[namespace][key]) {
+          replicaSetsPerUid[namespace][key].children = podsPerUid[namespace][key]
+          return
+        }
+
         if (sets[namespace] && sets[namespace][key]) {
           sets[namespace][key].children = podsPerUid[namespace][key];
         }
+      });
+    });
+
+    Object.keys(replicaSetsPerUid).forEach((namespace: string) => {
+      Object.keys(replicaSetsPerUid[namespace]).forEach((key: any) => {
+        replicaSetsPerUid[namespace][key].resourceOwnerReference.forEach(owner => {
+          if (sets[namespace] && sets[namespace][owner.uid]) {
+          sets[namespace][owner.uid].children = replicaSetsPerUid[namespace][key];
+          } 
+        });
       });
     });
 
@@ -424,6 +513,51 @@ class TopologyService extends ServiceExtension {
     }
 
     return counts;
+  }
+
+  public async countWorkloadPod(customerAccountKey: number, resourceGroupId?: string[], resourceId?: string[]): Promise<any> {
+    const workloads: any = await this.getAllTopology('workload-pods', customerAccountKey, resourceGroupId, resourceId);
+    const myCounts = {
+      RS: 0,
+      SS: 0,
+      DS: 0,
+      CJ: 0,
+      JO: 0,
+      DP: 0,
+      PD: 0,
+    };
+    workloads?.map((resourceGroup: any) => {
+      resourceGroup?.children.map((namespace: any) => {
+        // get workload count 
+        namespace?.children.map((workload: any) => {
+          switch (workload.resourceType) {
+            case 'DP':
+              myCounts.DP++
+              break
+            case 'RS':
+              myCounts.RS++
+              break
+            case 'SS':
+              myCounts.SS++
+              break
+            case 'DS':
+              myCounts.DS++
+              break
+            case 'JO':
+              myCounts.JO++
+              break
+            case 'CJ':
+              myCounts.CJ++
+              break
+            case 'PD':
+              myCounts.PD++
+              break
+          }
+        })
+      })
+    })
+
+    return myCounts;
   }
 
   public async countPodResources(customerAccountKey: number): Promise<any> {
