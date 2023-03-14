@@ -32,6 +32,7 @@ import ResourceService from "@modules/Resources/services/resource.service";
 import { PartyUserModel } from "@modules/Party/models/partyUser.model";
 import { ExportersModel } from '@/modules/Exporters/models/exporters.model';
 import cluster from 'cluster';
+import { api } from '@opentelemetry/sdk-node';
 //import { updateShorthandPropertyAssignment } from 'typescript';
 //import { IIncidentActionAttachment } from '@/common/interfaces/incidentActionAttachment.interface';
 
@@ -784,7 +785,7 @@ class executorService {
 
     const ResponseResoureGroup: IResourceGroupUi = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
     // provision default scheduler
-    await this.registerDefaultScheduler(clusterUuid, customerAccountId)
+    await this.registerDefaultScheduler(clusterUuid, customerAccountId, resultResourceGroup.resourceGroupPlatform)
 
     //provision alert easy rule for the cluster, TODO: it will be divided 
     await this.initializeAlertEasyRule(customerAccountId, clusterUuid, ResponseResoureGroup.resourceGroupPlatform)
@@ -820,7 +821,7 @@ class executorService {
     }
   }
 
-  public async registerDefaultScheduler(clusterUuid: string, customerAccountId: string) {
+  public async registerDefaultScheduler(clusterUuid: string, customerAccountId: string, platform: string) {
     const customerAccountData: ICustomerAccount = await this.customerAccount.findOne({ where: { customerAccountId, deletedAt: null } });
     if (!customerAccountData) {
       throw new HttpException(404, `not found customerAccount ${customerAccountId}`);
@@ -847,14 +848,14 @@ class executorService {
       }); //end of catch
 
     const cronTabforResource = config.resourceCron;
-    await this.scheduleSyncResources(clusterUuid, cronTabforResource)
-      .then(async (res: any) => {
-        console.log(`Submitted resource sync schedule reqeust on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
-      }); //end of catch
+    await this.scheduleSyncResources(clusterUuid, cronTabforResource, platform)
+    .then(async (res: any) => {
+      console.log(`Submitted resource sync schedule reqeust on ${platform}: ${clusterUuid} cluster successfully`);
+    })
+    .catch(error => {
+      console.log(error);
+      throw new HttpException(500, 'Submitted kps chart installation request but fail to schedule resource sync');
+    }); //end of catch
 
     const cronTabforAlert = config.alertCron;
     await this.scheduleSyncAlerts(clusterUuid, cronTabforAlert)
@@ -1093,7 +1094,7 @@ class executorService {
 
     const ResponseResoureGroup: IResourceGroupUi = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, systemId);
     // provision default scheduler
-    await this.registerDefaultScheduler(clusterUuid, customerAccountId)
+    await this.registerDefaultScheduler(clusterUuid, customerAccountId, resultResourceGroup.resourceGroupPlatform)
 
     //provision alert easy rule for the cluster, TODO: it will be divided 
     await this.initializeAlertEasyRule(customerAccountId, clusterUuid, ResponseResoureGroup.resourceGroupPlatform)
@@ -1967,7 +1968,7 @@ class executorService {
    * @param {string} clusterUuid
    * @param {string} cronTab
    */
-  public async scheduleSyncResources(clusterUuid: string, cronTab: string): Promise<object> {
+  public async scheduleSyncResources(clusterUuid: string, cronTab: string, platform: string): Promise<object> {
     const nexclipperApiUrl = config.appUrl + ':' + config.appPort + '/executor/syncResources';
     const cronData = {
       name: 'SyncResources',
@@ -1981,6 +1982,7 @@ class executorService {
       clusterId: clusterUuid,
       apiBody: {
         clusterUuid: clusterUuid,
+        platform: platform,
         cronTab: cronTab,
       },
     };
@@ -2211,34 +2213,46 @@ class executorService {
    * @param {string} clusterUuid
    * @param {string} cronTab
    */
-  public async syncResources(clusterUuid: string, cronTab: string): Promise<object> {
+  public async syncResources(clusterUuid: string, cronTab: string, platform: string): Promise<object> {
     //0. Preparation
     const targetJobCron = [];
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    const executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
+    let executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     const subscribed_channel = config.sudoryApiDetail.channel_resource;
     const cronJobKey = [];
+    let targetJobDb = [];
 
-    const targetJobDb = [
-      'K8s interface for Ingress',
-      'K8s interface for Configmap',
-      'K8s interface for PV',
-      'K8s interface for PVC',
-      'K8s interface for Secret',
-      'K8s interface for Replicaset',
-      'K8s interface for Statefulset',
-      'K8s interface for Endpoint',
-      'K8s interface for Daemonset',
-      'K8s interface for Pod',
-      'K8s interface for Deployment',
-      'K8s interface for Namespace',
-      'K8s interface for Node',
-      'K8s interface for Service',
-      'K8s interface for Storage Class',
-      'K8s interface for Event',
-      'K8s interface for Job',
-      'K8s interface for CronJob',
-    ];
+    switch (platform) {
+      case "OS":
+        targetJobDb.push.apply([
+          'OS interface for PhysicalMachine',
+          'OS interface for Project',
+          'OS interface for VM',
+        ])
+        break;
+      case "K8":
+        targetJobDb.push.apply([
+          'K8s interface for Ingress',
+          'K8s interface for Configmap',
+          'K8s interface for PV',
+          'K8s interface for PVC',
+          'K8s interface for Secret',
+          'K8s interface for Replicaset',
+          'K8s interface for Statefulset',
+          'K8s interface for Endpoint',
+          'K8s interface for Daemonset',
+          'K8s interface for Pod',
+          'K8s interface for Deployment',
+          'K8s interface for Namespace',
+          'K8s interface for Node',
+          'K8s interface for Service',
+          'K8s interface for Storage Class',
+          'K8s interface for Event',
+          'K8s interface for Job',
+          'K8s interface for CronJob',
+        ])
+        break;
+    }
 
     const resource_template = [
       { resourceName: 'Service', resourceType: 'SV', template_uuid: '00000000000000000000000000000020', jobName: 'K8s interface for Service' }, //service
@@ -2269,6 +2283,9 @@ class executorService {
       { resourceName: 'Event', resourceType: 'EV', template_uuid: '00000000000000000000000000000008', jobName: 'K8s interface for Event' }, //event
       { resourceName: 'Job', resourceType: 'JO', template_uuid: '00000000000000000000000000005002', jobName: 'K8s interface for Job' }, //job
       { resourceName: 'CronJob', resourceType: 'CJ', template_uuid: '00000000000000000000000000005003', jobName: 'K8s interface for CronJob' }, //cron-job
+      { resourceName: 'PhysicalMachine', resourceType: 'PM'}, //pm
+      { resourceName: 'Project', resourceType: 'PJ', template_uuid: '50000000000000000000000000000002' }, //project
+      { resourceName: 'VM', resourceType: 'VM', template_uuid: '50000000000000000000000000000004' },
     ];
 
     //1. Validate clusterUuid and find customerAccountData
@@ -2313,7 +2330,47 @@ class executorService {
       const selectedTemplate = resource_template.find(template => {
         return template.jobName === targetJob;
       });
+
       const template_uuid = selectedTemplate.template_uuid;
+
+      let apiBody = {
+        cluster_uuid: clusterUuid,
+        name: name,
+        template_uuid: template_uuid,
+        summary: summary,
+        subscribed_channel: subscribed_channel,
+        on_completion: on_completion,
+        inputs: {},
+      }
+  
+      switch (selectedTemplate.resourceType) {
+      case "PM":
+        executorServerUrl = config.appUrl + ':' + config.appPort + '/resource/upload/PM';
+  
+        let uploadPMQuery: any = {}
+        let metricQuery: any[] = []
+        metricQuery[0] = {}
+        metricQuery[0].name = "pm_info"
+        metricQuery[0].type = "OS_CLUSTER_PM_INFO"
+        metricQuery[0].resourceGroupUuid = clusterUuid
+  
+        uploadPMQuery = {
+          query: metricQuery,
+          customerAccountKey: customerAccountKey
+        }
+  
+        apiBody = uploadPMQuery
+        break;
+      case "PJ":
+        apiBody.inputs = { credential_key: "openstack_token_0" }
+        break;
+      case "VM":
+        apiBody.inputs = { credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3" }
+        break;
+      default:
+        apiBody.inputs = { labels: {} }
+      }
+
       const cronData = {
         name: name,
         summary: summary,
@@ -2324,18 +2381,9 @@ class executorService {
         reRunRequire: true,
         scheduleFrom: '',
         scheduleTo: '',
-        apiBody: {
-          cluster_uuid: clusterUuid,
-          name: name,
-          template_uuid: template_uuid,
-          summary: summary,
-          subscribed_channel: subscribed_channel,
-          on_completion: on_completion,
-          inputs: {
-            labels: {}
-          },
-        },
+        apiBody: apiBody,
       };
+      
 
       const resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId);
       cronJobKey[n] = { key: resultNewCron.scheduleKey, jobname: targetJob, type: 'add' };

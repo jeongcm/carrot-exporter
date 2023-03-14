@@ -186,9 +186,10 @@ class executorController {
   public registerDefaultScheduler = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     const clusteUuid = req.body.clusteUuid;
     const customerAccountId = req.body.customerAccountId;
+    const platform = req.body.platform;
 
     try {
-      await this.executorService.registerDefaultScheduler(clusteUuid, customerAccountId);
+      await this.executorService.registerDefaultScheduler(clusteUuid, customerAccountId, platform);
       res.status(200).json({ message: `register default scheduler(clusterUuid: ${clusteUuid}) ` });
     } catch (error) {
       next(error);
@@ -326,9 +327,10 @@ class executorController {
   public scheduleSyncResources = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterUuid = req.body.clusterUuid;
+      const platform = req.body.platform || "K8";
       const cronTab = req.body.cronTab || config.resourceCron;
 
-      const cronJobKey: object = await this.executorService.scheduleSyncResources(clusterUuid, cronTab);
+      const cronJobKey: object = await this.executorService.scheduleSyncResources(clusterUuid, cronTab, platform);
       res.status(200).json({ cronJobKey: cronJobKey, message: `Successfullyt schedule resource sync jobs` });
     } catch (error) {
       next(error);
@@ -516,9 +518,10 @@ class executorController {
   public syncResources = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const clusterUuid = req.body.clusterUuid;
+      const platform = req.body.platform || "K8";
       const cronTab = req.body.cronTab || config.resourceCron;
 
-      const serviceOutput: any = await this.executorService.syncResources(clusterUuid, cronTab);
+      const serviceOutput: any = await this.executorService.syncResources(clusterUuid, cronTab, platform);
       if (!serviceOutput) res.status(404).json({ data: serviceOutput, message: `Unable to process request` });
       res.status(200).json({ Data: serviceOutput, message: `Sync resource Successful. ${clusterUuid}, ${cronTab}` });
     } catch (error) {
