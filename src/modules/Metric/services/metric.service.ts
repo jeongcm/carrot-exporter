@@ -920,6 +920,7 @@ class MetricService extends ServiceExtension {
           });
           promQl = `(1 - sum by (clusterUuid, node) (node_filesystem_avail_bytes{mountpoint="/",fstype!="rootfs",endpoint != "", __LABEL_PLACE_HOLDER__}) / sum by (clusterUuid, node) (node_filesystem_size_bytes{mountpoint="/",fstype!="rootfs",endpoint != "", __LABEL_PLACE_HOLDER__}))`;
         break;
+        
       case 'K8S_CLUSTER_NODE_RXTX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
@@ -1053,83 +1054,85 @@ class MetricService extends ServiceExtension {
       case 'K8S_CLUSTER_POD_RX_PACKET_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resourceName,
+          pod: resourceName,
         });
 
-        promQl = `sum by (pod, clusterUuid) (irate(container_network_receive_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, pod) (irate(container_network_receive_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
 
       case 'K8S_CLUSTER_POD_TX_PACKET_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resourceName,
+          pod: resourceName,
         });
 
-        promQl = `sum by (pod, clusterUuid) (irate(container_network_transmit_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, pod) (irate(container_network_transmit_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
 
       case 'K8S_CLUSTER_POD_RX_PACKET_DROPPED_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resourceName,
+          pod: resourceName,
         });
 
-        promQl = `sum by (pod, clusterUuid) (irate(container_network_receive_packets_dropped_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, pod) (irate(container_network_receive_packets_dropped_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
 
       case 'K8S_CLUSTER_POD_TX_PACKET_DROPPED_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resourceName,
+          pod: resourceName,
         });
 
-        promQl = `sum by (pod, clusterUuid) (irate(container_network_transmit_packets_dropped_total{__LABEL_PLACE_HOLDER__}[5m]))`;
+        promQl = `sum by (clusterUuid, pod) (irate(container_network_transmit_packets_dropped_total{__LABEL_PLACE_HOLDER__}[5m]))`;
         break;
 
       // K8s Namespace Metric by carrot
       case 'K8S_CLUSTER_NS_RX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resourceName,
         });
 
-        promQl = `sum by (namespace) (irate(container_network_receive_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (namespace) (irate(container_network_receive_bytes_total{pod !="", namespace!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
+
       case 'K8S_CLUSTER_NS_TX_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
-          namespace: resourceName,
         });
 
-        promQl = `sum by (namespace) (irate(container_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (namespace) (irate(container_network_transmit_bytes_total{pod !="", namespace!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
+
       case 'K8S_CLUSTER_NS_RX_PACKET_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
         });
 
-        promQl = `sum by (namespace) (irate(container_network_receive_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (namespace) (irate(container_network_receive_packets_total{pod !="", namespace!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
+
       case 'K8S_CLUSTER_NS_TX_PACKET_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
         });
 
-        promQl = `sum by (namespace) (irate(container_network_transmit_packets_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (namespace) (irate(container_network_transmit_packets_total{pod !="", namespace!="",  __LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
+
       case 'K8S_CLUSTER_NS_RX_PACKET_DROPPED_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
         });
 
-        promQl = `sum by (namespace) (irate(container_network_receive_packets_dropped_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (namespace) (irate(container_network_receive_packets_dropped_total{pod !="", namespace!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
       case 'K8S_CLUSTER_NS_TX_PACKET_DROPPED_TOTAL':
         labelString += getSelectorLabels({
           clusterUuid,
         });
 
-        promQl = `sum by (namespace) (irate(container_network_transmit_packets_dropped_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (namespace) (irate(container_network_transmit_packets_dropped_total{pod !="", namespace!="", __LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
   
 
