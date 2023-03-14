@@ -2529,7 +2529,7 @@ class executorService {
     // step 0. find which sudoryWebhook service result: 4 and stepStatus: 4
     // it will be replace with insert processing data logic in sudoryWebhook which has multiStep
     // by carrot
-    if (DataSetFromSudory.status !== 4) {
+    if (DataSetFromSudory.status !== 4 && DataSetFromSudory.status !== 8) {
       console.log("ignore sudory webhook. cause: not last sudory webhook result")
       return
     }
