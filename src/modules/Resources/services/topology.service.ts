@@ -532,22 +532,22 @@ class TopologyService extends ServiceExtension {
         namespace?.children.map((workload: any) => {
           switch (workload.resourceType) {
             case 'DP':
-              myCounts.DP++
+              myCounts.DP = myCounts.DP + workload.children?.children?.length
               break
             case 'RS':
-              myCounts.RS++
+              myCounts.RS = myCounts.RS + workload.children?.length
               break
             case 'SS':
-              myCounts.SS++
+              myCounts.SS = myCounts.SS + workload.children?.length
               break
             case 'DS':
-              myCounts.DS++
+              myCounts.DS = myCounts.DS + workload.children?.length
               break
             case 'JO':
-              myCounts.JO++
+              myCounts.JO = myCounts.JO + workload.children?.length 
               break
             case 'CJ':
-              myCounts.CJ++
+              myCounts.CJ = myCounts.CJ + workload.children?.length
               break
             case 'PD':
               myCounts.PD++
