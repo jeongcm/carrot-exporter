@@ -269,7 +269,6 @@ class AlertReceivedService extends ServiceExtension {
     } 
 
     if (!end) {
-      console.log("im here")
       endAt = new Date()
     } else {
       endAt = new Date(end)
@@ -277,7 +276,6 @@ class AlertReceivedService extends ServiceExtension {
 
     startAt = new Date(start)
 
-    console.log(startAt, endAt)
     let allAlertReceived;
     const allAlertReceived1: IAlertReceived[] = await this.alertReceived.findAll({
       limit: 200,
