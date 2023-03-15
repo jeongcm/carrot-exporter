@@ -276,8 +276,7 @@ class AlertReceivedService extends ServiceExtension {
 
     startAt = new Date(start)
 
-    let allAlertReceived;
-    const allAlertReceived1: IAlertReceived[] = await this.alertReceived.findAll({
+    const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       limit: 200,
       where: {
         alertReceivedHash: alertHash,
