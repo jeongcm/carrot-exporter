@@ -124,7 +124,8 @@ class AlertRuleController extends ControllerExtension {
   public getAllAlertReceivedByAlertHash = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const alertHash: string = req.params.alertHash;
-      const findAllAlertReceivedByHash: IAlertReceived[] = await this.alertReceivedService.getAllAlertReceivedByAlertHash(alertHash);
+
+      const findAllAlertReceivedByHash: IAlertReceived[] = await this.alertReceivedService.getAllAlertReceivedByAlertHash(alertHash, req.query?.startAt, req.query?.endAt);
       res.status(200).json({ data: findAllAlertReceivedByHash, message: 'findAll' });
     } catch (error) {
       next(error);
