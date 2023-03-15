@@ -2318,12 +2318,10 @@ class executorService {
         return template.jobName === targetJob;
       });
 
-      const template_uuid = selectedTemplate.template_uuid;
-
       let apiBody = {
         cluster_uuid: clusterUuid,
         name: name,
-        template_uuid: template_uuid,
+        template_uuid: '',
         summary: summary,
         subscribed_channel: subscribed_channel,
         on_completion: on_completion,
@@ -2349,12 +2347,15 @@ class executorService {
         apiBody = uploadPMQuery
         break;
       case "PJ":
+        apiBody.template_uuid = selectedTemplate.template_uuid
         apiBody.inputs = { credential_key: "openstack_token_0" }
         break;
       case "VM":
+        apiBody.template_uuid = selectedTemplate.template_uuid
         apiBody.inputs = { credential_key: "openstack_token_0", query: {all_tenants: "true"}, microversion: "2.3" }
         break;
       default:
+        apiBody.template_uuid = selectedTemplate.template_uuid
         apiBody.inputs = { labels: {} }
       }
 
