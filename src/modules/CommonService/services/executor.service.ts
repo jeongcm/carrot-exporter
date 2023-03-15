@@ -2205,14 +2205,14 @@ class executorService {
 
     switch (platform) {
       case "OS":
-        targetJobDb.push.apply([
+        targetJobDb.push.apply(targetJobDb, [
           'OS interface for PhysicalMachine',
           'OS interface for Project',
           'OS interface for VM',
         ])
         break;
       case "K8":
-        targetJobDb.push.apply([
+        targetJobDb.push.apply(targetJobDb, [
           'K8s interface for Ingress',
           'K8s interface for Configmap',
           'K8s interface for PV',
@@ -2372,6 +2372,7 @@ class executorService {
       };
       
       const resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId);
+      console.log(`success to create new scheduler. clusterUuid=${clusterUuid}, scheduleName=${name}`)
       cronJobKey[n] = { key: resultNewCron.scheduleKey, jobname: targetJob, type: 'add' };
     }
 
