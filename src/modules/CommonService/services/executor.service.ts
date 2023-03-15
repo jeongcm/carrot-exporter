@@ -2264,9 +2264,9 @@ class executorService {
       { resourceName: 'Event', resourceType: 'EV', template_uuid: '00000000000000000000000000000008', jobName: 'K8s interface for Event' }, //event
       { resourceName: 'Job', resourceType: 'JO', template_uuid: '00000000000000000000000000005002', jobName: 'K8s interface for Job' }, //job
       { resourceName: 'CronJob', resourceType: 'CJ', template_uuid: '00000000000000000000000000005003', jobName: 'K8s interface for CronJob' }, //cron-job
-      { resourceName: 'PhysicalMachine', resourceType: 'PM'}, //pm
-      { resourceName: 'Project', resourceType: 'PJ', template_uuid: '50000000000000000000000000000002' }, //project
-      { resourceName: 'VM', resourceType: 'VM', template_uuid: '50000000000000000000000000000004' },
+      { resourceName: 'PhysicalMachine', resourceType: 'PM', jobName: 'OS interface for PhysicalMachine'}, //pm
+      { resourceName: 'Project', resourceType: 'PJ', template_uuid: '50000000000000000000000000000002', jobName: 'OS interface for Project' }, //project
+      { resourceName: 'VM', resourceType: 'VM', template_uuid: '50000000000000000000000000000004', jobName: 'OS interface for VM' },
     ];
 
     //1. Validate clusterUuid and find customerAccountData
