@@ -933,38 +933,20 @@ class executorService {
     );
     if (!resultVM) console.log(resultVM);
 
-// scheduleResource - PM
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'PM', resourceCron)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'PM', cronKey: res });
-        console.log(`Submitted resource PM schedule request on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource PM schedule request for cluster:${clusterUuid}`);
-      });
-      
-// scheduleResource - PJ
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'PJ', resourceCron)
-      .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'PJ', cronKey: res });
-        console.log(`Submitted resource Project schedule request on ${clusterUuid} cluster successfully`);
-      })
-      .catch(error => {
-        console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource PJ schedule request for cluster:${clusterUuid}`);
-      });
+    const resourceType = ['PM', 'PJ', 'VM']
 
-// scheduleResource - VM
-    await this.scheduleResource(clusterUuid, customerAccountKey, 'VM', resourceCron)
+    for (let rt of resourceType) {
+      // scheduleResource - job
+      await this.scheduleResource(clusterUuid, customerAccountKey, rt, resourceCron)
       .then(async (res: any) => {
-        resourceJobKey.push({ resourceType: 'VM', cronKey: res });
-        console.log(`Submitted resource virtualMachine schedule request on ${clusterUuid} cluster successfully`);
+        resourceJobKey.push({ resourceType: rt, cronKey: res });
+        console.log(`Submitted resource ${rt} schedule reqeust on ${clusterUuid} cluster successfully`);
       })
       .catch(error => {
         console.log(error);
-        console.log(`confirmed the executor/sudory client installed but fail to submit resource VM schedule request for cluster:${clusterUuid}`);
-      });
+        console.log(`confirmed the executor/sudory client installed but fail to submit resource ${rt} schedule request for clsuter:${clusterUuid}`);
+      }); //end of catch
+    }
   }
 
   /**
@@ -2302,8 +2284,8 @@ class executorService {
     const resultFromCron = await this.schedulerService.getSchedulerByClusterId(clusterUuid);
     const newList = [];
     resultFromCron.map(data => {
-      const { scheduleApiBody } = data;
-      newList.push({ scheduleApiBody });
+      const { scheduleApiBody, scheduleName } = data;
+      newList.push({ scheduleApiBody, scheduleName });
     });
 
     //3. filter only for resource
@@ -2314,7 +2296,7 @@ class executorService {
     }
 
     // just for openstack pm sync scheduler (because: there no subscribeChannel in pm upload apiBody). by carrot
-    if (platform === "OS") {
+    if (platform === "OS" && newList.find(x => x.scheduleName === 'OS interface for PhysicalMachine')?.scheduleName) {
       targetJobCron.push('OS interface for PhysicalMachine')
     }
 
