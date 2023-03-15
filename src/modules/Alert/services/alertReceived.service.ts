@@ -269,13 +269,15 @@ class AlertReceivedService extends ServiceExtension {
     } 
 
     if (!end) {
-      endAt = Date.now()
+      console.log("im here")
+      endAt = new Date()
     } else {
       endAt = new Date(end)
     }
 
     startAt = new Date(start)
 
+    console.log(startAt, endAt)
     let allAlertReceived;
     const allAlertReceived1: IAlertReceived[] = await this.alertReceived.findAll({
       limit: 200,
@@ -285,10 +287,12 @@ class AlertReceivedService extends ServiceExtension {
         alertReceivedState: { [Op.in]: ['pending', 'firing'] },
         createdAt: {[Op.between]: [startAt, endAt] }
       },
+      order: [['createdAt', 'DESC']],
     });
     const allAlertReceived2: IAlertReceived[] = await this.alertReceived.findAll({
       where: { alertReceivedHash: alertHash, alertReceivedState: 'resolved', 
       createdAt: {[Op.between]: [startAt, endAt] } },
+      order: [['createdAt', 'DESC']],
     });
 
     allAlertReceived = allAlertReceived1.concat(allAlertReceived2);
