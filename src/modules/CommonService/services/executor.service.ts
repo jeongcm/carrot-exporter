@@ -2217,7 +2217,6 @@ class executorService {
     //0. Preparation
     const targetJobCron = [];
     const on_completion = parseInt(config.sudoryApiDetail.service_result_delete);
-    let executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
     const subscribed_channel = config.sudoryApiDetail.channel_resource;
     const cronJobKey = [];
     let targetJobDb = [];
@@ -2314,6 +2313,11 @@ class executorService {
       targetJobCron[i] = newFilterList[i].scheduleApiBody.name;
     }
 
+    // just for openstack pm sync scheduler (because: there no subscribeChannel in pm upload apiBody). by carrot
+    if (platform === "OS") {
+      targetJobCron.push('OS interface for PhysicalMachine')
+    }
+
     console.log('###### from Cron ###############');
     console.log(targetJobCron);
 
@@ -2324,6 +2328,7 @@ class executorService {
 
     //5.  call nc_cron to schedule for missing jobs with loop
     for (let n = 0; n < Object.keys(newTargetJob).length; n++) {
+      let executorServerUrl = config.sudoryApiDetail.baseURL + config.sudoryApiDetail.pathServiceV2;
       const targetJob = newTargetJob[n];
       const name = targetJob;
       const summary = targetJob;
@@ -2384,7 +2389,6 @@ class executorService {
         apiBody: apiBody,
       };
       
-
       const resultNewCron = await this.schedulerService.createScheduler(cronData, customerAccountData.customerAccountId);
       cronJobKey[n] = { key: resultNewCron.scheduleKey, jobname: targetJob, type: 'add' };
     }
