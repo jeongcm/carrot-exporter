@@ -259,8 +259,23 @@ class AlertReceivedService extends ServiceExtension {
     return null;
   }
 
-  public async getAllAlertReceivedByAlertHash(alertHash?: string): Promise<any[]> {
+  public async getAllAlertReceivedByAlertHash(alertHash?: string, start?: any, end?: any): Promise<any[]> {
     if (isEmpty(alertHash)) throw new HttpException(400, 'Not a valid AlertReceivedHash');
+    let startAt: any
+    let endAt: any
+    
+    if (!start) {
+      throw new HttpException(400, 'invalid startAt')
+    } 
+
+    if (!end) {
+      endAt = Date.now()
+    } else {
+      endAt = new Date(end)
+    }
+
+    startAt = new Date(start)
+
     let allAlertReceived;
     const allAlertReceived1: IAlertReceived[] = await this.alertReceived.findAll({
       limit: 200,
@@ -268,10 +283,12 @@ class AlertReceivedService extends ServiceExtension {
         alertReceivedHash: alertHash,
         alertReceivedUiFlag: { [Op.in]: [0, 2, 4, 6, 8] },
         alertReceivedState: { [Op.in]: ['pending', 'firing'] },
+        createdAt: {[Op.between]: [startAt, endAt] }
       },
     });
     const allAlertReceived2: IAlertReceived[] = await this.alertReceived.findAll({
-      where: { alertReceivedHash: alertHash, alertReceivedState: 'resolved' },
+      where: { alertReceivedHash: alertHash, alertReceivedState: 'resolved', 
+      createdAt: {[Op.between]: [startAt, endAt] } },
     });
 
     allAlertReceived = allAlertReceived1.concat(allAlertReceived2);
