@@ -269,7 +269,7 @@ class AlertReceivedService extends ServiceExtension {
     } 
 
     if (!end) {
-      endAt = Date.now()
+      endAt = new Date()
     } else {
       endAt = new Date(end)
     }
@@ -285,10 +285,12 @@ class AlertReceivedService extends ServiceExtension {
         alertReceivedState: { [Op.in]: ['pending', 'firing'] },
         createdAt: {[Op.between]: [startAt, endAt] }
       },
+      order: [['createdAt', 'DESC']],
     });
     const allAlertReceived2: IAlertReceived[] = await this.alertReceived.findAll({
       where: { alertReceivedHash: alertHash, alertReceivedState: 'resolved', 
       createdAt: {[Op.between]: [startAt, endAt] } },
+      order: [['createdAt', 'DESC']],
     });
 
     allAlertReceived = allAlertReceived1.concat(allAlertReceived2);
