@@ -122,6 +122,9 @@ export class ResourceDetailQueryDTO {
 
   @IsNotEmpty()
   public resourceGroupUuid: string;
+
+  @IsOptional()
+  public nodeName: string;
 }
 
 export class ResourceRawDto {
