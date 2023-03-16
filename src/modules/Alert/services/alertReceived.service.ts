@@ -281,7 +281,7 @@ class AlertReceivedService extends ServiceExtension {
       where: {
         alertReceivedHash: alertHash,
         alertReceivedUiFlag: { [Op.in]: [0, 2, 4, 6, 8] },
-        alertReceivedState: { [Op.in]: ['pending', 'firing', 'resolved'] },
+        alertReceivedState: { [Op.in]: ['pending', 'firing'] },
         createdAt: {[Op.between]: [startAt, endAt] }
       },
       order: [['createdAt', 'DESC']],
