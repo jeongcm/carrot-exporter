@@ -1026,7 +1026,7 @@ class MetricService extends ServiceExtension {
         });
         ranged = false;
 
-        promQl = `sum by (clusterUuid, po) (rate(container_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
+        promQl = `sum by (clusterUuid, pod) (rate(container_network_transmit_bytes_total{__LABEL_PLACE_HOLDER__}[${step}]))`;
         break;
       case 'K8S_CLUSTER_POD_RXTX_TOTAL':
         labelString += getSelectorLabels({
