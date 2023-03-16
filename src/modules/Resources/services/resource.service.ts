@@ -231,28 +231,40 @@ class ResourceService {
     if (!findResourceGroup) {
       throw new HttpException(404, "ResourceGroup with resourceGroupUuid doesn't exist");
     }
-
-    let extraWhere = {};
+    
+    const resourceWhereCondition =  {
+      resourceName: resourceDetailData.resourceName,
+      resourceType: resourceDetailData.resourceType,
+      resourceGroupKey: findResourceGroup.resourceGroupKey,
+      deletedAt: null,
+    };
 
     if (resourceDetailData.resourceNamespace) {
-      extraWhere = {
-        resourceNamespace: resourceDetailData.resourceNamespace,
-      };
+      resourceWhereCondition["resourceNamespace"] = resourceDetailData.resourceNamespace
     }
 
-    const findResource: IResource = await this.resource.findOne({
-      where: {
-        resourceName: resourceDetailData.resourceName,
-        resourceType: resourceDetailData.resourceType,
-        resourceGroupKey: findResourceGroup.resourceGroupKey,
-        deletedAt: null,
+    let findResource: any
+    if (resourceDetailData.nodeName) {
+      const resources = await this.resource.findAll({
+        where: resourceWhereCondition,
+        attributes: { exclude: ['deletedAt', 'resourceKey', 'resource_group_key'] },
+        include: [{ model: ResourceGroupModel, attributes: ['resourceGroupId'] }],
+      });
 
-        // NOTE: Temporarily ignoring namespace due to ticket: http://147.182.254.250/redmine/issues/88
-        // ...extraWhere,
-      },
+      findResource = resources.find(resource => resource.resourceSpec?.nodeName === resourceDetailData.nodeName)
+      if (!findResource) {
+        throw new HttpException(404, "Resource doesn't exist");
+      }
+
+      return findResource
+    } 
+
+    findResource = await this.resource.findOne({
+      where: resourceWhereCondition,
       attributes: { exclude: ['deletedAt', 'resourceKey', 'resource_group_key'] },
       include: [{ model: ResourceGroupModel, attributes: ['resourceGroupId'] }],
     });
+
     if (!findResource) throw new HttpException(404, "Resource  doesn't exist");
 
     return findResource;
