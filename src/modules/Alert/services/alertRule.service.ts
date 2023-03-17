@@ -1,6 +1,7 @@
 import { HttpException } from '@/common/exceptions/HttpException';
 import { IAlertRule, IAlertRuleGraph } from '@/common/interfaces/alertRule.interface';
 import { ICustomerAccount } from '@/common/interfaces/customerAccount.interface';
+import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { isEmpty } from '@/common/utils/util';
 import DB from '@/database';
 import { IResponseIssueTableIdDto } from '@/modules/CommonService/dtos/tableId.dto';
@@ -32,7 +33,7 @@ class AlertRuleService {
     return allAlertRules;
   }
 
-  public async getAlertRuleGraph(customerAccountKey: number, status: string): Promise<IAlertRuleGraph[]> {
+  public async getAlertRuleGraph(customerAccountKey: number, status: string, resourceGroupId?: any): Promise<IAlertRuleGraph[]> {
     let conditionalWhere = {};
 
     if (status === 'all') {
@@ -41,6 +42,36 @@ class AlertRuleService {
         alertRuleState: status,
         ...conditionalWhere,
       };
+    }
+
+    let resourceGroupIds: string[] = [];
+    if (resourceGroupId) {
+      switch (Array.isArray(resourceGroupId)) {
+        case true:
+          resourceGroupIds = resourceGroupId.map(id => id)
+          break
+        case false:
+          resourceGroupIds.push(resourceGroupId)
+          break
+      }
+    }
+
+    let resourceGroupWhereCondition = {customerAccountKey, deletedAt: null }
+
+    if (resourceGroupIds.length > 0) {
+      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupIds
+    }
+
+    const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+      where: resourceGroupWhereCondition,
+      attributes: { exclude: ['deletedAt'] },
+    });
+
+    let resourceGroupUuids: any = [];
+    resourceGroups.forEach(resourceGroup => resourceGroupUuids.push(resourceGroup.resourceGroupUuid))
+
+    if (resourceGroupUuids.length > 0) {
+      conditionalWhere["resourceGroupUuid"] = resourceGroupUuids
     }
 
     const ago = dayjs().subtract(1.5, 'hour').utc().toDate();
