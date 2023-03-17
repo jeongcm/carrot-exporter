@@ -40,7 +40,7 @@ class AlertRuleController extends ControllerExtension {
     try {
       const customerAccountKey = req.customerAccountKey;
       const status = req.params.status;
-      const findAllChannelsData: IAlertRuleGraph[] = await this.alertRuleService.getAlertRuleGraph(customerAccountKey, status);
+      const findAllChannelsData: IAlertRuleGraph[] = await this.alertRuleService.getAlertRuleGraph(customerAccountKey, status, req.query.resourceGroupId);
       res.status(200).json({ data: findAllChannelsData, message: 'findAll' });
     } catch (error) {
       next(error);
