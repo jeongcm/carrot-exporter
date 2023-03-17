@@ -54,24 +54,23 @@ class AlertRuleService {
           resourceGroupIds.push(resourceGroupId)
           break
       }
-    }
 
-    let resourceGroupWhereCondition = {customerAccountKey, deletedAt: null }
+      let resourceGroupWhereCondition = {customerAccountKey, deletedAt: null }
+      if (resourceGroupIds.length > 0) {
+        resourceGroupWhereCondition['resourceGroupId'] = resourceGroupIds
+      }
 
-    if (resourceGroupIds.length > 0) {
-      resourceGroupWhereCondition['resourceGroupId'] = resourceGroupIds
-    }
+      const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+        where: resourceGroupWhereCondition,
+        attributes: { exclude: ['deletedAt'] },
+      });
 
-    const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
-      where: resourceGroupWhereCondition,
-      attributes: { exclude: ['deletedAt'] },
-    });
+      let resourceGroupUuids: any = [];
+      resourceGroups.forEach(resourceGroup => resourceGroupUuids.push(resourceGroup.resourceGroupUuid))
 
-    let resourceGroupUuids: any = [];
-    resourceGroups.forEach(resourceGroup => resourceGroupUuids.push(resourceGroup.resourceGroupUuid))
-
-    if (resourceGroupUuids.length > 0) {
-      conditionalWhere["resourceGroupUuid"] = resourceGroupUuids
+      if (resourceGroupUuids.length > 0) {
+        conditionalWhere["resourceGroupUuid"] = resourceGroupUuids
+      }
     }
 
     const ago = dayjs().subtract(1.5, 'hour').utc().toDate();
