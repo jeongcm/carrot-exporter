@@ -10,6 +10,7 @@ import { IParty } from '@/common/interfaces/party.interface';
 //import sequelize from 'sequelize';
 import bcrypt from 'bcrypt';
 import { IAlertTargetGroup } from '@/common/interfaces/alertTargetGroup.interface';
+import { IAlertTargetSubGroup } from '@/common/interfaces/alertTargetSubGroup.interface';
 import { ICatalogPlan, ICatalogPlanProduct, ICatalogPlanProductPrice } from '@/common/interfaces/productCatalog.interface';
 //import { IRole } from '@/common/interfaces/role.interface';
 
@@ -244,13 +245,20 @@ class InitialRecordService {
     //load alert target group data
     const alertTargetGroupData = [];
     for (const alertTargetGroup of alertTargetGroupList) {
-      alertTargetGroupData.push({
-        createdBy: 'SYSTEM',
-        createdAt: new Date(),
-        alertTargetGroupId: uuid.v1(),
-        alertTargetGroupName: alertTargetGroup.alertTargetGroupName,
-        alertTargetGroupDescription: alertTargetGroup.alertTargetGroupDescription,
+      const getAlertTargetGroup: IAlertTargetGroup = await this.alertTargetGroup.findOne({
+        where: { deletedAt: null, alertTargetGroupName: alertTargetGroup.alertTargetGroupName },
       });
+
+      if (!getAlertTargetGroup) {
+        alertTargetGroupData.push({
+          createdBy: 'SYSTEM',
+          createdAt: new Date(),
+          alertTargetGroupId: uuid.v1(),
+          alertTargetGroupName: alertTargetGroup.alertTargetGroupName,
+          alertTargetGroupDescription: alertTargetGroup.alertTargetGroupDescription,
+        });
+      }
+     
     }
 
     try {
@@ -264,17 +272,23 @@ class InitialRecordService {
     //load alert target subgroup data
     const alertTargetSubGroupData = [];
     for (const alertTargetSubGroup of alertTargetSubGroupList) {
-      const getAlertTargetGroup: IAlertTargetGroup = await this.alertTargetGroup.findOne({
-        where: { deletedAt: null, alertTargetGroupName: alertTargetSubGroup.alertTargetGroupName },
+      const getAlertTargetSubGroup: IAlertTargetSubGroup = await this.alertTargetSubGroup.findOne({
+        where: { deletedAt: null, alertTargetSubGroupName: alertTargetSubGroup.alertTargetSubGroupName },
       });
-      alertTargetSubGroupData.push({
-        createdBy: 'SYSTEM',
-        createdAt: new Date(),
-        alertTargetGroupKey: getAlertTargetGroup.alertTargetGroupKey,
-        alertTargetSubGroupId: uuid.v1(),
-        alertTargetSubGroupName: alertTargetSubGroup.alertTargetSubGroupName,
-        alertTargetSubGroupDescription: alertTargetSubGroup.alertTargetSubGroupDescription,
-      });
+
+      if (!getAlertTargetSubGroup) {
+        const getAlertTargetGroup: IAlertTargetGroup = await this.alertTargetGroup.findOne({
+          where: { deletedAt: null, alertTargetGroupName: alertTargetSubGroup.alertTargetGroupName },
+        });
+        alertTargetSubGroupData.push({
+          createdBy: 'SYSTEM',
+          createdAt: new Date(),
+          alertTargetGroupKey: getAlertTargetGroup.alertTargetGroupKey,
+          alertTargetSubGroupId: uuid.v1(),
+          alertTargetSubGroupName: alertTargetSubGroup.alertTargetSubGroupName,
+          alertTargetSubGroupDescription: alertTargetSubGroup.alertTargetSubGroupDescription,
+        });
+      }
     }
 
     try {
