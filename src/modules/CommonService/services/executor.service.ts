@@ -1899,13 +1899,13 @@ class executorService {
     // loop to schedule MetricReceived by
     for (let i = 0; i < DistinctJobList.length; i++) {
       const targetJob = DistinctJobList[i].metricMetaTargetJob;
-      const matricQuery = `{job="` + targetJob + `", clusterUuid="` + clusterUuid + `"}`;
-      const matricName = 'MetricReceived-' + targetJob;
-      const matricSummary = targetJob;
+      const metricQuery = `{job="` + targetJob + `", clusterUuid="` + clusterUuid + `"}`;
+      const metricName = 'MetricReceived-' + targetJob;
+      const metricSummary = targetJob;
 
       cronData = {
-        name: matricName,
-        summary: matricSummary,
+        name: metricName,
+        summary: metricSummary,
         cronTab: '*/5 * * * *',
         apiUrl: executorServerUrl,
         clusterId: clusterUuid,
@@ -1915,14 +1915,14 @@ class executorService {
         scheduleTo: '',
         apiBody: {
           cluster_uuid: clusterUuid,
-          name: matricName,
+          name: metricName,
           template_uuid: '10000000000000000000000000000001',
-          summary: matricSummary,
+          summary: metricSummary,
           subscribed_channel: subscribed_channel,
           on_completion: on_completion,
           inputs: {
             url: prometheus,
-            query: matricQuery
+            query: metricQuery
           },
             
         },
@@ -2156,7 +2156,7 @@ class executorService {
     // call scheduleMetricReceived() with loop
     for (let n = 0; n < Object.keys(newTargetJob).length; n++) {
       const targetJob = newTargetJob[n];
-      const metricQuery = `{job="` + targetJob + `"}`;
+      const metricQuery = `{job="` + targetJob + `", clusterUuid="` + clusterUuid + `"}`;
       const metricName = 'MetricReceived-' + targetJob;
       const metricSummary = targetJob;
       const cronData = {
