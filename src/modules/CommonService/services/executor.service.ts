@@ -1899,7 +1899,7 @@ class executorService {
     // loop to schedule MetricReceived by
     for (let i = 0; i < DistinctJobList.length; i++) {
       const targetJob = DistinctJobList[i].metricMetaTargetJob;
-      const matricQuery = `{job="` + targetJob + `"}`;
+      const matricQuery = `{job="` + targetJob + `", clusterUuid="` + clusterUuid + `"}`;
       const matricName = 'MetricReceived-' + targetJob;
       const matricSummary = targetJob;
 
