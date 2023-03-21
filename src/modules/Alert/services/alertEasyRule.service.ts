@@ -392,7 +392,8 @@ class AlertEasyRuleService {
           deletedAt: null,
           alertRuleName: result.alertEasyRuleName,
           resourceGroupUuid: result.ResourceGroup.resourceGroupUuid
-        }
+        },
+        attributes: ['alertRuleId']
       })
 
       if (alertRule) {
