@@ -2142,7 +2142,7 @@ class executorService {
     //pull metricMetaTargetJob
     for (let i = 0; i < Object.keys(newFilterList).length; i++) {
       const query = newFilterList[i].scheduleApiBody.inputs.query;
-      const job = query.toString().substring(query.toString().indexOf('"') + 1, query.toString().indexOf('"', 7));
+      const job = query.toString().substring(query.toString().indexOf('"') + 1, query.toString().indexOf('"', 6)); // `{job=" next find "
       targetJobCron[i] = job;
     }
     console.log('###### from Cron ###############');
