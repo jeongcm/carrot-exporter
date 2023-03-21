@@ -33,7 +33,7 @@ class AlertReceivedService extends ServiceExtension {
     });
   }
 
-  public async getAllAlertReceived(customerAccountKey: number): Promise<any> {
+  public async getAllAlertReceivedBackup(customerAccountKey: number): Promise<any> {
     /* sequelize join doesn't work with ResourceGroup.... Sequelize bug. can't use "include" bugfix/149
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
       where: { customerAccountKey: customerAccountKey, deletedAt: null },
@@ -180,7 +180,7 @@ class AlertReceivedService extends ServiceExtension {
       }
 
       resource = await this.resource.findOne({
-        where: { resourceName: name },
+        where: { resourceName: name, deletedAt: null },
         attributes: ['resourceType', 'resourceName', 'resourceId']
       })
 
@@ -196,6 +196,125 @@ class AlertReceivedService extends ServiceExtension {
 
     //return allAlertReceived;
     return result;
+  }
+
+  public async getAllAlertReceived(customerAccountKey: any): Promise<object> {
+    const sql = `SELECT
+                A.customer_account_key as customerAccountKey,
+                A.alert_received_id as alertReceivedId,
+                A.alert_received_state as alertReceivedState,
+                A.alert_received_value as alertReceivedValue,
+                A.alert_received_name as alertReceivedName,
+                A.alert_received_severity as alertReceivedSeverity,
+                A.alert_received_active_at as alertReceivedActiveAt,
+                A.alert_received_summary as alertReceivedSummary,
+                A.alert_received_description as alertReceivedDescription,
+                A.alert_received_affected_resource_type as alertReceivedAffectedResourceType,
+                A.alert_received_affected_resource_name as alertReceivedAffectedResourceName,
+                A.alert_received_node as alertReceivedNode,
+                A.alert_received_pod as alertReceivedPod,
+                A.alert_received_service as alertReceivedService,
+                A.created_at as createdAt,
+                A.updated_at as updatedAt,
+                B.alert_rule_id as alertRuleId,
+                B.alert_rule_name as alertRuleName,
+                C.resource_group_id as resourceGroupId,
+                C.resource_group_uuid as resourceGroupUuid,
+                C.resource_group_name as resourceGroupName,
+                D.customer_account_name as customerAccountName,
+                E.user_id as userId
+              FROM AlertReceived A, AlertRule B, ResourceGroup C, CustomerAccount D, PartyUser E
+              WHERE A.customer_account_key = ${customerAccountKey}
+                and A.alert_rule_key = B.alert_rule_key
+                and A.alert_rule_key = B.alert_rule_key
+                and B.resource_group_uuid = C.resource_group_uuid
+                and A.deleted_at is null
+                and B.deleted_at is null
+                and C.deleted_at is null
+                and D.customer_account_key = A.customer_account_key
+                and E.user_id = D.customer_account_id
+                and E.first_name = "API-User"
+                and (A.alert_received_pod != ""
+                or A.alert_received_node != "" or A.alert_received_service != "")
+                order by A.created_at desc`;
+
+    let result: any
+    result = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
+    let resource: any
+
+    for (let alert of result) {
+      const alertResourceMeta: any = this.getResourceTypeName(alert)
+
+      if (!alertResourceMeta) {
+        alert.resourceType = ""
+        alert.resourceName = ""
+        alert.resourceId = ""
+      }
+
+      resource = await this.resource.findOne({
+        where: { resourceName: alertResourceMeta.resourceName, deletedAt: null },
+        attributes: ['resourceType', 'resourceName', 'resourceId']
+      })
+
+      if (resource) {
+        alert.resourceType = resource?.resourceType
+        alert.resourceName = resource?.resourceName
+        alert.resourceId = resource?.resourceId
+      } else {
+        alert.resourceType = alertResourceMeta.resourceType
+        alert.resourceName = alertResourceMeta.resourceName
+        alert.resourceName = ""
+      }
+    }
+
+    //return allAlertReceived;
+    return result;
+  }
+
+  public getResourceTypeName(alert: any): object {
+    if (alert.alertReceivedAffectedResourceType === 'PJ' || alert.alertReceivedAffectedResourceType === 'Project') {
+      return {
+        resourceType: 'PJ',
+        resourceName: alert.alertReceivedAffectedResourceName,
+      };
+    }
+    if (alert.alertReceivedAffectedResourceType === 'VM') {
+      return {
+        resourceType: 'VM',
+        resourceName: alert.alertReceivedAffectedResourceName,
+      };
+    }
+    if (alert.alertReceivedAffectedResourceType === 'PM') {
+      return {
+        resourceType: 'PM',
+        resourceName: alert.alertReceivedAffectedResourceName,
+      };
+    }
+  
+    if (alert.alertReceivedPod) {
+      return {
+        resourceType: 'PD',
+        resourceName: alert.alertReceivedPod,
+      };
+    }
+    if (alert.alertReceivedService) {
+      return {
+        resourceType: 'SV',
+        resourceName: alert.alertReceivedService,
+      };
+    }
+    if (alert.alertReceivedNode) {
+      return {
+        resourceType: 'ND',
+        resourceName: alert.alertReceivedNode,
+      };
+    }
+    if (alert.resourceGroupName) {
+      return {
+        resourceType: 'K8',
+        resourceName: alert.resourceGroupName,
+      };
+    }
   }
 
   private getWhereClauseFrom(query: any[], op: 'AND' | 'OR') {
