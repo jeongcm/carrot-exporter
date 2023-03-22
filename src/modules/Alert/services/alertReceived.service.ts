@@ -169,7 +169,8 @@ class AlertReceivedService extends ServiceExtension {
                 C.resource_group_uuid as resourceGroupUuid,
                 C.resource_group_name as resourceGroupName,
                 D.customer_account_name as customerAccountName,
-              FROM AlertReceived A, AlertRule B, ResourceGroup C, CustomerAccount D
+                E.user_id as userId
+              FROM AlertReceived A, AlertRule B, ResourceGroup C, CustomerAccount D, PartyUser E
               WHERE A.customer_account_key = ${customerAccountKey}
                 and A.alert_rule_key = B.alert_rule_key
                 and A.alert_rule_key = B.alert_rule_key
@@ -178,6 +179,8 @@ class AlertReceivedService extends ServiceExtension {
                 and B.deleted_at is null
                 and C.deleted_at is null
                 and D.customer_account_key = A.customer_account_key
+                and E.user_id = D.customer_account_id
+                and E.first_name = "API-User"
                 and (A.alert_received_pod != ""
                 or A.alert_received_node != "" or A.alert_received_service != "")
                 order by A.created_at desc`;
@@ -234,7 +237,7 @@ class AlertReceivedService extends ServiceExtension {
         resourceName: alert.alertReceivedAffectedResourceName,
       };
     }
-
+  
     if (alert.alertReceivedPod) {
       return {
         resourceType: 'PD',
@@ -326,10 +329,10 @@ class AlertReceivedService extends ServiceExtension {
     if (isEmpty(alertHash)) throw new HttpException(400, 'Not a valid AlertReceivedHash');
     let startAt: any
     let endAt: any
-
+    
     if (!start) {
       throw new HttpException(400, 'invalid startAt')
-    }
+    } 
 
     if (!end) {
       endAt = new Date()
@@ -348,7 +351,7 @@ class AlertReceivedService extends ServiceExtension {
       },
       order: [['createdAt', 'DESC']],
     });
-
+    
     return allAlertReceived;
   }
 
