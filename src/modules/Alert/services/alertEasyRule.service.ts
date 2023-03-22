@@ -384,7 +384,7 @@ class AlertEasyRuleService {
   
     const results = [];
     for (let result of getAlertEasyRule) {
-      
+      let alertRuleId = ""
       let resourceGroupServerInterfaceStatus: boolean = true;
       resourceGroupServerInterfaceStatus = this.resourceGroupService.checkResourceServerInterfaceStatus(result.ResourceGroup.resourceGroupLastServerUpdatedAt)
       const alertRule = await this.alertRule.findOne({
@@ -392,9 +392,13 @@ class AlertEasyRuleService {
           deletedAt: null,
           alertRuleName: result.alertEasyRuleName,
           resourceGroupUuid: result.ResourceGroup.resourceGroupUuid
-        }
+        },
+        attributes: ['alertRuleId']
       })
 
+      if (alertRule) {
+        alertRuleId = alertRule.alertRuleId
+      }
       results.push({
         "alertEasyRuleId": result.alertEasyRuleId,
         "createdBy": result.createdBy,
@@ -426,7 +430,7 @@ class AlertEasyRuleService {
         "alertTargetGroupName": result.AlertTargetSubGroup.AlertTargetGroup.alertTargetGroupName,
         "alertTargetGroupDescription": result.AlertTargetSubGroup.AlertTargetGroup.alertTargetGroupDescription,
         "resourceGroupServerInterfaceStatus": resourceGroupServerInterfaceStatus,
-        "alertRuleId": alertRule.alertRuleId
+        "alertRuleId": alertRuleId
       })
     }
 
