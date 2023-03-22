@@ -33,59 +33,6 @@ class AlertReceivedService extends ServiceExtension {
     });
   }
 
-  public async getAllAlertReceivedBackup(customerAccountKey: number): Promise<any> {
-    /* sequelize join doesn't work with ResourceGroup.... Sequelize bug. can't use "include" bugfix/149
-    const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null },
-      attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
-       include: [
-         {
-           model: AlertRuleModel,
-           as: 'alertRule',
-           required: true,
-           where: { deletedAt: null},
-           include: [
-           {
-               model: ResourceGroupModel,
-               required: true,
-               //where: {deletedAt: null},
-             },
-           ],
-         },
-       ],
-    });
-    */
-    const sql = `SELECT
-                A.customer_account_key as customerAccountKey,
-                A.alert_received_id as alertReceivedId,
-                A.alert_received_state as alertReceivedState,
-                A.alert_received_value as alertReceivedValue,
-                A.alert_received_name as alertReceivedName,
-                A.alert_received_severity as alertReceivedSeverity,
-                A.alert_received_active_at as alertReceivedActiveAt,
-                A.alert_received_summary alertReceivedSummary,
-                A.alert_received_description alertReceivedDescription,
-                A.alert_received_affected_resource_type alertReceivedAffectedResourceType,
-                A.alert_received_affected_resource_name alertReceivedAffectedResourceName,
-                A.created_at as createdAt,
-                A.updated_at as updatedAt,
-                B.alert_rule_id as alertRuleId,
-                B.alert_rule_name as alertRuleName,
-                C.resource_group_id as resourceGroupId,
-                C.resource_group_uuid as resourceGroupUuid,
-                C.resource_group_name as resourceGroupName
-              FROM AlertReceived A, AlertRule B, ResourceGroup C
-              WHERE A.customer_account_key = ${customerAccountKey}
-                and A.alert_rule_key = B.alert_rule_key
-                and B.resource_group_uuid = C.resource_group_uuid
-                and A.deleted_at is null
-                and B.deleted_at is null
-                and C.deleted_at is null`;
-    const results = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
-    //return allAlertReceived;
-    return results;
-  }
-
   public async getAllAlertReceivedByParentCustomerAccountId(ParentCustomerAccountId: string): Promise<object> {
     /* sequelize join doesn't work with ResourceGroup.... Sequelize bug. can't use "include" bugfix/149
     const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
