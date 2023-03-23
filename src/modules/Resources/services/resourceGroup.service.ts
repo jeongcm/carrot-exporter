@@ -258,10 +258,10 @@ class ResourceGroupService {
         resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
         resourceGroupSudoryNamespace: resultResourceGroup[i].resourceGroupSudoryNamespace,
         resourceGroupKpsLokiNamespace: resultResourceGroup[i].resourceGroupKpsLokiNamespace,
+        resourceGroupHelmInstallInfo: resultResourceGroup[i].resourceGroupHelmInstallInfo,
         numberOfNode: numberOfNode,
         resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
         resourceGroupLastServerUpdatedAt: resultResourceGroup[i].resourceGroupLastServerUpdatedAt,
-        resourceGroupHelmInstallInfo: resultResourceGroup[i].resourceGroupHelmInstallInfo,
       };
     }
 
@@ -310,10 +310,10 @@ class ResourceGroupService {
         resourceGroupAlertManager: resultResourceGroup[i].resourceGroupAlertManager,
         resourceGroupSudoryNamespace: resultResourceGroup[i].resourceGroupSudoryNamespace,
         resourceGroupKpsLokiNamespace: resultResourceGroup[i].resourceGroupKpsLokiNamespace,
+        resourceGroupHelmInstallInfo: resultResourceGroup[i].resourceGroupHelmInstallInfo,
         numberOfNode: numberOfNode,
         resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
         resourceGroupLastServerUpdatedAt: resultResourceGroup[i].resourceGroupLastServerUpdatedAt,
-        resourceGroupHelmInstallInfo: resultResourceGroup[i].resourceGroupHelmInstallInfo,
       };
     }
 
@@ -355,9 +355,9 @@ class ResourceGroupService {
       resourceGroupSudoryNamespace: findResourceGroup.resourceGroupSudoryNamespace,
       resourceGroupKpsLokiNamespace: findResourceGroup.resourceGroupKpsLokiNamespace,
       resourceGroupLastServerUpdatedAt: findResourceGroup.resourceGroupLastServerUpdatedAt,
+      resourceGroupHelmInstallInfo: findResourceGroup.resourceGroupHelmInstallInfo,
       numberOfNode: numberOfNode,
       resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
-      resourceGroupHelmInstallInfo: findResourceGroup.resourceGroupHelmInstallInfo,
     };
 
     return resourceGroupResult;
@@ -403,9 +403,9 @@ class ResourceGroupService {
       resourceGroupSudoryNamespace: findResourceGroup.resourceGroupSudoryNamespace,
       resourceGroupKpsLokiNamespace: findResourceGroup.resourceGroupKpsLokiNamespace,
       resourceGroupLastServerUpdatedAt: findResourceGroup.resourceGroupLastServerUpdatedAt,
+      resourceGroupHelmInstallInfo: findResourceGroup.resourceGroupHelmInstallInfo,
       numberOfNode: numberOfNode,
       resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
-      resourceGroupHelmInstallInfo: findResourceGroup.resourceGroupHelmInstallInfo,
     };
 
     return resourceGroupResult;
@@ -447,9 +447,9 @@ class ResourceGroupService {
       resourceGroupSudoryNamespace: findResourceGroup.resourceGroupSudoryNamespace,
       resourceGroupKpsLokiNamespace: findResourceGroup.resourceGroupKpsLokiNamespace,
       resourceGroupLastServerUpdatedAt: findResourceGroup.resourceGroupLastServerUpdatedAt,
+      resourceGroupHelmInstallInfo: findResourceGroup.resourceGroupHelmInstallInfo,
       numberOfNode: numberOfNode,
       resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
-      resourceGroupHelmInstallInfo: findResourceGroup.resourceGroupHelmInstallInfo,
     };
 
     return resourceGroupResult;
@@ -517,6 +517,7 @@ class ResourceGroupService {
         resourceGroupLastServerUpdatedAt: resultResourceGroup[i].resourceGroupLastServerUpdatedAt,
         resourceGroupAlertRepeatInterval: resultResourceGroup[i].resourceGroupAlertRepeatInterval,
         resourceGroupAlertGroupWait: resultResourceGroup[i].resourceGroupAlertGroupWait,
+        resourceGroupHelmInstallInfo: resultResourceGroup[i].resourceGroupHelmInstallInfo,
         numberOfNode: numberOfNode,
         resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
       };
