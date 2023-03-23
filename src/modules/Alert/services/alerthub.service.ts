@@ -13,11 +13,15 @@ import { IAlertRuleSettingData } from '@/common/interfaces/alertReceived.interfa
 
 import _ from 'lodash';
 import { IAlertEasyRule } from '@/common/interfaces/alertEasyRule.interface';
+import ResourceGroupService from "@modules/Resources/services/resourceGroup.service";
+import ResourceService from "@modules/Resources/services/resource.service";
 
 dayjs.extend(utc);
 
 class AlerthubService {
   public alertRuleService = new AlertRuleService();
+  public resourceGroupService = new ResourceGroupService();
+  public resourceService = new ResourceService();
 
   public async getAlertTimelinesByAlertRuleKey(
     customerAccountKey: number,
@@ -68,6 +72,53 @@ class AlerthubService {
       const { resourceType, resourceName, resourceGroupUuid, nodeName } = filteringData;
       const url = `${config.alerthub.baseUrl}/v1/alertTimelineByResGroupUuid/${customerAccountKey}/${resourceGroupUuid}?resourceType=${resourceType}&resourceName=${resourceName}&nodeName=${nodeName}`
       console.log(`getAlertTimelineByResourceDetail url = ${url}`)
+      const { data } = await axios.get(
+        url,
+        {
+          headers: { x_auth_token: `${config.alerthub.authToken}` },
+        },
+      );
+      console.log(`Axios response time: `, Date.now() - start, 'ms');
+      if (data.data && data.message === 'success') {
+        data.data.queryRunTime = Date.now() - start;
+        return data.data;
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async getAlertTimelines(customerAccountKey: number, query?: any): Promise<IAlertTimeline[]> {
+    try {
+      const filteringData = {}
+
+      if (query?.alertRuleId) {
+        filteringData["alertRuleKey"] = await this.alertRuleService.findAlertRuleKeyById(query?.alertRuleId);
+      }
+      if (query?.resourceId) {
+        const resource = await this.resourceService.getResourceById(query?.resourceId);
+        const resourceGroupKey = Number(resource?.resourceGroupKey);
+        const resourceType = resource.resourceType;
+        const resourceName = resource.resourceName;
+        const resourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, resourceGroupKey);
+        const resourceGroupUuid = resourceGroup?.resourceGroupUuid;
+
+        filteringData["resourceName"] = resourceName
+        filteringData["resourceType"] = resourceType
+        filteringData["resourceGroupUuid"] = resourceGroupUuid
+        if (resource?.resourceSpec?.nodeName) {
+          filteringData["nodeName"] = resource?.resourceSpec?.nodeName
+        }
+      }
+
+      const jsonData = JSON.stringify(filteringData)
+      console.log(jsonData)
+
+      const start = Date.now();
+
+
+      const url = `${config.alerthub.baseUrl}/v1/alertTimeline/${customerAccountKey}?filteringData=${jsonData}`
+      console.log(`getAlertTimelines url = ${url}`)
       const { data } = await axios.get(
         url,
         {

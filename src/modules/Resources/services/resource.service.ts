@@ -134,6 +134,10 @@ class ResourceService {
       attributes: { exclude: ['resourceKey', 'deletedAt'] },
       raw: true,
     });
+
+    if (!resource) {
+      throw new HttpException(404, 'Not found Resource');
+    }
     return resource;
   }
 
@@ -231,7 +235,7 @@ class ResourceService {
     if (!findResourceGroup) {
       throw new HttpException(404, "ResourceGroup with resourceGroupUuid doesn't exist");
     }
-    
+
     const resourceWhereCondition =  {
       resourceName: resourceDetailData.resourceName,
       resourceType: resourceDetailData.resourceType,
@@ -257,7 +261,7 @@ class ResourceService {
       }
 
       return findResource
-    } 
+    }
 
     findResource = await this.resource.findOne({
       where: resourceWhereCondition,
@@ -935,7 +939,7 @@ class ResourceService {
 
     result['workloadCount'].count = result['workloadCount'].count + replicaSet.count
     result['workloadCount'].rows.push.apply(result['workloadCount'].rows, replicaSet.rows)
-    
+
     // get Workloads by Namespace Count
     result['workloadCountByNamespace'] = await this.resource.count({
       where: resourceWhereCondition,
@@ -990,7 +994,7 @@ class ResourceService {
       throw new HttpException(204, 'no contents')
     }
     const ids = [];
-    
+
     if (!Array.isArray(resourceIds)) {
       ids.push(resourceIds)
     } else {
@@ -1717,7 +1721,7 @@ class ResourceService {
 
     let results: any
     results = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
-  
+
     let resultResources = [];
     for (let result of results) {
       let resourceGroupServerInterfaceStatus: boolean = true;
