@@ -210,6 +210,7 @@ class ResourceGroupService {
       resourceGroupLastServerUpdatedAt: findResourceGroup.resourceGroupLastServerUpdatedAt,
       numberOfNode: numberOfNode,
       resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+      resourceGroupHelmInstallInfo: findResourceGroup.resourceGroupHelmInstallInfo,
     };
 
     return resourceGroupResult;
@@ -260,6 +261,7 @@ class ResourceGroupService {
         numberOfNode: numberOfNode,
         resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
         resourceGroupLastServerUpdatedAt: resultResourceGroup[i].resourceGroupLastServerUpdatedAt,
+        resourceGroupHelmInstallInfo: resultResourceGroup[i].resourceGroupHelmInstallInfo,
       };
     }
 
@@ -311,6 +313,7 @@ class ResourceGroupService {
         numberOfNode: numberOfNode,
         resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
         resourceGroupLastServerUpdatedAt: resultResourceGroup[i].resourceGroupLastServerUpdatedAt,
+        resourceGroupHelmInstallInfo: resultResourceGroup[i].resourceGroupHelmInstallInfo,
       };
     }
 
@@ -354,6 +357,7 @@ class ResourceGroupService {
       resourceGroupLastServerUpdatedAt: findResourceGroup.resourceGroupLastServerUpdatedAt,
       numberOfNode: numberOfNode,
       resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+      resourceGroupHelmInstallInfo: findResourceGroup.resourceGroupHelmInstallInfo,
     };
 
     return resourceGroupResult;
@@ -401,6 +405,7 @@ class ResourceGroupService {
       resourceGroupLastServerUpdatedAt: findResourceGroup.resourceGroupLastServerUpdatedAt,
       numberOfNode: numberOfNode,
       resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+      resourceGroupHelmInstallInfo: findResourceGroup.resourceGroupHelmInstallInfo,
     };
 
     return resourceGroupResult;
@@ -444,6 +449,7 @@ class ResourceGroupService {
       resourceGroupLastServerUpdatedAt: findResourceGroup.resourceGroupLastServerUpdatedAt,
       numberOfNode: numberOfNode,
       resourceGroupServerInterfaceStatus: resourceGroupServerInterfaceStatus,
+      resourceGroupHelmInstallInfo: findResourceGroup.resourceGroupHelmInstallInfo,
     };
 
     return resourceGroupResult;
