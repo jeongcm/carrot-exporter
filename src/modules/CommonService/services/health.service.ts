@@ -80,6 +80,7 @@ class healthService {
       for (let i = 0; i < responseResourceGroup.length; i++) {
         //4. check sudoryclient
         const clusterUuid = responseResourceGroup[i].resourceGroupUuid;
+        const platform = responseResourceGroup[i].resourceGroupPlatform;
         const sudoryRebounceRequest = responseResourceGroup[i].resourceGroupSudoryRebounceRequest;
         const resultExecutorClient: ISudoryClient = await this.sudoryService.checkSudoryClient(clusterUuid);
         console.log('#SUDORYHEALTH - resultExecutorClient', resultExecutorClient);
@@ -163,7 +164,7 @@ class healthService {
         if (syncResourcesFiltered.length === 0) {
           clusterStatus[i].syncResources = false;
           //call scheduleSyncResources
-          const resultScheduleSyncResources = await this.executorService.scheduleSyncResources(clusterUuid, config.resourceCron);
+          const resultScheduleSyncResources = await this.executorService.scheduleSyncResources(clusterUuid, config.resourceCron, platform);
           if (resultScheduleSyncResources) clusterStatus[i].syncResourcesAction = true;
         } else {
           clusterStatus[i].syncResources = true;
