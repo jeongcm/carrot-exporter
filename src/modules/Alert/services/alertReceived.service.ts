@@ -149,7 +149,11 @@ class AlertReceivedService extends ServiceExtension {
   public async getAllAlertReceived(customerAccountKey: any, query?: any): Promise<object> {
     let state = []
     if (query?.state) {
-      state.push(query.state)
+      if (Array.isArray(query.state) === true) {
+        query.state.forEach(s => state.push(`'${s}'`))
+      } else {
+        state.push(`'${query.state}'`)
+      }
     } else {
       state.push.apply(state, [`'firing'`, `'pending'`, `'resolved'`])
     }
