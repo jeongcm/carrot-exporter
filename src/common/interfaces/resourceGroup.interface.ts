@@ -23,7 +23,7 @@ export interface IResourceGroup {
   resourceGroupAlertRepeatInterval: number;
   resourceGroupAlertGroupWait: number;
 
-  resourceGroupHelmInstallInfo: string;
+  resourceGroupHelmInstallInfo: any;
 }
 
 export interface IResourceGroupUi {
@@ -49,5 +49,5 @@ export interface IResourceGroupUi {
   resourceGroupLastServerUpdatedAt: Date;
   numberOfNode: number;
   resourceGroupServerInterfaceStatus: boolean;
-  resourceGroupHelmInstallInfo: string;
+  resourceGroupHelmInstallInfo: any;
 }

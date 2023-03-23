@@ -39,7 +39,7 @@ export class ResourceGroupDto {
 
   @IsString()
   @IsOptional()
-  public resourceGroupHelmInstallInfo: string;
+  public resourceGroupHelmInstallInfo: any;
 }
 export class UpdateResourceGroupDto {
   @IsString()
@@ -91,7 +91,7 @@ export class UpdateResourceGroupDto {
 
   @IsString()
   @IsOptional()
-  public resourceGroupHelmInstallInfo: string;
+  public resourceGroupHelmInstallInfo: any;
 }
 
 export class ResourceGroupExecutorDto {
@@ -121,7 +121,7 @@ export class ResourceGroupExecutorDto {
 
   @IsString()
   @IsOptional()
-  public resourceGroupHelmInstallInfo: string;
+  public resourceGroupHelmInstallInfo: any;
 }
 
 export class ResourceGroupKpsDto {

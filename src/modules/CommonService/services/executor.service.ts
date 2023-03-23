@@ -181,7 +181,7 @@ class executorService {
       resourceGroupKpsLokiNamespace: resourceGroupKpsLokiNamespace,
       resourceGroupLastServerUpdatedAt: null,
       resourceGroupSudoryRebounceRequest: '',
-      resourceGroupHelmInstallInfo: ''
+      resourceGroupHelmInstallInfo: null
     };
 
     try {
