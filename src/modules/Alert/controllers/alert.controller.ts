@@ -151,6 +151,7 @@ class AlertRuleController extends ControllerExtension {
         //     alertReceivedName: `${req.query?.name}`,
         //   },
         // }
+        req.query
       );
       res.status(200).json({ data: findAllAlertReceived, message: 'findAll' });
     } catch (error) {
