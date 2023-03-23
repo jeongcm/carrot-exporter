@@ -1,4 +1,4 @@
-import { IsNumber, IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import {IsNumber, IsString, IsNotEmpty, IsOptional, IsObject} from 'class-validator';
 
 export class ResourceGroupDto {
   @IsString()
@@ -36,6 +36,10 @@ export class ResourceGroupDto {
   @IsString()
   @IsOptional()
   public resourceGroupSudoryRebounceRequest: string;
+
+  @IsObject()
+  @IsOptional()
+  public resourceGroupHelmInstallInfo: any;
 }
 export class UpdateResourceGroupDto {
   @IsString()
@@ -84,6 +88,10 @@ export class UpdateResourceGroupDto {
   @IsNumber()
   @IsOptional()
   public resourceGroupAlertGroupWait: number;
+
+  @IsObject()
+  @IsOptional()
+  public resourceGroupHelmInstallInfo: any;
 }
 
 export class ResourceGroupExecutorDto {
@@ -110,6 +118,10 @@ export class ResourceGroupExecutorDto {
   @IsString()
   @IsOptional()
   public resourceGroupKpsLokiNamespace: string;
+
+  @IsObject()
+  @IsOptional()
+  public resourceGroupHelmInstallInfo: any;
 }
 
 export class ResourceGroupKpsDto {
