@@ -100,19 +100,24 @@ class AlerthubService {
         const resourceGroupKey = Number(resource?.resourceGroupKey);
         const resourceType = resource.resourceType;
         const resourceName = resource.resourceName;
-        const nodeName = resource?.resourceSpec?.nodeName || "";
         const resourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, resourceGroupKey);
         const resourceGroupUuid = resourceGroup?.resourceGroupUuid;
 
         filteringData["resourceName"] = resourceName
         filteringData["resourceType"] = resourceType
         filteringData["resourceGroupUuid"] = resourceGroupUuid
-        filteringData["nodeName"] = nodeName
+        if (resource?.resourceSpec?.nodeName) {
+          filteringData["nodeName"] = resource?.resourceSpec?.nodeName
+        }
       }
+
+      const jsonData = JSON.stringify(filteringData)
+      console.log(jsonData)
 
       const start = Date.now();
 
-      const url = `${config.alerthub.baseUrl}/v1/alertTimelines/${customerAccountKey}/?filteringData=${filteringData}`
+
+      const url = `${config.alerthub.baseUrl}/v1/alertTimeline/${customerAccountKey}?filteringData=${jsonData}`
       console.log(`getAlertTimelines url = ${url}`)
       const { data } = await axios.get(
         url,
