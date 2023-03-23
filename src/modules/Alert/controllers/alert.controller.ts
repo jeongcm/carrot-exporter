@@ -377,12 +377,14 @@ class AlertRuleController extends ControllerExtension {
       const resourceGroupKey = Number(resource?.resourceGroupKey);
       const resourceType = resource.resourceType;
       const resourceName = resource.resourceName;
+      const nodeName = resource?.resourceSpec?.nodeName || "";
       const resourceGroup = await this.resourceGroupService.getUserResourceGroupByKey(customerAccountKey, resourceGroupKey);
       const resourceGroupUuid = resourceGroup?.resourceGroupUuid;
       const filteringData = {
         resourceName,
         resourceType,
         resourceGroupUuid,
+        nodeName
       };
       const start = Date.now();
       const alertTimelines: any = await this.alerthubService.getAlertTimelineByResourceDetail(customerAccountKey, filteringData);
