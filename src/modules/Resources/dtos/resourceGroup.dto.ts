@@ -36,6 +36,10 @@ export class ResourceGroupDto {
   @IsString()
   @IsOptional()
   public resourceGroupSudoryRebounceRequest: string;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupHelmInstallInfo: string;
 }
 export class UpdateResourceGroupDto {
   @IsString()
@@ -84,6 +88,10 @@ export class UpdateResourceGroupDto {
   @IsNumber()
   @IsOptional()
   public resourceGroupAlertGroupWait: number;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupHelmInstallInfo: string;
 }
 
 export class ResourceGroupExecutorDto {
@@ -110,6 +118,10 @@ export class ResourceGroupExecutorDto {
   @IsString()
   @IsOptional()
   public resourceGroupKpsLokiNamespace: string;
+
+  @IsString()
+  @IsOptional()
+  public resourceGroupHelmInstallInfo: string;
 }
 
 export class ResourceGroupKpsDto {

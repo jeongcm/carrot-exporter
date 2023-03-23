@@ -26,6 +26,7 @@ export type ResourceGroupCreationAttributes = Optional<
   | 'resourceGroupSudoryRebounceRequest'
   | 'resourceGroupAlertRepeatInterval'
   | 'resourceGroupAlertGroupWait'
+  | 'resourceGroupHelmInstallInfo'
 >;
 
 export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreationAttributes> implements IResourceGroup {
@@ -52,6 +53,8 @@ export class ResourceGroupModel extends Model<IResourceGroup, ResourceGroupCreat
   public resourceGroupSudoryRebounceRequest: string;
   public resourceGroupAlertRepeatInterval: number;
   public resourceGroupAlertGroupWait: number;
+  public resourceGroupHelmInstallInfo: string;
+
   public readonly createdAt!: Date;
 }
 
@@ -156,8 +159,11 @@ export default function (sequelize: Sequelize): typeof ResourceGroupModel {
         allowNull: true,
         type: DataTypes.INTEGER,
       },
+      resourceGroupHelmInstallInfo: {
+        allowNull: true,
+        type: DataTypes.STRING(500),
+      }
     },
-
     {
       tableName: 'ResourceGroup',
       modelName: 'ResourceGroup',
