@@ -108,7 +108,7 @@ class AlertRuleService {
         {
           model: this.alertReceived,
           as: 'AlertReceiveds',
-          attributes: ['alertReceivedNode', 'alertReceivedService', 'alertReceivedPod'],
+          attributes: ['alertReceivedNode', 'alertReceivedService', 'alertReceivedPod', 'alertReceivedLabels'],
           required: false,
           where: {
             deletedAt: null,

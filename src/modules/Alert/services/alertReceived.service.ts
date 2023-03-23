@@ -10,6 +10,7 @@ import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.mod
 import ServiceExtension from '@/common/extentions/service.extension';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import sequelize from 'sequelize';
+import {IResourceGroup} from "@common/interfaces/resourceGroup.interface";
 
 const { Op, QueryTypes } = require('sequelize');
 
@@ -145,7 +146,17 @@ class AlertReceivedService extends ServiceExtension {
     return result;
   }
 
-  public async getAllAlertReceived(customerAccountKey: any): Promise<object> {
+  public async getAllAlertReceived(customerAccountKey: any, query?: any): Promise<object> {
+    let state = []
+    if (query?.state) {
+      if (Array.isArray(query.state) === true) {
+        query.state.forEach(s => state.push(`'${s}'`))
+      } else {
+        state.push(`'${query.state}'`)
+      }
+    } else {
+      state.push.apply(state, [`'firing'`, `'pending'`, `'resolved'`])
+    }
     const sql = `SELECT
                 A.customer_account_key as customerAccountKey,
                 A.alert_received_id as alertReceivedId,
@@ -155,6 +166,7 @@ class AlertReceivedService extends ServiceExtension {
                 A.alert_received_severity as alertReceivedSeverity,
                 A.alert_received_active_at as alertReceivedActiveAt,
                 A.alert_received_summary as alertReceivedSummary,
+                A.alert_received_labels as alertReceivedLabels,
                 A.alert_received_description as alertReceivedDescription,
                 A.alert_received_affected_resource_type as alertReceivedAffectedResourceType,
                 A.alert_received_affected_resource_name as alertReceivedAffectedResourceName,
@@ -168,9 +180,11 @@ class AlertReceivedService extends ServiceExtension {
                 C.resource_group_id as resourceGroupId,
                 C.resource_group_uuid as resourceGroupUuid,
                 C.resource_group_name as resourceGroupName,
+                C.resource_group_platform as resourceGroupPlatform,
                 D.customer_account_name as customerAccountName
               FROM AlertReceived A, AlertRule B, ResourceGroup C, CustomerAccount D
               WHERE A.customer_account_key = ${customerAccountKey}
+                and A.alert_received_state in (${state})
                 and A.alert_rule_key = B.alert_rule_key
                 and A.alert_rule_key = B.alert_rule_key
                 and B.resource_group_uuid = C.resource_group_uuid
@@ -211,7 +225,43 @@ class AlertReceivedService extends ServiceExtension {
       }
     }
 
-    //return allAlertReceived;
+    let resourceGroupIds: string[] = [];
+    if (query.resourceGroupId) {
+      switch (Array.isArray(query.resourceGroupIdresourceGroupId)) {
+        case true:
+          resourceGroupIds = query.resourceGroupId.map(id => id)
+          break
+        case false:
+          resourceGroupIds.push(query.resourceGroupId)
+          break
+      }
+
+      let resourceGroupWhereCondition = {customerAccountKey, deletedAt: null }
+      if (resourceGroupIds.length > 0) {
+        resourceGroupWhereCondition['resourceGroupId'] = resourceGroupIds
+      }
+
+      const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+        where: resourceGroupWhereCondition,
+        attributes: { exclude: ['deletedAt'] },
+      });
+
+      if (resourceGroups.length === 0) {
+        throw new HttpException(404, `not found resourceGroup`)
+      }
+      let resourceGroupUuids: any = [];
+
+      resourceGroups.forEach(resourceGroup => resourceGroupUuids.push(resourceGroup.resourceGroupUuid))
+      let allAlertReceived = []
+      result.map(alert => {
+        if (resourceGroupUuids.indexOf(alert.resourceGroupUuid) > -1) {
+          allAlertReceived.push(alert)
+        }
+      })
+
+      return allAlertReceived;
+    }
+
     return result;
   }
 
