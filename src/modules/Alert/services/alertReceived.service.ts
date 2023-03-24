@@ -10,6 +10,7 @@ import { ResourceGroupModel } from '@/modules/Resources/models/resourceGroup.mod
 import ServiceExtension from '@/common/extentions/service.extension';
 import { IAlertRule } from '@/common/interfaces/alertRule.interface';
 import sequelize from 'sequelize';
+import {IResourceGroup} from "@common/interfaces/resourceGroup.interface";
 
 const { Op, QueryTypes } = require('sequelize');
 
@@ -31,59 +32,6 @@ class AlertReceivedService extends ServiceExtension {
     super({
       tableName: 'AlertReceived',
     });
-  }
-
-  public async getAllAlertReceived(customerAccountKey: number): Promise<any> {
-    /* sequelize join doesn't work with ResourceGroup.... Sequelize bug. can't use "include" bugfix/149
-    const allAlertReceived: IAlertReceived[] = await this.alertReceived.findAll({
-      where: { customerAccountKey: customerAccountKey, deletedAt: null },
-      attributes: { exclude: ['alertReceivedKey', 'deletedAt', 'updatedBy', 'createdBy'] },
-       include: [
-         {
-           model: AlertRuleModel,
-           as: 'alertRule',
-           required: true,
-           where: { deletedAt: null},
-           include: [
-           {
-               model: ResourceGroupModel,
-               required: true,
-               //where: {deletedAt: null},
-             },
-           ],
-         },
-       ],
-    });
-    */
-    const sql = `SELECT
-                A.customer_account_key as customerAccountKey,
-                A.alert_received_id as alertReceivedId,
-                A.alert_received_state as alertReceivedState,
-                A.alert_received_value as alertReceivedValue,
-                A.alert_received_name as alertReceivedName,
-                A.alert_received_severity as alertReceivedSeverity,
-                A.alert_received_active_at as alertReceivedActiveAt,
-                A.alert_received_summary alertReceivedSummary,
-                A.alert_received_description alertReceivedDescription,
-                A.alert_received_affected_resource_type alertReceivedAffectedResourceType,
-                A.alert_received_affected_resource_name alertReceivedAffectedResourceName,
-                A.created_at as createdAt,
-                A.updated_at as updatedAt,
-                B.alert_rule_id as alertRuleId,
-                B.alert_rule_name as alertRuleName,
-                C.resource_group_id as resourceGroupId,
-                C.resource_group_uuid as resourceGroupUuid,
-                C.resource_group_name as resourceGroupName
-              FROM AlertReceived A, AlertRule B, ResourceGroup C
-              WHERE A.customer_account_key = ${customerAccountKey}
-                and A.alert_rule_key = B.alert_rule_key
-                and B.resource_group_uuid = C.resource_group_uuid
-                and A.deleted_at is null
-                and B.deleted_at is null
-                and C.deleted_at is null`;
-    const results = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
-    //return allAlertReceived;
-    return results;
   }
 
   public async getAllAlertReceivedByParentCustomerAccountId(ParentCustomerAccountId: string): Promise<object> {
@@ -180,7 +128,7 @@ class AlertReceivedService extends ServiceExtension {
       }
 
       resource = await this.resource.findOne({
-        where: { resourceName: name },
+        where: { resourceName: name, deletedAt: null },
         attributes: ['resourceType', 'resourceName', 'resourceId']
       })
 
@@ -196,6 +144,171 @@ class AlertReceivedService extends ServiceExtension {
 
     //return allAlertReceived;
     return result;
+  }
+
+  public async getAllAlertReceived(customerAccountKey: any, query?: any): Promise<object> {
+    let state = []
+    if (query?.state) {
+      if (Array.isArray(query.state) === true) {
+        query.state.forEach(s => state.push(`'${s}'`))
+      } else {
+        state.push(`'${query.state}'`)
+      }
+    } else {
+      state.push.apply(state, [`'firing'`, `'pending'`, `'resolved'`])
+    }
+    const sql = `SELECT
+                A.customer_account_key as customerAccountKey,
+                A.alert_received_id as alertReceivedId,
+                A.alert_received_state as alertReceivedState,
+                A.alert_received_value as alertReceivedValue,
+                A.alert_received_name as alertReceivedName,
+                A.alert_received_severity as alertReceivedSeverity,
+                A.alert_received_active_at as alertReceivedActiveAt,
+                A.alert_received_summary as alertReceivedSummary,
+                A.alert_received_labels as alertReceivedLabels,
+                A.alert_received_description as alertReceivedDescription,
+                A.alert_received_affected_resource_type as alertReceivedAffectedResourceType,
+                A.alert_received_affected_resource_name as alertReceivedAffectedResourceName,
+                A.alert_received_node as alertReceivedNode,
+                A.alert_received_pod as alertReceivedPod,
+                A.alert_received_service as alertReceivedService,
+                A.created_at as createdAt,
+                A.updated_at as updatedAt,
+                B.alert_rule_id as alertRuleId,
+                B.alert_rule_name as alertRuleName,
+                C.resource_group_id as resourceGroupId,
+                C.resource_group_uuid as resourceGroupUuid,
+                C.resource_group_name as resourceGroupName,
+                C.resource_group_platform as resourceGroupPlatform,
+                D.customer_account_name as customerAccountName
+              FROM AlertReceived A, AlertRule B, ResourceGroup C, CustomerAccount D
+              WHERE A.customer_account_key = ${customerAccountKey}
+                and A.alert_received_state in (${state})
+                and A.alert_rule_key = B.alert_rule_key
+                and A.alert_rule_key = B.alert_rule_key
+                and B.resource_group_uuid = C.resource_group_uuid
+                and A.deleted_at is null
+                and B.deleted_at is null
+                and C.deleted_at is null
+                and D.customer_account_key = A.customer_account_key
+                and (A.alert_received_pod != ""
+                or A.alert_received_node != "" or A.alert_received_service != "")
+                order by A.created_at desc`;
+
+    let result: any
+    result = await DB.sequelize.query(sql, { type: QueryTypes.SELECT });
+    let resource: any
+
+    for (let alert of result) {
+      const alertResourceMeta: any = this.getResourceTypeName(alert)
+
+      if (!alertResourceMeta) {
+        alert.resourceType = ""
+        alert.resourceName = ""
+        alert.resourceId = ""
+      }
+
+      resource = await this.resource.findOne({
+        where: { resourceName: alertResourceMeta.resourceName, deletedAt: null },
+        attributes: ['resourceType', 'resourceName', 'resourceId']
+      })
+
+      if (resource) {
+        alert.resourceType = resource?.resourceType
+        alert.resourceName = resource?.resourceName
+        alert.resourceId = resource?.resourceId
+      } else {
+        alert.resourceType = alertResourceMeta.resourceType
+        alert.resourceName = alertResourceMeta.resourceName
+        alert.resourceName = ""
+      }
+    }
+
+    let resourceGroupIds: string[] = [];
+    if (query.resourceGroupId) {
+      switch (Array.isArray(query.resourceGroupIdresourceGroupId)) {
+        case true:
+          resourceGroupIds = query.resourceGroupId.map(id => id)
+          break
+        case false:
+          resourceGroupIds.push(query.resourceGroupId)
+          break
+      }
+
+      let resourceGroupWhereCondition = {customerAccountKey, deletedAt: null }
+      if (resourceGroupIds.length > 0) {
+        resourceGroupWhereCondition['resourceGroupId'] = resourceGroupIds
+      }
+
+      const resourceGroups: IResourceGroup[] = await this.resourceGroup.findAll({
+        where: resourceGroupWhereCondition,
+        attributes: { exclude: ['deletedAt'] },
+      });
+
+      if (resourceGroups.length === 0) {
+        throw new HttpException(404, `not found resourceGroup`)
+      }
+      let resourceGroupUuids: any = [];
+
+      resourceGroups.forEach(resourceGroup => resourceGroupUuids.push(resourceGroup.resourceGroupUuid))
+      let allAlertReceived = []
+      result.map(alert => {
+        if (resourceGroupUuids.indexOf(alert.resourceGroupUuid) > -1) {
+          allAlertReceived.push(alert)
+        }
+      })
+
+      return allAlertReceived;
+    }
+
+    return result;
+  }
+
+  public getResourceTypeName(alert: any): object {
+    if (alert.alertReceivedAffectedResourceType === 'PJ' || alert.alertReceivedAffectedResourceType === 'Project') {
+      return {
+        resourceType: 'PJ',
+        resourceName: alert.alertReceivedAffectedResourceName,
+      };
+    }
+    if (alert.alertReceivedAffectedResourceType === 'VM') {
+      return {
+        resourceType: 'VM',
+        resourceName: alert.alertReceivedAffectedResourceName,
+      };
+    }
+    if (alert.alertReceivedAffectedResourceType === 'PM') {
+      return {
+        resourceType: 'PM',
+        resourceName: alert.alertReceivedAffectedResourceName,
+      };
+    }
+
+    if (alert.alertReceivedPod) {
+      return {
+        resourceType: 'PD',
+        resourceName: alert.alertReceivedPod,
+      };
+    }
+    if (alert.alertReceivedService) {
+      return {
+        resourceType: 'SV',
+        resourceName: alert.alertReceivedService,
+      };
+    }
+    if (alert.alertReceivedNode) {
+      return {
+        resourceType: 'ND',
+        resourceName: alert.alertReceivedNode,
+      };
+    }
+    if (alert.resourceGroupName) {
+      return {
+        resourceType: 'K8',
+        resourceName: alert.resourceGroupName,
+      };
+    }
   }
 
   private getWhereClauseFrom(query: any[], op: 'AND' | 'OR') {
@@ -263,10 +376,10 @@ class AlertReceivedService extends ServiceExtension {
     if (isEmpty(alertHash)) throw new HttpException(400, 'Not a valid AlertReceivedHash');
     let startAt: any
     let endAt: any
-    
+
     if (!start) {
       throw new HttpException(400, 'invalid startAt')
-    } 
+    }
 
     if (!end) {
       endAt = new Date()
@@ -285,7 +398,7 @@ class AlertReceivedService extends ServiceExtension {
       },
       order: [['createdAt', 'DESC']],
     });
-    
+
     return allAlertReceived;
   }
 

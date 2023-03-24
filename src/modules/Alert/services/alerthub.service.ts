@@ -65,9 +65,11 @@ class AlerthubService {
     try {
       const start = Date.now();
 
-      const { resourceType, resourceName, resourceGroupUuid } = filteringData;
+      const { resourceType, resourceName, resourceGroupUuid, nodeName } = filteringData;
+      const url = `${config.alerthub.baseUrl}/v1/alertTimelineByResGroupUuid/${customerAccountKey}/${resourceGroupUuid}?resourceType=${resourceType}&resourceName=${resourceName}&nodeName=${nodeName}`
+      console.log(`getAlertTimelineByResourceDetail url = ${url}`)
       const { data } = await axios.get(
-        `${config.alerthub.baseUrl}/v1/alertTimelineByResGroupUuid/${customerAccountKey}/${resourceGroupUuid}?resourceType=${resourceType}&resourceName=${resourceName}`,
+        url,
         {
           headers: { x_auth_token: `${config.alerthub.authToken}` },
         },
