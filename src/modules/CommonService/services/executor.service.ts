@@ -195,7 +195,7 @@ class executorService {
   }
 
   public async registerExecutorClient(clusterUuid: string, customerAccountId: string): Promise<any> {
-    // 1. get resourceGroup 
+    // 1. get resourceGroup
     const rg = await this.resourceGroup.findOne({
       where: {deletedAt: null, resourceGroupUuid: clusterUuid}
     })
@@ -228,7 +228,7 @@ class executorService {
       })
       .catch(err => {
       })
-    
+
     if (!sudoryGetClusterResponse) {
       const sudoryCreateCluster = { name: apiDataName, summary: apiDataSummary, polling_option: apiDataOption, polling_limit: 0, uuid: clusterUuid };
       let sudoryCreateClusterResponse;
@@ -248,7 +248,7 @@ class executorService {
           return error;
         });
     }
-    
+
     // 4. create sudory token
     let sudoryCreateTokenResponse;
     const sudoryCreateTokenData = { name: apiDataName, cluster_uuid: clusterUuid, summary: apiDataSummary };
@@ -298,7 +298,7 @@ class executorService {
     } else {
       clientTrueFalse = true
     }
- 
+
     //sudory namespace save...
     const resourceGroupSet = { resourceGroupSudoryNamespace: sudoryNamespace };
     await this.resourceGroup.update(resourceGroupSet, { where: { resourceGroupUuid: clusterUuid } });
@@ -371,9 +371,9 @@ class executorService {
     await new Promise(resolve => setTimeout(resolve, 10 * 1000));
 
     const prometheusRules = await this.alertEasyRuleService.getPrometheusRuleSpecs(customerAccountId, resourceGroupUuid)
-  
+
     let alertEasyRuleList: any
-  
+
     switch (platform) {
       case "OS":
         alertEasyRuleList = config.initialRecord.alertEasyRuleOpenstack
@@ -411,7 +411,7 @@ class executorService {
       };
       try {
         console.log('#ALERTEASYRULE - alertEasyRule.alertEasyRuleName', alertEasyRule.alertEasyRuleName);
-      
+
         const getResponse = await this.alertEasyRuleService.createAlertEasyRuleForCluster(alertEasyRuleData, 'SYSTEM', prometheusRules);
         console.log(`#ALERTEASYRULE AlertEasyRule created------${alertEasyRule.alertEasyRuleName}`, getResponse);
       } catch (error) {
@@ -440,7 +440,7 @@ class executorService {
         customerAccountKey,
         subscribedChannel,
       );
-  
+
       const sleep = ms => new Promise(res => setTimeout(res, ms));
       let i;
       let flag: boolean = false
@@ -453,7 +453,7 @@ class executorService {
           // @ts-ignore
           where: { serviceUuid: getStack.dataValues.serviceUuid, status: 4 },
         });
-        
+
         if (getSudoryWebhook) {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
@@ -477,7 +477,7 @@ class executorService {
 
             result[`${stack.name}`] = status
           }
-          
+
           flag = true
         }
       }
@@ -786,7 +786,7 @@ class executorService {
     // provision default scheduler
     await this.registerDefaultScheduler(clusterUuid, customerAccountId)
 
-    //provision alert easy rule for the cluster, TODO: it will be divided 
+    //provision alert easy rule for the cluster, TODO: it will be divided
     await this.initializeAlertEasyRule(customerAccountId, clusterUuid, ResponseResoureGroup.resourceGroupPlatform)
 
     //provision metricOps rule if the customer has MetricOps subscription
@@ -942,7 +942,7 @@ class executorService {
         console.log(error);
         console.log(`confirmed the executor/sudory client installed but fail to submit resource PM schedule request for cluster:${clusterUuid}`);
       });
-      
+
 // scheduleResource - PJ
     await this.scheduleResource(clusterUuid, customerAccountKey, 'PJ', resourceCron)
       .then(async (res: any) => {
@@ -1095,16 +1095,16 @@ class executorService {
     // provision default scheduler
     await this.registerDefaultScheduler(clusterUuid, customerAccountId)
 
-    //provision alert easy rule for the cluster, TODO: it will be divided 
+    //provision alert easy rule for the cluster, TODO: it will be divided
     await this.initializeAlertEasyRule(customerAccountId, clusterUuid, ResponseResoureGroup.resourceGroupPlatform)
 
     //provision metricOps rule if the customer has MetricOps subscription
     await this.provisionMetricOpsRule(clusterUuid, customerAccountId)
-    
+
     return serviceUuid;
   }
 
-  // /** 
+  // /**
   //  * @param {string} clusterUuid
   //  * @param {string} templateUud
   //  * @param {string} name
@@ -1924,7 +1924,7 @@ class executorService {
             url: prometheus,
             query: metricQuery
           },
-            
+
         },
       };
 
@@ -2712,6 +2712,15 @@ class executorService {
   public async getExecutorServicebyExecutorServiceId(executorServiceId: string): Promise<IExecutorService> {
     const getExecutorService: IExecutorService = await this.executorService.findOne({ where: { executorServiceId } });
     return getExecutorService;
+  }
+
+  /**
+   * @param {string} executorServiceId
+   */
+  public async deleteExecutorServicebyExecutorServiceId(executorServiceId: string) {
+    const result = await this.executorService.update({deletedAt: new Date()}, { where: { executorServiceId } });
+    console.log('Executor Service deleted - ', executorServiceId);
+    return result
   }
 
   /**
