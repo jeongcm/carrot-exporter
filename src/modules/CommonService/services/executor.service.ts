@@ -2752,6 +2752,15 @@ class executorService {
   }
 
   /**
+   * @param {string} executorServiceId
+   */
+  public async deleteExecutorServicebyExecutorServiceId(executorServiceId: string) {
+    const result = await this.executorService.update({ deletedAt: new Date() }, { where: { executorServiceId } });
+    console.log('Executor Service deleted - ', executorServiceId);
+    return result
+  }
+
+  /**
    * @param {string} customerAccountId
    */
   public async getExecutorServicebyCustomerAccountId(customerAccountId: string): Promise<IExecutorService[]> {

@@ -248,7 +248,7 @@ class executorController {
       next(error);
     }
   };
-  
+
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
@@ -491,7 +491,7 @@ class executorController {
     }
   };
 
-  
+
   /**
    * @param  {IRequestWithUser} req
    * @param  {Response} res
@@ -601,6 +601,23 @@ class executorController {
       next(error);
     }
   };
+
+  /**
+   * @param  {IRequestWithUser} req
+   * @param  {Response} res
+   * @param  {NextFunction} next
+   */
+  public deleteExecuteServicebyExecutorServiceId = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const executorServiceId = req.params.executorServiceId;
+      const executorService: any = await this.executorService.deleteExecutorServicebyExecutorServiceId(executorServiceId);
+
+      res.status(200).json({ Data: executorService, message: `delete executorService` });
+    } catch (error) {
+      next(error);
+    }
+  };
+
 
   /**
    * @param  {IRequestWithUser} req
