@@ -22,6 +22,8 @@ export interface IResourceGroup {
   resourceGroupSudoryRebounceRequest: string;
   resourceGroupAlertRepeatInterval: number;
   resourceGroupAlertGroupWait: number;
+
+  resourceGroupHelmInstallInfo: any;
 }
 
 export interface IResourceGroupUi {
@@ -47,4 +49,5 @@ export interface IResourceGroupUi {
   resourceGroupLastServerUpdatedAt: Date;
   numberOfNode: number;
   resourceGroupServerInterfaceStatus: boolean;
+  resourceGroupHelmInstallInfo: any;
 }
