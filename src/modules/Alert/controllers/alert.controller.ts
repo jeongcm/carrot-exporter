@@ -401,6 +401,18 @@ class AlertRuleController extends ControllerExtension {
     }
   };
 
+  public getAlertTimelines = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
+    try {
+      const customerAccountKey = req.customerAccountKey;
+
+      const alertTimelines: any = await this.alerthubService.getAlertTimelines(customerAccountKey, req.query);
+
+      return res.status(200).json({ data: alertTimelines, message: 'findAll' });
+    } catch (error) {
+      next(error);
+    }
+  };
+
   public createAlertTargetGroup = async (req: IRequestWithUser, res: Response, next: NextFunction) => {
     try {
       const alertTargetGroup = req.body;
