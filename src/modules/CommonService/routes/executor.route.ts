@@ -198,6 +198,14 @@ class ExecutorRoute implements Routes {
       //      createUserLogMiddleware,
       this.executorController.executeServiceV2,
     );
+
+    this.router.delete(
+      '/executor/server/service/:executorServiceId',
+      authMiddleware,
+      createUserLogMiddleware,
+      this.executorController.deleteExecuteServicebyExecutorServiceId,
+    );
+
     this.router.get(
       '/executor/server/service/:executorServiceId',
       authMiddleware,
