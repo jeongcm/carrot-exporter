@@ -1495,7 +1495,7 @@ class ResourceService {
     var mergedQuery: any = {};
     var tempQuery: any = {};
 
-    const result = await this.metricService.getMetricP8S(customerAccountKey, queryBody);
+    const result = await this.metricService.getMetric(customerAccountKey, queryBody);
     let length = result[metricName].data.result.length
 
     if (length === 0) {
@@ -1600,7 +1600,7 @@ class ResourceService {
       return rg.resourceGroupId;
     });
 
-    const metrics: any = await this.metricService.getMetricP8S(customerAccountKey, {
+    const metrics: any = await this.metricService.getMetric(customerAccountKey, {
       query: [
         {
           name: 'nodeStatus',
