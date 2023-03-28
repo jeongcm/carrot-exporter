@@ -1515,6 +1515,36 @@ class ResourceService {
 
     const status = await this.getResourcesStatus(customerAccountKey, [resourceGroup])
 
+    // insert pm
+    if (pms.length === 0) {
+      for (let i = 0; i < length; i++) {
+        tmp = result[metricName].data.result[i].metric
+        // get pm status
+
+        uploadQuery['resource_Name'] = tmp.nodename;
+        uploadQuery['resource_Type'] = "PM";
+        uploadQuery['resource_Instance'] = tmp.instance;
+        uploadQuery['resource_Spec'] = tmp;
+        uploadQuery['resource_Group_Uuid'] = tmp.clusterUuid;
+        uploadQuery['resource_Target_Uuid'] = tmp.nodename;
+        uploadQuery['resource_Description'] = tmp.version;
+        uploadQuery['resource_Status'] = "INACTIVE"
+        uploadQuery['resource_Target_Created_At'] = null
+        uploadQuery['resource_Level1'] = "OS"; //Openstack
+        uploadQuery['resource_Level2'] = "PM";
+        uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
+        uploadQuery['resource_Rbac'] = true;
+        uploadQuery['resource_Anomaly_Monitor'] = false;
+        uploadQuery['resource_Active'] = true;
+
+        tempQuery = this.formatter_resource(i, length, "PM", clusterUuid, uploadQuery, mergedQuery);
+        mergedQuery = tempQuery;
+      }
+
+      return await this.massUploaderService.massUploadResource(JSON.parse(mergedQuery))
+    }
+
+    // update pm
     for (const pm of pms) {
       const pmIndex = pms.indexOf(pm);
       let is_exist = false;
