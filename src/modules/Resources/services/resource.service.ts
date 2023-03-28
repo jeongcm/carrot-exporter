@@ -1514,12 +1514,14 @@ class ResourceService {
     })
 
     const status = await this.getResourcesStatus(customerAccountKey, [resourceGroup])
-
+    console.log(`status: ${status}`)
     // insert pm
     if (pms.length === 0) {
       for (let i = 0; i < length; i++) {
         tmp = result[metricName].data.result[i].metric
         // get pm status
+        let obj = {resourceGroupKey: resourceGroup.resourceGroupKey, resourceInstance: tmp.instance}
+        let pmStatus = await this.getPMStatus(obj, status)
 
         uploadQuery['resource_Name'] = tmp.nodename;
         uploadQuery['resource_Type'] = "PM";
@@ -1528,7 +1530,7 @@ class ResourceService {
         uploadQuery['resource_Group_Uuid'] = tmp.clusterUuid;
         uploadQuery['resource_Target_Uuid'] = tmp.nodename;
         uploadQuery['resource_Description'] = tmp.version;
-        uploadQuery['resource_Status'] = "INACTIVE"
+        uploadQuery['resource_Status'] = pmStatus
         uploadQuery['resource_Target_Created_At'] = null
         uploadQuery['resource_Level1'] = "OS"; //Openstack
         uploadQuery['resource_Level2'] = "PM";
@@ -1576,7 +1578,7 @@ class ResourceService {
         uploadQuery['resource_Active'] = true;
       } else {
         // get pm status
-        var pmStatus = await this.getPMStatus(pm, status)
+        let pmStatus = await this.getPMStatus(pm, status)
 
         uploadQuery['resource_Name'] = tmp.nodename;
         uploadQuery['resource_Type'] = "PM";
