@@ -1504,7 +1504,7 @@ class ResourceService {
     }
 
     const resourceGroup = await this.resourceGroup.findOne({
-      attributes: ['resourceGroupKey'],
+      attributes: ['resourceGroupKey', 'resourceGroupId'],
       where: {resourceGroupUuid: clusterUuid}
     })
 
@@ -1514,7 +1514,6 @@ class ResourceService {
     })
 
     const status = await this.getResourcesStatus(customerAccountKey, [resourceGroup])
-    console.log(`status: ${JSON.stringify(status)}`)
     // insert pm
     if (pms.length === 0) {
       for (let i = 0; i < length; i++) {
@@ -1644,9 +1643,6 @@ class ResourceService {
         },
       ],
     });
-
-    console.log('status metrics:', metrics)
-    console.log('status metrics json:',JSON.stringify(metrics))
 
     const vmStatusPerName = {};
     const pmStatusPerName = {};
