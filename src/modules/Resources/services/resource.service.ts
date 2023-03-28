@@ -1645,7 +1645,8 @@ class ResourceService {
       ],
     });
 
-    console.log(metrics)
+    console.log('status metrics:', metrics)
+    console.log('status metrics json:',JSON.stringify(metrics))
 
     const vmStatusPerName = {};
     const pmStatusPerName = {};
