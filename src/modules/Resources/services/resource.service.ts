@@ -1531,6 +1531,7 @@ class ResourceService {
         uploadQuery['resource_Target_Uuid'] = tmp.nodename;
         uploadQuery['resource_Description'] = tmp.version;
         uploadQuery['resource_Status'] = pmStatus
+        uploadQuery['resource_status_updated_at'] = Date.now();
         uploadQuery['resource_Target_Created_At'] = null
         uploadQuery['resource_Level1'] = "OS"; //Openstack
         uploadQuery['resource_Level2'] = "PM";
@@ -1568,8 +1569,9 @@ class ResourceService {
         uploadQuery['resource_Group_Uuid'] = clusterUuid;
         uploadQuery['resource_Target_Uuid'] = pm.resourceTargetUuid;
         uploadQuery['resource_Description'] = pm.resourceDescription;
-        uploadQuery['resource_Status'] = "INACTIVE"
-        uploadQuery['resource_Target_Created_At'] = null
+        uploadQuery['resource_status_updated_at'] = Date.now();
+        uploadQuery['resource_Status'] = "INACTIVE";
+        uploadQuery['resource_Target_Created_At'] = null;
         uploadQuery['resource_Level1'] = "OS"; //Openstack
         uploadQuery['resource_Level2'] = "PM";
         uploadQuery['resource_Level_Type'] = "OX";  //Openstack-Cluster
@@ -1588,6 +1590,7 @@ class ResourceService {
         uploadQuery['resource_Target_Uuid'] = tmp.nodename;
         uploadQuery['resource_Description'] = tmp.version;
         uploadQuery['resource_Status'] = pmStatus
+        uploadQuery['resource_status_updated_at'] = Date.now();
         uploadQuery['resource_Target_Created_At'] = null
         uploadQuery['resource_Level1'] = "OS"; //Openstack
         uploadQuery['resource_Level2'] = "PM";
