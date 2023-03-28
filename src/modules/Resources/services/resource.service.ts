@@ -1514,7 +1514,7 @@ class ResourceService {
     })
 
     const status = await this.getResourcesStatus(customerAccountKey, [resourceGroup])
-    console.log(`status: ${status}`)
+    console.log(`status: ${JSON.stringify(status)}`)
     // insert pm
     if (pms.length === 0) {
       for (let i = 0; i < length; i++) {
