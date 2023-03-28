@@ -1645,6 +1645,8 @@ class ResourceService {
       ],
     });
 
+    console.log(metrics)
+
     const vmStatusPerName = {};
     const pmStatusPerName = {};
 
