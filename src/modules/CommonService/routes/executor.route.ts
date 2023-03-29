@@ -70,7 +70,6 @@ class ExecutorRoute implements Routes {
     this.router.post(
       '/executor/stacks/check',
       authMiddleware,
-      validationMiddleware(ResourceGroupExecutorDto, 'body'),
       //      createUserLogMiddleware,
       this.executorController.checkStacks,
     );
