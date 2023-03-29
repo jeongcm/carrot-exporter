@@ -596,6 +596,42 @@ class executorService {
           console.log(`success to install helm chart (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName})`)
         }
 
+        let ResponseResoureGroup: IResourceGroupUi
+        let resourceGroup = {}
+        switch (stack.chartName) {
+          case "kube-prometheus-stack":
+            const prometheusUrlHead = config.obsUrl.prometheusUrlHead;
+            const prometheusUrlTail = config.obsUrl.prometheusUrlTail;
+            const alertManagerUrlHead = config.obsUrl.alertManagerUrlHead;
+            const alertMangerUrlTail = config.obsUrl.alertManagerUrlTail;
+            const grafanaUrlHead = config.obsUrl.grafanaUrlHead;
+            const grafanaUrlTail = config.obsUrl.grafanaUrlTail;
+            const prometheus = prometheusUrlHead + stack.targetNamespace + prometheusUrlTail;
+            const grafana = grafanaUrlHead + stack.targetNamespace + grafanaUrlTail;
+            const alertManager = alertManagerUrlHead + stack.namespace + alertMangerUrlTail;
+            resourceGroup = {
+              resourceGroupPrometheus: prometheus,
+              resourceGroupGrafana: grafana,
+              resourceGroupAlertManager: alertManager,
+              resourceGroupKpsLokiNamespace: stack.namespace,
+            };
+            ResponseResoureGroup = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, getCustomerAccount.customerAccountId);
+            break
+          case "loki-stack":
+            const lokiUrlHead = config.obsUrl.lokiUrlHead;
+            const lokiUrlTail = config.obsUrl.lokiUrlTail;
+            const loki = lokiUrlHead + stack.namespace + lokiUrlTail;
+            resourceGroup = {
+              resourceGroupLoki: loki,
+              resourceGroupKpsLokiNamespace: stack.namespace,
+            };
+            ResponseResoureGroup = await this.resourceGroupService.updateResourceGroupByUuid(clusterUuid, resourceGroup, getCustomerAccount.customerAccountId);
+
+            break
+          default:
+            throw new HttpException(404, `unknown chartName (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName}`)
+        }
+
       } catch (e) {
         throw new HttpException(500, `failed to install helm chart (resourceGroup: ${resultResourceGroup.resourceGroupName}, chart: ${stack.charName}, reason: ${e.response}`);
       }
