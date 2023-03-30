@@ -12,15 +12,12 @@ import errorMiddleware from '@common/middlewares/error.middleware';
 import { logger, stream } from '@common/utils/logger';
 import express, { Request, Response, NextFunction } from 'express';
 import config from '@config/index';
-import Passport from './modules/SocialLogin/providers/passport';
 import http from 'http';
 //import { registerDecorator } from 'class-validator';
-import { restResponseTimeHistogram, startMetricsServer } from './common/utils/metrics';
 import responseTime from 'response-time';
 
 class App {
   public port: number;
-  public wsPort: number;
   public env: string;
   public app: express.Application;
   private server: http.Server;
@@ -28,19 +25,18 @@ class App {
   constructor(routes: Routes[]) {
     this.app = express();
     this.port = Number(config.appPort);
-    this.wsPort = Number(config.appWsPort);
     this.env = config.nodeEnv;
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
     this.initializeSwagger();
-    this.initializeErrorHandling();
+    // this.initializeErrorHandling();
   }
 
   public listen() {
     this.server = this.app.listen(this.port, function () {
       logger.info(`=================================`);
       logger.info(`======= ENV: ${config.nodeEnv} =======`);
-      logger.info(`🚀 NexClipper API listening on the port ${config.appPort}`);
+      logger.info(`🚀 Claion Aggregator listening on the port ${config.appPort}`);
       logger.info(`=================================`);
     });
 
@@ -102,28 +98,12 @@ class App {
         maxAge: 24 * 60 * 60 * 100,
       }),
     );
-    this.app = Passport.mountPackage(this.app);
-    this.app.use(
-      responseTime((req: Request, res: Response, time: number) => {
-        if (req?.route?.path) {
-          restResponseTimeHistogram.observe(
-            {
-              method: req.method,
-              route: req.route.path,
-              status_code: res.statusCode,
-            },
-            time * 1000,
-          );
-        }
-      }),
-    ); //end of this.app.use(responseTime)
   }
 
   private initializeRoutes(routes: Routes[]) {
     routes.forEach(route => {
       this.app.use('/', route.router);
     });
-    startMetricsServer();
   }
 
   private initializeSwagger() {
