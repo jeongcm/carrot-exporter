@@ -3,7 +3,6 @@ import config from '@config/index';
 import AlertRuleModel from '@/modules/Alert/models/alertRule.model';
 import AlertReceivedModel from '@/modules/Alert/models/alertReceived.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
-import CustomerAccountAddressModel from '@/modules/CustomerAccount/models/customerAccountAddress.model';
 
 import ResourceModel from '@/modules/Resources/models/resource.model';
 import ResourceGroupModel from '@/modules/Resources/models/resourceGroup.model';
@@ -63,7 +62,6 @@ sequelize.authenticate();
 
 const DB = {
   CustomerAccount: CustomerAccountModel(sequelize),
-  CustomerAccountAddress: CustomerAccountAddressModel(sequelize),
   Resource: ResourceModel(sequelize),
   ResourceGroup: ResourceGroupModel(sequelize),
   AlertReceived: AlertReceivedModel(sequelize),
