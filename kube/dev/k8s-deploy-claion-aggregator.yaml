@@ -82,30 +82,6 @@ spec:
   selector:
     app: ${APP_IMAGE_NAME}
   ports:
-    - port: 5001
-      targetPort: 5001
+    - port: 7001
+      targetPort: 7001
       name: http
-    - port: 5002
-      targetPort: 5002
-      name: metric
-
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: ${APP_IMAGE_NAME}
-  labels:
-    app: ${APP_IMAGE_NAME}
-spec:
-  selector:
-    matchLabels:
-      app: ${APP_IMAGE_NAME}
-  namespaceSelector:
-    matchNames:
-      - nc
-  endpoints:
-    - honorLabels: true
-      path: /metrics
-      scrapeTimeout: 30s
-      interval: 30s
-      port: metric
