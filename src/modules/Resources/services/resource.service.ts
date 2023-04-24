@@ -130,22 +130,12 @@ class resourceService {
                       `;
     const query2 = [];
     for (let i = 0; i < sizeOfInput; i++) {
-      // create resource_id
-      /*
-        resource_id_postfix_number = resource_id_postfix_number + 1;
-        resource_id_postfix = resource_id_postfix_number.toString();
-        while (resource_id_postfix.length < tableIdSequenceDigit) {
-            resource_id_postfix = '0' + resource_id_postfix;
-        }
-        */
-
-      const apiId = uuid.v1();
       const resource_Target_Created_At = new Date(resourceMassFeed.resource[i].resource_Target_Created_At);
       //const resource_event_first_timestamp = new Date(resourceMassFeed.resource[i].resource_event_first_timestamp);
       //const resource_event_last_timestamp = new Date(resourceMassFeed.resource[i].resource_event_last_timestamp);
 
       //let resource_id = resource_id_prefix + resource_id_postfix;
-      const resource_id = apiId;
+      const resource_id = uuid.v1();
       const resource_lables = JSON.stringify(resourceMassFeed.resource[i].resource_Labels);
       const resource_annotations = JSON.stringify(resourceMassFeed.resource[i].resource_Annotations);
       const resource_owner_references = JSON.stringify(resourceMassFeed.resource[i].resource_Owner_References);

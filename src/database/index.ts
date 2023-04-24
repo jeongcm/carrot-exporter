@@ -6,7 +6,7 @@ import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccou
 
 import ResourceModel from '@/modules/Resources/models/resource.model';
 import ResourceGroupModel from '@/modules/Resources/models/resourceGroup.model';
-import ResourceEventModel from '@/modules/ResourceEvent/models/resourceEvent.model';
+import ResourceEventModel from '@modules/Resources/models/resourceEvent.model';
 import PartyModel from "@modules/Party/models/party.model";
 import PartyUserModel from "@modules/Party/models/partyUser.model";
 
