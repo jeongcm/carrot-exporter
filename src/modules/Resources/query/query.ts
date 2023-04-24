@@ -15,7 +15,4 @@ class QueryService {
   }
 }
 
-
-
-
 export default QueryService;
