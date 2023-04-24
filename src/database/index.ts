@@ -6,12 +6,7 @@ import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccou
 
 import ResourceModel from '@/modules/Resources/models/resource.model';
 import ResourceGroupModel from '@/modules/Resources/models/resourceGroup.model';
-import MetricMetaModel from '@/modules/Metric/models/metricMeta.model';
-import ExecutorServiceModel from '@/modules/CommonService/models/executorService.model';
 import ResourceEventModel from '@/modules/ResourceEvent/models/resourceEvent.model';
-import AlertTargetGroupModel from '@/modules/Alert/models/alertTargetGroup.model';
-import AlertTargetSubGroupModel from '@/modules/Alert/models/alertTargetSubGroup.model';
-import AlertEasyRuleModel from '@/modules/Alert/models/alertEasyRule.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -66,12 +61,7 @@ const DB = {
   ResourceGroup: ResourceGroupModel(sequelize),
   AlertReceived: AlertReceivedModel(sequelize),
   AlertRule: AlertRuleModel(sequelize),
-  MetricMeta: MetricMetaModel(sequelize),
-  ExecutorService: ExecutorServiceModel(sequelize),
   ResourceEvent: ResourceEventModel(sequelize),
-  AlertTargetGroup: AlertTargetGroupModel(sequelize),
-  AlertTargetSubGroup: AlertTargetSubGroupModel(sequelize),
-  AlertEasyRule: AlertEasyRuleModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 

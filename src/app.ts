@@ -28,7 +28,6 @@ class App {
     this.env = config.nodeEnv;
     this.initializeMiddlewares();
     this.initializeRoutes(routes);
-    this.initializeSwagger();
     // this.initializeErrorHandling();
   }
 
@@ -43,31 +42,6 @@ class App {
     require('console-stamp')(console, {
       format: '(console).yellow :date().green.underline :label(7)',
     });
-
-    /*
-    const wsConnections = {};
-
-    const url = 'ws://localhost:3100/loki/api/v1/tail?query={app="nexclipper-api"}';
-    const lokiSocket = new WebSocket(url);
-    lokiSocket.on('message', function message(data) {
-      Object.values(wsConnections).forEach((ws: any) => {
-        console.log(ws.id);
-        ws.send(data);
-      });
-    });
-
-    const socketServer = require('ws').Server;
-    const wss = new socketServer({ server: server, path: '/loki/v1/tail' });
-    wss.on('connection', async function (ws) {
-      const id = uniqid();
-      ws.id = id;
-      wsConnections[id] = ws;
-
-      ws.on('disconnect', function () {
-        delete wsConnections[ws.id];
-      });
-    });
-  */
   }
 
   public getServer(): express.Application {
@@ -81,9 +55,6 @@ class App {
   private initializeMiddlewares() {
     this.app.use(morgan(config.logFormat, { stream }));
     this.app.use(cors({ origin: config.cors.allowAnyOrigin, credentials: config.cors.credentials }));
-    //this.app.use(sqlInjection);
-    this.app.use(hpp({ whitelist: ['resourceType', 'query', 'metricReceivedName', 'resourceGroupId', 'resourceId', 'state'] }));
-    //this.app.use(helmet());,
     this.app.use(compression());
     this.app.use(express.json({ limit: config.maxApiBodySize }));
     this.intializeMiddlewareLogging();
@@ -104,22 +75,6 @@ class App {
     routes.forEach(route => {
       this.app.use('/', route.router);
     });
-  }
-
-  private initializeSwagger() {
-    const options = {
-      swaggerDefinition: {
-        info: {
-          title: 'NEXCLIPPER-API',
-          version: '1.0.0',
-          description: 'API TESTING',
-        },
-      },
-      apis: ['src/modules/**/swagger/*.yaml'],
-    };
-
-    const specs = swaggerJSDoc(options);
-    this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
   }
 
   private initializeErrorHandling() {
@@ -148,16 +103,6 @@ class App {
       next();
     });
   }
-}
-
-async function streamToString(stream, cb) {
-  const chunks = [];
-  stream.on('data', chunkIn => {
-    chunks.push(chunkIn.toString());
-  });
-  stream.on('end', () => {
-    cb(chunks.join(''));
-  });
 }
 
 export default App;
