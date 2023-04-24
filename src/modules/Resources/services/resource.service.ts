@@ -1,10 +1,12 @@
 import config from '@config/index';
-import { IResponseMassUploader, IRequestMassUploader } from '@/common/interfaces/massUploader.interface';
-//import { IResponseIssueTableIdBulkDto } from '@/modules/CommonService/dtos/tableId.dto';
-import { IResourceGroup, IResourceGroupUi } from '@/common/interfaces/resourceGroup.interface';
-import { IResource, IResourceTargetUuid } from '@/common/interfaces/resource.interface';
+import { IRequestMassUploader } from '@/common/interfaces/massUploader.interface';
+import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import DB from '@/database';
 import { IPartyUser } from '@/common/interfaces/party.interface';
+
+import FormatterService from "@modules/Resources/formatter/formatter";
+
 const uuid = require('uuid');
 
 //import { condition } from 'sequelize';
@@ -13,9 +15,28 @@ const uuid = require('uuid');
 //import { ConnectionAcquireTimeoutError } from 'sequelize/types';
 
 class resourceService {
+
+  public formatterService = new FormatterService()
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
   public partyUser = DB.PartyUser;
+
+  public async uploadResource(totalMsg, clusterUuid) {
+    let queryResult: any
+    let result = totalMsg.result
+    let resultMsg
+    queryResult = await this.formatterService.getResourceQuery(result, clusterUuid)
+
+    try {
+      resultMsg = await this.massUploadResource(queryResult.message)
+      console.log(`success to upload resource(${queryResult.resourceType}).`)
+      return resultMsg
+    } catch (err) {
+      console.log(`failed to upload resource(${queryResult.resourceType}. cause: ${err})`)
+      return err
+    }
+
+  }
 
   public async massUploadResource(resourceMassFeed: IRequestMassUploader): Promise<string> {
     const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -38,7 +59,7 @@ class resourceService {
     const resourceGroupKey = responseResourceGroup.resourceGroupKey;
     const resourceType = resourceMassFeed.resource_Type;
 
-    // mass upload #1
+    // mass formatter #1
     // update resource deactivated if there is no matched resoure in NC database.
     const currentResourceFiltered: IResourceTargetUuid[] = await this.resource.findAll({
       where: { resourceType, resourceGroupKey, customerAccountKey, deletedAt: null },
@@ -65,7 +86,7 @@ class resourceService {
     //console.log("********in difference********************")
     //console.log(lengthOfDifference);
 
-    // mass upload #2
+    // mass formatter #2
     // query below will cover "insert" of new resources or "update" of existing resources.
     const query1 = `INSERT INTO Resource (resource_id, created_by, created_at, resource_target_uuid, resource_target_created_at,
                       resource_name, parent_resource_id, resource_namespace, resource_type, resource_labels, resource_annotations, resource_owner_references, resource_description, resource_status,
