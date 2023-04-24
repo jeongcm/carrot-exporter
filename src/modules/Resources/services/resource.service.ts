@@ -5,30 +5,23 @@ import { IResourceTargetUuid } from '@/common/interfaces/resource.interface';
 import DB from '@/database';
 import { IPartyUser } from '@/common/interfaces/party.interface';
 
-import FormatterService from "@modules/Resources/formatter/formatter";
+import QueryService from "@modules/Resources/query/query";
 
 const uuid = require('uuid');
 
-//import { condition } from 'sequelize';
-//import Connection from 'mysql2/typings/mysql/lib/Connection';
-//import DB from '@/database';
-//import { ConnectionAcquireTimeoutError } from 'sequelize/types';
-
 class resourceService {
 
-  public formatterService = new FormatterService()
+  public queryService = new QueryService()
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
   public partyUser = DB.PartyUser;
 
-  public async uploadResource(totalMsg, clusterUuid) {
+  public async uploadResource(totalMsg) {
     let queryResult: any
-    let result = totalMsg.result
     let resultMsg
-    queryResult = await this.formatterService.getResourceQuery(result, clusterUuid)
-
+    queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid)
     try {
-      resultMsg = await this.massUploadResource(queryResult.message)
+      resultMsg = await this.massUploadResource(JSON.parse(queryResult.message))
       console.log(`success to upload resource(${queryResult.resourceType}).`)
       return resultMsg
     } catch (err) {

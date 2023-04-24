@@ -6,9 +6,8 @@ class ResourceController {
 
   public uploadResource = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const clusterUuid = req.body.clusterUuid
-      const totalMsg = req.body.message
-      const result = await this.resourceService.uploadResource(totalMsg, clusterUuid)
+      const totalMsg = req.body
+      const result = await this.resourceService.uploadResource(totalMsg)
       res.status(200).json({ message: result });
     } catch (err) {
       next(err)
