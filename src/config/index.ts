@@ -61,4 +61,7 @@ export default {
     oTTraceLogTurnOff: process.env.CO_TURN_OFF_TELEMETRY,
   },
 
+  partyUser: {
+    userId: process.env.CO_AGGREGATOR_SYSTEM_PARTYUSER_USERID
+  }
 };
