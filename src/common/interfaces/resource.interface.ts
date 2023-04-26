@@ -20,6 +20,7 @@ export interface IResource {
   resourceLevel2: string;
   resourceLevel3: string;
   resourceLevel4: string;
+  resourceLevel5: string;
   resourceLevelType: string;
   resourcePodPhase: string;
   resourcePodContainer: any;
