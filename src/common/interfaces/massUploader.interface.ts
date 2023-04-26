@@ -70,6 +70,7 @@ export interface IRequestMassUploader {
     resource_Level2: string;
     resource_Level3: string;
     resource_Level4: string;
+    resource_Level5: string;
     resource_Level_Type: string;
     resource_Pod_Phase: string;
     resource_Pod_Container: object;

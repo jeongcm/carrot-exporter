@@ -1,6 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IResource } from '@common/interfaces/resource.interface';
-import { ResourceType, ResourceTypeLevel1, ResourceTypeLevel2, ResourceTypeLevel3, ResourceTypeLevel4 } from 'common/types';
+import { ResourceType, ResourceTypeLevel1, ResourceTypeLevel2, ResourceTypeLevel3, ResourceTypeLevel4, ResourceTypeLevel5 } from 'common/types';
 
 export type ResourceCreationAttributes = Optional<
   IResource,
@@ -75,7 +75,8 @@ export class ResourceModel extends Model<IResource, ResourceCreationAttributes> 
   public resourceLevel2: ResourceTypeLevel2;
   public resourceLevel3: ResourceTypeLevel3;
   public resourceLevel4: ResourceTypeLevel4;
-  public resourceLevelType: 'KN' | 'KS' | 'OS' | 'KC' | 'OX';
+  public resourceLevel5: ResourceTypeLevel5;
+  public resourceLevelType: 'KN' | 'KS' | 'OS' | 'K8' | 'OX' | 'NX' | 'NC';
   public resourceRbac: Boolean;
   public resourceAnomalyMonitor: Boolean;
   public resourceActive: Boolean;
@@ -165,7 +166,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       },
       resourceType: {
         allowNull: false,
-        type: DataTypes.STRING(2),
+        type: DataTypes.STRING(10),
         validate: {
           isIn: {
             args: [
@@ -176,13 +177,12 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
                 'NS',
                 'SV',
                 'OS',
-                'PD',
                 'PM',
                 'PJ',
-                'VM',
+                'VM', // it means openstack vm, ncp serverInstance (공통의 타입으로 쓰임)
                 'CT',
                 'DP',
-                'SS',
+                'SS', // it means kubernetes statefulSet, ncp snapshot
                 'DS',
                 'RS',
                 'PV',
@@ -195,56 +195,91 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
                 'JO',
                 'CJ',
                 'EV',
+                'NCP',
+                'RG',
+                'VPC',
+                'SBN',
+                'ACL',
+                'RT',
+                'LB',
+                'TG',
+                'NET',
+                'ACG',
+                'PIP',
+                'BLS',
+                'SIMG',
+                'PLG',
+                'INS',
+                'DBMYQL',
+                'DBPOQL',
+                'DBMONG',
+                'DBMSQL',
+                'DBREDS',
+                'NAS',
+                'NASSS',
+                'OBS',
+                'NKS',
+                'NKSNP',
+                'NKSWN',
               ],
             ],
-            msg: 'Resource Type must be of type K8, ND, PD, NS, SV, OS, PD, PM, PJ, VM or CT',
+            msg: 'invalid resource type',
           },
         },
       },
       resourceLevel1: {
         allowNull: true,
-        type: DataTypes.STRING(2),
+        type: DataTypes.STRING(10),
         validate: {
           isIn: {
-            args: [['K8', 'OS']],
-            msg: 'Resource level1 must be of type K8 or OS.',
+            args: [['K8', 'OS', 'NCP']],
+            msg: 'invalid Resource level1',
           },
         },
       },
       resourceLevel2: {
-        type: DataTypes.STRING(2),
+        type: DataTypes.STRING(10),
         allowNull: true,
         validate: {
           isIn: {
-            args: [['', 'ND', 'NS', 'PJ', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV', 'PM']],
-            msg: 'Resource level2 must be of type ND, NS, PJ, PM or empty.',
+            args: [['', 'ND', 'NS', 'PJ', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV', 'PM', 'RG']],
+            msg: 'invalid Resource level2.',
           },
         },
       },
       resourceLevel3: {
-        type: DataTypes.STRING(2),
+        type: DataTypes.STRING(10),
         validate: {
           isIn: {
-            args: [['', 'ND', 'NS', 'VM', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV']],
-            msg: 'Resource level3 must be of type PD, SV, VM or empty.',
+            args: [['', 'ND', 'NS', 'VM', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV', 'VPC']],
+            msg: 'invalid Resource level3.',
           },
         },
       },
       resourceLevel4: {
-        type: DataTypes.STRING(2),
+        type: DataTypes.STRING(10),
         validate: {
           isIn: {
-            args: [['', 'WL']],
-            msg: 'Resource level4 must be of type CT or empty',
+            args: [['', 'WL', 'SBN', 'ACL', 'RT', 'LB', 'TG']],
+            msg: 'invalid Resource level4',
+          },
+        },
+      },
+      resourceLevel5: {
+        type: DataTypes.STRING(10),
+        validate: {
+          isIn: {
+            args: [['VM', 'NET', 'ACG', 'PIP', 'BLS', 'SS', 'SIMG', 'PLG', 'INS', 'DBMYQL', 'DBPOQL', 'DBMONG', 'DBMSQL', 'DBREDS', 'NAS', 'NASSS', 'OBS', 'NKS', 'NKSNP', 'NKSWN']],
+            msg: 'invalid Resource level5',
           },
         },
       },
       resourceLevelType: {
-        type: DataTypes.STRING(2),
+        type: DataTypes.STRING(10),
         validate: {
           isIn: {
-            args: [['', 'KN', 'KS', 'OS', 'K8', 'OX']],
-            msg: 'Resource must be of type KN, KS or OS.',
+            args: [['', 'KN', 'KS', 'OS', 'K8', 'OX', 'NX', 'NC']],
+            msg: 'invalid Resource level type.',
           },
         },
       },
