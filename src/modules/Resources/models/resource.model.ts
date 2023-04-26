@@ -21,6 +21,7 @@ export type ResourceCreationAttributes = Optional<
   | 'resourceLevel2'
   | 'resourceLevel3'
   | 'resourceLevel4'
+  | 'resourceLevel5'
   | 'resourceLevelType'
   | 'resourceRbac'
   | 'resourceAnomalyMonitor'
