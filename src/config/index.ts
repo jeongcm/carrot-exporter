@@ -11,7 +11,7 @@ import validateEnv from './validateEnv';
 validateEnv();
 
 export default {
-  appPort: process.env.AGGREGATOR_PORT || 7001,
+  appPort: process.env.CO_AGGREGATOR_PORT || 7001,
   appUrl: process.env.CO_AGGREGATOR_URL || 'http://localhost',
   nodeEnv: process.env.CO_AGGREGATOR_ENV || 'development',
   maxApiBodySize: process.env.CO_MAX_API_BODY_SIZE || '50mb',

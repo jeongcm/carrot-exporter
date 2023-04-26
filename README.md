@@ -1,6 +1,4 @@
-# nexclipper-api
-
-Nexclipper back-end
+# claiobserver-aggregator
 
 <br/>
 
@@ -9,13 +7,13 @@ Nexclipper back-end
 ### Clone the repo.
 
 ```bash
-git clone https://github.com/NexClipper/nexclipper-api.git
+https://github.com/ClaionSolution/claiobserver-aggregator.git
 ```
 
 ### Goto the cloned project folder.
 
 ```shell
-cd nexclipper-api
+cd claiobserver-aggregator
 ```
 
 <br /><br />
@@ -40,7 +38,7 @@ vim .env
 ```
 
 ```
-# NC_LARI_PORT=5000
+# CO_AGGREGATOR_PORT="7001"
 ```
 
 ### Run the app
@@ -50,19 +48,3 @@ npm run dev
 ```
 
 <br /><br />
-
-## With Docker
-
-- Note: It is preassumed here that you have docker running in background
-
-### Run the app in docker as a foreground process
-
-```shell
-docker-compose up
-```
-
-### Run the app in docker as a background process
-
-```shell
-docker-compose up -d
-```
