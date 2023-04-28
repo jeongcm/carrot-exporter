@@ -250,6 +250,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       },
       resourceLevel3: {
         type: DataTypes.STRING(10),
+        allowNull: true,
         validate: {
           isIn: {
             args: [['', 'ND', 'NS', 'VM', 'PV', 'SC', 'DP', 'SS', 'DS', 'RS', 'PC', 'SE', 'EP', 'CM', 'IG', 'JO', 'CJ', 'EV', 'VPC']],
@@ -259,6 +260,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       },
       resourceLevel4: {
         type: DataTypes.STRING(10),
+        allowNull: true,
         validate: {
           isIn: {
             args: [['', 'WL', 'SBN', 'ACL', 'RT', 'LB', 'TG']],
@@ -268,6 +270,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       },
       resourceLevel5: {
         type: DataTypes.STRING(10),
+        allowNull: true,
         validate: {
           isIn: {
             args: [['VM', 'NET', 'ACG', 'PIP', 'BLS', 'SS', 'SIMG', 'PLG', 'INS', 'DBMYQL', 'DBPOQL', 'DBMONG', 'DBMSQL', 'DBREDS', 'NAS', 'NASSS', 'OBS', 'NKS', 'NKSNP', 'NKSWN']],
@@ -277,6 +280,7 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
       },
       resourceLevelType: {
         type: DataTypes.STRING(10),
+        allowNull: true,
         validate: {
           isIn: {
             args: [['', 'KN', 'KS', 'OS', 'K8', 'OX', 'NX', 'NC']],
