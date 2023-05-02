@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name:  nc
+  name:  co
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -76,6 +76,6 @@ spec:
   selector:
     app: ${APP_IMAGE_NAME}
   ports:
-    - port: 7001
-      targetPort: 7001
+    - port: 6001
+      targetPort: 6001
       name: http
