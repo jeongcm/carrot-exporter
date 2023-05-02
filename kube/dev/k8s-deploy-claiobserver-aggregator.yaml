@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name:  co
+  name:  nc
 ---
 apiVersion: v1
 kind: ServiceAccount
