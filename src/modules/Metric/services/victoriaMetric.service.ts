@@ -3,96 +3,66 @@ import config from 'config';
 import { isEmpty } from 'lodash';
 import { logger } from '@/common/utils/logger';
 import axios from 'common/httpClient/axios';
+import { IResourceGroup } from "@common/interfaces/resourceGroup.interface";
+import { HttpException } from "@common/exceptions/HttpException";
+import { ICustomerAccount } from "@common/interfaces/customerAccount.interface";
+import DB from "@/database";
 class VictoriaMetricService extends ServiceExtension {
-  private victoriaSingleEndpoint = config.victoriaMetrics.NC_LARI_VM_ADDRESS;
-  private victoriaMultiEndpoint = config.victoriaMetrics.vmMultiAuthUrl;
-
+  private vmUrl = config.victoriaMetrics.vmSingleImportUrl
+  private vmMultiUrl = config.victoriaMetrics.vmMultiImportUrl
+  public resourceGroup = DB.ResourceGroup;
+  public customerAccount = DB.CustomerAccount;
+  private vmOption = config.victoriaMetrics.vmOption ; //BOTH - both / SINGLE - single-tenant / MULTI - multi-tenant
   constructor() {
     super({});
   }
 
-  public async queryRange(customerAccountId, promQl, start, end, step?) {
-    if (isEmpty(promQl)) return this.throwError('EXCEPTION', 'promQL is missing');
-    if (isEmpty(start)) return this.throwError('EXCEPTION', 'start time is missing');
-    if (isEmpty(end)) return this.throwError('EXCEPTION', 'end time is missing');
-
-    const startTime: number = Date.now();
-    let url;
-    let axiosParameter;
-    if (config.victoriaMetrics.vmOption === 'SINGLE') {
-      url = `${this.victoriaSingleEndpoint}/api/v1/query_range?query=${encodeURIComponent(promQl)}&start=${start}&end=${end}&step=${step}`;
-      axiosParameter = {
-        method: 'GET',
-        url: `${url}`,
-      };
-    } else {
-      const username = 'S' + customerAccountId;
-      const password = customerAccountId;
-      url = `${this.victoriaMultiEndpoint}/api/v1/query_range?query=${encodeURIComponent(promQl)}&start=${start}&end=${end}&step=${step}`;
-      axiosParameter = {
-        method: 'GET',
-        url: `${url}`,
-        auth: { username: username, password: password },
-      };
-    }
-
-    if (step) {
-      url = `${url}&step=${step}`;
-    }
-
-    try {
-      const result = await axios(axiosParameter);
-
-      if (result && result.data && result.data.data) {
-        result.data.data.queryRunTime = Date.now() - startTime;
-        return result.data.data;
-      } else {
-        return null;
+  public async callVM (metricReceivedMassFeed, clusterUuid) {
+    let result;
+    if (this.vmOption === "SINGLE") {
+      const url = this.vmUrl + clusterUuid;
+      console.log (`2-1, calling vm interface: ${url}`);
+      try {
+        result = await axios.post (url, metricReceivedMassFeed, {maxContentLength:Infinity, maxBodyLength: Infinity})
+        console.log("VM-single inserted:", result.status)
+      } catch (error){
+        console.log("error on calling vm api");
+        //throw error;
       }
-    } catch (e) {
-      console.log(e.toJSON());
-      this.throwError('EXCEPTION', e.response?.data);
-    }
-  }
+    } else if (this.vmOption === "MULTI") {
+      let password;
+      let username;
+      try {
+        const getResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+          where: { resourceGroupUuid: clusterUuid, deletedAt: null },
+        });
+        if (!getResourceGroup) throw new HttpException(404, 'No resource Group');
 
-  public async query(customerAccountId, promQl, step) {
-    if (isEmpty(promQl)) return this.throwError('EXCEPTION', 'promQL is missing');
+        const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({
+          where: { customerAccountKey: getResourceGroup.customerAccountKey, deletedAt: null },
+        });
 
-    let url;
-    let axiosParameter;
-    let stepStr = '';
-    if (step) {
-      stepStr = `&step=${step}`;
-    }
-    if (config.victoriaMetrics.vmOption === 'SINGLE') {
-      url = `${this.victoriaSingleEndpoint}/api/v1/query?query=${encodeURIComponent(promQl)}${stepStr}`;
-      axiosParameter = {
-        method: 'GET',
-        url: `${url}`,
-      };
-    } else {
-      const username = 'S' + customerAccountId;
-      const password = customerAccountId;
-      url = `${this.victoriaMultiEndpoint}/api/v1/query?query=${encodeURIComponent(promQl)}${stepStr}`;
-      axiosParameter = {
-        method: 'GET',
-        url: `${url}`,
-        auth: { username: username, password: password },
-      };
-    }
-
-    try {
-      const result = await axios(axiosParameter);
-
-      if (result && result.data && result.data.data) {
-        return result.data.data;
-      } else {
-        return null;
+        username = 'I' + getCustomerAccount.customerAccountId;
+        password = getCustomerAccount.customerAccountId;
+      } catch (error) {
+        console.log("error on confirming cluster information for metric feed");
+        throw error;
       }
-    } catch (e) {
-      console.log(e.response?.data);
-      this.throwError('EXCEPTION', e);
+      const urlMulti = this.vmMultiUrl + clusterUuid;
+      try {
+        result = await axios.post(urlMulti, metricReceivedMassFeed, {
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity,
+          auth: { username: username, password: password }
+        })
+      } catch (error) {
+        console.log("error on calling vm api");
+        throw error;
+      }
     }
+
+    metricReceivedMassFeed = null
+    return result;
   }
 }
 

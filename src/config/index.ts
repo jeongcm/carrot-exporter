@@ -22,13 +22,13 @@ export default {
   },
   db: {
     mariadb: {
-      host: process.env.CO_AGGREGATOR_DB_CONFIG_HOST,
-      port: Number(process.env.CO_AGGREGATOR_DB_CONFIG_PORT),
-      user: process.env.CO_AGGREGATOR_DB_CONFIG_USER,
-      password: process.env.CO_AGGREGATOR_DB_CONFIG_PASSWORD,
-      dbName: process.env.CO_AGGREGATOR_DB_CONFIG_DB_NAME,
-      poolMin: Number(process.env.CO_AGGREGATOR_DB_CONFIG_POOL_MIN),
-      poolMax: Number(process.env.CO_AGGREGATOR_DB_CONFIG_POOL_MAX),
+      host: process.env.CO_AGGREGATOR_DB_CONFIG_HOST || 'olly-dev-db.claion.io',
+      port: Number(process.env.CO_AGGREGATOR_DB_CONFIG_PORT) || 3306,
+      user: process.env.CO_AGGREGATOR_DB_CONFIG_USER || 'root',
+      password: process.env.CO_AGGREGATOR_DB_CONFIG_PASSWORD || 'gu7C89wD8X',
+      dbName: process.env.CO_AGGREGATOR_DB_CONFIG_DB_NAME || 'nc_api',
+      poolMin: Number(process.env.CO_AGGREGATOR_DB_CONFIG_POOL_MIN) || 1,
+      poolMax: Number(process.env.CO_AGGREGATOR_DB_CONFIG_POOL_MAX) || 5,
     },
   },
 
@@ -50,7 +50,7 @@ export default {
     vmMultiNamespaces: process.env.CO_VM_MULTI_NAMESPACE || 'vm-multi-tenant',
     vmMultiSecret: process.env.CO_VM_MULTI_SECRET || 'vm-auth-victoria-metrics-auth',
     vmMultiClusterUuid: process.env.CO_VM_MULTI_CLUSTER_UUID,
-    vmOption: process.env.CO_VM_OPTION || 'MULTI',
+    vmOption: process.env.CO_VM_OPTION || 'SINGLE',
     vmOpenstackSwitch: process.env.CO_VM_OPENSTACK_SWITCH || 'off',
   },
 

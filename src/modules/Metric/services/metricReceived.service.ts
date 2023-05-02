@@ -4,11 +4,10 @@ import { IResourceGroup } from "@common/interfaces/resourceGroup.interface";
 import { HttpException } from "@common/exceptions/HttpException";
 import { ICustomerAccount } from "@common/interfaces/customerAccount.interface";
 import config from '@config/index';
+import victoriaMetricService from "@modules/Metric/services/victoriaMetric.service";
 
 class metricReceivedService {
-
-  public resourceGroup = DB.ResourceGroup;
-  public customerAccount = DB.CustomerAccount;
+  public victoriaMetricService = new victoriaMetricService();
 
   // public async getMetricQuery(totalMsg) {
   //   let queryResult = {};
@@ -50,7 +49,7 @@ class metricReceivedService {
         });
         let finalResult1 = (newResultMap1).join("\n")
         newResultMap1 = null;
-        let massFeedResult1 = await this.callVM(finalResult1, clusterUuid);
+        let massFeedResult1 = await this.victoriaMetricService.callVM(finalResult1, clusterUuid);
         if (!massFeedResult1 || (massFeedResult1?.status !== 204)) {
           // console.log("Data Issue1 -----------------", finalResult1);
         }
@@ -66,7 +65,7 @@ class metricReceivedService {
         });
         let finalResult2 = (newResultMap2).join("\n")
         newResultMap2= null;
-        let massFeedResult2 = await this.callVM(finalResult2, clusterUuid);
+        let massFeedResult2 = await this.victoriaMetricService.callVM(finalResult2, clusterUuid);
         if (!massFeedResult2 || (massFeedResult2?.status !== 204)) {
           // console.log("Data Issue2 -----------------", finalResult2);
         }
@@ -83,7 +82,7 @@ class metricReceivedService {
         });
         let finalResult = (newResultMap).join("\n")
         newResultMap = null;
-        let massFeedResult = await this.callVM(finalResult, clusterUuid);
+        let massFeedResult = await this.victoriaMetricService.callVM(finalResult, clusterUuid);
         console.log(`3. massFeedResult: ${massFeedResult?.status}, clusterUuid: ${clusterUuid}, name: ${name}`);
         if (!massFeedResult || (massFeedResult?.status !== 204)) {
           // console.log("Data Issue -----------------", finalResult);
@@ -99,61 +98,6 @@ class metricReceivedService {
       throw error;
     }
   }
-
-  private async callVM (metricReceivedMassFeed, clusterUuid) {
-    const vmUrl = config.victoriaMetrics.vmSingleImportUrl
-    const vmMultiUrl = config.victoriaMetrics.vmMultiImportUrl
-    const vmOption = config.victoriaMetrics.vmOption || "MULTI"; //BOTH - both / SINGLE - single-tenant / MULTI - multi-tenant
-//just for local
-//     const apiCustomerAccountGetUrl = apiUrl+ apiCustomerAccountGetPath;
-
-    let result;
-    if (vmOption === "SINGLE") {
-      const url = vmUrl + clusterUuid;
-      console.log (`2-1, calling vm interface: ${url}`);
-      try {
-        result = await axios.post (url, metricReceivedMassFeed, {maxContentLength:Infinity, maxBodyLength: Infinity})
-        console.log("VM-single inserted:", result.status)
-      } catch (error){
-        console.log("error on calling vm api");
-        //throw error;
-      }
-    } else if (vmOption === "MULTI") {
-      let password;
-      let username;
-      try {
-        const getResourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-          where: { resourceGroupUuid: clusterUuid, deletedAt: null },
-        });
-        if (!getResourceGroup) throw new HttpException(404, 'No resource Group');
-
-        const getCustomerAccount: ICustomerAccount = await this.customerAccount.findOne({
-          where: { customerAccountKey: getResourceGroup.customerAccountKey, deletedAt: null },
-        });
-
-        username = 'I' + getCustomerAccount.customerAccountId;
-        password = getCustomerAccount.customerAccountId;
-      } catch (error) {
-        console.log("error on confirming cluster information for metric feed");
-        throw error;
-      }
-      const urlMulti = vmMultiUrl + clusterUuid;
-      try {
-        result = await axios.post(urlMulti, metricReceivedMassFeed, {
-          maxContentLength: Infinity,
-          maxBodyLength: Infinity,
-          auth: { username: username, password: password }
-        })
-      } catch (error) {
-        console.log("error on calling vm api");
-        throw error;
-      }
-    }
-
-    metricReceivedMassFeed = null
-    return result;
-  }
-
 
 }
 
