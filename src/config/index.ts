@@ -66,6 +66,6 @@ export default {
   },
 
   partyUser: {
-    userId: process.env.CO_AGGREGATOR_SYSTEM_PARTYUSER_USERID
+    userId: process.env.CO_AGGREGATOR_SYSTEM_PARTYUSER_USERID || 'system@claion.io'
   }
 };
