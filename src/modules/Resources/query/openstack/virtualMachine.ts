@@ -1,6 +1,6 @@
 import formatter_resource from "@common/utils/formatter";
 
-export default async function getProjectListQuery(result, clusterUuid) {
+export default async function getVirtualMachineListQuery(result, clusterUuid) {
   let query = {};
   let mergedQuery = {};
   let tempQuery = {};
