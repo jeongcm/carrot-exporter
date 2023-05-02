@@ -14,8 +14,9 @@ metadata:
   name: ${APP_IMAGE_NAME}-configmap
   labels:
     app: ${APP_IMAGE_NAME}
-data:
-  # need to add data
+data: 
+  CO_OLLY_PORT: ""
+  CO_OPS_PORT: ""
 ---
 apiVersion: apps/v1
 kind: Deployment
