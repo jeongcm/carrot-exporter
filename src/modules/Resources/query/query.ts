@@ -9,7 +9,10 @@ import getPublicIpInstanceListQuery from "@modules/Resources/query/ncp/publicIpI
 import getAccessControlGroupListQuery from "@modules/Resources/query/ncp/accessControlGroup/accessControlGroup";
 import getBlockStorageSnapshotInstanceListQuery
   from "@modules/Resources/query/ncp/blockStorageSnapshotInstance/blockStorageSnapshotInstance";
-import getEventQuery from "@modules/Resources/query/k8s/event";
+import getEventListQuery from "@modules/Resources/query/k8s/event";
+import getConfigMapListQuery from "@modules/Resources/query/k8s/configMap";
+import getServiceListQuery from "@modules/Resources/query/k8s/service";
+import getNodeListQuery from "@modules/Resources/query/k8s/node";
 
 class QueryService {
 
@@ -17,10 +20,22 @@ class QueryService {
     let queryResult = {};
     let result = totalMsg.result
     switch (totalMsg.template_uuid) {
-      // k8s resource Event
-      case "00000000000000000000000000000008":
-        queryResult = await getEventQuery(result, clusterUuid)
+      // k8s
+      case "00000000000000000000000000000020":
+        queryResult = await getServiceListQuery(result, clusterUuid)
         break;
+      case "00000000000000000000000000000006":
+        queryResult = await getConfigMapListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000000010":
+        queryResult = await getNodeListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000000008":
+        queryResult = await getEventListQuery(result, clusterUuid)
+        break;
+
+
+
       // ncp
       case "70000000000000000000000000000001":
         queryResult = await getRegionListQuery(result, clusterUuid)

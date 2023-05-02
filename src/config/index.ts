@@ -59,6 +59,7 @@ export default {
     kpsNamespace: process.env.CO_KPS_NAMESPACE || 'monitor',
     prometheusUrlHead: process.env.CO_PROMETHEUS_URL_HEAD || 'http://kps-kube-prometheus-stack-prometheus.',
     prometheusUrlTail: process.env.CO_PROMETHEUS_URL_TAIL || '.svc.cluster.local:9090',
+    nodeExporterPort: process.env.NODE_EXPORTER_PORT || 9100,
   },
   oT: {
     oTTraceLogTurnOff: process.env.CO_TURN_OFF_TELEMETRY,
