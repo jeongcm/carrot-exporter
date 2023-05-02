@@ -27,7 +27,7 @@ RUN addgroup ${GROUP} && \
 
 USER ${USER}
 
-EXPOSE 7001
+EXPOSE 6001
 
 ENV NODE_ENV production
 
