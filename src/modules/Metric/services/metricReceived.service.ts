@@ -1,10 +1,4 @@
-import axios from "axios";
-import DB from "@/database";
-import { IResourceGroup } from "@common/interfaces/resourceGroup.interface";
-import { HttpException } from "@common/exceptions/HttpException";
-import { ICustomerAccount } from "@common/interfaces/customerAccount.interface";
-import config from '@config/index';
-import victoriaMetricService from "@modules/Metric/services/victoriaMetric.service";
+import victoriaMetricService from "@modules/telemetry/victoriaMetric.service";
 
 class metricReceivedService {
   public victoriaMetricService = new victoriaMetricService();

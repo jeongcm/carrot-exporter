@@ -1,8 +1,8 @@
 import ServiceExtension from '@/common/extentions/service.extension';
-import config from 'config';
+import config from '@/config';
 import { isEmpty } from 'lodash';
 import { logger } from '@/common/utils/logger';
-import axios from 'common/httpClient/axios';
+import axios from '@common/httpClient/axios';
 import { IResourceGroup } from "@common/interfaces/resourceGroup.interface";
 import { HttpException } from "@common/exceptions/HttpException";
 import { ICustomerAccount } from "@common/interfaces/customerAccount.interface";
