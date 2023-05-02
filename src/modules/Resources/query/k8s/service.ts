@@ -10,7 +10,7 @@ export default async function getServiceListQuery(result, clusterUuid) {
   let resultPort = 0
   let resultLength = result.items.length;
 
-  for (let i=0; i<resultLength; i++)
+  for (let i = 0; i < resultLength; i++)
   {
     tempQuery = {};
     // get port number from port array and assign to resultPort letiable.

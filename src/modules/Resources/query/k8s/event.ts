@@ -8,7 +8,7 @@ export default async function getEventListQuery(result, clusterUuid) {
   let resourceType = "EV";
   let resultLength = result.items.length;
 
-  for (let i=0; i<resultLength; i++)
+  for (let i = 0; i < resultLength; i++)
   {
     query['resource_Type'] = resourceType ;
     query['resource_Spec'] = result.items[i].spec;

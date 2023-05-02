@@ -9,7 +9,7 @@ export default async function getNodeListQuery(result, clusterUuid) {
   let resourceType = "ND";
   let resultLength = result.items.length;
   let nodeExporterPort = config.obsUrl.nodeExporterPort;
-  for (let i=0; i<resultLength; i++)
+  for (let i = 0; i < resultLength; i++)
   {
     // get internal IP address from addresses array and assign to InternalIP letiable.
     let internalIpLength = result.items[i].status.addresses.length

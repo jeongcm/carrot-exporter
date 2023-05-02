@@ -4,19 +4,21 @@ export default async function getConfigMapListQuery(result, clusterUuid) {
   let query = {};
   let mergedQuery = {};
   let tempQuery = {};
+
   let resourceType = "CM";
   let resultLength = result.items.length;
-  for (let i=0; i<resultLength; i++)
+
+  for (let i = 0; i < resultLength; i++)
   {
-    query['resource_Type'] = resourceType ;
+    query['resource_Type'] = resourceType;
     query['resource_Spec'] = result.items[i].spec;
-    query['resource_Group_Uuid'] = clusterUuid ;
-    query['resource_Name'] = result.items[i].metadata.name ;
-    query['resource_Target_Uuid'] = result.items[i].metadata.uid ;
-    query['resource_Target_Created_At'] = result.items[i].metadata.creationTimestamp ;
-    query['resource_Labels'] = result.items[i].metadata.labels ; //object
-    query['resource_Annotations'] = result.items[i].metadata.annotations ; //object
-    query['resource_Owner_References'] = result.items[i].metadata.ownerReferences ; //object
+    query['resource_Group_Uuid'] = clusterUuid;
+    query['resource_Name'] = result.items[i].metadata.name;
+    query['resource_Target_Uuid'] = result.items[i].metadata.uid;
+    query['resource_Target_Created_At'] = result.items[i].metadata.creationTimestamp;
+    query['resource_Labels'] = result.items[i].metadata.labels; //object
+    query['resource_Annotations'] = result.items[i].metadata.annotations; //object
+    query['resource_Owner_References'] = result.items[i].metadata.ownerReferences; //object
     query['resource_Namespace'] = result.items[i].metadata.namespace;
     query['resource_Configmap_Data'] = result.items[i].data; //object
     query['resource_Level1'] = "K8"; //k8s
