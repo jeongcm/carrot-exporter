@@ -34,7 +34,6 @@ export default async function getStorageClassListQuery(result, clusterUuid) {
 
     tempQuery = formatter_resource(i, resultLength, resourceType, clusterUuid, query, mergedQuery);
     mergedQuery = tempQuery;
-
   }
 
   return { message: mergedQuery, resourceType: resourceType }
