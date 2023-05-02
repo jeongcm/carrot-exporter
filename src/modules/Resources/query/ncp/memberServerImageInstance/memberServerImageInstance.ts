@@ -1,6 +1,6 @@
 import formatter_resource from '@common/utils/formatter';
 
-export default async function getServerImageProductListQuery(result, clusterUuid) {
+export default async function getMemberServerImageInstanceListQuery(result, clusterUuid) {
   const query = {};
   let mergedQuery = {};
   let tempQuery = {};
