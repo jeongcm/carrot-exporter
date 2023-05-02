@@ -45,7 +45,7 @@ data:
   CO_AGGREGATOR_LOG_SILENCE_RESPONSE: true
   CO_PAGINATION_LIMIT: 10
   CO_PAGINATION_PAGE: 0
-  __ENV_ONLY_FOR_DEV_LOG_PATH: "./log"
+
 ---
 apiVersion: apps/v1
 kind: Deployment
