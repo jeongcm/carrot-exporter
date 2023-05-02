@@ -8,8 +8,8 @@ import { HttpException } from "@common/exceptions/HttpException";
 import { ICustomerAccount } from "@common/interfaces/customerAccount.interface";
 import DB from "@/database";
 class VictoriaMetricService extends ServiceExtension {
-  private vmUrl = config.victoriaMetrics.vmSingleImportUrl
-  private vmMultiUrl = config.victoriaMetrics.vmMultiImportUrl
+  private vmUrl = config.victoriaMetrics.vmSingleUrl + config.victoriaMetrics.vmImport
+  private vmMultiUrl = config.victoriaMetrics.vmMultiUrl + config.victoriaMetrics.vmImport
   public resourceGroup = DB.ResourceGroup;
   public customerAccount = DB.CustomerAccount;
   private vmOption = config.victoriaMetrics.vmOption ; //BOTH - both / SINGLE - single-tenant / MULTI - multi-tenant

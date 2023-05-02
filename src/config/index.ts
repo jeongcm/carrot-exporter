@@ -40,13 +40,14 @@ export default {
     CO_AGGREGATOR_VM_ADDRESS: process.env.CO_AGGREGATOR_VM_ADDRESS,
     CO_VM_SINGLE_ADDRESS: process.env.CO_VM_SINGLE_ADDRESS,
     CO_AGGREGATOR_VM_API: process.env.CO_AGGREGATOR_VM_API,
-    vmSingleImportUrl: process.env.VM_SINGLE_URL || 'http://olly-dev-vm.claion.io:8428/api/v1/import?extra_label=clusterUuid=',
-    vmMultiImportUrl: process.env.VM_MULTI_AUTH_URL || 'http://olly-dev-vmauth.claion.io:8427/api/v1/import?extra_label=clusterUuid=',
+    vmSingleUrl: process.env.CO_AGGREGATOR_VM_SINGLE_ADDRESS || 'http://olly-dev-vm.claion.io:8428',
+    vmMultiUrl: process.env.CO_AGGREGATOR_VM_MULTI_ADDRESS || 'http://olly-dev-vmauth.claion.io:8427/api/v1/import?extra_label=clusterUuid=',
+    vmImport: process.env.CO_AGGREGATOR_VM_IMPORT || '/api/v1/import?extra_label=clusterUuid=',
     vmMultiBaseUrlInsert:
       process.env.CO_VM_MULTI_BASE_URL_INSERT || 'http://vm-cluster-victoria-metrics-cluster-vminsert.vm-multi-tenant.svc.cluster.local:8480/insert',
     vmMultiBaseUrlSelect:
       process.env.CO_VM_MULTI_BASE_URL_SELECT || 'http://vm-cluster-victoria-metrics-cluster-vmselect.vm-multi-tenant.svc.cluster.local:8481/select',
-    vmMultiAuthUrl: process.env.CO_VM_MULTI_AUTH_URL || 'http://vm-auth-victoria-metrics-auth..vm-multi-tenant.svc.cluster.local:8427',
+    vmMultiAuthUrl: process.env.CO_VM_MULTI_AUTH_URL || 'http://vm-auth-victoria-metrics-auth.vm-multi-tenant.svc.cluster.local:8427',
     vmMultiNamespaces: process.env.CO_VM_MULTI_NAMESPACE || 'vm-multi-tenant',
     vmMultiSecret: process.env.CO_VM_MULTI_SECRET || 'vm-auth-victoria-metrics-auth',
     vmMultiClusterUuid: process.env.CO_VM_MULTI_CLUSTER_UUID,
