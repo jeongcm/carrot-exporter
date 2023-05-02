@@ -51,7 +51,7 @@ export default {
     vmMultiNamespaces: process.env.CO_VM_MULTI_NAMESPACE || 'vm-multi-tenant',
     vmMultiSecret: process.env.CO_VM_MULTI_SECRET || 'vm-auth-victoria-metrics-auth',
     vmMultiClusterUuid: process.env.CO_VM_MULTI_CLUSTER_UUID,
-    vmOption: process.env.CO_VM_OPTION || 'SINGLE',
+    vmOption: process.env.CO_AGGREGATOR_VM_OPTION || 'SINGLE',
     vmOpenstackSwitch: process.env.CO_VM_OPENSTACK_SWITCH || 'off',
   },
 
