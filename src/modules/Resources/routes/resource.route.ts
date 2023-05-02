@@ -13,7 +13,6 @@ class ResourceRoute implements Routes {
 
   private initializeRoutes() {
     this.router.post('/resource', this.resourceController.uploadResource)
-    this.router.post('/resource/event', this.resourceController.uploadResourceEvent)
   }
 }
 
