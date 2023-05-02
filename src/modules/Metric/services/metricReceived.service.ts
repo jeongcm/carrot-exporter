@@ -10,22 +10,30 @@ class metricReceivedService {
   public resourceGroup = DB.ResourceGroup;
   public customerAccount = DB.CustomerAccount;
 
-  // public async getMetricQuery(totalMsg, clusterUuid) {
+  // public async getMetricQuery(totalMsg) {
   //   let queryResult = {};
   //   switch (totalMsg.template_uuid) {
   //     case "queryMultipleDataForServer":
-  //       queryResult = await getQueryDataMultipleForServerVPC(totalMsg, clusterUuid)
+  //       queryResult = await getQueryDataMultipleForServerVPC(totalMsg, totalMsg.cluster_uuid)
   //       break;
   //   }
   //
   //   return queryResult;
   // }
-  public async massUploadMetricReceived(metricReceivedMassFeed, clusterUuid) {
+
+  public async massUploadMetricReceivedNcp(totalMsg) {
+    // const queryResult = await this.getMetricQuery(totalMsg)
+
+    return await this.massUploadMetricReceived(totalMsg)
+  }
+
+  public async massUploadMetricReceived(totalMsg) {
+    const clusterUuid = totalMsg.cluster_uuid;
+    const name = totalMsg.service_name;
+    let receivedData = totalMsg.result;
+
     try {
-      let receivedData = metricReceivedMassFeed.result;
-      const clusterUuid = metricReceivedMassFeed.cluster_uuid;
-      const name = metricReceivedMassFeed.service_name;
-      metricReceivedMassFeed = null;
+      totalMsg = null;
       let receivedMetrics = receivedData.result;
       receivedData = null;
       const message_size_mb = (Buffer.byteLength(JSON.stringify(receivedMetrics)))/1024/1024;
@@ -141,39 +149,6 @@ class metricReceivedService {
         throw error;
       }
     }
-    // } else { // BOTH
-    //   const url = vmUrl + clusterUuid;
-    //   console.log (`2-1, calling vm interface: ${url}`);
-    //   try {
-    //     result = await axios.post (url, metricReceivedMassFeed, {maxContentLength:Infinity, maxBodyLength: Infinity})
-    //     console.log("VM-single inserted:", result.status)
-    //   } catch (error){
-    //
-    //     console.log("error on calling vm api", error);
-    //     console.log(metricReceivedMassFeed);
-    //     throw error;
-    //   }
-    //   const urlCa = apiCustomerAccountGetUrl + "/" + clusterUuid;
-    //   let password;
-    //   let username;
-    //   try {
-    //     const customerAccount = await axios.get (urlCa);
-    //     username = 'I' + customerAccount.data.data.customerAccountId;
-    //     password = customerAccount.data.data.customerAccountId;
-    //   } catch (error){
-    //     console.log("error on confirming cluster information for metric feed");
-    //     throw error;
-    //   }
-    //   const urlMulti = vmMultiUrl + clusterUuid;
-    //   console.log (`2-2, calling vm multi - interface: ${urlMulti}`);
-    //   try {
-    //     result = await axios.post (urlMulti, metricReceivedMassFeed, {maxContentLength:Infinity, maxBodyLength: Infinity, auth:{username: username, password: password}})
-    //     console.log("VM-multi inserted:", result.status)
-    //   } catch (error){
-    //     console.log("error on calling vm api");
-    //     throw error;
-    //   }
-    // }
 
     metricReceivedMassFeed = null
     return result;
