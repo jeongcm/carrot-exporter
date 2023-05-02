@@ -8,6 +8,11 @@ class ResourceController {
     try {
       const totalMsg = req.body
       const result = await this.resourceService.uploadResource(totalMsg)
+      if (result === 'empty list') {
+        res.status(204).json({ message: result });
+        return
+      }
+
       res.status(200).json({ message: result });
     } catch (err) {
       next(err)

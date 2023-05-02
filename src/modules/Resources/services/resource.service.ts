@@ -23,9 +23,9 @@ class resourceService {
     let queryResult: any
     let resultMsg
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid)
-    if (Object.keys(queryResult.message).length === 0 || queryResult.message.resource.length === 0) {
+    if (Object.keys(queryResult.message).length === 0) {
       console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
-      throw new HttpException(204, 'empty list')
+      return 'empty list'
     }
 
     try {
