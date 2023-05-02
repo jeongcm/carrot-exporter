@@ -39,7 +39,7 @@ vim .env
 
 ```
 ######## FOR LOCAL RUN #######
-CO_AGGREGATOR_PORT="7001"
+CO_AGGREGATOR_PORT="6001"
 CO_AGGREGATOR_URL=http://localhost
 CO_AGGREGATOR_ENV=development
 

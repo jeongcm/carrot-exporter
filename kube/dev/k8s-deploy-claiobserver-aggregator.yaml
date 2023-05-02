@@ -90,7 +90,7 @@ spec:
             - configMapRef:
                 name: ${APP_IMAGE_NAME}-configmap
           ports:
-            - containerPort: 7001
+            - containerPort: 6001
       volumes:
         - name: varlog
           emptyDir: {}
