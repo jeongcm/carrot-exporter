@@ -41,7 +41,7 @@ export default {
     CO_VM_SINGLE_ADDRESS: process.env.CO_VM_SINGLE_ADDRESS,
     CO_AGGREGATOR_VM_API: process.env.CO_AGGREGATOR_VM_API,
     vmSingleUrl: process.env.CO_AGGREGATOR_VM_SINGLE_ADDRESS || 'http://olly-dev-vm.claion.io:8428',
-    vmMultiUrl: process.env.CO_AGGREGATOR_VM_MULTI_ADDRESS || 'http://olly-dev-vmauth.claion.io:8427/api/v1/import?extra_label=clusterUuid=',
+    vmMultiUrl: process.env.CO_AGGREGATOR_VM_MULTI_ADDRESS || 'http://olly-dev-vmauth.claion.io:8427',
     vmImport: process.env.CO_AGGREGATOR_VM_IMPORT || '/api/v1/import?extra_label=clusterUuid=',
     vmMultiBaseUrlInsert:
       process.env.CO_VM_MULTI_BASE_URL_INSERT || 'http://vm-cluster-victoria-metrics-cluster-vminsert.vm-multi-tenant.svc.cluster.local:8480/insert',
