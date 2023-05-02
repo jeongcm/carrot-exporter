@@ -60,12 +60,6 @@ spec:
           envFrom:
             - configMapRef:
                 name: ${APP_IMAGE_NAME}-configmap
-          env:
-            - name: NC_LARI_DB_CONFIG_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: ncdb-mariadb
-                  key: mariadb-root-password
           ports:
             - containerPort: 7001
       volumes:
