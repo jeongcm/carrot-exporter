@@ -17,7 +17,7 @@ class ResourceController {
     }
   }
 
-  public uploadResourceEvent = async (req: IRequestWithSystem, res: Response, next: NextFunction) => {
+  public uploadResourceEvent = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const resourceEventMassFeed = req.body;
 

@@ -4,14 +4,14 @@ import App from './app';
 import ResourceRoute from '@modules/Resources/routes/resource.route';
 // import massUploaderRoute from './modules/CommonService/routes/massUploader.route';
 // import massUploaderMongoRoute from './modules/CommonService/routes/massUploaderMongo.route';
-// import MetricRoute from './modules/Metric/routes/metric.route';
+import MetricRoute from './modules/Metric/routes/metric.route';
 
 const app = new App([
   // new AlertRoute(),
   new ResourceRoute(),
   // new massUploaderRoute(),
   // new massUploaderMongoRoute(),
-  // new MetricRoute(),
+  new MetricRoute(),
 ]);
 
 app.listen();
