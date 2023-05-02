@@ -13,6 +13,22 @@ import getEventListQuery from "@modules/Resources/query/k8s/event";
 import getConfigMapListQuery from "@modules/Resources/query/k8s/configMap";
 import getServiceListQuery from "@modules/Resources/query/k8s/service";
 import getNodeListQuery from "@modules/Resources/query/k8s/node";
+import getNamespaceListQuery from "@modules/Resources/query/k8s/namespace";
+import getPodListQuery from "@modules/Resources/query/k8s/pod";
+import getDeploymentListQuery from "@modules/Resources/query/k8s/deployment";
+import getStatefulSetListQuery from "@modules/Resources/query/k8s/statefulSet";
+import getDaemonSetListQuery from "@modules/Resources/query/k8s/daemonSet";
+import getReplicaSetListQuery from "@modules/Resources/query/k8s/replicaSet";
+import getPersistentVolumeClaimListQuery from "@modules/Resources/query/k8s/persistentVolumeClaim";
+import getSecretListQuery from "@modules/Resources/query/k8s/secret";
+import getEndpointListQuery from "@modules/Resources/query/k8s/endpoint";
+import getIngressListQuery from "@modules/Resources/query/k8s/ingress";
+import getPersistentVolumeListQuery from "@modules/Resources/query/k8s/persistentVolume";
+import getStorageClassListQuery from "@modules/Resources/query/k8s/storageClass";
+import getJobListQuery from "@modules/Resources/query/k8s/job";
+import getCronJobListQuery from "@modules/Resources/query/k8s/cronJob";
+import getProjectListQuery from "@modules/Resources/query/openstack/project";
+import getVirtualMachineListQuery from "@modules/Resources/query/openstack/virtualMachine";
 
 class QueryService {
 
@@ -21,6 +37,48 @@ class QueryService {
     let result = totalMsg.result
     switch (totalMsg.template_uuid) {
       // k8s
+      case "00000000000000000000000000000004":
+        queryResult = await getNamespaceListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000000002":
+        queryResult = await getPodListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000001002":
+        queryResult = await getDeploymentListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000001004":
+        queryResult = await getStatefulSetListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000001006":
+        queryResult = await getDaemonSetListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000001008":
+        queryResult = await getReplicaSetListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000000014":
+        queryResult = await getSecretListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000000016":
+        queryResult = await getEndpointListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000000012":
+        queryResult = await getPersistentVolumeListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000003002":
+        queryResult = await getStorageClassListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000005002":
+        queryResult = await getJobListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000005003":
+        queryResult = await getCronJobListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000002002":
+        queryResult = await getIngressListQuery(result, clusterUuid)
+        break;
+      case "00000000000000000000000000000018":
+        queryResult = await getPersistentVolumeClaimListQuery(result, clusterUuid)
+        break;
       case "00000000000000000000000000000020":
         queryResult = await getServiceListQuery(result, clusterUuid)
         break;
@@ -34,7 +92,13 @@ class QueryService {
         queryResult = await getEventListQuery(result, clusterUuid)
         break;
 
-
+      // openstack
+      case "50000000000000000000000000000002":
+        queryResult = await getProjectListQuery(result, clusterUuid)
+        break;
+      case "50000000000000000000000000000004":
+        queryResult = await getVirtualMachineListQuery(result, clusterUuid)
+        break;
 
       // ncp
       case "70000000000000000000000000000001":
