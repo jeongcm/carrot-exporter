@@ -1,21 +1,11 @@
-import victoriaMetricService from "@modules/telemetry/victoriaMetric.service";
+import VictoriaMetricService from "@modules/telemetry/victoriaMetric.service";
+import QueryService from "@modules/Metric/query/query";
 
 class metricReceivedService {
-  public victoriaMetricService = new victoriaMetricService();
-
-  // public async getMetricQuery(totalMsg) {
-  //   let queryResult = {};
-  //   switch (totalMsg.template_uuid) {
-  //     case "queryMultipleDataForServer":
-  //       queryResult = await getQueryDataMultipleForServerVPC(totalMsg, totalMsg.cluster_uuid)
-  //       break;
-  //   }
-  //
-  //   return queryResult;
-  // }
-
+  public victoriaMetricService = new VictoriaMetricService();
+  public queryService = new QueryService();
   public async massUploadMetricReceivedNcp(totalMsg) {
-    // const queryResult = await this.getMetricQuery(totalMsg)
+    const queryResult = await this.queryService.getMetricQuery(totalMsg)
 
     return await this.massUploadMetricReceived(totalMsg)
   }
