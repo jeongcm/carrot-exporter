@@ -80,7 +80,7 @@ spec:
                 - SETGID
           livenessProbe:
             tcpSocket:
-              port: 7001
+              port: 6001
             initialDelaySeconds: 90
             timeoutSeconds: 15
           volumeMounts:
