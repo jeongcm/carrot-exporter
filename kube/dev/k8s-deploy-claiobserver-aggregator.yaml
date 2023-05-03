@@ -15,9 +15,6 @@ metadata:
   labels:
     app: ${APP_IMAGE_NAME}
 data:
-  CO_OLLY_PORT: ""
-  CO_OPS_PORT: ""
-
   CO_AGGREGATOR_DB_CONFIG_PORT: "3306"
   CO_AGGREGATOR_DB_CONFIG_HOST: "olly-dev-db.claion.io"
   CO_AGGREGATOR_DB_CONFIG_USER: "root"
@@ -25,7 +22,6 @@ data:
   CO_AGGREGATOR_DB_CONFIG_DB_NAME: "nc_api"
   CO_AGGREGATOR_DB_CONFIG_POOL_MIN: "1"
   CO_AGGREGATOR_DB_CONFIG_POOL_MAX: "5"
-
   CO_AGGREGATOR_DEFAULT_PASSWORD: "WOt7u7OGxr"
   CO_AGGREGATOR_SYSTEM_NAME: "SYSTEM"
   CO_AGGREGATOR_SYSTEM_CUSTOMERACCOUNT_NAME: "CLAION"
@@ -37,28 +33,26 @@ data:
   CO_AGGREGATOR_SYSTEM_PARTYUSER_USERID: "system@claion.io"
   CO_AGGREGATOR_SYSTEM_PARTYUSER_PASSWORD: "Password@123!"
   CO_AGGREGATOR_SYSTEM_PARTYUSER_EMAIL: "system@claion.io"
-
-  CO_AGGREGATOR_VM_SINGLE_ADDRESS: "http://olly-dev-vm.claion.io:8428"
-  CO_AGGREGATOR_VM_MULTI_ADDRESS: "http://olly-dev-vm.claion.io:8428"
+  CO_AGGREGATOR_VM_SINGLE_ADDRESS: http://olly-dev-vm.claion.io:8428
+  CO_AGGREGATOR_VM_MULTI_ADDRESS: http://olly-dev-vm.claion.io:8428
   CO_AGGREGATOR_VM_IMPORT: "/api/v1/import?extra_label: clusterUuid:"
   CO_AGGREGATOR_VM_OPTION: "SINGLE"
   CO_AGGREGATOR_JWT_SECRET_KEY: "test123!"
   CO_AGGREGATOR_LOG_FORMAT: "combined"
-  CO_AGGREGATOR_CORS_ORIGIN: true
-  CO_AGGREGATOR_CORS_CREDENTIALS: true
-  CO_TURN_OFF_TELEMETRY: true
-  CO_AGGREGATOR_LOG_SILENCE_RESPONSE: true
-  CO_PAGINATION_LIMIT: 10
-  CO_PAGINATION_PAGE: 0
-  __ENV_ONLY_FOR_DEV_LOG_PATH: "./log"
+  CO_AGGREGATOR_CORS_ORIGIN: "true"
+  CO_AGGREGATOR_CORS_CREDENTIALS: "true"
+  CO_TURN_OFF_TELEMETRY: "true"
+  CO_AGGREGATOR_LOG_SILENCE_RESPONSE: "true"
+  CO_PAGINATION_LIMIT: "10"
+  CO_PAGINATION_PAGE: "0"
+
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ${APP_IMAGE_NAME}
 spec:
-  revisionHistory
-  : 0 # Default to 10 if not specified
+  revisionHistoryLimit: 0 # Default to 10 if not specified
   selector:
     matchLabels:
       app: ${APP_IMAGE_NAME}
@@ -96,7 +90,7 @@ spec:
             - configMapRef:
                 name: ${APP_IMAGE_NAME}-configmap
           ports:
-            - containerPort: 7001
+            - containerPort: 6001
       volumes:
         - name: varlog
           emptyDir: {}
