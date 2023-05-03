@@ -16,7 +16,7 @@ metadata:
     app: ${APP_IMAGE_NAME}
 data:
   CO_AGGREGATOR_DB_CONFIG_PORT: "3306"
-  CO_AGGREGATOR_DB_CONFIG_HOST: "olly-dev-db.claion.io"
+  CO_AGGREGATOR_DB_CONFIG_HOST: "ncdb-mariadb-primary.mariadb.svc.cluster.local"
   CO_AGGREGATOR_DB_CONFIG_USER: "root"
   CO_AGGREGATOR_DB_CONFIG_PASSWORD: "gu7C89wD8X"
   CO_AGGREGATOR_DB_CONFIG_DB_NAME: "nc_api"
@@ -33,8 +33,8 @@ data:
   CO_AGGREGATOR_SYSTEM_PARTYUSER_USERID: "system@claion.io"
   CO_AGGREGATOR_SYSTEM_PARTYUSER_PASSWORD: "Password@123!"
   CO_AGGREGATOR_SYSTEM_PARTYUSER_EMAIL: "system@claion.io"
-  CO_AGGREGATOR_VM_SINGLE_ADDRESS: http://olly-dev-vm.claion.io:8428
-  CO_AGGREGATOR_VM_MULTI_ADDRESS: http://olly-dev-vm.claion.io:8428
+  CO_AGGREGATOR_VM_SINGLE_ADDRESS: "http://vmtips-victoria-metrics-single-server.vm-tips.svc.cluster.local:8428"
+  CO_AGGREGATOR_VM_MULTI_ADDRESS: "http://covmauth-victoria-metrics-auth.covm.svc.cluster.local:8427"
   CO_AGGREGATOR_VM_IMPORT: "/api/v1/import?extra_label: clusterUuid:"
   CO_AGGREGATOR_VM_OPTION: "SINGLE"
   CO_AGGREGATOR_JWT_SECRET_KEY: "test123!"
