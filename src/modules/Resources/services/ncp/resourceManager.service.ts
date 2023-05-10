@@ -1,4 +1,5 @@
 import { INcpResource } from '@/common/interfaces/ncpResource.interface';
+import { INcpResourceGroup } from '@/common/interfaces/ncpResourceGroup.interface';
 import DB from '@/database';
 import config from '@config/index';
 import QueryService from '@modules/Resources/query/query';
@@ -29,7 +30,28 @@ class ncpResourceService {
     }
   }
 
-  public async uploadResource(data: INcpResource): Promise<string> {
+  public async uploadNcpResourceGroup(totalMsg) {
+    let queryResult;
+    let resultMsg;
+    queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+
+    if (Object.keys(queryResult.message).length === 0) {
+      console.log(`skip to upload ncpResourceGroup(${queryResult.resourceType}). cause: empty list`);
+      return 'empty list';
+    }
+
+    try {
+      resultMsg = await this.uploadResourceGroup(JSON.parse(queryResult.message));
+
+      console.log(`success to upload resourceGroup(${queryResult.resourceType}).`);
+      return resultMsg;
+    } catch (err) {
+      console.log(`failed to upload resourceGroup(${queryResult.resourceType}. cause: ${err})`);
+      return err;
+    }
+  }
+
+  public async uploadResource(data: INcpResource[]): Promise<string> {
     const query1 = `INSERT INTO ops_api.TB_RESOURCE (
                         nrn,
                         platform_type,
@@ -58,23 +80,68 @@ class ncpResourceService {
 
     const query2 = [];
 
-    for (let i = 0; i < data.ncpResource?.length; i++) {
+    for (let i = 0; i < data?.length; i++) {
       query2[i] = [
-        data.ncpResource[i].nrn,
-        data.ncpResource[i].platform_type,
-        data.ncpResource[i].product_name,
-        data.ncpResource[i].product_display_name,
-        data.ncpResource[i].region_code,
-        data.ncpResource[i].region_display_name,
-        data.ncpResource[i].resource_type,
-        data.ncpResource[i].resource_name,
-        data.ncpResource[i].create_time,
-        data.ncpResource[i].event_time,
-        data.ncpResource[i].resource_id,
+        data[i].nrn,
+        data[i].platform_type,
+        data[i].product_name,
+        data[i].product_display_name,
+        data[i].region_code,
+        data[i].region_display_name,
+        data[i].resource_type,
+        data[i].resource_name,
+        data[i].create_time,
+        data[i].event_time,
+        data[i].resource_id,
       ];
     }
 
-    console.log(query2[0]);
+    const mysqlConnection = await mysql.createConnection({
+      host: config.db.mariadb.host,
+      user: config.db.mariadb.user,
+      port: config.db.mariadb.port || 3306,
+      password: config.db.mariadb.password,
+      // database: config.db.mariadb.dbName,
+      database: 'ops_api',
+      multipleStatements: true,
+    });
+
+    await mysqlConnection.query('START TRANSACTION');
+    try {
+      await mysqlConnection.query(query1, [query2]);
+      await mysqlConnection.query('COMMIT');
+    } catch (err) {
+      await mysqlConnection.query('ROLLBACK');
+      await mysqlConnection.end();
+      console.info('Rollback successful');
+      throw `${err}`;
+    }
+    await mysqlConnection.end();
+
+    return 'successful DB update ';
+  } // end of massUploadResource
+
+  public async uploadResourceGroup(data: INcpResourceGroup[]): Promise<string> {
+    const query1 = `INSERT INTO ops_api.TB_RESOURCE_GROUP (
+                        group_id,
+                        group_name,
+                        group_desc,
+                        create_time,
+                        update_time
+                      ) VALUES ?
+                      ON DUPLICATE KEY UPDATE
+                        group_name=VALUES(group_name),
+                        group_desc=VALUES(group_desc),
+                        create_time=VALUES(create_time),
+                        update_time=VALUES(update_time)
+                      `;
+
+    const query2 = [];
+
+    for (let i = 0; i < data?.length; i++) {
+      query2[i] = [data[i].group_id, data[i].group_name, data[i].group_desc, data[i].create_time, data[i].update_time];
+    }
+
     const mysqlConnection = await mysql.createConnection({
       host: config.db.mariadb.host,
       user: config.db.mariadb.user,
@@ -100,4 +167,5 @@ class ncpResourceService {
     return 'successful DB update ';
   } // end of massUploadResource
 }
+
 export default ncpResourceService;

@@ -4,30 +4,30 @@ import { INcpResource } from '@common/interfaces/ncpResource.interface';
 export type NcpResourceCreationAttributes = Optional<
   INcpResource,
   | 'nrn'
-  | 'platformType'
-  | 'productName'
-  | 'productDisplayName'
-  | 'regionCode'
-  | 'regionDisplayName'
-  | 'resourceType'
-  | 'resourceId'
-  | 'resourceName'
-  | 'createTime'
-  | 'eventTime'
+  | 'platform_type'
+  | 'product_name'
+  | 'product_display_name'
+  | 'region_code'
+  | 'region_display_name'
+  | 'resource_type'
+  | 'resource_id'
+  | 'resource_name'
+  | 'create_time'
+  | 'event_time'
 >;
 
 export class NcpResourceModel extends Model<INcpResource, NcpResourceCreationAttributes> implements INcpResource {
   public nrn: string;
-  public platformType: string;
-  public productName: string;
-  public productDisplayName: string;
-  public regionCode: string;
-  public regionDisplayName: string;
-  public resourceType: string;
-  public resourceId: string;
-  public resourceName: string;
-  public createTime: string;
-  public eventTime: string;
+  public platform_type: string;
+  public product_name: string;
+  public product_display_name: string;
+  public region_code: string;
+  public region_display_name: string;
+  public resource_type: string;
+  public resource_id: string;
+  public resource_name: string;
+  public create_time: string;
+  public event_time: string;
 }
 
 export default function (sequelize: Sequelize): typeof NcpResourceModel {
@@ -37,34 +37,34 @@ export default function (sequelize: Sequelize): typeof NcpResourceModel {
         type: DataTypes.STRING,
         primaryKey: true,
       },
-      platformType: {
+      platform_type: {
         type: DataTypes.STRING(200),
       },
-      productName: {
+      product_name: {
         type: DataTypes.STRING(200),
       },
-      productDisplayName: {
+      product_display_name: {
         type: DataTypes.STRING(200),
       },
-      regionCode: {
+      region_code: {
         type: DataTypes.STRING(5),
       },
-      regionDisplayName: {
+      region_display_name: {
         type: DataTypes.STRING(100),
       },
-      resourceType: {
+      resource_type: {
         type: DataTypes.STRING(200),
       },
-      resourceName: {
+      resource_name: {
         type: DataTypes.STRING(200),
       },
-      createTime: {
+      create_time: {
         type: DataTypes.STRING(13),
       },
-      eventTime: {
+      event_time: {
         type: DataTypes.STRING(13),
       },
-      resourceId: {
+      resource_id: {
         type: DataTypes.STRING(100),
       },
     },
