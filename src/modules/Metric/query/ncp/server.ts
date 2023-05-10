@@ -1,4 +1,4 @@
-export default async function getQueryDataMultipleForServerVPC(totalMsg) {
+export default async function getServerInstanceMetric(totalMsg) {
   // initialize result
   let queryResult = {
     service_name: totalMsg.service_name,
@@ -9,22 +9,26 @@ export default async function getQueryDataMultipleForServerVPC(totalMsg) {
   }
 
   // get origin metric data
-  const originResult = totalMsg.result
-  const originMetric = totalMsg.request // 임시 이름
-  originMetric.clusterUuid = totalMsg.cluster_uuid
-  let data = []
-  let obj = {}
-  originResult.forEach((orig) => {
-    obj = {
-      metric: {
-        metric: originMetric
-      },
-      value: [orig[0], orig[1]]
-    }
-
-    data.push({obj})
+  totalMsg.result[0].forEach((serverInstance) => {
+    serverInstance.outputs.forEach((output) => {
+      output.dps.forEach((dp) => {
+        queryResult.result.result.push(
+          {
+            metric: {
+              aggregation: output.aggregation,
+              instanceNo: output.dimensions.instanceNo,
+              interval: output.interval,
+              __name__: `co_ncp_${output.metric}`,
+              metric: output.metric,
+              productName: output.productName
+            },
+            value: [dp[0], dp[1]]
+          }
+        )
+      })
+    })
   })
 
-  queryResult.result.result.push(queryResult.result.result, data)
+
   return queryResult
 }

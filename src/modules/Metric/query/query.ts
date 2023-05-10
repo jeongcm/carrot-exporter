@@ -1,11 +1,11 @@
-import getQueryDataMultipleForServerVPC from "@modules/Metric/query/ncp/server";
+import getServerInstanceMetric from "@modules/Metric/query/ncp/server";
 
 class QueryService {
   public async getMetricQuery(totalMsg) {
     let queryResult = {};
     switch (totalMsg.template_uuid) {
-      case "queryMultipleDataForServer":
-        queryResult = await getQueryDataMultipleForServerVPC(totalMsg)
+      case "NCM00000000000000000000000000001":
+        queryResult = await getServerInstanceMetric(totalMsg)
         break;
     }
 

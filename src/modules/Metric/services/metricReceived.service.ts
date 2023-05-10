@@ -1,13 +1,12 @@
 import VictoriaMetricService from "@modules/telemetry/victoriaMetric.service";
-import QueryService from "@modules/Metric/query/query";
+import QueryService from "../query/query";
 
 class metricReceivedService {
   public victoriaMetricService = new VictoriaMetricService();
   public queryService = new QueryService();
   public async massUploadMetricReceivedNcp(totalMsg) {
-    const queryResult = await this.queryService.getMetricQuery(totalMsg)
-
-    return await this.massUploadMetricReceived(totalMsg)
+    let queryResult: any = await this.queryService.getMetricQuery(totalMsg)
+    return await this.massUploadMetricReceived(queryResult)
   }
 
   public async massUploadMetricReceived(totalMsg) {
@@ -19,6 +18,7 @@ class metricReceivedService {
       totalMsg = null;
       let receivedMetrics = receivedData.result;
       receivedData = null;
+      console.log(receivedMetrics)
       const message_size_mb = (Buffer.byteLength(JSON.stringify(receivedMetrics)))/1024/1024;
       console.log (`2. metric received name: ${name}, message size: ${message_size_mb}` );
 
@@ -29,7 +29,7 @@ class metricReceivedService {
         let newResultMap1 = [];
         firstHalf.map((data)=>{
           const{metric, value} = data;
-          newResultMap1.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]*1000]}))
+          newResultMap1.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]]}))
         });
         let finalResult1 = (newResultMap1).join("\n")
         newResultMap1 = null;
@@ -45,7 +45,7 @@ class metricReceivedService {
         let newResultMap2 = [];
         secondHalf.map((data)=>{
           const{metric, value} = data;
-          newResultMap2.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]*1000]}))
+          newResultMap2.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]]}))
         });
         let finalResult2 = (newResultMap2).join("\n")
         newResultMap2= null;
@@ -62,9 +62,10 @@ class metricReceivedService {
         let newResultMap = [];
         receivedMetrics.map((data)=>{
           const{metric, value} = data;
-          newResultMap.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]*1000]}))
+          newResultMap.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]]}))
         });
         let finalResult = (newResultMap).join("\n")
+        console.log(finalResult)
         newResultMap = null;
         let massFeedResult = await this.victoriaMetricService.callVM(finalResult, clusterUuid);
         console.log(`3. massFeedResult: ${massFeedResult?.status}, clusterUuid: ${clusterUuid}, name: ${name}`);
