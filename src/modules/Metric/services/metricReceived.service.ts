@@ -18,7 +18,6 @@ class metricReceivedService {
       totalMsg = null;
       let receivedMetrics = receivedData.result;
       receivedData = null;
-      console.log(receivedMetrics)
       const message_size_mb = (Buffer.byteLength(JSON.stringify(receivedMetrics)))/1024/1024;
       console.log (`2. metric received name: ${name}, message size: ${message_size_mb}` );
 
@@ -65,7 +64,6 @@ class metricReceivedService {
           newResultMap.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]]}))
         });
         let finalResult = (newResultMap).join("\n")
-        console.log(finalResult)
         newResultMap = null;
         let massFeedResult = await this.victoriaMetricService.callVM(finalResult, clusterUuid);
         console.log(`3. massFeedResult: ${massFeedResult?.status}, clusterUuid: ${clusterUuid}, name: ${name}`);
