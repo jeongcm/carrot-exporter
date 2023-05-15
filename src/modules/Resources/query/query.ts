@@ -129,10 +129,10 @@ class QueryService {
       case "70000000000000000000000000000005":
         queryResult = await getServerImageProductListQuery(result, clusterUuid)
         break;
-      case "placementGroup":
+      case "70000000000000000000000000000066":
         queryResult = await getPlacementGroupListQuery(result, clusterUuid)
         break;
-      case "initScript":
+      case "70000000000000000000000000000065":
         queryResult = await getInitScriptListQuery(result, clusterUuid)
         break;
       case "NCM00000000000000000000000000006":
