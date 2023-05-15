@@ -41,6 +41,7 @@ export default async function getCloudDBPostgresqlInstanceListQuery(result, clus
 
   }
 
+  console.log(JSON.stringify(mergedQuery))
   return { message: mergedQuery, resourceType: resourceType }
 }
 
