@@ -29,10 +29,10 @@ import getCronJobListQuery from '@modules/Resources/query/k8s/cronJob';
 import getProjectListQuery from '@modules/Resources/query/openstack/project';
 import getVirtualMachineListQuery from '@modules/Resources/query/openstack/virtualMachine';
 import getContractDemandCostQuery from '@/modules/Cost/query/ncp/contractDemandCost';
-import getCloudDBMysqlInstanceListQuery from "@modules/Resources/query/ncp/cloudDB/mysql";
-import getCloudDBPostgresqlInstanceListQuery from "@modules/Resources/query/ncp/cloudDB/pgsql";
-import getCloudDBMongoDbInstanceListQuery from "@modules/Resources/query/ncp/cloudDB/mongoDB";
-import getCloudDBRedisInstanceListQuery from "@modules/Resources/query/ncp/cloudDB/redis";
+import getCloudDBMysqlInstanceListQuery from '@modules/Resources/query/ncp/cloudDB/mysql';
+import getCloudDBPostgresqlInstanceListQuery from '@modules/Resources/query/ncp/cloudDB/pgsql';
+import getCloudDBMongoDbInstanceListQuery from '@modules/Resources/query/ncp/cloudDB/mongoDB';
+import getCloudDBRedisInstanceListQuery from '@modules/Resources/query/ncp/cloudDB/redis';
 class QueryService {
   public async getResourceQuery(totalMsg, clusterUuid) {
     let queryResult = {};
@@ -127,25 +127,25 @@ class QueryService {
       case '70000000000000000000000000000005':
         queryResult = await getServerImageProductListQuery(result, clusterUuid);
         break;
-      case "70000000000000000000000000000066":
+      case '70000000000000000000000000000066':
         queryResult = await getPlacementGroupListQuery(result, clusterUuid)
         break;
-      case "70000000000000000000000000000065":
+      case '70000000000000000000000000000065':
         queryResult = await getInitScriptListQuery(result, clusterUuid)
         break;
       case '70000000000000000000000000000040':
         queryResult = await getContractDemandCostQuery(result, clusterUuid);
         break;
-      case "NCM00000000000000000000000000006":
+      case 'NCM00000000000000000000000000006':
         queryResult = await getCloudDBMysqlInstanceListQuery(result, clusterUuid)
         break;
-      case "NCM00000000000000000000000000007":
+      case 'NCM00000000000000000000000000007':
         queryResult = await getCloudDBMongoDbInstanceListQuery(result, clusterUuid)
         break;
-      case "NCM00000000000000000000000000008":
+      case 'NCM00000000000000000000000000008':
         queryResult = await getCloudDBRedisInstanceListQuery(result, clusterUuid)
         break;
-      case "NCM00000000000000000000000000009":
+      case 'NCM00000000000000000000000000009':
         queryResult = await getCloudDBPostgresqlInstanceListQuery(result, clusterUuid)
         break;
     }
