@@ -5,7 +5,7 @@ export default async function getCloudDBMysqlInstanceListQuery(result, clusterUu
   let mergedQuery = {};
   let tempQuery = {};
 
-  let resourceType = "DBMYQL";
+  let resourceType = "DBMYSQL";
   let resultLength = result.length
 
   for (let i = 0; i < resultLength; i ++) {
