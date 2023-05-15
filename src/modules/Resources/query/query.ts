@@ -32,6 +32,7 @@ import getVirtualMachineListQuery from "@modules/Resources/query/openstack/virtu
 import getCloudDBMysqlInstanceListQuery from "@modules/Resources/query/ncp/cloudDB/mysql";
 import getCloudDBPostgresqlInstanceListQuery from "@modules/Resources/query/ncp/cloudDB/pgsql";
 import getCloudDBMongoDbInstanceListQuery from "@modules/Resources/query/ncp/cloudDB/mongoDB";
+import getCloudDBRedisInstanceListQuery from "@modules/Resources/query/ncp/cloudDB/redis";
 
 class QueryService {
 
@@ -139,6 +140,9 @@ class QueryService {
         break;
       case "NCM00000000000000000000000000007":
         queryResult = await getCloudDBMongoDbInstanceListQuery(result, clusterUuid)
+        break;
+      case "NCM00000000000000000000000000008":
+        queryResult = await getCloudDBRedisInstanceListQuery(result, clusterUuid)
         break;
       case "NCM00000000000000000000000000009":
         queryResult = await getCloudDBPostgresqlInstanceListQuery(result, clusterUuid)
