@@ -1,4 +1,4 @@
-import { IContract, IContractDemandCost, IContractProduct } from '@/common/interfaces/ncpCost.interface';
+import { IContract, IContractDemandCost, IContractProduct, IUsage } from '@/common/interfaces/ncpCost.interface';
 import DB from '@/database';
 import config from '@config/index';
 import mysql from 'mysql2/promise';
@@ -6,6 +6,9 @@ import QueryService from '@modules/Resources/query/query';
 class NcpCostService {
   public queryService = new QueryService();
 
+  /* 
+  
+  */
   public async uploadNcpContractDemandCost(totalMsg) {
     let queryResult: any;
     let resultMsg: any;
@@ -29,6 +32,35 @@ class NcpCostService {
       resultMsg = await this.uploadContractProduct(result.contractProductList);
       console.log(`success to upload contractProduct(${queryResult.resourceType}).`);
 
+      return resultMsg;
+    } catch (err) {
+      console.log(`failed to upload contractDemandCost(${queryResult.resourceType}. cause: ${err})`);
+      return err;
+    }
+  }
+
+  public async uploadNcpContractUsage(totalMsg) {
+    let queryResult: any;
+    let resultMsg: any;
+    queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+
+    const result = JSON.parse(queryResult.message);
+    if (Object.keys(queryResult.message).length === 0) {
+      console.log(`skip to upload ncpResourceGroup(${queryResult.resourceType}). cause: empty list`);
+      return 'empty list';
+    }
+
+    try {
+      //Insert TB_CONTRACT
+
+      resultMsg = await this.uploadContract(result.contractList);
+      console.log(`success to upload contract(${queryResult.resourceType}).`);
+      //Insert TB_CONTRACT_PRODUCT
+      resultMsg = await this.uploadContractProduct(result.contractProductList);
+      console.log(`success to upload contractProduct(${queryResult.resourceType}).`);
+      //Insert TB_USAGE
+      resultMsg = await this.uploadUsage(result.usageList);
+      console.log(`success to upload usage(${queryResult.resourceType}).`);
       return resultMsg;
     } catch (err) {
       console.log(`failed to upload contractDemandCost(${queryResult.resourceType}. cause: ${err})`);
@@ -231,7 +263,7 @@ class NcpCostService {
   }
 
   public async uploadContractProduct(contractDemandProduct: IContractProduct[]): Promise<string> {
-    const contractProductQuery = `INSERT INTO claiops_test.TB_CONTRACT_DEMAND_PRODUCT (
+    const contractProductQuery = `INSERT INTO claiops_test.TB_CONTRACT_PRODUCT (
                               contract_product_sequence,
                               before_contract_product_sequence,
                               product_code,
@@ -307,6 +339,77 @@ class NcpCostService {
     await mysqlConnection.query('START TRANSACTION');
     try {
       await mysqlConnection.query(contractProductQuery, [contractProductValue]);
+      await mysqlConnection.query('COMMIT');
+    } catch (err) {
+      await mysqlConnection.query('ROLLBACK');
+      await mysqlConnection.end();
+      console.info('Rollback successful');
+      throw `${err}`;
+    }
+    await mysqlConnection.end();
+
+    return 'successful DB update ';
+  }
+
+  public async uploadUsage(usageData: IUsage[]): Promise<string> {
+    const usageQuery = `INSERT INTO claiops_test.TB_USAGE (
+                              metering_type_code,
+                              metering_type_code_name,
+                              contract_product_sequence,
+                              use_month,
+                              usage_quantity,
+                              unit_code,
+                              unit_code_name,
+                              user_usage_quantity,
+                              user_unit_code,
+                              user_unit_code_name,
+                              contract_no
+                            ) VALUES ?
+                            ON DUPLICATE KEY UPDATE
+                            metering_type_code=VALUES(metering_type_code),
+                            metering_type_code_name=VALUES(metering_type_code_name),
+                            contract_product_sequence=VALUES(contract_product_sequence),
+                            use_month=VALUES(use_month),
+                            usage_quantity=VALUES(usage_quantity),
+                            unit_code=VALUES(unit_code),
+                            unit_code_name=VALUES(unit_code_name),
+                            user_usage_quantity=VALUES(user_usage_quantity),
+                            user_unit_code=VALUES(user_unit_code),
+                            user_unit_code_name=VALUES(user_unit_code_name),
+                            contract_no=VALUES(contract_no)
+                            `;
+
+    const usageValue = [];
+
+    for (let i = 0; i < usageData?.length; i++) {
+      usageValue[i] = [
+        usageData[i].metering_type_code,
+        usageData[i].metering_type_code_name,
+        usageData[i].contract_product_sequence,
+        usageData[i].use_month,
+        usageData[i].usage_quantity,
+        usageData[i].unit_code,
+        usageData[i].unit_code_name,
+        usageData[i].user_usage_quantity,
+        usageData[i].user_unit_code,
+        usageData[i].user_unit_code_name,
+        usageData[i].contract_no,
+      ];
+    }
+
+    const mysqlConnection = await mysql.createConnection({
+      host: config.db.mariadb.host,
+      user: config.db.mariadb.user,
+      port: config.db.mariadb.port || 3306,
+      password: config.db.mariadb.password,
+      // database: config.db.mariadb.dbName,
+      database: 'ops_api',
+      multipleStatements: true,
+    });
+
+    await mysqlConnection.query('START TRANSACTION');
+    try {
+      await mysqlConnection.query(usageQuery, [usageValue]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {
       await mysqlConnection.query('ROLLBACK');
