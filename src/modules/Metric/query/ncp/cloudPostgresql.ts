@@ -9,7 +9,7 @@ export default async function getCloudPostgresqlInstanceMetric(totalMsg) {
   }
 
   // get origin metric data
-  totalMsg.result[0].forEach((cloudPostgresqlInstance) => {
+  totalMsg.result[0][0].forEach((cloudPostgresqlInstance) => {
     cloudPostgresqlInstance.outputs.forEach((output) => {
       output.dps.forEach((dp) => {
         queryResult.result.result.push(
