@@ -29,6 +29,7 @@ import getCronJobListQuery from '@modules/Resources/query/k8s/cronJob';
 import getProjectListQuery from '@modules/Resources/query/openstack/project';
 import getVirtualMachineListQuery from '@modules/Resources/query/openstack/virtualMachine';
 import getContractDemandCostQuery from '@/modules/Cost/query/ncp/contractDemandCost';
+import getContractUsageQuery from '@modules/Cost/query/ncp/contractUsage';
 
 class QueryService {
   public async getResourceQuery(totalMsg, clusterUuid) {
@@ -132,6 +133,9 @@ class QueryService {
         break;
       case '70000000000000000000000000000040':
         queryResult = await getContractDemandCostQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000042':
+        queryResult = await getContractUsageQuery(result, clusterUuid);
         break;
     }
 

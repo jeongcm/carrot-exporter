@@ -65,3 +65,19 @@ export interface IContractProduct {
   contract_no: string;
 }
 [];
+
+export interface IUsage {
+  metering_type_code: number;
+  metering_type_code_name: number;
+  product_code: string;
+  use_month: string;
+  usage_quantity: string;
+  unit_code: string;
+  unit_code_name: string;
+  user_usage_quantity: string;
+  user_unit_code: string;
+  user_unit_code_name: string;
+  contract_no: string;
+  contract_product_sequence: number;
+}
+[];
