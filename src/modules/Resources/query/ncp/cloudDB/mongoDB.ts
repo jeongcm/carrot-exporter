@@ -80,7 +80,7 @@ class CloudDBMongoDBService {
           query['resource_Active'] = true;
           query['resource_Status_Updated_At'] = new Date();
 
-          tempQuery = formatter_resource(i, resultLength, resourceType, clusterUuid, query, mergedQuery);
+          tempQuery = formatter_resource(k, resultLength, resourceType, clusterUuid, query, mergedQuery);
           mergedQuery = tempQuery;
         }
       }
