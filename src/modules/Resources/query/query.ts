@@ -29,11 +29,18 @@ import getCronJobListQuery from '@modules/Resources/query/k8s/cronJob';
 import getProjectListQuery from '@modules/Resources/query/openstack/project';
 import getVirtualMachineListQuery from '@modules/Resources/query/openstack/virtualMachine';
 import getContractDemandCostQuery from '@/modules/Cost/query/ncp/contractDemandCost';
-import getCloudDBMysqlInstanceListQuery from '@modules/Resources/query/ncp/cloudDB/mysql';
-import getCloudDBPostgresqlInstanceListQuery from '@modules/Resources/query/ncp/cloudDB/pgsql';
-import getCloudDBMongoDbInstanceListQuery from '@modules/Resources/query/ncp/cloudDB/mongoDB';
-import getCloudDBRedisInstanceListQuery from '@modules/Resources/query/ncp/cloudDB/redis';
+
+import CloudDBMysqlService from "@modules/Resources/query/ncp/cloudDB/mysql";
+import CloudDBMongoDBService from "@modules/Resources/query/ncp/cloudDB/mongoDB";
+import CloudDBRedisService from "@modules/Resources/query/ncp/cloudDB/redis";
+import CloudDBPostgresqlService from "@modules/Resources/query/ncp/cloudDB/pgsql";
+import { HttpException } from "@common/exceptions/HttpException";
 class QueryService {
+  public cloudDBMysqlService = new CloudDBMysqlService()
+  public cloudDBMongoDBService = new CloudDBMongoDBService()
+  public cloudDBRedisService = new CloudDBRedisService()
+  public cloudDBPostgresqlService = new CloudDBPostgresqlService()
+
   public async getResourceQuery(totalMsg, clusterUuid) {
     let queryResult = {};
     const result = totalMsg.result;
@@ -137,17 +144,31 @@ class QueryService {
         queryResult = await getContractDemandCostQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000006':
-        queryResult = await getCloudDBMysqlInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBMysqlService.getCloudDBMysqlInstanceListQuery(result, clusterUuid)
         break;
       case 'NCM00000000000000000000000000007':
-        queryResult = await getCloudDBMongoDbInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBMongoDBService.getCloudDBMongoDbInstanceListQuery(result, clusterUuid)
         break;
       case 'NCM00000000000000000000000000008':
-        queryResult = await getCloudDBRedisInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBRedisService.getCloudDBRedisInstanceListQuery(result, clusterUuid)
         break;
       case 'NCM00000000000000000000000000009':
-        queryResult = await getCloudDBPostgresqlInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBPostgresqlService.getCloudDBPostgresqlInstanceListQuery(result, clusterUuid)
         break;
+      case 'NCM00000000000000000000000000010':
+        queryResult = await this.cloudDBMysqlService.getCloudDBMysqlServerInstanceListQuery(result, clusterUuid)
+        break;
+      case 'NCM00000000000000000000000000011':
+        queryResult = await this.cloudDBMongoDBService.getCloudDBMongoDbServerInstanceListQuery(result, clusterUuid)
+        break;
+      case 'NCM00000000000000000000000000012':
+        queryResult = await this.cloudDBRedisService.getCloudDBRedisServerInstanceListQuery(result, clusterUuid)
+        break;
+      case 'NCM00000000000000000000000000013':
+        queryResult = await this.cloudDBPostgresqlService.getCloudDBPostgresqlServerInstanceListQuery(result, clusterUuid)
+        break;
+      default:
+        throw new HttpException(400, 'invalid template uuid')
     }
 
     return queryResult;
