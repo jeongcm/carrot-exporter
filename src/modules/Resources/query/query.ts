@@ -145,6 +145,7 @@ class QueryService {
         break;
       case '70000000000000000000000000000042':
         queryResult = await getContractUsageQuery(result, clusterUuid);
+        break;
       case 'NCM00000000000000000000000000006':
         queryResult = await this.cloudDBMysqlService.getCloudDBMysqlInstanceListQuery(result, clusterUuid)
         break;
