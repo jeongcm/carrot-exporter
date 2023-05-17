@@ -25,6 +25,7 @@ export interface IContractDemandCost {
   pay_currency_code: string;
   pay_currency_code_name: string;
   this_month_applied_exchange_rate: number;
+  contract_demand_product_info: string;
 }
 [];
 

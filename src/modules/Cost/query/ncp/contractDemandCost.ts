@@ -15,10 +15,10 @@ export default async function getContractDemandCostQuery(result, clusterUuid) {
     ContractDemandCost > Contract > ContractProduct
         계약청구비용        계약        계약상품
   */
+
   const contractDemandCostLength = result?.getContractDemandCostListResponse?.contractDemandCostList?.length;
   for (let i = 0; i < contractDemandCostLength; i++) {
     contractDemandCostResult = result.getContractDemandCostListResponse?.contractDemandCostList[i];
-    contractDemandCostQuery['contract_demand_cost_sequence'] = contractDemandCostResult.contractDemandCostSequence;
     contractDemandCostQuery['member_no'] = contractDemandCostResult.memberNo;
     contractDemandCostQuery['region_code'] = contractDemandCostResult.regionCode;
     contractDemandCostQuery['demand_type_code'] = contractDemandCostResult.demandType.code;
@@ -45,39 +45,14 @@ export default async function getContractDemandCostQuery(result, clusterUuid) {
     contractDemandCostQuery['pay_currency_code_name'] = contractDemandCostResult.payCurrency.codeName;
     contractDemandCostQuery['this_month_applied_exchange_rate'] = contractDemandCostResult.thisMonthAppliedExchangeRate;
     contractDemandCostQuery['contract_no'] = contractDemandCostResult.contract.contractNo;
-    contractDemandCostList += JSON.stringify(contractDemandCostQuery);
+    // contractDemandCostList += JSON.stringify(contractDemandCostQuery);
 
-    if (contractDemandCostLength > i + 1) {
-      contractDemandCostList += ',';
-    }
+    // if (contractDemandCostLength > i + 1) {
+    //   contractDemandCostList += ',';
+    // }
 
-    //console.log('계약 목록 cnt: ' + contractDemandCostResult[i]?.contractList.length);
-    for (let y = 0; y < contractDemandCostResult.contract.length; y++) {
-      // if (JSON.stringify(contractDemandCostResult.contract) !== '{}') {
+    if ('{}' !== JSON.stringify(contractDemandCostResult.contract)) {
       contractResult = contractDemandCostResult?.contract;
-      //   contractQuery['member_no'] = contractResult.memberNo;
-      //   contractQuery['contract_no'] = contractResult.contractNo;
-      //   contractQuery['conjunction_contract_no'] = contractResult.conjunctionContractNo;
-      //   contractQuery['contract_type_code'] = contractResult.contractType.code;
-      //   contractQuery['contract_type_code_name'] = contractResult.contractType.codeName;
-      //   contractQuery['contract_status_code'] = contractResult.contractStatus.code;
-      //   contractQuery['contract_status_code_name'] = contractResult.contractStatus.codeName;
-      //   contractQuery['contract_start_date'] = contractResult.contractStartDate;
-      //   contractQuery['contract_end_date'] = contractResult.contractEndDate;
-      //   contractQuery['instance_name'] = contractResult.instanceName;
-      //   contractQuery['region_code'] = contractResult.regionCode;
-      //   contractQuery['platform_type_code'] = contractResult.platformType.code;
-      //   contractQuery['platform_type_code_name'] = contractResult.platformType.codeName;
-
-      //   contractList += JSON.stringify(contractQuery);
-
-      //   //계약청구비용 내에 계약 정보가 없을 수 있으므로, 주석 처리 후 마지막에 쉼표 제거 처리로 변경
-      //   // if (contractDemandCostLength > i + 1) {
-      //   // contractList += ',';
-      //   // }
-      //   contractList += ',';
-      // }
-
       for (let j = 0; j < contractResult.contractProductList?.length; j++) {
         contractProductResult = contractResult?.contractProductList[j];
         contractProductQuery['contract_product_sequence'] = contractProductResult.contractProductSequence;
@@ -101,17 +76,22 @@ export default async function getContractDemandCostQuery(result, clusterUuid) {
         contractProductQuery['contract_no'] = contractResult.contractNo;
 
         contractProductList += JSON.stringify(contractProductQuery);
-
         contractProductList += ',';
+
+        contractDemandCostQuery['contract_demand_product_info'] = JSON.stringify(contractProductResult);
       }
     }
 
-    //TODO 하위 List 가공 후 맨 마지막 쉼표 제거, 추후 다른 방식 생기면 수정
-    //contractList = contractList.substring(0, contractList.length - 1);
-    contractProductList = contractProductList.substring(0, contractProductList.length - 1);
+    contractDemandCostList += JSON.stringify(contractDemandCostQuery);
 
-    const tempQuery = '{ "contractDemandCostList": [' + contractDemandCostList + '],' + '"contractProductList": [' + contractProductList + ']}';
-
-    return { message: tempQuery, resourceType: resourceType };
+    if (contractDemandCostLength > i + 1) {
+      contractDemandCostList += ',';
+    }
   }
+  //TODO 하위 List 가공 후 맨 마지막 쉼표 제거, 추후 다른 방식 생기면 수정
+  contractProductList = contractProductList.substring(0, contractProductList.length - 1);
+
+  const tempQuery = '{ "contractDemandCostList": [' + contractDemandCostList + '],' + '"contractProductList": [' + contractProductList + ']}';
+  // console.log('tempQuery =========== \n' + tempQuery);
+  return { message: tempQuery, resourceType: resourceType };
 }

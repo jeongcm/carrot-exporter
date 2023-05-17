@@ -69,6 +69,9 @@ class NcpCostService {
   }
 
   public async uploadContractDemandCost(contractDemandCostData: IContractDemandCost[]): Promise<string> {
+    //계약청구비용 정보는, 하루 단위로 삭제 후 재적재. 말일에 이력 테이블에 적재.
+    const deleteQuery = `DELETE FROM claiops_test.TB_CONTRACT_DEMAND_COST
+                          WHERE 1=1`;
     const contractDemandCostQuery = `INSERT INTO claiops_test.TB_CONTRACT_DEMAND_COST (
                     contract_demand_cost_sequence,
                     member_no,
@@ -95,7 +98,8 @@ class NcpCostService {
                     member_promise_discount_amount,
                     pay_currency_code,
                     pay_currency_code_name,
-                    this_month_applied_exchange_rate
+                    this_month_applied_exchange_rate,
+                    contract_demand_product_info
                   ) VALUES ?
                   ON DUPLICATE KEY UPDATE
                   contract_demand_cost_sequence=VALUES(contract_demand_cost_sequence),
@@ -123,7 +127,8 @@ class NcpCostService {
                   member_promise_discount_amount=VALUES(member_promise_discount_amount),
                   pay_currency_code=VALUES(pay_currency_code),
                   pay_currency_code_name=VALUES(pay_currency_code_name),
-                  this_month_applied_exchange_rate=VALUES(this_month_applied_exchange_rate)
+                  this_month_applied_exchange_rate=VALUES(this_month_applied_exchange_rate),
+                  contract_demand_product_info=VALUES(contract_demand_product_info)
                   `;
 
     const contractDemandCostValue = [];
@@ -157,6 +162,7 @@ class NcpCostService {
         contractDemandCostData[i].pay_currency_code,
         contractDemandCostData[i].pay_currency_code_name,
         contractDemandCostData[i].this_month_applied_exchange_rate,
+        contractDemandCostData[i].contract_demand_product_info,
       ];
     }
 
@@ -172,6 +178,7 @@ class NcpCostService {
 
     await mysqlConnection.query('START TRANSACTION');
     try {
+      await mysqlConnection.query(deleteQuery);
       await mysqlConnection.query(contractDemandCostQuery, [contractDemandCostValue]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {
@@ -264,6 +271,95 @@ class NcpCostService {
 
   public async uploadContractProduct(contractDemandProduct: IContractProduct[]): Promise<string> {
     const contractProductQuery = `INSERT INTO claiops_test.TB_CONTRACT_PRODUCT (
+                              contract_product_sequence,
+                              before_contract_product_sequence,
+                              product_code,
+                              price_no,
+                              promise_no,
+                              instance_no,
+                              product_item_kind_code,
+                              product_item_kind_code_name,
+                              product_rating_type_code,
+                              product_rating_type_code_name,
+                              service_status_code,
+                              service_status_code_name,
+                              service_start_date,
+                              service_end_date,
+                              product_size,
+                              product_count,
+                              contract_no
+                            ) VALUES ?
+                            ON DUPLICATE KEY UPDATE
+                            contract_product_sequence=VALUES(contract_product_sequence),
+                            before_contract_product_sequence=VALUES(before_contract_product_sequence),
+                            product_code=VALUES(product_code),
+                            price_no=VALUES(price_no),
+                            promise_no=VALUES(promise_no),
+                            instance_no=VALUES(instance_no),
+                            product_item_kind_code=VALUES(product_item_kind_code),
+                            product_item_kind_code_name=VALUES(product_item_kind_code_name),
+                            product_rating_type_code=VALUES(product_rating_type_code),
+                            product_rating_type_code_name=VALUES(product_rating_type_code_name),
+                            service_status_code=VALUES(service_status_code),
+                            service_status_code_name=VALUES(service_status_code_name),
+                            service_start_date=VALUES(service_start_date),
+                            service_end_date=VALUES(service_end_date),
+                            product_size=VALUES(product_size),
+                            product_count=VALUES(product_count),
+                            contract_no=VALUES(contract_no)
+                            `;
+
+    const contractProductValue = [];
+
+    for (let i = 0; i < contractDemandProduct?.length; i++) {
+      contractProductValue[i] = [
+        contractDemandProduct[i].contract_product_sequence,
+        contractDemandProduct[i].before_contract_product_sequence,
+        contractDemandProduct[i].product_code,
+        contractDemandProduct[i].price_no,
+        contractDemandProduct[i].promise_no,
+        contractDemandProduct[i].instance_no,
+        contractDemandProduct[i].product_item_kind_code,
+        contractDemandProduct[i].product_item_kind_code_name,
+        contractDemandProduct[i].product_rating_type_code,
+        contractDemandProduct[i].product_rating_type_code_name,
+        contractDemandProduct[i].service_status_code,
+        contractDemandProduct[i].service_status_code_name,
+        contractDemandProduct[i].service_start_date,
+        contractDemandProduct[i].service_end_date,
+        contractDemandProduct[i].product_size,
+        contractDemandProduct[i].product_count,
+        contractDemandProduct[i].contract_no,
+      ];
+    }
+
+    const mysqlConnection = await mysql.createConnection({
+      host: config.db.mariadb.host,
+      user: config.db.mariadb.user,
+      port: config.db.mariadb.port || 3306,
+      password: config.db.mariadb.password,
+      // database: config.db.mariadb.dbName,
+      database: 'ops_api',
+      multipleStatements: true,
+    });
+
+    await mysqlConnection.query('START TRANSACTION');
+    try {
+      await mysqlConnection.query(contractProductQuery, [contractProductValue]);
+      await mysqlConnection.query('COMMIT');
+    } catch (err) {
+      await mysqlConnection.query('ROLLBACK');
+      await mysqlConnection.end();
+      console.info('Rollback successful');
+      throw `${err}`;
+    }
+    await mysqlConnection.end();
+
+    return 'successful DB update ';
+  }
+
+  public async uploadContractDemandProduct(contractDemandProduct: IContractProduct[]): Promise<string> {
+    const contractProductQuery = `INSERT INTO claiops_test.TB_CONTRACT_DEMAND_PRODUCT (
                               contract_product_sequence,
                               before_contract_product_sequence,
                               product_code,
