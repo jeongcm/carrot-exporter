@@ -87,8 +87,6 @@ class CloudDBMysqlService {
 
     }
 
-    console.log(JSON.stringify(mergedQuery))
-
     return { message: mergedQuery, resourceType: resourceType }
   }
 
