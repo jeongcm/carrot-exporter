@@ -29,7 +29,7 @@ import getCronJobListQuery from '@modules/Resources/query/k8s/cronJob';
 import getProjectListQuery from '@modules/Resources/query/openstack/project';
 import getVirtualMachineListQuery from '@modules/Resources/query/openstack/virtualMachine';
 import getContractDemandCostQuery from '@/modules/Cost/query/ncp/contractDemandCost';
-
+import getContractUsageQuery from '@modules/Cost/query/ncp/contractUsage';
 import CloudDBMysqlService from "@modules/Resources/query/ncp/cloudDB/mysql";
 import CloudDBMongoDBService from "@modules/Resources/query/ncp/cloudDB/mongoDB";
 import CloudDBRedisService from "@modules/Resources/query/ncp/cloudDB/redis";
@@ -143,6 +143,8 @@ class QueryService {
       case '70000000000000000000000000000040':
         queryResult = await getContractDemandCostQuery(result, clusterUuid);
         break;
+      case '70000000000000000000000000000042':
+        queryResult = await getContractUsageQuery(result, clusterUuid);
       case 'NCM00000000000000000000000000006':
         queryResult = await this.cloudDBMysqlService.getCloudDBMysqlInstanceListQuery(result, clusterUuid)
         break;
