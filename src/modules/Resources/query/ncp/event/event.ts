@@ -36,152 +36,58 @@ class EventService {
     let targetUuid: any = ''
     switch (prodName) {
       case 'System/Cloud Search':
-            targetUuid = dimension.instanceNo
+      case 'System/Server(VPC)':
+      case 'System/Cloud DB for MySQL(VPC)':
+      case 'System/Cloud DB for MSSQL(VPC)':
+      case 'System/Cloud DB for Redis(VPC)':
+      case 'System/Cloud DB for MongoDB(VPC)':
+      case 'System/Cloud DB for PostgreSQL(VPC)':
+      case 'System/Cloud Hadoop(VPC)':
+      case 'System/Search Engine Service(VPC)':
+      case 'System/Cloud Data Streaming Service(VPC)':
+      case 'System/NAS(VPC)':
+      case 'System/CLOVA NSML(VPC)':
+      case 'System/Server':
+      case 'System/NAS':
+        targetUuid = dimension.instanceNo
         break;
       case 'System/Object Storage':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
+        targetUuid = dimension.resourceId
         break;
-      case 'System/Aevents':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
-        break;
-      case 'System/Server(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
+      case 'System/AiTEMS':
+        targetUuid = dimension.serviceId
         break;
       case 'System/Load Balancer(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
+        targetUuid = dimension.instanceId
         break;
       case 'System/Load Balancer Target Group(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
+        targetUuid = dimension.targetGroupNo
         break;
-      case 'System/Cloud DB for MySQL(VPC)':
+      case 'System/Kubernetes Service':
         switch (dimension.type) {
-          case '':
+          case 'CpuMem':
+          case 'Network':
+          case 'Disk':
+            targetUuid = dimension.nodeInstanceNo
             break
-
-        }
-        break;
-      case 'System/Cloud DB for MSSQL(VPC)':
-        switch (dimension.type) {
-          case '':
+          case 'NodeAvailability':
+            targetUuid = dimension.clusterUUID
             break
-
-        }
-        break;
-      case 'System/Cloud DB for Redis(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
-        break;
-      case 'System/Cloud DB for MongoDB(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
-        break;
-      case 'System/Cloud DB for PostgreSQL(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
-        break;
-      case 'System/Cloud Hadoop(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
         }
         break;
       case 'System/Auto Scaling(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
+        targetUuid = dimension.autoScalingGroupNo
         break;
       case 'System/Kubernetes Service(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
-        break;
-      case 'System/Search Engine Service(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
-        break;
-      case 'System/Cloud Data Streaming Service(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
-        break;
-      case 'System/NAS(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
-        break;
-      case 'System/CLOVA NSML(VPC)':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
-        break;
-      case 'System/Server':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
+        targetUuid = dimension.serverInstanceNo
         break;
       case 'System/Load Balancer':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
-        break;
-      case 'System/NAS':
-        switch (dimension.type) {
-          case '':
-            break
-
-        }
+        targetUuid = dimension.instanceId
         break;
     }
 
     return targetUuid
-}
+  }
 
 }
 
