@@ -440,6 +440,104 @@ class resourceService {
     await mysqlConnection.end();
     return 'successful DB update ';
   }
+
+  public async massUploadNCPEvent(resourceEventData: IRequestMassUploader): Promise<string> {
+    //console.log(resourceEventData);
+    const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const sizeOfInput = resourceEventData.resource.length;
+
+    //1. validate ResourceGroup
+    const resourceGroupUuid = resourceEventData.resource_Group_Uuid;
+    const resourceType = resourceEventData.resource_Type;
+    const responseResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: {resourceGroupUuid: resourceGroupUuid, deletedAt: null} });
+    if (!responseResourceGroup) {
+      throw new HttpException(400, 'resourceGroup not found');
+    }
+
+    const customerAccountKey = responseResourceGroup.customerAccountKey;
+    const resourceGroupKey = responseResourceGroup.resourceGroupKey;
+
+    //2. prepare for sql
+    const query1 = `INSERT IGNORE INTO ResourceEvent (
+            resource_event_id,
+            created_by,
+            created_at,
+            resource_event_name,
+            resource_event_description,
+            resource_event_type,
+            resource_event_target_created_at,
+            resource_event_target_uuid,
+            resource_event_involved_object_kind,
+            resource_event_involved_object_name,
+            resource_event_reason,
+            resource_event_first_timestamp,
+            resource_event_last_timestamp,
+            customer_account_key,
+            resource_group_uuid,
+            resource_group_key,
+            resource_key,
+            resource_event_content
+            ) VALUES ?
+            `;
+
+    const query2 = [];
+    for (let i = 0; i < sizeOfInput; i++) {
+      const resource_event_target_created_at = new Date(resourceEventData.resource[i].resource_Target_Created_At);
+      let resource_event_first_timestamp = new Date(resourceEventData.resource[i].resource_event_first_timestamp);
+      if (resource_event_first_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_first_timestamp = resource_event_target_created_at;
+      let resource_event_last_timestamp = new Date(resourceEventData.resource[i].resource_event_last_timestamp);
+      if (resource_event_last_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_last_timestamp = resource_event_target_created_at;
+
+
+
+      let resourceKey = null;
+
+      query2[i] = [
+        resourceEventData.resource[i].resource_event_id,
+        'SYSTEM', // created_By
+        currentTime, //created_At
+        resourceEventData.resource[i].resource_Name,
+        resourceEventData.resource[i].resource_Description || 'No description provided',
+        resourceEventData.resource[i].resource_event_type,
+        resource_event_target_created_at,
+        resourceEventData.resource[i].resource_Target_Uuid,
+        resourceEventData.resource[i].resource_event_involved_object_kind,
+        resourceEventData.resource[i].resource_event_involved_object_name,
+        resourceEventData.resource[i].resource_event_reason,
+        resource_event_first_timestamp,
+        resource_event_last_timestamp,
+        customerAccountKey, //customer_Account_Key
+        resourceGroupUuid, //resource_Group_uuid 17 total columns
+        resourceGroupKey,
+        resourceKey,
+        resourceEventData.resource[i].resource_Spec,
+      ];
+    }
+    //console.log(query1);
+    //console.log(query2);
+    //3. DB insert
+    const mysql = require('mysql2/promise');
+    const mysqlConnection = await mysql.createConnection({
+      host: config.db.mariadb.host,
+      user: config.db.mariadb.user,
+      port: config.db.mariadb.port || 3306,
+      password: config.db.mariadb.password,
+      database: config.db.mariadb.dbName,
+      multipleStatements: true,
+    });
+    await mysqlConnection.query('START TRANSACTION');
+    try {
+      await mysqlConnection.query(query1, [query2]);
+      await mysqlConnection.query('COMMIT');
+    } catch (err) {
+      await mysqlConnection.query('ROLLBACK');
+      await mysqlConnection.end();
+      console.info('Rollback successful');
+      throw `${err}error on sql execution: ${resourceType}`;
+    }
+    await mysqlConnection.end();
+    return 'successful DB update ';
+  }
 }
 
 export default resourceService;
