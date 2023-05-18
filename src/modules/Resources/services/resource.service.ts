@@ -29,11 +29,11 @@ class resourceService {
     }
 
     try {
-      if (queryResult.resourceType === 'EV') {
+      if (queryResult.resourceType === 'EV' && totalMsg.template_uuid === '00000000000000000000000000000008') {
         resultMsg = await this.massUploadK8SEvent(JSON.parse(queryResult.message))
 
-      } else {
-        resultMsg = await this.massUploadResource(JSON.parse(queryResult.message))
+      } else if (queryResult.resourceType === 'NCPEV' && totalMsg.template_uuid === '70000000000000000000000000000033') {
+        resultMsg = await this.massUploadNCPEvent(JSON.parse(queryResult.message))
       }
 
       console.log(`success to upload resource(${queryResult.resourceType}).`)
@@ -472,11 +472,11 @@ class resourceService {
             resource_event_reason,
             resource_event_first_timestamp,
             resource_event_last_timestamp,
+            resource_event_content,
             customer_account_key,
             resource_group_uuid,
             resource_group_key,
-            resource_key,
-            resource_event_content
+            resource_key
             ) VALUES ?
             `;
 
@@ -506,11 +506,11 @@ class resourceService {
         resourceEventData.resource[i].resource_event_reason,
         resource_event_first_timestamp,
         resource_event_last_timestamp,
+        resourceEventData.resource[i].resource_Spec,
         customerAccountKey, //customer_Account_Key
         resourceGroupUuid, //resource_Group_uuid 17 total columns
         resourceGroupKey,
-        resourceKey,
-        resourceEventData.resource[i].resource_Spec,
+        resourceKey
       ];
     }
     //console.log(query1);

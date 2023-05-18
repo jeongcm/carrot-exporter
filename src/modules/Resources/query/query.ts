@@ -35,11 +35,13 @@ import CloudDBMongoDBService from "@modules/Resources/query/ncp/cloudDB/mongoDB"
 import CloudDBRedisService from "@modules/Resources/query/ncp/cloudDB/redis";
 import CloudDBPostgresqlService from "@modules/Resources/query/ncp/cloudDB/pgsql";
 import { HttpException } from "@common/exceptions/HttpException";
+import EventService from "@modules/Resources/query/ncp/event/event";
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService()
   public cloudDBMongoDBService = new CloudDBMongoDBService()
   public cloudDBRedisService = new CloudDBRedisService()
   public cloudDBPostgresqlService = new CloudDBPostgresqlService()
+  public ncpEventService = new EventService()
 
   public async getResourceQuery(totalMsg, clusterUuid) {
     let queryResult = {};
@@ -139,6 +141,9 @@ class QueryService {
         break;
       case '70000000000000000000000000000065':
         queryResult = await getInitScriptListQuery(result, clusterUuid)
+        break;
+      case '70000000000000000000000000000033':
+        queryResult = await this.ncpEventService.getSearchEventListQuery(result, clusterUuid)
         break;
       case '70000000000000000000000000000040':
         queryResult = await getContractDemandCostQuery(result, clusterUuid);

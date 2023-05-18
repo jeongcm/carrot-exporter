@@ -1,12 +1,12 @@
 import formatter_resource from "@common/utils/formatter";
 
 class EventService {
-  public async getEventListQuery(result, clusterUuid) {
+  public async getSearchEventListQuery(result, clusterUuid) {
     let query = {};
     let mergedQuery = {};
     let tempQuery = {};
 
-    let resourceType = "EV"; // 안쓰임 query 만들때 사용만 하고 resourceEvent 에 upload 되진 않음
+    let resourceType = "NCPEV"; // 안쓰임 query 만들때 사용만 하고 resourceEvent 에 upload 되진 않음
     let resultLength = result.events.length;
 
     for (let i = 0; i < resultLength; i++)
