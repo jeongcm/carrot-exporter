@@ -34,6 +34,8 @@ class resourceService {
 
       } else if (queryResult.resourceType === 'NCPEV' && totalMsg.template_uuid === '70000000000000000000000000000033') {
         resultMsg = await this.massUploadNCPEvent(JSON.parse(queryResult.message))
+      } else {
+          resultMsg = await this.massUploadResource(JSON.parse(queryResult.message))
       }
 
       console.log(`success to upload resource(${queryResult.resourceType}).`)
