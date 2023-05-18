@@ -58,6 +58,7 @@ export interface IRequestMassUploader {
     resource_event_last_timestamp: Date;
     resource_event_count: number;
     resource_event_type: string;
+    resource_event_id: string;
     resource_App: string;
   }[];
 }
