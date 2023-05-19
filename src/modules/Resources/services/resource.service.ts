@@ -8,6 +8,7 @@ import { IPartyUser } from '@/common/interfaces/party.interface';
 import QueryService from "@modules/Resources/query/query";
 import { HttpException } from "@common/exceptions/HttpException";
 import mysql from "mysql2/promise";
+import { IResourceEvent } from "@common/interfaces/resourceEvent.interface";
 
 const uuid = require('uuid');
 
@@ -17,6 +18,7 @@ class resourceService {
 
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
+  public resourceEvent = DB.ResourceEvent;
   public partyUser = DB.PartyUser;
 
   public async uploadResource(totalMsg) {
@@ -459,8 +461,34 @@ class resourceService {
     const customerAccountKey = responseResourceGroup.customerAccountKey;
     const resourceGroupKey = responseResourceGroup.resourceGroupKey;
 
+    //find exist event, and delete insert
+    const currentResourceFiltered: IResourceEvent[] = await this.resourceEvent.findAll({
+      where: { resourceGroupUuid, deletedAt: null },
+      attributes: ['resourceEventTargetUuid', 'deletedAt'],
+    });
+
+    const sizeOfCurrentResource = currentResourceFiltered.length;
+
+    const currentResource = [];
+    for (let i = 0; i < sizeOfCurrentResource; i++) {
+      currentResource[i] = currentResourceFiltered[i].resourceEventTargetUuid;
+    }
+
+    //console.log("********in db********************")
+    //console.log(currentResource);
+    const newResourceReceived = [];
+    for (let i = 0; i < sizeOfInput; i++) {
+      newResourceReceived[i] = resourceEventData.resource[i].resource_Target_Uuid;
+    }
+    //console.log("********in msg********************")
+    //console.log(newResourceReceived);
+
+    // filter only for the resource that is needed to be deleted softly.
+    const difference = currentResource.filter(o1 => !newResourceReceived.includes(o1));
+    const lengthOfDifference = difference.length;
+
     //2. prepare for sql
-    const query1 = `INSERT IGNORE INTO ResourceEvent (
+    const query1 = `INSERT INTO ResourceEvent (
             resource_event_id,
             created_by,
             created_at,
@@ -480,6 +508,8 @@ class resourceService {
             resource_group_key,
             resource_key
             ) VALUES ?
+            ON DUPLICATE KEY UPDATE
+            resource_event_id=VALUES(resource_event_id)
             `;
 
     const query2 = [];
@@ -489,7 +519,6 @@ class resourceService {
       if (resource_event_first_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_first_timestamp = resource_event_target_created_at;
       let resource_event_last_timestamp = new Date(resourceEventData.resource[i].resource_event_last_timestamp);
       if (resource_event_last_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_last_timestamp = resource_event_target_created_at;
-
 
 
       let resourceKey = null;
@@ -508,7 +537,7 @@ class resourceService {
         resourceEventData.resource[i].resource_event_reason,
         resource_event_first_timestamp,
         resource_event_last_timestamp,
-        resourceEventData.resource[i].resource_Spec,
+        JSON.stringify(resourceEventData.resource[i].resource_Spec),
         customerAccountKey, //customer_Account_Key
         resourceGroupUuid, //resource_Group_uuid 17 total columns
         resourceGroupKey,
@@ -529,8 +558,11 @@ class resourceService {
     });
     await mysqlConnection.query('START TRANSACTION');
     try {
+      console.log(query2)
+
       await mysqlConnection.query(query1, [query2]);
       await mysqlConnection.query('COMMIT');
+
     } catch (err) {
       await mysqlConnection.query('ROLLBACK');
       await mysqlConnection.end();
