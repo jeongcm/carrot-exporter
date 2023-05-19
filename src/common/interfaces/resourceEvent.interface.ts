@@ -18,6 +18,7 @@ export interface IResourceEvent {
   resourceEventLastTimestamp: Date;
   resourceEventCount: number;
   resourceEventContent: any;
+  resourceEventPlatformUuid: string;
   customerAccountKey: number;
   resourceGroupUuid: string;
   resourceKey: number;
