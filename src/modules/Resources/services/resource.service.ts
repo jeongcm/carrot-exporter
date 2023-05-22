@@ -422,7 +422,6 @@ class resourceService {
     //console.log(query1);
     //console.log(query2);
     //3. DB insert
-    const mysql = require('mysql2/promise');
     const mysqlConnection = await mysql.createConnection({
       host: config.db.mariadb.host,
       user: config.db.mariadb.user,
@@ -488,7 +487,7 @@ class resourceService {
     const lengthOfDifference = difference.length;
 
     //2. prepare for sql
-    const query1 = `INSERT INTO ResourceEvent (
+    const query1 = `INSERT IGNORE INTO ResourceEvent (
             resource_event_id,
             created_by,
             created_at,
@@ -508,12 +507,12 @@ class resourceService {
             resource_group_key,
             resource_key
             ) VALUES ?
-            ON DUPLICATE KEY UPDATE
-            resource_event_id=VALUES(resource_event_id)
             `;
 
     const query2 = [];
     for (let i = 0; i < sizeOfInput; i++) {
+      const uuid = require('uuid');
+      const resource_event_id = uuid.v1();
       const resource_event_target_created_at = new Date(resourceEventData.resource[i].resource_Target_Created_At);
       let resource_event_first_timestamp = new Date(resourceEventData.resource[i].resource_event_first_timestamp);
       if (resource_event_first_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_first_timestamp = resource_event_target_created_at;
@@ -524,7 +523,7 @@ class resourceService {
       let resourceKey = null;
 
       query2[i] = [
-        resourceEventData.resource[i].resource_event_id,
+        resource_event_id,
         'SYSTEM', // created_By
         currentTime, //created_At
         resourceEventData.resource[i].resource_Name,
@@ -547,7 +546,6 @@ class resourceService {
     //console.log(query1);
     //console.log(query2);
     //3. DB insert
-    const mysql = require('mysql2/promise');
     const mysqlConnection = await mysql.createConnection({
       host: config.db.mariadb.host,
       user: config.db.mariadb.user,
@@ -558,8 +556,6 @@ class resourceService {
     });
     await mysqlConnection.query('START TRANSACTION');
     try {
-      console.log(query2)
-
       await mysqlConnection.query(query1, [query2]);
       await mysqlConnection.query('COMMIT');
 
