@@ -517,7 +517,7 @@ class resourceService {
       let resource_event_first_timestamp = new Date(resourceEventData.resource[i].resource_event_first_timestamp);
       if (resource_event_first_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_first_timestamp = resource_event_target_created_at;
       let resource_event_last_timestamp = new Date(resourceEventData.resource[i].resource_event_last_timestamp);
-      if (resource_event_last_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_last_timestamp = resource_event_target_created_at;
+      if (resource_event_last_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_last_timestamp = null;
 
 
       let resourceKey = null;
