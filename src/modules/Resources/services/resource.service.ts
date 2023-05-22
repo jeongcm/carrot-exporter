@@ -558,8 +558,6 @@ class resourceService {
     });
     await mysqlConnection.query('START TRANSACTION');
     try {
-      console.log(query2)
-
       await mysqlConnection.query(query1, [query2]);
       await mysqlConnection.query('COMMIT');
 
