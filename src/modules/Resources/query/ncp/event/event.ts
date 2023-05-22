@@ -13,7 +13,7 @@ class EventService {
     {
       query['resource_Group_Uuid'] = clusterUuid;
       query['resource_Name'] = result.events[i].ruleName + '.' + result.events[i].eventId;
-      query['resource_event_description'] = result.events[i].describe; // resource Event Id
+      query['resource_Description'] = result.events[i].describe; // resource Event Id
       query['resource_event_type'] = result.events[i].eventLevel;
       query['resource_Target_Uuid'] = this.getResourceEventTargetUuid(result.events[i].prodName, result.events[i].dimension);
       query['resource_Target_Created_At'] = result.events[i].startTime;
