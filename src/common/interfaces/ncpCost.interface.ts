@@ -64,6 +64,7 @@ export interface IContractProduct {
   product_size: number;
   product_count: number;
   contract_no: string;
+  contract_demand_cost_sequence: number;
 }
 [];
 
@@ -80,5 +81,80 @@ export interface IUsage {
   user_unit_code_name: string;
   contract_no: string;
   contract_product_sequence: number;
+}
+[];
+
+export interface IProductPrice {
+  product_item_kind_code: string;
+  product_item_kind_code_name: string;
+  product_item_kind_detail_code: string;
+  product_item_kind_detail_code_name: string;
+  product_code: string;
+  product_code_name: string;
+  product_description: string;
+  software_type_code: string;
+  software_type_code_name: string;
+  product_type_code: string;
+  product_type_code_name: string;
+  gpu_count: number;
+  cpu_count: number;
+  memory_size: number;
+  base_block_storage_size: number;
+  db_kind_code: string;
+  db_kind_code_name: string;
+  os_information: string;
+  platform_type_code: string;
+  platform_type_code_name: string;
+  os_type_code: string;
+  os_type_code_name: string;
+  platform_category_code: string;
+  disk_type_code: string;
+  disk_type_code_name: string;
+  disk_detail_type_code: string;
+  disk_detail_type_code_name: string;
+  generation_code: string;
+  price_no: string;
+  promise_list: string;
+  period_unit_list: string;
+  country_unit_list: string;
+  package_unit_list: string;
+}
+[];
+
+export interface IPrice {
+  price_no: string;
+  price_type_code: string;
+  price_type_code_name: string;
+  region: string;
+  charging_unit_type_code: string;
+  charging_unit_type_code_name: string;
+  rating_unit_type_code: string;
+  rating_unit_type_code_name: string;
+  product_type_code_name: string;
+  charging_unit_basic_value: number;
+  product_rating_type_code: string;
+  product_rating_type_code_name: string;
+  unit_code: string;
+  unit_code_name: string;
+  price: number;
+  promise_list: string;
+  condition_type_code: string;
+  condition_type_code_name: string;
+  condition_price: number;
+  price_description: string;
+  free_unit_code: string;
+  free_unit_code_name: string;
+  free_value: number;
+  metering_unit_code: string;
+  metering_unit_code_name: string;
+  start_date: string;
+  price_attribute_code: string;
+  price_attribute_code_name: string;
+  price_version_name: string;
+  pay_currency_code: string;
+  pay_currency_code_name: string;
+  period_unit_list: string;
+  country_unit_list: string;
+  package_unit_list: string;
 }
 [];

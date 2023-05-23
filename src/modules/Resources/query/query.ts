@@ -34,6 +34,7 @@ import getCloudDBMysqlInstanceListQuery from '@modules/Resources/query/ncp/cloud
 import getCloudDBPostgresqlInstanceListQuery from '@modules/Resources/query/ncp/cloudDB/pgsql';
 import getCloudDBMongoDbInstanceListQuery from '@modules/Resources/query/ncp/cloudDB/mongoDB';
 import getCloudDBRedisInstanceListQuery from '@modules/Resources/query/ncp/cloudDB/redis';
+import getProductPriceQuery from '@modules/Cost/query/ncp/productPrice';
 
 class QueryService {
   public async getResourceQuery(totalMsg, clusterUuid) {
@@ -130,27 +131,31 @@ class QueryService {
         queryResult = await getServerImageProductListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000066':
-        queryResult = await getPlacementGroupListQuery(result, clusterUuid)
+        queryResult = await getPlacementGroupListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000065':
-        queryResult = await getInitScriptListQuery(result, clusterUuid)
+        queryResult = await getInitScriptListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000040':
         queryResult = await getContractDemandCostQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000042':
         queryResult = await getContractUsageQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000043':
+        queryResult = await getProductPriceQuery(result, clusterUuid);
+        break;
       case 'NCM00000000000000000000000000006':
-        queryResult = await getCloudDBMysqlInstanceListQuery(result, clusterUuid)
+        queryResult = await getCloudDBMysqlInstanceListQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000007':
-        queryResult = await getCloudDBMongoDbInstanceListQuery(result, clusterUuid)
+        queryResult = await getCloudDBMongoDbInstanceListQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000008':
-        queryResult = await getCloudDBRedisInstanceListQuery(result, clusterUuid)
+        queryResult = await getCloudDBRedisInstanceListQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000009':
-        queryResult = await getCloudDBPostgresqlInstanceListQuery(result, clusterUuid)
+        queryResult = await getCloudDBPostgresqlInstanceListQuery(result, clusterUuid);
         break;
     }
 

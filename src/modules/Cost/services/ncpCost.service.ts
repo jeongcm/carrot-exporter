@@ -1,14 +1,20 @@
-import { IContract, IContractDemandCost, IContractProduct, IUsage } from '@/common/interfaces/ncpCost.interface';
+import { IContract, IContractDemandCost, IContractProduct, IPrice, IProductPrice, IUsage } from '@/common/interfaces/ncpCost.interface';
 import DB from '@/database';
 import config from '@config/index';
 import mysql from 'mysql2/promise';
 import QueryService from '@modules/Resources/query/query';
+import { IPartyUser } from '@/common/interfaces/party.interface';
+
 class NcpCostService {
   public queryService = new QueryService();
+  public partyUser = DB.PartyUser;
 
-  /* 
-  
-  */
+  currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+  public async findUser() {
+    const findSystemUser: IPartyUser = await this.partyUser.findOne({ where: { userId: config.partyUser.userId } });
+    return findSystemUser;
+  }
   public async uploadNcpContractDemandCost(totalMsg) {
     let queryResult: any;
     let resultMsg: any;
@@ -29,7 +35,7 @@ class NcpCostService {
       // resultMsg = await this.uploadContract(result.contractList);
 
       //Insert TB_CONTRACT_DEMAND_PRODUCT
-      resultMsg = await this.uploadContractProduct(result.contractProductList);
+      resultMsg = await this.uploadContractDemandProduct(result.contractProductList);
       console.log(`success to upload contractProduct(${queryResult.resourceType}).`);
 
       return resultMsg;
@@ -64,6 +70,31 @@ class NcpCostService {
       return resultMsg;
     } catch (err) {
       console.log(`failed to upload contractDemandCost(${queryResult.resourceType}. cause: ${err})`);
+      return err;
+    }
+  }
+
+  public async uploadNcpProductPrice(totalMsg) {
+    let queryResult: any;
+    let resultMsg: any;
+    queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+
+    const result = JSON.parse(queryResult.message);
+    if (Object.keys(queryResult.message).length === 0) {
+      console.log(`skip to upload ncpResourceGroup(${queryResult.resourceType}). cause: empty list`);
+      return 'empty list';
+    }
+
+    try {
+      //Insert TB_CONTRACT
+      resultMsg = await this.uploadProductPrice(result.productPriceList);
+      console.log(`success to upload productPrice(${queryResult.resourceType}).`);
+      //Insert TB_USAGE
+      resultMsg = await this.uploadPrice(result.priceList);
+      console.log(`success to upload price(${queryResult.resourceType}).`);
+      return resultMsg;
+    } catch (err) {
+      console.log(`failed to upload productPrice(${queryResult.resourceType}. cause: ${err})`);
       return err;
     }
   }
@@ -135,8 +166,7 @@ class NcpCostService {
 
     for (let i = 0; i < contractDemandCostData?.length; i++) {
       contractDemandCostValue[i] = [
-        i,
-        // data[i].contract_demand_cost_sequence,
+        contractDemandCostData[i].contract_demand_cost_sequence,
         contractDemandCostData[i].member_no,
         contractDemandCostData[i].region_code,
         contractDemandCostData[i].demand_type_code,
@@ -376,7 +406,8 @@ class NcpCostService {
                               service_end_date,
                               product_size,
                               product_count,
-                              contract_no
+                              contract_no,
+                              contract_demand_cost_sequence
                             ) VALUES ?
                             ON DUPLICATE KEY UPDATE
                             contract_product_sequence=VALUES(contract_product_sequence),
@@ -395,7 +426,8 @@ class NcpCostService {
                             service_end_date=VALUES(service_end_date),
                             product_size=VALUES(product_size),
                             product_count=VALUES(product_count),
-                            contract_no=VALUES(contract_no)
+                            contract_no=VALUES(contract_no),
+                            contract_demand_cost_sequence=VALUES(contract_demand_cost_sequence)
                             `;
 
     const contractProductValue = [];
@@ -419,6 +451,7 @@ class NcpCostService {
         contractDemandProduct[i].product_size,
         contractDemandProduct[i].product_count,
         contractDemandProduct[i].contract_no,
+        contractDemandProduct[i].contract_demand_cost_sequence,
       ];
     }
 
@@ -517,5 +550,283 @@ class NcpCostService {
 
     return 'successful DB update ';
   }
+
+  public async uploadProductPrice(productPriceData: IProductPrice[]): Promise<string> {
+    const productPriceQuery = `INSERT INTO claiops_test.TB_PRODUCT (
+                    product_item_kind_code,
+                    product_item_kind_code_name,
+                    product_item_kind_detail_code,
+                    product_item_kind_detail_code_name,
+                    product_code,
+                    product_name,
+                    product_description,
+                    software_type_code,
+                    software_type_code_name,
+                    product_type_code,
+                    product_type_code_name,
+                    gpu_count,
+                    cpu_count,
+                    memory_size,
+                    base_block_storage_size,
+                    db_kind_code,
+                    db_kind_code_name,
+                    os_information,
+                    platform_type_code,
+                    platform_type_code_name,
+                    os_type_code,
+                    os_type_code_name,
+                    platform_category_code,
+                    disk_type_code,
+                    disk_type_code_name,
+                    disk_detail_type_code,
+                    disk_detail_type_code_name,
+                    generation_code,
+                    price_no,
+                    created_by,
+                    created_at,
+                    updated_by,
+                    updated_at
+                  ) VALUES ?
+                  ON DUPLICATE KEY UPDATE
+                    product_item_kind_code=VALUES(product_item_kind_code),
+                    product_item_kind_code_name=VALUES(product_item_kind_code_name),
+                    product_item_kind_detail_code=VALUES(product_item_kind_detail_code),
+                    product_item_kind_detail_code_name=VALUES(product_item_kind_detail_code_name),
+                    product_code=VALUES(product_code),
+                    product_name=VALUES(product_name),
+                    product_description=VALUES(product_description),
+                    software_type_code=VALUES(software_type_code),
+                    software_type_code_name=VALUES(software_type_code_name),
+                    product_type_code=VALUES(product_type_code),
+                    product_type_code_name=VALUES(product_type_code_name),
+                    gpu_count=VALUES(gpu_count),
+                    cpu_count=VALUES(cpu_count),
+                    memory_size=VALUES(memory_size),
+                    base_block_storage_size=VALUES(base_block_storage_size),
+                    db_kind_code=VALUES(db_kind_code),
+                    db_kind_code_name=VALUES(db_kind_code_name),
+                    os_information=VALUES(os_information),
+                    platform_type_code=VALUES(platform_type_code),
+                    platform_type_code_name=VALUES(platform_type_code_name),
+                    os_type_code=VALUES(os_type_code),
+                    os_type_code_name=VALUES(os_type_code_name),
+                    platform_category_code=VALUES(platform_category_code),
+                    disk_type_code=VALUES(disk_type_code),
+                    disk_type_code_name=VALUES(disk_type_code_name),
+                    disk_detail_type_code=VALUES(disk_detail_type_code),
+                    disk_detail_type_code_name=VALUES(disk_detail_type_code_name),
+                    generation_code=VALUES(generation_code),
+                    price_no=VALUES(price_no),
+                    created_by=VALUES(created_by),
+                    created_at=VALUES(created_at),
+                    updated_by=VALUES(updated_by),
+                    updated_at=VALUES(updated_at)
+                  `;
+
+    const productPriceValue = [];
+
+    for (let i = 0; i < productPriceData?.length; i++) {
+      productPriceValue[i] = [
+        productPriceData[i].product_item_kind_code,
+        productPriceData[i].product_item_kind_code_name,
+        productPriceData[i].product_item_kind_detail_code,
+        productPriceData[i].product_item_kind_detail_code_name,
+        productPriceData[i].product_code,
+        productPriceData[i].product_code_name,
+        productPriceData[i].product_description,
+        productPriceData[i].software_type_code,
+        productPriceData[i].software_type_code_name,
+        productPriceData[i].product_type_code,
+        productPriceData[i].product_type_code_name,
+        productPriceData[i].gpu_count,
+        productPriceData[i].cpu_count,
+        productPriceData[i].memory_size,
+        productPriceData[i].base_block_storage_size,
+        productPriceData[i].db_kind_code,
+        productPriceData[i].db_kind_code_name,
+        productPriceData[i].os_information,
+        productPriceData[i].platform_type_code,
+        productPriceData[i].platform_type_code_name,
+        productPriceData[i].os_type_code,
+        productPriceData[i].os_type_code_name,
+        productPriceData[i].platform_category_code,
+        productPriceData[i].disk_type_code,
+        productPriceData[i].disk_type_code_name,
+        productPriceData[i].disk_detail_type_code,
+        productPriceData[i].disk_detail_type_code_name,
+        productPriceData[i].generation_code,
+        productPriceData[i].price_no,
+        'Aggregator',
+        this.currentTime,
+        'Aggregator',
+        this.currentTime,
+      ];
+    }
+
+    const mysqlConnection = await mysql.createConnection({
+      host: config.db.mariadb.host,
+      user: config.db.mariadb.user,
+      port: config.db.mariadb.port || 3306,
+      password: config.db.mariadb.password,
+      // database: config.db.mariadb.dbName,
+      database: 'ops_api',
+      multipleStatements: true,
+    });
+
+    await mysqlConnection.query('START TRANSACTION');
+    try {
+      await mysqlConnection.query(productPriceQuery, [productPriceValue]);
+      await mysqlConnection.query('COMMIT');
+    } catch (err) {
+      await mysqlConnection.query('ROLLBACK');
+      await mysqlConnection.end();
+      console.info('Rollback successful');
+      throw `${err}`;
+    }
+    await mysqlConnection.end();
+
+    return 'successful DB update ';
+  }
+
+  public async uploadPrice(priceData: IPrice[]): Promise<string> {
+    const priceQuery = `INSERT INTO claiops_test.TB_PRICE (
+                    price_no,
+                    price_type_code,
+                    price_type_code_name,
+                    region,
+                    charging_unit_type_code,
+                    charging_unit_type_code_name,
+                    rating_unit_type_code,
+                    rating_unit_type_code_name,
+                    product_type_code_name,
+                    charging_unit_basic_value,
+                    product_rating_type_code,
+                    product_rating_type_code_name,
+                    unit_code,
+                    unit_code_name,
+                    price,
+                    condition_type_code,
+                    condition_type_code_name,
+                    condition_price,
+                    price_description,
+                    free_unit_code,
+                    free_unit_code_name,
+                    free_value,
+                    metering_unit_code,
+                    metering_unit_code_name,
+                    start_date,
+                    price_attribute_code,
+                    price_attribute_code_name,
+                    price_version_name,
+                    pay_currency_code,
+                    pay_currency_code_name,
+                    created_by,
+                    created_at,
+                    updated_by,
+                    updated_at
+                  ) VALUES ?
+                  ON DUPLICATE KEY UPDATE
+                    price_no=VALUES(price_no),
+                    price_type_code=VALUES(price_type_code),
+                    price_type_code_name=VALUES(price_type_code_name),
+                    region=VALUES(region),
+                    charging_unit_type_code=VALUES(charging_unit_type_code),
+                    charging_unit_type_code_name=VALUES(charging_unit_type_code_name),
+                    rating_unit_type_code=VALUES(rating_unit_type_code),
+                    rating_unit_type_code_name=VALUES(rating_unit_type_code_name),
+                    product_type_code_name=VALUES(product_type_code_name),
+                    charging_unit_basic_value=VALUES(charging_unit_basic_value),
+                    product_rating_type_code=VALUES(product_rating_type_code),
+                    product_rating_type_code_name=VALUES(product_rating_type_code_name),
+                    unit_code=VALUES(unit_code),
+                    unit_code_name=VALUES(unit_code_name),
+                    price=VALUES(price),
+                    condition_type_code=VALUES(condition_type_code),
+                    condition_type_code_name=VALUES(condition_type_code_name),
+                    condition_price=VALUES(condition_price),
+                    price_description=VALUES(price_description),
+                    free_unit_code=VALUES(free_unit_code),
+                    free_unit_code_name=VALUES(free_unit_code_name),
+                    free_value=VALUES(free_value),
+                    metering_unit_code=VALUES(metering_unit_code),
+                    metering_unit_code_name=VALUES(metering_unit_code_name),
+                    start_date=VALUES(start_date),
+                    price_attribute_code=VALUES(price_attribute_code),
+                    price_attribute_code_name=VALUES(price_attribute_code_name),
+                    price_version_name=VALUES(price_version_name),
+                    pay_currency_code=VALUES(pay_currency_code),
+                    pay_currency_code_name=VALUES(pay_currency_code_name),
+                    created_by=VALUES(created_by),
+                    created_at=VALUES(created_at),
+                    updated_by=VALUES(updated_by),
+                    updated_at=VALUES(updated_at)
+                  `;
+
+    const priceValue = [];
+
+    for (let i = 0; i < priceData?.length; i++) {
+      priceValue[i] = [
+        priceData[i].price_no,
+        priceData[i].price_type_code,
+        priceData[i].price_type_code_name,
+        priceData[i].region,
+        priceData[i].charging_unit_type_code,
+        priceData[i].charging_unit_type_code_name,
+        priceData[i].rating_unit_type_code,
+        priceData[i].rating_unit_type_code_name,
+        priceData[i].product_type_code_name,
+        priceData[i].charging_unit_basic_value,
+        priceData[i].product_rating_type_code,
+        priceData[i].product_rating_type_code_name,
+        priceData[i].unit_code,
+        priceData[i].unit_code_name,
+        priceData[i].price,
+        priceData[i].condition_type_code,
+        priceData[i].condition_type_code_name,
+        priceData[i].condition_price,
+        priceData[i].price_description,
+        priceData[i].free_unit_code,
+        priceData[i].free_unit_code_name,
+        priceData[i].free_value,
+        priceData[i].metering_unit_code,
+        priceData[i].metering_unit_code_name,
+        priceData[i].start_date,
+        priceData[i].price_attribute_code,
+        priceData[i].price_attribute_code_name,
+        priceData[i].price_version_name,
+        priceData[i].pay_currency_code,
+        priceData[i].pay_currency_code_name,
+        'Aggregator',
+        this.currentTime,
+        'Aggregator',
+        this.currentTime,
+      ];
+    }
+
+    const mysqlConnection = await mysql.createConnection({
+      host: config.db.mariadb.host,
+      user: config.db.mariadb.user,
+      port: config.db.mariadb.port || 3306,
+      password: config.db.mariadb.password,
+      // database: config.db.mariadb.dbName,
+      database: 'ops_api',
+      multipleStatements: true,
+    });
+
+    await mysqlConnection.query('START TRANSACTION');
+    try {
+      await mysqlConnection.query(priceQuery, [priceValue]);
+      await mysqlConnection.query('COMMIT');
+    } catch (err) {
+      await mysqlConnection.query('ROLLBACK');
+      await mysqlConnection.end();
+      console.info('Rollback successful');
+      throw `${err}`;
+    }
+    await mysqlConnection.end();
+
+    return 'successful DB update ';
+  }
 }
+
 export default NcpCostService;

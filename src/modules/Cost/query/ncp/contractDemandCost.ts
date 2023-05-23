@@ -19,6 +19,8 @@ export default async function getContractDemandCostQuery(result, clusterUuid) {
   const contractDemandCostLength = result?.getContractDemandCostListResponse?.contractDemandCostList?.length;
   for (let i = 0; i < contractDemandCostLength; i++) {
     contractDemandCostResult = result.getContractDemandCostListResponse?.contractDemandCostList[i];
+    //contract_demand_cost_sequence: auto increment 처리하기 애매,. 삭제하고 다시 적재하므로 여기서 시퀀스 생성성
+    contractDemandCostQuery['contract_demand_cost_sequence'] = i;
     contractDemandCostQuery['member_no'] = contractDemandCostResult.memberNo;
     contractDemandCostQuery['region_code'] = contractDemandCostResult.regionCode;
     contractDemandCostQuery['demand_type_code'] = contractDemandCostResult.demandType.code;
@@ -56,6 +58,9 @@ export default async function getContractDemandCostQuery(result, clusterUuid) {
       for (let j = 0; j < contractResult.contractProductList?.length; j++) {
         contractProductResult = contractResult?.contractProductList[j];
         contractProductQuery['contract_product_sequence'] = contractProductResult.contractProductSequence;
+        if ('' === contractProductResult.beforeContractProductSequence) {
+          contractProductResult.beforeContractProductSequence = null;
+        }
         contractProductQuery['before_contract_product_sequence'] = contractProductResult.beforeContractProductSequence;
         contractProductQuery['product_code'] = contractProductResult.productCode;
         contractProductQuery['price_no'] = contractProductResult.priceNo;
@@ -71,17 +76,16 @@ export default async function getContractDemandCostQuery(result, clusterUuid) {
         contractProductQuery['service_end_date'] = contractProductResult.serviceEndDate;
         contractProductQuery['product_size'] = contractProductResult.productSize;
         contractProductQuery['product_count'] = contractProductResult.productCount;
+        contractProductQuery['contract_demand_cost_sequence'] = i;
 
         //계약번호는 계약 List에서 추출
         contractProductQuery['contract_no'] = contractResult.contractNo;
 
         contractProductList += JSON.stringify(contractProductQuery);
         contractProductList += ',';
-
-        contractDemandCostQuery['contract_demand_product_info'] = JSON.stringify(contractProductResult);
       }
     }
-
+    contractDemandCostQuery['contract_demand_product_info'] = JSON.stringify(contractResult?.contractProductList);
     contractDemandCostList += JSON.stringify(contractDemandCostQuery);
 
     if (contractDemandCostLength > i + 1) {
