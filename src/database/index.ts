@@ -7,8 +7,9 @@ import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccou
 import ResourceModel from '@/modules/Resources/models/resource.model';
 import ResourceGroupModel from '@/modules/Resources/models/resourceGroup.model';
 import ResourceEventModel from '@modules/Resources/models/resourceEvent.model';
-import PartyModel from "@modules/Party/models/party.model";
-import PartyUserModel from "@modules/Party/models/partyUser.model";
+import PartyModel from '@modules/Party/models/party.model';
+import PartyUserModel from '@modules/Party/models/partyUser.model';
+import NcpResourceModel from '@/modules/Resources/models/ncp/ncpResource.model';
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -66,6 +67,8 @@ const DB = {
   ResourceEvent: ResourceEventModel(sequelize),
   Party: PartyModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
+  NcpResource: NcpResourceModel(sequelize),
+  NcpResourceGroup: NcpResourceModel(sequelize),
   sequelize, // connection instance (RAW queries)
 };
 

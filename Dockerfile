@@ -2,7 +2,7 @@
 FROM node:16-alpine as common-build-stage
 
 ENV WORKDIR=/usr/src/app/ \
-    NAME=nexclipper-api \
+    NAME=claion-aggregator \
     USER=nexclipperuser \
     USER_ID=1002 \
     GROUP=nexclipper
@@ -27,7 +27,7 @@ RUN addgroup ${GROUP} && \
 
 USER ${USER}
 
-EXPOSE 5001
+EXPOSE 6001
 
 ENV NODE_ENV production
 

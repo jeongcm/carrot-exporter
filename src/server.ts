@@ -1,21 +1,18 @@
 import './dotenvConfig';
 import App from './app';
-// import AlertRoute from '@/modules/Alert/routes/alert.route';
 import ResourceRoute from '@modules/Resources/routes/resource.route';
-// import massUploaderRoute from './modules/CommonService/routes/massUploader.route';
-// import massUploaderMongoRoute from './modules/CommonService/routes/massUploaderMongo.route';
-// import MetricRoute from './modules/Metric/routes/metric.route';
-
+import MetricRoute from './modules/Metric/routes/metric.route';
+import NcpRoute from '@modules/Resources/routes/ncp/ncp.route';
+import CostRoute from '@modules/Cost/routes/cost.route';
 const app = new App([
   // new AlertRoute(),
   new ResourceRoute(),
-  // new massUploaderRoute(),
-  // new massUploaderMongoRoute(),
-  // new MetricRoute(),
+  new MetricRoute(),
+  new NcpRoute(),
+  new CostRoute(),
 ]);
 
 app.listen();
-
 
 process.on('uncaughtException', function (err) {
   console.error(err.stack);
