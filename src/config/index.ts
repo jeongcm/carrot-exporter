@@ -11,7 +11,7 @@ import validateEnv from './validateEnv';
 validateEnv();
 
 export default {
-  appPort: process.env.CO_AGGREGATOR_PORT || 7001,
+  appPort: process.env.CO_AGGREGATOR_PORT || 6001,
   appUrl: process.env.CO_AGGREGATOR_URL || 'http://localhost',
   nodeEnv: process.env.CO_AGGREGATOR_ENV || 'development',
   maxApiBodySize: process.env.CO_MAX_API_BODY_SIZE || '50mb',
@@ -41,7 +41,7 @@ export default {
     CO_VM_SINGLE_ADDRESS: process.env.CO_VM_SINGLE_ADDRESS,
     CO_AGGREGATOR_VM_API: process.env.CO_AGGREGATOR_VM_API,
     vmSingleUrl: process.env.CO_AGGREGATOR_VM_SINGLE_ADDRESS || 'http://olly-dev-vm.claion.io:8428',
-    vmMultiUrl: process.env.CO_AGGREGATOR_VM_MULTI_ADDRESS || 'http://olly-dev-vmauth.claion.io:8427/api/v1/import?extra_label=clusterUuid=',
+    vmMultiUrl: process.env.CO_AGGREGATOR_VM_MULTI_ADDRESS || 'http://olly-dev-vmauth.claion.io:8427',
     vmImport: process.env.CO_AGGREGATOR_VM_IMPORT || '/api/v1/import?extra_label=clusterUuid=',
     vmMultiBaseUrlInsert:
       process.env.CO_VM_MULTI_BASE_URL_INSERT || 'http://vm-cluster-victoria-metrics-cluster-vminsert.vm-multi-tenant.svc.cluster.local:8480/insert',
@@ -51,7 +51,7 @@ export default {
     vmMultiNamespaces: process.env.CO_VM_MULTI_NAMESPACE || 'vm-multi-tenant',
     vmMultiSecret: process.env.CO_VM_MULTI_SECRET || 'vm-auth-victoria-metrics-auth',
     vmMultiClusterUuid: process.env.CO_VM_MULTI_CLUSTER_UUID,
-    vmOption: process.env.CO_VM_OPTION || 'SINGLE',
+    vmOption: process.env.CO_AGGREGATOR_VM_OPTION || 'SINGLE',
     vmOpenstackSwitch: process.env.CO_VM_OPENSTACK_SWITCH || 'off',
   },
 
@@ -59,12 +59,13 @@ export default {
     kpsNamespace: process.env.CO_KPS_NAMESPACE || 'monitor',
     prometheusUrlHead: process.env.CO_PROMETHEUS_URL_HEAD || 'http://kps-kube-prometheus-stack-prometheus.',
     prometheusUrlTail: process.env.CO_PROMETHEUS_URL_TAIL || '.svc.cluster.local:9090',
+    nodeExporterPort: process.env.NODE_EXPORTER_PORT || 9100,
   },
   oT: {
     oTTraceLogTurnOff: process.env.CO_TURN_OFF_TELEMETRY,
   },
 
   partyUser: {
-    userId: process.env.CO_AGGREGATOR_SYSTEM_PARTYUSER_USERID
+    userId: process.env.CO_AGGREGATOR_SYSTEM_PARTYUSER_USERID || 'system@claion.io'
   }
 };

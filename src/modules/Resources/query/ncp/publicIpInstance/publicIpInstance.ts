@@ -11,7 +11,7 @@ export default async function getPublicIpInstanceListQuery(result, clusterUuid) 
         query['resource_Type'] = resourceType;
         query['resource_Spec'] = result.getPublicIpInstanceListResponse?.publicIpInstanceList[i];
         query['resource_Group_Uuid'] = clusterUuid;
-        query['resource_Name'] = result.getPublicIpInstanceListResponse?.publicIpInstanceList[i]?.serverName;
+        query['resource_Name'] = result.getPublicIpInstanceListResponse?.publicIpInstanceList[i]?.publicIp;
         query['resource_Description'] = result.getPublicIpInstanceListResponse?.publicIpInstanceList[i]?.publicIpDescription;
         // query['resource_Instance'] =
         query['resource_Target_Uuid'] = result.getPublicIpInstanceListResponse?.publicIpInstanceList[i]?.publicIpInstanceNo;

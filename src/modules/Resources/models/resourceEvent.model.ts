@@ -5,7 +5,6 @@ export type ResourceEventCreationAttributes = Optional<
   IResourceEvent,
   | 'resourceEventKey'
   | 'resourceEventId'
-  | 'resourceEventKey'
   | 'resourceEventName'
   | 'resourceEventDescription'
   | 'resourceEventType'
@@ -22,6 +21,8 @@ export type ResourceEventCreationAttributes = Optional<
   | 'resourceEventFirstTimestamp'
   | 'resourceEventLastTimestamp'
   | 'resourceEventCount'
+  | 'resourceEventContent'
+  | 'resourceEventPlatformUuid'
   | 'customerAccountKey'
   | 'resourceGroupUuid'
   | 'resourceGroupKey'
@@ -55,6 +56,8 @@ export class ResourceEventModel extends Model<IResourceEvent, ResourceEventCreat
   public resourceEventFirstTimestamp: Date;
   public resourceEventLastTimestamp: Date;
   public resourceEventCount: number;
+  public resourceEventContent: any;
+  public resourceEventPlatformUuid: string;
   public customerAccountKey: number;
   public resourceGroupUuid: string;
   public resourceKey: number;
@@ -99,7 +102,6 @@ export default function (sequelize: Sequelize): typeof ResourceEventModel {
       resourceEventName: {
         allowNull: false,
         type: DataTypes.STRING(100),
-        unique: true,
       },
       resourceEventDescription: {
         allowNull: true,
@@ -167,6 +169,12 @@ export default function (sequelize: Sequelize): typeof ResourceEventModel {
       resourceEventCount: {
         type: DataTypes.INTEGER,
       },
+      resourceEventContent: {
+        type: DataTypes.JSON,
+      },
+      resourceEventPlatformUuid: {
+        type: DataTypes.STRING(100),
+      }
     },
     {
       indexes: [

@@ -1,4 +1,3 @@
-import ServiceExtension from '@/common/extentions/service.extension';
 import config from '@/config';
 import { isEmpty } from 'lodash';
 import { logger } from '@/common/utils/logger';
@@ -7,15 +6,12 @@ import { IResourceGroup } from "@common/interfaces/resourceGroup.interface";
 import { HttpException } from "@common/exceptions/HttpException";
 import { ICustomerAccount } from "@common/interfaces/customerAccount.interface";
 import DB from "@/database";
-class VictoriaMetricService extends ServiceExtension {
+class VictoriaMetricService {
   private vmUrl = config.victoriaMetrics.vmSingleUrl + config.victoriaMetrics.vmImport
   private vmMultiUrl = config.victoriaMetrics.vmMultiUrl + config.victoriaMetrics.vmImport
   public resourceGroup = DB.ResourceGroup;
   public customerAccount = DB.CustomerAccount;
   private vmOption = config.victoriaMetrics.vmOption ; //BOTH - both / SINGLE - single-tenant / MULTI - multi-tenant
-  constructor() {
-    super({});
-  }
 
   public async callVM (metricReceivedMassFeed, clusterUuid) {
     let result;

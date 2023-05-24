@@ -1,19 +1,3 @@
-export type Platform = 'AWS' | 'baremetal' | 'kubernetes' | 'openstack' | 'ncp';
-
-export type ChannelType = 'EMAIL' | 'SLACK' | 'WEBHOOK' | 'PAGEDUTY' | 'SMPT';
-
-export type LogType = 'INDEPENDENT' | 'CHAINED';
-
-export type LogOrigin = 'USER' | 'LARI' | 'SYSTEM';
-
-export type LogStatus = 'CLOSED' | 'HIDDEN' | 'OPEN' | 'REFERENCED';
-
-export type EventStatus = 'CLOSED' | 'HIDDEN' | 'OPEN' | 'REFERENCED';
-
-export type EventFrom = 'LARI' | 'PROMETHEUS';
-
-export type NotificationStatus = 'CR' | 'SM';
-
 export type ResourceType =
   | 'K8'
   | 'ND'
@@ -76,6 +60,3 @@ export type ResourceTypeLevel4 = 'WL' | 'SBN' | 'ACL' | 'RT' | 'LB' | 'TG';
 
 export type ResourceTypeLevel5 = 'VM' | 'NET' | 'ACG' | 'PIP' | 'BLS' | 'SS' | 'SIMG' | 'PLG' | 'INS' | 'DBMYQL' | 'DBPOQL' | 'DBMONG' | 'DBMSQL' | 'DBREDS' | 'NAS' | 'NASSS' | 'OBS' | 'NKS' | 'NKSNP' | 'NKSWN';
 
-export type incidentStatus = '3O' | '2I' | '1R' | '0C'; //30 Open| 2I In Progress| 1R Resolved| 0C Closed
-
-export type incidentSeverity = '3U' | '2H' | '1M' | '0L'; //3U Urgent| 2H High| 1M Medium| 0L Low
