@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import ResourceService from '@modules/Resources/services/ncp/resourceManager.service';
+import ResourceService from '@modules/Resources/services/resource.service';
 
 class ResourceController {
   public resourceService = new ResourceService();

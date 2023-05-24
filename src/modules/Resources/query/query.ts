@@ -28,8 +28,8 @@ import getJobListQuery from '@modules/Resources/query/k8s/job';
 import getCronJobListQuery from '@modules/Resources/query/k8s/cronJob';
 import getProjectListQuery from '@modules/Resources/query/openstack/project';
 import getVirtualMachineListQuery from '@modules/Resources/query/openstack/virtualMachine';
-import getResourceQuery from './ncp/resource/resource';
-import getResourceGroupQuery from './ncp/resourceGroup/resourceGroup';
+import getResourceQuery from '@modules/Resources/query/ncp/resource/resource';
+import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/resourceGroup';
 
 class QueryService {
   public async getResourceQuery(totalMsg, clusterUuid) {
@@ -134,7 +134,7 @@ class QueryService {
       case '70000000000000000000000000000029':
         queryResult = await getResourceQuery(result, clusterUuid);
         break;
-      case '70000000000000000000000000000030':
+      case 'NCM00000000000000000000000000014':
         queryResult = await getResourceGroupQuery(result, clusterUuid);
         break;
     }

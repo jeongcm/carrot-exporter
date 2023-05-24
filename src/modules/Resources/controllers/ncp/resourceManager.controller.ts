@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import NcpResourceService from '@/modules/Resources/services/ncp/resourceManager.service';
+import NcpResourceService from '@modules/Resources/services/ncp/resourceManager.service';
 
 class ResourceManagerController {
   public ncpResourceService = new NcpResourceService();
@@ -8,13 +8,13 @@ class ResourceManagerController {
     try {
       const totalMsg = req.body;
       let result: any;
-      console.log('???\n' + totalMsg);
-      console.log('리소스 들어옴 수도리테스트');
       //template_uuid로 서비스 분기 처리.
       if (totalMsg.template_uuid === '70000000000000000000000000000029') {
         result = await this.ncpResourceService.uploadNcpResource(totalMsg);
       } else if (totalMsg.template_uuid === '70000000000000000000000000000030') {
-        result = await this.ncpResourceService.uploadNcpResourceGroup(totalMsg);
+        result = await this.ncpResourceService.uploadNcpResourceGroupRelation(totalMsg);
+      } else if (totalMsg.template_uuid === 'NCM00000000000000000000000000014') {
+        result = await this.ncpResourceService.uploadNcpResourceGroupRelation(totalMsg);
       }
 
       if (result === 'empty list') {

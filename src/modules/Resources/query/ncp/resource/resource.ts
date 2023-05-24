@@ -4,7 +4,8 @@ export default async function getResourceQuery(result, clusterUuid) {
   const resourceType = 'NCP_RESOURCE'; //TODO 리소스 타입 정의 후 수정
   const resultLength = result.items?.length;
 
-  let tempQuery = '[';
+  let resourceList = '';
+
   for (let i = 0; i < resultLength; i++) {
     query['nrn'] = result.items[i].nrn;
     query['platform_type'] = result.items[i].platformType;
@@ -18,14 +19,14 @@ export default async function getResourceQuery(result, clusterUuid) {
     query['event_time'] = result.items[i].eventTime;
     query['resource_id'] = result.items[i].resourceId;
 
-    tempQuery += JSON.stringify(query);
-
+    resourceList += JSON.stringify(query);
     if (resultLength > i + 1) {
-      tempQuery += ',';
+      resourceList += ',';
     }
   }
-  tempQuery += ']';
 
-  //console.log('tempQuery :: \n' + tempQuery);
-  return { message: tempQuery, resourceType: resourceType };
+  resourceList = '{"resourceList": [' + resourceList + ']}';
+
+  // console.log('tempQuery :: \n' + resourceList);
+  return { message: resourceList, resourceType: resourceType };
 }

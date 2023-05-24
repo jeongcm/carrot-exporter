@@ -10,5 +10,10 @@ export interface INcpResource {
   resource_name: string;
   create_time: string;
   event_time: string;
+  created_by: string;
+  created_at: Date;
+  updated_by: string;
+  updated_at: Date;
+  deleted_at: Date;
 }
 [];
