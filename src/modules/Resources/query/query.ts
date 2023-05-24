@@ -30,18 +30,20 @@ import getProjectListQuery from '@modules/Resources/query/openstack/project';
 import getVirtualMachineListQuery from '@modules/Resources/query/openstack/virtualMachine';
 import getContractDemandCostQuery from '@/modules/Cost/query/ncp/contractDemandCost';
 import getContractUsageQuery from '@modules/Cost/query/ncp/contractUsage';
-import CloudDBMysqlService from "@modules/Resources/query/ncp/cloudDB/mysql";
-import CloudDBMongoDBService from "@modules/Resources/query/ncp/cloudDB/mongoDB";
-import CloudDBRedisService from "@modules/Resources/query/ncp/cloudDB/redis";
-import CloudDBPostgresqlService from "@modules/Resources/query/ncp/cloudDB/pgsql";
-import { HttpException } from "@common/exceptions/HttpException";
-import EventService from "@modules/Resources/query/ncp/event/event";
+import CloudDBMysqlService from '@modules/Resources/query/ncp/cloudDB/mysql';
+import CloudDBMongoDBService from '@modules/Resources/query/ncp/cloudDB/mongoDB';
+import CloudDBRedisService from '@modules/Resources/query/ncp/cloudDB/redis';
+import CloudDBPostgresqlService from '@modules/Resources/query/ncp/cloudDB/pgsql';
+import getResourceQuery from '@modules/Resources/query/ncp/resource/resource';
+import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/resourceGroup';
+import { HttpException } from '@common/exceptions/HttpException';
+import EventService from '@modules/Resources/query/ncp/event/event';
 class QueryService {
-  public cloudDBMysqlService = new CloudDBMysqlService()
-  public cloudDBMongoDBService = new CloudDBMongoDBService()
-  public cloudDBRedisService = new CloudDBRedisService()
-  public cloudDBPostgresqlService = new CloudDBPostgresqlService()
-  public ncpEventService = new EventService()
+  public cloudDBMysqlService = new CloudDBMysqlService();
+  public cloudDBMongoDBService = new CloudDBMongoDBService();
+  public cloudDBRedisService = new CloudDBRedisService();
+  public cloudDBPostgresqlService = new CloudDBPostgresqlService();
+  public ncpEventService = new EventService();
 
   public async getResourceQuery(totalMsg, clusterUuid) {
     let queryResult = {};
@@ -137,13 +139,13 @@ class QueryService {
         queryResult = await getServerImageProductListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000066':
-        queryResult = await getPlacementGroupListQuery(result, clusterUuid)
+        queryResult = await getPlacementGroupListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000065':
-        queryResult = await getInitScriptListQuery(result, clusterUuid)
+        queryResult = await getInitScriptListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000033':
-        queryResult = await this.ncpEventService.getSearchEventListQuery(result, clusterUuid)
+        queryResult = await this.ncpEventService.getSearchEventListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000040':
         queryResult = await getContractDemandCostQuery(result, clusterUuid);
@@ -152,31 +154,37 @@ class QueryService {
         queryResult = await getContractUsageQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000006':
-        queryResult = await this.cloudDBMysqlService.getCloudDBMysqlInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBMysqlService.getCloudDBMysqlInstanceListQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000007':
-        queryResult = await this.cloudDBMongoDBService.getCloudDBMongoDbInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBMongoDBService.getCloudDBMongoDbInstanceListQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000008':
-        queryResult = await this.cloudDBRedisService.getCloudDBRedisInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBRedisService.getCloudDBRedisInstanceListQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000009':
-        queryResult = await this.cloudDBPostgresqlService.getCloudDBPostgresqlInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBPostgresqlService.getCloudDBPostgresqlInstanceListQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000010':
-        queryResult = await this.cloudDBMysqlService.getCloudDBMysqlServerInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBMysqlService.getCloudDBMysqlServerInstanceListQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000011':
-        queryResult = await this.cloudDBMongoDBService.getCloudDBMongoDbServerInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBMongoDBService.getCloudDBMongoDbServerInstanceListQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000012':
-        queryResult = await this.cloudDBRedisService.getCloudDBRedisServerInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBRedisService.getCloudDBRedisServerInstanceListQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000013':
-        queryResult = await this.cloudDBPostgresqlService.getCloudDBPostgresqlServerInstanceListQuery(result, clusterUuid)
+        queryResult = await this.cloudDBPostgresqlService.getCloudDBPostgresqlServerInstanceListQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000029':
+        queryResult = await getResourceQuery(result, clusterUuid);
+        break;
+      case 'NCM00000000000000000000000000014':
+        queryResult = await getResourceGroupQuery(result, clusterUuid);
         break;
       default:
-        throw new HttpException(400, 'invalid template uuid')
+        throw new HttpException(400, 'invalid template uuid');
     }
 
     return queryResult;

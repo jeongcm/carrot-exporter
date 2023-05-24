@@ -6,7 +6,7 @@ import winstonDaily from 'winston-daily-rotate-file';
 // 1. As per Sebastian's decision, we are going to enforce /var/log path as default
 
 // logs dir
-const LOG_DIR = process.env.__ENV_ONLY_FOR_DEV_LOG_PATH || '/var/log';
+const LOG_DIR = process.env.__ENV_ONLY_FOR_DEV_LOG_PATH || 'C://Users//user//Desktop//Claion//log';
 
 if (!fs.existsSync(LOG_DIR)) {
   fs.mkdirSync(LOG_DIR);
