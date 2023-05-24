@@ -38,6 +38,8 @@ import getResourceQuery from '@modules/Resources/query/ncp/resource/resource';
 import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/resourceGroup';
 import { HttpException } from '@common/exceptions/HttpException';
 import EventService from '@modules/Resources/query/ncp/event/event';
+import getTargetGroupListQuery from '@modules/Resources/query/ncp/targetGroup/targetGroup';
+
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
   public cloudDBMongoDBService = new CloudDBMongoDBService();
@@ -137,6 +139,9 @@ class QueryService {
         break;
       case '70000000000000000000000000000005':
         queryResult = await getServerImageProductListQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000028':
+        queryResult = await getTargetGroupListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000066':
         queryResult = await getPlacementGroupListQuery(result, clusterUuid);
