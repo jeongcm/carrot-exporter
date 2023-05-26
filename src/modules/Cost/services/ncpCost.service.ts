@@ -1,4 +1,4 @@
-import { IContract, IContractDemandCost, IContractProduct, IUsage } from '@/common/interfaces/ncpCost.interface';
+import { IContract, IContractDemandCost, IContractProduct, IDemandCost, IUsage } from '@/common/interfaces/ncpCost.interface';
 import DB from '@/database';
 import config from '@config/index';
 import mysql from 'mysql2/promise';
@@ -6,9 +6,6 @@ import QueryService from '@modules/Resources/query/query';
 class NcpCostService {
   public queryService = new QueryService();
 
-  /* 
-  
-  */
   public async uploadNcpContractDemandCost(totalMsg) {
     let queryResult: any;
     let resultMsg: any;
@@ -52,7 +49,6 @@ class NcpCostService {
 
     try {
       //Insert TB_CONTRACT
-
       resultMsg = await this.uploadContract(result.contractList);
       console.log(`success to upload contract(${queryResult.resourceType}).`);
       //Insert TB_CONTRACT_PRODUCT
@@ -64,6 +60,26 @@ class NcpCostService {
       return resultMsg;
     } catch (err) {
       console.log(`failed to upload contractDemandCost(${queryResult.resourceType}. cause: ${err})`);
+      return err;
+    }
+  }
+
+  public async uploadNcpDemandCost(totalMsg) {
+    let queryResult: any;
+    let resultMsg: any;
+    queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+
+    const result = JSON.parse(queryResult.message);
+    if (Object.keys(queryResult.message).length === 0) {
+      console.log(`skip to upload demandCost(${queryResult.resourceType}). cause: empty list`);
+      return 'empty list';
+    }
+
+    try {
+      resultMsg = await this.uploadDemandCost(result.demandCostList);
+      console.log(`success to upload Demandcost(${queryResult.resourceType}).`);
+    } catch (err) {
+      console.log(`failed to upload Demandcost(${queryResult.resourceType}. cause: ${err})`);
       return err;
     }
   }
@@ -410,6 +426,152 @@ class NcpCostService {
     await mysqlConnection.query('START TRANSACTION');
     try {
       await mysqlConnection.query(usageQuery, [usageValue]);
+      await mysqlConnection.query('COMMIT');
+    } catch (err) {
+      await mysqlConnection.query('ROLLBACK');
+      await mysqlConnection.end();
+      console.info('Rollback successful');
+      throw `${err}`;
+    }
+    await mysqlConnection.end();
+
+    return 'successful DB update ';
+  }
+
+  public async uploadDemandCost(demandCostData: IDemandCost[]): Promise<string> {
+    const demandCostQuery = `INSERT INTO claiops_test.TB_DEMAND_COST (
+                              member_no,
+                              demand_month,
+                              demand_no,
+                              integration_demand_no,
+                              demand_attribute_code,
+                              demand_attribute_code_name,
+                              use_amount,
+                              promise_discount_amount,
+                              etc_discount_amount,
+                              customer_discount_amount,
+                              product_discount_amount,
+                              credit_discount_amount,
+                              rounddown_discount_amount,
+                              currency_discount_amount,
+                              coin_use_amount,
+                              default_amount,
+                              this_month_demand_amount,
+                              this_month_vat_ratio,
+                              this_month_vat_amount,
+                              this_month_amount_including_vat,
+                              total_demand_amount,
+                              is_paid_up,
+                              paid_up_date,
+                              overdue_occur_date,
+                              overdue_plus_amount,
+                              overdue_ratio,
+                              this_month_overdue_amount,
+                              before_month_demand_no,
+                              total_overdue_amount,
+                              write_date,
+                              member_price_discount_amount,
+                              member_promise_discount_add_amount,
+                              pay_currency_code,
+                              pay_currency_code_name,
+                              this_month_applied_exchange_rate,
+                              promotion_discount_amount
+                            ) VALUES ?
+                            ON DUPLICATE KEY UPDATE
+                              member_no=VALUES(member_no), 
+                              demand_month=VALUES(demand_month),
+                              demand_no=VALUES(demand_no),
+                              integration_demand_no=VALUES(integration_demand_no),
+                              demand_attribute_code=VALUES(demand_attribute_code),
+                              demand_attribute_code_name=VALUES(demand_attribute_code_name),
+                              use_amount=VALUES(use_amount),
+                              promise_discount_amount=VALUES(promise_discount_amount),
+                              etc_discount_amount=VALUES(etc_discount_amount),
+                              customer_discount_amount=VALUES(customer_discount_amount),
+                              product_discount_amount=VALUES(product_discount_amount),
+                              credit_discount_amount=VALUES(credit_discount_amount),
+                              rounddown_discount_amount=VALUES(rounddown_discount_amount),
+                              currency_discount_amount=VALUES(currency_discount_amount),
+                              coin_use_amount=VALUES(coin_use_amount),
+                              default_amount=VALUES(default_amount),
+                              this_month_demand_amount=VALUES(this_month_demand_amount),
+                              this_month_vat_ratio=VALUES(this_month_vat_ratio),
+                              this_month_vat_amount=VALUES(this_month_vat_amount),
+                              this_month_amount_including_vat=VALUES(this_month_amount_including_vat),
+                              total_demand_amount=VALUES(total_demand_amount),
+                              is_paid_up=VALUES(is_paid_up),
+                              paid_up_date=VALUES(paid_up_date),
+                              overdue_occur_date=VALUES(overdue_occur_date),
+                              overdue_plus_amount=VALUES(overdue_plus_amount),
+                              overdue_ratio=VALUES(overdue_ratio),
+                              this_month_overdue_amount=VALUES(this_month_overdue_amount),
+                              before_month_demand_no=VALUES(before_month_demand_no),
+                              total_overdue_amount=VALUES(total_overdue_amount),
+                              write_date=VALUES(write_date),
+                              member_price_discount_amount=VALUES(member_price_discount_amount),
+                              member_promise_discount_add_amount=VALUES(member_promise_discount_add_amount),
+                              pay_currency_code=VALUES(pay_currency_code),
+                              pay_currency_code_name=VALUES(pay_currency_code_name),
+                              this_month_applied_exchange_rate=VALUES(this_month_applied_exchange_rate),
+                              promotion_discount_amount=VALUES(promotion_discount_amount)
+                            `;
+
+    const demandCostValue = [];
+
+    for (let i = 0; i < demandCostData?.length; i++) {
+      demandCostValue[i] = [
+        demandCostData[i].member_no,
+        demandCostData[i].demand_month,
+        demandCostData[i].demand_no,
+        demandCostData[i].integration_demand_no,
+        demandCostData[i].demand_attribute_code,
+        demandCostData[i].demand_attribute_code_name,
+        demandCostData[i].use_amount,
+        demandCostData[i].promise_discount_amount,
+        demandCostData[i].etc_discount_amount,
+        demandCostData[i].customer_discount_amount,
+        demandCostData[i].product_discount_amount,
+        demandCostData[i].credit_discount_amount,
+        demandCostData[i].rounddown_discount_amount,
+        demandCostData[i].currency_discount_amount,
+        demandCostData[i].coin_use_amount,
+        demandCostData[i].default_amount,
+        demandCostData[i].this_month_demand_amount,
+        demandCostData[i].this_month_vat_ratio,
+        demandCostData[i].this_month_vat_amount,
+        demandCostData[i].this_month_amount_including_vat,
+        demandCostData[i].total_demand_amount,
+        demandCostData[i].is_paid_up,
+        demandCostData[i].paid_up_date,
+        demandCostData[i].overdue_occur_date,
+        demandCostData[i].overdue_plus_amount,
+        demandCostData[i].overdue_ratio,
+        demandCostData[i].this_month_overdue_amount,
+        demandCostData[i].before_month_demand_no,
+        demandCostData[i].total_overdue_amount,
+        demandCostData[i].write_date,
+        demandCostData[i].member_price_discount_amount,
+        demandCostData[i].member_promise_discount_add_amount,
+        demandCostData[i].pay_currency_code,
+        demandCostData[i].pay_currency_code_name,
+        demandCostData[i].this_month_applied_exchange_rate,
+        demandCostData[i].promotion_discount_amount,
+      ];
+    }
+
+    const mysqlConnection = await mysql.createConnection({
+      host: config.db.mariadb.host,
+      user: config.db.mariadb.user,
+      port: config.db.mariadb.port || 3306,
+      password: config.db.mariadb.password,
+      // database: config.db.mariadb.dbName,
+      database: 'ops_api',
+      multipleStatements: true,
+    });
+
+    await mysqlConnection.query('START TRANSACTION');
+    try {
+      await mysqlConnection.query(demandCostQuery, [demandCostValue]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {
       await mysqlConnection.query('ROLLBACK');
