@@ -185,7 +185,7 @@ class ncpResourceService {
 
     for (let i = 0; i < data.length; i++) {
       query2[i] = [
-        customerAccount.customer_uuid,
+        // customerAccount.customer_uuid,
         data[i].group_id,
         data[i].group_name,
         data[i].group_desc,
