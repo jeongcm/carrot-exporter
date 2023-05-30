@@ -59,9 +59,9 @@ class resourceService {
 
         try {
           await this.massUploadNCPEvent(JSON.parse(queryResult.message))
-          console.log(`success to first upload resource event (${queryResult.resourceType}).`)
+          console.log(`success to upload resource event (${queryResult.resourceType}).`)
         } catch (err) {
-          console.log(`failed to first  upload resource event(${queryResult.resourceType}. cause: ${err})`)
+          console.log(`failed to upload resource event(${queryResult.resourceType}. cause: ${err})`)
           return err
         }
       }
