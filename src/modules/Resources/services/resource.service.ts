@@ -21,6 +21,36 @@ class resourceService {
   public resourceEvent = DB.ResourceEvent;
   public partyUser = DB.PartyUser;
 
+  public async uploadResourceEvent(totalMsg) {
+
+    return 'sucess'
+    // let queryResult: any
+    // let resultMsg
+    // queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid)
+    // if (Object.keys(queryResult.message).length === 0) {
+    //   console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
+    //   return 'empty list'
+    // }
+    //
+    // try {
+    //   if (queryResult.resourceType === 'EV' && totalMsg.template_uuid === '00000000000000000000000000000008') {
+    //     resultMsg = await this.massUploadK8SEvent(JSON.parse(queryResult.message))
+    //
+    //   } else if (queryResult.resourceType === 'NCPEV' && totalMsg.template_uuid === '70000000000000000000000000000033') {
+    //     resultMsg = await this.massUploadNCPEvent(JSON.parse(queryResult.message))
+    //   } else {
+    //     resultMsg = await this.massUploadResource(JSON.parse(queryResult.message))
+    //   }
+    //
+    //   console.log(`success to upload resource(${queryResult.resourceType}).`)
+    //   return resultMsg
+    // } catch (err) {
+    //   console.log(`failed to upload resource(${queryResult.resourceType}. cause: ${err})`)
+    //   return err
+    // }
+
+  }
+
   public async uploadResource(totalMsg) {
     let queryResult: any
     let resultMsg
