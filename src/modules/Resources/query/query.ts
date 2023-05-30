@@ -38,7 +38,8 @@ import getResourceQuery from '@modules/Resources/query/ncp/resource/resource';
 import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/resourceGroup';
 import { HttpException } from '@common/exceptions/HttpException';
 import EventService from '@modules/Resources/query/ncp/event/event';
-import getVpcListQuery from '@modules/Resources//query/ncp/vpc/vpc';
+import getVpcListQuery from '@modules/Resources/query/ncp/vpc/vpc';
+import getZoneListQuery from '@modules/Resources/query/ncp/zone/zone';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -118,6 +119,9 @@ class QueryService {
       // ncp
       case '70000000000000000000000000000001':
         queryResult = await getRegionListQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000002':
+        queryResult = await getZoneListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000003':
         queryResult = await getNetworkInterfaceListQuery(result, clusterUuid);
