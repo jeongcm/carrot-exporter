@@ -238,7 +238,7 @@ class QueryService {
         queryResult = await getResourceGroupQuery(result, clusterUuid);
         break;
       default:
-        throw new HttpException(400, 'invalid template uuid');
+        throw new HttpException(400, `invalid template uuid ${totalMsg.template_uuid}`);
     }
 
     return queryResult;
