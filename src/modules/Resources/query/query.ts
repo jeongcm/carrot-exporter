@@ -186,7 +186,7 @@ class QueryService {
       case '70000000000000000000000000000014':
         queryResult = await getBlockStorageSnapshotInstanceListQuery(result, clusterUuid);
         break;
-      case '70000000000000000000000000000005':
+      case '70000000000000000000000000000007':
         queryResult = await getServerImageProductListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000015':
