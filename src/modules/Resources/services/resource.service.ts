@@ -9,6 +9,7 @@ import QueryService from "@modules/Resources/query/query";
 import { HttpException } from "@common/exceptions/HttpException";
 import mysql from "mysql2/promise";
 import { IResourceEvent } from "@common/interfaces/resourceEvent.interface";
+import EventService from "@modules/Resources/query/ncp/event/event";
 
 const uuid = require('uuid');
 
@@ -20,35 +21,77 @@ class resourceService {
   public resourceGroup = DB.ResourceGroup;
   public resourceEvent = DB.ResourceEvent;
   public partyUser = DB.PartyUser;
+  public ncpEventService = new EventService()
 
   public async uploadResourceEvent(totalMsg) {
+    let events = totalMsg.result.events
+    const inputs = totalMsg.inputs
+    const credentialName = inputs.credential_key || inputs.ncp_key || null
 
-    return 'sucess'
-    // let queryResult: any
-    // let resultMsg
-    // queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid)
-    // if (Object.keys(queryResult.message).length === 0) {
-    //   console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
-    //   return 'empty list'
-    // }
-    //
-    // try {
-    //   if (queryResult.resourceType === 'EV' && totalMsg.template_uuid === '00000000000000000000000000000008') {
-    //     resultMsg = await this.massUploadK8SEvent(JSON.parse(queryResult.message))
-    //
-    //   } else if (queryResult.resourceType === 'NCPEV' && totalMsg.template_uuid === '70000000000000000000000000000033') {
-    //     resultMsg = await this.massUploadNCPEvent(JSON.parse(queryResult.message))
-    //   } else {
-    //     resultMsg = await this.massUploadResource(JSON.parse(queryResult.message))
-    //   }
-    //
-    //   console.log(`success to upload resource(${queryResult.resourceType}).`)
-    //   return resultMsg
-    // } catch (err) {
-    //   console.log(`failed to upload resource(${queryResult.resourceType}. cause: ${err})`)
-    //   return err
-    // }
+    if (!credentialName) {
+      throw new HttpException(400, 'invalid credential name');
+    }
+    const clusterUuid = credentialName.split('.')[1]
+    if (clusterUuid === '') {
+      throw new HttpException(400, `invalid cluster uuid from credential name(${credentialName})`);
+    }
 
+    const event_size_mb = (Buffer.byteLength(JSON.stringify(events)))/1024/1024
+
+    if (event_size_mb > 5) {
+      const half = Math.ceil(events.length/2);
+      const firstHalf = events.slice(0, half);
+      const secondHalf = events.slice(-half);
+
+      console.log("resource event divide upload start")
+      // first
+      let queryResult: any = await this.ncpEventService.getSearchEventListQuery(firstHalf, clusterUuid);
+      if (Object.keys(queryResult.message).length === 0) {
+        console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
+        return 'empty list'
+      }
+
+      try {
+        await this.massUploadNCPEvent(JSON.parse(queryResult.message))
+        console.log(`success to first upload resource event (${queryResult.resourceType}).`)
+      } catch (err) {
+        console.log(`failed to first  upload resource event(${queryResult.resourceType}. cause: ${err})`)
+        return err
+      }
+
+      // second
+      queryResult = await this.ncpEventService.getSearchEventListQuery(secondHalf, clusterUuid);
+      if (Object.keys(queryResult.message).length === 0) {
+        console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
+        return 'empty list'
+      }
+
+      try {
+        await this.massUploadNCPEvent(JSON.parse(queryResult.message))
+        console.log(`success to second upload resource event (${queryResult.resourceType}).`)
+        console.log("resource event divide upload end")
+        return
+      } catch (err) {
+        console.log(`failed to second upload resource event(${queryResult.resourceType}. cause: ${err})`)
+        return err
+      }
+
+    } else {
+      let queryResult: any = await this.ncpEventService.getSearchEventListQuery(totalMsg.result.events, clusterUuid);
+      if (Object.keys(queryResult.message).length === 0) {
+        console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
+        return 'empty list'
+      }
+
+      try {
+        await this.massUploadNCPEvent(JSON.parse(queryResult.message))
+        console.log(`success to upload resource event (${queryResult.resourceType}).`)
+        return
+      } catch (err) {
+        console.log(`failed to upload resource event(${queryResult.resourceType}. cause: ${err})`)
+        return err
+      }
+    }
   }
 
   public async uploadResource(totalMsg) {

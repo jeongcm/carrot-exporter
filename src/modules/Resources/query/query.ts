@@ -199,7 +199,7 @@ class QueryService {
         queryResult = await getInitScriptListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000033':
-        queryResult = await this.ncpEventService.getSearchEventListQuery(result, clusterUuid);
+        queryResult = await this.ncpEventService.getSearchEventListQuery(result.events, clusterUuid);
         break;
       case '70000000000000000000000000000040':
         queryResult = await getContractDemandCostQuery(result, clusterUuid);
