@@ -38,8 +38,8 @@ class resourceService {
 
     const event_size_mb = (Buffer.byteLength(JSON.stringify(events)))/1024/1024
 
-    if (event_size_mb > 5) {
-      const divisions = 5; // 분할 개수
+    if (event_size_mb > 3) {
+      const divisions = 10; // 분할 개수
       const dividedLength = Math.ceil(events.length / divisions);
       const dividedList = []
       let startIndex = 0;
