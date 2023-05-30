@@ -491,7 +491,7 @@ class resourceService {
     const lengthOfDifference = difference.length;
 
     //2. prepare for sql
-    const query1 = `INSERT IGNORE INTO ResourceEvent (
+    const query1 = `INSERT INTO ResourceEvent (
             resource_event_id,
             created_by,
             created_at,
@@ -511,6 +511,8 @@ class resourceService {
             resource_group_key,
             resource_key
             ) VALUES ?
+            ON DUPLICATE KEY UPDATE
+            resource_event_name=VALUES(resource_event_name)
             `;
 
     const query2 = [];
