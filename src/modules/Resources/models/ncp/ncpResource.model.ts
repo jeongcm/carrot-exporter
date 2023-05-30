@@ -14,6 +14,11 @@ export type NcpResourceCreationAttributes = Optional<
   | 'resource_name'
   | 'create_time'
   | 'event_time'
+  | 'created_by'
+  | 'created_at'
+  | 'updated_by'
+  | 'updated_at'
+  | 'deleted_at'
 >;
 
 export class NcpResourceModel extends Model<INcpResource, NcpResourceCreationAttributes> implements INcpResource {
@@ -28,6 +33,11 @@ export class NcpResourceModel extends Model<INcpResource, NcpResourceCreationAtt
   public resource_name: string;
   public create_time: string;
   public event_time: string;
+  public created_by: string;
+  public created_at: Date;
+  public updated_by: string;
+  public updated_at: Date;
+  public deleted_at: Date;
 }
 
 export default function (sequelize: Sequelize): typeof NcpResourceModel {
@@ -66,6 +76,21 @@ export default function (sequelize: Sequelize): typeof NcpResourceModel {
       },
       resource_id: {
         type: DataTypes.STRING(100),
+      },
+      created_by: {
+        type: DataTypes.STRING(36),
+      },
+      created_at: {
+        type: DataTypes.DATE,
+      },
+      updated_by: {
+        type: DataTypes.STRING(36),
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+      },
+      deleted_at: {
+        type: DataTypes.DATE,
       },
     },
     {

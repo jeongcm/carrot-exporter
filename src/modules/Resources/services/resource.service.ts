@@ -66,6 +66,10 @@ class resourceService {
     // search for customerAccount & resourceGroup key
     const resourceGroupUuid = resourceMassFeed.resource_Group_Uuid;
     const responseResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupUuid}});
+    if (!responseResourceGroup) {
+      throw new HttpException(404, `not found ResourceGroup (${resourceGroupUuid})`)
+    }
+
     const customerAccountKey = responseResourceGroup.customerAccountKey;
     const resourceGroupKey = responseResourceGroup.resourceGroupKey;
     const resourceType = resourceMassFeed.resource_Type;
