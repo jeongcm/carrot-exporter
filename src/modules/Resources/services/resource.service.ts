@@ -39,41 +39,32 @@ class resourceService {
     const event_size_mb = (Buffer.byteLength(JSON.stringify(events)))/1024/1024
 
     if (event_size_mb > 5) {
-      const half = Math.ceil(events.length/2);
-      const firstHalf = events.slice(0, half);
-      const secondHalf = events.slice(-half);
-
-      console.log(`resource event divide upload start (event_size: ${event_size_mb}mb)`)
-      // first
-      let queryResult: any = await this.ncpEventService.getSearchEventListQuery(firstHalf, clusterUuid);
-      if (Object.keys(queryResult.message).length === 0) {
-        console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
-        return 'empty list'
+      const divisions = 5; // 분할 개수
+      const dividedLength = Math.ceil(events.length / divisions);
+      const dividedList = []
+      let startIndex = 0;
+      for (let i = 0; i < divisions; i++) {
+        const slice = events.slice(startIndex, startIndex + dividedLength);
+        dividedList.push(slice);
+        startIndex += dividedLength;
       }
 
-      try {
-        await this.massUploadNCPEvent(JSON.parse(queryResult.message))
-        console.log(`success to first upload resource event (${queryResult.resourceType}).`)
-      } catch (err) {
-        console.log(`failed to first  upload resource event(${queryResult.resourceType}. cause: ${err})`)
-        return err
-      }
+      for (const data of dividedList) {
+        console.log(`resource event divide upload start (event_size: ${event_size_mb}mb)`)
+        // first
+        let queryResult: any = await this.ncpEventService.getSearchEventListQuery(data, clusterUuid);
+        if (Object.keys(queryResult.message).length === 0) {
+          console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
+          'empty list';
+        }
 
-      // second
-      queryResult = await this.ncpEventService.getSearchEventListQuery(secondHalf, clusterUuid);
-      if (Object.keys(queryResult.message).length === 0) {
-        console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
-        return 'empty list'
-      }
-
-      try {
-        await this.massUploadNCPEvent(JSON.parse(queryResult.message))
-        console.log(`success to second upload resource event (${queryResult.resourceType}).`)
-        console.log("resource event divide upload end")
-        return
-      } catch (err) {
-        console.log(`failed to second upload resource event(${queryResult.resourceType}. cause: ${err})`)
-        return err
+        try {
+          await this.massUploadNCPEvent(JSON.parse(queryResult.message))
+          console.log(`success to first upload resource event (${queryResult.resourceType}).`)
+        } catch (err) {
+          console.log(`failed to first  upload resource event(${queryResult.resourceType}. cause: ${err})`)
+          return err
+        }
       }
 
     } else {
