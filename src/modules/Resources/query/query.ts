@@ -117,6 +117,55 @@ class QueryService {
 
       // ncp
       case '70000000000000000000000000000001':
+      case '70000000000000000000000000000003':
+      case '70000000000000000000000000000004':
+      case '70000000000000000000000000000009':
+      case '70000000000000000000000000000012':
+      case '70000000000000000000000000000006':
+      case '70000000000000000000000000000014':
+      case '70000000000000000000000000000005':
+      case '70000000000000000000000000000015':
+      case '70000000000000000000000000000066':
+      case '70000000000000000000000000000065':
+      case '70000000000000000000000000000033':
+      case '70000000000000000000000000000040':
+      case '70000000000000000000000000000042':
+      case 'NCM00000000000000000000000000006':
+      case 'NCM00000000000000000000000000007':
+      case 'NCM00000000000000000000000000008':
+      case 'NCM00000000000000000000000000009':
+      case 'NCM00000000000000000000000000010':
+      case 'NCM00000000000000000000000000011':
+      case 'NCM00000000000000000000000000012':
+      case 'NCM00000000000000000000000000013':
+      case '70000000000000000000000000000029':
+      case 'NCM00000000000000000000000000014':
+        queryResult = await this.getNcpResourceQuery(totalMsg)
+        break;
+      default:
+        throw new HttpException(400, 'invalid template uuid');
+    }
+
+    return queryResult;
+  }
+
+  private async getNcpResourceQuery(totalMsg): Promise<any> {
+    let queryResult = {};
+    const result = totalMsg.result;
+    const inputs = totalMsg.inputs
+    const credentialName = inputs.credential_key || inputs.ncp_key || null
+
+    if (!credentialName) {
+      throw new HttpException(400, 'invalid credential name');
+    }
+    const clusterUuid = credentialName.split('.')[1]
+    if (clusterUuid === '') {
+      throw new HttpException(400, `invalid cluster uuid from credential name(${credentialName})`);
+    }
+
+    switch (totalMsg.template_uuid) {
+      // ncp
+      case '70000000000000000000000000000001':
         queryResult = await getRegionListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000003':
@@ -194,6 +243,7 @@ class QueryService {
 
     return queryResult;
   }
-}
+
+  }
 
 export default QueryService;
