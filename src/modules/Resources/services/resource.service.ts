@@ -49,8 +49,8 @@ class resourceService {
         startIndex += dividedLength;
       }
 
+      console.log(`resource event divide upload start (event_size: ${event_size_mb}mb)`)
       for (const data of dividedList) {
-        console.log(`resource event divide upload start (event_size: ${event_size_mb}mb)`)
         let queryResult: any = await this.ncpEventService.getSearchEventListQuery(data, clusterUuid);
         if (Object.keys(queryResult.message).length === 0) {
           console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
@@ -59,12 +59,12 @@ class resourceService {
 
         try {
           await this.massUploadNCPEvent(JSON.parse(queryResult.message))
-          console.log(`success to upload resource event (${queryResult.resourceType}).`)
         } catch (err) {
           console.log(`failed to upload resource event(${queryResult.resourceType}. cause: ${err})`)
           return err
         }
       }
+      console.log(`resource event divide upload end (event_size: ${event_size_mb}mb)`)
 
     } else {
       let queryResult: any = await this.ncpEventService.getSearchEventListQuery(totalMsg.result.events, clusterUuid);
@@ -75,13 +75,13 @@ class resourceService {
 
       try {
         await this.massUploadNCPEvent(JSON.parse(queryResult.message))
-        console.log(`success to upload resource event (${queryResult.resourceType}).`)
-        return
       } catch (err) {
         console.log(`failed to upload resource event(${queryResult.resourceType}. cause: ${err})`)
         return err
       }
     }
+
+    console.log(`success to upload ncp resource event.`)
   }
 
   public async uploadResource(totalMsg) {
