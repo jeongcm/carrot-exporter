@@ -3,7 +3,7 @@ import getNetworkInterfaceListQuery from '@modules/Resources/query/ncp/networkIn
 import getServerInstanceListQuery from '@modules/Resources/query/ncp/serverInstance/serverInstance';
 import getInitScriptListQuery from '@modules/Resources/query/ncp/initScript/initScript';
 import getPlacementGroupListQuery from '@modules/Resources/query/ncp/placementGroup/placementGroup';
-import getServerImageProductListQuery from '@modules/Resources/query/ncp/serverImage/serverImage';
+import getMemberServerImageListQuery from '@modules/Resources/query/ncp/serverImage/serverImage';
 import getBlockStorageInstanceListQuery from '@modules/Resources/query/ncp/blockStorageInstance/blockStorageInstance';
 import getPublicIpInstanceListQuery from '@modules/Resources/query/ncp/publicIpInstance/publicIpInstance';
 import getAccessControlGroupListQuery from '@modules/Resources/query/ncp/accessControlGroup/accessControlGroup';
@@ -187,7 +187,7 @@ class QueryService {
         queryResult = await getBlockStorageSnapshotInstanceListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000007':
-        queryResult = await getServerImageProductListQuery(result, clusterUuid);
+        queryResult = await getMemberServerImageListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000015':
         queryResult = await getVpcListQuery(result, clusterUuid);
