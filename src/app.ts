@@ -59,16 +59,16 @@ class App {
     this.app.use(express.json({ limit: config.maxApiBodySize }));
     this.intializeMiddlewareLogging();
     this.app.use(express.urlencoded({ extended: true, limit: config.maxApiBodySize }));
-    this.app.use(cookieParser());
-    this.app.use(
-      session({
-        secret: 'secrettexthere',
-        saveUninitialized: true,
-        resave: true,
-        // cookie: { secure: true },
-        maxAge: 24 * 60 * 60 * 100,
-      }),
-    );
+    // this.app.use(cookieParser());
+    // this.app.use(
+    //   session({
+    //     secret: 'secrettexthere',
+    //     saveUninitialized: true,
+    //     resave: true,
+    //     // cookie: { secure: true },
+    //     maxAge: 24 * 60 * 60 * 100,
+    //   }),
+    // );
   }
 
   private initializeRoutes(routes: Routes[]) {
