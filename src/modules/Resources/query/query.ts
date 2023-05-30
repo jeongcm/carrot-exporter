@@ -37,7 +37,6 @@ import CloudDBPostgresqlService from '@modules/Resources/query/ncp/cloudDB/pgsql
 import getResourceQuery from '@modules/Resources/query/ncp/resource/resource';
 import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/resourceGroup';
 import { HttpException } from '@common/exceptions/HttpException';
-import EventService from '@modules/Resources/query/ncp/event/event';
 import getVpcListQuery from '@modules/Resources//query/ncp/vpc/vpc';
 
 class QueryService {
@@ -45,7 +44,6 @@ class QueryService {
   public cloudDBMongoDBService = new CloudDBMongoDBService();
   public cloudDBRedisService = new CloudDBRedisService();
   public cloudDBPostgresqlService = new CloudDBPostgresqlService();
-  public ncpEventService = new EventService();
 
   public async getResourceQuery(totalMsg, clusterUuid) {
     let queryResult = {};
@@ -127,7 +125,6 @@ class QueryService {
       case '70000000000000000000000000000015':
       case '70000000000000000000000000000066':
       case '70000000000000000000000000000065':
-      case '70000000000000000000000000000033':
       case '70000000000000000000000000000040':
       case '70000000000000000000000000000042':
       case 'NCM00000000000000000000000000006':
@@ -197,9 +194,6 @@ class QueryService {
         break;
       case '70000000000000000000000000000065':
         queryResult = await getInitScriptListQuery(result, clusterUuid);
-        break;
-      case '70000000000000000000000000000033':
-        queryResult = await this.ncpEventService.getSearchEventListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000040':
         queryResult = await getContractDemandCostQuery(result, clusterUuid);
