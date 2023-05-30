@@ -3,7 +3,7 @@ import getNetworkInterfaceListQuery from '@modules/Resources/query/ncp/networkIn
 import getServerInstanceListQuery from '@modules/Resources/query/ncp/serverInstance/serverInstance';
 import getInitScriptListQuery from '@modules/Resources/query/ncp/initScript/initScript';
 import getPlacementGroupListQuery from '@modules/Resources/query/ncp/placementGroup/placementGroup';
-import getServerImageProductListQuery from '@modules/Resources/query/ncp/serverImage/serverImage';
+import getMemberServerImageListQuery from '@modules/Resources/query/ncp/serverImage/serverImage';
 import getBlockStorageInstanceListQuery from '@modules/Resources/query/ncp/blockStorageInstance/blockStorageInstance';
 import getPublicIpInstanceListQuery from '@modules/Resources/query/ncp/publicIpInstance/publicIpInstance';
 import getAccessControlGroupListQuery from '@modules/Resources/query/ncp/accessControlGroup/accessControlGroup';
@@ -123,7 +123,7 @@ class QueryService {
       case '70000000000000000000000000000012':
       case '70000000000000000000000000000006':
       case '70000000000000000000000000000014':
-      case '70000000000000000000000000000005':
+      case '70000000000000000000000000000007':
       case '70000000000000000000000000000015':
       case '70000000000000000000000000000066':
       case '70000000000000000000000000000065':
@@ -186,8 +186,8 @@ class QueryService {
       case '70000000000000000000000000000014':
         queryResult = await getBlockStorageSnapshotInstanceListQuery(result, clusterUuid);
         break;
-      case '70000000000000000000000000000005':
-        queryResult = await getServerImageProductListQuery(result, clusterUuid);
+      case '70000000000000000000000000000007':
+        queryResult = await getMemberServerImageListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000015':
         queryResult = await getVpcListQuery(result, clusterUuid);
@@ -238,7 +238,7 @@ class QueryService {
         queryResult = await getResourceGroupQuery(result, clusterUuid);
         break;
       default:
-        throw new HttpException(400, 'invalid template uuid');
+        throw new HttpException(400, `invalid template uuid ${totalMsg.template_uuid}`);
     }
 
     return queryResult;
