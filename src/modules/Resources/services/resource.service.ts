@@ -51,7 +51,6 @@ class resourceService {
 
       for (const data of dividedList) {
         console.log(`resource event divide upload start (event_size: ${event_size_mb}mb)`)
-        // first
         let queryResult: any = await this.ncpEventService.getSearchEventListQuery(data, clusterUuid);
         if (Object.keys(queryResult.message).length === 0) {
           console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
