@@ -43,7 +43,7 @@ class resourceService {
       const firstHalf = events.slice(0, half);
       const secondHalf = events.slice(-half);
 
-      console.log("resource event divide upload start")
+      console.log(`resource event divide upload start (event_size: ${event_size_mb}mb)`)
       // first
       let queryResult: any = await this.ncpEventService.getSearchEventListQuery(firstHalf, clusterUuid);
       if (Object.keys(queryResult.message).length === 0) {
