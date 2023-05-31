@@ -140,7 +140,7 @@ class QueryService {
       case 'NCM00000000000000000000000000013':
       case '70000000000000000000000000000029':
       case 'NCM00000000000000000000000000014':
-        queryResult = await this.getNcpResourceQuery(totalMsg)
+        queryResult = await this.getNcpResourceQuery(totalMsg);
         break;
       default:
         throw new HttpException(400, 'invalid template uuid');
@@ -152,13 +152,14 @@ class QueryService {
   private async getNcpResourceQuery(totalMsg): Promise<any> {
     let queryResult = {};
     const result = totalMsg.result;
-    const inputs = totalMsg.inputs
-    const credentialName = inputs.credential_key || inputs.ncp_key || null
+    const inputs = totalMsg.inputs;
+
+    const credentialName = inputs.credential_key || inputs.ncp_key || null;
 
     if (!credentialName) {
       throw new HttpException(400, 'invalid credential name');
     }
-    const clusterUuid = credentialName.split('.')[1]
+    const clusterUuid = credentialName.split('.')[1];
     if (clusterUuid === '') {
       throw new HttpException(400, `invalid cluster uuid from credential name(${credentialName})`);
     }
@@ -243,7 +244,6 @@ class QueryService {
 
     return queryResult;
   }
-
-  }
+}
 
 export default QueryService;

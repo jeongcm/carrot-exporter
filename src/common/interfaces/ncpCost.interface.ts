@@ -22,6 +22,7 @@ export interface IContractDemandCost {
   write_date: Date;
   member_price_discount_amount: number;
   member_promise_discount_amount: number;
+  contract_info: string;
   pay_currency_code: string;
   pay_currency_code_name: string;
   this_month_applied_exchange_rate: number;
@@ -48,6 +49,29 @@ export interface IContract {
 export interface IContractProduct {
   contract_product_sequence: number;
   before_contract_product_sequence: number;
+  product_code: string;
+  price_no: string;
+  promise_no: string;
+  instance_no: string;
+  product_item_kind_code: string;
+  product_item_kind_code_name: string;
+  product_rating_type_code: string;
+  product_rating_type_code_name: string;
+  service_status_code: string;
+  service_status_code_name: string;
+  service_start_date: Date;
+  service_end_date: Date;
+  product_size: number;
+  product_count: number;
+  contract_no: string;
+}
+[];
+
+export interface IContractDemandProduct {
+  contract_product_sequence: number;
+  before_contract_product_sequence: number;
+  demand_month: string;
+  contract_demand_cost_sequence: number;
   product_code: string;
   price_no: string;
   promise_no: string;
