@@ -37,7 +37,8 @@ import CloudDBPostgresqlService from '@modules/Resources/query/ncp/cloudDB/pgsql
 import getResourceQuery from '@modules/Resources/query/ncp/resource/resource';
 import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/resourceGroup';
 import { HttpException } from '@common/exceptions/HttpException';
-import getVpcListQuery from '@modules/Resources//query/ncp/vpc/vpc';
+import getVpcListQuery from '@modules/Resources/query/ncp/vpc/vpc';
+import getSubnetListQuery from '@modules/Resources/query/ncp/subnet/subnet';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -137,7 +138,8 @@ class QueryService {
       case 'NCM00000000000000000000000000013':
       case '70000000000000000000000000000029':
       case 'NCM00000000000000000000000000014':
-        queryResult = await this.getNcpResourceQuery(totalMsg)
+      case '70000000000000000000000000000016':
+        queryResult = await this.getNcpResourceQuery(totalMsg);
         break;
       default:
         throw new HttpException(400, 'invalid template uuid');
@@ -149,13 +151,13 @@ class QueryService {
   private async getNcpResourceQuery(totalMsg): Promise<any> {
     let queryResult = {};
     const result = totalMsg.result;
-    const inputs = totalMsg.inputs
-    const credentialName = inputs.credential_key || inputs.ncp_key || null
+    const inputs = totalMsg.inputs;
+    const credentialName = inputs.credential_key || inputs.ncp_key || null;
 
     if (!credentialName) {
       throw new HttpException(400, 'invalid credential name');
     }
-    const clusterUuid = credentialName.split('.')[1]
+    const clusterUuid = credentialName.split('.')[1];
     if (clusterUuid === '') {
       throw new HttpException(400, `invalid cluster uuid from credential name(${credentialName})`);
     }
@@ -182,6 +184,9 @@ class QueryService {
         break;
       case '70000000000000000000000000000014':
         queryResult = await getBlockStorageSnapshotInstanceListQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000016':
+        queryResult = await getSubnetListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000007':
         queryResult = await getMemberServerImageListQuery(result, clusterUuid);
@@ -237,7 +242,6 @@ class QueryService {
 
     return queryResult;
   }
-
 }
 
 export default QueryService;
