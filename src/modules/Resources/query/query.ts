@@ -235,9 +235,6 @@ class QueryService {
       case '70000000000000000000000000000029':
         queryResult = await getResourceQuery(result, clusterUuid);
         break;
-      case 'NCM00000000000000000000000000014':
-        queryResult = await getResourceGroupQuery(result, clusterUuid);
-        break;
       default:
         throw new HttpException(400, 'invalid template uuid');
     }

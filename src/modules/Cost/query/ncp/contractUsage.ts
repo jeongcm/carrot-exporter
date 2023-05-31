@@ -44,6 +44,9 @@ export default async function getContractUsageQuery(result, clusterUuid) {
     for (let j = 0; j < contractResult.contractProductList?.length; j++) {
       contractProductResult = contractResult?.contractProductList[j];
       contractProductQuery['contract_product_sequence'] = contractProductResult.contractProductSequence;
+      if ('' === contractProductResult.beforeContractProductSequence) {
+        contractProductResult.beforeContractProductSequence = null;
+      }
       contractProductQuery['before_contract_product_sequence'] = contractProductResult.beforeContractProductSequence;
       contractProductQuery['product_code'] = contractProductResult.productCode;
       contractProductQuery['price_no'] = contractProductResult.priceNo;
