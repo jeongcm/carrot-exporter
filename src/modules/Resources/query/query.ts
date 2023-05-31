@@ -238,6 +238,6 @@ class QueryService {
     return queryResult;
   }
 
-  }
+}
 
 export default QueryService;
