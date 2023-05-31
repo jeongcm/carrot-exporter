@@ -3,7 +3,7 @@ import getNetworkInterfaceListQuery from '@modules/Resources/query/ncp/networkIn
 import getServerInstanceListQuery from '@modules/Resources/query/ncp/serverInstance/serverInstance';
 import getInitScriptListQuery from '@modules/Resources/query/ncp/initScript/initScript';
 import getPlacementGroupListQuery from '@modules/Resources/query/ncp/placementGroup/placementGroup';
-import getServerImageProductListQuery from '@modules/Resources/query/ncp/serverImage/serverImage';
+import getMemberServerImageListQuery from '@modules/Resources/query/ncp/serverImage/serverImage';
 import getBlockStorageInstanceListQuery from '@modules/Resources/query/ncp/blockStorageInstance/blockStorageInstance';
 import getPublicIpInstanceListQuery from '@modules/Resources/query/ncp/publicIpInstance/publicIpInstance';
 import getAccessControlGroupListQuery from '@modules/Resources/query/ncp/accessControlGroup/accessControlGroup';
@@ -37,7 +37,6 @@ import CloudDBPostgresqlService from '@modules/Resources/query/ncp/cloudDB/pgsql
 import getResourceQuery from '@modules/Resources/query/ncp/resource/resource';
 import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/resourceGroup';
 import { HttpException } from '@common/exceptions/HttpException';
-import EventService from '@modules/Resources/query/ncp/event/event';
 import getVpcListQuery from '@modules/Resources//query/ncp/vpc/vpc';
 
 class QueryService {
@@ -45,7 +44,6 @@ class QueryService {
   public cloudDBMongoDBService = new CloudDBMongoDBService();
   public cloudDBRedisService = new CloudDBRedisService();
   public cloudDBPostgresqlService = new CloudDBPostgresqlService();
-  public ncpEventService = new EventService();
 
   public async getResourceQuery(totalMsg, clusterUuid) {
     let queryResult = {};
@@ -123,11 +121,10 @@ class QueryService {
       case '70000000000000000000000000000012':
       case '70000000000000000000000000000006':
       case '70000000000000000000000000000014':
-      case '70000000000000000000000000000005':
+      case '70000000000000000000000000000007':
       case '70000000000000000000000000000015':
       case '70000000000000000000000000000066':
       case '70000000000000000000000000000065':
-      case '70000000000000000000000000000033':
       case '70000000000000000000000000000040':
       case '70000000000000000000000000000042':
       case 'NCM00000000000000000000000000006':
@@ -187,8 +184,8 @@ class QueryService {
       case '70000000000000000000000000000014':
         queryResult = await getBlockStorageSnapshotInstanceListQuery(result, clusterUuid);
         break;
-      case '70000000000000000000000000000005':
-        queryResult = await getServerImageProductListQuery(result, clusterUuid);
+      case '70000000000000000000000000000007':
+        queryResult = await getMemberServerImageListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000015':
         queryResult = await getVpcListQuery(result, clusterUuid);
@@ -198,9 +195,6 @@ class QueryService {
         break;
       case '70000000000000000000000000000065':
         queryResult = await getInitScriptListQuery(result, clusterUuid);
-        break;
-      case '70000000000000000000000000000033':
-        queryResult = await this.ncpEventService.getSearchEventListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000040':
         queryResult = await getContractDemandCostQuery(result, clusterUuid);
@@ -235,8 +229,11 @@ class QueryService {
       case '70000000000000000000000000000029':
         queryResult = await getResourceQuery(result, clusterUuid);
         break;
+      case 'NCM00000000000000000000000000014':
+        queryResult = await getResourceGroupQuery(result, clusterUuid);
+        break;
       default:
-        throw new HttpException(400, 'invalid template uuid');
+        throw new HttpException(400, `invalid template uuid ${totalMsg.template_uuid}`);
     }
 
     return queryResult;

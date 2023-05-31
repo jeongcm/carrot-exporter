@@ -18,6 +18,21 @@ class ResourceController {
       next(err);
     }
   };
+
+  public uploadResourceEvent = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const totalMsg = req.body;
+      const result = await this.resourceService.uploadResourceEvent(totalMsg);
+      if (result === 'empty list') {
+        res.status(204).json({ message: result });
+        return;
+      }
+
+      res.status(200).json({ message: result });
+    } catch (err) {
+      next(err);
+    }
+  };
 }
 
 export default ResourceController;

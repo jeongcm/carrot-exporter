@@ -9,6 +9,7 @@ import QueryService from "@modules/Resources/query/query";
 import { HttpException } from "@common/exceptions/HttpException";
 import mysql from "mysql2/promise";
 import { IResourceEvent } from "@common/interfaces/resourceEvent.interface";
+import EventService from "@modules/Resources/query/ncp/event/event";
 
 const uuid = require('uuid');
 
@@ -20,6 +21,68 @@ class resourceService {
   public resourceGroup = DB.ResourceGroup;
   public resourceEvent = DB.ResourceEvent;
   public partyUser = DB.PartyUser;
+  public ncpEventService = new EventService()
+
+  public async uploadResourceEvent(totalMsg) {
+    let events = totalMsg.result.events
+    const inputs = totalMsg.inputs
+    const credentialName = inputs.credential_key || inputs.ncp_key || null
+
+    if (!credentialName) {
+      throw new HttpException(400, 'invalid credential name');
+    }
+    const clusterUuid = credentialName.split('.')[1]
+    if (clusterUuid === '') {
+      throw new HttpException(400, `invalid cluster uuid from credential name(${credentialName})`);
+    }
+
+    const event_size_mb = (Buffer.byteLength(JSON.stringify(events)))/1024/1024
+
+    if (event_size_mb > 3) {
+      const divisions = 10; // 분할 개수
+      const dividedLength = Math.ceil(events.length / divisions);
+      const dividedList = []
+      let startIndex = 0;
+      for (let i = 0; i < divisions; i++) {
+        const slice = events.slice(startIndex, startIndex + dividedLength);
+        dividedList.push(slice);
+        startIndex += dividedLength;
+      }
+
+      console.log(`resource event divide upload start (event_size: ${event_size_mb}mb)`)
+      for (const data of dividedList) {
+        let queryResult: any = await this.ncpEventService.getSearchEventListQuery(data, clusterUuid);
+        if (Object.keys(queryResult.message).length === 0) {
+          console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
+          'empty list';
+        }
+
+        try {
+          await this.massUploadNCPEvent(JSON.parse(queryResult.message))
+        } catch (err) {
+          console.log(`failed to upload resource event(${queryResult.resourceType}. cause: ${err})`)
+          return err
+        }
+      }
+      console.log(`resource event divide upload end (event_size: ${event_size_mb}mb)`)
+
+    } else {
+      let queryResult: any = await this.ncpEventService.getSearchEventListQuery(totalMsg.result.events, clusterUuid);
+      if (Object.keys(queryResult.message).length === 0) {
+        console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
+        return 'empty list'
+      }
+
+      try {
+        await this.massUploadNCPEvent(JSON.parse(queryResult.message))
+      } catch (err) {
+        console.log(`failed to upload resource event(${queryResult.resourceType}. cause: ${err})`)
+        return err
+      }
+    }
+
+    console.log(`success to upload ncp resource event.`)
+  }
 
   public async uploadResource(totalMsg) {
     let queryResult: any
@@ -491,7 +554,7 @@ class resourceService {
     const lengthOfDifference = difference.length;
 
     //2. prepare for sql
-    const query1 = `INSERT IGNORE INTO ResourceEvent (
+    const query1 = `INSERT INTO ResourceEvent (
             resource_event_id,
             created_by,
             created_at,
@@ -511,6 +574,8 @@ class resourceService {
             resource_group_key,
             resource_key
             ) VALUES ?
+            ON DUPLICATE KEY UPDATE
+            resource_event_name=VALUES(resource_event_name)
             `;
 
     const query2 = [];
