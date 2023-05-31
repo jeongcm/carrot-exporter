@@ -108,7 +108,7 @@ export interface IUsage {
 }
 [];
 
-export interface IProductPrice {
+export interface IProduct {
   product_item_kind_code: string;
   product_item_kind_code_name: string;
   product_item_kind_detail_code: string;

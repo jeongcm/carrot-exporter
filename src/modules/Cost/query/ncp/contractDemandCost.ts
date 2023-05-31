@@ -51,9 +51,9 @@ export default async function getContractDemandCostQuery(result, clusterUuid) {
 
     contractDemandCostList += JSON.stringify(contractDemandCostQuery);
 
-    // if (contractDemandCostLength > i + 1) {
-    //   contractDemandCostList += ',';
-    // }
+    if (contractDemandCostLength > i + 1) {
+      contractDemandCostList += ',';
+    }
 
     // for (let y = 0; y < contractDemandCostResult.contract.length; y++) {
     contractResult = contractDemandCostResult?.contract;
@@ -93,7 +93,7 @@ export default async function getContractDemandCostQuery(result, clusterUuid) {
 
   const tempQuery = '{ "contractDemandCostList": [' + contractDemandCostList + '],' + '"contractProductList": [' + contractProductList + ']}';
 
-  console.log('tempQuery :: \n' + tempQuery);
+  // console.log('tempQuery :: \n' + tempQuery);
 
   return { message: tempQuery, resourceType: resourceType };
 }

@@ -38,6 +38,7 @@ import getResourceQuery from '@modules/Resources/query/ncp/resource/resource';
 import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/resourceGroup';
 import { HttpException } from '@common/exceptions/HttpException';
 import getVpcListQuery from '@modules/Resources//query/ncp/vpc/vpc';
+import getProductPriceQuery from '@modules/Cost/query/ncp/productPrice';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -137,6 +138,7 @@ class QueryService {
       case 'NCM00000000000000000000000000013':
       case '70000000000000000000000000000029':
       case 'NCM00000000000000000000000000014':
+      case '70000000000000000000000000000043':
         queryResult = await this.getNcpResourceQuery(totalMsg);
         break;
       default:
@@ -201,6 +203,9 @@ class QueryService {
         break;
       case '70000000000000000000000000000042':
         queryResult = await getContractUsageQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000043':
+        queryResult = await getProductPriceQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000006':
         queryResult = await this.cloudDBMysqlService.getCloudDBMysqlInstanceListQuery(result, clusterUuid);

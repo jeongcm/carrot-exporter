@@ -3,7 +3,8 @@ import {
   IContractDemandCost,
   IContractDemandProduct,
   IContractProduct,
-  IProductPrice,
+  IPrice,
+  IProduct,
   IUsage,
 } from '@/common/interfaces/ncpCost.interface';
 import DB from '@/database';
@@ -22,9 +23,20 @@ class NcpCostService {
     const findSystemUser: IPartyUser = await this.partyUser.findOne({ where: { userId: config.partyUser.userId } });
     return findSystemUser;
   }
+
+  public getHistDay() {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = ('0' + (1 + date.getMonth())).slice(-2);
+    const day = ('0' + date.getDate()).slice(-2);
+
+    return year + month + day;
+  }
+
   public async uploadNcpContractDemandCost(totalMsg) {
     let queryResult: any;
     let resultMsg: any;
+
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
 
     const result = JSON.parse(queryResult.message);
@@ -59,13 +71,12 @@ class NcpCostService {
 
     const result = JSON.parse(queryResult.message);
     if (Object.keys(queryResult.message).length === 0) {
-      console.log(`skip to upload ncpResourceGroup(${queryResult.resourceType}). cause: empty list`);
+      console.log(`skip to upload contractDemandCost(${queryResult.resourceType}). cause: empty list`);
       return 'empty list';
     }
 
     try {
       //Insert TB_CONTRACT
-
       resultMsg = await this.uploadContract(result.contractList);
       console.log(`success to upload contract(${queryResult.resourceType}).`);
       //Insert TB_CONTRACT_PRODUCT
@@ -88,7 +99,7 @@ class NcpCostService {
 
     const result = JSON.parse(queryResult.message);
     if (Object.keys(queryResult.message).length === 0) {
-      console.log(`skip to upload ncpResourceGroup(${queryResult.resourceType}). cause: empty list`);
+      console.log(`skip to upload productPrice(${queryResult.resourceType}). cause: empty list`);
       return 'empty list';
     }
 
@@ -112,6 +123,7 @@ class NcpCostService {
                     customer_uuid,
                     account_uuid,
                     contract_demand_cost_sequence,
+                    demand_month,
                     member_no,
                     region_code,
                     demand_type_code,
@@ -119,7 +131,6 @@ class NcpCostService {
                     demand_type_detail_code,
                     demand_type_detail_code_name,
                     contract_no,
-                    demand_month,
                     unit_usage_quantity,
                     package_unit_usage_quantity,
                     total_unit_usage_quantity,
@@ -138,12 +149,12 @@ class NcpCostService {
                     pay_currency_code,
                     pay_currency_code_name,
                     this_month_applied_exchange_rate,
-                    contract_demand_product_info
+                    created_by,
+                    created_at,
+                    updated_by,
+                    updated_at
                   ) VALUES ?
                   ON DUPLICATE KEY UPDATE
-                  customer_uuid=VALUES(customer_uuid),
-                  account_uuid=VALUES(account_uuid),
-                  contract_demand_cost_sequence=VALUES(contract_demand_cost_sequence),
                   member_no=VALUES(member_no),
                   region_code=VALUES(region_code),
                   demand_type_code=VALUES(demand_type_code),
@@ -151,7 +162,6 @@ class NcpCostService {
                   demand_type_detail_code=VALUES(demand_type_detail_code),
                   demand_type_detail_code_name=VALUES(demand_type_detail_code_name),
                   contract_no=VALUES(contract_no),
-                  demand_month=VALUES(demand_month),
                   unit_usage_quantity=VALUES(unit_usage_quantity),
                   package_unit_usage_quantity=VALUES(package_unit_usage_quantity),
                   total_unit_usage_quantity=VALUES(total_unit_usage_quantity),
@@ -174,9 +184,98 @@ class NcpCostService {
                   created_at=VALUES(created_at),
                   updated_by=VALUES(updated_by),
                   updated_at=VALUES(updated_at)
-                  contract_demand_product_info=VALUES(contract_demand_product_info)
                   `;
 
+    const contractDemandCostHistQuery =
+      `INSERT INTO ncp_api.TB_CONTRACT_DEMAND_COST_HIST (
+          create_date,
+          customer_uuid,
+          account_uuid,
+          contract_demand_cost_sequence,
+          member_no,
+          region_code,
+          demand_type_code,
+          demand_type_code_name,
+          demand_type_detail_code,
+          demand_type_detail_code_name,
+          contract_no,
+          demand_month,
+          unit_usage_quantity,
+          package_unit_usage_quantity,
+          total_unit_usage_quantity,
+          usage_unit_code,
+          usage_unit_code_name,
+          product_price,
+          use_amount,
+          promotion_discount_amount,
+          etc_discount_amount,
+          promise_discount_amount,
+          demand_amount,
+          write_date,
+          member_price_discount_amount,
+          member_promise_discount_amount,
+          contract_info,
+          pay_currency_code,
+          pay_currency_code_name,
+          this_month_applied_exchange_rate,
+          origin_created_by,
+          origin_created_at,
+          origin_updated_by,
+          origin_updated_at,
+          origin_deleted_at,
+          created_by,
+          created_at,
+          updated_by,
+          updated_at
+        ) 
+        SELECT 
+            DATE_FORMAT(created_at, '%Y%m%d'),
+            customer_uuid,
+            account_uuid,
+            contract_demand_cost_sequence,
+            member_no,
+            region_code,
+            demand_type_code,
+            demand_type_code_name,
+            demand_type_detail_code,
+            demand_type_detail_code_name,
+            contract_no,
+            demand_month,
+            unit_usage_quantity,
+            package_unit_usage_quantity,
+            total_unit_usage_quantity,
+            usage_unit_code,
+            usage_unit_code_name,
+            product_price,
+            use_amount,
+            promotion_discount_amount,
+            etc_discount_amount,
+            promise_discount_amount,
+            demand_amount,
+            write_date,
+            member_price_discount_amount,
+            member_promise_discount_amount,
+            contract_info,
+            pay_currency_code,
+            pay_currency_code_name,
+            this_month_applied_exchange_rate,
+            created_by,
+            created_at,
+            updated_by,
+            updated_at,
+            deleted_at,
+         ` +
+      `'Aggregator'` +
+      `,'` +
+      this.currentTime +
+      `',` +
+      `'Aggregator'` +
+      `,'` +
+      this.currentTime +
+      `'` +
+      `
+        FROM ncp_api.TB_CONTRACT_DEMAND_COST
+        `;
     const contractDemandCostValue = [];
 
     for (let i = 0; i < contractDemandCostData?.length; i++) {
@@ -184,6 +283,7 @@ class NcpCostService {
         '31692fe1-05a4-45d4-bea3-0341263992d6',
         '6d322805-e972-11ed-a07e-9e43039dcae0',
         contractDemandCostData[i].contract_demand_cost_sequence,
+        contractDemandCostData[i].demand_month,
         contractDemandCostData[i].member_no,
         contractDemandCostData[i].region_code,
         contractDemandCostData[i].demand_type_code,
@@ -191,7 +291,6 @@ class NcpCostService {
         contractDemandCostData[i].demand_type_detail_code,
         contractDemandCostData[i].demand_type_detail_code_name,
         contractDemandCostData[i].contract_no,
-        contractDemandCostData[i].demand_month,
         contractDemandCostData[i].unit_usage_quantity,
         contractDemandCostData[i].package_unit_usage_quantity,
         contractDemandCostData[i].total_unit_usage_quantity,
@@ -214,7 +313,6 @@ class NcpCostService {
         this.currentTime,
         'Aggregator',
         this.currentTime,
-        contractDemandCostData[i].contract_demand_product_info,
       ];
     }
 
@@ -230,6 +328,7 @@ class NcpCostService {
 
     await mysqlConnection.query('START TRANSACTION');
     try {
+      await mysqlConnection.query(contractDemandCostHistQuery);
       await mysqlConnection.query(contractDemandCostDelQuery);
       await mysqlConnection.query(contractDemandCostQuery, [contractDemandCostValue]);
       await mysqlConnection.query('COMMIT');
@@ -267,10 +366,7 @@ class NcpCostService {
                               updated_at
                             ) VALUES ?
                             ON DUPLICATE KEY UPDATE
-                              customer_uuid=VALUES(customer_uuid),
-                              account_uuid=VALUES(account_uuid),
                               member_no=VALUES(member_no),
-                              contract_no=VALUES(contract_no),
                               contract_type_code=VALUES(contract_type_code),
                               contract_type_code_name=VALUES(contract_type_code_name),
                               conjunction_contract_no=VALUES(conjunction_contract_no),
@@ -359,12 +455,13 @@ class NcpCostService {
                               service_end_date,
                               product_size,
                               product_count,
-                              contract_no
+                              contract_no,
+                              created_by,
+                              created_at,
+                              updated_by,
+                              updated_at
                             ) VALUES ?
                             ON DUPLICATE KEY UPDATE
-                            customer_uuid=VALUES(customer_uuid),
-                            account_uuid=VALUES(account_uuid),
-                            contract_product_sequence=VALUES(contract_product_sequence),
                             before_contract_product_sequence=VALUES(before_contract_product_sequence),
                             product_code=VALUES(product_code),
                             price_no=VALUES(price_no),
@@ -472,11 +569,6 @@ class NcpCostService {
                               updated_at
                             ) VALUES ?
                             ON DUPLICATE KEY UPDATE
-                            customer_uuid=VALUES(customer_uuid),
-                            account_uuid=VALUES(account_uuid),
-                            demand_month=VALUES(demand_month),
-                            contract_demand_cost_sequence=VALUES(contract_demand_cost_sequence),
-                            contract_product_sequence=VALUES(contract_product_sequence),
                             before_contract_product_sequence=VALUES(before_contract_product_sequence),
                             product_code=VALUES(product_code),
                             price_no=VALUES(price_no),
@@ -499,7 +591,82 @@ class NcpCostService {
                             updated_at=VALUES(updated_at)
                             `;
 
+    const contractProductHistQuery =
+      `INSERT INTO ncp_api.TB_CONTRACT_DEMAND_PRODUCT_HIST (
+                              create_date,
+                              customer_uuid,
+                              account_uuid,
+                              demand_month,
+                              contract_demand_cost_sequence,
+                              contract_product_sequence,
+                              before_contract_product_sequence,
+                              product_code,
+                              price_no,
+                              promise_no,
+                              instance_no,
+                              product_item_kind_code,
+                              product_item_kind_code_name,
+                              product_rating_type_code,
+                              product_rating_type_code_name,
+                              service_status_code,
+                              service_status_code_name,
+                              service_start_date,
+                              service_end_date,
+                              product_size,
+                              product_count,
+                              contract_no,
+                              origin_created_by,
+                              origin_created_at,
+                              origin_updated_by,
+                              origin_updated_at,
+                              origin_deleted_at,
+                              created_by,
+                              created_at,
+                              updated_by,
+                              updated_at
+                            ) 
+                            SELECT 
+                            DATE_FORMAT(created_at, '%Y%m%d'),
+                            customer_uuid,
+                            account_uuid,
+                            demand_month,
+                            contract_demand_cost_sequence,
+                            contract_product_sequence,
+                            before_contract_product_sequence,
+                            product_code,
+                            price_no,
+                            promise_no,
+                            instance_no,
+                            product_item_kind_code,
+                            product_item_kind_code_name,
+                            product_rating_type_code,
+                            product_rating_type_code_name,
+                            service_status_code,
+                            service_status_code_name,
+                            service_start_date,
+                            service_end_date,
+                            product_size,
+                            product_count,
+                            contract_no,
+                            created_by,
+                            created_at,
+                            updated_by,
+                            updated_at,
+                            deleted_at,
+                            ` +
+      `'Aggregator'` +
+      `,'` +
+      this.currentTime +
+      `',` +
+      `'Aggregator'` +
+      `,'` +
+      this.currentTime +
+      `'` +
+      `FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT`;
+
     const contractProductValue = [];
+
+    console.log(contractProductHistQuery);
 
     for (let i = 0; i < contractDemandProduct?.length; i++) {
       contractProductValue[i] = [
@@ -543,6 +710,7 @@ class NcpCostService {
 
     await mysqlConnection.query('START TRANSACTION');
     try {
+      await mysqlConnection.query(contractProductHistQuery);
       await mysqlConnection.query(contractDemandProductDelQuery);
       await mysqlConnection.query(contractProductQuery, [contractProductValue]);
       await mysqlConnection.query('COMMIT');
@@ -559,6 +727,8 @@ class NcpCostService {
 
   public async uploadUsage(usageData: IUsage[]): Promise<string> {
     const usageQuery = `INSERT INTO ncp_api.TB_USAGE (
+                              customer_uuid,
+                              account_uuid,
                               metering_type_code,
                               metering_type_code_name,
                               contract_product_sequence,
@@ -569,26 +739,32 @@ class NcpCostService {
                               user_usage_quantity,
                               user_unit_code,
                               user_unit_code_name,
-                              contract_no
+                              contract_no,
+                              created_by,
+                              created_at,
+                              updated_by,
+                              updated_at
                             ) VALUES ?
                             ON DUPLICATE KEY UPDATE
-                            metering_type_code=VALUES(metering_type_code),
                             metering_type_code_name=VALUES(metering_type_code_name),
-                            contract_product_sequence=VALUES(contract_product_sequence),
-                            use_month=VALUES(use_month),
                             usage_quantity=VALUES(usage_quantity),
                             unit_code=VALUES(unit_code),
                             unit_code_name=VALUES(unit_code_name),
                             user_usage_quantity=VALUES(user_usage_quantity),
                             user_unit_code=VALUES(user_unit_code),
                             user_unit_code_name=VALUES(user_unit_code_name),
-                            contract_no=VALUES(contract_no)
+                            created_by=VALUES(created_by),
+                            created_at=VALUES(created_at),
+                            updated_by=VALUES(updated_by),
+                            updated_at=VALUES(updated_at)
                             `;
 
     const usageValue = [];
 
     for (let i = 0; i < usageData?.length; i++) {
       usageValue[i] = [
+        '31692fe1-05a4-45d4-bea3-0341263992d6',
+        '6d322805-e972-11ed-a07e-9e43039dcae0',
         usageData[i].metering_type_code,
         usageData[i].metering_type_code_name,
         usageData[i].contract_product_sequence,
@@ -600,6 +776,10 @@ class NcpCostService {
         usageData[i].user_unit_code,
         usageData[i].user_unit_code_name,
         usageData[i].contract_no,
+        'Aggregator',
+        this.currentTime,
+        'Aggregator',
+        this.currentTime,
       ];
     }
 
@@ -609,7 +789,7 @@ class NcpCostService {
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
       // database: config.db.mariadb.dbName,
-      database: 'ops_api',
+      database: 'ncp_api',
       multipleStatements: true,
     });
 
@@ -628,8 +808,10 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadProductPrice(productPriceData: IProductPrice[]): Promise<string> {
-    const productPriceQuery = `INSERT INTO claiops_test.TB_PRODUCT (
+  public async uploadProductPrice(productPriceData: IProduct[]): Promise<string> {
+    const productPriceQuery = `INSERT INTO ncp_api.TB_PRODUCT (
+                    customer_uuid,
+                    account_uuid,
                     product_item_kind_code,
                     product_item_kind_code_name,
                     product_item_kind_detail_code,
@@ -669,7 +851,6 @@ class NcpCostService {
                     product_item_kind_code_name=VALUES(product_item_kind_code_name),
                     product_item_kind_detail_code=VALUES(product_item_kind_detail_code),
                     product_item_kind_detail_code_name=VALUES(product_item_kind_detail_code_name),
-                    product_code=VALUES(product_code),
                     product_name=VALUES(product_name),
                     product_description=VALUES(product_description),
                     software_type_code=VALUES(software_type_code),
@@ -704,6 +885,8 @@ class NcpCostService {
 
     for (let i = 0; i < productPriceData?.length; i++) {
       productPriceValue[i] = [
+        '31692fe1-05a4-45d4-bea3-0341263992d6',
+        '6d322805-e972-11ed-a07e-9e43039dcae0',
         productPriceData[i].product_item_kind_code,
         productPriceData[i].product_item_kind_code_name,
         productPriceData[i].product_item_kind_detail_code,
@@ -766,7 +949,9 @@ class NcpCostService {
   }
 
   public async uploadPrice(priceData: IPrice[]): Promise<string> {
-    const priceQuery = `INSERT INTO claiops_test.TB_PRICE (
+    const priceQuery = `INSERT INTO ncp_api.TB_PRICE (
+                    customer_uuid,
+                    account_uuid,
                     price_no,
                     price_type_code,
                     price_type_code_name,
@@ -803,7 +988,6 @@ class NcpCostService {
                     updated_at
                   ) VALUES ?
                   ON DUPLICATE KEY UPDATE
-                    price_no=VALUES(price_no),
                     price_type_code=VALUES(price_type_code),
                     price_type_code_name=VALUES(price_type_code_name),
                     region=VALUES(region),
@@ -843,6 +1027,8 @@ class NcpCostService {
 
     for (let i = 0; i < priceData?.length; i++) {
       priceValue[i] = [
+        '31692fe1-05a4-45d4-bea3-0341263992d6',
+        '6d322805-e972-11ed-a07e-9e43039dcae0',
         priceData[i].price_no,
         priceData[i].price_type_code,
         priceData[i].price_type_code_name,
