@@ -13,6 +13,8 @@ class ResourceManagerController {
         result = await this.ncpCostService.uploadNcpContractDemandCost(totalMsg);
       } else if (totalMsg.template_uuid === '70000000000000000000000000000042') {
         result = await this.ncpCostService.uploadNcpContractUsage(totalMsg);
+      } else if (totalMsg.template_uuid === '70000000000000000000000000000043') {
+        result = await this.ncpCostService.uploadNcpProductPrice(totalMsg);
       }
       if (result === 'empty list') {
         res.status(204).json({ message: result });

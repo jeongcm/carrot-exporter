@@ -2,7 +2,6 @@ import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class ContractDemandCostDto {
   @IsNumber()
-  @IsNotEmpty()
   public contract_demand_cost_sequence: number;
   @IsString()
   @IsNotEmpty()
@@ -65,4 +64,6 @@ export class ContractDemandCostDto {
   public pay_currency_codeName: string;
   @IsNumber()
   public this_month_applied_exchange_rate: number;
+  @IsString()
+  public contract_demand_product_info: string;
 }

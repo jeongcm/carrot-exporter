@@ -38,6 +38,7 @@ import getResourceQuery from '@modules/Resources/query/ncp/resource/resource';
 import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/resourceGroup';
 import { HttpException } from '@common/exceptions/HttpException';
 import getVpcListQuery from '@modules/Resources//query/ncp/vpc/vpc';
+import getProductPriceQuery from '@modules/Cost/query/ncp/productPrice';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -137,7 +138,8 @@ class QueryService {
       case 'NCM00000000000000000000000000013':
       case '70000000000000000000000000000029':
       case 'NCM00000000000000000000000000014':
-        queryResult = await this.getNcpResourceQuery(totalMsg)
+      case '70000000000000000000000000000043':
+        queryResult = await this.getNcpResourceQuery(totalMsg);
         break;
       default:
         throw new HttpException(400, 'invalid template uuid');
@@ -149,13 +151,14 @@ class QueryService {
   private async getNcpResourceQuery(totalMsg): Promise<any> {
     let queryResult = {};
     const result = totalMsg.result;
-    const inputs = totalMsg.inputs
-    const credentialName = inputs.credential_key || inputs.ncp_key || null
+    const inputs = totalMsg.inputs;
+
+    const credentialName = inputs.credential_key || inputs.ncp_key || null;
 
     if (!credentialName) {
       throw new HttpException(400, 'invalid credential name');
     }
-    const clusterUuid = credentialName.split('.')[1]
+    const clusterUuid = credentialName.split('.')[1];
     if (clusterUuid === '') {
       throw new HttpException(400, `invalid cluster uuid from credential name(${credentialName})`);
     }
@@ -201,6 +204,9 @@ class QueryService {
       case '70000000000000000000000000000042':
         queryResult = await getContractUsageQuery(result, clusterUuid);
         break;
+      case '70000000000000000000000000000043':
+        queryResult = await getProductPriceQuery(result, clusterUuid);
+        break;
       case 'NCM00000000000000000000000000006':
         queryResult = await this.cloudDBMysqlService.getCloudDBMysqlInstanceListQuery(result, clusterUuid);
         break;
@@ -237,7 +243,6 @@ class QueryService {
 
     return queryResult;
   }
-
 }
 
 export default QueryService;
