@@ -37,6 +37,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   pool: {
     min: pool.min,
     max: pool.max,
+    acquire: 30000, // 30초
   },
   logQueryParameters: config.nodeEnv === 'development',
 
