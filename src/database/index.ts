@@ -27,6 +27,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   timezone: '+00:00',
   dialectOptions: {
     autoJsonMap: true,
+    connectTimeout: 10000, // 10초
   },
   define: {
     charset: 'utf8mb4',
