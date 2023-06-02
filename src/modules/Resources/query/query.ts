@@ -39,6 +39,7 @@ import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/re
 import { HttpException } from '@common/exceptions/HttpException';
 import getVpcListQuery from '@modules/Resources//query/ncp/vpc/vpc';
 import getProductPriceQuery from '@modules/Cost/query/ncp/productPrice';
+import getRouteTableQuery from '@modules/Resources/query/ncp/routeTable/routeTable';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -138,6 +139,7 @@ class QueryService {
       case 'NCM00000000000000000000000000013':
       case '70000000000000000000000000000029':
       case 'NCM00000000000000000000000000014':
+      case 'NCM00000000000000000000000000016':
       case '70000000000000000000000000000043':
         queryResult = await this.getNcpResourceQuery(totalMsg);
         break;
@@ -236,6 +238,9 @@ class QueryService {
         break;
       case 'NCM00000000000000000000000000014':
         queryResult = await getResourceGroupQuery(result, clusterUuid);
+        break;
+      case 'NCM00000000000000000000000000016':
+        queryResult = await getRouteTableQuery(result, clusterUuid);
         break;
       default:
         throw new HttpException(400, `invalid template uuid ${totalMsg.template_uuid}`);
