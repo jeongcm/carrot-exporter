@@ -7,6 +7,7 @@ How to add config:
 
 import '../dotenvConfig';
 import validateEnv from './validateEnv';
+import * as process from "process";
 
 validateEnv();
 
@@ -16,6 +17,10 @@ export default {
   nodeEnv: process.env.CO_AGGREGATOR_ENV || 'development',
   maxApiBodySize: process.env.CO_MAX_API_BODY_SIZE || '50mb',
   logFormat: process.env.CO_AGGREGATOR_LOG_FORMAT,
+  coApi: {
+    url: process.env.CO_API_URL || 'http://localhost',
+    port: process.env.CO_API_PORT || 5001,
+  },
   cors: {
     allowAnyOrigin: process.env.CO_AGGREGATOR_CORS_ORIGIN === 'true' ? Boolean(process.env.CO_AGGREGATOR_CORS_ORIGIN) : process.env.CO_AGGREGATOR_CORS_ORIGIN,
     credentials: process.env.CO_AGGREGATOR_CORS_CREDENTIALS === 'true',

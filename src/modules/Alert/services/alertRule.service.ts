@@ -5,9 +5,11 @@ import sequelize, { Op, where } from "sequelize";
 import * as crypto from "crypto";
 import config from "@/config";
 import mysql from "mysql2/promise";
+import axios from "@common/httpClient/axios";
+import TableIdService from "@common/tableId/tableId";
 
 class AlertRuleService {
-
+  public tableIdService = new TableIdService()
   public resourceGroup = DB.ResourceGroup;
   public alertRule = DB.AlertRule;
   public alertReceived = DB.AlertReceived;
@@ -85,7 +87,7 @@ class AlertRuleService {
 
   private getAlertRuleKey(prevAlertRuleUniqueSet: {}, alertRuleHash: any): number {
     return prevAlertRuleUniqueSet[alertRuleHash]
-}
+  }
   private async processAlertRule(serviceUuid, clusterUuid, result) {
     try {
 
@@ -136,7 +138,11 @@ class AlertRuleService {
           let alertRule = this.getAlertRuleQuery(clusterUuid, group.name, resourceGroup.customerAccountKey, rule)
           let alertRuleHash = await this.alertRuleToSHA1(alertRule) // make hash
 
-          alertRule["alert_rule_key"] = this.getAlertRuleKey(prevAlertRuleUniqueSet, alertRuleHash) || 0 // alertRuleKey setting
+          // alertRuleKey setting
+          if (typeof this.getAlertRuleKey(prevAlertRuleUniqueSet, alertRuleHash) !== 'undefined') {
+            alertRule["alert_rule_key"] = this.getAlertRuleKey(prevAlertRuleUniqueSet, alertRuleHash)
+          }
+
           alertRule["updated_by"] = config.partyUser.userId // editor
           alertRuleSet[alertRuleHash] = alertRule
           // alertReceived
@@ -162,29 +168,167 @@ class AlertRuleService {
       }
 
       // 2. upsert to database
-      // const mysqlConnection = await mysql.createConnection({
-      //   host: config.db.mariadb.host,
-      //   user: config.db.mariadb.user,
-      //   port: config.db.mariadb.port || 3306,
-      //   password: config.db.mariadb.password,
-      //   database: config.db.mariadb.dbName,
-      //   multipleStatements: true,
-      // });
-      // await mysqlConnection.query('START TRANSACTION');
-      // try {
-      //   prevAlertRuleUniqueSet.map()
-      //
-      //
-      //
-      //   await mysqlConnection.query(query1, [query2]);
-      //   await mysqlConnection.query('COMMIT');
-      // } catch (err) {
-      //   await mysqlConnection.query('ROLLBACK');
-      //   await mysqlConnection.end();
-      //   console.info('Rollback successful');
-      // }
-      //
-      // await mysqlConnection.end();
+
+      // 필터 함수를 통해서 alertRuleSet에 이전 얼럿 룰이 존재한다면 삭제하지 않고 존재하지 않으면 삭제 처리
+      const unUsedAlertRuleKeys = this.setUniqueValues(prevAlertRuleUniqueSet, (k, v) => {
+        if (alertRuleSet.hasOwnProperty(k)) {
+          return false;
+        }
+
+        for (const ar of newAlertReceivedSet[k]) {
+          ar.AlertReceivedState = "resolved";
+        }
+
+        return true;
+      });
+
+      if (unUsedAlertRuleKeys.length > 0) {
+        // delete unused alertRule
+        await this.alertRule.destroy({where: {
+          alertRuleKey: {[Op.in]: unUsedAlertRuleKeys}
+          }})
+      }
+
+      let arrivalAlertRules = []
+      let updatableAlertRules = []
+      let combinedAlertRules = []
+      for (const alertRuleValue of alertRuleSet) {
+        if (typeof alertRuleValue["alert_rule_key"] === 'undefined') {
+          alertRuleValue['created_by'] = config.partyUser.userId
+          arrivalAlertRules.push(alertRuleValue)
+        } else {
+          updatableAlertRules.push(alertRuleValue)
+        }
+
+        if (alertRuleValue['alert_rule_state'] === 'inactive') {
+          let alertRuleHash = await this.alertRuleToSHA1(alertRuleValue)
+          newAlertReceivedSet[alertRuleHash].forEach(alertReceived => {
+            alertReceived['alert_received_state'] = 'resolved'
+          })
+        }
+      }
+
+
+        if (arrivalAlertRules.length > 0) {
+          const alertRuleTableIdRequest = {tableName: this.alertRule.tableName, tableIdRange: arrivalAlertRules.length}
+          let tableIds = await this.tableIdService.tableIdBulk(alertRuleTableIdRequest)
+
+          if (!tableIds) {
+            throw new HttpException(404, 'table data is empty')
+          }
+
+          // 새로운 얼럿 룰에 얼럿 룰 id 할당
+          tableIds.forEach((tableId, index) => {
+            arrivalAlertRules[index].alertRuleId = tableId
+          })
+
+          combinedAlertRules.push(...arrivalAlertRules)
+        }
+
+
+        if (updatableAlertRules.length > 0) {
+          combinedAlertRules.push(...updatableAlertRules)
+        }
+
+        if (combinedAlertRules.length > 0) {
+          await this.alertRule.bulkCreate(combinedAlertRules, {
+            updateOnDuplicate: ["updatedAt", "alertRuleQuery", "alertRuleDescription", "alertRuleRunbook",
+              "alertRuleSummary", "alertRuleState", "customerAccountKey",
+              "alertRuleHealth", "alertRuleEvaluationTime", "alertRuleLastEvaluation"],
+          })
+        }
+
+      // 새로 생성한 alertRule list uniqueSet 추가
+      prevAlertRules = await this.getAlertRuleByClusterUuid(clusterUuid)
+
+      prevAlertRules.forEach(prevAlertRule => prevAlertRuleUniqueSet[prevAlertRule.SHA1] = prevAlertRule.id)
+
+      // 이전 alertReceived 삭제
+
+      if (prevAlertReceives.length > 0) {
+        let newAlertReceivedMap = {}
+        newAlertReceivedSet.forEach((alertReceivedMap, k) => {
+          alertReceivedMap.forEach((alertReceived, alertReceivedHash) => {
+            newAlertReceivedMap[alertReceivedHash] = alertReceived
+          })
+        })
+
+        let alertReceivedKeys = [];
+        for (const prevAlertReceived of prevAlertReceives) {
+          // 1. 이전에 존재했지만 이번에 없어진 데이터
+          //   - AlertReceivedState가 이전에 "resolved" 인 데이터 삭제 안함
+          // 2. 이전에 존재했고 이번에도 존재하는 데이터
+          //   - AlertReceivedState가 이전에 "resolved" 이고 이번에도 "resolved"이면 삭제 안함
+          if (prevAlertReceived.alertReceivedState === 'resolved') {
+            let arHash = await this.alertReceivedToSHA1(prevAlertReceived)
+            let resolvedAlertReceived = newAlertReceivedMap[arHash]
+            if (!resolvedAlertReceived) {
+              continue
+            } else {
+              if (resolvedAlertReceived.alertReceivedState === 'resolved') {
+                continue
+              }
+            }
+          }
+
+          alertReceivedKeys.push(prevAlertReceived.alertReceivedKey)
+        }
+
+        await this.alertReceived.destroy({where: {
+          alertRuleKey: {[Op.in]: alertReceivedKeys}
+        }})
+      }
+
+
+      if (prevAlertReceivedSet.length > 0 || newAlertReceivedSet.length > 0) {
+        let insertAlertReceives: any = []
+
+        // 새로운 AlertReceived 추가
+        // - 이전 AlertReceived가 존재하고 이전 AlertReceivedState가 "resolved"이면서 새로운 상태도 "resolved"이면 추가 안함
+        for (const [alertRuleHash, alertReceivedSet] of newAlertReceivedSet) {
+          for (const alertReceived of alertReceivedSet) {
+            let arHash = await this.alertReceivedToSHA1(alertReceived)
+            let inAlertReceived = prevAlertReceivedIntersectionSet[arHash]
+            if (inAlertReceived && (inAlertReceived.AlertReceivedState == 'resolved' && alertReceived.AlertReceivedState == 'resolved')) {
+                continue
+            }
+
+            alertReceived.alertRuleKey = prevAlertRuleUniqueSet[alertRuleHash]
+            alertReceived.createdBy = config.partyUser.userId
+            insertAlertReceives.push(alertReceived)
+          }
+        }
+
+        // 이전 AlertReceived 중 이번에 없어진 AlertReceived에 대해
+        // 이전 AlertReceivedState가 "resolved"가 아니라면 "resolved"로 변경해서 추가
+        prevAlertReceivedSet.forEach(prevAlertReceived => {
+          if (prevAlertReceived.alertReceivedState != 'resolved') {
+            prevAlertReceived.alertRuleKey = null
+            prevAlertReceived.alertReceivedState = 'resolved'
+            insertAlertReceives.push(prevAlertReceived)
+          }
+        })
+
+        // craete new arrived alertReceived
+        if (insertAlertReceives.length > 0) {
+          const alertReceivedTableIdRequest = {tableName: this.alertReceived.tableName, tableIdRange: insertAlertReceives.length}
+          let alertReceivedTableIds = await this.tableIdService.tableIdBulk(alertReceivedTableIdRequest)
+
+          if (!alertReceivedTableIds) {
+            throw new HttpException(404, 'table data is empty')
+          }
+
+          alertReceivedTableIds.forEach((tableId, index) => {
+            insertAlertReceives[index].alertReceivedId = tableId
+          })
+
+          await this.alertReceived.bulkCreate(insertAlertReceives)
+        }
+      }
+
+
+
+
 
     } catch (err) {
       console.log(`failed to processAlertRule. cause: ${err}`)
@@ -241,6 +385,16 @@ class AlertRuleService {
     receivedQuery['alert_received_affected_resource_name'] = "NA";
 
     return receivedQuery
+  }
+
+  private setUniqueValues(set, filter) {
+    const r = [];
+    set.forEach((v, k) => {
+      if (filter(k, v)) {
+        r.push(v);
+      }
+    });
+    return r;
   }
 }
 
