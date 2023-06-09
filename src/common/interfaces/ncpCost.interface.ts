@@ -182,3 +182,43 @@ export interface IPrice {
   package_unit_list: string;
 }
 [];
+
+export interface IDemandCost {
+  member_no: string;
+  demand_month: string;
+  demand_no: string;
+  integration_demand_no: string;
+  demand_attribute_code: string;
+  demand_attribute_code_name: string;
+  use_amount: number;
+  promise_discount_amount: number;
+  etc_discount_amount: number;
+  customer_discount_amount: number;
+  product_discount_amount: number;
+  credit_discount_amount: number;
+  rounddown_discount_amount: number;
+  currency_discount_amount: number;
+  coin_use_amount: number;
+  default_amount: number;
+  this_month_demand_amount: number;
+  this_month_vat_ratio: number;
+  this_month_vat_amount: number;
+  this_month_amount_including_vat: number;
+  total_demand_amount: number;
+  is_paid_up: string;
+  paid_up_date: Date;
+  overdue_occur_date: Date;
+  overdue_plus_amount: number;
+  overdue_ratio: number;
+  this_month_overdue_amount: number;
+  before_month_demand_no: string;
+  total_overdue_amount: number;
+  write_date: Date;
+  member_price_discount_amount: number;
+  member_promise_discount_add_amount: number;
+  pay_currency_code: string;
+  pay_currency_code_name: string;
+  this_month_applied_exchange_rate: number;
+  promotion_discount_amount: number;
+}
+[];

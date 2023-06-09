@@ -11,6 +11,8 @@ class ResourceManagerController {
       //template_uuid로 서비스 분기 처리.
       if (totalMsg.template_uuid === '70000000000000000000000000000040') {
         result = await this.ncpCostService.uploadNcpContractDemandCost(totalMsg);
+      } else if (totalMsg.template_uuid === '70000000000000000000000000000041') {
+        result = await this.ncpCostService.uploadNcpDemandCost(totalMsg);
       } else if (totalMsg.template_uuid === '70000000000000000000000000000042') {
         result = await this.ncpCostService.uploadNcpContractUsage(totalMsg);
       } else if (totalMsg.template_uuid === '70000000000000000000000000000043') {
