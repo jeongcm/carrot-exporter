@@ -8,15 +8,22 @@ import {
   IProduct,
   IUsage,
 } from '@/common/interfaces/ncpCost.interface';
-import DB from '@/database';
+import { DB, OpsApiDB, OpsCommDB } from '@/database';
 import config from '@config/index';
 import mysql from 'mysql2/promise';
 import QueryService from '@modules/Resources/query/query';
 import { IPartyUser } from '@/common/interfaces/party.interface';
+import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { ITbCustomer } from '@/common/interfaces/tbCustomer.interface';
+import { ITbCustomerAccountCloudPlatform } from '@/common/interfaces/tbCustomerAccountCloudPlatform.interface';
 
 class NcpCostService {
   public queryService = new QueryService();
   public partyUser = DB.PartyUser;
+  public resourceGroup = DB.ResourceGroup;
+  public customerAccounnt = DB.CustomerAccount;
+  public tbCustomer = OpsCommDB.TbCustomer;
+  public tbCustomerAccountCloudPlatform = OpsApiDB.TbCustomerAccountCloudPlatform;
 
   currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
@@ -25,13 +32,30 @@ class NcpCostService {
     return findSystemUser;
   }
 
+  //UUID 발급
+  public async getUuid(resourceGroupUuid: string) {
+    const responseResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid } });
+    const customerAccountKey = responseResourceGroup.customerAccountKey;
+
+    const ncCustomerAccountKey = customerAccountKey;
+    // const ncCustomerAccountKey = 48;
+    const customerUuidResult: ITbCustomer = await this.tbCustomer.findOne({ where: { ncCustomerAccountKey } });
+    const customerUuid = customerUuidResult.customerUuid;
+    
+    const accountUuidResult: ITbCustomerAccountCloudPlatform = await this.tbCustomerAccountCloudPlatform.findOne({ where: { customerUuid } });
+    const accountUuid = accountUuidResult.accountUuid;
+
+    return { customerUuid: customerUuid, accountUuid: accountUuid };
+  }
+
   public async uploadNcpContractDemandCost(totalMsg) {
     let queryResult: any;
     let resultMsg: any;
 
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
-
+    const uuidResult = await this.getUuid(totalMsg.cluster_uuid);
     const result = JSON.parse(queryResult.message);
+
     if (Object.keys(queryResult.message).length === 0) {
       console.log(`skip to upload ncpResourceGroup(${queryResult.resourceType}). cause: empty list`);
       return 'empty list';
@@ -39,14 +63,14 @@ class NcpCostService {
 
     try {
       //Insert TB_CONTRACT_DEMAND_COST
-      resultMsg = await this.uploadContractDemandCost(result.contractDemandCostList);
+      resultMsg = await this.uploadContractDemandCost(result.contractDemandCostList, uuidResult);
       console.log(`success to upload contractDemandCost(${queryResult.resourceType}).`);
 
       //※ 2023.05.15 Contract 정보는 Usage API 에서 쌓도록 변경.
       // resultMsg = await this.uploadContract(result.contractList);
 
       //Insert TB_CONTRACT_DEMAND_PRODUCT
-      resultMsg = await this.uploadContractDemandProduct(result.contractProductList);
+      resultMsg = await this.uploadContractDemandProduct(result.contractProductList, uuidResult);
       console.log(`success to upload contractProduct(${queryResult.resourceType}).`);
 
       return resultMsg;
@@ -60,6 +84,7 @@ class NcpCostService {
     let queryResult: any;
     let resultMsg: any;
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+    const uuidResult = await this.getUuid(queryResult.clusterUuid);
 
     const result = JSON.parse(queryResult.message);
     if (Object.keys(queryResult.message).length === 0) {
@@ -69,13 +94,13 @@ class NcpCostService {
 
     try {
       //Insert TB_CONTRACT
-      resultMsg = await this.uploadContract(result.contractList);
+      resultMsg = await this.uploadContract(result.contractList, uuidResult);
       console.log(`success to upload contract(${queryResult.resourceType}).`);
       //Insert TB_CONTRACT_PRODUCT
-      resultMsg = await this.uploadContractProduct(result.contractProductList);
+      resultMsg = await this.uploadContractProduct(result.contractProductList, uuidResult);
       console.log(`success to upload contractProduct(${queryResult.resourceType}).`);
       //Insert TB_USAGE
-      resultMsg = await this.uploadUsage(result.usageList);
+      resultMsg = await this.uploadUsage(result.usageList, uuidResult);
       console.log(`success to upload usage(${queryResult.resourceType}).`);
       return resultMsg;
     } catch (err) {
@@ -88,6 +113,7 @@ class NcpCostService {
     let queryResult: any;
     let resultMsg: any;
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+    const uuidResult = await this.getUuid(queryResult.clusterUuid);
 
     const result = JSON.parse(queryResult.message);
     if (Object.keys(queryResult.message).length === 0) {
@@ -97,10 +123,10 @@ class NcpCostService {
 
     try {
       //Insert TB_CONTRACT
-      resultMsg = await this.uploadProductPrice(result.productPriceList);
+      resultMsg = await this.uploadProductPrice(result.productPriceList, uuidResult);
       console.log(`success to upload productPrice(${queryResult.resourceType}).`);
       //Insert TB_USAGE
-      resultMsg = await this.uploadPrice(result.priceList);
+      resultMsg = await this.uploadPrice(result.priceList, uuidResult);
       console.log(`success to upload price(${queryResult.resourceType}).`);
       return resultMsg;
     } catch (err) {
@@ -113,6 +139,7 @@ class NcpCostService {
     let queryResult: any;
     let resultMsg: any;
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+    const uuidResult = await this.getUuid(queryResult.clusterUuid);
 
     const result = JSON.parse(queryResult.message);
     if (Object.keys(queryResult.message).length === 0) {
@@ -121,7 +148,7 @@ class NcpCostService {
     }
 
     try {
-      resultMsg = await this.uploadDemandCost(result.demandCostList);
+      resultMsg = await this.uploadDemandCost(result.demandCostList, uuidResult);
       console.log(`success to upload Demandcost(${queryResult.resourceType}).`);
     } catch (err) {
       console.log(`failed to upload Demandcost(${queryResult.resourceType}. cause: ${err})`);
@@ -129,7 +156,7 @@ class NcpCostService {
     }
   }
 
-  public async uploadContractDemandCost(contractDemandCostData: IContractDemandCost[]): Promise<string> {
+  public async uploadContractDemandCost(contractDemandCostData: IContractDemandCost[], uuidResult: any): Promise<string> {
     const contractDemandCostDelQuery = `DELETE FROM ncp_api.TB_CONTRACT_DEMAND_COST WHERE 1=1`;
     const contractDemandCostQuery = `INSERT INTO ncp_api.TB_CONTRACT_DEMAND_COST (
                     customer_uuid,
@@ -270,18 +297,15 @@ class NcpCostService {
             updated_by,
             updated_at,
             deleted_at,
-          ` +
-      `'Aggregator'` +
-      `,'` +
-      this.currentTime +
-      `',` +
+            'Aggregator',
+          '` + this.currentTime + `'` +
       `FROM ncp_api.TB_CONTRACT_DEMAND_COST`;
     const contractDemandCostValue = [];
 
     for (let i = 0; i < contractDemandCostData?.length; i++) {
       contractDemandCostValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         contractDemandCostData[i].contract_demand_cost_sequence,
         contractDemandCostData[i].demand_month,
         contractDemandCostData[i].member_no,
@@ -320,7 +344,7 @@ class NcpCostService {
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
       // database: config.db.mariadb.dbName,
-      database: 'ops_api',
+      // database: 'ops_api',
       multipleStatements: true,
     });
 
@@ -341,7 +365,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadContract(contractData: IContract[]): Promise<string> {
+  public async uploadContract(contractData: IContract[], uuidResult: any): Promise<string> {
     const contractQuery = `INSERT INTO ncp_api.TB_CONTRACT (
                               customer_uuid,
                               account_uuid,
@@ -382,8 +406,8 @@ class NcpCostService {
 
     for (let i = 0; i < contractData?.length; i++) {
       contractValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         contractData[i].member_no,
         contractData[i].contract_no,
         contractData[i].contract_type_code,
@@ -427,7 +451,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadContractProduct(contractDemandProduct: IContractProduct[]): Promise<string> {
+  public async uploadContractProduct(contractDemandProduct: IContractProduct[], uuidResult: any): Promise<string> {
     const contractProductQuery = `INSERT INTO ncp_api.TB_CONTRACT_PRODUCT (
                               customer_uuid,
                               account_uuid,
@@ -480,8 +504,8 @@ class NcpCostService {
 
     for (let i = 0; i < contractDemandProduct?.length; i++) {
       contractProductValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         contractDemandProduct[i].contract_product_sequence,
         contractDemandProduct[i].before_contract_product_sequence,
         contractDemandProduct[i].product_code,
@@ -531,7 +555,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadContractDemandProduct(contractDemandProduct: IContractDemandProduct[]): Promise<string> {
+  public async uploadContractDemandProduct(contractDemandProduct: IContractDemandProduct[], uuidResult: any): Promise<string> {
     const contractDemandProductDelQuery = `DELETE FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT WHERE 1=1`;
     const contractProductQuery = `INSERT INTO ncp_api.TB_CONTRACT_DEMAND_PRODUCT (
                               customer_uuid,
@@ -645,16 +669,15 @@ class NcpCostService {
                             updated_by,
                             updated_at,
                             deleted_at,
-                            ` +
-      `'Aggregator'` +
-      `,'` +
-      this.currentTime +
-      `',` +
-      `'Aggregator'` +
-      `,'` +
-      this.currentTime +
-      `'` +
-      `FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT`;
+                            'Aggregator'` +
+                            `,'` +
+                            this.currentTime +
+                            `',` +
+                            `'Aggregator'` +
+                            `,'` +
+                            this.currentTime +
+                            `'` +
+                            `FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT`;
 
     const contractProductValue = [];
 
@@ -662,8 +685,8 @@ class NcpCostService {
 
     for (let i = 0; i < contractDemandProduct?.length; i++) {
       contractProductValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         contractDemandProduct[i].demand_month,
         contractDemandProduct[i].contract_demand_cost_sequence,
         contractDemandProduct[i].contract_product_sequence,
@@ -717,7 +740,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadUsage(usageData: IUsage[]): Promise<string> {
+  public async uploadUsage(usageData: IUsage[], uuidResult: any): Promise<string> {
     const usageQuery = `INSERT INTO ncp_api.TB_USAGE (
                               customer_uuid,
                               account_uuid,
@@ -755,8 +778,8 @@ class NcpCostService {
 
     for (let i = 0; i < usageData?.length; i++) {
       usageValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         usageData[i].metering_type_code,
         usageData[i].metering_type_code_name,
         usageData[i].contract_product_sequence,
@@ -800,7 +823,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadProductPrice(productPriceData: IProduct[]): Promise<string> {
+  public async uploadProductPrice(productPriceData: IProduct[], uuidResult: any): Promise<string> {
     const productPriceQuery = `INSERT INTO ncp_api.TB_PRODUCT (
                     customer_uuid,
                     account_uuid,
@@ -877,8 +900,8 @@ class NcpCostService {
 
     for (let i = 0; i < productPriceData?.length; i++) {
       productPriceValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         productPriceData[i].product_item_kind_code,
         productPriceData[i].product_item_kind_code_name,
         productPriceData[i].product_item_kind_detail_code,
@@ -940,7 +963,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadPrice(priceData: IPrice[]): Promise<string> {
+  public async uploadPrice(priceData: IPrice[], uuidResult: any): Promise<string> {
     const priceQuery = `INSERT INTO ncp_api.TB_PRICE (
                     customer_uuid,
                     account_uuid,
@@ -1019,8 +1042,8 @@ class NcpCostService {
 
     for (let i = 0; i < priceData?.length; i++) {
       priceValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         priceData[i].price_no,
         priceData[i].price_type_code,
         priceData[i].price_type_code_name,
@@ -1083,7 +1106,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadDemandCost(demandCostData: IDemandCost[]): Promise<string> {
+  public async uploadDemandCost(demandCostData: IDemandCost[], uuidResult: any): Promise<string> {
     const demandCostQuery = `INSERT INTO ncp_api.TB_DEMAND_COST (
                             customer_uuid,
                             account_uuid,
@@ -1166,8 +1189,8 @@ class NcpCostService {
 
     for (let i = 0; i < demandCostData?.length; i++) {
       demandCostValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         demandCostData[i].member_no,
         demandCostData[i].demand_month,
         demandCostData[i].demand_no,

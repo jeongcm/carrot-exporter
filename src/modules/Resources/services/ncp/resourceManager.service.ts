@@ -26,6 +26,7 @@ class ncpResourceService {
     const customerAccountKey = responseResourceGroup.customerAccountKey;
 
     const ncCustomerAccountKey = customerAccountKey;
+    // const ncCustomerAccountKey = 48;
     const customerUuidResult: ITbCustomer = await this.tbCustomer.findOne({ where: { ncCustomerAccountKey } });
     const customerUuid = customerUuidResult.customerUuid;
 
