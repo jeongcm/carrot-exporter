@@ -17,7 +17,8 @@ export default {
   maxApiBodySize: process.env.CO_MAX_API_BODY_SIZE || '50mb',
   logFormat: process.env.CO_AGGREGATOR_LOG_FORMAT,
   cors: {
-    allowAnyOrigin: process.env.CO_AGGREGATOR_CORS_ORIGIN === 'true' ? Boolean(process.env.CO_AGGREGATOR_CORS_ORIGIN) : process.env.CO_AGGREGATOR_CORS_ORIGIN,
+    allowAnyOrigin:
+      process.env.CO_AGGREGATOR_CORS_ORIGIN === 'true' ? Boolean(process.env.CO_AGGREGATOR_CORS_ORIGIN) : process.env.CO_AGGREGATOR_CORS_ORIGIN,
     credentials: process.env.CO_AGGREGATOR_CORS_CREDENTIALS === 'true',
   },
   db: {
@@ -27,6 +28,7 @@ export default {
       user: process.env.CO_AGGREGATOR_DB_CONFIG_USER || 'root',
       password: process.env.CO_AGGREGATOR_DB_CONFIG_PASSWORD || 'gu7C89wD8X',
       dbName: process.env.CO_AGGREGATOR_DB_CONFIG_DB_NAME || 'nc_api',
+      ncpDbName: process.env.CO_AGGREGATOR_DB_CONFIG_NCP_DB_NAME || 'ncp_api',
       poolMin: Number(process.env.CO_AGGREGATOR_DB_CONFIG_POOL_MIN) || 1,
       poolMax: Number(process.env.CO_AGGREGATOR_DB_CONFIG_POOL_MAX) || 5,
     },
@@ -66,6 +68,6 @@ export default {
   },
 
   partyUser: {
-    userId: process.env.CO_AGGREGATOR_SYSTEM_PARTYUSER_USERID || 'system@claion.io'
-  }
+    userId: process.env.CO_AGGREGATOR_SYSTEM_PARTYUSER_USERID || 'system@claion.io',
+  },
 };

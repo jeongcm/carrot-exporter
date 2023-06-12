@@ -2,7 +2,7 @@ import config from '@config/index';
 import { IRequestMassUploader } from '@/common/interfaces/massUploader.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IResource, IResourceTargetUuid } from "@/common/interfaces/resource.interface";
-import DB from '@/database';
+import { DB } from '@/database';
 import { IPartyUser } from '@/common/interfaces/party.interface';
 
 import QueryService from "@modules/Resources/query/query";
