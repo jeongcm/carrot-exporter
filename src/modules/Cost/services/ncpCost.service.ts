@@ -1084,7 +1084,9 @@ class NcpCostService {
   }
 
   public async uploadDemandCost(demandCostData: IDemandCost[]): Promise<string> {
-    const demandCostQuery = `INSERT INTO claiops_test.TB_DEMAND_COST (
+    const demandCostQuery = `INSERT INTO ncp_api.TB_DEMAND_COST (
+                            customer_uuid,
+                            account_uuid,
                             member_no,
                             demand_month,
                             demand_no,
@@ -1124,7 +1126,6 @@ class NcpCostService {
                           ) VALUES ?
                           ON DUPLICATE KEY UPDATE
                             member_no=VALUES(member_no), 
-                            demand_month=VALUES(demand_month),
                             demand_no=VALUES(demand_no),
                             integration_demand_no=VALUES(integration_demand_no),
                             demand_attribute_code=VALUES(demand_attribute_code),
@@ -1165,6 +1166,8 @@ class NcpCostService {
 
     for (let i = 0; i < demandCostData?.length; i++) {
       demandCostValue[i] = [
+        '31692fe1-05a4-45d4-bea3-0341263992d6',
+        '6d322805-e972-11ed-a07e-9e43039dcae0',
         demandCostData[i].member_no,
         demandCostData[i].demand_month,
         demandCostData[i].demand_no,
