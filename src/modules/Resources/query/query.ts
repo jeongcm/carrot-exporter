@@ -37,15 +37,16 @@ import CloudDBPostgresqlService from '@modules/Resources/query/ncp/cloudDB/pgsql
 import getResourceQuery from '@modules/Resources/query/ncp/resource/resource';
 import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/resourceGroup';
 import { HttpException } from '@common/exceptions/HttpException';
-import getVpcListQuery from '@modules/Resources//query/ncp/vpc/vpc';
 import getProductPriceQuery from '@modules/Cost/query/ncp/productPrice';
 import getLoadBalancerQuery from '@modules/Resources/query/ncp/loadBalancer/loadBalancer';
 import getNksQuery from '@modules/Resources/query/ncp/nks/nks';
 import getNasVolumeQuery from '@modules/Resources/query/ncp/nas/nas';
-import EventService from '@modules/Resources/query/ncp/event/event';
 import getTargetGroupListQuery from '@modules/Resources/query/ncp/targetGroup/targetGroup';
 import getRouteTableQuery from '@modules/Resources/query/ncp/routeTable/routeTable';
 import getSubnetListQuery from '@modules/Resources/query/ncp/subnet/subnet';
+import EventService from '@modules/Resources/query/ncp/event/event';
+import getVpcListQuery from '@modules/Resources/query/ncp/vpc/vpc';
+import getZoneListQuery from '@modules/Resources/query/ncp/zone/zone';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -123,6 +124,7 @@ class QueryService {
 
       // ncp
       case '70000000000000000000000000000001':
+      case '70000000000000000000000000000002':
       case '70000000000000000000000000000003':
       case '70000000000000000000000000000004':
       case '70000000000000000000000000000009':
@@ -179,6 +181,9 @@ class QueryService {
       // ncp
       case '70000000000000000000000000000001':
         queryResult = await getRegionListQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000002':
+        queryResult = await getZoneListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000003':
         queryResult = await getNetworkInterfaceListQuery(result, clusterUuid);
