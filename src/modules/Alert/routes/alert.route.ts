@@ -9,7 +9,7 @@ class AlertRoute implements Routes {
     this.initializeRoutes();
   }
   private initializeRoutes() {
-    this.router.get('/alertRule', this.alertController.getAlertRule);
+    // this.router.get('/alertRule', this.alertController.getAlertRule);
     // this.router.post('/alertReceived', this.alertController.uploadResource);
     this.router.post('/alertRule', this.alertController.uploadAlertRule);
   }
