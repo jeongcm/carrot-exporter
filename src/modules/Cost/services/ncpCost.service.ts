@@ -3,19 +3,27 @@ import {
   IContractDemandCost,
   IContractDemandProduct,
   IContractProduct,
+  IDemandCost,
   IPrice,
   IProduct,
   IUsage,
 } from '@/common/interfaces/ncpCost.interface';
-import DB from '@/database';
+import { DB, OpsApiDB, OpsCommDB } from '@/database';
 import config from '@config/index';
 import mysql from 'mysql2/promise';
 import QueryService from '@modules/Resources/query/query';
 import { IPartyUser } from '@/common/interfaces/party.interface';
+import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
+import { ITbCustomer } from '@/common/interfaces/tbCustomer.interface';
+import { ITbCustomerAccountCloudPlatform } from '@/common/interfaces/tbCustomerAccountCloudPlatform.interface';
 
 class NcpCostService {
   public queryService = new QueryService();
   public partyUser = DB.PartyUser;
+  public resourceGroup = DB.ResourceGroup;
+  public customerAccounnt = DB.CustomerAccount;
+  public tbCustomer = OpsCommDB.TbCustomer;
+  public tbCustomerAccountCloudPlatform = OpsApiDB.TbCustomerAccountCloudPlatform;
 
   currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
@@ -24,13 +32,20 @@ class NcpCostService {
     return findSystemUser;
   }
 
-  public getHistDay() {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = ('0' + (1 + date.getMonth())).slice(-2);
-    const day = ('0' + date.getDate()).slice(-2);
+  //UUID 발급
+  public async getUuid(resourceGroupUuid: string) {
+    const responseResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid } });
+    const customerAccountKey = responseResourceGroup.customerAccountKey;
 
-    return year + month + day;
+    const ncCustomerAccountKey = customerAccountKey;
+    // const ncCustomerAccountKey = 48;
+    const customerUuidResult: ITbCustomer = await this.tbCustomer.findOne({ where: { ncCustomerAccountKey } });
+    const customerUuid = customerUuidResult.customerUuid;
+    
+    const accountUuidResult: ITbCustomerAccountCloudPlatform = await this.tbCustomerAccountCloudPlatform.findOne({ where: { customerUuid } });
+    const accountUuid = accountUuidResult.accountUuid;
+
+    return { customerUuid: customerUuid, accountUuid: accountUuid };
   }
 
   public async uploadNcpContractDemandCost(totalMsg) {
@@ -38,8 +53,9 @@ class NcpCostService {
     let resultMsg: any;
 
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
-
+    const uuidResult = await this.getUuid(totalMsg.cluster_uuid);
     const result = JSON.parse(queryResult.message);
+
     if (Object.keys(queryResult.message).length === 0) {
       console.log(`skip to upload ncpResourceGroup(${queryResult.resourceType}). cause: empty list`);
       return 'empty list';
@@ -47,14 +63,14 @@ class NcpCostService {
 
     try {
       //Insert TB_CONTRACT_DEMAND_COST
-      resultMsg = await this.uploadContractDemandCost(result.contractDemandCostList);
+      resultMsg = await this.uploadContractDemandCost(result.contractDemandCostList, uuidResult);
       console.log(`success to upload contractDemandCost(${queryResult.resourceType}).`);
 
       //※ 2023.05.15 Contract 정보는 Usage API 에서 쌓도록 변경.
       // resultMsg = await this.uploadContract(result.contractList);
 
       //Insert TB_CONTRACT_DEMAND_PRODUCT
-      resultMsg = await this.uploadContractDemandProduct(result.contractProductList);
+      resultMsg = await this.uploadContractDemandProduct(result.contractProductList, uuidResult);
       console.log(`success to upload contractProduct(${queryResult.resourceType}).`);
 
       return resultMsg;
@@ -68,6 +84,7 @@ class NcpCostService {
     let queryResult: any;
     let resultMsg: any;
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+    const uuidResult = await this.getUuid(queryResult.clusterUuid);
 
     const result = JSON.parse(queryResult.message);
     if (Object.keys(queryResult.message).length === 0) {
@@ -77,13 +94,13 @@ class NcpCostService {
 
     try {
       //Insert TB_CONTRACT
-      resultMsg = await this.uploadContract(result.contractList);
+      resultMsg = await this.uploadContract(result.contractList, uuidResult);
       console.log(`success to upload contract(${queryResult.resourceType}).`);
       //Insert TB_CONTRACT_PRODUCT
-      resultMsg = await this.uploadContractProduct(result.contractProductList);
+      resultMsg = await this.uploadContractProduct(result.contractProductList, uuidResult);
       console.log(`success to upload contractProduct(${queryResult.resourceType}).`);
       //Insert TB_USAGE
-      resultMsg = await this.uploadUsage(result.usageList);
+      resultMsg = await this.uploadUsage(result.usageList, uuidResult);
       console.log(`success to upload usage(${queryResult.resourceType}).`);
       return resultMsg;
     } catch (err) {
@@ -96,6 +113,7 @@ class NcpCostService {
     let queryResult: any;
     let resultMsg: any;
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+    const uuidResult = await this.getUuid(queryResult.clusterUuid);
 
     const result = JSON.parse(queryResult.message);
     if (Object.keys(queryResult.message).length === 0) {
@@ -105,10 +123,10 @@ class NcpCostService {
 
     try {
       //Insert TB_CONTRACT
-      resultMsg = await this.uploadProductPrice(result.productPriceList);
+      resultMsg = await this.uploadProductPrice(result.productPriceList, uuidResult);
       console.log(`success to upload productPrice(${queryResult.resourceType}).`);
       //Insert TB_USAGE
-      resultMsg = await this.uploadPrice(result.priceList);
+      resultMsg = await this.uploadPrice(result.priceList, uuidResult);
       console.log(`success to upload price(${queryResult.resourceType}).`);
       return resultMsg;
     } catch (err) {
@@ -117,7 +135,28 @@ class NcpCostService {
     }
   }
 
-  public async uploadContractDemandCost(contractDemandCostData: IContractDemandCost[]): Promise<string> {
+  public async uploadNcpDemandCost(totalMsg) {
+    let queryResult: any;
+    let resultMsg: any;
+    queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+    const uuidResult = await this.getUuid(queryResult.clusterUuid);
+
+    const result = JSON.parse(queryResult.message);
+    if (Object.keys(queryResult.message).length === 0) {
+      console.log(`skip to upload demandCost(${queryResult.resourceType}). cause: empty list`);
+      return 'empty list';
+    }
+
+    try {
+      resultMsg = await this.uploadDemandCost(result.demandCostList, uuidResult);
+      console.log(`success to upload Demandcost(${queryResult.resourceType}).`);
+    } catch (err) {
+      console.log(`failed to upload Demandcost(${queryResult.resourceType}. cause: ${err})`);
+      return err;
+    }
+  }
+
+  public async uploadContractDemandCost(contractDemandCostData: IContractDemandCost[], uuidResult: any): Promise<string> {
     const contractDemandCostDelQuery = `DELETE FROM ncp_api.TB_CONTRACT_DEMAND_COST WHERE 1=1`;
     const contractDemandCostQuery = `INSERT INTO ncp_api.TB_CONTRACT_DEMAND_COST (
                     customer_uuid,
@@ -150,9 +189,7 @@ class NcpCostService {
                     pay_currency_code_name,
                     this_month_applied_exchange_rate,
                     created_by,
-                    created_at,
-                    updated_by,
-                    updated_at
+                    created_at
                   ) VALUES ?
                   ON DUPLICATE KEY UPDATE
                   member_no=VALUES(member_no),
@@ -180,10 +217,8 @@ class NcpCostService {
                   pay_currency_code=VALUES(pay_currency_code),
                   pay_currency_code_name=VALUES(pay_currency_code_name),
                   this_month_applied_exchange_rate=VALUES(this_month_applied_exchange_rate),
-                  created_by=VALUES(created_by),
-                  created_at=VALUES(created_at),
-                  updated_by=VALUES(updated_by),
-                  updated_at=VALUES(updated_at)
+                  updated_by=VALUES(created_by),
+                  updated_at=VALUES(created_at)
                   `;
 
     const contractDemandCostHistQuery =
@@ -224,9 +259,7 @@ class NcpCostService {
           origin_updated_at,
           origin_deleted_at,
           created_by,
-          created_at,
-          updated_by,
-          updated_at
+          created_at
         ) 
         SELECT 
             DATE_FORMAT(created_at, '%Y%m%d'),
@@ -264,24 +297,15 @@ class NcpCostService {
             updated_by,
             updated_at,
             deleted_at,
-         ` +
-      `'Aggregator'` +
-      `,'` +
-      this.currentTime +
-      `',` +
-      `'Aggregator'` +
-      `,'` +
-      this.currentTime +
-      `'` +
-      `
-        FROM ncp_api.TB_CONTRACT_DEMAND_COST
-        `;
+            'Aggregator',
+          '` + this.currentTime + `'` +
+      `FROM ncp_api.TB_CONTRACT_DEMAND_COST`;
     const contractDemandCostValue = [];
 
     for (let i = 0; i < contractDemandCostData?.length; i++) {
       contractDemandCostValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         contractDemandCostData[i].contract_demand_cost_sequence,
         contractDemandCostData[i].demand_month,
         contractDemandCostData[i].member_no,
@@ -311,8 +335,6 @@ class NcpCostService {
         contractDemandCostData[i].this_month_applied_exchange_rate,
         'Aggregator',
         this.currentTime,
-        'Aggregator',
-        this.currentTime,
       ];
     }
 
@@ -322,7 +344,7 @@ class NcpCostService {
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
       // database: config.db.mariadb.dbName,
-      database: 'ops_api',
+      // database: 'ops_api',
       multipleStatements: true,
     });
 
@@ -343,7 +365,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadContract(contractData: IContract[]): Promise<string> {
+  public async uploadContract(contractData: IContract[], uuidResult: any): Promise<string> {
     const contractQuery = `INSERT INTO ncp_api.TB_CONTRACT (
                               customer_uuid,
                               account_uuid,
@@ -361,9 +383,7 @@ class NcpCostService {
                               platform_type_code,
                               platform_type_code_name,
                               created_by,
-                              created_at,
-                              updated_by,
-                              updated_at
+                              created_at
                             ) VALUES ?
                             ON DUPLICATE KEY UPDATE
                               member_no=VALUES(member_no),
@@ -378,18 +398,16 @@ class NcpCostService {
                               region_code=VALUES(region_code),
                               platform_type_code=VALUES(platform_type_code),
                               platform_type_code_name=VALUES(platform_type_code_name),
-                              created_by=VALUES(created_by),
-                              created_at=VALUES(created_at),
-                              updated_by=VALUES(updated_by),
-                              updated_at=VALUES(updated_at)
+                              updated_by=VALUES(created_by),
+                              updated_at=VALUES(created_at)
                             `;
 
     const contractValue = [];
 
     for (let i = 0; i < contractData?.length; i++) {
       contractValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         contractData[i].member_no,
         contractData[i].contract_no,
         contractData[i].contract_type_code,
@@ -403,8 +421,6 @@ class NcpCostService {
         contractData[i].region_code,
         contractData[i].platform_type_code,
         contractData[i].platform_type_code_name,
-        'Aggregator',
-        this.currentTime,
         'Aggregator',
         this.currentTime,
       ];
@@ -435,7 +451,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadContractProduct(contractDemandProduct: IContractProduct[]): Promise<string> {
+  public async uploadContractProduct(contractDemandProduct: IContractProduct[], uuidResult: any): Promise<string> {
     const contractProductQuery = `INSERT INTO ncp_api.TB_CONTRACT_PRODUCT (
                               customer_uuid,
                               account_uuid,
@@ -488,8 +504,8 @@ class NcpCostService {
 
     for (let i = 0; i < contractDemandProduct?.length; i++) {
       contractProductValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         contractDemandProduct[i].contract_product_sequence,
         contractDemandProduct[i].before_contract_product_sequence,
         contractDemandProduct[i].product_code,
@@ -539,7 +555,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadContractDemandProduct(contractDemandProduct: IContractDemandProduct[]): Promise<string> {
+  public async uploadContractDemandProduct(contractDemandProduct: IContractDemandProduct[], uuidResult: any): Promise<string> {
     const contractDemandProductDelQuery = `DELETE FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT WHERE 1=1`;
     const contractProductQuery = `INSERT INTO ncp_api.TB_CONTRACT_DEMAND_PRODUCT (
                               customer_uuid,
@@ -653,16 +669,15 @@ class NcpCostService {
                             updated_by,
                             updated_at,
                             deleted_at,
-                            ` +
-      `'Aggregator'` +
-      `,'` +
-      this.currentTime +
-      `',` +
-      `'Aggregator'` +
-      `,'` +
-      this.currentTime +
-      `'` +
-      `FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT`;
+                            'Aggregator'` +
+                            `,'` +
+                            this.currentTime +
+                            `',` +
+                            `'Aggregator'` +
+                            `,'` +
+                            this.currentTime +
+                            `'` +
+                            `FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT`;
 
     const contractProductValue = [];
 
@@ -670,8 +685,8 @@ class NcpCostService {
 
     for (let i = 0; i < contractDemandProduct?.length; i++) {
       contractProductValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         contractDemandProduct[i].demand_month,
         contractDemandProduct[i].contract_demand_cost_sequence,
         contractDemandProduct[i].contract_product_sequence,
@@ -725,7 +740,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadUsage(usageData: IUsage[]): Promise<string> {
+  public async uploadUsage(usageData: IUsage[], uuidResult: any): Promise<string> {
     const usageQuery = `INSERT INTO ncp_api.TB_USAGE (
                               customer_uuid,
                               account_uuid,
@@ -763,8 +778,8 @@ class NcpCostService {
 
     for (let i = 0; i < usageData?.length; i++) {
       usageValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         usageData[i].metering_type_code,
         usageData[i].metering_type_code_name,
         usageData[i].contract_product_sequence,
@@ -808,7 +823,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadProductPrice(productPriceData: IProduct[]): Promise<string> {
+  public async uploadProductPrice(productPriceData: IProduct[], uuidResult: any): Promise<string> {
     const productPriceQuery = `INSERT INTO ncp_api.TB_PRODUCT (
                     customer_uuid,
                     account_uuid,
@@ -885,8 +900,8 @@ class NcpCostService {
 
     for (let i = 0; i < productPriceData?.length; i++) {
       productPriceValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         productPriceData[i].product_item_kind_code,
         productPriceData[i].product_item_kind_code_name,
         productPriceData[i].product_item_kind_detail_code,
@@ -948,7 +963,7 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadPrice(priceData: IPrice[]): Promise<string> {
+  public async uploadPrice(priceData: IPrice[], uuidResult: any): Promise<string> {
     const priceQuery = `INSERT INTO ncp_api.TB_PRICE (
                     customer_uuid,
                     account_uuid,
@@ -1027,8 +1042,8 @@ class NcpCostService {
 
     for (let i = 0; i < priceData?.length; i++) {
       priceValue[i] = [
-        '31692fe1-05a4-45d4-bea3-0341263992d6',
-        '6d322805-e972-11ed-a07e-9e43039dcae0',
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
         priceData[i].price_no,
         priceData[i].price_type_code,
         priceData[i].price_type_code_name,
@@ -1072,7 +1087,7 @@ class NcpCostService {
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
       // database: config.db.mariadb.dbName,
-      database: 'ops_api',
+      database: 'ncp_api',
       multipleStatements: true,
     });
 
@@ -1090,6 +1105,154 @@ class NcpCostService {
 
     return 'successful DB update ';
   }
-}
 
+  public async uploadDemandCost(demandCostData: IDemandCost[], uuidResult: any): Promise<string> {
+    const demandCostQuery = `INSERT INTO ncp_api.TB_DEMAND_COST (
+                            customer_uuid,
+                            account_uuid,
+                            member_no,
+                            demand_month,
+                            demand_no,
+                            integration_demand_no,
+                            demand_attribute_code,
+                            demand_attribute_code_name,
+                            use_amount,
+                            promise_discount_amount,
+                            etc_discount_amount,
+                            customer_discount_amount,
+                            product_discount_amount,
+                            credit_discount_amount,
+                            rounddown_discount_amount,
+                            currency_discount_amount,
+                            coin_use_amount,
+                            default_amount,
+                            this_month_demand_amount,
+                            this_month_vat_ratio,
+                            this_month_vat_amount,
+                            this_month_amount_including_vat,
+                            total_demand_amount,
+                            is_paid_up,
+                            paid_up_date,
+                            overdue_occur_date,
+                            overdue_plus_amount,
+                            overdue_ratio,
+                            this_month_overdue_amount,
+                            before_month_demand_no,
+                            total_overdue_amount,
+                            write_date,
+                            member_price_discount_amount,
+                            member_promise_discount_add_amount,
+                            pay_currency_code,
+                            pay_currency_code_name,
+                            this_month_applied_exchange_rate,
+                            promotion_discount_amount
+                          ) VALUES ?
+                          ON DUPLICATE KEY UPDATE
+                            member_no=VALUES(member_no), 
+                            demand_no=VALUES(demand_no),
+                            integration_demand_no=VALUES(integration_demand_no),
+                            demand_attribute_code=VALUES(demand_attribute_code),
+                            demand_attribute_code_name=VALUES(demand_attribute_code_name),
+                            use_amount=VALUES(use_amount),
+                            promise_discount_amount=VALUES(promise_discount_amount),
+                            etc_discount_amount=VALUES(etc_discount_amount),
+                            customer_discount_amount=VALUES(customer_discount_amount),
+                            product_discount_amount=VALUES(product_discount_amount),
+                            credit_discount_amount=VALUES(credit_discount_amount),
+                            rounddown_discount_amount=VALUES(rounddown_discount_amount),
+                            currency_discount_amount=VALUES(currency_discount_amount),
+                            coin_use_amount=VALUES(coin_use_amount),
+                            default_amount=VALUES(default_amount),
+                            this_month_demand_amount=VALUES(this_month_demand_amount),
+                            this_month_vat_ratio=VALUES(this_month_vat_ratio),
+                            this_month_vat_amount=VALUES(this_month_vat_amount),
+                            this_month_amount_including_vat=VALUES(this_month_amount_including_vat),
+                            total_demand_amount=VALUES(total_demand_amount),
+                            is_paid_up=VALUES(is_paid_up),
+                            paid_up_date=VALUES(paid_up_date),
+                            overdue_occur_date=VALUES(overdue_occur_date),
+                            overdue_plus_amount=VALUES(overdue_plus_amount),
+                            overdue_ratio=VALUES(overdue_ratio),
+                            this_month_overdue_amount=VALUES(this_month_overdue_amount),
+                            before_month_demand_no=VALUES(before_month_demand_no),
+                            total_overdue_amount=VALUES(total_overdue_amount),
+                            write_date=VALUES(write_date),
+                            member_price_discount_amount=VALUES(member_price_discount_amount),
+                            member_promise_discount_add_amount=VALUES(member_promise_discount_add_amount),
+                            pay_currency_code=VALUES(pay_currency_code),
+                            pay_currency_code_name=VALUES(pay_currency_code_name),
+                            this_month_applied_exchange_rate=VALUES(this_month_applied_exchange_rate),
+                            promotion_discount_amount=VALUES(promotion_discount_amount)
+                          `;
+
+    const demandCostValue = [];
+
+    for (let i = 0; i < demandCostData?.length; i++) {
+      demandCostValue[i] = [
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
+        demandCostData[i].member_no,
+        demandCostData[i].demand_month,
+        demandCostData[i].demand_no,
+        demandCostData[i].integration_demand_no,
+        demandCostData[i].demand_attribute_code,
+        demandCostData[i].demand_attribute_code_name,
+        demandCostData[i].use_amount,
+        demandCostData[i].promise_discount_amount,
+        demandCostData[i].etc_discount_amount,
+        demandCostData[i].customer_discount_amount,
+        demandCostData[i].product_discount_amount,
+        demandCostData[i].credit_discount_amount,
+        demandCostData[i].rounddown_discount_amount,
+        demandCostData[i].currency_discount_amount,
+        demandCostData[i].coin_use_amount,
+        demandCostData[i].default_amount,
+        demandCostData[i].this_month_demand_amount,
+        demandCostData[i].this_month_vat_ratio,
+        demandCostData[i].this_month_vat_amount,
+        demandCostData[i].this_month_amount_including_vat,
+        demandCostData[i].total_demand_amount,
+        demandCostData[i].is_paid_up,
+        demandCostData[i].paid_up_date,
+        demandCostData[i].overdue_occur_date,
+        demandCostData[i].overdue_plus_amount,
+        demandCostData[i].overdue_ratio,
+        demandCostData[i].this_month_overdue_amount,
+        demandCostData[i].before_month_demand_no,
+        demandCostData[i].total_overdue_amount,
+        demandCostData[i].write_date,
+        demandCostData[i].member_price_discount_amount,
+        demandCostData[i].member_promise_discount_add_amount,
+        demandCostData[i].pay_currency_code,
+        demandCostData[i].pay_currency_code_name,
+        demandCostData[i].this_month_applied_exchange_rate,
+        demandCostData[i].promotion_discount_amount,
+      ];
+    }
+
+    const mysqlConnection = await mysql.createConnection({
+      host: config.db.mariadb.host,
+      user: config.db.mariadb.user,
+      port: config.db.mariadb.port || 3306,
+      password: config.db.mariadb.password,
+      // database: config.db.mariadb.dbName,
+      database: 'ops_api',
+      multipleStatements: true,
+    });
+
+    await mysqlConnection.query('START TRANSACTION');
+    try {
+      await mysqlConnection.query(demandCostQuery, [demandCostValue]);
+      await mysqlConnection.query('COMMIT');
+    } catch (err) {
+      await mysqlConnection.query('ROLLBACK');
+      await mysqlConnection.end();
+      console.info('Rollback successful');
+      throw `${err}`;
+    }
+    await mysqlConnection.end();
+
+    return 'successful DB update ';
+  }
+}
 export default NcpCostService;

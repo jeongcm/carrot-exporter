@@ -5,7 +5,7 @@ import axios from '@common/httpClient/axios';
 import { IResourceGroup } from "@common/interfaces/resourceGroup.interface";
 import { HttpException } from "@common/exceptions/HttpException";
 import { ICustomerAccount } from "@common/interfaces/customerAccount.interface";
-import DB from "@/database";
+import { DB } from "@/database";
 class VictoriaMetricService {
   private vmUrl = config.victoriaMetrics.vmSingleUrl + config.victoriaMetrics.vmImport
   private vmMultiUrl = config.victoriaMetrics.vmMultiUrl + config.victoriaMetrics.vmImport

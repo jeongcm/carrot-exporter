@@ -47,6 +47,7 @@ import getSubnetListQuery from '@modules/Resources/query/ncp/subnet/subnet';
 import EventService from '@modules/Resources/query/ncp/event/event';
 import getVpcListQuery from '@modules/Resources/query/ncp/vpc/vpc';
 import getZoneListQuery from '@modules/Resources/query/ncp/zone/zone';
+import getDemandCostQuery from '@modules/Cost/query/ncp/demandCost';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -153,6 +154,7 @@ class QueryService {
       case 'NCM00000000000000000000000000018':
       case 'NCM00000000000000000000000000017':
       case '70000000000000000000000000000016':
+      case '70000000000000000000000000000041':
         queryResult = await this.getNcpResourceQuery(totalMsg);
         break;
       default:
@@ -223,6 +225,9 @@ class QueryService {
         break;
       case '70000000000000000000000000000040':
         queryResult = await getContractDemandCostQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000041':
+        queryResult = await getDemandCostQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000042':
         queryResult = await getContractUsageQuery(result, clusterUuid);
