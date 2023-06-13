@@ -42,6 +42,8 @@ import getProductPriceQuery from '@modules/Cost/query/ncp/productPrice';
 import getLoadBalancerQuery from '@modules/Resources/query/ncp/loadBalancer/loadBalancer';
 import getNksQuery from '@modules/Resources/query/ncp/nks/nks';
 import getNasVolumeQuery from '@modules/Resources/query/ncp/nas/nas';
+import EventService from '@modules/Resources/query/ncp/event/event';
+import getTargetGroupListQuery from '@modules/Resources/query/ncp/targetGroup/targetGroup';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -197,6 +199,9 @@ class QueryService {
         break;
       case '70000000000000000000000000000015':
         queryResult = await getVpcListQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000028':
+        queryResult = await getTargetGroupListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000066':
         queryResult = await getPlacementGroupListQuery(result, clusterUuid);
