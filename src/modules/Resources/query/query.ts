@@ -45,6 +45,7 @@ import getNasVolumeQuery from '@modules/Resources/query/ncp/nas/nas';
 import EventService from '@modules/Resources/query/ncp/event/event';
 import getTargetGroupListQuery from '@modules/Resources/query/ncp/targetGroup/targetGroup';
 import getRouteTableQuery from '@modules/Resources/query/ncp/routeTable/routeTable';
+import getSubnetListQuery from '@modules/Resources/query/ncp/subnet/subnet';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -149,6 +150,7 @@ class QueryService {
       case '70000000000000000000000000000043':
       case 'NCM00000000000000000000000000018':
       case 'NCM00000000000000000000000000017':
+      case '70000000000000000000000000000016':
         queryResult = await this.getNcpResourceQuery(totalMsg);
         break;
       default:
@@ -195,6 +197,9 @@ class QueryService {
         break;
       case '70000000000000000000000000000014':
         queryResult = await getBlockStorageSnapshotInstanceListQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000016':
+        queryResult = await getSubnetListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000007':
         queryResult = await getMemberServerImageListQuery(result, clusterUuid);
