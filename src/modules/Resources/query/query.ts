@@ -41,6 +41,7 @@ import getVpcListQuery from '@modules/Resources//query/ncp/vpc/vpc';
 import getProductPriceQuery from '@modules/Cost/query/ncp/productPrice';
 import getLoadBalancerQuery from '@modules/Resources/query/ncp/loadBalancer/loadBalancer';
 import getNksQuery from '@modules/Resources/query/ncp/nks/nks';
+import getNasVolumeQuery from '@modules/Resources/query/ncp/nas/nas';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -140,6 +141,7 @@ class QueryService {
       case 'NCM00000000000000000000000000013':
       case '70000000000000000000000000000029':
       case 'NCM00000000000000000000000000014':
+      case 'NCM00000000000000000000000000015':
       case '70000000000000000000000000000043':
       case 'NCM00000000000000000000000000018':
       case 'NCM00000000000000000000000000017':
@@ -246,6 +248,8 @@ class QueryService {
         break;
       case 'NCM00000000000000000000000000017':
         queryResult = await getNksQuery(result, clusterUuid);
+      case 'NCM00000000000000000000000000015':
+        queryResult = await getNasVolumeQuery(result, clusterUuid);
         break;
       default:
         throw new HttpException(400, `invalid template uuid ${totalMsg.template_uuid}`);
