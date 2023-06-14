@@ -54,6 +54,6 @@ export default async function getDemandCostQuery(result, clusterUuid) {
   }
   const tempQuery = '{ "demandCostList": [' + demadCostList + ']}';
 
-  console.log('tempQuery ::::::::::::::: \n' + tempQuery);
+  // console.log('tempQuery ::::::::::::::: \n' + tempQuery);
   return { message: tempQuery, resourceType: resourceType };
 }

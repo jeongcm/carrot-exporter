@@ -32,7 +32,7 @@ export default async function getZoneListQuery(result, clusterUuid) {
     mergedQuery = tempQuery;
   }
 
-  console.log('tempQuery :: \n ' + tempQuery);
+  // console.log('tempQuery :: \n ' + tempQuery);
 
   return { message: mergedQuery, resourceType: resourceType };
 }
