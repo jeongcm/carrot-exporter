@@ -43,4 +43,6 @@ export class ContractProductDto {
   public product_size: number;
   @IsNumber()
   public product_count: number;
+  @IsNumber()
+  public contract_demand_cost_seq: number;
 }

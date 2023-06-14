@@ -1,5 +1,6 @@
 export interface INcpResourceGroup {
   customer_uuid: string;
+  account_uuid: string;
   group_id: string;
   group_name: string;
   group_desc: string;

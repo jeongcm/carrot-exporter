@@ -1,8 +1,8 @@
-export default async function getCloudPostgresqlInstanceMetric(totalMsg) {
+export default async function getCloudPostgresqlInstanceMetric(totalMsg, clusterUuid) {
   // initialize result
   let queryResult = {
     service_name: totalMsg.service_name,
-    cluster_uuid: totalMsg.cluster_uuid,
+    cluster_uuid: clusterUuid,
     result: {
       result: []
     }

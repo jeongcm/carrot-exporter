@@ -3,7 +3,7 @@ import getNetworkInterfaceListQuery from '@modules/Resources/query/ncp/networkIn
 import getServerInstanceListQuery from '@modules/Resources/query/ncp/serverInstance/serverInstance';
 import getInitScriptListQuery from '@modules/Resources/query/ncp/initScript/initScript';
 import getPlacementGroupListQuery from '@modules/Resources/query/ncp/placementGroup/placementGroup';
-import getServerImageProductListQuery from '@modules/Resources/query/ncp/serverImage/serverImage';
+import getMemberServerImageListQuery from '@modules/Resources/query/ncp/serverImage/serverImage';
 import getBlockStorageInstanceListQuery from '@modules/Resources/query/ncp/blockStorageInstance/blockStorageInstance';
 import getPublicIpInstanceListQuery from '@modules/Resources/query/ncp/publicIpInstance/publicIpInstance';
 import getAccessControlGroupListQuery from '@modules/Resources/query/ncp/accessControlGroup/accessControlGroup';
@@ -37,15 +37,22 @@ import CloudDBPostgresqlService from '@modules/Resources/query/ncp/cloudDB/pgsql
 import getResourceQuery from '@modules/Resources/query/ncp/resource/resource';
 import getResourceGroupQuery from '@modules/Resources/query/ncp/resourceGroup/resourceGroup';
 import { HttpException } from '@common/exceptions/HttpException';
-import EventService from '@modules/Resources/query/ncp/event/event';
-import getVpcListQuery from '@modules/Resources//query/ncp/vpc/vpc';
+import getProductPriceQuery from '@modules/Cost/query/ncp/productPrice';
+import getLoadBalancerQuery from '@modules/Resources/query/ncp/loadBalancer/loadBalancer';
+import getNksQuery from '@modules/Resources/query/ncp/nks/nks';
+import getNasVolumeQuery from '@modules/Resources/query/ncp/nas/nas';
+import getTargetGroupListQuery from '@modules/Resources/query/ncp/targetGroup/targetGroup';
+import getRouteTableQuery from '@modules/Resources/query/ncp/routeTable/routeTable';
+import getSubnetListQuery from '@modules/Resources/query/ncp/subnet/subnet';
+import getVpcListQuery from '@modules/Resources/query/ncp/vpc/vpc';
+import getZoneListQuery from '@modules/Resources/query/ncp/zone/zone';
+import getDemandCostQuery from '@modules/Cost/query/ncp/demandCost';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
   public cloudDBMongoDBService = new CloudDBMongoDBService();
   public cloudDBRedisService = new CloudDBRedisService();
   public cloudDBPostgresqlService = new CloudDBPostgresqlService();
-  public ncpEventService = new EventService();
 
   public async getResourceQuery(totalMsg, clusterUuid) {
     let queryResult = {};
@@ -117,7 +124,67 @@ class QueryService {
 
       // ncp
       case '70000000000000000000000000000001':
+      case '70000000000000000000000000000002':
+      case '70000000000000000000000000000003':
+      case '70000000000000000000000000000004':
+      case '70000000000000000000000000000009':
+      case '70000000000000000000000000000012':
+      case '70000000000000000000000000000006':
+      case '70000000000000000000000000000014':
+      case '70000000000000000000000000000007':
+      case '70000000000000000000000000000015':
+      case '70000000000000000000000000000066':
+      case '70000000000000000000000000000065':
+      case '70000000000000000000000000000040':
+      case '70000000000000000000000000000042':
+      case 'NCM00000000000000000000000000006':
+      case 'NCM00000000000000000000000000007':
+      case 'NCM00000000000000000000000000008':
+      case 'NCM00000000000000000000000000009':
+      case 'NCM00000000000000000000000000010':
+      case 'NCM00000000000000000000000000011':
+      case 'NCM00000000000000000000000000012':
+      case 'NCM00000000000000000000000000013':
+      case '70000000000000000000000000000029':
+      case 'NCM00000000000000000000000000014':
+      case 'NCM00000000000000000000000000015':
+      case 'NCM00000000000000000000000000016':
+      case '70000000000000000000000000000043':
+      case 'NCM00000000000000000000000000018':
+      case 'NCM00000000000000000000000000017':
+      case '70000000000000000000000000000016':
+      case '70000000000000000000000000000041':
+        queryResult = await this.getNcpResourceQuery(totalMsg);
+        break;
+      default:
+        throw new HttpException(400, 'invalid template uuid');
+    }
+
+    return queryResult;
+  }
+
+  private async getNcpResourceQuery(totalMsg): Promise<any> {
+    let queryResult = {};
+    const result = totalMsg.result;
+    const inputs = totalMsg.inputs;
+
+    const credentialName = inputs.credential_key || inputs.ncp_key || null;
+
+    if (!credentialName) {
+      throw new HttpException(400, 'invalid credential name');
+    }
+    const clusterUuid = credentialName.split('.')[1];
+    if (clusterUuid === '') {
+      throw new HttpException(400, `invalid cluster uuid from credential name(${credentialName})`);
+    }
+
+    switch (totalMsg.template_uuid) {
+      // ncp
+      case '70000000000000000000000000000001':
         queryResult = await getRegionListQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000002':
+        queryResult = await getZoneListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000003':
         queryResult = await getNetworkInterfaceListQuery(result, clusterUuid);
@@ -137,11 +204,17 @@ class QueryService {
       case '70000000000000000000000000000014':
         queryResult = await getBlockStorageSnapshotInstanceListQuery(result, clusterUuid);
         break;
-      case '70000000000000000000000000000005':
-        queryResult = await getServerImageProductListQuery(result, clusterUuid);
+      case '70000000000000000000000000000016':
+        queryResult = await getSubnetListQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000007':
+        queryResult = await getMemberServerImageListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000015':
         queryResult = await getVpcListQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000028':
+        queryResult = await getTargetGroupListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000066':
         queryResult = await getPlacementGroupListQuery(result, clusterUuid);
@@ -149,14 +222,17 @@ class QueryService {
       case '70000000000000000000000000000065':
         queryResult = await getInitScriptListQuery(result, clusterUuid);
         break;
-      case '70000000000000000000000000000033':
-        queryResult = await this.ncpEventService.getSearchEventListQuery(result, clusterUuid);
-        break;
       case '70000000000000000000000000000040':
         queryResult = await getContractDemandCostQuery(result, clusterUuid);
         break;
+      case '70000000000000000000000000000041':
+        queryResult = await getDemandCostQuery(result, clusterUuid);
+        break;
       case '70000000000000000000000000000042':
         queryResult = await getContractUsageQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000043':
+        queryResult = await getProductPriceQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000006':
         queryResult = await this.cloudDBMysqlService.getCloudDBMysqlInstanceListQuery(result, clusterUuid);
@@ -188,8 +264,20 @@ class QueryService {
       case 'NCM00000000000000000000000000014':
         queryResult = await getResourceGroupQuery(result, clusterUuid);
         break;
+      case 'NCM00000000000000000000000000018':
+        queryResult = await getLoadBalancerQuery(result, clusterUuid);
+        break;
+      case 'NCM00000000000000000000000000017':
+        queryResult = await getNksQuery(result, clusterUuid);
+        break;
+      case 'NCM00000000000000000000000000015':
+        queryResult = await getNasVolumeQuery(result, clusterUuid);
+        break;
+      case 'NCM00000000000000000000000000016':
+        queryResult = await getRouteTableQuery(result, clusterUuid);
+        break;
       default:
-        throw new HttpException(400, 'invalid template uuid');
+        throw new HttpException(400, `invalid template uuid ${totalMsg.template_uuid}`);
     }
 
     return queryResult;
