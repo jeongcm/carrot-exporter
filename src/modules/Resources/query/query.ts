@@ -44,7 +44,6 @@ import getNasVolumeQuery from '@modules/Resources/query/ncp/nas/nas';
 import getTargetGroupListQuery from '@modules/Resources/query/ncp/targetGroup/targetGroup';
 import getRouteTableQuery from '@modules/Resources/query/ncp/routeTable/routeTable';
 import getSubnetListQuery from '@modules/Resources/query/ncp/subnet/subnet';
-import EventService from '@modules/Resources/query/ncp/event/event';
 import getVpcListQuery from '@modules/Resources/query/ncp/vpc/vpc';
 import getZoneListQuery from '@modules/Resources/query/ncp/zone/zone';
 import getDemandCostQuery from '@modules/Cost/query/ncp/demandCost';
