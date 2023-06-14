@@ -47,6 +47,7 @@ import getSubnetListQuery from '@modules/Resources/query/ncp/subnet/subnet';
 import getVpcListQuery from '@modules/Resources/query/ncp/vpc/vpc';
 import getZoneListQuery from '@modules/Resources/query/ncp/zone/zone';
 import getDemandCostQuery from '@modules/Cost/query/ncp/demandCost';
+import getNetworkAclListQuery from '@modules/Resources/query/ncp/networkAcl/networkAcl';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -154,6 +155,7 @@ class QueryService {
       case 'NCM00000000000000000000000000017':
       case '70000000000000000000000000000016':
       case '70000000000000000000000000000041':
+      case 'NCM00000000000000000000000000019':
         queryResult = await this.getNcpResourceQuery(totalMsg);
         break;
       default:
@@ -276,6 +278,9 @@ class QueryService {
       case 'NCM00000000000000000000000000016':
         queryResult = await getRouteTableQuery(result, clusterUuid);
         break;
+      case 'NCM00000000000000000000000000019':
+          queryResult = await getNetworkAclListQuery(result, clusterUuid);
+          break;
       default:
         throw new HttpException(400, `invalid template uuid ${totalMsg.template_uuid}`);
     }
