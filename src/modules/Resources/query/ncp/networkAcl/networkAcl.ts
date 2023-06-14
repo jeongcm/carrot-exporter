@@ -13,7 +13,7 @@ export default async function getNetworkAclListQuery(result, clusterUuid) {
 
     const specList = networkAclList[i];
 
-    //snapshot 정보가 있다면, spec 컬럼에 value 추가
+    //acl Rule 정보가 있다면, spec 컬럼에 value 추가
     if (networkAClRuleList[i].outputs.getNetworkAclRuleListResponse.networkAclRuleList.length > 0) {
       specList.networkAclRuleList = networkAClRuleList[i].outputs.getNetworkAclRuleListResponse.networkAclRuleList;
     }
