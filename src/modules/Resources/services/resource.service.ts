@@ -36,8 +36,8 @@ class resourceService {
       throw new HttpException(400, `invalid cluster uuid from credential name(${credentialName})`);
     }
 
-    const event_size_mb = (Buffer.byteLength(JSON.stringify(events)))/1024/1024
-    const default_message_size = 1024 * 1024 // 1mb
+    const event_size_mb = (Buffer.byteLength(JSON.stringify(events)))/1024/1024 // mb
+    const default_message_size = 1 // 1mb
     if (event_size_mb > 3) {
       // const divisions = 10; // 분할 개수
       const divisions = Math.ceil(event_size_mb / default_message_size); // 분할 개수
