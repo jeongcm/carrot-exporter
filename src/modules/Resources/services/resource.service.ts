@@ -55,7 +55,7 @@ class resourceService {
         let queryResult: any = await this.ncpEventService.getSearchEventListQuery(data, clusterUuid);
         if (Object.keys(queryResult.message).length === 0) {
           console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
-          'empty list';
+          return 'empty list';
         }
 
         try {
