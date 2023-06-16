@@ -37,9 +37,10 @@ class resourceService {
     }
 
     const event_size_mb = (Buffer.byteLength(JSON.stringify(events)))/1024/1024
-
+    const default_message_size = 1024 * 1024 // 1mb
     if (event_size_mb > 3) {
-      const divisions = 10; // 분할 개수
+      // const divisions = 10; // 분할 개수
+      const divisions = Math.ceil(event_size_mb / default_message_size); // 분할 개수
       const dividedLength = Math.ceil(events.length / divisions);
       const dividedList = []
       let startIndex = 0;
@@ -49,7 +50,7 @@ class resourceService {
         startIndex += dividedLength;
       }
 
-      console.log(`resource event divide upload start (event_size: ${event_size_mb}mb)`)
+      console.log(`resource event divide upload start (event_size: ${event_size_mb}mb, divisions: ${divisions})`)
       for (const data of dividedList) {
         let queryResult: any = await this.ncpEventService.getSearchEventListQuery(data, clusterUuid);
         if (Object.keys(queryResult.message).length === 0) {
