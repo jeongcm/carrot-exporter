@@ -9,19 +9,19 @@ export default class TableIdService {
     let tableIds: any = []
 
     const getTableIdUrl = config.coApi.url + ":" + config.coApi.port + "/tableId/Bulk"
-    let result = await axios.post (getTableIdUrl, request, {maxContentLength:Infinity, maxBodyLength: Infinity})
+    let apiResult = await axios.post (getTableIdUrl, request, {maxContentLength:Infinity, maxBodyLength: Infinity})
 
-    if (!result.data) {
+    if (!apiResult.data) {
       throw new HttpException(404, 'not found table id response data')
     }
 
-    let data = result.data
-    if (data.tableIdRange <= 0) {
+    let result = apiResult.data
+    if (result.data.tableIdRange <= 0) {
       throw new HttpException(404, 'table id response data is empty')
     }
-    let prefix = data.tableIdFinalIssued.slice(8)
-    let finalTableSequence = parseInt(data.tableIdFinalIssued.slice(-8))
-    let startSequence = finalTableSequence - data.tableIdRange + 1
+    let prefix = result.data.tableIdFinalIssued.slice(0, 8)
+    let finalTableSequence = parseInt(result.data.tableIdFinalIssued.slice(-8))
+    let startSequence = finalTableSequence - result.data.tableIdRange
 
     for (let index = startSequence; index < finalTableSequence; index++) {
       let paddedNumber = index.toString().padStart(8, '0')
