@@ -1,5 +1,6 @@
 import { Sequelize, DataTypes, Model, Optional } from 'sequelize';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
+import { trimEnd } from "lodash";
 
 export type AlertReceivedCreationAttributes = Optional<
   IAlertReceived,
@@ -255,6 +256,7 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
           fields: ['alert_received_pod'],
         },
       ],
+      // paranoid: true, //for soft delete
       tableName: 'AlertReceived',
       modelName: 'AlertReceived',
       sequelize,
