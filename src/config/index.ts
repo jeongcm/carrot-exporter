@@ -75,4 +75,8 @@ export default {
   partyUser: {
     userId: process.env.CO_AGGREGATOR_SYSTEM_PARTYUSER_USERID || 'system@claion.io',
   },
+
+  alert: {
+    alertExpiredDate: process.env.CO_ALERT_EXPIRED_DATE || 60 * 60 * 24 // 1d
+  }
 };
