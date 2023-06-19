@@ -46,6 +46,6 @@ export default async function getResourceGroupQuery(result, clusterUuid) {
   resourceGroupRelationList = resourceGroupRelationList.substring(0, resourceGroupRelationList.length - 1);
   const tempQuery = '{ "resourceGroupList": [' + resourceGroupList + '],' + '"resourceGroupRelationList": [' + resourceGroupRelationList + ']}';
 
-  console.log('tempQuery :: ' + tempQuery);
+  // console.log('tempQuery :: ' + tempQuery);
   return { message: tempQuery, resourceType: resourceType, clusterUuid: clusterUuid };
 }

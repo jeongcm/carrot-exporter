@@ -11,7 +11,7 @@ class ResourceRoute implements Routes {
   }
 
   private initializeRoutes() {
-    this.router.post('/cost', this.costCotroller.uploadNcpCost);
+    this.router.post('/ncp/cost', this.costCotroller.uploadNcpCost);
   }
 }
 

@@ -1,9 +1,9 @@
-import formatter_resource from "@common/utils/formatter";
+import formatter_resource from '@common/utils/formatter';
 
 export default async function getServerImageProductListQuery(result, clusterUuid) {
-    let query = {};
-    let mergedQuery = {};
-    let tempQuery = {};
+  const query = {};
+  let mergedQuery = {};
+  let tempQuery = {};
 
     let resourceType = "SIMG";
     let resultLength = result.getMemberServerImageInstanceListResponse?.memberServerImageInstanceList?.length
@@ -30,9 +30,9 @@ export default async function getServerImageProductListQuery(result, clusterUuid
         query['resource_Active'] = true;
         query['resource_Status_Updated_At'] = new Date();
 
-        tempQuery = formatter_resource(i, resultLength, resourceType, clusterUuid, query, mergedQuery);
-        mergedQuery = tempQuery;
-    }
+    tempQuery = formatter_resource(i, resultLength, resourceType, clusterUuid, query, mergedQuery);
+    mergedQuery = tempQuery;
+  }
 
-    return { message: mergedQuery, resourceType: resourceType }
+  return { message: mergedQuery, resourceType: resourceType };
 }

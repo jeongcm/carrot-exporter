@@ -1,16 +1,23 @@
 import { NextFunction, Request, Response } from 'express';
 import NcpCostService from '../../services/ncpCost.service';
+import QueryService from '@/modules/Resources/query/query';
 
-class ResourceManagerController {
+class CostController {
   public ncpCostService = new NcpCostService();
+  public queryService = new QueryService();
 
   public uploadNcpCost = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      
+      let queryResult;
       const totalMsg = req.body;
       let result: any;
-      //template_uuid로 서비스 분기 처리.
+      // queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+      // template_uuid로 서비스 분기 처리.
       if (totalMsg.template_uuid === '70000000000000000000000000000040') {
         result = await this.ncpCostService.uploadNcpContractDemandCost(totalMsg);
+      } else if (totalMsg.template_uuid === '70000000000000000000000000000041') {
+        result = await this.ncpCostService.uploadNcpDemandCost(totalMsg);
       } else if (totalMsg.template_uuid === '70000000000000000000000000000042') {
         result = await this.ncpCostService.uploadNcpContractUsage(totalMsg);
       } else if (totalMsg.template_uuid === '70000000000000000000000000000043') {
@@ -28,4 +35,4 @@ class ResourceManagerController {
   };
 }
 
-export default ResourceManagerController;
+export default CostController;
