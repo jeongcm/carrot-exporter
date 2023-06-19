@@ -256,7 +256,7 @@ export default function (sequelize: Sequelize): typeof AlertReceivedModel {
           fields: ['alert_received_pod'],
         },
       ],
-      // paranoid: true, //for soft delete
+      paranoid: true, //for soft delete
       tableName: 'AlertReceived',
       modelName: 'AlertReceived',
       sequelize,

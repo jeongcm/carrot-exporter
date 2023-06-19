@@ -292,7 +292,6 @@ class AlertRuleService {
         }
 
         await this.alertReceived.destroy({where: {
-            createdAt: {[Op.lt]: expiredDate},
             alertReceivedKey: {[Op.in]: alertReceivedKeys},
         }}).catch(e => {console.log(e)})
       }
@@ -498,22 +497,6 @@ class AlertRuleService {
                     alert_received_container, alert_received_endpoint, alert_received_reason, alert_received_uid, alert_received_hash, alert_received_ui_flag,
                     alert_received_affected_resource_type, alert_received_affected_resource_name, alert_received_persistentvolumeclaim
                       ) VALUES ?
-                      ON DUPLICATE KEY UPDATE
-                      updated_by=VALUES(updated_by),
-                      alert_received_value=VALUES(alert_received_value),
-                      alert_received_namespace=VALUES(alert_received_namespace),
-                      alert_received_severity=VALUES(alert_received_severity),
-                      alert_received_pinned=VALUES(alert_received_pinned),
-                      alert_received_container=VALUES(alert_received_container),
-                      alert_received_endpoint=VALUES(alert_received_endpoint),
-                      alert_received_reason=VALUES(alert_received_reason),
-                      alert_received_uid=VALUES(alert_received_uid),
-                      alert_received_hash=VALUES(alert_received_hash),
-                      alert_received_ui_flag=VALUES(alert_received_ui_flag),
-                      alert_received_affected_resource_type=VALUES(alert_received_affected_resource_type),
-                      alert_received_affected_resource_name=VALUES(alert_received_affected_resource_name),
-                      alert_received_hash=VALUES(alert_received_hash),
-                      customer_account_key=VALUES(customer_account_key)
                       `;
     const query2 = [];
     for (let i = 0; i < alertReceivedData.length; i++) {
