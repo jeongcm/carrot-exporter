@@ -92,7 +92,6 @@ class AlertRuleService {
 
   private async processAlertRule(clusterUuid, result) {
     try {
-
       // 1. make data
       const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
         where: { deletedAt: null, resourceGroupUuid: clusterUuid }
@@ -180,6 +179,10 @@ class AlertRuleService {
       }
 
       // 2. upsert to database
+
+      let currentTime = new Date()
+      let expirtedDuration: any = config.alert.alertExpiredDate
+      let expiredDate = currentTime.getTime() - expirtedDuration
 
       // 필터 함수를 통해서 alertRuleSet에 이전 얼럿 룰이 존재한다면 삭제하지 않고 존재하지 않으면 삭제 처리
       const unUsedAlertRuleKeys = this.setUniqueValues(Object.entries(prevAlertRuleUniqueSet), (k) => {
@@ -289,7 +292,8 @@ class AlertRuleService {
         }
 
         await this.alertReceived.destroy({where: {
-          alertReceivedKey: {[Op.in]: alertReceivedKeys}
+            createdAt: {[Op.lt]: expiredDate},
+            alertReceivedKey: {[Op.in]: alertReceivedKeys},
         }}).catch(e => {console.log(e)})
       }
 
@@ -345,10 +349,6 @@ class AlertRuleService {
           // await this.alertReceived.bulkCreate(insertAlertReceives)
         }
       }
-
-
-
-
 
     } catch (err) {
       console.log(`failed to processAlertRule. cause: ${err}`)
