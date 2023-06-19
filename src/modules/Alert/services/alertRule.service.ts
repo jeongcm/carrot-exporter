@@ -1,15 +1,11 @@
 import { HttpException } from "@common/exceptions/HttpException";
-import DB from "@/database";
+import { DB } from "@/database";
 import { IResourceGroup } from "@common/interfaces/resourceGroup.interface";
 import sequelize, { Op, where } from "sequelize";
 import * as crypto from "crypto";
 import config from "@/config";
 import mysql from "mysql2/promise";
-import axios from "@common/httpClient/axios";
 import TableIdService from "@common/tableId/tableId";
-import { AlertRuleModel } from "@modules/Alert/models/alertRule.model";
-import { AlertReceivedModel } from "@modules/Alert/models/alertReceived.model";
-import { IAlertReceived } from "@common/interfaces/alertReceived.interface";
 import * as console from "console";
 
 class AlertRuleService {
