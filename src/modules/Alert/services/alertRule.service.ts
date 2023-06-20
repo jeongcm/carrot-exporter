@@ -170,7 +170,7 @@ class AlertRuleService {
               // 이전과 새로운 데이터를 모두 가진 alertReceived map에 얼럿 추가
               prevAlertReceivedIntersectionSet[alertReceivedHash] = prevAlertReceivedSet[alertReceivedHash]
             }
-            // 모두 가진 alertReceived map에 넣었기 때문에 이전 얼럿 삭제
+            // 또다시 들어온 alertReceived 을 prevAlertReceived map에서 삭제
             delete prevAlertReceivedSet[alertReceivedHash]
             newAlertReceivedSet[alertRuleHash] = {}
             newAlertReceivedSet[alertRuleHash][alertReceivedHash] = alertReceived
@@ -316,7 +316,7 @@ class AlertRuleService {
           }
         }
 
-        // 이전 AlertReceived 중 이번에 없어진 AlertReceived에 대해
+        // 이전 AlertReceived 중 이번에 들어온 alertReceived 에서 사라진 AlertReceived 는 resolved 됐다고 간주하기 때문에
         // 이전 AlertReceivedState가 "resolved"가 아니라면 "resolved"로 변경해서 추가
         Object.values(prevAlertReceivedSet).forEach(par => {
           let prevAlertReceived: any = par
