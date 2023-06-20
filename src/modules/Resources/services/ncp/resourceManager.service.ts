@@ -9,7 +9,7 @@ import mysql from 'mysql2/promise';
 import { ITbCustomer } from '@/common/interfaces/tbCustomer.interface';
 import { ITbCustomerAccountCloudPlatform } from '@/common/interfaces/tbCustomerAccountCloudPlatform.interface';
 
-class ncpResourceService {
+class NcpResourceService {
   public queryService = new QueryService();
   // public ncpResource = DB.NcpResource;
   public resourceGroup = DB.ResourceGroup;
@@ -29,7 +29,7 @@ class ncpResourceService {
     // const ncCustomerAccountKey = 48;
     const customerUuidResult: ITbCustomer = await this.tbCustomer.findOne({ where: { ncCustomerAccountKey } });
     const customerUuid = customerUuidResult.customerUuid;
-
+    
     const accountUuidResult: ITbCustomerAccountCloudPlatform = await this.tbCustomerAccountCloudPlatform.findOne({ where: { customerUuid } });
     const accountUuid = accountUuidResult.accountUuid;
 
@@ -85,6 +85,9 @@ class ncpResourceService {
   }
 
   public async uploadResource(data: INcpResource[], uuidResult: any): Promise<string> {
+
+    //기존의 자원 중 삭제된 자원을 걸러내기 위한 update. DEL_YN이 그대로 'Y'일 경우, 삭제된 자원.
+    const delYnQuery=  `UPDATE TB_RESOURCE SET DEL_YN = 'Y' WHERE 1=1`
     const query1 = `INSERT INTO TB_RESOURCE (
                         customer_uuid,
                         account_uuid,
@@ -149,6 +152,7 @@ class ncpResourceService {
 
     await mysqlConnection.query('START TRANSACTION');
     try {
+      await mysqlConnection.query(delYnQuery);
       await mysqlConnection.query(query1, [query2]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {
@@ -272,4 +276,4 @@ class ncpResourceService {
   } // end of massUploadResource
 }
 
-export default ncpResourceService;
+export default NcpResourceService;

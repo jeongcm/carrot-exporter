@@ -3,6 +3,7 @@ import {
   IContractDemandCost,
   IContractDemandProduct,
   IContractProduct,
+  ICostRelationCode,
   IDemandCost,
   IPrice,
   IProduct,
@@ -152,6 +153,26 @@ class NcpCostService {
       console.log(`success to upload Demandcost(${queryResult.resourceType}).`);
     } catch (err) {
       console.log(`failed to upload Demandcost(${queryResult.resourceType}. cause: ${err})`);
+      return err;
+    }
+  }
+
+  public async uploadNcpCostRelationCode(totalMsg) {
+    let queryResult: any;
+    let resultMsg: any;
+    queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+
+    const result = JSON.parse(queryResult.message);
+    if (Object.keys(queryResult.message).length === 0) {
+      console.log(`skip to upload costRelationCode(${queryResult.resourceType}). cause: empty list`);
+      return 'empty list';
+    }
+
+    try {
+      resultMsg = await this.uploadCostRelationCode(result.costRelationCodeList);
+      console.log(`success to upload costRelationCode(${queryResult.resourceType}).`);
+    } catch (err) {
+      console.log(`failed to upload costRelationCode(${queryResult.resourceType}. cause: ${err})`);
       return err;
     }
   }
@@ -493,11 +514,8 @@ class NcpCostService {
                             service_end_date=VALUES(service_end_date),
                             product_size=VALUES(product_size),
                             product_count=VALUES(product_count),
-                            contract_no=VALUES(contract_no),
-                            created_by=VALUES(created_by),
-                            created_at=VALUES(created_at),
-                            updated_by=VALUES(updated_by),
-                            updated_at=VALUES(updated_at)
+                            updated_by=VALUES(created_by),
+                            updated_at=VALUES(created_at)
                             `;
 
     const contractProductValue = [];
@@ -601,10 +619,8 @@ class NcpCostService {
                             product_size=VALUES(product_size),
                             product_count=VALUES(product_count),
                             contract_no=VALUES(contract_no),
-                            created_by=VALUES(created_by),
-                            created_at=VALUES(created_at),
-                            updated_by=VALUES(updated_by),
-                            updated_at=VALUES(updated_at)
+                            updated_by=VALUES(created_by),
+                            updated_at=VALUES(created_at)
                             `;
 
     const contractProductHistQuery =
@@ -741,7 +757,7 @@ class NcpCostService {
   }
 
   public async uploadUsage(usageData: IUsage[], uuidResult: any): Promise<string> {
-    const usageQuery = `INSERT INTO ncp_api.TB_USAGE (
+    const usageQuery = `INSERT INTO ncp_api.TB_CONTRACT_PRODUCT_USAGE (
                               customer_uuid,
                               account_uuid,
                               metering_type_code,
@@ -768,10 +784,8 @@ class NcpCostService {
                             user_usage_quantity=VALUES(user_usage_quantity),
                             user_unit_code=VALUES(user_unit_code),
                             user_unit_code_name=VALUES(user_unit_code_name),
-                            created_by=VALUES(created_by),
-                            created_at=VALUES(created_at),
-                            updated_by=VALUES(updated_by),
-                            updated_at=VALUES(updated_at)
+                            updated_by=VALUES(created_by),
+                            updated_at=VALUES(created_at)
                             `;
 
     const usageValue = [];
@@ -890,10 +904,8 @@ class NcpCostService {
                     disk_detail_type_code_name=VALUES(disk_detail_type_code_name),
                     generation_code=VALUES(generation_code),
                     price_no=VALUES(price_no),
-                    created_by=VALUES(created_by),
-                    created_at=VALUES(created_at),
-                    updated_by=VALUES(updated_by),
-                    updated_at=VALUES(updated_at)
+                    updated_by=VALUES(created_by),
+                    updated_at=VALUES(created_at)
                   `;
 
     const productPriceValue = [];
@@ -964,9 +976,10 @@ class NcpCostService {
   }
 
   public async uploadPrice(priceData: IPrice[], uuidResult: any): Promise<string> {
-    const priceQuery = `INSERT INTO ncp_api.TB_PRICE (
+    const priceQuery = `INSERT INTO ncp_api.TB_PRODUCT_PRICE (
                     customer_uuid,
                     account_uuid,
+                    product_code,
                     price_no,
                     price_type_code,
                     price_type_code_name,
@@ -975,7 +988,6 @@ class NcpCostService {
                     charging_unit_type_code_name,
                     rating_unit_type_code,
                     rating_unit_type_code_name,
-                    product_type_code_name,
                     charging_unit_basic_value,
                     product_rating_type_code,
                     product_rating_type_code_name,
@@ -1010,7 +1022,6 @@ class NcpCostService {
                     charging_unit_type_code_name=VALUES(charging_unit_type_code_name),
                     rating_unit_type_code=VALUES(rating_unit_type_code),
                     rating_unit_type_code_name=VALUES(rating_unit_type_code_name),
-                    product_type_code_name=VALUES(product_type_code_name),
                     charging_unit_basic_value=VALUES(charging_unit_basic_value),
                     product_rating_type_code=VALUES(product_rating_type_code),
                     product_rating_type_code_name=VALUES(product_rating_type_code_name),
@@ -1032,10 +1043,8 @@ class NcpCostService {
                     price_version_name=VALUES(price_version_name),
                     pay_currency_code=VALUES(pay_currency_code),
                     pay_currency_code_name=VALUES(pay_currency_code_name),
-                    created_by=VALUES(created_by),
-                    created_at=VALUES(created_at),
-                    updated_by=VALUES(updated_by),
-                    updated_at=VALUES(updated_at)
+                    updated_by=VALUES(created_by),
+                    updated_at=VALUES(created_at)
                   `;
 
     const priceValue = [];
@@ -1044,6 +1053,7 @@ class NcpCostService {
       priceValue[i] = [
         uuidResult.customerUuid,
         uuidResult.accountUuid,
+        priceData[i].product_code,
         priceData[i].price_no,
         priceData[i].price_type_code,
         priceData[i].price_type_code_name,
@@ -1052,7 +1062,6 @@ class NcpCostService {
         priceData[i].charging_unit_type_code_name,
         priceData[i].rating_unit_type_code,
         priceData[i].rating_unit_type_code_name,
-        priceData[i].product_type_code_name,
         priceData[i].charging_unit_basic_value,
         priceData[i].product_rating_type_code,
         priceData[i].product_rating_type_code_name,
@@ -1254,5 +1263,81 @@ class NcpCostService {
 
     return 'successful DB update ';
   }
+
+  public async uploadCostRelationCode(costRelationCode: ICostRelationCode[]): Promise<string> {
+    const costRelationQuery = `INSERT INTO ncp_api.TB_COST_RELATION_CODE (
+                              contract_type_code,
+                              contract_type_code_name,
+                              product_item_kind_code,
+                              product_item_kind_code_name,
+                              product_rating_type_code,
+                              product_rating_type_code_name,
+                              metering_type_code,
+                              metering_type_code_name,
+                              demand_type_code,
+                              demand_type_code_name,
+                              demand_type_detail_code,
+                              demand_type_detail_code_name,
+                              product_demand_type_code,
+                              product_demand_type_code_name
+                            ) VALUES ?
+                            ON DUPLICATE KEY UPDATE
+                            contract_type_code_name=VALUES(contract_type_code_name),
+                            product_item_kind_code_name=VALUES(product_item_kind_code_name),
+                            product_rating_type_code=VALUES(product_rating_type_code),
+                            product_rating_type_code_name=VALUES(product_rating_type_code_name),
+                            metering_type_code=VALUES(metering_type_code),
+                            metering_type_code_name=VALUES(metering_type_code_name),
+                            demand_type_code_name=VALUES(demand_type_code_name),
+                            demand_type_detail_code=VALUES(demand_type_detail_code),
+                            demand_type_detail_code_name=VALUES(demand_type_detail_code_name),
+                            product_demand_type_code_name=VALUES(product_demand_type_code_name)
+                            `;
+
+    let costRelationCodeValue = []
+    for (let i = 0; i < costRelationCode?.length; i++) {
+      costRelationCodeValue[i] = [
+        costRelationCode[i].contract_type_code,
+        costRelationCode[i].contract_type_code_name,
+        costRelationCode[i].product_item_kind_code,
+        costRelationCode[i].product_item_kind_code_name,
+        costRelationCode[i].product_rating_type_code,
+        costRelationCode[i].product_rating_type_code_name,
+        costRelationCode[i].metering_type_code,
+        costRelationCode[i].metering_type_code_name,
+        costRelationCode[i].demand_type_code,
+        costRelationCode[i].demand_type_code_name,
+        costRelationCode[i].demand_type_detail_code,
+        costRelationCode[i].demand_type_detail_code_name,
+        costRelationCode[i].product_demand_type_code,
+        costRelationCode[i].product_demand_type_code_name,
+      ];
+    }
+
+    const mysqlConnection = await mysql.createConnection({
+      host: config.db.mariadb.host,
+      user: config.db.mariadb.user,
+      port: config.db.mariadb.port || 3306,
+      password: config.db.mariadb.password,
+      // database: config.db.mariadb.dbName,
+      database: 'ops_api',
+      multipleStatements: true,
+    });
+
+    await mysqlConnection.query('START TRANSACTION');
+    try {
+      await mysqlConnection.query(costRelationQuery, [costRelationCodeValue]);
+      await mysqlConnection.query('COMMIT');
+    } catch (err) {
+      await mysqlConnection.query('ROLLBACK');
+      await mysqlConnection.end();
+      console.info('Rollback successful');
+      throw `${err}`;
+    }
+    await mysqlConnection.end();
+
+    return 'successful DB update ';
+  }
 }
+
 export default NcpCostService;

@@ -146,6 +146,7 @@ export interface IProduct {
 [];
 
 export interface IPrice {
+  product_code: string;
   price_no: string;
   price_type_code: string;
   price_type_code_name: string;
@@ -220,5 +221,23 @@ export interface IDemandCost {
   pay_currency_code_name: string;
   this_month_applied_exchange_rate: number;
   promotion_discount_amount: number;
+}
+[];
+
+export interface ICostRelationCode {
+  contract_type_code: string;
+  contract_type_code_name: string;
+  product_item_kind_code: string;
+  product_item_kind_code_name: string;
+  product_rating_type_code: string;
+  product_rating_type_code_name: string;
+  metering_type_code: string;
+  metering_type_code_name: string;
+  demand_type_code: string;
+  demand_type_code_name: string;
+  demand_type_detail_code: string;
+  demand_type_detail_code_name: string;
+  product_demand_type_code: string;
+  product_demand_type_code_name: string;
 }
 [];

@@ -64,6 +64,7 @@ export default async function getProductPriceQuery(result, clusterUuid) {
       priceResult = productPriceResult?.priceList;
       for (let j = 0; j < productPriceResult.priceList?.length; j++) {
         priceResult = productPriceResult?.priceList[j];
+        priceQuery['product_code'] = productPriceResult.productCode;
         priceQuery['price_no'] = priceResult.priceNo;
         priceQuery['price_type_code'] = priceResult.priceType.code;
         priceQuery['price_type_code_name'] = priceResult.priceType.codeName;
@@ -97,7 +98,7 @@ export default async function getProductPriceQuery(result, clusterUuid) {
           priceQuery['metering_unit_code'] = priceResult.meteringUnit.code;
           priceQuery['metering_unit_code_name'] = priceResult.meteringUnit.codeName;
         }
-        priceQuery['start_date'] = priceResult.startDate;
+        priceQuery['start_date'] = formatIso8601(priceResult.startDate);
         if (priceResult.hasOwnProperty('priceAttribute')) {
           priceQuery['price_attribute_code'] = priceResult.priceAttribute.code;
           priceQuery['price_attribute_code_name'] = priceResult.priceAttribute.codeName;
@@ -121,4 +122,19 @@ export default async function getProductPriceQuery(result, clusterUuid) {
   const tempQuery = '{ "productPriceList": [' + productPriceList + '],' + '"priceList": [' + priceList + ']}';
   // console.log('tempQuery =========== \n' + tempQuery);
   return { message: tempQuery, resourceType: resourceType };
+}
+
+const formatIso8601 = (isoDate: Date) => {
+
+  const date = new Date(isoDate);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  const formattedDate = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  
+  return formattedDate
 }

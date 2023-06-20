@@ -11,6 +11,8 @@ class ResourceRoute implements Routes {
   private initializeRoutes() {
     this.router.post('/resource', this.resourceController.uploadResource);
     this.router.post('/resource/event', this.resourceController.uploadResourceEvent);
+    this.router.post('/resource/ncpResource', this.resourceController.uploadNcpResource);
+    this.router.post('/resource/ncpResourceGroup', this.resourceController.uploadNcpResourceGroupRelation);
   }
 }
 
