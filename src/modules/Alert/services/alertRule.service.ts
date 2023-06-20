@@ -497,6 +497,8 @@ class AlertRuleService {
                     alert_received_container, alert_received_endpoint, alert_received_reason, alert_received_uid, alert_received_hash, alert_received_ui_flag,
                     alert_received_affected_resource_type, alert_received_affected_resource_name, alert_received_persistentvolumeclaim
                       ) VALUES ?
+                      ON DUPLICATE KEY UPDATE
+                      alert_received_id = VALUES(alert_received_id)
                       `;
     const query2 = [];
     for (let i = 0; i < alertReceivedData.length; i++) {
