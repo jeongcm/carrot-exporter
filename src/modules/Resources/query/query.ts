@@ -48,6 +48,7 @@ import getVpcListQuery from '@modules/Resources/query/ncp/vpc/vpc';
 import getZoneListQuery from '@modules/Resources/query/ncp/zone/zone';
 import getDemandCostQuery from '@modules/Cost/query/ncp/demandCost';
 import getNetworkAclListQuery from '@modules/Resources/query/ncp/networkAcl/networkAcl';
+import getCostRelationCodeList from '@modules/Cost/query/ncp/costRelationCode';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -151,11 +152,13 @@ class QueryService {
       case 'NCM00000000000000000000000000015':
       case 'NCM00000000000000000000000000016':
       case '70000000000000000000000000000043':
+      case '70000000000000000000000000000045':
       case 'NCM00000000000000000000000000018':
       case 'NCM00000000000000000000000000017':
       case '70000000000000000000000000000016':
       case '70000000000000000000000000000041':
       case 'NCM00000000000000000000000000019':
+      case '70000000000000000000000000000028':
         queryResult = await this.getNcpResourceQuery(totalMsg);
         break;
       default:
@@ -236,6 +239,9 @@ class QueryService {
       case '70000000000000000000000000000043':
         queryResult = await getProductPriceQuery(result, clusterUuid);
         break;
+      case '70000000000000000000000000000045':
+        queryResult = await getCostRelationCodeList(result, clusterUuid);
+        break;
       case 'NCM00000000000000000000000000006':
         queryResult = await this.cloudDBMysqlService.getCloudDBMysqlInstanceListQuery(result, clusterUuid);
         break;
@@ -279,8 +285,8 @@ class QueryService {
         queryResult = await getRouteTableQuery(result, clusterUuid);
         break;
       case 'NCM00000000000000000000000000019':
-          queryResult = await getNetworkAclListQuery(result, clusterUuid);
-          break;
+        queryResult = await getNetworkAclListQuery(result, clusterUuid);
+        break;
       default:
         throw new HttpException(400, `invalid template uuid ${totalMsg.template_uuid}`);
     }
