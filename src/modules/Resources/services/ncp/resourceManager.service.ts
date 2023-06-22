@@ -86,8 +86,9 @@ class NcpResourceService {
 
   public async uploadResource(data: INcpResource[], uuidResult: any): Promise<string> {
 
-    //기존의 자원 중 삭제된 자원을 걸러내기 위한 update. DEL_YN이 그대로 'Y'일 경우, 삭제된 자원.
-    const delYnQuery=  `UPDATE TB_RESOURCE SET DEL_YN = 'Y' WHERE 1=1`
+    //* deleted_at이 null인 자원 = 현재 사용중인 자원.
+    //현재 운영중인 자원을 종료된 자원으로 update 후, 자원목록 upsert시, null로 변경. -> 삭제된 자원은 deleted_at이 현재시간으로 변경 : 삭제된 시간.
+    const delYnQuery=  `UPDATE TB_RESOURCE SET deleted_at = '`+ this.currentTime + `' WHERE deleted_at is null`
     const query1 = `INSERT INTO TB_RESOURCE (
                         customer_uuid,
                         account_uuid,
@@ -103,7 +104,8 @@ class NcpResourceService {
                         event_time,
                         resource_id,
                         created_by,
-                        created_at
+                        created_at,
+                        deleted_at
                       ) VALUES ?
                       ON DUPLICATE KEY UPDATE
                       nrn=VALUES(nrn),
@@ -117,7 +119,8 @@ class NcpResourceService {
                       create_time=VALUES(create_time),
                       event_time=VALUES(event_time),
                       updated_by=VALUES(created_by),
-                      updated_at=VALUES(created_at)
+                      updated_at=VALUES(created_at),
+                      deleted_at=NULL 
                       `;
 
     const query2 = [];
@@ -139,6 +142,7 @@ class NcpResourceService {
         data[i].resource_id,
         'Aggregator',
         this.currentTime,
+        null, //deleted_at
       ];
     }
     const mysqlConnection = await mysql.createConnection({
@@ -167,6 +171,7 @@ class NcpResourceService {
   } // end of massUploadResource
 
   public async uploadResourceGroup(data: INcpResourceGroup[], uuidResult: any): Promise<string> {
+    const delYnQuery=  `UPDATE TB_RESOURCE_GROUP SET deleted_at = '`+ this.currentTime + `' WHERE deleted_at is null`
     const query1 = `INSERT INTO TB_RESOURCE_GROUP (
                         customer_uuid,
                         account_uuid,
@@ -175,18 +180,18 @@ class NcpResourceService {
                         group_desc,
                         create_time,
                         update_time,
-                        del_yn,
                         created_by,
-                        created_at
+                        created_at,
+                        deleted_at
                       ) VALUES ?
                       ON DUPLICATE KEY UPDATE
                         group_name=VALUES(group_name),
                         group_desc=VALUES(group_desc),
                         create_time=VALUES(create_time),
                         update_time=VALUES(update_time),
-                        del_yn=VALUES(del_yn),
                         updated_by=VALUES(created_by),
-                        updated_at=VALUES(created_at)
+                        updated_at=VALUES(created_at),
+                        deleted_at=null
                       `;
 
     const query2 = [];
@@ -200,9 +205,9 @@ class NcpResourceService {
         data[i].group_desc,
         data[i].create_time,
         data[i].update_time,
-        0,
         'Aggregator',
         this.currentTime,
+        null,
       ];
     }
 
@@ -230,25 +235,59 @@ class NcpResourceService {
     return 'successful DB update ';
   } // end of massUploadResource
   public async uploadResourceGroupRelation(data: INcpResourceGroupRelation[], uuidResult: any): Promise<string> {
+    
+    const delYnQuery=  `UPDATE TB_RESOURCE_GROUP_RELATION SET deleted_at = '`+ this.currentTime + `' WHERE deleted_at is null`
+    const histQuery = `INSERT INTO TB_RESOURCE_GROUP_RELATION_HIST (
+                          use_month,
+                          customer_uuid,
+                          account_uuid,
+                          group_id,
+                          resource_id,
+                          origin_created_by,
+                          origin_created_at,
+                          origin_updated_by,
+                          origin_updated_at,
+                          origin_deleted_at,
+                          created_by,
+                          created_at
+                        ) 
+                        SELECT 
+                          DATE_FORMAT(created_at, '%Y%m'),
+                          customer_uuid,
+                          account_uuid,
+                          group_id,
+                          resource_id,
+                          created_by,
+                          created_at,
+                          updated_by,
+                          updated_at,
+                          deleted_at,
+                          'Aggregator',
+                          '` + this.currentTime + `'`+
+                          `FROM TB_RESOURCE_GROUP_RELATION`
+                        ;
+                    
     const query1 = `INSERT INTO TB_RESOURCE_GROUP_RELATION (
                         customer_uuid,
                         account_uuid,
                         group_id,
                         resource_id,
                         created_by,
-                        created_at
+                        created_at,
+                        deleted_at
                       ) VALUES ?
                       ON DUPLICATE KEY UPDATE
                         group_id=VALUES(group_id),
                         resource_id=VALUES(resource_id),
                         updated_by=VALUES(created_by),
-                        updated_at=VALUES(created_at)
+                        updated_at=VALUES(created_at),
+                        deleted_at=null
                       `;
 
     const query2 = [];
 
     for (let i = 0; i < data?.length; i++) {
-      query2[i] = [uuidResult.customerUuid, uuidResult.accountUuid, data[i].group_id, data[i].resource_id, 'Aggregator', this.currentTime];
+      query2[i] = [uuidResult.customerUuid, uuidResult.accountUuid, data[i].group_id, data[i].resource_id, 'Aggregator', this.currentTime, null];
     }
 
     const mysqlConnection = await mysql.createConnection({
@@ -262,6 +301,8 @@ class NcpResourceService {
 
     await mysqlConnection.query('START TRANSACTION');
     try {
+      await mysqlConnection.query(histQuery);
+      await mysqlConnection.query(delYnQuery);
       await mysqlConnection.query(query1, [query2]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {

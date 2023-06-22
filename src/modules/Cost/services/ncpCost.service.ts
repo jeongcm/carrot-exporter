@@ -161,6 +161,7 @@ class NcpCostService {
     let queryResult: any;
     let resultMsg: any;
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
+    const uuidResult = await this.getUuid(queryResult.clusterUuid);
 
     const result = JSON.parse(queryResult.message);
     if (Object.keys(queryResult.message).length === 0) {
@@ -169,7 +170,7 @@ class NcpCostService {
     }
 
     try {
-      resultMsg = await this.uploadCostRelationCode(result.costRelationCodeList);
+      resultMsg = await this.uploadCostRelationCode(result.costRelationCodeList, uuidResult);
       console.log(`success to upload costRelationCode(${queryResult.resourceType}).`);
     } catch (err) {
       console.log(`failed to upload costRelationCode(${queryResult.resourceType}. cause: ${err})`);
@@ -364,8 +365,8 @@ class NcpCostService {
       user: config.db.mariadb.user,
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
-      // database: config.db.mariadb.dbName,
-      // database: 'ops_api',
+      database: config.db.mariadb.dbName,
+      database: 'ncp_api',
       multipleStatements: true,
     });
 
@@ -387,6 +388,8 @@ class NcpCostService {
   }
 
   public async uploadContract(contractData: IContract[], uuidResult: any): Promise<string> {
+
+    const delYnQuery=  `UPDATE TB_CONTRACT SET deleted_at = '`+ this.currentTime + `' WHERE deleted_at is null`
     const contractQuery = `INSERT INTO ncp_api.TB_CONTRACT (
                               customer_uuid,
                               account_uuid,
@@ -404,7 +407,8 @@ class NcpCostService {
                               platform_type_code,
                               platform_type_code_name,
                               created_by,
-                              created_at
+                              created_at,
+                              deleted_at
                             ) VALUES ?
                             ON DUPLICATE KEY UPDATE
                               member_no=VALUES(member_no),
@@ -420,7 +424,8 @@ class NcpCostService {
                               platform_type_code=VALUES(platform_type_code),
                               platform_type_code_name=VALUES(platform_type_code_name),
                               updated_by=VALUES(created_by),
-                              updated_at=VALUES(created_at)
+                              updated_at=VALUES(created_at),
+                              deleted_at=NULL
                             `;
 
     const contractValue = [];
@@ -444,6 +449,7 @@ class NcpCostService {
         contractData[i].platform_type_code_name,
         'Aggregator',
         this.currentTime,
+        null
       ];
     }
 
@@ -453,12 +459,13 @@ class NcpCostService {
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
       // database: config.db.mariadb.dbName,
-      database: 'ops_api',
+      database: 'ncp_api',
       multipleStatements: true,
     });
 
     await mysqlConnection.query('START TRANSACTION');
     try {
+      await mysqlConnection.query(delYnQuery);
       await mysqlConnection.query(contractQuery, [contractValue]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {
@@ -554,7 +561,7 @@ class NcpCostService {
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
       // database: config.db.mariadb.dbName,
-      database: 'ops_api',
+      database: 'ncp_api',
       multipleStatements: true,
     });
 
@@ -653,9 +660,7 @@ class NcpCostService {
                               origin_updated_at,
                               origin_deleted_at,
                               created_by,
-                              created_at,
-                              updated_by,
-                              updated_at
+                              created_at
                             ) 
                             SELECT 
                             DATE_FORMAT(created_at, '%Y%m%d'),
@@ -685,19 +690,11 @@ class NcpCostService {
                             updated_by,
                             updated_at,
                             deleted_at,
-                            'Aggregator'` +
-                            `,'` +
-                            this.currentTime +
-                            `',` +
-                            `'Aggregator'` +
-                            `,'` +
-                            this.currentTime +
-                            `'` +
+                            'Aggregator',
+                            '` + this.currentTime + `'` +
                             `FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT`;
 
     const contractProductValue = [];
-
-    console.log(contractProductHistQuery);
 
     for (let i = 0; i < contractDemandProduct?.length; i++) {
       contractProductValue[i] = [
@@ -735,7 +732,7 @@ class NcpCostService {
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
       // database: config.db.mariadb.dbName,
-      database: 'ops_api',
+      database: 'ncp_api',
       multipleStatements: true,
     });
 
@@ -757,6 +754,56 @@ class NcpCostService {
   }
 
   public async uploadUsage(usageData: IUsage[], uuidResult: any): Promise<string> {
+
+    const usageHistQuery = `INSERT INTO ncp_api.TB_CONTRACT_PRODUCT_USAGE_HIST (
+                                create_date,
+                                customer_uuid,
+                                account_uuid,
+                                metering_type_code,
+                                metering_type_code_name,
+                                contract_product_sequence,
+                                use_month,
+                                usage_quantity,
+                                unit_code,
+                                unit_code_name,
+                                user_usage_quantity,
+                                user_unit_code,
+                                user_unit_code_name,
+                                contract_no,
+                                origin_created_by,
+                                origin_created_at,
+                                origin_updated_by,
+                                origin_updated_at,
+                                origin_deleted_at,
+                                created_by,
+                                created_at
+                              ) SELECT 
+                                DATE_FORMAT(created_at, '%Y%m%d'),
+                                customer_uuid,
+                                account_uuid,
+                                metering_type_code,
+                                metering_type_code_name,
+                                contract_product_sequence,
+                                use_month,
+                                usage_quantity,
+                                unit_code,
+                                unit_code_name,
+                                user_usage_quantity,
+                                user_unit_code,
+                                user_unit_code_name,
+                                contract_no,
+                                created_by,
+                                created_at,
+                                updated_by,
+                                updated_at,
+                                deleted_at,
+                                'Aggregator',
+                                '` + this.currentTime + `'
+                              FROM ncp_api.TB_CONTRACT_PRODUCT_USAGE
+    `;
+
+    const deleteQuery = `DELETE FROM ncp_api.TB_CONTRACT_PRODUCT_USAGE WHERE 1=1`
+
     const usageQuery = `INSERT INTO ncp_api.TB_CONTRACT_PRODUCT_USAGE (
                               customer_uuid,
                               account_uuid,
@@ -824,6 +871,8 @@ class NcpCostService {
 
     await mysqlConnection.query('START TRANSACTION');
     try {
+      await mysqlConnection.query(usageHistQuery);
+      await mysqlConnection.query(deleteQuery);
       await mysqlConnection.query(usageQuery, [usageValue]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {
@@ -956,7 +1005,7 @@ class NcpCostService {
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
       // database: config.db.mariadb.dbName,
-      database: 'ops_api',
+      database: 'ncp_api',
       multipleStatements: true,
     });
 
@@ -1009,6 +1058,10 @@ class NcpCostService {
                     price_version_name,
                     pay_currency_code,
                     pay_currency_code_name,
+                    promise_list,
+                    period_unit_list,
+                    country_unit_list,
+                    package_unit_list,
                     created_by,
                     created_at,
                     updated_by,
@@ -1043,6 +1096,10 @@ class NcpCostService {
                     price_version_name=VALUES(price_version_name),
                     pay_currency_code=VALUES(pay_currency_code),
                     pay_currency_code_name=VALUES(pay_currency_code_name),
+                    promise_list=VALUES(promise_list),
+                    period_unit_list=VALUES(period_unit_list),
+                    country_unit_list=VALUES(country_unit_list),
+                    package_unit_list=VALUES(package_unit_list),
                     updated_by=VALUES(created_by),
                     updated_at=VALUES(created_at)
                   `;
@@ -1083,6 +1140,10 @@ class NcpCostService {
         priceData[i].price_version_name,
         priceData[i].pay_currency_code,
         priceData[i].pay_currency_code_name,
+        priceData[i].promise_list,
+        priceData[i].period_unit_list,
+        priceData[i].country_unit_list,
+        priceData[i].package_unit_list,
         'Aggregator',
         this.currentTime,
         'Aggregator',
@@ -1245,7 +1306,7 @@ class NcpCostService {
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
       // database: config.db.mariadb.dbName,
-      database: 'ops_api',
+      database: 'ncp_api',
       multipleStatements: true,
     });
 
@@ -1264,8 +1325,12 @@ class NcpCostService {
     return 'successful DB update ';
   }
 
-  public async uploadCostRelationCode(costRelationCode: ICostRelationCode[]): Promise<string> {
+  public async uploadCostRelationCode(costRelationCode: ICostRelationCode[], uuidResult: any): Promise<string> {
+    const deleteQuery = `DELETE FROM TB_COST_RELATION_CODE WHERE 1=1`
     const costRelationQuery = `INSERT INTO ncp_api.TB_COST_RELATION_CODE (
+                              customer_uuid,
+                              account_uuid,
+                              cost_relation_code_sequence,
                               contract_type_code,
                               contract_type_code_name,
                               product_item_kind_code,
@@ -1297,6 +1362,9 @@ class NcpCostService {
     let costRelationCodeValue = []
     for (let i = 0; i < costRelationCode?.length; i++) {
       costRelationCodeValue[i] = [
+        uuidResult.customerUuid,
+        uuidResult.accountUuid,
+        i,
         costRelationCode[i].contract_type_code,
         costRelationCode[i].contract_type_code_name,
         costRelationCode[i].product_item_kind_code,
@@ -1320,12 +1388,13 @@ class NcpCostService {
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
       // database: config.db.mariadb.dbName,
-      database: 'ops_api',
+      database: 'ncp_api',
       multipleStatements: true,
     });
 
     await mysqlConnection.query('START TRANSACTION');
     try {
+      await mysqlConnection.query(deleteQuery);
       await mysqlConnection.query(costRelationQuery, [costRelationCodeValue]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {
