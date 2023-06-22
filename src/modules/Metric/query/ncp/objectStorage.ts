@@ -9,8 +9,8 @@ export default async function getObjectStorageMetric(totalMsg, clusterUuid) {
   }
 
   // get origin metric data
-  totalMsg.result[0][0].forEach((serverInstance) => {
-    serverInstance.outputs.forEach((output) => {
+  totalMsg.result[0].forEach((objectStorageInstance) => {
+    objectStorageInstance.outputs.forEach((output) => {
       output.dps.forEach((dp) => {
         queryResult.result.result.push(
           {
