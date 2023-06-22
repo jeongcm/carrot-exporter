@@ -365,7 +365,6 @@ class NcpCostService {
       user: config.db.mariadb.user,
       port: config.db.mariadb.port || 3306,
       password: config.db.mariadb.password,
-      database: config.db.mariadb.dbName,
       database: 'ncp_api',
       multipleStatements: true,
     });
