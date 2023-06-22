@@ -33,6 +33,8 @@ class QueryService {
         break;
       case "NCM00000000000000000000000000005":
         queryResult = await getCloudPostgresqlInstanceMetric(totalMsg, clusterUuid)
+      case "NCM00000000000000000000000000020":
+        queryResult = await getCloudPostgresqlInstanceMetric(totalMsg, clusterUuid)
         break;
     }
 
