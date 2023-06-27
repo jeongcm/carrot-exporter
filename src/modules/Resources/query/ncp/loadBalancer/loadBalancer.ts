@@ -50,6 +50,7 @@ export default async function getLoadBalancerQuery(result, clusterUuid) {
         // query['resource_Namespace'] =
         // query['parent_Resource_Id'] =
         loadBalancerQuery['resource_Status'] = lbList[i]?.loadBalancerInstanceStatusName;
+        loadBalancerQuery['resource_Level1'] = "NCP";
         loadBalancerQuery['resource_Level2'] = "RG";
         loadBalancerQuery['resource_Level3'] = "VPC";
         loadBalancerQuery['resource_Level4'] = resourceType;
