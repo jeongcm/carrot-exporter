@@ -4,6 +4,7 @@ import getCloudMongoDBInstanceMetric from "@modules/Metric/query/ncp/cloudMongoD
 import getCloudRedisInstanceMetric from "@modules/Metric/query/ncp/cloudRedis";
 import getCloudPostgresqlInstanceMetric from "@modules/Metric/query/ncp/cloudPostgresql";
 import { HttpException } from "@common/exceptions/HttpException";
+import getObjectStorageMetric from "@modules/Metric/query/ncp/objectStorage";
 
 class QueryService {
   public async getMetricQuery(totalMsg) {
@@ -33,6 +34,9 @@ class QueryService {
         break;
       case "NCM00000000000000000000000000005":
         queryResult = await getCloudPostgresqlInstanceMetric(totalMsg, clusterUuid)
+        break;
+      case "NCM00000000000000000000000000020":
+        queryResult = await getObjectStorageMetric(totalMsg, clusterUuid)
         break;
     }
 

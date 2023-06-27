@@ -22,6 +22,8 @@ class CostController {
         result = await this.ncpCostService.uploadNcpContractUsage(totalMsg);
       } else if (totalMsg.template_uuid === '70000000000000000000000000000043') {
         result = await this.ncpCostService.uploadNcpProductPrice(totalMsg);
+      } else if (totalMsg.template_uuid === '70000000000000000000000000000045') {
+        result = await this.ncpCostService.uploadNcpCostRelationCode(totalMsg);
       }
       if (result === 'empty list') {
         res.status(204).json({ message: result });
