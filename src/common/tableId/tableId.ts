@@ -1,6 +1,6 @@
 import config from "@/config";
 import axios from "@common/httpClient/axios";
-import DB from "@/database";
+import { DB } from "@/database";
 import { HttpException } from "@common/exceptions/HttpException";
 
 export default class TableIdService {
