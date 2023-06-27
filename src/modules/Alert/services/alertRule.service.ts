@@ -97,6 +97,7 @@ class AlertRuleService {
         where: { deletedAt: null, resourceGroupUuid: clusterUuid }
       })
 
+      console.log(resourceGroup.resourceGroupName, 'start')
       if (!resourceGroup) {
         throw new HttpException(404, `not found resourceGroup(clusterUuid: ${clusterUuid})`)
       }
@@ -172,8 +173,12 @@ class AlertRuleService {
             }
             // 또다시 들어온 alertReceived 을 prevAlertReceived map에서 삭제
             delete prevAlertReceivedSet[alertReceivedHash]
-            newAlertReceivedSet[alertRuleHash] = {}
-            newAlertReceivedSet[alertRuleHash][alertReceivedHash] = alertReceived
+            if (!newAlertReceivedSet[alertRuleHash]) {
+              newAlertReceivedSet[alertRuleHash] = {}
+              newAlertReceivedSet[alertRuleHash][alertReceivedHash] = alertReceived
+            } else {
+              newAlertReceivedSet[alertRuleHash][alertReceivedHash] = alertReceived
+            }
           }
         }
       }
@@ -282,6 +287,7 @@ class AlertRuleService {
             if (!resolvedAlertReceived) {
               continue
             } else {
+              //새롭게 존재한 alertReceived에 이전 resolved alert 정보가 있으면 그대로 다시 넣음
               if (resolvedAlertReceived.alertReceivedState === 'resolved') {
                 continue
               }
@@ -295,6 +301,8 @@ class AlertRuleService {
             alertReceivedKey: {[Op.in]: alertReceivedKeys},
         }}).catch(e => {console.log(e)})
       }
+
+      // 이전 alertReceived 삭제
 
       if (Object.keys(prevAlertReceivedSet).length > 0 || Object.keys(newAlertReceivedSet).length > 0) {
         let insertAlertReceives: any = []
