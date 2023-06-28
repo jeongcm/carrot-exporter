@@ -97,7 +97,6 @@ class AlertRuleService {
         where: { deletedAt: null, resourceGroupUuid: clusterUuid }
       })
 
-      console.log(resourceGroup.resourceGroupName, 'start')
       if (!resourceGroup) {
         throw new HttpException(404, `not found resourceGroup(clusterUuid: ${clusterUuid})`)
       }
@@ -297,7 +296,6 @@ class AlertRuleService {
           alertReceivedKeys.push(prevAlertReceived.alertReceivedKey)
         }
 
-        console.log(alertReceivedKeys)
         await this.alertReceived.destroy({where: {
             alertReceivedKey: {[Op.in]: alertReceivedKeys},
         }}).catch(e => {console.log(e)})
@@ -332,7 +330,6 @@ class AlertRuleService {
           if (prevAlertReceived.alertReceivedState != 'resolved') {
             delete prevAlertReceived.alertReceivedKey
             prevAlertReceived.alertReceivedState = 'resolved'
-            console.log("insert prev alertReceived to new insert alertReceived", prevAlertReceived.alertReceivedName)
             insertAlertReceives.push(prevAlertReceived)
           }
         })
