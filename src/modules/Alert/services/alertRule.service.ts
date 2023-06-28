@@ -270,8 +270,8 @@ class AlertRuleService {
       if (typeof prevAlertReceives !== 'undefined' && prevAlertReceives.length > 0) {
         let newAlertReceivedMap = {}
         Object.entries(newAlertReceivedSet).forEach((value, ) => {
-          Object.entries(value[1]).forEach((value) => {
-            newAlertReceivedMap[value[0]] = value[1]
+          Object.entries(value[1]).forEach((v) => {
+            newAlertReceivedMap[v[0]] = v[1]
           })
         })
 
@@ -297,6 +297,7 @@ class AlertRuleService {
           alertReceivedKeys.push(prevAlertReceived.alertReceivedKey)
         }
 
+        console.log(alertReceivedKeys)
         await this.alertReceived.destroy({where: {
             alertReceivedKey: {[Op.in]: alertReceivedKeys},
         }}).catch(e => {console.log(e)})
@@ -331,6 +332,7 @@ class AlertRuleService {
           if (prevAlertReceived.alertReceivedState != 'resolved') {
             delete prevAlertReceived.alertReceivedKey
             prevAlertReceived.alertReceivedState = 'resolved'
+            console.log("insert prev alertReceived to new insert alertReceived", prevAlertReceived.alertReceivedName)
             insertAlertReceives.push(prevAlertReceived)
           }
         })
