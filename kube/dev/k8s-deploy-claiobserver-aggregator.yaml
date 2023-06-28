@@ -45,7 +45,7 @@ data:
   CO_AGGREGATOR_LOG_SILENCE_RESPONSE: "true"
   CO_PAGINATION_LIMIT: "10"
   CO_PAGINATION_PAGE: "0"
-  CO_API_URL: "http://nexclipper-api.nc.svc.cluster.local",
+  CO_API_URL: "http://nexclipper-api.nc.svc.cluster.local"
   CO_API_PORT: "5001"
 
 ---
