@@ -390,7 +390,7 @@ class AlertRuleService {
     receivedQuery['alertReceivedDescription'] = received.annotations?.description || ''
     receivedQuery['alertReceivedSummary'] = received.annotations?.summary || ''
     receivedQuery['alertReceivedActiveAt'] = received.activeAt
-    receivedQuery['alertReceivedValue'] = received.value
+    receivedQuery['alertReceivedValue'] = (received.value * 100).toFixed(2) + '%'
     receivedQuery['alertReceivedNamespace'] = received.labels["namespace"]
     receivedQuery['alertReceivedNode'] = received.labels["node"] || ''
     receivedQuery['alertReceivedService'] = received.labels["service"] || ''
