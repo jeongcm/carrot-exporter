@@ -22,6 +22,7 @@ class NcpResourceService {
 
   //UUID 발급
   public async getUuid(resourceGroupUuid: string) {
+
     const responseResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid } });
     const customerAccountKey = responseResourceGroup.customerAccountKey;
 
@@ -67,7 +68,6 @@ class NcpResourceService {
       console.log(`skip to upload ncpResourceGroup(${queryResult.resourceType}). cause: empty list`);
       return 'empty list';
     }
-
     const uuidResult = await this.getUuid(queryResult.clusterUuid);
 
     try {

@@ -54,7 +54,7 @@ class NcpCostService {
     let resultMsg: any;
 
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
-    const uuidResult = await this.getUuid(totalMsg.cluster_uuid);
+    const uuidResult = await this.getUuid(queryResult.clusterUuid);
     const result = JSON.parse(queryResult.message);
 
     if (Object.keys(queryResult.message).length === 0) {

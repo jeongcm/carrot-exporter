@@ -121,7 +121,7 @@ export default async function getProductPriceQuery(result, clusterUuid) {
 
   const tempQuery = '{ "productPriceList": [' + productPriceList + '],' + '"priceList": [' + priceList + ']}';
   // console.log('tempQuery =========== \n' + tempQuery);
-  return { message: tempQuery, resourceType: resourceType };
+  return { message: tempQuery, resourceType: resourceType, clusterUuid: clusterUuid };
 }
 
 const formatIso8601 = (isoDate: Date) => {
