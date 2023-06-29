@@ -49,6 +49,7 @@ import getZoneListQuery from '@modules/Resources/query/ncp/zone/zone';
 import getDemandCostQuery from '@modules/Cost/query/ncp/demandCost';
 import getNetworkAclListQuery from '@modules/Resources/query/ncp/networkAcl/networkAcl';
 import getCostRelationCodeList from '@modules/Cost/query/ncp/costRelationCode';
+import getNatGatewayListQuery from '@modules/Resources/query/ncp/natGateway/natGateway';
 
 class QueryService {
   public cloudDBMysqlService = new CloudDBMysqlService();
@@ -129,7 +130,7 @@ class QueryService {
       case '70000000000000000000000000000002':
       case '70000000000000000000000000000003':
       case '70000000000000000000000000000004':
-      case '70000000000000000000000000000009':
+      case 'NCM00000000000000000000000000022':
       case '70000000000000000000000000000012':
       case '70000000000000000000000000000006':
       case '70000000000000000000000000000014':
@@ -159,6 +160,7 @@ class QueryService {
       case '70000000000000000000000000000041':
       case 'NCM00000000000000000000000000019':
       case '70000000000000000000000000000028':
+      case '70000000000000000000000000000017':
         queryResult = await this.getNcpResourceQuery(totalMsg);
         break;
       default:
@@ -197,7 +199,7 @@ class QueryService {
       case '70000000000000000000000000000004':
         queryResult = await getServerInstanceListQuery(result, clusterUuid);
         break;
-      case '70000000000000000000000000000009':
+      case 'NCM00000000000000000000000000022':
         queryResult = await getAccessControlGroupListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000012':
@@ -217,6 +219,9 @@ class QueryService {
         break;
       case '70000000000000000000000000000015':
         queryResult = await getVpcListQuery(result, clusterUuid);
+        break;
+      case '70000000000000000000000000000017':
+        queryResult = await getNatGatewayListQuery(result, clusterUuid);
         break;
       case '70000000000000000000000000000028':
         queryResult = await getTargetGroupListQuery(result, clusterUuid);

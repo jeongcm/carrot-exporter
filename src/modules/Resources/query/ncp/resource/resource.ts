@@ -28,5 +28,5 @@ export default async function getResourceQuery(result, clusterUuid) {
   resourceList = '{"resourceList": [' + resourceList + ']}';
 
   // console.log('tempQuery :: \n' + resourceList);
-  return { message: resourceList, resourceType: resourceType };
+  return { message: resourceList, clusterUuid: clusterUuid, resourceType: resourceType };
 }

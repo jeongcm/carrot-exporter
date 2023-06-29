@@ -33,5 +33,5 @@ export default async function getCostRelationCodeList(result, clusterUuid) {
   const tempQuery = '{ "costRelationCodeList": [' + costRelationList + ']}';
 
   // console.log('tempQuery ::::::::::::::: \n' + tempQuery);
-  return { message: tempQuery, resourceType: resourceType };
+  return { message: tempQuery, clusterUuid: clusterUuid, resourceType: resourceType };
 }

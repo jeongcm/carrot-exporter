@@ -95,5 +95,5 @@ export default async function getContractDemandCostQuery(result, clusterUuid) {
 
   // console.log('tempQuery :: \n' + tempQuery);
 
-  return { message: tempQuery, resourceType: resourceType };
+  return { message: tempQuery, resourceType: resourceType, clusterUuid: clusterUuid };
 }

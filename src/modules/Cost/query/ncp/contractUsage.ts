@@ -100,5 +100,5 @@ export default async function getContractUsageQuery(result, clusterUuid) {
     '{ "contractList": [' + contractList + '],' + '"contractProductList": [' + contractProductList + '], "usageList": [' + usageList + ']}';
 
   // console.log('tempQuery ::::::::::::::: \n' + tempQuery);
-  return { message: tempQuery, resourceType: resourceType };
+  return { message: tempQuery, resourceType: resourceType, clusterUuid: clusterUuid };
 }
