@@ -21,7 +21,6 @@ export type ResourceCreationAttributes = Optional<
   | 'resourceLevel2'
   | 'resourceLevel3'
   | 'resourceLevel4'
-  | 'resourceLevel5'
   | 'resourceLevelType'
   | 'resourceRbac'
   | 'resourceAnomalyMonitor'
@@ -211,17 +210,22 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
                 'SIMG',
                 'PLG',
                 'INS',
-                'DBMYQL',
-                'DBPOQL',
-                'DBMONG',
+                'DBMYSQL',
+                'DBPGQL',
+                'DBMONGO',
                 'DBMSQL',
-                'DBREDS',
+                'DBREDIS',
                 'NAS',
                 'NASSS',
                 'OBS',
                 'NKS',
                 'NKSNP',
                 'NKSWN',
+                'DBMYSQLVM',
+                'DBPGQLVM',
+                'DBMONGOVM',
+                'DBMSQLVM',
+                'DBREDISVM',
               ],
             ],
             msg: 'invalid resource type',
@@ -229,8 +233,8 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         },
       },
       resourceLevel1: {
-        allowNull: true,
         type: DataTypes.STRING(10),
+        allowNull: false,
         validate: {
           isIn: {
             args: [['K8', 'OS', 'NCP']],
@@ -273,14 +277,14 @@ export default function (sequelize: Sequelize): typeof ResourceModel {
         allowNull: true,
         validate: {
           isIn: {
-            args: [['VM', 'NET', 'ACG', 'PIP', 'BLS', 'SS', 'SIMG', 'PLG', 'INS', 'DBMYQL', 'DBPOQL', 'DBMONG', 'DBMSQL', 'DBREDS', 'NAS', 'NASSS', 'OBS', 'NKS', 'NKSNP', 'NKSWN']],
+            args: [['VM', 'NET', 'ACG', 'PIP', 'BLS', 'SS', 'SIMG', 'PLG', 'INS', 'DBMYSQL', 'DBPGQL', 'DBMONGO', 'DBMSQL', 'DBREDIS', 'NAS', 'NASSS', 'OBS', 'NKS', 'NKSNP', 'NKSWN', 'DBMYSQLVM', 'DBMONGOVM', 'DBREDISVM', 'DBPGQLVM']],
             msg: 'invalid Resource level5',
           },
         },
       },
       resourceLevelType: {
         type: DataTypes.STRING(10),
-        allowNull: true,
+        allowNull: false,
         validate: {
           isIn: {
             args: [['', 'KN', 'KS', 'OS', 'K8', 'OX', 'NX', 'NC']],

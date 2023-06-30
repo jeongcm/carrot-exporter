@@ -1,23 +1,12 @@
-import victoriaMetricService from "@modules/telemetry/victoriaMetric.service";
+import VictoriaMetricService from "@modules/telemetry/victoriaMetric.service";
+import QueryService from "../query/query";
 
 class metricReceivedService {
-  public victoriaMetricService = new victoriaMetricService();
-
-  // public async getMetricQuery(totalMsg) {
-  //   let queryResult = {};
-  //   switch (totalMsg.template_uuid) {
-  //     case "queryMultipleDataForServer":
-  //       queryResult = await getQueryDataMultipleForServerVPC(totalMsg, totalMsg.cluster_uuid)
-  //       break;
-  //   }
-  //
-  //   return queryResult;
-  // }
-
+  public victoriaMetricService = new VictoriaMetricService();
+  public queryService = new QueryService();
   public async massUploadMetricReceivedNcp(totalMsg) {
-    // const queryResult = await this.getMetricQuery(totalMsg)
-
-    return await this.massUploadMetricReceived(totalMsg)
+    let queryResult: any = await this.queryService.getMetricQuery(totalMsg)
+    return await this.massUploadMetricReceived(queryResult)
   }
 
   public async massUploadMetricReceived(totalMsg) {
@@ -39,7 +28,7 @@ class metricReceivedService {
         let newResultMap1 = [];
         firstHalf.map((data)=>{
           const{metric, value} = data;
-          newResultMap1.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]*1000]}))
+          newResultMap1.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]]}))
         });
         let finalResult1 = (newResultMap1).join("\n")
         newResultMap1 = null;
@@ -55,7 +44,7 @@ class metricReceivedService {
         let newResultMap2 = [];
         secondHalf.map((data)=>{
           const{metric, value} = data;
-          newResultMap2.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]*1000]}))
+          newResultMap2.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]]}))
         });
         let finalResult2 = (newResultMap2).join("\n")
         newResultMap2= null;
@@ -72,7 +61,7 @@ class metricReceivedService {
         let newResultMap = [];
         receivedMetrics.map((data)=>{
           const{metric, value} = data;
-          newResultMap.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]*1000]}))
+          newResultMap.push(JSON.stringify({metric, values: [parseFloat(value[1])], timestamps:[value[0]]}))
         });
         let finalResult = (newResultMap).join("\n")
         newResultMap = null;

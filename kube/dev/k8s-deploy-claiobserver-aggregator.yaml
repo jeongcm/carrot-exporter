@@ -35,7 +35,7 @@ data:
   CO_AGGREGATOR_SYSTEM_PARTYUSER_EMAIL: "system@claion.io"
   CO_AGGREGATOR_VM_SINGLE_ADDRESS: "http://vmtips-victoria-metrics-single-server.vm-tips.svc.cluster.local:8428"
   CO_AGGREGATOR_VM_MULTI_ADDRESS: "http://covmauth-victoria-metrics-auth.covm.svc.cluster.local:8427"
-  CO_AGGREGATOR_VM_IMPORT: "/api/v1/import?extra_label: clusterUuid:"
+  CO_AGGREGATOR_VM_IMPORT: "/api/v1/import?extra_label=clusterUuid="
   CO_AGGREGATOR_VM_OPTION: "SINGLE"
   CO_AGGREGATOR_JWT_SECRET_KEY: "test123!"
   CO_AGGREGATOR_LOG_FORMAT: "combined"
@@ -45,6 +45,8 @@ data:
   CO_AGGREGATOR_LOG_SILENCE_RESPONSE: "true"
   CO_PAGINATION_LIMIT: "10"
   CO_PAGINATION_PAGE: "0"
+  CO_API_URL: "http://nexclipper-api.nc.svc.cluster.local"
+  CO_API_PORT: "5001"
 
 ---
 apiVersion: apps/v1

@@ -2,12 +2,14 @@ import config from '@config/index';
 import { IRequestMassUploader } from '@/common/interfaces/massUploader.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
 import { IResource, IResourceTargetUuid } from "@/common/interfaces/resource.interface";
-import DB from '@/database';
+import { DB } from '@/database';
 import { IPartyUser } from '@/common/interfaces/party.interface';
 
 import QueryService from "@modules/Resources/query/query";
 import { HttpException } from "@common/exceptions/HttpException";
 import mysql from "mysql2/promise";
+import { IResourceEvent } from "@common/interfaces/resourceEvent.interface";
+import EventService from "@modules/Resources/query/ncp/event/event";
 
 const uuid = require('uuid');
 
@@ -17,7 +19,71 @@ class resourceService {
 
   public resource = DB.Resource;
   public resourceGroup = DB.ResourceGroup;
+  public resourceEvent = DB.ResourceEvent;
   public partyUser = DB.PartyUser;
+  public ncpEventService = new EventService()
+
+  public async uploadResourceEvent(totalMsg) {
+    let events = totalMsg.result.events
+    const inputs = totalMsg.inputs
+    const credentialName = inputs.credential_key || inputs.ncp_key || null
+
+    if (!credentialName) {
+      throw new HttpException(400, 'invalid credential name');
+    }
+    const clusterUuid = credentialName.split('.')[1]
+    if (clusterUuid === '') {
+      throw new HttpException(400, `invalid cluster uuid from credential name(${credentialName})`);
+    }
+
+    const event_size_mb = (Buffer.byteLength(JSON.stringify(events)))/1024/1024 // mb
+    const default_message_size = 1 // 1mb
+    if (event_size_mb > 3) {
+      // const divisions = 10; // 분할 개수
+      const divisions = Math.ceil(event_size_mb / default_message_size); // 분할 개수
+      const dividedLength = Math.ceil(events.length / divisions);
+      const dividedList = []
+      let startIndex = 0;
+      for (let i = 0; i < divisions; i++) {
+        const slice = events.slice(startIndex, startIndex + dividedLength);
+        dividedList.push(slice);
+        startIndex += dividedLength;
+      }
+
+      console.log(`resource event divide upload start (event_size: ${event_size_mb}mb, divisions: ${divisions})`)
+      for (const data of dividedList) {
+        let queryResult: any = await this.ncpEventService.getSearchEventListQuery(data, clusterUuid);
+        if (Object.keys(queryResult.message).length === 0) {
+          console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
+          return 'empty list';
+        }
+
+        try {
+          await this.massUploadNCPEvent(JSON.parse(queryResult.message))
+        } catch (err) {
+          console.log(`failed to upload resource event(${queryResult.resourceType}. cause: ${err})`)
+          return err
+        }
+      }
+      console.log(`resource event divide upload end (event_size: ${event_size_mb}mb)`)
+
+    } else {
+      let queryResult: any = await this.ncpEventService.getSearchEventListQuery(totalMsg.result.events, clusterUuid);
+      if (Object.keys(queryResult.message).length === 0) {
+        console.log(`skip to upload resource(${queryResult.resourceType}). cause: empty list`)
+        return 'empty list'
+      }
+
+      try {
+        await this.massUploadNCPEvent(JSON.parse(queryResult.message))
+      } catch (err) {
+        console.log(`failed to upload resource event(${queryResult.resourceType}. cause: ${err})`)
+        return err
+      }
+    }
+
+    console.log(`success to upload ncp resource event.`)
+  }
 
   public async uploadResource(totalMsg) {
     let queryResult: any
@@ -29,11 +95,13 @@ class resourceService {
     }
 
     try {
-      if (queryResult.resourceType === 'EV') {
+      if (queryResult.resourceType === 'EV' && totalMsg.template_uuid === '00000000000000000000000000000008') {
         resultMsg = await this.massUploadK8SEvent(JSON.parse(queryResult.message))
 
+      } else if (queryResult.resourceType === 'NCPEV' && totalMsg.template_uuid === '70000000000000000000000000000033') {
+        resultMsg = await this.massUploadNCPEvent(JSON.parse(queryResult.message))
       } else {
-        resultMsg = await this.massUploadResource(JSON.parse(queryResult.message))
+          resultMsg = await this.massUploadResource(JSON.parse(queryResult.message))
       }
 
       console.log(`success to upload resource(${queryResult.resourceType}).`)
@@ -62,6 +130,10 @@ class resourceService {
     // search for customerAccount & resourceGroup key
     const resourceGroupUuid = resourceMassFeed.resource_Group_Uuid;
     const responseResourceGroup: IResourceGroup = await this.resourceGroup.findOne({where: {resourceGroupUuid}});
+    if (!responseResourceGroup) {
+      throw new HttpException(404, `not found ResourceGroup (${resourceGroupUuid})`)
+    }
+
     const customerAccountKey = responseResourceGroup.customerAccountKey;
     const resourceGroupKey = responseResourceGroup.resourceGroupKey;
     const resourceType = resourceMassFeed.resource_Type;
@@ -418,7 +490,6 @@ class resourceService {
     //console.log(query1);
     //console.log(query2);
     //3. DB insert
-    const mysql = require('mysql2/promise');
     const mysqlConnection = await mysql.createConnection({
       host: config.db.mariadb.host,
       user: config.db.mariadb.user,
@@ -431,6 +502,133 @@ class resourceService {
     try {
       await mysqlConnection.query(query1, [query2]);
       await mysqlConnection.query('COMMIT');
+    } catch (err) {
+      await mysqlConnection.query('ROLLBACK');
+      await mysqlConnection.end();
+      console.info('Rollback successful');
+      throw `${err}error on sql execution: ${resourceType}`;
+    }
+    await mysqlConnection.end();
+    return 'successful DB update ';
+  }
+
+  public async massUploadNCPEvent(resourceEventData: IRequestMassUploader): Promise<string> {
+    //console.log(resourceEventData);
+    const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const sizeOfInput = resourceEventData.resource.length;
+
+    //1. validate ResourceGroup
+    const resourceGroupUuid = resourceEventData.resource_Group_Uuid;
+    const resourceType = resourceEventData.resource_Type;
+    const responseResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: {resourceGroupUuid: resourceGroupUuid, deletedAt: null} });
+    if (!responseResourceGroup) {
+      throw new HttpException(400, 'resourceGroup not found');
+    }
+
+    const customerAccountKey = responseResourceGroup.customerAccountKey;
+    const resourceGroupKey = responseResourceGroup.resourceGroupKey;
+
+    //find exist event, and delete insert
+    const currentResourceFiltered: IResourceEvent[] = await this.resourceEvent.findAll({
+      where: { resourceGroupUuid, deletedAt: null },
+      attributes: ['resourceEventTargetUuid', 'deletedAt'],
+    });
+
+    const sizeOfCurrentResource = currentResourceFiltered.length;
+
+    const currentResource = [];
+    for (let i = 0; i < sizeOfCurrentResource; i++) {
+      currentResource[i] = currentResourceFiltered[i].resourceEventTargetUuid;
+    }
+
+    //console.log("********in db********************")
+    //console.log(currentResource);
+    const newResourceReceived = [];
+    for (let i = 0; i < sizeOfInput; i++) {
+      newResourceReceived[i] = resourceEventData.resource[i].resource_Target_Uuid;
+    }
+    //console.log("********in msg********************")
+    //console.log(newResourceReceived);
+
+    // filter only for the resource that is needed to be deleted softly.
+    const difference = currentResource.filter(o1 => !newResourceReceived.includes(o1));
+    const lengthOfDifference = difference.length;
+
+    //2. prepare for sql
+    const query1 = `INSERT INTO ResourceEvent (
+            resource_event_id,
+            created_by,
+            created_at,
+            resource_event_name,
+            resource_event_description,
+            resource_event_type,
+            resource_event_target_created_at,
+            resource_event_target_uuid,
+            resource_event_involved_object_kind,
+            resource_event_involved_object_name,
+            resource_event_reason,
+            resource_event_first_timestamp,
+            resource_event_last_timestamp,
+            resource_event_content,
+            customer_account_key,
+            resource_group_uuid,
+            resource_group_key,
+            resource_key
+            ) VALUES ?
+            ON DUPLICATE KEY UPDATE
+            resource_event_name=VALUES(resource_event_name)
+            `;
+
+    const query2 = [];
+    for (let i = 0; i < sizeOfInput; i++) {
+      const uuid = require('uuid');
+      const resource_event_id = uuid.v1();
+      const resource_event_target_created_at = new Date(resourceEventData.resource[i].resource_Target_Created_At);
+      let resource_event_first_timestamp = new Date(resourceEventData.resource[i].resource_event_first_timestamp);
+      if (resource_event_first_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_first_timestamp = resource_event_target_created_at;
+      let resource_event_last_timestamp = new Date(resourceEventData.resource[i].resource_event_last_timestamp);
+      if (resource_event_last_timestamp <= new Date('2000-01-01 00:00:00.000')) resource_event_last_timestamp = null;
+
+
+      let resourceKey = null;
+
+      query2[i] = [
+        resource_event_id,
+        'SYSTEM', // created_By
+        currentTime, //created_At
+        resourceEventData.resource[i].resource_Name,
+        resourceEventData.resource[i].resource_Description || 'No description provided',
+        resourceEventData.resource[i].resource_event_type,
+        resource_event_target_created_at,
+        resourceEventData.resource[i].resource_Target_Uuid,
+        resourceEventData.resource[i].resource_event_involved_object_kind,
+        resourceEventData.resource[i].resource_event_involved_object_name,
+        resourceEventData.resource[i].resource_event_reason,
+        resource_event_first_timestamp,
+        resource_event_last_timestamp,
+        JSON.stringify(resourceEventData.resource[i].resource_Spec),
+        customerAccountKey, //customer_Account_Key
+        resourceGroupUuid, //resource_Group_uuid 17 total columns
+        resourceGroupKey,
+        resourceKey
+      ];
+    }
+    //console.log(query1);
+    //console.log(query2);
+    //3. DB insert
+    const mysqlConnection = await mysql.createConnection({
+      host: config.db.mariadb.host,
+      user: config.db.mariadb.user,
+      port: config.db.mariadb.port || 3306,
+      password: config.db.mariadb.password,
+      database: config.db.mariadb.dbName,
+      multipleStatements: true,
+    });
+    await mysqlConnection.query('START TRANSACTION');
+    try {
+      await mysqlConnection.query(query1, [query2]);
+      await mysqlConnection.query('COMMIT');
+
     } catch (err) {
       await mysqlConnection.query('ROLLBACK');
       await mysqlConnection.end();

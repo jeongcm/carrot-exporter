@@ -1,14 +1,18 @@
-import Sequelize from 'sequelize';
-import config from '@config/index';
-import AlertRuleModel from '@/modules/Alert/models/alertRule.model';
 import AlertReceivedModel from '@/modules/Alert/models/alertReceived.model';
+import AlertRuleModel from '@/modules/Alert/models/alertRule.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
+import config from '@config/index';
+import Sequelize from 'sequelize';
 
-import ResourceModel from '@/modules/Resources/models/resource.model';
-import ResourceGroupModel from '@/modules/Resources/models/resourceGroup.model';
+import tbCustomerModel from '@modules/CustomerAccount/models/tbCustomer.model';
+import tbCustomerAccountCloudPlatformModel from '@modules/CustomerAccount/models/tbCustomerAccountCloudPlatform.model';
+import NcpResourceModel from '@modules/Resources/models/ncp/ncpResource.model';
+import ncpResourceGroupModel from '@modules/Resources/models/ncp/ncpResourceGroup.model';
+import ResourceModel from '@modules/Resources/models/resource.model';
+import ResourceGroupModel from '@modules/Resources/models/resourceGroup.model';
+import PartyModel from '@modules/Party/models/party.model';
+import PartyUserModel from '@modules/Party/models/partyUser.model';
 import ResourceEventModel from '@modules/Resources/models/resourceEvent.model';
-import PartyModel from "@modules/Party/models/party.model";
-import PartyUserModel from "@modules/Party/models/partyUser.model";
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -26,6 +30,7 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   timezone: '+00:00',
   dialectOptions: {
     autoJsonMap: true,
+    connectTimeout: 10000, // 10초
   },
   define: {
     charset: 'utf8mb4',
@@ -36,6 +41,83 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
   pool: {
     min: pool.min,
     max: pool.max,
+    acquire: 30000, // 30초
+  },
+  logQueryParameters: config.nodeEnv === 'development',
+
+  logging: (query, time) => {
+    // TODO: find a better way to leave a log
+    //logger.info(time + 'ms' + ' ' + query);
+  },
+
+  //logging: console.log,
+  benchmark: true,
+  retry: {
+    match: [/Deadlock/i],
+    max: 3, // Maximum rety 3 times
+    //    backoffBase: 1000, // Initial backoff duration in ms. Default: 100,
+    //    backoffExponent: 1.5, // Exponent to increase backoff each try. Default: 1.1
+    //    timeout: 50000,
+  },
+});
+
+const opsCommSequelize = new Sequelize.Sequelize('ops_comm', user, password, {
+  host,
+  port,
+  dialect: 'mariadb',
+  timezone: '+00:00',
+  dialectOptions: {
+    autoJsonMap: true,
+    connectTimeout: 10000, // 10초
+  },
+  define: {
+    charset: 'utf8mb4',
+    collate: 'utf8mb4_general_ci',
+    underscored: true,
+    freezeTableName: true,
+  },
+  pool: {
+    min: pool.min,
+    max: pool.max,
+    acquire: 30000, // 30초
+  },
+  logQueryParameters: config.nodeEnv === 'development',
+
+  logging: (query, time) => {
+    // TODO: find a better way to leave a log
+    //logger.info(time + 'ms' + ' ' + query);
+  },
+
+  //logging: console.log,
+  benchmark: true,
+  retry: {
+    match: [/Deadlock/i],
+    max: 3, // Maximum rety 3 times
+    //    backoffBase: 1000, // Initial backoff duration in ms. Default: 100,
+    //    backoffExponent: 1.5, // Exponent to increase backoff each try. Default: 1.1
+    //    timeout: 50000,
+  },
+});
+
+const opsApiSequelize = new Sequelize.Sequelize('ops_api', user, password, {
+  host,
+  port,
+  dialect: 'mariadb',
+  timezone: '+00:00',
+  dialectOptions: {
+    autoJsonMap: true,
+    connectTimeout: 10000, // 10초
+  },
+  define: {
+    charset: 'utf8mb4',
+    collate: 'utf8mb4_general_ci',
+    underscored: true,
+    freezeTableName: true,
+  },
+  pool: {
+    min: pool.min,
+    max: pool.max,
+    acquire: 30000, // 30초
   },
   logQueryParameters: config.nodeEnv === 'development',
 
@@ -56,8 +138,10 @@ const sequelize = new Sequelize.Sequelize(database, user, password, {
 });
 
 sequelize.authenticate();
+opsCommSequelize.authenticate();
+opsApiSequelize.authenticate();
 
-const DB = {
+export const DB = {
   CustomerAccount: CustomerAccountModel(sequelize),
   Resource: ResourceModel(sequelize),
   ResourceGroup: ResourceGroupModel(sequelize),
@@ -66,7 +150,19 @@ const DB = {
   ResourceEvent: ResourceEventModel(sequelize),
   Party: PartyModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
+  // NcpResource: NcpResourceModel(sequelize),
+  // NcpResourceGroup: ncpResourceGroupModel(sequelize),
   sequelize, // connection instance (RAW queries)
+};
+
+export const OpsCommDB = {
+  TbCustomer: tbCustomerModel(opsCommSequelize),
+  opsCommSequelize,
+};
+
+export const OpsApiDB = {
+  TbCustomerAccountCloudPlatform: tbCustomerAccountCloudPlatformModel(opsApiSequelize),
+  opsApiSequelize,
 };
 
 //-----------------------------BE-CAREFULL------------------------------------
@@ -76,4 +172,9 @@ const DB = {
 //                 Need to have a separate operation to apply database model change.
 //-----------------------------------------------------------------------------
 
-export default DB;
+module.exports = {
+  DB: DB,
+  OpsCommDB: OpsCommDB,
+  OpsApiDB: OpsApiDB,
+};
+// export default DB;

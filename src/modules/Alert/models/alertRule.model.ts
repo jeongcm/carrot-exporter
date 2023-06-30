@@ -157,6 +157,7 @@ export default function (sequelize: Sequelize): typeof AlertRuleModel {
           fields: ['resource_group_uuid'],
         },
       ],
+      paranoid: true,
       tableName: 'AlertRule',
       modelName: 'AlertRule',
       sequelize,
