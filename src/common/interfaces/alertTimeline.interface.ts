@@ -3,6 +3,7 @@ export interface IAlertTimeline {
   alertTimelineKey: number;
   alertTimelineHash: string;
   alertTimelineState: string; // 'firing' | 'pending'
+  alertTimelineOriginalState: string;
   alertTimelineStartAt: Date;
   alertTimelineEndAt: Date;
   alertTimelineLastCheckedAt: Date;
@@ -17,7 +18,12 @@ export interface IAlertTimeline {
   alertReceivedNode: string;
   alertReceivedService: string;
   alertReceivedPod: string;
+  alertReceivedHash: string;
+  alertReceivedSeverity: string;
   alertReceivedInstance: string;
+  alertReceivedPersistentvolumeclaim: string;
+  alertReceivedAffectedResourceType: string;
+  alertReceivedAffectedResourceName: string;
   alertRuleId: string;
   alertRuleKey: number;
   alertRuleName: string;
@@ -28,4 +34,6 @@ export interface IAlertTimeline {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
+
+  _alertReceivedValues?: number[];
 }
