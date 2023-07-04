@@ -10,7 +10,7 @@ class CloudDBRedisService {
     let resultLength = result.length
 
     for (let i = 0; i < resultLength; i ++) {
-      let instanceLength = result[i][0].outputs.getCloudRedisInstanceDetailResponse.cloudRedisInstanceList.length
+      let instanceLength = result[i][0]?.outputs?.getCloudRedisInstanceDetailResponse.cloudRedisInstanceList.length || 0
       for (let j = 0; j < instanceLength; j++) {
         query['resource_Type'] = resourceType;
         query['resource_Spec'] = result[i][0].outputs.getCloudRedisInstanceDetailResponse.cloudRedisInstanceList[j];
@@ -54,8 +54,8 @@ class CloudDBRedisService {
     let resultLength = result.length
 
     for (let i = 0; i < resultLength; i ++) {
-      for (let j = 0; j < result[i][0].outputs.getCloudRedisInstanceDetailResponse.cloudRedisInstanceList.length; j++) {
-        let instanceLength = result[i][0].outputs.getCloudRedisInstanceDetailResponse.cloudRedisInstanceList[j].cloudRedisServerInstanceList.length
+      for (let j = 0; j < result[i][0]?.outputs?.getCloudRedisInstanceDetailResponse?.cloudRedisInstanceList?.length; j++) {
+        let instanceLength = result[i][0]?.outputs?.getCloudRedisInstanceDetailResponse?.cloudRedisInstanceList[j]?.cloudRedisServerInstanceList.length || 0
         for (let k = 0; k < instanceLength; k++) {
           query['resource_Type'] = resourceType;
           query['resource_Spec'] = result[i][0].outputs.getCloudRedisInstanceDetailResponse.cloudRedisInstanceList[j].cloudRedisServerInstanceList[k];

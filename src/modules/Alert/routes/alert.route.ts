@@ -12,6 +12,8 @@ class AlertRoute implements Routes {
     // this.router.get('/alertRule', this.alertController.getAlertRule);
     // this.router.post('/alertReceived', this.alertController.uploadResource);
     this.router.post('/alertRule', this.alertController.uploadAlertRule);
+    this.router.post('/v1/alertTimeline/:customerAccountKey/process', this.alertController.processAlertTimelines);
+
   }
 }
 

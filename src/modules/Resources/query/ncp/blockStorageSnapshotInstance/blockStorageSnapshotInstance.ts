@@ -6,7 +6,7 @@ export default async function getBlockStorageSnapshotInstanceListQuery(result, c
     let tempQuery = {};
 
     let resourceType = "SS";
-    let resultLength = result.getBlockStorageSnapshotInstanceListResponse?.blockStorageSnapshotInstanceList?.length
+    let resultLength = result?.getBlockStorageSnapshotInstanceListResponse?.blockStorageSnapshotInstanceList?.length || 0
     for (let i = 0; i < resultLength; i ++) {
         query['resource_Type'] = resourceType;
         query['resource_Spec'] = result.getBlockStorageSnapshotInstanceListResponse?.blockStorageSnapshotInstanceList[i];

@@ -10,7 +10,7 @@ export default async function getCloudMysqlInstanceMetric(totalMsg, clusterUuid)
 
   // get origin metric data
   totalMsg.result[0][0].forEach((cloudMysqlInstance) => {
-    cloudMysqlInstance.outputs.forEach((output) => {
+    cloudMysqlInstance?.outputs?.forEach((output) => {
       output.dps.forEach((dp) => {
         queryResult.result.result.push(
           {

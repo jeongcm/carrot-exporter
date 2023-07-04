@@ -1,5 +1,6 @@
 import AlertReceivedModel from '@/modules/Alert/models/alertReceived.model';
 import AlertRuleModel from '@/modules/Alert/models/alertRule.model';
+import AlertTimelineModel from '@/modules/Alert/models/alertTimeline.model';
 import CustomerAccountModel from '@/modules/CustomerAccount/models/customerAccount.model';
 import config from '@config/index';
 import Sequelize from 'sequelize';
@@ -147,6 +148,7 @@ export const DB = {
   ResourceGroup: ResourceGroupModel(sequelize),
   AlertReceived: AlertReceivedModel(sequelize),
   AlertRule: AlertRuleModel(sequelize),
+  AlertTimeline: AlertTimelineModel(sequelize),
   ResourceEvent: ResourceEventModel(sequelize),
   Party: PartyModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
