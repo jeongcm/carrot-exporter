@@ -512,6 +512,7 @@ class AlertRuleService {
                       `;
     const query2 = [];
     for (let i = 0; i < alertReceivedData?.length; i++) {
+      console.log('hash: ', alertReceivedData[i].alertReceivedHash)
       query2[i] = [
         alertReceivedData[i].alertReceivedId,
         customerAccountKey,
