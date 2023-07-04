@@ -10,7 +10,7 @@ class CloudDBMongoDBService {
     let resultLength = result.length
 
     for (let i = 0; i < resultLength; i ++) {
-      let instanceLength = result[i][0].outputs?.getCloudMongoDbInstanceDetailResponse.cloudMongoDbInstanceList.length || 0
+      let instanceLength = result[i][0]?.outputs?.getCloudMongoDbInstanceDetailResponse.cloudMongoDbInstanceList.length || 0
       for (let j = 0; j < instanceLength; j++) {
         query['resource_Type'] = resourceType;
         query['resource_Spec'] = result[i][0].outputs.getCloudMongoDbInstanceDetailResponse.cloudMongoDbInstanceList[j];

@@ -7,7 +7,7 @@ export default async function getAccessControlGroupListQuery(result, clusterUuid
 
     let resourceType = "ACG";
 
-    const acgList = result[0].outputs?.getAccessControlGroupListResponse.accessControlGroupList || 0
+    const acgList = result[0]?.outputs?.getAccessControlGroupListResponse.accessControlGroupList || 0
     const acgRuleList = result[1]
 
     for (let i = 0; i < acgList.length; i ++) {

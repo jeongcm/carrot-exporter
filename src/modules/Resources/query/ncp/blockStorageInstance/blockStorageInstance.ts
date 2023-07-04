@@ -6,7 +6,7 @@ export default async function getBlockStorageInstanceListQuery(result, clusterUu
     let tempQuery = {};
 
     let resourceType = "BLS";
-    let resultLength = result.getBlockStorageInstanceListResponse?.blockStorageInstanceList?.length || 0
+    let resultLength = result?.getBlockStorageInstanceListResponse?.blockStorageInstanceList?.length || 0
     for (let i = 0; i < resultLength; i ++) {
         query['resource_Type'] = resourceType;
         query['resource_Spec'] = result.getBlockStorageInstanceListResponse?.blockStorageInstanceList[i];
