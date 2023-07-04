@@ -6,7 +6,7 @@ export default async function getServerInstanceListQuery(result, clusterUuid) {
   let tempQuery = {};
 
   let resourceType = "VM";
-  let resultLength = result.getServerInstanceListResponse?.serverInstanceList?.length
+  let resultLength = result.getServerInstanceListResponse?.serverInstanceList?.length || 0
   for (let i = 0; i < resultLength; i ++) {
     query['resource_Type'] = resourceType;
     query['resource_Spec'] = result.getServerInstanceListResponse?.serverInstanceList[i];
