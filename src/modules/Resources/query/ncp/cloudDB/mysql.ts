@@ -54,8 +54,8 @@ class CloudDBMysqlService {
     let resultLength = result.length
 
     for (let i = 0; i < resultLength; i ++) {
-      for (let j = 0; j < result[i][0].outputs.getCloudMysqlInstanceDetailResponse.cloudMysqlInstanceList.length; j++) {
-        let instanceLength = result[i][0].outputs.getCloudMysqlInstanceDetailResponse.cloudMysqlInstanceList[j].cloudMysqlServerInstanceList.length
+      for (let j = 0; j < result[i][0]?.outputs?.getCloudMysqlInstanceDetailResponse?.cloudMysqlInstanceList?.length; j++) {
+        let instanceLength = result[i][0]?.outputs?.getCloudMysqlInstanceDetailResponse?.cloudMysqlInstanceList[j]?.cloudMysqlServerInstanceList?.length || 0
         for (let k = 0; k < instanceLength; k++) {
           query['resource_Type'] = resourceType;
           query['resource_Spec'] = result[i][0].outputs.getCloudMysqlInstanceDetailResponse.cloudMysqlInstanceList[j].cloudMysqlServerInstanceList[k];
