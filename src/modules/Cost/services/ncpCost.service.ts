@@ -9,14 +9,13 @@ import {
   IProduct,
   IUsage,
 } from '@/common/interfaces/ncpCost.interface';
-import { DB, OpsApiDB, OpsCommDB } from '@/database';
-import config from '@config/index';
-import mysql from 'mysql2/promise';
-import QueryService from '@modules/Resources/query/query';
 import { IPartyUser } from '@/common/interfaces/party.interface';
 import { IResourceGroup } from '@/common/interfaces/resourceGroup.interface';
-import { ITbCustomer } from '@/common/interfaces/tbCustomer.interface';
 import { ITbCustomerAccountCloudPlatform } from '@/common/interfaces/tbCustomerAccountCloudPlatform.interface';
+import { DB, OpsApiDB, OpsCommDB } from '@/database';
+import config from '@config/index';
+import QueryService from '@modules/Resources/query/query';
+import mysql from 'mysql2/promise';
 
 class NcpCostService {
   public queryService = new QueryService();
@@ -217,149 +216,153 @@ class NcpCostService {
   }
 
   public async uploadContractDemandCost(contractDemandCostData: IContractDemandCost[], uuidResult: any): Promise<string> {
-    const contractDemandCostDelQuery = `DELETE FROM ncp_api.TB_CONTRACT_DEMAND_COST WHERE 1=1`;
+    const contractDemandCostDelQuery = `DELETE FROM 
+                                          ncp_api.TB_CONTRACT_DEMAND_COST
+                                        WHERE customer_uuid='` + uuidResult.customerUuid + `'
+                                          AND account_uuid='` + uuidResult.accountUuid + `'`
     const contractDemandCostQuery = `INSERT INTO ncp_api.TB_CONTRACT_DEMAND_COST (
-                    customer_uuid,
-                    account_uuid,
-                    contract_demand_cost_sequence,
-                    demand_month,
-                    member_no,
-                    region_code,
-                    demand_type_code,
-                    demand_type_code_name,
-                    demand_type_detail_code,
-                    demand_type_detail_code_name,
-                    contract_no,
-                    unit_usage_quantity,
-                    package_unit_usage_quantity,
-                    total_unit_usage_quantity,
-                    usage_unit_code,
-                    usage_unit_code_name,
-                    product_price,
-                    use_amount,
-                    promotion_discount_amount,
-                    etc_discount_amount,
-                    promise_discount_amount,
-                    demand_amount,
-                    write_date,
-                    member_price_discount_amount,
-                    member_promise_discount_amount,
-                    contract_info,
-                    pay_currency_code,
-                    pay_currency_code_name,
-                    this_month_applied_exchange_rate,
-                    created_by,
-                    created_at
-                  ) VALUES ?
-                  ON DUPLICATE KEY UPDATE
-                  member_no=VALUES(member_no),
-                  region_code=VALUES(region_code),
-                  demand_type_code=VALUES(demand_type_code),
-                  demand_type_code_name=VALUES(demand_type_code_name),
-                  demand_type_detail_code=VALUES(demand_type_detail_code),
-                  demand_type_detail_code_name=VALUES(demand_type_detail_code_name),
-                  contract_no=VALUES(contract_no),
-                  unit_usage_quantity=VALUES(unit_usage_quantity),
-                  package_unit_usage_quantity=VALUES(package_unit_usage_quantity),
-                  total_unit_usage_quantity=VALUES(total_unit_usage_quantity),
-                  usage_unit_code=VALUES(usage_unit_code),
-                  usage_unit_code_name=VALUES(usage_unit_code_name),
-                  product_price=VALUES(product_price),
-                  use_amount=VALUES(use_amount),
-                  promotion_discount_amount=VALUES(promotion_discount_amount),
-                  etc_discount_amount=VALUES(etc_discount_amount),
-                  promise_discount_amount=VALUES(promise_discount_amount),
-                  demand_amount=VALUES(demand_amount),
-                  write_date=VALUES(write_date),
-                  member_price_discount_amount=VALUES(member_price_discount_amount),
-                  member_promise_discount_amount=VALUES(member_promise_discount_amount),
-                  contract_info=VALUES(contract_info),
-                  pay_currency_code=VALUES(pay_currency_code),
-                  pay_currency_code_name=VALUES(pay_currency_code_name),
-                  this_month_applied_exchange_rate=VALUES(this_month_applied_exchange_rate),
-                  updated_by=VALUES(created_by),
-                  updated_at=VALUES(created_at)
-                  `;
+                                        customer_uuid,
+                                        account_uuid,
+                                        contract_demand_cost_sequence,
+                                        demand_month,
+                                        member_no,
+                                        region_code,
+                                        demand_type_code,
+                                        demand_type_code_name,
+                                        demand_type_detail_code,
+                                        demand_type_detail_code_name,
+                                        contract_no,
+                                        unit_usage_quantity,
+                                        package_unit_usage_quantity,
+                                        total_unit_usage_quantity,
+                                        usage_unit_code,
+                                        usage_unit_code_name,
+                                        product_price,
+                                        use_amount,
+                                        promotion_discount_amount,
+                                        etc_discount_amount,
+                                        promise_discount_amount,
+                                        demand_amount,
+                                        write_date,
+                                        member_price_discount_amount,
+                                        member_promise_discount_amount,
+                                        contract_info,
+                                        pay_currency_code,
+                                        pay_currency_code_name,
+                                        this_month_applied_exchange_rate,
+                                        created_by,
+                                        created_at
+                                      ) VALUES ?
+                                      ON DUPLICATE KEY UPDATE
+                                      member_no=VALUES(member_no),
+                                      region_code=VALUES(region_code),
+                                      demand_type_code=VALUES(demand_type_code),
+                                      demand_type_code_name=VALUES(demand_type_code_name),
+                                      demand_type_detail_code=VALUES(demand_type_detail_code),
+                                      demand_type_detail_code_name=VALUES(demand_type_detail_code_name),
+                                      contract_no=VALUES(contract_no),
+                                      unit_usage_quantity=VALUES(unit_usage_quantity),
+                                      package_unit_usage_quantity=VALUES(package_unit_usage_quantity),
+                                      total_unit_usage_quantity=VALUES(total_unit_usage_quantity),
+                                      usage_unit_code=VALUES(usage_unit_code),
+                                      usage_unit_code_name=VALUES(usage_unit_code_name),
+                                      product_price=VALUES(product_price),
+                                      use_amount=VALUES(use_amount),
+                                      promotion_discount_amount=VALUES(promotion_discount_amount),
+                                      etc_discount_amount=VALUES(etc_discount_amount),
+                                      promise_discount_amount=VALUES(promise_discount_amount),
+                                      demand_amount=VALUES(demand_amount),
+                                      write_date=VALUES(write_date),
+                                      member_price_discount_amount=VALUES(member_price_discount_amount),
+                                      member_promise_discount_amount=VALUES(member_promise_discount_amount),
+                                      contract_info=VALUES(contract_info),
+                                      pay_currency_code=VALUES(pay_currency_code),
+                                      pay_currency_code_name=VALUES(pay_currency_code_name),
+                                      this_month_applied_exchange_rate=VALUES(this_month_applied_exchange_rate),
+                                      updated_by=VALUES(created_by),
+                                      updated_at=VALUES(created_at)
+                                      `;
 
-    const contractDemandCostHistQuery =
-      `INSERT INTO ncp_api.TB_CONTRACT_DEMAND_COST_HIST (
-          create_date,
-          customer_uuid,
-          account_uuid,
-          contract_demand_cost_sequence,
-          member_no,
-          region_code,
-          demand_type_code,
-          demand_type_code_name,
-          demand_type_detail_code,
-          demand_type_detail_code_name,
-          contract_no,
-          demand_month,
-          unit_usage_quantity,
-          package_unit_usage_quantity,
-          total_unit_usage_quantity,
-          usage_unit_code,
-          usage_unit_code_name,
-          product_price,
-          use_amount,
-          promotion_discount_amount,
-          etc_discount_amount,
-          promise_discount_amount,
-          demand_amount,
-          write_date,
-          member_price_discount_amount,
-          member_promise_discount_amount,
-          contract_info,
-          pay_currency_code,
-          pay_currency_code_name,
-          this_month_applied_exchange_rate,
-          origin_created_by,
-          origin_created_at,
-          origin_updated_by,
-          origin_updated_at,
-          origin_deleted_at,
-          created_by,
-          created_at
-        ) 
-        SELECT 
-            DATE_FORMAT(created_at, '%Y%m%d'),
-            customer_uuid,
-            account_uuid,
-            contract_demand_cost_sequence,
-            member_no,
-            region_code,
-            demand_type_code,
-            demand_type_code_name,
-            demand_type_detail_code,
-            demand_type_detail_code_name,
-            contract_no,
-            demand_month,
-            unit_usage_quantity,
-            package_unit_usage_quantity,
-            total_unit_usage_quantity,
-            usage_unit_code,
-            usage_unit_code_name,
-            product_price,
-            use_amount,
-            promotion_discount_amount,
-            etc_discount_amount,
-            promise_discount_amount,
-            demand_amount,
-            write_date,
-            member_price_discount_amount,
-            member_promise_discount_amount,
-            contract_info,
-            pay_currency_code,
-            pay_currency_code_name,
-            this_month_applied_exchange_rate,
-            created_by,
-            created_at,
-            updated_by,
-            updated_at,
-            deleted_at,
-            'Aggregator',
-          '` + this.currentTime + `'` +
-      `FROM ncp_api.TB_CONTRACT_DEMAND_COST`;
+    const contractDemandCostHistQuery = `INSERT INTO ncp_api.TB_CONTRACT_DEMAND_COST_HIST (
+                                          create_date,
+                                          customer_uuid,
+                                          account_uuid,
+                                          contract_demand_cost_sequence,
+                                          member_no,
+                                          region_code,
+                                          demand_type_code,
+                                          demand_type_code_name,
+                                          demand_type_detail_code,
+                                          demand_type_detail_code_name,
+                                          contract_no,
+                                          demand_month,
+                                          unit_usage_quantity,
+                                          package_unit_usage_quantity,
+                                          total_unit_usage_quantity,
+                                          usage_unit_code,
+                                          usage_unit_code_name,
+                                          product_price,
+                                          use_amount,
+                                          promotion_discount_amount,
+                                          etc_discount_amount,
+                                          promise_discount_amount,
+                                          demand_amount,
+                                          write_date,
+                                          member_price_discount_amount,
+                                          member_promise_discount_amount,
+                                          contract_info,
+                                          pay_currency_code,
+                                          pay_currency_code_name,
+                                          this_month_applied_exchange_rate,
+                                          origin_created_by,
+                                          origin_created_at,
+                                          origin_updated_by,
+                                          origin_updated_at,
+                                          origin_deleted_at,
+                                          created_by,
+                                          created_at
+                                        ) 
+                                        SELECT 
+                                            DATE_FORMAT(created_at, '%Y%m%d'),
+                                            customer_uuid,
+                                            account_uuid,
+                                            contract_demand_cost_sequence,
+                                            member_no,
+                                            region_code,
+                                            demand_type_code,
+                                            demand_type_code_name,
+                                            demand_type_detail_code,
+                                            demand_type_detail_code_name,
+                                            contract_no,
+                                            demand_month,
+                                            unit_usage_quantity,
+                                            package_unit_usage_quantity,
+                                            total_unit_usage_quantity,
+                                            usage_unit_code,
+                                            usage_unit_code_name,
+                                            product_price,
+                                            use_amount,
+                                            promotion_discount_amount,
+                                            etc_discount_amount,
+                                            promise_discount_amount,
+                                            demand_amount,
+                                            write_date,
+                                            member_price_discount_amount,
+                                            member_promise_discount_amount,
+                                            contract_info,
+                                            pay_currency_code,
+                                            pay_currency_code_name,
+                                            this_month_applied_exchange_rate,
+                                            created_by,
+                                            created_at,
+                                            updated_by,
+                                            updated_at,
+                                            deleted_at,
+                                            'Aggregator',
+                                          '` + this.currentTime + `'` +
+                                      `FROM ncp_api.TB_CONTRACT_DEMAND_COST
+                                      WHERE customer_uuid='` + uuidResult.customerUuid + `'
+                                        AND account_uuid='` + uuidResult.accountUuid + `'`
     const contractDemandCostValue = [];
 
     for (let i = 0; i < contractDemandCostData?.length; i++) {
@@ -618,7 +621,10 @@ class NcpCostService {
   }
 
   public async uploadContractDemandProduct(contractDemandProduct: IContractDemandProduct[], uuidResult: any): Promise<string> {
-    const contractDemandProductDelQuery = `DELETE FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT WHERE 1=1`;
+    const contractDemandProductDelQuery = `DELETE FROM 
+                                            ncp_api.TB_CONTRACT_DEMAND_PRODUCT 
+                                           WHERE customer_uuid='` + uuidResult.customerUuid + `'
+                                             AND account_uuid='` + uuidResult.accountUuid + `'`
     const contractProductQuery = `INSERT INTO ncp_api.TB_CONTRACT_DEMAND_PRODUCT (
                               customer_uuid,
                               account_uuid,
@@ -729,7 +735,9 @@ class NcpCostService {
                             deleted_at,
                             'Aggregator',
                             '` + this.currentTime + `'` +
-                            `FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT`;
+                            `FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT
+                              WHERE customer_uuid='` + uuidResult.customerUuid + `'
+                                AND account_uuid='` + uuidResult.accountUuid + `'`
 
     const contractProductValue = [];
 
@@ -837,9 +845,13 @@ class NcpCostService {
                                 'Aggregator',
                                 '` + this.currentTime + `'
                               FROM ncp_api.TB_CONTRACT_PRODUCT_USAGE
-    `;
+                               WHERE customer_uuid='` + uuidResult.customerUuid + `'
+                                 AND account_uuid='` + uuidResult.accountUuid + `'`
 
-    const deleteQuery = `DELETE FROM ncp_api.TB_CONTRACT_PRODUCT_USAGE WHERE 1=1`
+    const deleteQuery = `DELETE FROM 
+                          ncp_api.TB_CONTRACT_PRODUCT_USAGE 
+                          WHERE customer_uuid='` + uuidResult.customerUuid + `'
+                            AND account_uuid='` + uuidResult.accountUuid + `'`
 
     const usageQuery = `INSERT INTO ncp_api.TB_CONTRACT_PRODUCT_USAGE (
                               customer_uuid,
@@ -1363,7 +1375,9 @@ class NcpCostService {
   }
 
   public async uploadCostRelationCode(costRelationCode: ICostRelationCode[], uuidResult: any): Promise<string> {
-    const deleteQuery = `DELETE FROM TB_COST_RELATION_CODE WHERE 1=1`
+    const deleteQuery = `DELETE FROM TB_COST_RELATION_CODE 
+                          WHERE customer_uuid='` + uuidResult.customerUuid + `'
+                            AND account_uuid='` + uuidResult.accountUuid + `'`
     const costRelationQuery = `INSERT INTO ncp_api.TB_COST_RELATION_CODE (
                               customer_uuid,
                               account_uuid,
