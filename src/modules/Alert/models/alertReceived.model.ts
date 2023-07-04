@@ -16,7 +16,6 @@ export type AlertReceivedCreationAttributes = Optional<
   | 'alertReceivedName'
   | 'alertReceivedValue'
   | 'alertReceivedState'
-  | 'alertReceivedHash'
   | 'alertReceivedUiFlag'
   | 'alertReceivedNamespace'
   | 'alertReceivedSeverity'
