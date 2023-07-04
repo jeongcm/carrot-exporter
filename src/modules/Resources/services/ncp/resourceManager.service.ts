@@ -22,17 +22,19 @@ class NcpResourceService {
 
   //UUID 발급
   public async getUuid(resourceGroupUuid: string) {
-
     const responseResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid } });
-    const customerAccountKey = responseResourceGroup.customerAccountKey;
+    const resourceGroupKey = responseResourceGroup.resourceGroupKey;
 
-    const ncCustomerAccountKey = customerAccountKey;
-    // const ncCustomerAccountKey = 48;
-    const customerUuidResult: ITbCustomer = await this.tbCustomer.findOne({ where: { ncCustomerAccountKey } });
-    const customerUuid = customerUuidResult.customerUuid;
+    // const ncCustomerAccountKey = resourceGroupKey;
+    // // const ncCustomerAccountKey = 48;
+    // const customerUuidResult: ITbCustomer = await this.tbCustomer.findOne({ where: { ncCustomerAccountKey } });
+    // const customerUuid = customerUuidResult.customerUuid;
     
-    const accountUuidResult: ITbCustomerAccountCloudPlatform = await this.tbCustomerAccountCloudPlatform.findOne({ where: { customerUuid } });
-    const accountUuid = accountUuidResult.accountUuid;
+    const ncResourceGroupKey = resourceGroupKey
+
+    const accountUuidResult: ITbCustomerAccountCloudPlatform = await this.tbCustomerAccountCloudPlatform.findOne({ where: { ncResourceGroupKey } });
+    const accountUuid = accountUuidResult.accountUuid
+    const customerUuid = accountUuidResult.customerUuid
 
     return { customerUuid: customerUuid, accountUuid: accountUuid };
   }
@@ -70,11 +72,22 @@ class NcpResourceService {
     }
     const uuidResult = await this.getUuid(queryResult.clusterUuid);
 
+    //'월' 바뀐지 체크.
+    let monthChk = false
+    let currentDate = new Date()
+    
+    let toMonth = currentDate.getMonth() + 1 
+    currentDate.setDate(currentDate.getDate()-1) //하루 차감
+    let yesterMonth = currentDate.getMonth()+1
+    // yesterMonth = 202306  //test
+
+    if (yesterMonth !== toMonth) monthChk = true
+
     try {
       resultMsg = await this.uploadResourceGroup(result.resourceGroupList, uuidResult);
       console.log(`success to upload resourceGroup(${queryResult.resourceType}).`);
 
-      resultMsg = await this.uploadResourceGroupRelation(result.resourceGroupRelationList, uuidResult);
+      resultMsg = await this.uploadResourceGroupRelation(result.resourceGroupRelationList, uuidResult, monthChk);
       console.log(`success to upload resourceGroupRelation(${queryResult.resourceType}).`);
 
       return resultMsg;
@@ -234,7 +247,7 @@ class NcpResourceService {
 
     return 'successful DB update ';
   } // end of massUploadResource
-  public async uploadResourceGroupRelation(data: INcpResourceGroupRelation[], uuidResult: any): Promise<string> {
+  public async uploadResourceGroupRelation(data: INcpResourceGroupRelation[], uuidResult: any, monthChk: boolean): Promise<string> {
     
     const delYnQuery=  `UPDATE TB_RESOURCE_GROUP_RELATION SET deleted_at = '`+ this.currentTime + `' WHERE deleted_at is null`
     const histQuery = `INSERT INTO TB_RESOURCE_GROUP_RELATION_HIST (
@@ -277,7 +290,6 @@ class NcpResourceService {
                         deleted_at
                       ) VALUES ?
                       ON DUPLICATE KEY UPDATE
-                        group_id=VALUES(group_id),
                         resource_id=VALUES(resource_id),
                         updated_by=VALUES(created_by),
                         updated_at=VALUES(created_at),
@@ -301,7 +313,11 @@ class NcpResourceService {
 
     await mysqlConnection.query('START TRANSACTION');
     try {
-      await mysqlConnection.query(histQuery);
+
+      //'월'이 바뀌었다면, relation 이력 등록.
+      if (monthChk) {
+        await mysqlConnection.query(histQuery);
+      } 
       await mysqlConnection.query(delYnQuery);
       await mysqlConnection.query(query1, [query2]);
       await mysqlConnection.query('COMMIT');

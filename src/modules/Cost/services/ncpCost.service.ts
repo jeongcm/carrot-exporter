@@ -36,15 +36,18 @@ class NcpCostService {
   //UUID 발급
   public async getUuid(resourceGroupUuid: string) {
     const responseResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid } });
-    const customerAccountKey = responseResourceGroup.customerAccountKey;
+    const resourceGroupKey = responseResourceGroup.resourceGroupKey;
 
-    const ncCustomerAccountKey = customerAccountKey;
-    // const ncCustomerAccountKey = 48;
-    const customerUuidResult: ITbCustomer = await this.tbCustomer.findOne({ where: { ncCustomerAccountKey } });
-    const customerUuid = customerUuidResult.customerUuid;
+    // const ncCustomerAccountKey = resourceGroupKey;
+    // // const ncCustomerAccountKey = 48;
+    // const customerUuidResult: ITbCustomer = await this.tbCustomer.findOne({ where: { ncCustomerAccountKey } });
+    // const customerUuid = customerUuidResult.customerUuid;
     
-    const accountUuidResult: ITbCustomerAccountCloudPlatform = await this.tbCustomerAccountCloudPlatform.findOne({ where: { customerUuid } });
-    const accountUuid = accountUuidResult.accountUuid;
+    const ncResourceGroupKey = resourceGroupKey
+
+    const accountUuidResult: ITbCustomerAccountCloudPlatform = await this.tbCustomerAccountCloudPlatform.findOne({ where: { ncResourceGroupKey } });
+    const accountUuid = accountUuidResult.accountUuid
+    const customerUuid = accountUuidResult.customerUuid
 
     return { customerUuid: customerUuid, accountUuid: accountUuid };
   }
@@ -111,28 +114,63 @@ class NcpCostService {
   }
 
   public async uploadNcpProductPrice(totalMsg) {
+
     let queryResult: any;
     let resultMsg: any;
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
     const uuidResult = await this.getUuid(queryResult.clusterUuid);
 
-    const result = JSON.parse(queryResult.message);
+    let result = JSON.parse(queryResult.message);
     if (Object.keys(queryResult.message).length === 0) {
       console.log(`skip to upload productPrice(${queryResult.resourceType}). cause: empty list`);
       return 'empty list';
     }
 
-    try {
-      //Insert TB_CONTRACT
-      resultMsg = await this.uploadProductPrice(result.productPriceList, uuidResult);
-      console.log(`success to upload productPrice(${queryResult.resourceType}).`);
-      //Insert TB_USAGE
-      resultMsg = await this.uploadPrice(result.priceList, uuidResult);
-      console.log(`success to upload price(${queryResult.resourceType}).`);
-      return resultMsg;
-    } catch (err) {
-      console.log(`failed to upload productPrice(${queryResult.resourceType}. cause: ${err})`);
-      return err;
+    const event_size_mb = (Buffer.byteLength(JSON.stringify(queryResult.message)))/1024/1024 // mb
+    const default_message_size = 1 // 1mb
+    if (event_size_mb > 3) {
+      // const divisions = 10; // 분할 개수
+      const divisions = Math.ceil(event_size_mb / default_message_size); // 분할 개수
+      const dividedLength = Math.ceil(queryResult.message.length / divisions);
+      const dividedList = []
+
+      // console.log(event_size_mb + " / " + dividedLength + " / " + divisions)
+      let startIndex = 0;
+      for (let i = 0; i < divisions; i++) {
+        const slice = queryResult.message.slice(startIndex, startIndex + dividedLength);
+        dividedList.push(slice);
+        startIndex += dividedLength;
+      }
+
+      for (const data of dividedList) {
+        try {
+          //Insert TB_PRODUCT_PRICE
+          resultMsg = await this.uploadProductPrice(JSON.parse(data.productPriceList), uuidResult);
+          console.log(`success to upload productPrice(${queryResult.resourceType}).`);
+          //Insert TB_PRICE
+          resultMsg = await this.uploadPrice(JSON.parse(data.priceList), uuidResult);
+          console.log(`success to upload price(${queryResult.resourceType}).`);
+          return resultMsg;
+        } catch (err) {
+          console.log(`failed to upload productPrice(${queryResult.resourceType}. cause: ${err})`);
+          return err;
+        }
+      }
+      console.log(`resource event divide upload end (event_size: ${event_size_mb}mb)`)
+
+    } else {
+      try {
+        //Insert TB_PRODUCT_PRICE
+        resultMsg = await this.uploadProductPrice(result.productPriceList, uuidResult);
+        console.log(`success to upload productPrice(${queryResult.resourceType}).`);
+        //Insert TB_PRICE
+        resultMsg = await this.uploadPrice(result.priceList, uuidResult);
+        console.log(`success to upload price(${queryResult.resourceType}).`);
+        return resultMsg;
+      } catch (err) {
+        console.log(`failed to upload productPrice(${queryResult.resourceType}. cause: ${err})`);
+        return err;
+      }
     }
   }
 
