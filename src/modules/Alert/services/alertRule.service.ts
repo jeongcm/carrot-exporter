@@ -351,6 +351,8 @@ class AlertRuleService {
             console.log(`${insertAlertReceived.alertReceivedName}: ${insertAlertReceived.alertReceivedHash}`)
           }
 
+          console.log(insertAlertReceives)
+
           await this.upsertAlertReceivedRowQuery(resourceGroup.customerAccountKey, insertAlertReceives)
 
           // await this.alertReceived.bulkCreate(insertAlertReceives)
@@ -509,7 +511,7 @@ class AlertRuleService {
                       alert_received_id = VALUES(alert_received_id)
                       `;
     const query2 = [];
-    for (let i = 0; i < alertReceivedData.length; i++) {
+    for (let i = 0; i < alertReceivedData?.length; i++) {
       query2[i] = [
         alertReceivedData[i].alertReceivedId,
         customerAccountKey,
