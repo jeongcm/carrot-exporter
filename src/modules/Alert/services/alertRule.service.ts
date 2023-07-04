@@ -348,10 +348,7 @@ class AlertRuleService {
 
           for (const insertAlertReceived of insertAlertReceives) {
             insertAlertReceived.alertReceivedHash = await this.alertReceivedToSHA1(insertAlertReceived.alertRuleKey, insertAlertReceived.alertReceivedLabels)
-            console.log(`${insertAlertReceived.alertReceivedName}: ${insertAlertReceived.alertReceivedHash}`)
           }
-
-          console.log(insertAlertReceives)
 
           await this.upsertAlertReceivedRowQuery(resourceGroup.customerAccountKey, insertAlertReceives)
 
@@ -512,7 +509,6 @@ class AlertRuleService {
                       `;
     const query2 = [];
     for (let i = 0; i < alertReceivedData?.length; i++) {
-      console.log('hash: ', alertReceivedData[i].alertReceivedHash)
       query2[i] = [
         alertReceivedData[i].alertReceivedId,
         customerAccountKey,
