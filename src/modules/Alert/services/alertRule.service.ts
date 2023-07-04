@@ -347,8 +347,8 @@ class AlertRuleService {
           })
 
           for (const insertAlertReceived of insertAlertReceives) {
-            console.log(`${insertAlertReceived.alertReceivedName}: ${insertAlertReceived.alertReceivedHash}`)
             insertAlertReceived.alertReceivedHash = await this.alertReceivedToSHA1(insertAlertReceived.alertRuleKey, insertAlertReceived.alertReceivedLabels)
+            console.log(`${insertAlertReceived.alertReceivedName}: ${insertAlertReceived.alertReceivedHash}`)
           }
 
           await this.upsertAlertReceivedRowQuery(resourceGroup.customerAccountKey, insertAlertReceives)
