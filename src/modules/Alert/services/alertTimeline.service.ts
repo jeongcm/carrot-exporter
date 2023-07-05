@@ -2,17 +2,15 @@ import {DB} from '@/database';
 import chalk from 'chalk';
 import { Op } from 'sequelize';
 import { logger } from '@/common/utils/logger';
-// import AlertNotiSchedulerService from '@/modules/AlertNotification/services/alertNotificationScheduler.service';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 import { IAlertTimeline } from '@/common/interfaces/alertTimeline.interface';
 import { IResource } from '@/common/interfaces/resource.interface';
 
+
 const FIRING_STATE = 'firing';
-class AlertTimelineService {
-  private alertReceived = DB.AlertReceived;
+class AlertTimelineProcessService {
   private alertTimeline = DB.AlertTimeline;
   private resource = DB.Resource;
-  // private alertNotiSchedulerService = new AlertNotiSchedulerService();
 
   // MAIN: this is the main method
   public async processAlertTimeline(customerAccountKey: number) {
@@ -133,16 +131,7 @@ class AlertTimelineService {
       // logger.info(`${chalk.green('PROCESSED')} (key: ${customerAccountKey}): Nothing is processed (time ${Date.now() - started}ms)`);
     }
 
-    // // METRIC
-    // metric.setAlertTimelineMetric(customerAccountKey, {
-    //   timelinesProcessed,
-    //   alertReceiveds,
-    //   timelinesCreated,
-    //   timelineProcessRunTime: Date.now() - started,
-    //   activeTimeLines,
-    //   timelineKeysToDelete,
-    //   timelineKeysToResolve,
-    // });
+
     // console.log('#DEBUG 1. activeTimeLines ------------------------------', JSON.stringify(activeTimeLines));
     // this.alertNotiSchedulerService.scheduleAlertNotiFromAlertTimelines(customerAccountKey, activeTimeLines);
   }
@@ -152,7 +141,7 @@ class AlertTimelineService {
 
     const [alertReceiveds] = await DB.sequelize.query(`WITH recent_alerts AS (
       SELECT m.*, ROW_NUMBER() OVER (
-        PARTITION BY alert_received_name, alert_rule_key, alert_received_namespace, alert_received_node, alert_received_service, alert_received_persistentvolumeclaim, alert_received_pod, alert_received_state, alert_received_affected_resource_type, alert_received_affected_resource_name, alert_received_hash
+        PARTITION BY alert_received_name, alert_rule_key, alert_received_namespace, alert_received_node, alert_received_service, alert_received_pod, alert_received_persistentvolumeclaim, alert_received_state, alert_received_affected_resource_type, alert_received_affected_resource_name, alert_received_hash
         ORDER BY alert_received_active_at DESC) AS rn
         FROM AlertReceived AS m
         WHERE customer_account_key = "${customerAccountKey}" AND deleted_at IS NULL AND alert_received_hash IS NOT NULL
@@ -201,11 +190,9 @@ class AlertTimelineService {
       INNER JOIN AlertRule ON recent_alerts.alert_rule_key = AlertRule.alert_rule_key
       INNER JOIN ResourceGroup ON AlertRule.resource_group_uuid = ResourceGroup.resource_group_uuid
       WHERE rn = 1
-      GROUP BY recent_alerts.alert_received_namespace, recent_alerts.alert_received_node, recent_alerts.alert_received_service, recent_alerts.alert_received_persistentvolumeclaim, recent_alerts.alert_received_pod, recent_alerts.alert_received_instance, recent_alerts.alert_received_state, recent_alerts.alert_rule_key, recent_alerts.alert_received_affected_resource_type, recent_alerts.alert_received_affected_resource_name, recent_alerts.alert_received_hash
+      GROUP BY recent_alerts.alert_received_namespace, recent_alerts.alert_received_node, recent_alerts.alert_received_service, recent_alerts.alert_received_pod, recent_alerts.alert_received_persistentvolumeclaim, recent_alerts.alert_received_instance, recent_alerts.alert_received_state, recent_alerts.alert_rule_key, recent_alerts.alert_received_affected_resource_type, recent_alerts.alert_received_affected_resource_name, recent_alerts.alert_received_hash
       ORDER BY recent_alerts.alert_received_active_at DESC;
     `);
-
-    // metric.setDbQueryTimeMetric(customerAccountKey, 'timeline_process:get_all_allert_received', Date.now() - start);
 
     if (alertReceiveds && alertReceiveds.length > 0) {
       return alertReceiveds as IAlertReceived[];
@@ -249,8 +236,6 @@ class AlertTimelineService {
       ],
       raw: true,
     });
-
-    // metric.setDbQueryTimeMetric(customerAccountKey, 'timeline_process:get_all_timeline', Date.now() - start);
 
     return timelinesResult;
   }
@@ -453,8 +438,6 @@ class AlertTimelineService {
 
     const pods = await this.resource.findAll(podWhere);
 
-    // metric.setDbQueryTimeMetric(customerAccountKey, 'timeline_process:get_service_for_pod', Date.now() - start);
-
     (pods || []).forEach((pod: any) => {
       const hash = podsMissingServicesHash[`${pod.resourceGroupKey}:${pod.resourceNamespace}:${pod.resourceName}`];
       const serviceName = epNamePerHashWithUid[`${pod.resourceGroupKey}:${pod.resourceNamespace}:${pod.resourceTargetUuid}`];
@@ -468,4 +451,4 @@ class AlertTimelineService {
   }
 }
 
-export default AlertTimelineService;
+export default AlertTimelineProcessService;
