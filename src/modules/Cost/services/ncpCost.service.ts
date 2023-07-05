@@ -25,13 +25,14 @@ class NcpCostService {
   public tbCustomer = OpsCommDB.TbCustomer;
   public tbCustomerAccountCloudPlatform = OpsApiDB.TbCustomerAccountCloudPlatform;
 
-  currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
-
+  public getCurrentTime () {
+    return new Date().toISOString().slice(0, 19).replace('T', ' ');
+  }
   public async findUser() {
     const findSystemUser: IPartyUser = await this.partyUser.findOne({ where: { userId: config.partyUser.userId } });
     return findSystemUser;
   }
-
+ 
   //UUID 발급
   public async getUuid(resourceGroupUuid: string) {
     const responseResourceGroup: IResourceGroup = await this.resourceGroup.findOne({ where: { resourceGroupUuid } });
@@ -63,6 +64,7 @@ class NcpCostService {
       console.log(`skip to upload ncpResourceGroup(${queryResult.resourceType}). cause: empty list`);
       return 'empty list';
     }
+
 
     try {
       //Insert TB_CONTRACT_DEMAND_COST
@@ -216,6 +218,7 @@ class NcpCostService {
   }
 
   public async uploadContractDemandCost(contractDemandCostData: IContractDemandCost[], uuidResult: any): Promise<string> {
+
     const contractDemandCostDelQuery = `DELETE FROM 
                                           ncp_api.TB_CONTRACT_DEMAND_COST
                                         WHERE customer_uuid='` + uuidResult.customerUuid + `'
@@ -359,7 +362,7 @@ class NcpCostService {
                                             updated_at,
                                             deleted_at,
                                             'Aggregator',
-                                          '` + this.currentTime + `'` +
+                                          '` + this.getCurrentTime() + `'` +
                                       `FROM ncp_api.TB_CONTRACT_DEMAND_COST
                                       WHERE customer_uuid='` + uuidResult.customerUuid + `'
                                         AND account_uuid='` + uuidResult.accountUuid + `'`
@@ -397,7 +400,7 @@ class NcpCostService {
         contractDemandCostData[i].pay_currency_code_name,
         contractDemandCostData[i].this_month_applied_exchange_rate,
         'Aggregator',
-        this.currentTime,
+        this.getCurrentTime(),
       ];
     }
 
@@ -429,7 +432,7 @@ class NcpCostService {
 
   public async uploadContract(contractData: IContract[], uuidResult: any): Promise<string> {
 
-    const delYnQuery=  `UPDATE TB_CONTRACT SET deleted_at = '`+ this.currentTime + `' WHERE deleted_at is null`
+    const delYnQuery=  `UPDATE TB_CONTRACT SET deleted_at = '`+ this.getCurrentTime() + `' WHERE deleted_at is null`
     const contractQuery = `INSERT INTO ncp_api.TB_CONTRACT (
                               customer_uuid,
                               account_uuid,
@@ -488,7 +491,7 @@ class NcpCostService {
         contractData[i].platform_type_code,
         contractData[i].platform_type_code_name,
         'Aggregator',
-        this.currentTime,
+        this.getCurrentTime(),
         null
       ];
     }
@@ -589,9 +592,9 @@ class NcpCostService {
         contractDemandProduct[i].product_count,
         contractDemandProduct[i].contract_no,
         'Aggregator',
-        this.currentTime,
+        this.getCurrentTime(),
         'Aggregator',
-        this.currentTime,
+        this.getCurrentTime(),
       ];
     }
 
@@ -734,7 +737,7 @@ class NcpCostService {
                             updated_at,
                             deleted_at,
                             'Aggregator',
-                            '` + this.currentTime + `'` +
+                            '` + this.getCurrentTime() + `'` +
                             `FROM ncp_api.TB_CONTRACT_DEMAND_PRODUCT
                               WHERE customer_uuid='` + uuidResult.customerUuid + `'
                                 AND account_uuid='` + uuidResult.accountUuid + `'`
@@ -765,9 +768,9 @@ class NcpCostService {
         contractDemandProduct[i].product_count,
         contractDemandProduct[i].contract_no,
         'Aggregator',
-        this.currentTime,
+        this.getCurrentTime(),
         'Aggregator',
-        this.currentTime,
+        this.getCurrentTime(),
       ];
     }
 
@@ -843,7 +846,7 @@ class NcpCostService {
                                 updated_at,
                                 deleted_at,
                                 'Aggregator',
-                                '` + this.currentTime + `'
+                                '` + this.getCurrentTime() + `'
                               FROM ncp_api.TB_CONTRACT_PRODUCT_USAGE
                                WHERE customer_uuid='` + uuidResult.customerUuid + `'
                                  AND account_uuid='` + uuidResult.accountUuid + `'`
@@ -902,9 +905,9 @@ class NcpCostService {
         usageData[i].user_unit_code_name,
         usageData[i].contract_no,
         'Aggregator',
-        this.currentTime,
+        this.getCurrentTime(),
         'Aggregator',
-        this.currentTime,
+        this.getCurrentTime(),
       ];
     }
 
@@ -969,9 +972,7 @@ class NcpCostService {
                     generation_code,
                     price_no,
                     created_by,
-                    created_at,
-                    updated_by,
-                    updated_at
+                    created_at
                   ) VALUES ?
                   ON DUPLICATE KEY UPDATE
                     product_item_kind_code=VALUES(product_item_kind_code),
@@ -1042,9 +1043,7 @@ class NcpCostService {
         productPriceData[i].generation_code,
         productPriceData[i].price_no,
         'Aggregator',
-        this.currentTime,
-        'Aggregator',
-        this.currentTime,
+        this.getCurrentTime()
       ];
     }
 
@@ -1112,9 +1111,7 @@ class NcpCostService {
                     country_unit_list,
                     package_unit_list,
                     created_by,
-                    created_at,
-                    updated_by,
-                    updated_at
+                    created_at
                   ) VALUES ?
                   ON DUPLICATE KEY UPDATE
                     price_type_code=VALUES(price_type_code),
@@ -1194,9 +1191,7 @@ class NcpCostService {
         priceData[i].country_unit_list,
         priceData[i].package_unit_list,
         'Aggregator',
-        this.currentTime,
-        'Aggregator',
-        this.currentTime,
+        this.getCurrentTime()
       ];
     }
 
@@ -1264,7 +1259,9 @@ class NcpCostService {
                             pay_currency_code,
                             pay_currency_code_name,
                             this_month_applied_exchange_rate,
-                            promotion_discount_amount
+                            promotion_discount_amount,
+                            created_by,
+                            created_at
                           ) VALUES ?
                           ON DUPLICATE KEY UPDATE
                             member_no=VALUES(member_no), 
@@ -1301,7 +1298,9 @@ class NcpCostService {
                             pay_currency_code=VALUES(pay_currency_code),
                             pay_currency_code_name=VALUES(pay_currency_code_name),
                             this_month_applied_exchange_rate=VALUES(this_month_applied_exchange_rate),
-                            promotion_discount_amount=VALUES(promotion_discount_amount)
+                            promotion_discount_amount=VALUES(promotion_discount_amount),
+                            updated_by=VALUES(created_by),
+                            updated_at=VALUES(created_at)
                           `;
 
     const demandCostValue = [];
@@ -1346,6 +1345,8 @@ class NcpCostService {
         demandCostData[i].pay_currency_code_name,
         demandCostData[i].this_month_applied_exchange_rate,
         demandCostData[i].promotion_discount_amount,
+        'Aggregator',
+        this.getCurrentTime(),
       ];
     }
 
@@ -1395,7 +1396,9 @@ class NcpCostService {
                               demand_type_detail_code,
                               demand_type_detail_code_name,
                               product_demand_type_code,
-                              product_demand_type_code_name
+                              product_demand_type_code_name,
+                              created_by,
+                              created_at
                             ) VALUES ?
                             ON DUPLICATE KEY UPDATE
                             contract_type_code_name=VALUES(contract_type_code_name),
@@ -1407,7 +1410,9 @@ class NcpCostService {
                             demand_type_code_name=VALUES(demand_type_code_name),
                             demand_type_detail_code=VALUES(demand_type_detail_code),
                             demand_type_detail_code_name=VALUES(demand_type_detail_code_name),
-                            product_demand_type_code_name=VALUES(product_demand_type_code_name)
+                            product_demand_type_code_name=VALUES(product_demand_type_code_name),
+                            updated_by=VALUES(created_by),
+                            updated_at=VALUES(created_at)
                             `;
 
     let costRelationCodeValue = []
@@ -1430,6 +1435,8 @@ class NcpCostService {
         costRelationCode[i].demand_type_detail_code_name,
         costRelationCode[i].product_demand_type_code,
         costRelationCode[i].product_demand_type_code_name,
+        'Aggregator',
+        this.getCurrentTime(),
       ];
     }
 
