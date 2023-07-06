@@ -10,6 +10,14 @@ export default async function getPodListQuery(result, clusterUuid) {
 
   for (let i = 0; i < resultLength; i++)
   {
+
+    let podPhase = result.items[i].status.phase
+    result.items[i].status.conditions.forEach(condition => {
+      if (condition.type === 'ContainersReady' && condition.reason !== 'PodCompleted' && condition.status !== 'True') {
+        podPhase = 'Waiting'
+      }
+    })
+
     query['resource_Type'] = resourceType;
     query['resource_Spec'] = result.items[i].spec;
     query['resource_Group_Uuid'] = clusterUuid;
@@ -21,7 +29,7 @@ export default async function getPodListQuery(result, clusterUuid) {
     query['resource_Owner_References'] = result.items[i].metadata.ownerReferences; //object
     query['resource_Namespace'] = result.items[i].metadata.namespace;
     query['resource_Instance'] = result.items[i].status.podIP;
-    query['resource_Pod_Phase'] = result.items[i].status.phase;
+    query['resource_Pod_Phase'] = podPhase;
     query['resource_Pod_Container'] = result.items[i].spec.containers; //array
     query['resource_Pod_Volume'] = result.items[i].spec.volumes; //array
     query['resource_Status'] = result.items[i].status; //object
