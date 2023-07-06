@@ -9,7 +9,7 @@ export default async function getCloudMongoDBInstanceMetric(totalMsg, clusterUui
   }
 
   // get origin metric data
-  totalMsg.result[0][0].forEach((cloudMongoDBInstance) => {
+  totalMsg.result[0][0]?.forEach((cloudMongoDBInstance) => {
     cloudMongoDBInstance?.outputs?.forEach((output) => {
       output.dps.forEach((dp) => {
         queryResult.result.result.push(

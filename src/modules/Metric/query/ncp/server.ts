@@ -9,7 +9,7 @@ export default async function getServerInstanceMetric(totalMsg, clusterUuid) {
   }
 
   // get origin metric data
-  totalMsg.result[0].forEach((serverInstance) => {
+  totalMsg.result[0]?.forEach((serverInstance) => {
     serverInstance?.outputs?.forEach((output) => {
       output.dps.forEach((dp) => {
         queryResult.result.result.push(

@@ -9,7 +9,7 @@ export default async function getCloudRedisInstanceMetric(totalMsg, clusterUuid)
   }
 
   // get origin metric data
-  totalMsg.result[0][0].forEach((cloudRedisInstance) => {
+  totalMsg.result[0][0]?.forEach((cloudRedisInstance) => {
     cloudRedisInstance?.outputs?.forEach((output) => {
       output.dps.forEach((dp) => {
         queryResult.result.result.push(
