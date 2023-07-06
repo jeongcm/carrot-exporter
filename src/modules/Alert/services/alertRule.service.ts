@@ -7,9 +7,11 @@ import config from "@/config";
 import mysql from "mysql2/promise";
 import TableIdService from "@common/tableId/tableId";
 import * as console from "console";
+import AlertTimelineService from "@modules/Alert/services/alertTimeline.service";
 
 class AlertRuleService {
   public tableIdService = new TableIdService()
+  public alertTimelineService = new AlertTimelineService()
   public resourceGroup = DB.ResourceGroup;
   public alertRule = DB.AlertRule;
   public alertReceived = DB.AlertReceived;
@@ -355,6 +357,9 @@ class AlertRuleService {
           // await this.alertReceived.bulkCreate(insertAlertReceives)
         }
       }
+
+      // process resourceGroup's alertTimeline
+      await this.alertTimelineService.processAlertTimeline(resourceGroup.customerAccountKey)
 
     } catch (err) {
       console.log(`failed to processAlertRule. cause: ${err}`)
