@@ -291,7 +291,9 @@ class NcpResourceService {
                           deleted_at,
                           'Aggregator',
                           '` + this.getCurrentTime() + `'`+
-                          `FROM TB_RESOURCE_GROUP_RELATION`
+                          `FROM TB_RESOURCE_GROUP_RELATION
+                          WHERE customer_uuid='` + uuidResult.customerUuid + `'
+                            AND account_uuid='` + uuidResult.accountUuid + `'`
                         ;
                     
     const query1 = `INSERT INTO TB_RESOURCE_GROUP_RELATION (
