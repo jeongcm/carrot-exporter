@@ -1,6 +1,6 @@
 import {DB} from '@/database';
 import chalk from 'chalk';
-import { Op } from 'sequelize';
+import { QueryTypes } from "sequelize";
 import { logger } from '@/common/utils/logger';
 import { IAlertReceived } from '@/common/interfaces/alertReceived.interface';
 import { IAlertTimeline } from '@/common/interfaces/alertTimeline.interface';
@@ -19,12 +19,14 @@ class AlertTimelineProcessService {
     // STEP 1. Get target alertReceiveds using OVER PARTITION BY
     const alertReceiveds: IAlertReceived[] = await this.getLatestAlertReceivedPerGroup(customerAccountKey);
 
+    console.log(alertReceiveds)
     // STEP 2: get all the timelines as objects to compare to mimic the "upsert"
     // we will recycle this data to create notification so to make it cheaper
     let timelines: IAlertTimeline[] = await this.getAlertTimelines(customerAccountKey);
 
     const timelinesProcessed = timelines?.length;
 
+    console.log(timelines)
     // STEP 3: get new timeline to create, to resolve and to delete
     const { timelinesToCreate, timelineKeysToResolve, timelineKeysToDelete, timelineKeysToEndAsPending } =
       await this.processTimelineAgainstAlertReceiveds(customerAccountKey, alertReceiveds, timelines);
@@ -139,12 +141,12 @@ class AlertTimelineProcessService {
   private async getLatestAlertReceivedPerGroup(customerAccountKey: number): Promise<IAlertReceived[]> {
     const start = Date.now();
 
-    const [alertReceiveds] = await DB.sequelize.query(`WITH recent_alerts AS (
+    let query = `WITH recent_alerts AS (
       SELECT m.*, ROW_NUMBER() OVER (
         PARTITION BY alert_received_name, alert_rule_key, alert_received_namespace, alert_received_node, alert_received_service, alert_received_pod, alert_received_persistentvolumeclaim, alert_received_state, alert_received_affected_resource_type, alert_received_affected_resource_name, alert_received_hash
         ORDER BY alert_received_active_at DESC) AS rn
         FROM AlertReceived AS m
-        WHERE customer_account_key = "${customerAccountKey}" AND deleted_at IS NULL AND alert_received_hash IS NOT NULL
+        WHERE customer_account_key = ${customerAccountKey} AND deleted_at IS NULL AND alert_received_hash IS NOT NULL
       )
       SELECT
         recent_alerts.alert_received_key as alertReceivedKey,
@@ -192,7 +194,8 @@ class AlertTimelineProcessService {
       WHERE rn = 1
       GROUP BY recent_alerts.alert_received_namespace, recent_alerts.alert_received_node, recent_alerts.alert_received_service, recent_alerts.alert_received_pod, recent_alerts.alert_received_persistentvolumeclaim, recent_alerts.alert_received_instance, recent_alerts.alert_received_state, recent_alerts.alert_rule_key, recent_alerts.alert_received_affected_resource_type, recent_alerts.alert_received_affected_resource_name, recent_alerts.alert_received_hash
       ORDER BY recent_alerts.alert_received_active_at DESC;
-    `);
+    `
+    const alertReceiveds = await DB.sequelize.query(query, { type: QueryTypes.SELECT });
 
     if (alertReceiveds && alertReceiveds.length > 0) {
       return alertReceiveds as IAlertReceived[];

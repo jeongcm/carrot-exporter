@@ -359,7 +359,7 @@ class AlertRuleService {
       }
 
       // process resourceGroup's alertTimeline
-      // await this.alertTimelineService.processAlertTimeline(resourceGroup.customerAccountKey)
+      await this.alertTimelineService.processAlertTimeline(resourceGroup.customerAccountKey)
 
     } catch (err) {
       console.log(`failed to processAlertRule. cause: ${err}`)
