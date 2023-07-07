@@ -103,7 +103,11 @@ class NcpResourceService {
 
     //* deleted_at이 null인 자원 = 현재 사용중인 자원.
     //현재 운영중인 자원을 종료된 자원으로 update 후, 자원목록 upsert시, null로 변경. -> 삭제된 자원은 deleted_at이 현재시간으로 변경 : 삭제된 시간.
-    const delYnQuery=  `UPDATE TB_RESOURCE SET deleted_at = '`+ this.getCurrentTime() + `' WHERE deleted_at is null`
+    const delYnQuery=  `UPDATE TB_RESOURCE 
+                           SET deleted_at = '`+ this.getCurrentTime() + `' 
+                          WHERE deleted_at is null
+                            AND customer_uuid='` + uuidResult.customerUuid + `'
+                            AND account_uuid='` + uuidResult.accountUuid + `'`
     const query1 = `INSERT INTO TB_RESOURCE (
                         customer_uuid,
                         account_uuid,
@@ -186,7 +190,11 @@ class NcpResourceService {
   } // end of massUploadResource
 
   public async uploadResourceGroup(data: INcpResourceGroup[], uuidResult: any): Promise<string> {
-    const delYnQuery=  `UPDATE TB_RESOURCE_GROUP SET deleted_at = '`+  this.getCurrentTime() + `' WHERE deleted_at is null`
+    const delYnQuery=  `UPDATE TB_RESOURCE_GROUP 
+                            SET deleted_at = '`+ this.getCurrentTime() + `' 
+                            WHERE deleted_at is null
+                              AND customer_uuid='` + uuidResult.customerUuid + `'
+                              AND account_uuid='` + uuidResult.accountUuid + `'`
     const query1 = `INSERT INTO TB_RESOURCE_GROUP (
                         customer_uuid,
                         account_uuid,
@@ -251,7 +259,11 @@ class NcpResourceService {
   } // end of massUploadResource
   public async uploadResourceGroupRelation(data: INcpResourceGroupRelation[], uuidResult: any, monthChk: boolean): Promise<string> {
     
-    const delYnQuery=  `UPDATE TB_RESOURCE_GROUP_RELATION SET deleted_at = '`+ this.getCurrentTime() + `' WHERE deleted_at is null`
+    const delYnQuery=  `UPDATE TB_RESOURCE_GROUP_RELATION 
+                            SET deleted_at = '`+ this.getCurrentTime() + `' 
+                            WHERE deleted_at is null
+                              AND customer_uuid='` + uuidResult.customerUuid + `'
+                              AND account_uuid='` + uuidResult.accountUuid + `'`
     const histQuery = `INSERT INTO TB_RESOURCE_GROUP_RELATION_HIST (
                           use_month,
                           customer_uuid,
@@ -318,9 +330,12 @@ class NcpResourceService {
 
       //'월'이 바뀌었다면, relation 이력 등록.
       if (monthChk) {
+        console.log('ncp ResourceManager Relation change Month')
         await mysqlConnection.query(histQuery);
       } 
       await mysqlConnection.query(delYnQuery);
+      
+      await mysqlConnection.query('COMMIT');
       await mysqlConnection.query(query1, [query2]);
       await mysqlConnection.query('COMMIT');
     } catch (err) {
