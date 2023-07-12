@@ -121,59 +121,29 @@ class NcpCostService {
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
     const uuidResult = await this.getUuid(queryResult.clusterUuid);
 
-    let result = JSON.parse(queryResult.message);
     if (Object.keys(queryResult.message).length === 0) {
       console.log(`skip to upload productPrice(${queryResult.resourceType}). cause: empty list`);
       return 'empty list';
     }
+    
+    //2023.07.12 상품, 가격 분류했을때도 out of memory 나는지 테스트, 오류 난다면 한번 더 분류 -jh
+    const productPriceList = queryResult.message.productPriceList
+    const priceList = queryResult.message.priceList
 
-    const event_size_mb = (Buffer.byteLength(JSON.stringify(queryResult.message)))/1024/1024 // mb
-    const default_message_size = 1 // 1mb
-    if (event_size_mb > 3) {
-      // const divisions = 10; // 분할 개수
-      const divisions = Math.ceil(event_size_mb / default_message_size); // 분할 개수
-      const dividedLength = Math.ceil(queryResult.message.length / divisions);
-      const dividedList = []
-
-      // console.log(event_size_mb + " / " + dividedLength + " / " + divisions)
-      let startIndex = 0;
-      for (let i = 0; i < divisions; i++) {
-        const slice = queryResult.message.slice(startIndex, startIndex + dividedLength);
-        dividedList.push(slice);
-        startIndex += dividedLength;
-      }
-
-      for (const data of dividedList) {
-        try {
-          //Insert TB_PRODUCT_PRICE
-          resultMsg = await this.uploadProductPrice(JSON.parse(data.productPriceList), uuidResult);
-          console.log(`success to upload productPrice(${queryResult.resourceType}).`);
-          //Insert TB_PRICE
-          resultMsg = await this.uploadPrice(JSON.parse(data.priceList), uuidResult);
-          console.log(`success to upload price(${queryResult.resourceType}).`);
-          return resultMsg;
-        } catch (err) {
-          console.log(`failed to upload productPrice(${queryResult.resourceType}. cause: ${err})`);
-          return err;
-        }
-      }
-      console.log(`resource event divide upload end (event_size: ${event_size_mb}mb)`)
-
-    } else {
-      try {
-        //Insert TB_PRODUCT_PRICE
-        resultMsg = await this.uploadProductPrice(result.productPriceList, uuidResult);
-        console.log(`success to upload productPrice(${queryResult.resourceType}).`);
-        //Insert TB_PRICE
-        resultMsg = await this.uploadPrice(result.priceList, uuidResult);
-        console.log(`success to upload price(${queryResult.resourceType}).`);
-        return resultMsg;
-      } catch (err) {
-        console.log(`failed to upload productPrice(${queryResult.resourceType}. cause: ${err})`);
-        return err;
-      }
+    try {
+      //Insert TB_PRODUCT_PRICE
+      resultMsg = await this.uploadProductPrice(JSON.parse(productPriceList), uuidResult);
+      console.log(`success to upload productPrice(${queryResult.resourceType}).`);
+      //Insert TB_PRICE
+      resultMsg = await this.uploadPrice(JSON.parse(priceList), uuidResult);
+      console.log(`success to upload price(${queryResult.resourceType}).`);
+      return resultMsg;
+    } catch (err) {
+      console.log(`failed to upload productPrice(${queryResult.resourceType}. cause: ${err})`);
+      return err;
     }
   }
+
 
   public async uploadNcpDemandCost(totalMsg) {
     let queryResult: any;
