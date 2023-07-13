@@ -121,21 +121,23 @@ class NcpCostService {
     queryResult = await this.queryService.getResourceQuery(totalMsg, totalMsg.cluster_uuid);
     const uuidResult = await this.getUuid(queryResult.clusterUuid);
 
-    if (Object.keys(queryResult.message).length === 0) {
+    if (Object.keys(queryResult.productPriceList).length === 0) {
       console.log(`skip to upload productPrice(${queryResult.resourceType}). cause: empty list`);
       return 'empty list';
     }
     
     //2023.07.12 상품, 가격 분류했을때도 out of memory 나는지 테스트, 오류 난다면 한번 더 분류 -jh
-    const productPriceList = queryResult.message.productPriceList
-    const priceList = queryResult.message.priceList
+    const productPriceList = JSON.parse(queryResult.productPriceList)
+    const priceList = JSON.parse(queryResult.priceList)
 
+    // console.log(productPriceList)
+    
     try {
       //Insert TB_PRODUCT_PRICE
-      resultMsg = await this.uploadProductPrice(JSON.parse(productPriceList), uuidResult);
+      resultMsg = await this.uploadProductPrice(productPriceList, uuidResult);
       console.log(`success to upload productPrice(${queryResult.resourceType}).`);
       //Insert TB_PRICE
-      resultMsg = await this.uploadPrice(JSON.parse(priceList), uuidResult);
+      resultMsg = await this.uploadPrice(priceList, uuidResult);
       console.log(`success to upload price(${queryResult.resourceType}).`);
       return resultMsg;
     } catch (err) {
