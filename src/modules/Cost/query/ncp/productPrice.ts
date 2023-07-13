@@ -119,12 +119,9 @@ export default async function getProductPriceQuery(result, clusterUuid) {
   //TODO 하위 List 가공 후 맨 마지막 쉼표 제거, 추후 다른 방식 생기면 수정
   priceList = priceList.substring(0, priceList.length - 1);
 
-  // const tempQuery = '{ "productPriceList": [' + productPriceList + '],' + '"priceList": [' + priceList + ']}';
-
   const productPrice = '{ "productPriceList": [' + productPriceList + ']}'
   const price = '{"priceList": [' + priceList + ']}'
 
-  // console.log('productPriceList =========== \n' + productPrice);
   return { productPriceList: productPrice, priceList: price, resourceType: resourceType, clusterUuid: clusterUuid };
 }
 

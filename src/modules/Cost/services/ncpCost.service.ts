@@ -130,14 +130,12 @@ class NcpCostService {
     const productPriceList = JSON.parse(queryResult.productPriceList)
     const priceList = JSON.parse(queryResult.priceList)
 
-    // console.log(productPriceList)
-    
     try {
       //Insert TB_PRODUCT_PRICE
-      resultMsg = await this.uploadProductPrice(productPriceList, uuidResult);
+      resultMsg = await this.uploadProductPrice(productPriceList.productPriceList, uuidResult);
       console.log(`success to upload productPrice(${queryResult.resourceType}).`);
       //Insert TB_PRICE
-      resultMsg = await this.uploadPrice(priceList, uuidResult);
+      resultMsg = await this.uploadPrice(priceList.priceList, uuidResult);
       console.log(`success to upload price(${queryResult.resourceType}).`);
       return resultMsg;
     } catch (err) {
