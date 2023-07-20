@@ -6,6 +6,7 @@ import crypto from "crypto";
 
 class MetricMetaService {
   public resourceGroup = DB.ResourceGroup
+  public resource = DB.Resource
   private async procMetricMeta(clusterUuid, metricMetaResult): Promise<void> {
     const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
       where: { deletedAt: null, resourceGroupUuid: clusterUuid }
@@ -31,11 +32,53 @@ class MetricMetaService {
         metaHashMap[metricMetaHash] = true
       }
 
-      if (meta["metric_meta_target_instance"]) {
+      // port
+      if (meta["metric_meta_target_instance"].includes(":"+config.metricMeta.specifiedNodePort)) {
+        let nodeKey = meta["metric_meta_target_instance"]
+        if (!resourceKeyCacheMap[nodeKey]) {
+          let resource = await this.resource.findOne({
+            where: {resourceType: "ND", resourceInstance: nodeKey, resourceGroupKey: resourceGroup.resourceGroupKey},
+            attributes: ['resourceKey']
+          })
+          if (!resource) {
+            noResourceMap[nodeKey]++
+            continue
+          } else {
+            resourceKeyCacheMap[nodeKey] = resource.resourceKey
+          }
 
+        }
+
+        if (resourceKeyCacheMap[nodeKey] < 0) {
+          noResourceMap[nodeKey]++
+          continue
+        }
+        meta['resource_key'] = resourceKeyCacheMap[nodeKey]
+
+        // no port
       } else {
+        let svcKey = meta["metric_meta_target_service"+"/"+meta["metric_meta_target"]["namespace"]]
+        if (!resourceKeyCacheMap[svcKey]) {
+          let resource = await this.resource.findOne({
+            where: {resourceType: "SV", resourceName: meta["metric_meta_target_service"], resourceNamespace: meta["metric_meta_target"]["namespace"], resourceGroupKey: resourceGroup.resourceGroupKey},
+            attributes: ['resourceKey']
+          })
+          if (!resource) {
+            noResourceMap[meta["svcKey"]]++
+            continue
+          } else {
+            resourceKeyCacheMap[meta["svcKey"]] = resource.resourceKey
+          }
+        }
 
+        if (resourceKeyCacheMap[meta["svcKey"]] < 0) {
+          noResourceMap[meta["svcKey"]]++
+          continue
+        }
+        meta['resource_key'] = resourceKeyCacheMap[meta["svcKey"]]
       }
+
+      metricMetaList.push(meta)
     }
   }
 
