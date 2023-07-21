@@ -14,128 +14,149 @@ class MetricMetaService {
   public metricMeta = DB.MetricMeta
   public tableIdService = new TableIdService()
 
-  private async procMetricMeta(clusterUuid, metricMetaResult): Promise<void> {
-    const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
-      where: { deletedAt: null, resourceGroupUuid: clusterUuid }
-    })
-
-    if (!resourceGroup) {
-      throw new HttpException(404, `not found resourceGroup(clusterUuid: ${clusterUuid})`)
+  public async uploadMetricMeta(totalMsg) {
+    // 기본 변수
+    const serviceUuid = totalMsg.service_uuid
+    const clusterUuid = totalMsg.cluster_uuid
+    const result = totalMsg.result
+    if (serviceUuid === '') {
+      throw new HttpException(404, 'not found service uuid')
     }
 
-    let metricMetaList: any = []
-    let resourceKeyCacheMap: any = {}
-    let noResourceMap: any = {}
-    let metaHashMap: any = {}
+    if (clusterUuid === '') {
+      throw new HttpException(404, 'not found cluster uuid')
+    }
 
-    for (let data of metricMetaResult) {
-      let meta = this.getMetricMetaQuery(clusterUuid, resourceGroup.customerAccountKey, data)
-      let metricMetaHash = await this.metricMetaToSHA1(meta)
-      meta['metric_meta_hash'] = metricMetaHash
+    return await this.procMetricMeta(clusterUuid, result)
+  }
 
-      if (metaHashMap[metricMetaHash]) {
-        continue
-      } else {
-        metaHashMap[metricMetaHash] = true
+  private async procMetricMeta(clusterUuid, metricMetaResult): Promise<void> {
+    try {
+      const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
+        where: { deletedAt: null, resourceGroupUuid: clusterUuid }
+      })
+
+      if (!resourceGroup) {
+        throw new HttpException(404, `not found resourceGroup(clusterUuid: ${clusterUuid})`)
       }
 
-      // port
-      if (meta["metric_meta_target_instance"].includes(":"+config.metricMeta.specifiedNodePort)) {
-        let nodeKey = meta["metric_meta_target_instance"]
-        if (!resourceKeyCacheMap[nodeKey]) {
-          let resource = await this.resource.findOne({
-            where: {resourceType: "ND", resourceInstance: nodeKey, resourceGroupKey: resourceGroup.resourceGroupKey},
-            attributes: ['resourceKey']
-          })
-          if (!resource) {
+      let metricMetaList: any = []
+      let resourceKeyCacheMap: any = {}
+      let noResourceMap: any = {}
+      let metaHashMap: any = {}
+
+      for (let data of metricMetaResult) {
+        let meta = this.getMetricMetaQuery(clusterUuid, resourceGroup.customerAccountKey, data)
+        let metricMetaHash = await this.metricMetaToSHA1(meta)
+        meta['metric_meta_hash'] = metricMetaHash
+
+        if (metaHashMap[metricMetaHash]) {
+          continue
+        } else {
+          metaHashMap[metricMetaHash] = true
+        }
+
+        // port
+        if (meta["metric_meta_target_instance"].includes(":"+config.metricMeta.specifiedNodePort)) {
+          let nodeKey = meta["metric_meta_target_instance"]
+          if (!resourceKeyCacheMap[nodeKey]) {
+            let resource = await this.resource.findOne({
+              where: {resourceType: "ND", resourceInstance: nodeKey, resourceGroupKey: resourceGroup.resourceGroupKey},
+              attributes: ['resourceKey']
+            })
+            if (!resource) {
+              noResourceMap[nodeKey]++
+              continue
+            } else {
+              resourceKeyCacheMap[nodeKey] = resource.resourceKey
+            }
+
+          }
+
+          if (resourceKeyCacheMap[nodeKey] < 0) {
             noResourceMap[nodeKey]++
             continue
-          } else {
-            resourceKeyCacheMap[nodeKey] = resource.resourceKey
+          }
+          meta['resource_key'] = resourceKeyCacheMap[nodeKey]
+
+          // no port
+        } else {
+          let svcKey = meta["metric_meta_target_service"+"/"+meta["metric_meta_target"]["namespace"]]
+          if (!resourceKeyCacheMap[svcKey]) {
+            let resource = await this.resource.findOne({
+              where: {resourceType: "SV", resourceName: meta["metric_meta_target_service"], resourceNamespace: meta["metric_meta_target"]["namespace"], resourceGroupKey: resourceGroup.resourceGroupKey},
+              attributes: ['resourceKey']
+            })
+            if (!resource) {
+              noResourceMap[meta["svcKey"]]++
+              continue
+            } else {
+              resourceKeyCacheMap[meta["svcKey"]] = resource.resourceKey
+            }
           }
 
-        }
-
-        if (resourceKeyCacheMap[nodeKey] < 0) {
-          noResourceMap[nodeKey]++
-          continue
-        }
-        meta['resource_key'] = resourceKeyCacheMap[nodeKey]
-
-        // no port
-      } else {
-        let svcKey = meta["metric_meta_target_service"+"/"+meta["metric_meta_target"]["namespace"]]
-        if (!resourceKeyCacheMap[svcKey]) {
-          let resource = await this.resource.findOne({
-            where: {resourceType: "SV", resourceName: meta["metric_meta_target_service"], resourceNamespace: meta["metric_meta_target"]["namespace"], resourceGroupKey: resourceGroup.resourceGroupKey},
-            attributes: ['resourceKey']
-          })
-          if (!resource) {
+          if (resourceKeyCacheMap[meta["svcKey"]] < 0) {
             noResourceMap[meta["svcKey"]]++
             continue
-          } else {
-            resourceKeyCacheMap[meta["svcKey"]] = resource.resourceKey
           }
+          meta['resource_key'] = resourceKeyCacheMap[meta["svcKey"]]
         }
 
-        if (resourceKeyCacheMap[meta["svcKey"]] < 0) {
-          noResourceMap[meta["svcKey"]]++
-          continue
+        metricMetaList.push(meta)
+      }
+
+      if (metricMetaList.length === 0) {
+        return
+      }
+
+      let deleteKeys: any = []
+      let existMetasMap: any = []
+      let insertMetas: any = []
+
+      let existMetricMetas = await this.metricMeta.findAll({
+        where: {resourceGroupUuid: clusterUuid}
+      })
+
+      existMetricMetas.forEach(meta => {
+        existMetasMap[meta.metricMetaHash] = meta
+      })
+
+      metricMetaList.forEach(newMeta => {
+        if (!existMetasMap[newMeta.metric_meta_hash]) {
+          insertMetas.push(newMeta)
+        } else {
+          delete existMetasMap[newMeta.metric_meta_hash]
         }
-        meta['resource_key'] = resourceKeyCacheMap[meta["svcKey"]]
+      })
+
+      existMetricMetas.forEach(meta => {
+        deleteKeys.push(meta.metricMetaKey)
+      })
+
+      // delete metric meta
+      if (deleteKeys.length > 0) {
+        await this.metricMeta.destroy({where: {
+            metricMetaKey: {[Op.in]: deleteKeys}
+          }}).catch(e => {console.log(e)})
       }
 
-      metricMetaList.push(meta)
-    }
-
-    if (metricMetaList.length === 0) {
-      return
-    }
-
-    let deleteKeys: any = []
-    let existMetasMap: any = []
-    let insertMetas: any = []
-
-    let existMetricMetas = await this.metricMeta.findAll({
-      where: {resourceGroupUuid: clusterUuid}
-    })
-
-    existMetricMetas.forEach(meta => {
-      existMetasMap[meta.metricMetaHash] = meta
-    })
-
-    metricMetaList.forEach(newMeta => {
-      if (!existMetasMap[newMeta.metric_meta_hash]) {
-        insertMetas.push(newMeta)
-      } else {
-        delete existMetasMap[newMeta.metric_meta_hash]
+      // insert new metric metas
+      const metricMetaTableIdRequest = {tableName: this.metricMeta.tableName, tableIdRange: insertMetas.length}
+      let tableIds = await this.tableIdService.tableIdBulk(metricMetaTableIdRequest)
+      if (!tableIds) {
+        throw new HttpException(404, 'table data is empty')
       }
-    })
 
-    existMetricMetas.forEach(meta => {
-      deleteKeys.push(meta.metricMetaKey)
-    })
+      tableIds.forEach((tableId, index) => {
+        insertMetas[index]['metric_meta_id'] = tableId
+      })
 
-    // delete metric meta
-    if (deleteKeys.length > 0) {
-      await this.metricMeta.destroy({where: {
-          metricMetaKey: {[Op.in]: deleteKeys}
-        }}).catch(e => {console.log(e)})
+      await this.upsertMetricMetaRowQuery(resourceGroup.customerAccountKey, insertMetas)
+
+    } catch (err) {
+      console.log(`failed to processMetricMeta. cause: ${err}`)
+      throw new HttpException(500, `failed to processMetricMeta. cause: ${err}`)
     }
-
-    // insert new metric metas
-    const metricMetaTableIdRequest = {tableName: this.metricMeta.tableName, tableIdRange: insertMetas.length}
-    let tableIds = await this.tableIdService.tableIdBulk(metricMetaTableIdRequest)
-    if (!tableIds) {
-      throw new HttpException(404, 'table data is empty')
-    }
-
-    tableIds.forEach((tableId, index) => {
-      insertMetas[index]['metric_meta_id'] = tableId
-    })
-
-    await this.upsertMetricMetaRowQuery(resourceGroup.customerAccountKey, insertMetas)
-
   }
 
   public async upsertMetricMetaRowQuery(customerAccountKey, metas) {
