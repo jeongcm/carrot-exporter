@@ -3,10 +3,17 @@ import { HttpException } from "@common/exceptions/HttpException";
 import { DB } from "@/database";
 import config from "@/config";
 import crypto from "crypto";
+import { Op } from "sequelize";
+import console from "console";
+import TableIdService from "@common/tableId/tableId";
+import mysql from "mysql2/promise";
 
 class MetricMetaService {
   public resourceGroup = DB.ResourceGroup
   public resource = DB.Resource
+  public metricMeta = DB.MetricMeta
+  public tableIdService = new TableIdService()
+
   private async procMetricMeta(clusterUuid, metricMetaResult): Promise<void> {
     const resourceGroup: IResourceGroup = await this.resourceGroup.findOne({
       where: { deletedAt: null, resourceGroupUuid: clusterUuid }
@@ -80,8 +87,132 @@ class MetricMetaService {
 
       metricMetaList.push(meta)
     }
+
+    if (metricMetaList.length === 0) {
+      return
+    }
+
+    let deleteKeys: any = []
+    let existMetasMap: any = []
+    let insertMetas: any = []
+
+    let existMetricMetas = await this.metricMeta.findAll({
+      where: {resourceGroupUuid: clusterUuid}
+    })
+
+    existMetricMetas.forEach(meta => {
+      existMetasMap[meta.metricMetaHash] = meta
+    })
+
+    metricMetaList.forEach(newMeta => {
+      if (!existMetasMap[newMeta.metric_meta_hash]) {
+        insertMetas.push(newMeta)
+      } else {
+        delete existMetasMap[newMeta.metric_meta_hash]
+      }
+    })
+
+    existMetricMetas.forEach(meta => {
+      deleteKeys.push(meta.metricMetaKey)
+    })
+
+    // delete metric meta
+    if (deleteKeys.length > 0) {
+      await this.metricMeta.destroy({where: {
+          metricMetaKey: {[Op.in]: deleteKeys}
+        }}).catch(e => {console.log(e)})
+    }
+
+    // insert new metric metas
+    const metricMetaTableIdRequest = {tableName: this.metricMeta.tableName, tableIdRange: insertMetas.length}
+    let tableIds = await this.tableIdService.tableIdBulk(metricMetaTableIdRequest)
+    if (!tableIds) {
+      throw new HttpException(404, 'table data is empty')
+    }
+
+    tableIds.forEach((tableId, index) => {
+      insertMetas[index]['metric_meta_id'] = tableId
+    })
+
+    await this.upsertMetricMetaRowQuery(resourceGroup.customerAccountKey, insertMetas)
+
   }
 
+  public async upsertMetricMetaRowQuery(customerAccountKey, metas) {
+    const currentTime = new Date().toISOString().slice(0, 19).replace('T', ' ');
+
+    const query1 = `INSERT INTO MetricMeta (metric_meta_id, created_by,
+                    updated_by, created_at, metric_meta_name,
+                    metric_meta_description, metric_meta_type, metric_meta_unit, metric_meta_target_instance,
+                    metric_meta_target_job, metric_meta_target_service, metric_meta_target_pod, metric_meta_target,
+                    customer_account_key, resource_key, resource_group_uuid, metric_meta_target_metrics_path, metric_meta_hash
+                      ) VALUES ?
+                      ON DUPLICATE KEY UPDATE
+                      updated_by=VALUES(updated_by),
+                      metric_meta_id=VALUES(metric_meta_id),
+                      metric_meta_name=VALUES(metric_meta_name),
+                      metric_meta_description=VALUES(metric_meta_description),
+                      metric_meta_type=VALUES(metric_meta_type),
+                      metric_meta_unit=VALUES(metric_meta_unit),
+                      metric_meta_target_instance=VALUES(metric_meta_target_instance),
+                      metric_meta_target_job=VALUES(metric_meta_target_job),
+                      metric_meta_target_service=VALUES(metric_meta_target_service),
+                      metric_meta_target_pod=VALUES(metric_meta_target_pod),
+                      metric_meta_target=VALUES(metric_meta_target),
+                      customer_account_key=VALUES(customer_account_key),
+                      resource_key=VALUES(resource_key),
+                      resource_group_uuid=VALUES(resource_group_uuid),
+                      metric_meta_target_metrics_path=VALUES(metric_meta_target_metrics_path),
+                      metric_meta_hash=VALUES(metric_meta_hash)
+                      `;
+    const query2 = [];
+    for (let i = 0; i < metas.length; i++) {
+      query2[i] = [
+        metas[i].metric_meta_id,
+        metas[i].created_by,
+        metas[i].updated_by,
+        currentTime,
+        metas[i].metric_meta_name,
+        metas[i].metric_meta_description,
+        metas[i].metric_meta_type,
+        metas[i].metric_meta_unit,
+        metas[i].metric_meta_target_instance,
+        metas[i].metric_meta_target_job,
+        metas[i].metric_meta_target_service,
+        metas[i].metric_meta_target_pod,
+        metas[i].metric_meta_target,
+        customerAccountKey,
+        metas[i].resource_key,
+        metas[i].resource_group_uuid,
+        metas[i].metric_meta_target_metrics_path,
+        metas[i].metric_meta_hash,
+      ]
+    }
+
+    const mysqlConnection = await mysql.createConnection({
+      host: config.db.mariadb.host,
+      user: config.db.mariadb.user,
+      port: config.db.mariadb.port || 3306,
+      password: config.db.mariadb.password,
+      database: config.db.mariadb.dbName,
+      multipleStatements: true,
+    });
+    await mysqlConnection.query('START TRANSACTION');
+    try {
+
+      await mysqlConnection.query(query1, [query2]);
+      await mysqlConnection.query('COMMIT');
+
+      console.log('success upload metricMeta')
+    } catch (err) {
+      await mysqlConnection.query('ROLLBACK');
+      await mysqlConnection.end();
+      console.info('Rollback successful');
+
+      throw `${err}error on sql execution`;
+    }
+    await mysqlConnection.end();
+  }
   private getMetricMetaQuery(clusterUuid, customerAccountKey, data): object {
 
     // prom-client에는 해당 type이 없어서 직접 만듬

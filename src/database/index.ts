@@ -13,6 +13,7 @@ import ResourceGroupModel from '@modules/Resources/models/resourceGroup.model';
 import PartyModel from '@modules/Party/models/party.model';
 import PartyUserModel from '@modules/Party/models/partyUser.model';
 import ResourceEventModel from '@modules/Resources/models/resourceEvent.model';
+import MetricMetaModel from "@modules/Metric/models/metricMeta.model";
 
 const host = config.db.mariadb.host;
 const port = config.db.mariadb.port || 3306;
@@ -150,6 +151,7 @@ export const DB = {
   ResourceEvent: ResourceEventModel(sequelize),
   Party: PartyModel(sequelize),
   PartyUser: PartyUserModel(sequelize),
+  MetricMeta: MetricMetaModel(sequelize),
   // NcpResource: NcpResourceModel(sequelize),
   // NcpResourceGroup: ncpResourceGroupModel(sequelize),
   sequelize, // connection instance (RAW queries)
