@@ -88,18 +88,18 @@ class MetricMetaService {
               attributes: ['resourceKey']
             })
             if (!resource) {
-              noResourceMap[meta["svcKey"]]++
+              noResourceMap[meta[svcKey]]++
               continue
             } else {
-              resourceKeyCacheMap[meta["svcKey"]] = resource.resourceKey
+              resourceKeyCacheMap[meta[svcKey]] = resource.resourceKey
             }
           }
 
-          if (resourceKeyCacheMap[meta["svcKey"]] < 0) {
-            noResourceMap[meta["svcKey"]]++
+          if (resourceKeyCacheMap[meta[svcKey]] < 0) {
+            noResourceMap[meta[svcKey]]++
             continue
           }
-          meta['resource_key'] = resourceKeyCacheMap[meta["svcKey"]]
+          meta['resource_key'] = resourceKeyCacheMap[meta[svcKey]]
         }
 
         metricMetaList.push(meta)
@@ -129,8 +129,9 @@ class MetricMetaService {
         }
       })
 
-      existMetricMetas.forEach(meta => {
-        deleteKeys.push(meta.metricMetaKey)
+      Object.values(existMetasMap).forEach(meta => {
+        let m: any = meta
+        deleteKeys.push(m.metricMetaKey)
       })
 
       // delete metric meta
