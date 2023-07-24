@@ -88,18 +88,18 @@ class MetricMetaService {
               attributes: ['resourceKey']
             })
             if (!resource) {
-              noResourceMap[meta["svcKey"]]++
+              noResourceMap[meta[svcKey]]++
               continue
             } else {
-              resourceKeyCacheMap[meta["svcKey"]] = resource.resourceKey
+              resourceKeyCacheMap[meta[svcKey]] = resource.resourceKey
             }
           }
 
-          if (resourceKeyCacheMap[meta["svcKey"]] < 0) {
-            noResourceMap[meta["svcKey"]]++
+          if (resourceKeyCacheMap[meta[svcKey]] < 0) {
+            noResourceMap[meta[svcKey]]++
             continue
           }
-          meta['resource_key'] = resourceKeyCacheMap[meta["svcKey"]]
+          meta['resource_key'] = resourceKeyCacheMap[meta[svcKey]]
         }
 
         metricMetaList.push(meta)
@@ -129,8 +129,9 @@ class MetricMetaService {
         }
       })
 
-      existMetricMetas.forEach(meta => {
-        deleteKeys.push(meta.metricMetaKey)
+      Object.values(existMetasMap).forEach(meta => {
+        let m: any = meta
+        deleteKeys.push(m.metricMetaKey)
       })
 
       // delete metric meta
@@ -168,23 +169,23 @@ class MetricMetaService {
                     metric_meta_target_job, metric_meta_target_service, metric_meta_target_pod, metric_meta_target,
                     customer_account_key, resource_key, resource_group_uuid, metric_meta_target_metrics_path, metric_meta_hash
                       ) VALUES ?
-                      ON DUPLICATE KEY UPDATE
-                      updated_by=VALUES(updated_by),
-                      metric_meta_id=VALUES(metric_meta_id),
-                      metric_meta_name=VALUES(metric_meta_name),
-                      metric_meta_description=VALUES(metric_meta_description),
-                      metric_meta_type=VALUES(metric_meta_type),
-                      metric_meta_unit=VALUES(metric_meta_unit),
-                      metric_meta_target_instance=VALUES(metric_meta_target_instance),
-                      metric_meta_target_job=VALUES(metric_meta_target_job),
-                      metric_meta_target_service=VALUES(metric_meta_target_service),
-                      metric_meta_target_pod=VALUES(metric_meta_target_pod),
-                      metric_meta_target=VALUES(metric_meta_target),
-                      customer_account_key=VALUES(customer_account_key),
-                      resource_key=VALUES(resource_key),
-                      resource_group_uuid=VALUES(resource_group_uuid),
-                      metric_meta_target_metrics_path=VALUES(metric_meta_target_metrics_path),
-                      metric_meta_hash=VALUES(metric_meta_hash)
+//                       ON DUPLICATE KEY UPDATE
+//                       updated_by=VALUES(updated_by),
+//                       metric_meta_id=VALUES(metric_meta_id),
+//                       metric_meta_name=VALUES(metric_meta_name),
+//                       metric_meta_description=VALUES(metric_meta_description),
+//                       metric_meta_type=VALUES(metric_meta_type),
+//                       metric_meta_unit=VALUES(metric_meta_unit),
+//                       metric_meta_target_instance=VALUES(metric_meta_target_instance),
+//                       metric_meta_target_job=VALUES(metric_meta_target_job),
+//                       metric_meta_target_service=VALUES(metric_meta_target_service),
+//                       metric_meta_target_pod=VALUES(metric_meta_target_pod),
+//                       metric_meta_target=VALUES(metric_meta_target),
+//                       customer_account_key=VALUES(customer_account_key),
+//                       resource_key=VALUES(resource_key),
+//                       resource_group_uuid=VALUES(resource_group_uuid),
+//                       metric_meta_target_metrics_path=VALUES(metric_meta_target_metrics_path),
+//                       metric_meta_hash=VALUES(metric_meta_hash)
                       `;
     const query2 = [];
     for (let i = 0; i < metas.length; i++) {
