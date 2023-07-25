@@ -78,5 +78,9 @@ export default {
 
   alert: {
     alertExpiredDate: process.env.CO_ALERT_EXPIRED_DATE || 60 * 60 * 24 // 1d
+  },
+
+  metricMeta: {
+    specifiedNodePort: '9100'
   }
 };
