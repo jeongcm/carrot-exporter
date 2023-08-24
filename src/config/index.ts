@@ -12,53 +12,53 @@ import * as process from "process";
 validateEnv();
 
 export default {
-  appPort: process.env.CO_AGGREGATOR_PORT || 6001,
-  appUrl: process.env.CO_AGGREGATOR_URL || 'http://localhost',
-  nodeEnv: process.env.CO_AGGREGATOR_ENV || 'development',
+  appPort: process.env.CM_EXPORTER_PORT || 6001,
+  appUrl: process.env.CM_EXPORTER_URL || 'http://localhost',
+  nodeEnv: process.env.CM_EXPORTER_ENV || 'development',
   maxApiBodySize: process.env.CO_MAX_API_BODY_SIZE || '50mb',
-  logFormat: process.env.CO_AGGREGATOR_LOG_FORMAT,
+  logFormat: process.env.CM_EXPORTER_LOG_FORMAT,
   coApi: {
-    url: process.env.CO_API_URL || 'http://localhost',
-    port: process.env.CO_API_PORT || 5001,
+    url: process.env.API_URL || 'http://localhost',
+    port: process.env.API_PORT || 5001,
   },
   cors: {
     allowAnyOrigin:
-      process.env.CO_AGGREGATOR_CORS_ORIGIN === 'true' ? Boolean(process.env.CO_AGGREGATOR_CORS_ORIGIN) : process.env.CO_AGGREGATOR_CORS_ORIGIN,
-    credentials: process.env.CO_AGGREGATOR_CORS_CREDENTIALS === 'true',
+      process.env.CM_EXPORTER_CORS_ORIGIN === 'true' ? Boolean(process.env.CM_EXPORTER_CORS_ORIGIN) : process.env.CM_EXPORTER_CORS_ORIGIN,
+    credentials: process.env.CM_EXPORTER_CORS_CREDENTIALS === 'true',
   },
   db: {
     mariadb: {
-      host: process.env.CO_AGGREGATOR_DB_CONFIG_HOST || 'olly-dev-db.claion.io',
-      port: Number(process.env.CO_AGGREGATOR_DB_CONFIG_PORT) || 3306,
-      user: process.env.CO_AGGREGATOR_DB_CONFIG_USER || 'root',
-      password: process.env.CO_AGGREGATOR_DB_CONFIG_PASSWORD || 'gu7C89wD8X',
-      dbName: process.env.CO_AGGREGATOR_DB_CONFIG_DB_NAME || 'nc_api',
-      ncpDbName: process.env.CO_AGGREGATOR_DB_CONFIG_NCP_DB_NAME || 'ncp_api',
-      poolMin: Number(process.env.CO_AGGREGATOR_DB_CONFIG_POOL_MIN) || 1,
-      poolMax: Number(process.env.CO_AGGREGATOR_DB_CONFIG_POOL_MAX) || 5,
+      host: process.env.CM_EXPORTER_DB_CONFIG_HOST || 'http://localhost',
+      port: Number(process.env.CM_EXPORTER_DB_CONFIG_PORT) || 3306,
+      user: process.env.CM_EXPORTER_DB_CONFIG_USER || 'root',
+      password: process.env.CM_EXPORTER_DB_CONFIG_PASSWORD || '',
+      dbName: process.env.CM_EXPORTER_DB_CONFIG_DB_NAME || 'cm_exporter',
+      ncpDbName: process.env.CM_EXPORTER_DB_CONFIG_NCP_DB_NAME || 'cm_ncp_exporter',
+      poolMin: Number(process.env.CM_EXPORTER_DB_CONFIG_POOL_MIN) || 1,
+      poolMax: Number(process.env.CM_EXPORTER_DB_CONFIG_POOL_MAX) || 5,
     },
   },
 
   logger: {
-    silenceResponse: process.env.CO_AGGREGATOR_LOG_SILENCE_RESPONSE ? process.env.CO_AGGREGATOR_LOG_SILENCE_RESPONSE === 'true' : false,
+    silenceResponse: process.env.CM_EXPORTER_LOG_SILENCE_RESPONSE ? process.env.CM_EXPORTER_LOG_SILENCE_RESPONSE === 'true' : false,
   },
 
   victoriaMetrics: {
-    CO_AGGREGATOR_VM_ADDRESS: process.env.CO_AGGREGATOR_VM_ADDRESS,
+    CM_EXPORTER_VM_ADDRESS: process.env.CM_EXPORTER_VM_ADDRESS,
     CO_VM_SINGLE_ADDRESS: process.env.CO_VM_SINGLE_ADDRESS,
-    CO_AGGREGATOR_VM_API: process.env.CO_AGGREGATOR_VM_API,
-    vmSingleUrl: process.env.CO_AGGREGATOR_VM_SINGLE_ADDRESS || 'http://olly-dev-vm.claion.io:8428',
-    vmMultiUrl: process.env.CO_AGGREGATOR_VM_MULTI_ADDRESS || 'http://olly-dev-vmauth.claion.io:8427',
-    vmImport: process.env.CO_AGGREGATOR_VM_IMPORT || '/api/v1/import?extra_label=clusterUuid=',
+    CM_EXPORTER_VM_API: process.env.CM_EXPORTER_VM_API,
+    vmSingleUrl: process.env.CM_EXPORTER_VM_SINGLE_ADDRESS || 'http://localhost',
+    vmMultiUrl: process.env.CM_EXPORTER_VM_MULTI_ADDRESS || 'http://localhost',
+    vmImport: process.env.CM_EXPORTER_VM_IMPORT || '/api/v1/import?extra_label=clusterUuid=',
     vmMultiBaseUrlInsert:
-      process.env.CO_VM_MULTI_BASE_URL_INSERT || 'http://vm-cluster-victoria-metrics-cluster-vminsert.vm-multi-tenant.svc.cluster.local:8480/insert',
+      process.env.CO_VM_MULTI_BASE_URL_INSERT || 'http://localhost',
     vmMultiBaseUrlSelect:
-      process.env.CO_VM_MULTI_BASE_URL_SELECT || 'http://vm-cluster-victoria-metrics-cluster-vmselect.vm-multi-tenant.svc.cluster.local:8481/select',
-    vmMultiAuthUrl: process.env.CO_VM_MULTI_AUTH_URL || 'http://vm-auth-victoria-metrics-auth.vm-multi-tenant.svc.cluster.local:8427',
+      process.env.CO_VM_MULTI_BASE_URL_SELECT || 'http://localhost',
+    vmMultiAuthUrl: process.env.CO_VM_MULTI_AUTH_URL || 'http://localhost',
     vmMultiNamespaces: process.env.CO_VM_MULTI_NAMESPACE || 'vm-multi-tenant',
     vmMultiSecret: process.env.CO_VM_MULTI_SECRET || 'vm-auth-victoria-metrics-auth',
     vmMultiClusterUuid: process.env.CO_VM_MULTI_CLUSTER_UUID,
-    vmOption: process.env.CO_AGGREGATOR_VM_OPTION || 'SINGLE',
+    vmOption: process.env.CM_EXPORTER_VM_OPTION || 'SINGLE',
     vmOpenstackSwitch: process.env.CO_VM_OPENSTACK_SWITCH || 'off',
   },
 
@@ -73,7 +73,7 @@ export default {
   },
 
   partyUser: {
-    userId: process.env.CO_AGGREGATOR_SYSTEM_PARTYUSER_USERID || 'system@claion.io',
+    userId: process.env.CM_EXPORTER_SYSTEM_PARTYUSER_USERID || 'CARROT',
   },
 
   alert: {

@@ -18,7 +18,7 @@ export default async function getCloudMongoDBInstanceMetric(totalMsg, clusterUui
               aggregation: output.aggregation,
               instanceNo: output.dimensions.instanceNo,
               interval: output.interval,
-              __name__: `co_ncp_${output.metric}`,
+              __name__: `ncp_${output.metric}`,
               metric: output.metric,
               productName: output.productName
             },
