@@ -2,10 +2,10 @@
 FROM node:16-alpine as common-build-stage
 
 ENV WORKDIR=/usr/src/app/ \
-    NAME=claion-aggregator \
-    USER=nexclipperuser \
+    NAME=carrot-exporter \
+    USER=carrot \
     USER_ID=1002 \
-    GROUP=nexclipper
+    GROUP=carrot
 
 WORKDIR ${WORKDIR}
 

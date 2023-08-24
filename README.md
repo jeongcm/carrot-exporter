@@ -43,7 +43,7 @@ CM_PORT="9001"
 CM_URL=http://localhost
 CM_ENV=development
 
-CO_MAX_API_BODY_SIZE=50mb
+CM_MAX_API_BODY_SIZE=50mb
 ########################################
 
 ######## FOR CO-API-DB ########
@@ -74,7 +74,7 @@ CM_SYSTEM_PARTYUSER_EMAIL=
 CM_VM_SINGLE_ADDRESS=localhost:8428
 CM_VM_MULTI_ADDRESS=localhost:8428
 CM_VM_IMPORT=/api/v1/import?extra_label=clusterUuid=
-CO_VM_OPTION=SINGLE
+CM_VM_OPTION=SINGLE
 ################################################
 
 ######## FOR LOCAL LOGFILE ########
@@ -87,10 +87,10 @@ CM_LOG_FORMAT=combined
 CM_CORS_ORIGIN=true
 CM_CORS_CREDENTIALS=true
 
-CO_TURN_OFF_TELEMETRY=true
+CM_TURN_OFF_TELEMETRY=true
 CM_LOG_SILENCE_RESPONSE=true
-CO_PAGINATION_LIMIT=10
-CO_PAGINATION_PAGE=0
+CM_PAGINATION_LIMIT=10
+CM_PAGINATION_PAGE=0
 
 ```
 
