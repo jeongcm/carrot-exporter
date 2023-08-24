@@ -13,7 +13,7 @@ export default async function getPodListQuery(result, clusterUuid) {
 
     let podPhase = result.items[i].status.phase
     result.items[i].status.conditions.forEach(condition => {
-      if (condition.type === 'ContainersReady' && condition.reason !== 'PodCompleted' && condition.status !== 'True') {
+      if (podPhase === 'Running' && condition.type === 'ContainersReady' && condition.reason !== 'PodCompleted' && condition.status !== 'True') {
         podPhase = 'Waiting'
       }
     })
